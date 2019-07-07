@@ -16,6 +16,7 @@ namespace TheraEngine
     /// <summary>
     /// Contains all information needed to run any game using the engine.
     /// </summary>
+    [Serializable]
     [TFileExt("tgame")]
     [TFileDef("Game Info", "Contains all information needed to run any game using the engine.")]
     public class TGame : TFileObject
@@ -130,6 +131,7 @@ namespace TheraEngine
     /// <summary>
     /// Contains all information pertaining to the game's current state in the engine.
     /// </summary>
+    [Serializable]
     [TFileExt("state")]
     [TFileDef("Game State")]
     public class GameState : TFileObject

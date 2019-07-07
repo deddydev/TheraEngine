@@ -4,6 +4,7 @@ using System.Threading;
 
 namespace System.Collections.Generic
 {
+    [Serializable]
     public class ThreadSafeList<T> : List<T>
     {
         protected ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);

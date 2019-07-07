@@ -385,21 +385,21 @@ namespace TheraEditor.Windows.Forms
             if (string.IsNullOrWhiteSpace(projectPath))
                 return;
 
-            RemoteAction.Invoke(AppDomainHelper.GetGameAppDomain(), DefaultSettingsRef, projectPath, async (dsr, pp) =>
-            {
-                var defaultSettings = await dsr.GetInstanceAsync().ConfigureAwait(false);
-                var list = defaultSettings.RecentlyOpenedProjectPaths;
-                if (list != null)
-                {
-                    if (list.Contains(pp))
-                        list.Remove(pp);
-                    list.Add(pp);
-                }
-                else
-                    defaultSettings.RecentlyOpenedProjectPaths = new List<string>() { pp };
+            //RemoteAction.Invoke(AppDomainHelper.GetGameAppDomain(), DefaultSettingsRef, projectPath, async (dsr, pp) =>
+            //{
+            //    var defaultSettings = await dsr.GetInstanceAsync().ConfigureAwait(false);
+            //    var list = defaultSettings.RecentlyOpenedProjectPaths;
+            //    if (list != null)
+            //    {
+            //        if (list.Contains(pp))
+            //            list.Remove(pp);
+            //        list.Add(pp);
+            //    }
+            //    else
+            //        defaultSettings.RecentlyOpenedProjectPaths = new List<string>() { pp };
 
-                await defaultSettings.ExportAsync().ConfigureAwait(false);
-            });
+            //    await defaultSettings.ExportAsync().ConfigureAwait(false);
+            //});
         }
         protected override void OnKeyDown(KeyEventArgs e)
         {

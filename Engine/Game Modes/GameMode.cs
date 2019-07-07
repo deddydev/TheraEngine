@@ -132,6 +132,7 @@ namespace TheraEngine.GameModes
         void DestroyLocalPlayerControllers();
         void FoundInput(InputDevice device);
     }
+    [Serializable]
     [TFileExt("gm")]
     [TFileDef("Game Mode", "")]
     public abstract class BaseGameMode : TFileObject, IGameMode

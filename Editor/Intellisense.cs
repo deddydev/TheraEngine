@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using TheraEditor.Windows.Forms;
 
 namespace TheraEditor
 {
+    [Serializable]
     public sealed class Intellisense
     {
         public enum EDataType
@@ -19,12 +21,14 @@ namespace TheraEditor
         /// <summary>
         /// Contains information for where a type is declared.
         /// </summary>
+        [Serializable]
         public class ScriptDeclareInfo
         {
             public string FileDeclaredInPath { get; set; }
             public int LineNumberStart { get; set; }
             public int LineNumberEnd { get; set; }
         }
+        [Serializable]
         public class ScriptArgument
         {
             public string TypeName { get; set; }
@@ -36,11 +40,13 @@ namespace TheraEditor
             public ScriptTypeInfo GetTypeInfo()
                 => Editor.Instance.Project?.Intellisense?.GetTypeInfo(TypeName);
         }
+        [Serializable]
         public class ScriptConstructionSpecialArgument
         {
             public string MemberName { get; set; }
 
         }
+        [Serializable]
         public class ScriptAttributeInfo
         {
             public string TypeName { get; set; }
@@ -51,6 +57,7 @@ namespace TheraEditor
             public ScriptTypeInfo GetTypeInfo()
                 => Editor.Instance.Project?.Intellisense?.GetTypeInfo(TypeName);
         }
+        [Serializable]
         public class ScriptNamespace
         {
             /// <summary>
@@ -81,12 +88,14 @@ namespace TheraEditor
                     return ParentNamespace + "." + Name;
             }
         }
+        [Serializable]
         public class ScriptMemberInfo
         {
             public string MemberName { get; set; }
             public int PtrCount { get; set; } //*
             public int DerefPtrCount { get; set; } //&
         }
+        [Serializable]
         public abstract class ScriptTypeInfo
         {
             public string TypeName { get; set; }
@@ -107,6 +116,7 @@ namespace TheraEditor
             public ScriptNamespace GetOwningNamespaceInfo()
                 => Editor.Instance.Project?.Intellisense?.GetNamespaceInfo(OwningNamespace);
         }
+        [Serializable]
         public abstract class ScriptClassStructTypeInfo : ScriptTypeInfo
         {
             /// <summary>
@@ -115,50 +125,60 @@ namespace TheraEditor
             public Dictionary<string, ScriptMemberInfo> Members { get; set; }
             public override bool CanResideInNamespace => true;
         }
+        [Serializable]
         public class ScriptClassTypeInfo : ScriptClassStructTypeInfo
         {
             public override EDataType Type => EDataType.Class;
             public bool IsPartial { get; set; }
             public ScriptDeclareInfo[] PartialDeclareInfos { get; set; }
         }
+        [Serializable]
         public class ScriptStructTypeInfo : ScriptClassStructTypeInfo
         {
             public override EDataType Type => EDataType.Struct;
         }
+        [Serializable]
         public class ScriptEnumTypeInfo : ScriptTypeInfo
         {
             public override EDataType Type => EDataType.Enum;
             public override bool CanResideInNamespace => true;
         }
+        [Serializable]
         public class ScriptInterfaceTypeInfo : ScriptTypeInfo
         {
             public override EDataType Type => EDataType.Interface;
             public override bool CanResideInNamespace => true;
         }
+        [Serializable]
         public class ScriptDelegateTypeInfo : ScriptTypeInfo
         {
             public override EDataType Type => EDataType.Delegate;
             public override bool CanResideInNamespace => true;
         }
+        [Serializable]
         public class ScriptEventTypeInfo : ScriptTypeInfo
         {
             public override EDataType Type => EDataType.Event;
             public override bool CanResideInNamespace => false;
         }
+        [Serializable]
         public class ScriptMethodTypeInfo : ScriptTypeInfo
         {
             public override EDataType Type => EDataType.Method;
             public override bool CanResideInNamespace => false;
             public ScriptMethodBody Body { get; set; }
         }
+        [Serializable]
         public class ScriptMethodLocalVar
         {
 
         }
+        [Serializable]
         public class ScriptMethodBody
         {
 
         }
+        [Serializable]
         public class ScriptModifiers
         {
             public bool Public { get; set; }

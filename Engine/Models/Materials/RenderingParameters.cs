@@ -142,6 +142,7 @@ namespace TheraEngine.Rendering.Models.Materials
     //    //[TSerialize(Condition = "Enabled")]
     //    //public ELogicGate LogicGate { get => _logicGate; set => _logicGate = value; }
     //}
+    [Serializable]
     public class StencilTestFace
     {
         [TSerialize(NodeType = ENodeType.Attribute)]
@@ -164,6 +165,7 @@ namespace TheraEngine.Rendering.Models.Materials
             return string.Format("{0} Ref:{1} Read Mask:{2} Write Mask:{3}", Func, Ref, ReadMask, WriteMask);
         }
     }
+    [Serializable]
     public class StencilTest
     {
         private StencilTestFace 

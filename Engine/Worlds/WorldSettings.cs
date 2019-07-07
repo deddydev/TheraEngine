@@ -52,6 +52,7 @@ namespace TheraEngine.Worlds
     public delegate void GameModeChange(WorldSettings settings, IGameMode oldMode);
     public delegate void TimeMultiplierChange(WorldSettings settings, float oldMult);
 
+    [Serializable]
     [TFileExt("wset")]
     [TFileDef("World Settings")]
     public class WorldSettings : TFileObject, IWorldSettings

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
 namespace TheraEngine
 {
@@ -45,6 +46,7 @@ namespace TheraEngine
         Fixed,
         Sizable,
     }
+    [Serializable]
     [TFileDef("User Settings")]
     public class UserSettings : TSettings
     {

@@ -31,9 +31,9 @@ namespace TheraEngine.Core.Files
         /// </summary>
         GameRelative,
     }
-    [Serializable]
     [TFileDef("Path Reference", "Stores a path relative to a certain origin.")]
     [TFileExt("path")]
+    [Serializable]
     public class PathReference : TFileObject
     {
         public delegate void DelPathChange(string oldPath, string newPath);

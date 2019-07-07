@@ -10,6 +10,7 @@ namespace TheraEditor
     /// <summary>
     /// Stores all information on the state of the project within the editor.
     /// </summary>
+    [Serializable]
     [TFileExt("state")]
     [TFileDef("Project State")]
     public class ProjectState : TFileObject

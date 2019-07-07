@@ -4,6 +4,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Text
 {
+    [Serializable]
     public class LocalizedStringTable
     {
         [TSerialize]

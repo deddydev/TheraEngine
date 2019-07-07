@@ -27,6 +27,7 @@ namespace TheraEditor
     /// <summary>
     /// Extension of the game class for use with the editor.
     /// </summary>
+    [Serializable]
     [TFileExt("tproj", PreferredFormat = EProprietaryFileFormat.XML)]
     [TFileDef("Thera Engine Project")]
     public class TProject : TGame
@@ -744,6 +745,7 @@ namespace TheraEditor
 
         public event DelCompileBegun CompileStarted;
         public event DelCompileResult CompileCompleted;
+
         [TSerialize]
         public string IntermediateBuildDirectory { get; private set; } = "obj";
 
@@ -930,6 +932,7 @@ namespace TheraEditor
             RecursiveCollect(SourceDirectory, ref codeFiles, ref contentFiles, ref references);
         }
 
+        [Serializable]
         public class EngineBuildLogger : ILogger
         {
             public List<BuildErrorEventArgs> Errors { get; private set; }

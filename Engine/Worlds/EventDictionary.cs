@@ -5,6 +5,7 @@ using System.Security;
 
 namespace TheraEngine.Worlds
 {
+    [Serializable]
     public class EventDictionary<TKey, TValue> : Dictionary<TKey, TValue>
     {
         public EventDictionary() : base() { }

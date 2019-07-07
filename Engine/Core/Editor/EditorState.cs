@@ -14,6 +14,7 @@ namespace TheraEngine.Editor
     public delegate void DelPropertyChange(EditorState state, string propertyValue, object oldValue, object newValue);
     public delegate void DelHighlightingChange(bool isHighlighted);
     public delegate void DelSelectedChange(bool isSelected);
+    [Serializable]
     public class EditorState : TObject
     {
         public EditorState(IObject obj) => Object = obj;
@@ -150,9 +151,9 @@ namespace TheraEngine.Editor
         //    IsDirty = true;
         //}
 
-        private static Dictionary<int, StencilTest> 
-            _highlightedMaterials = new Dictionary<int, StencilTest>(), 
-            _selectedMaterials = new Dictionary<int, StencilTest>();
+        //private static Dictionary<int, StencilTest> 
+        //    _highlightedMaterials = new Dictionary<int, StencilTest>(), 
+        //    _selectedMaterials = new Dictionary<int, StencilTest>();
         internal static void RegisterHighlightedMaterial(TMaterial m, bool highlighted, IScene scene)
         {
             //if (m == null)
@@ -237,30 +238,30 @@ namespace TheraEngine.Editor
         //        ReadMask = 0,
         //    },
         //};
-        public static StencilTest OutlinePassStencil = new StencilTest()
-        {
-            Enabled = ERenderParamUsage.Enabled,
-            BackFace = new StencilTestFace()
-            {
-                BothFailOp = EStencilOp.Keep,
-                StencilPassDepthFailOp = EStencilOp.Replace,
-                BothPassOp = EStencilOp.Replace,
-                Func = EComparison.Always,
-                Ref = 1,
-                WriteMask = 0xFF,
-                ReadMask = 0xFF,
-            },
-            FrontFace = new StencilTestFace()
-            {
-                BothFailOp = EStencilOp.Keep,
-                StencilPassDepthFailOp = EStencilOp.Replace,
-                BothPassOp = EStencilOp.Replace,
-                Func = EComparison.Always,
-                Ref = 1,
-                WriteMask = 0xFF,
-                ReadMask = 0xFF,
-            },
-        };
+        //public static StencilTest OutlinePassStencil = new StencilTest()
+        //{
+        //    Enabled = ERenderParamUsage.Enabled,
+        //    BackFace = new StencilTestFace()
+        //    {
+        //        BothFailOp = EStencilOp.Keep,
+        //        StencilPassDepthFailOp = EStencilOp.Replace,
+        //        BothPassOp = EStencilOp.Replace,
+        //        Func = EComparison.Always,
+        //        Ref = 1,
+        //        WriteMask = 0xFF,
+        //        ReadMask = 0xFF,
+        //    },
+        //    FrontFace = new StencilTestFace()
+        //    {
+        //        BothFailOp = EStencilOp.Keep,
+        //        StencilPassDepthFailOp = EStencilOp.Replace,
+        //        BothPassOp = EStencilOp.Replace,
+        //        Func = EComparison.Always,
+        //        Ref = 1,
+        //        WriteMask = 0xFF,
+        //        ReadMask = 0xFF,
+        //    },
+        //};
         //public static TMaterial FocusedMeshMaterial;
         //private static void M_PreRendered(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix, TMaterial material, BaseRenderableMesh.PreRenderCallback callback)
         //{
@@ -280,6 +281,7 @@ namespace TheraEngine.Editor
         //    FocusedMeshMaterial.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
         //}
     }
+    [Serializable]
     public class EngineEditorState
     {
         /// <summary>
@@ -292,6 +294,7 @@ namespace TheraEngine.Editor
     /// <summary>
     /// Contains information pertaining to a change in a global setting.
     /// </summary>
+    [Serializable]
     public class GlobalValueChange
     {
         public List<(EditorState State, int ChangeIndex)> ChangedStates { get; set; }
@@ -356,6 +359,7 @@ namespace TheraEngine.Editor
     /// <summary>
     /// Contains information pertaining to a change on a specific object.
     /// </summary>
+    [Serializable]
     public abstract class LocalValueChange
     {
         public LocalValueChange(object oldValue, object newValue)
@@ -375,6 +379,7 @@ namespace TheraEngine.Editor
 
         public override string ToString() => DisplayChangeAsRedo();
     }
+    [Serializable]
     public class LocalValueChangeIList : LocalValueChange
     {
         public LocalValueChangeIList(object oldValue, object newValue, IList list, int index) : base(oldValue, newValue)
@@ -405,6 +410,7 @@ namespace TheraEngine.Editor
                 OldValue?.ToString() ?? "null", NewValue?.ToString() ?? "null");
         }
     }
+    [Serializable]
     public class LocalValueChangeField : LocalValueChange
     {
         public LocalValueChangeField(object oldValue, object newValue, object fieldOwner, FieldInfo fieldInfo) : base(oldValue, newValue)
@@ -437,6 +443,7 @@ namespace TheraEngine.Editor
               NewValue == null ? "null" : NewValue.ToString());
         }
     }
+    [Serializable]
     public class LocalValueChangeProperty : LocalValueChange
     {
         public LocalValueChangeProperty(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo) : base(oldValue, newValue)
@@ -469,6 +476,7 @@ namespace TheraEngine.Editor
               NewValue == null ? "null" : NewValue.ToString());
         }
     }
+    [Serializable]
     public class LocalValueChangeIDictionary : LocalValueChange
     {
         public IDictionary DictionaryOwner { get; set; }

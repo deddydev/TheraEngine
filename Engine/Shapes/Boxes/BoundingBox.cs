@@ -13,6 +13,7 @@ namespace TheraEngine.Core.Shapes
     /// <summary>
     /// Axis-Aligned Bounding Box (AABB)
     /// </summary>
+    [Serializable]
     [TFileDef("Axis-Aligned Bounding Box")]
     public class BoundingBox : TShape
     {

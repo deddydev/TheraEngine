@@ -9,6 +9,7 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Animation
 {
+    [Serializable]
     [TFileExt("pkc", ManualXmlConfigSerialize = true)]
     [TFileDef("Perspective Camera Key Collection")]
     public class PerspCamKeyCollection : TFileObject

@@ -70,6 +70,7 @@ namespace TheraEngine
         //    //}
         //}
     }
+    [Serializable]
     [TFileDef("Engine Settings")]
     public class EngineSettings : TSettings
     {

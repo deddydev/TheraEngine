@@ -1,4 +1,5 @@
 ﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -10,12 +11,14 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine.Animation.Cutscenes
 {
+    [Serializable]
     public class WorldObjectReference
     {
         public string WorldPath { get; set; }
         public int MapIndex { get; set; }
         public string ActorKey { get; set; }
     }
+    [Serializable]
     [TFileExt("cut")]
     [TFileDef("Cutscene")]
     public class Cutscene : BaseAnimation
@@ -223,6 +226,7 @@ namespace TheraEngine.Animation.Cutscenes
             }
         }
     }
+    [Serializable]
     [TFileExt("clip")]
     [TFileDef("Animation Clip")]
     public class Clip<T> : TFileObject where T : BaseAnimation

@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering.DirectX
 
         protected class DXThreadSubContext : ThreadSubContext
         {
-            private VSyncMode _vsyncMode = VSyncMode.Adaptive;
+            private EVSyncMode _vsyncMode = EVSyncMode.Adaptive;
             
             public RasterizerState RasterState { get; private set; }
             public DX11.Device Device { get; private set; }
@@ -143,7 +143,7 @@ namespace TheraEngine.Rendering.DirectX
                 DeviceContext.Rasterizer.SetViewport(0, 0, Size.X, Size.Y, 0, 1);
             }
             
-            internal override void VsyncChanged(VSyncMode vsyncMode)
+            internal override void VsyncChanged(EVSyncMode vsyncMode)
             {
                 _vsyncMode = vsyncMode;
 

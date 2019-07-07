@@ -1,0 +1,4 @@
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard1.0\NativeInterop.csprojAssemblyReference.cache
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard1.0\NativeInterop.csproj.CoreCompileInputs.cache
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard1.0\NativeInterop.AssemblyInfoInputs.cache
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard1.0\NativeInterop.AssemblyInfo.cs

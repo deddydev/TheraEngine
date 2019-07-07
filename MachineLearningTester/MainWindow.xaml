@@ -7,5 +7,14 @@
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="789.307">
-    <lvc:CartesianChart Name="Graph" Series="{Binding SeriesCollection}" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Menu x:Name="Menu" Margin="0">
+            <MenuItem Header="File"></MenuItem>
+        </Menu>
+        <lvc:CartesianChart Name="Graph" Series="{Binding SeriesCollection}" Grid.Row="1" />
+    </Grid>
 </Window>

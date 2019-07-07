@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using TheraEngine.Core.Memory;
@@ -35,7 +36,7 @@ namespace TheraEngine.ThirdParty.PMX
                     Header* pmx = (Header*)baseAddr;
 
                     string magic = "PMX ";
-                    magic.Write(pmx->_magic, false);
+                    magic.Write((IntPtr)pmx->_magic, false);
 
                     pmx->_version = 2.1f;
                     pmx->_globalsCount = 8;

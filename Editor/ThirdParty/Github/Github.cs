@@ -1,4 +1,5 @@
-﻿using Octokit;
+﻿using Extensions;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

@@ -15,6 +15,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
 using TheraEngine.Rendering.UI;
+using Extensions;
 
 namespace TheraEditor.Windows.Forms
 {

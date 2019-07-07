@@ -1,9 +1,10 @@
 ﻿using AppDomainToolkit;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using TheraEngine.Core.Reflection;
 
-namespace System
+namespace Extensions
 {
     public static unsafe class AppDomainExtension
     {

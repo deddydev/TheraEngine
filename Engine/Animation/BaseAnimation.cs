@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.ComponentModel;
-using TheraEngine.Core.Reflection.Attributes.Serialization;
-using TheraEngine.Core.Files;
-using TheraEngine.Input.Devices;
 using TheraEngine.Core.Attributes;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Animation
 {

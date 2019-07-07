@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
+using Extensions;
 
 namespace TheraEngine.Core.Files.XML
 {

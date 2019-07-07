@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using TheraEditor.Core.Extensions;
 using TheraEngine;
 using TheraEngine.Core.Maths;
 using TheraEngine.Timers;

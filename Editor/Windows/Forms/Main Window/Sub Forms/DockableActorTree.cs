@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using TheraEditor.Core.Extensions;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Core.Files;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 

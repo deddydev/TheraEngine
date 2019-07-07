@@ -1,5 +1,5 @@
-﻿using ObjLoader.Loader.TypeParsers.Interfaces;
-using System;
+﻿using Extensions;
+using ObjLoader.Loader.TypeParsers.Interfaces;
 
 namespace ObjLoader.Loader.TypeParsers
 {

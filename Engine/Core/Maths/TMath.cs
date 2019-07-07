@@ -1,8 +1,8 @@
-﻿using static System.Math;
-using TheraEngine.Core.Maths.Transforms;
+﻿using Extensions;
 using System.Linq;
-using TheraEngine;
 using System.Numerics;
+using TheraEngine.Core.Maths.Transforms;
+using static System.Math;
 
 namespace System
 {

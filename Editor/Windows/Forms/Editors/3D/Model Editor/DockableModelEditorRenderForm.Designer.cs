@@ -40,7 +40,7 @@ namespace TheraEditor.Windows.Forms
             this.RenderPanel.Name = "RenderPanel";
             this.RenderPanel.Size = new System.Drawing.Size(740, 573);
             this.RenderPanel.TabIndex = 0;
-            this.RenderPanel.VsyncMode = TheraEngine.VSyncMode.Disabled;
+            this.RenderPanel.VsyncMode = TheraEngine.EVSyncMode.Disabled;
             //this.RenderPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragDrop);
             //this.RenderPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragEnter);
             //this.RenderPanel.DragOver += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragOver);

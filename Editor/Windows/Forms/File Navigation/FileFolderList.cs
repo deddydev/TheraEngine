@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
-using System.IO;
-using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using TheraEngine;
-using Core.Win32.Native;
+using WindowsNativeInterop;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -431,7 +431,7 @@ namespace TheraEditor.Windows.Forms
             uint dwFileAttributes = FILE_ATTRIBUTE.FILE_ATTRIBUTE_NORMAL;
             uint uFlags = SHGFI.SHGFI_TYPENAME | SHGFI.SHGFI_USEFILEATTRIBUTES;
             SHFILEINFO shinfo = new SHFILEINFO();
-            IntPtr n = NativeMethods.SHGetFileInfo(fullpath, dwFileAttributes, ref shinfo, (uint)Marshal.SizeOf(shinfo), uFlags);
+            NativeMethods.SHGetFileInfo(fullpath, dwFileAttributes, ref shinfo, (uint)Marshal.SizeOf(shinfo), uFlags);
 
             return shinfo.szTypeName;
         }
@@ -446,13 +446,13 @@ namespace TheraEditor.Windows.Forms
             if (use16)
             {
                 //Use this to get the small Icon
-                hImgSmall = NativeMethods.SHGetFileInfo(fullpath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), NativeConstants.SHGFI_ICON | NativeConstants.SHGFI_SMALLICON);
+                NativeMethods.SHGetFileInfo(fullpath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), NativeConstants.SHGFI_ICON | NativeConstants.SHGFI_SMALLICON);
                 ico = Icon.FromHandle(shinfo.hIcon);
             }
             else
             {
                 //Use this to get the large Icon
-                hImgLarge = NativeMethods.SHGetFileInfo(fullpath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), NativeConstants.SHGFI_ICON | NativeConstants.SHGFI_LARGEICON);
+                NativeMethods.SHGetFileInfo(fullpath, 0, ref shinfo, (uint)Marshal.SizeOf(shinfo), NativeConstants.SHGFI_ICON | NativeConstants.SHGFI_LARGEICON);
                 ico = Icon.FromHandle(shinfo.hIcon);
             }            
 

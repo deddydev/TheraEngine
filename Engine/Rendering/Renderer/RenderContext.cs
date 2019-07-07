@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering
         public int Width { get; private set; }
         public int Height { get; private set; }
 
-        private VSyncMode _vsyncMode;
+        private EVSyncMode _vsyncMode;
         private static RenderContext _current;
         public static RenderContext Captured
         {
@@ -50,7 +50,7 @@ namespace TheraEngine.Rendering
         public BaseRenderPanel Control => _control;
         public List<BaseRenderObject.ContextBind> States { get; } = new List<BaseRenderObject.ContextBind>();
 
-        public VSyncMode VSyncMode
+        public EVSyncMode VSyncMode
         {
             get => _vsyncMode;
             set
@@ -83,7 +83,7 @@ namespace TheraEngine.Rendering
             public abstract void OnResized(IVec2 size);
             public abstract void SetCurrent(bool current);
             public abstract void Dispose();
-            internal abstract void VsyncChanged(VSyncMode vsyncMode);
+            internal abstract void VsyncChanged(EVSyncMode vsyncMode);
         }
 
         protected ConcurrentDictionary<int, ThreadSubContext> _subContexts = new ConcurrentDictionary<int, ThreadSubContext>();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -172,7 +173,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                 if (mipLevel < 0)
                     for (int i = 0; i < Mipmaps.Length; ++i, width /= 2, height /= 2)
                         Mipmaps[i] = Mipmaps[i].Resized(width, height);
-                else if (Mipmaps.IndexInArrayRange(mipLevel))
+                else if (Mipmaps.IndexInRange(mipLevel))
                     Mipmaps[mipLevel] = Mipmaps[mipLevel].Resized(width, height);
             }
 

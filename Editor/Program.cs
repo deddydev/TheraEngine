@@ -1,15 +1,12 @@
 ﻿using AppDomainToolkit;
-using Core.Win32.Native;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
-using TheraEngine;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Proxies;
 using TheraEngine.Editor;

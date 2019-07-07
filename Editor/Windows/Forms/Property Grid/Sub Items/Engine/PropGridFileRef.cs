@@ -1,9 +1,9 @@
-﻿using System;
-using System.Windows.Forms;
-using TheraEngine.Core.Files;
-using TheraEditor.Wrappers;
+﻿using Extensions;
+using System;
 using System.Drawing;
-using TheraEngine.Core.Files.Serialization;
+using System.Windows.Forms;
+using TheraEditor.Wrappers;
+using TheraEngine.Core.Files;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {

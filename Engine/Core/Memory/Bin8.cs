@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Runtime.InteropServices;
 
 namespace TheraEngine.Core.Memory

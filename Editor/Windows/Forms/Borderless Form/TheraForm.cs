@@ -1,5 +1,5 @@
 ﻿using BorderlessForm;
-using Core.Win32.Native;
+using WindowsNativeInterop;
 using System;
 using System.ComponentModel;
 using System.Drawing;

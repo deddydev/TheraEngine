@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -936,7 +937,7 @@ void main()
             //TODO: if a keyframe is dragged past another, its index changes but these indices are not updated
             if (ClosestPositionIndices != null)
                 foreach (int index in ClosestPositionIndices)
-                    if (KeyframeInOutPosInOutTan?.IndexInArrayRange(index) ?? false)
+                    if (KeyframeInOutPosInOutTan?.IndexInRange(index) ?? false)
                         Engine.Renderer.RenderPoint(Vec3.TransformPosition(KeyframeInOutPosInOutTan[index], BaseTransformComponent.WorldMatrix), Color.Yellow, false, 10.0f);
 
             base.RenderMethod();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using TheraEngine.Core.Maths;
 
 namespace TheraEngine.Animation

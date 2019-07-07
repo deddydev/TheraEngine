@@ -1,15 +1,15 @@
-﻿using TheraEngine.Core.Files;
-using TheraEngine.Input;
-using TheraEngine.Actors;
+﻿using Extensions;
 using System;
 using System.Collections.Generic;
-using TheraEngine.Input.Devices;
-using System.Linq;
-using System.ComponentModel;
-using TheraEngine.Worlds;
-using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Rendering;
 using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Linq;
+using TheraEngine.Actors;
+using TheraEngine.Core.Files;
+using TheraEngine.Input;
+using TheraEngine.Input.Devices;
+using TheraEngine.Rendering;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.GameModes
 {

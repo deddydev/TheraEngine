@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.ComponentModel;
 
 namespace TheraEngine.Animation
@@ -142,7 +143,7 @@ namespace TheraEngine.Animation
         /// <returns>The value at the specified frame.</returns>
         public TValue GetValueBakedByFrame(int frame)
         {
-            if (!_baked.IndexInArrayRange(frame))
+            if (!_baked.IndexInRange(frame))
                 return new TValue();
             return _baked[frame.Clamp(0, _baked.Length - 1)];
         }

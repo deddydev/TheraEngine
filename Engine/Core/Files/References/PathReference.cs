@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection.Attributes;
+using Extensions;
 
 namespace TheraEngine.Core.Files
 {

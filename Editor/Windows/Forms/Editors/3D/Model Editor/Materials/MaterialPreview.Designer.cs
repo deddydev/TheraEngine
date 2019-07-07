@@ -39,7 +39,7 @@
             this.basicRenderPanel1.Name = "basicRenderPanel1";
             this.basicRenderPanel1.Size = new System.Drawing.Size(524, 498);
             this.basicRenderPanel1.TabIndex = 0;
-            this.basicRenderPanel1.VsyncMode = TheraEngine.VSyncMode.Adaptive;
+            this.basicRenderPanel1.VsyncMode = TheraEngine.EVSyncMode.Adaptive;
             // 
             // MaterialPreviewControl
             // 

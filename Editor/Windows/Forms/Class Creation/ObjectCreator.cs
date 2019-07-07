@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms
@@ -448,7 +448,7 @@ namespace TheraEditor.Windows.Forms
                     ConstructedObject = chkBoolean.Checked;
                     break;
                 case EObjectCreatorMode.Object:
-                    object[] paramData = FinalArguments.IndexInArrayRange(ConstructorIndex) ? FinalArguments[ConstructorIndex] : null;
+                    object[] paramData = FinalArguments.IndexInRange(ConstructorIndex) ? FinalArguments[ConstructorIndex] : null;
                     if (ConstructorIndex < PublicInstanceConstructors.Length)
                     {
                         if (paramData == null || paramData.Length == 0)
@@ -696,7 +696,7 @@ namespace TheraEditor.Windows.Forms
             {
                 TypeInfo info = ClassType.GetTypeInfo();
                 int argIndex = Array.FindIndex(info.GenericTypeParameters, x => x == type);
-                if (_genericTypeArgs.IndexInArrayRange(argIndex))
+                if (_genericTypeArgs.IndexInRange(argIndex))
                     type = _genericTypeArgs[argIndex];
             }
             ArgumentInfo arg = new ArgumentInfo()
@@ -973,7 +973,7 @@ namespace TheraEditor.Windows.Forms
                             {
                                 TypeInfo info = ClassType.GetTypeInfo();
                                 int argIndex = Array.FindIndex(info.GenericTypeParameters, x => x == argType);
-                                if (_genericTypeArgs.IndexInArrayRange(argIndex))
+                                if (_genericTypeArgs.IndexInRange(argIndex))
                                     argType = _genericTypeArgs[argIndex];
                             }
                             object o = Editor.UserCreateInstanceOf(argType, true, this);

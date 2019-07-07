@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -153,8 +154,8 @@ namespace TheraEngine.Rendering.Text
                                 int length = endBracketIndex - index;
 
                                 string varCode = str.Substring(index, length);
+                                string name;
                                 //string format = null;
-                                string name = null;
 
                                 int formatSplitter = varCode.IndexOf(':');
                                 if (formatSplitter > 0)

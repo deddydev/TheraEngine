@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using Extensions;
 
 namespace TheraEngine.Core.Files.Serialization
 {

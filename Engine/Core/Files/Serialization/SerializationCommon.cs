@@ -12,6 +12,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Tools;
+using Extensions;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -234,7 +235,7 @@ namespace TheraEngine.Core.Files.Serialization
                     {
                         IList list = value as IList;
                         var func = GetToStringFunc(elementType);
-                        return list.ToStringList(separator, separator, func);
+                        return list.ToStringListGeneric(separator, separator, func);
                     });
                 }
             }
@@ -277,7 +278,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                     IList list = value as IList;
                     var func = GetToStringFunc(elementType);
-                    result = /*t.AssemblyQualifiedName + " : " + */list.ToStringList(separator, separator, func);
+                    result = /*t.AssemblyQualifiedName + " : " + */list.ToStringListGeneric(separator, separator, func);
                     return true;
                 }
             }

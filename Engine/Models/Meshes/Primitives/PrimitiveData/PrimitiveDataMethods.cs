@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Extensions;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Files;
-using System.Collections;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -157,7 +158,7 @@ namespace TheraEngine.Rendering.Models
             get
             {
                 var matches = _buffers.Where(x => x.BufferType == type).ToArray();
-                if (matches.IndexInArrayRange(index))
+                if (matches.IndexInRange(index))
                     return matches[index];
                 throw new IndexOutOfRangeException();
             }
@@ -166,7 +167,7 @@ namespace TheraEngine.Rendering.Models
                 value.BufferType = type;
 
                 var matches = _buffers.Where(x => x.BufferType == type).ToArray();
-                if (matches.IndexInArrayRange(index))
+                if (matches.IndexInRange(index))
                 {
                     var buf = matches[index];
                     value.Index = buf.Index;

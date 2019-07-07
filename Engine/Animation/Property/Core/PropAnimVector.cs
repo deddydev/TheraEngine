@@ -4,6 +4,7 @@ using System.Linq;
 using TheraEngine.Core.Attributes;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Reflection.Attributes;
+using Extensions;
 
 namespace TheraEngine.Animation
 {
@@ -185,7 +186,7 @@ namespace TheraEngine.Animation
                     return LerpValues(t1, t2, lerpTime);
                 }
             }
-            else if (_baked.IndexInArrayRange(frame))
+            else if (_baked.IndexInRange(frame))
                 return _baked[frame];
             else
                 return DefaultValue;
@@ -197,7 +198,7 @@ namespace TheraEngine.Animation
         /// <returns>The value at the specified frame.</returns>
         public TValue GetValueBakedByFrame(int frame)
         {
-            if (!_baked.IndexInArrayRange(frame))
+            if (!_baked.IndexInRange(frame))
                 return new TValue();
             return _baked[frame.Clamp(0, _baked.Length - 1)];
         }

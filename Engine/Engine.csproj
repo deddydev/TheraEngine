@@ -439,11 +439,13 @@
     <Compile Include="Core\Editor\StateChange.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />
     <Compile Include="Core\Extensions\AppDomainExtension.cs" />
+    <Compile Include="Core\Extensions\BitmapExtension.cs" />
     <Compile Include="Core\Extensions\ControlExtension.cs" />
-    <Compile Include="Core\Extensions\EventInfoExtension.cs" />
-    <Compile Include="Core\Extensions\GenericExtensions.cs" />
-    <Compile Include="Core\Extensions\StreamExtension.cs" />
+    <Compile Include="Core\Extensions\EnumerableExtension.cs" />
+    <Compile Include="Core\Extensions\GraphicsExtension.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
+    <Compile Include="Core\Extensions\StringExtension.cs" />
+    <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Core\Files\ArchiveFile.cs" />
     <Compile Include="Core\Files\References\PathReference.cs" />
     <Compile Include="Core\Files\References\ObjectRef.cs" />
@@ -472,19 +474,7 @@
     <Compile Include="Core\Files\Serialization\Abstract\SerializeElement.cs" />
     <Compile Include="Core\LocalizedString.cs" />
     <Compile Include="Core\Maths\Half.cs" />
-    <Compile Include="Core\Maths\MachineLearning\ActivationFuncs\ActivationFunction.cs" />
-    <Compile Include="Core\Maths\MachineLearning\ActivationFuncs\LeakyReLU.cs" />
-    <Compile Include="Core\Maths\MachineLearning\ActivationFuncs\ReLU.cs" />
-    <Compile Include="Core\Maths\MachineLearning\ActivationFuncs\Logistic.cs" />
-    <Compile Include="Core\Maths\MachineLearning\ActivationFuncs\Sine.cs" />
-    <Compile Include="Core\Maths\MachineLearning\ActivationFuncs\Tanh.cs" />
-    <Compile Include="Core\Maths\MachineLearning\ActivationFuncs\Sigmoid.cs" />
-    <Compile Include="Core\Maths\MachineLearning\CostFuncs\DiffSquared.cs" />
-    <Compile Include="Core\Maths\MachineLearning\CostFuncs\CostFunction.cs" />
-    <Compile Include="Core\Maths\MachineLearning\NeuronLayer.cs" />
-    <Compile Include="Core\Maths\MachineLearning\Network.cs" />
     <Compile Include="Core\Memory\Int24.cs" />
-    <Compile Include="Core\Platform\Native.cs" />
     <Compile Include="Core\Reflection\AppDomainHelper.cs" />
     <Compile Include="Core\Reflection\Attributes\GridCallable.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\TFileExt.cs" />
@@ -687,10 +677,6 @@
     <Compile Include="ThirdParty\OBJ\TypeParsers\UseMaterialParser.cs" />
     <Compile Include="ThirdParty\OBJ\TypeParsers\VertexParser.cs" />
     <Compile Include="Animation\Model\TransformKeyCollection.cs" />
-    <Compile Include="Core\Extensions\FuncExtension.cs" />
-    <Compile Include="Core\Extensions\Numbers\DecimalExtension.cs" />
-    <Compile Include="Core\Extensions\MethodInfoExtension.cs" />
-    <Compile Include="Core\Extensions\TaskExtension.cs" />
     <Compile Include="Core\Maths\Interpolation.cs" />
     <Compile Include="Core\Reflection\Attributes\BrowsableIf.cs" />
     <Compile Include="Core\HelperMethods.cs" />
@@ -705,7 +691,6 @@
     <Compile Include="Audio\AudioParameters.cs" />
     <Compile Include="Audio\AudioFile.cs" />
     <Compile Include="Audio\WaveFile.cs" />
-    <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Shapes\Cylindrical\ZAligned\ConeZ.cs" />
     <Compile Include="Core\Tools\DelegateBuilder.cs" />
     <Compile Include="Core\Tools\GLSLParser.cs" />
@@ -888,14 +873,6 @@
     <Compile Include="Core\Data Structures\ThreadSafeHashSet.cs" />
     <Compile Include="Core\Data Structures\Lists\ThreadSafeList.cs" />
     <Compile Include="Core\Data Structures\Trees\Quadtree.cs" />
-    <Compile Include="Core\Extensions\EnumerableExtension.cs" />
-    <Compile Include="Core\Extensions\EnumExtension.cs" />
-    <Compile Include="Core\Extensions\GraphicsExtension.cs" />
-    <Compile Include="Core\Extensions\ListExtension.cs" />
-    <Compile Include="Core\Extensions\ReaderWriterLockSlimExtension.cs" />
-    <Compile Include="Core\Extensions\StringExtension.cs" />
-    <Compile Include="Core\Extensions\ArrayExtension.cs" />
-    <Compile Include="Core\Extensions\XmlExtension.cs" />
     <None Include="Core\Files\Serialization\Binary\CustomBinaryDeserializer.cs" />
     <None Include="Core\Files\Serialization\Binary\CustomBinarySerializer.cs" />
     <Compile Include="Core\Files\Serialization\SerializationCommon.cs" />
@@ -1042,20 +1019,9 @@
     <Compile Include="Animation\Property\PropAnimFloat.cs" />
     <Compile Include="Models\Skeleton\BoneWeight.cs" />
     <Compile Include="Models\Skeleton\Influence.cs" />
-    <Compile Include="Core\Extensions\BitmapExtension.cs" />
-    <Compile Include="Core\Extensions\Numbers\SByteExtension.cs" />
-    <Compile Include="Core\Extensions\Numbers\DoubleExtension.cs" />
-    <Compile Include="Core\Extensions\Numbers\ByteExtension.cs" />
-    <Compile Include="Core\Extensions\Numbers\UInt16Extension.cs" />
-    <Compile Include="Core\Extensions\Numbers\Int16Extension.cs" />
-    <Compile Include="Core\Extensions\Numbers\Int64Extension.cs" />
-    <Compile Include="Core\Extensions\Numbers\UInt64Extension.cs" />
     <Compile Include="Core\Memory\BigEndianTypes.cs" />
     <Compile Include="Core\Memory\Memory.cs" />
     <Compile Include="Rendering\Colors\ColorF4.cs" />
-    <Compile Include="Core\Extensions\Numbers\Int32Extension.cs" />
-    <Compile Include="Core\Extensions\Numbers\UInt32Extension.cs" />
-    <Compile Include="Core\Extensions\Numbers\SingleExtension.cs" />
     <Compile Include="Core\TObject.cs" />
     <Compile Include="Shapes\Cylindrical\YAligned\CapsuleY.cs" />
     <Compile Include="Shapes\Boxes\BoundingBox.cs" />
@@ -1200,6 +1166,14 @@
     <ProjectReference Include="..\Compare-NET-Objects\Compare-NET-Objects\Compare-NET-Objects.csproj">
       <Project>{EB236808-A58C-4C6C-9CEB-FE529CC92C0A}</Project>
       <Name>Compare-NET-Objects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Extensions\Extensions.csproj">
+      <Project>{a445c84a-f177-4478-9384-71f9430b4235}</Project>
+      <Name>Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WindowsNativeInterop\WindowsNativeInterop.csproj">
+      <Project>{B6E55049-2DE4-426F-BF4F-1923DAD79C2B}</Project>
+      <Name>WindowsNativeInterop</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -52,7 +52,7 @@
             this.RenderPanel.Name = "RenderPanel";
             this.RenderPanel.Size = new System.Drawing.Size(667, 383);
             this.RenderPanel.TabIndex = 0;
-            this.RenderPanel.VsyncMode = TheraEngine.VSyncMode.Adaptive;
+            this.RenderPanel.VsyncMode = TheraEngine.EVSyncMode.Adaptive;
             // 
             // dockingHostToolStripPanel1
             // 

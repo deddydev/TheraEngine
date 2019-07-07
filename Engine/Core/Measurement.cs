@@ -1,4 +1,6 @@
-﻿namespace System
+﻿using Extensions;
+
+namespace System
 {
     public class FeetInches
     {

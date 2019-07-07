@@ -1,7 +1,7 @@
-﻿using TheraEngine.Core.Files;
+﻿using Extensions;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using System;
+using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials

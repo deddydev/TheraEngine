@@ -1,4 +1,4 @@
-﻿using AppDomainToolkit;
+﻿using Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +9,6 @@ using TheraEngine;
 using TheraEngine.Animation;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Core.Reflection.Proxies;
 using TheraEngine.Core.Tools;
 using TheraEngine.Editor;
 using TheraEngine.Rendering.UI;

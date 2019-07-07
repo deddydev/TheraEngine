@@ -1,4 +1,5 @@
 ﻿using Ayx.BitIO;
+using Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,7 +7,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using TheraEngine.Core.Extensions;
 
 namespace TheraEngine.Networking
 {
@@ -103,7 +103,7 @@ namespace TheraEngine.Networking
             BitReader reader = new BitReader(buffer);
 
             int packetType = reader.ReadByte();
-            if (MessageTypeFuncs.IndexInArrayRange(packetType))
+            if (MessageTypeFuncs.IndexInRange(packetType))
                 MessageTypeFuncs[packetType](remoteEndPoint, reader);
 
             //_packetCacheRecieving.AddOrUpdate(
@@ -128,7 +128,7 @@ namespace TheraEngine.Networking
             //        BitReader reader = new BitReader(buffer);
 
             //        int packetType = reader.ReadByte();
-            //        if (MessageTypeFuncs.IndexInArrayRange(packetType))
+            //        if (MessageTypeFuncs.IndexInRange(packetType))
             //            MessageTypeFuncs[packetType](packet.Key, reader);
             //    }
             //}
@@ -141,7 +141,7 @@ namespace TheraEngine.Networking
             BitReader reader = new BitReader(buffer);
 
             int packetType = reader.ReadByte();
-            if (MessageTypeFuncs.IndexInArrayRange(packetType))
+            if (MessageTypeFuncs.IndexInRange(packetType))
                 MessageTypeFuncs[packetType](result.Result.RemoteEndPoint, reader);
         }
         public void ReadDataPacket(IPEndPoint endPoint, BitReader reader)

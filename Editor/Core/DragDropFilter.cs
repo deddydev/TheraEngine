@@ -1,11 +1,10 @@
-﻿using Core.Win32.Native;
+﻿using Extensions;
+using WindowsNativeInterop;
 using System;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
-using TheraEngine;
-using TheraEditor.Core.Extensions;
 
 namespace TheraEditor.Core
 {

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Extensions;
 using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
@@ -53,14 +53,14 @@ namespace TheraEngine.Rendering.Models
             => other != null ? (other.Bone == Bone && Weight.EqualTo(other.Weight, weightTolerance) && Locked == other.Locked) : false;
         public static bool operator ==(BoneWeight left, BoneWeight right)
         {
-            if (ReferenceEquals(left, null))
-                return ReferenceEquals(right, null);
+            if (left is null)
+                return right is null;
             return left.Equals(right);
         }
         public static bool operator !=(BoneWeight left, BoneWeight right)
         {
-            if (ReferenceEquals(left, null))
-                return !ReferenceEquals(right, null);
+            if (left is null)
+                return !(right is null);
             return !left.Equals(right);
         }
         public override int GetHashCode() => base.GetHashCode();

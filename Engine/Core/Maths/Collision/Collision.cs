@@ -2,6 +2,7 @@
 using TheraEngine.Core;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
+using Extensions;
 
 namespace System
 {
@@ -205,7 +206,7 @@ namespace System
             //Same thing as RayIntersectsSphere except that the radius of the sphere (point)
             //is the epsilon for zero.
             float b = Vec3.Dot(m, ray.Direction);
-            float c = Vec3.Dot(m, m) - SingleExtension.ZeroTolerance;
+            float c = Vec3.Dot(m, m) - Ext.ZeroToleranceF;
 
             if (c > 0.0f && b > 0.0f)
                 return false;

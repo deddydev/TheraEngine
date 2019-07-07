@@ -1,10 +1,11 @@
-﻿using TheraEngine.Rendering.Models.Materials;
+﻿using Extensions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core;
 using System.ComponentModel;
+using System.Linq;
+using TheraEngine.Core;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -433,7 +434,7 @@ namespace TheraEngine.Rendering.Models
             if (node is Bone b)
             {
                 int index = _utilizedBones.IndexOf(b);
-                if (_utilizedBones.IndexInArrayRange(index))
+                if (_utilizedBones.IndexInRange(index))
                     _utilizedBones[index] = b;
             }
         }

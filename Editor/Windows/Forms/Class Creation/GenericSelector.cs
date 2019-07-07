@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
-using TheraEditor.Core.Extensions;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms

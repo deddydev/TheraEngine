@@ -1,4 +1,4 @@
-﻿using Core.Win32.Native;
+﻿using WindowsNativeInterop;
 using System;
 using System.Windows.Forms;
 

@@ -2,6 +2,7 @@
 using ObjLoader.Loader.Data.DataStore;
 using ObjLoader.Loader.Data.Elements;
 using ObjLoader.Loader.TypeParsers.Interfaces;
+using Extensions;
 
 namespace ObjLoader.Loader.TypeParsers
 {

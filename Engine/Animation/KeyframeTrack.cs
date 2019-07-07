@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -501,12 +502,12 @@ namespace TheraEngine.Animation
             object defaultObj = valueType.GetDefaultValue();
             for (int i = 0; i < keyCount; ++i)
             {
-                float sec                   = seconds       == null || !seconds.IndexInArrayRange(i)            ? 0.0f                   : seconds[i];
-                EVectorInterpType interp    = interpTypes   == null || !interpTypes.IndexInArrayRange(i)        ? EVectorInterpType.Step : interpTypes[i];
-                object inVal                = inValues      == null || !((Array)inValues).IndexInArrayRange(i)  ? defaultObj             : ((Array)inValues).GetValue(i);
-                object outVal               = outValues     == null || !((Array)outValues).IndexInArrayRange(i) ? defaultObj             : ((Array)outValues).GetValue(i);
-                object inTan                = inTans        == null || !((Array)inTans).IndexInArrayRange(i)    ? defaultObj             : ((Array)inTans).GetValue(i);
-                object outTan               = outTans       == null || !((Array)outTans).IndexInArrayRange(i)   ? defaultObj             : ((Array)outTans).GetValue(i);
+                float sec                   = seconds       == null || !seconds.IndexInRange(i)                     ? 0.0f                   : seconds[i];
+                EVectorInterpType interp    = interpTypes   == null || !interpTypes.IndexInRange(i)                 ? EVectorInterpType.Step : interpTypes[i];
+                object inVal                = inValues      == null || !((Array)inValues).IndexInRangeGeneric(i)    ? defaultObj             : ((Array)inValues).GetValue(i);
+                object outVal               = outValues     == null || !((Array)outValues).IndexInRangeGeneric(i)   ? defaultObj             : ((Array)outValues).GetValue(i);
+                object inTan                = inTans        == null || !((Array)inTans).IndexInRangeGeneric(i)      ? defaultObj             : ((Array)inTans).GetValue(i);
+                object outTan               = outTans       == null || !((Array)outTans).IndexInRangeGeneric(i)     ? defaultObj             : ((Array)outTans).GetValue(i);
 
                 kf = new T();
 

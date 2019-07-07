@@ -1,4 +1,5 @@
-﻿using Core.Win32.Native;
+﻿using Extensions;
+using WindowsNativeInterop;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,8 +14,6 @@ using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.GameModes;
 using TheraEngine.Input.Devices;
-using TheraEngine.Input.Devices.DirectX;
-using TheraEngine.Input.Devices.OpenTK;
 using TheraEngine.Physics.ContactTesting;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;

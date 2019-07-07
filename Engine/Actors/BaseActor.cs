@@ -8,6 +8,7 @@ using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering;
 using TheraEngine.Worlds;
+using Extensions;
 
 namespace TheraEngine.Actors
 {
@@ -27,7 +28,7 @@ namespace TheraEngine.Actors
 
         protected BaseActor(string name, bool deferInitialization)
         {
-            Name = string.IsNullOrEmpty(name) ? this.GetType().GetFriendlyName("[", "]") : name;
+            Name = string.IsNullOrEmpty(name) ? GetType().GetFriendlyName("[", "]") : name;
 
             _logicComponents = new EventList<ILogicComponent>();
             _logicComponents.PostAnythingAdded += LogicComponents_PostAnythingAdded;

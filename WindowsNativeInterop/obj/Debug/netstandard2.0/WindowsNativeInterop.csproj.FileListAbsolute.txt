@@ -1,0 +1,17 @@
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\bin\Debug\netstandard2.0\WindowsNativeInterop.deps.json
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\bin\Debug\netstandard2.0\WindowsNativeInterop.dll
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\bin\Debug\netstandard2.0\WindowsNativeInterop.pdb
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard2.0\WindowsNativeInterop.csproj.CoreCompileInputs.cache
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard2.0\WindowsNativeInterop.AssemblyInfoInputs.cache
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard2.0\WindowsNativeInterop.AssemblyInfo.cs
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard2.0\WindowsNativeInterop.dll
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard2.0\WindowsNativeInterop.pdb
+C:\Users\dnedd\source\repos\TheraEngine\WindowsNativeInterop\bin\Debug\netstandard2.0\WindowsNativeInterop.deps.json
+C:\Users\dnedd\source\repos\TheraEngine\WindowsNativeInterop\bin\Debug\netstandard2.0\WindowsNativeInterop.dll
+C:\Users\dnedd\source\repos\TheraEngine\WindowsNativeInterop\bin\Debug\netstandard2.0\WindowsNativeInterop.pdb
+C:\Users\dnedd\source\repos\TheraEngine\WindowsNativeInterop\obj\Debug\netstandard2.0\WindowsNativeInterop.csprojAssemblyReference.cache
+C:\Users\dnedd\source\repos\TheraEngine\WindowsNativeInterop\obj\Debug\netstandard2.0\WindowsNativeInterop.csproj.CoreCompileInputs.cache
+C:\Users\dnedd\source\repos\TheraEngine\WindowsNativeInterop\obj\Debug\netstandard2.0\WindowsNativeInterop.AssemblyInfoInputs.cache
+C:\Users\dnedd\source\repos\TheraEngine\WindowsNativeInterop\obj\Debug\netstandard2.0\WindowsNativeInterop.AssemblyInfo.cs
+C:\Users\dnedd\source\repos\TheraEngine\WindowsNativeInterop\obj\Debug\netstandard2.0\WindowsNativeInterop.dll
+C:\Users\dnedd\source\repos\TheraEngine\WindowsNativeInterop\obj\Debug\netstandard2.0\WindowsNativeInterop.pdb

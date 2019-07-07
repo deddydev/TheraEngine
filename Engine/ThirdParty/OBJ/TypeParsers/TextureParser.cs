@@ -1,4 +1,5 @@
-﻿using ObjLoader.Loader.Data.DataStore;
+﻿using Extensions;
+using ObjLoader.Loader.Data.DataStore;
 using ObjLoader.Loader.TypeParsers.Interfaces;
 using System;
 

@@ -1,6 +1,7 @@
-using System;
+using Extensions;
 using ObjLoader.Loader.Data.DataStore;
 using ObjLoader.Loader.TypeParsers.Interfaces;
+using System;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace ObjLoader.Loader.TypeParsers

@@ -1,10 +1,10 @@
-﻿using TheraEngine.Rendering.Models.Materials;
-using System;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Physics;
+﻿using Extensions;
 using System.Collections.Generic;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Physics;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Actors.Types.ComponentActors.Shapes
 {

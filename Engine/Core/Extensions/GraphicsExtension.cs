@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace System
+namespace Extensions
 {
     public static class GraphicsExtensions
     {

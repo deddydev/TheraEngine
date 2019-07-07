@@ -1,17 +1,15 @@
-﻿using SevenZip;
+﻿using Extensions;
+using SevenZip;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
-using TheraEngine.Core.Reflection;
 using static TheraEngine.Core.Files.Serialization.Deserializer.ReaderBinary;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -55,6 +53,7 @@ namespace TheraEngine.Core.Files.Serialization
                 compressed,
                 encryptionPassword,
                 compressionProgress);
+
             await Writer.WriteObjectAsync();
             Engine.PrintLine("Serialized binary file to {0}", filePath);
         }
@@ -98,6 +97,7 @@ namespace TheraEngine.Core.Files.Serialization
                 compressed,
                 encryptionPassword,
                 compressionProgress);
+
             await Writer.WriteObjectAsync();
             Engine.PrintLine("Serialized binary file to {0}", filePath);
         }

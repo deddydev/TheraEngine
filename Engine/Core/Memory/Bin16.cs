@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Runtime.InteropServices;
 
 namespace TheraEngine.Core.Memory
@@ -73,11 +74,10 @@ namespace TheraEngine.Core.Memory
 
             for (int len = 0; len < arr.Length; len++)
             {
-                byte bit = 0;
                 for (int i = 0; i < arr[len].Length; i++)
                 {
                     b <<= 1;
-                    byte.TryParse(arr[len][i].ToString(), out bit);
+                    byte.TryParse(arr[len][i].ToString(), out byte bit);
                     bit = bit.Clamp(0, 1);
                     b += bit;
                 }

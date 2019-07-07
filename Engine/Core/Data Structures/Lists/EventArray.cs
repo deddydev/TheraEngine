@@ -1,4 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿using Extensions;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace System.Collections.Generic
@@ -142,10 +143,10 @@ namespace System.Collections.Generic
 
         public T this[int index]
         {
-            get => _array.IndexInArrayRange(index) ? _array[index] : default;
+            get => _array.IndexInRange(index) ? _array[index] : default;
             set
             {
-                if (_array.IndexInArrayRange(index))
+                if (_array.IndexInRange(index))
                 {
                     PreSet?.Invoke();
                     _array[index] = value;

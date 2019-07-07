@@ -1,9 +1,10 @@
-﻿using static System.Math;
+﻿using Extensions;
+using System;
+using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
-using System.ComponentModel;
-using System;
-using System.Globalization;
+using static System.Math;
 
 namespace TheraEngine.Core.Maths.Transforms
 {

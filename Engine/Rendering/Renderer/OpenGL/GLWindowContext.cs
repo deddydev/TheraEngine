@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics;
+﻿using Extensions;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using System;
@@ -156,7 +157,7 @@ namespace TheraEngine.Rendering.OpenGL
         {
             private int _versionMin, _versionMax;
             private IGraphicsContext _context;
-            private VSyncMode _vsyncMode = VSyncMode.Adaptive;
+            private EVSyncMode _vsyncMode = EVSyncMode.Adaptive;
 #if DEBUG
             private static bool _hasPrintedInfo = false;
 #endif
@@ -209,16 +210,16 @@ namespace TheraEngine.Rendering.OpenGL
                 _versionMin = version[2] - 0x30;
             }
 
-            internal override void VsyncChanged(VSyncMode vsyncMode)
+            internal override void VsyncChanged(EVSyncMode vsyncMode)
             {
                 _vsyncMode = vsyncMode;
                 if (_context == null)
                     return;
                 switch (vsyncMode)
                 {
-                    case VSyncMode.Disabled: _context.SwapInterval = 0; break;
-                    case VSyncMode.Enabled: _context.SwapInterval = 1; break;
-                    case VSyncMode.Adaptive: _context.SwapInterval = -1; break;
+                    case EVSyncMode.Disabled: _context.SwapInterval = 0; break;
+                    case EVSyncMode.Enabled: _context.SwapInterval = 1; break;
+                    case EVSyncMode.Adaptive: _context.SwapInterval = -1; break;
                 }
             }
 

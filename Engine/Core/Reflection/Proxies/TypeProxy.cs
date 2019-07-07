@@ -1,4 +1,5 @@
 ﻿using AppDomainToolkit;
+using Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -78,7 +79,7 @@ namespace TheraEngine.Core.Reflection
             }
             return null;
         }
-        public void GetGenericParameterConstraints(out EGenericVarianceFlag gvf, out ETypeConstraintFlag tcf)
+        public void GetGenericParameterConstraints(out Extensions.EGenericVarianceFlag gvf, out ETypeConstraintFlag tcf)
         {
             GenericParameterAttributes gpa = GenericParameterAttributes;
             GenericParameterAttributes variance = gpa & GenericParameterAttributes.VarianceMask;

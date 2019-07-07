@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Windows.Forms;
-using TheraEngine.Core.Extensions;
 using TheraEngine.Editor;
-using static TheraEngine.Editor.EditorState;
 
 namespace TheraEditor.Windows.Forms
 {

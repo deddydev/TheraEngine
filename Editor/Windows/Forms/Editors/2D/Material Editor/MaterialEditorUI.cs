@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine;
@@ -307,7 +308,7 @@ namespace TheraEditor.Windows.Forms
                 Engine.Renderer.RenderLine(points[i - 1], points[i], color, true, 1.0f);
         }
 
-        protected override void AddRenderables(RenderPasses passes) => base.AddRenderables(passes);
+        //protected override void AddRenderables(RenderPasses passes) => base.AddRenderables(passes);
         #endregion
     }
 }

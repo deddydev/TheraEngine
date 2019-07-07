@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions

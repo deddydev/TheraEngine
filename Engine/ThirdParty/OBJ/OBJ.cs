@@ -1,12 +1,12 @@
-﻿using ObjLoader.Loader.Loaders;
-using System.Linq;
+﻿using Extensions;
 using ObjLoader.Loader.Data.Elements;
+using ObjLoader.Loader.Loaders;
 using System;
-using TheraEngine.Rendering.Models.Materials;
-using System.Collections.Generic;
 using System.IO;
-using TheraEngine.Core.Shapes;
+using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
 {

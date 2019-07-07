@@ -1,13 +1,12 @@
-﻿using TheraEngine.Rendering.Models;
+﻿using Extensions;
 using System;
-using System.ComponentModel;
 using System.Collections.Generic;
-using TheraEngine.Core.Maths.Transforms;
+using System.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;
-using TheraEngine.Rendering;
-using System.Linq;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Components.Scene.Mesh
 {

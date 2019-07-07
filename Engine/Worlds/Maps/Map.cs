@@ -5,6 +5,7 @@ using System.Linq;
 using TheraEngine.Actors;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
+using Extensions;
 
 namespace TheraEngine.Worlds
 {

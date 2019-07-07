@@ -1,13 +1,12 @@
-﻿using TheraEngine.Core.Files;
-using TheraEngine.Rendering.Textures;
-using System.Drawing.Imaging;
-using System.Drawing;
+﻿using Extensions;
 using System.ComponentModel;
-using System.Threading.Tasks;
-using System;
-using TheraEngine.Rendering.Models.Materials.Textures;
+using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
+using System.Drawing.Imaging;
+using System.Threading.Tasks;
+using TheraEngine.Core.Files;
+using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Rendering.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {

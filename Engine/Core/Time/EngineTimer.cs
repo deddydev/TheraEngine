@@ -1,4 +1,5 @@
-﻿using Core.Win32.Native;
+﻿using Extensions;
+using WindowsNativeInterop;
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -82,7 +83,7 @@ namespace TheraEngine.Timers
             }
         }
 
-        private bool IsApplicationIdle() => NativeMethods.PeekMessage(out NativeMessage result, IntPtr.Zero, 0, 0, 0) == 0;
+        private bool IsApplicationIdle() => NativeMethods.PeekMessage(out _, IntPtr.Zero, 0, 0, 0) == 0;
 
         private void Application_Idle_SingleThread(object sender, EventArgs e)
         {

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Audio

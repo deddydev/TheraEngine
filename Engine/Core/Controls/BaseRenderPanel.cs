@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,7 +7,6 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEngine.Actors;
-using TheraEngine.Core.Extensions;
 using TheraEngine.Input;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.DirectX;
@@ -15,7 +15,7 @@ using TheraEngine.Timers;
 
 namespace TheraEngine
 {
-    public enum VSyncMode
+    public enum EVSyncMode
     {
         Disabled,
         Enabled,
@@ -24,7 +24,7 @@ namespace TheraEngine
     public interface IRenderPanel : IEnumerable<Viewport>
     {
         Dictionary<ELocalPlayerIndex, Viewport> Viewports { get; }
-        VSyncMode VsyncMode { get; set; }
+        EVSyncMode VsyncMode { get; set; }
         Point ScreenLocation { get; }
         Point PointToClient(Point p);
         Point PointToScreen(Point p);
@@ -108,7 +108,7 @@ namespace TheraEngine
         }
 
         protected bool _resizing = false;
-        protected VSyncMode _vsyncMode = VSyncMode.Adaptive;
+        protected EVSyncMode _vsyncMode = EVSyncMode.Adaptive;
         internal RenderContext _context;
         
         /// <summary>
@@ -169,7 +169,7 @@ namespace TheraEngine
         //    return false;
         //}
 
-        public VSyncMode VsyncMode
+        public EVSyncMode VsyncMode
         {
             get => _vsyncMode;
             set

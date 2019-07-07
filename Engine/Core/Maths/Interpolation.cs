@@ -1,9 +1,10 @@
-﻿using static System.TMath;
-using static System.Math;
-using TheraEngine.Core.Maths.Transforms;
+﻿using Extensions;
 using System;
 using System.Drawing;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
+using static System.Math;
+using static System.TMath;
 
 namespace TheraEngine.Core.Maths
 {
@@ -494,9 +495,10 @@ namespace TheraEngine.Core.Maths
         {
             time = time.Clamp(0.0f, 1.0f);
             Color color = Color.FromArgb(
-                (byte)(startColor.R + (endColor.R - startColor.R) * time),
-                (byte)(startColor.G + (endColor.G - startColor.G) * time),
-                (byte)(startColor.B + (endColor.B - startColor.B) * time));
+                (byte)(startColor.A + ((float)endColor.A - startColor.A) * time + 0.5f),
+                (byte)(startColor.R + ((float)endColor.R - startColor.R) * time + 0.5f),
+                (byte)(startColor.G + ((float)endColor.G - startColor.G) * time + 0.5f),
+                (byte)(startColor.B + ((float)endColor.B - startColor.B) * time + 0.5f));
             return color;
         }
         public static Point Lerp(
@@ -506,8 +508,8 @@ namespace TheraEngine.Core.Maths
         {
             time = time.Clamp(0.0f, 1.0f);
             return new Point(
-                (int)(start.X + (end.X - start.X) * time),
-                (int)(start.Y + (end.Y - start.Y) * time));
+                (int)(start.X + ((float)end.X - start.X) * time + 0.5f),
+                (int)(start.Y + ((float)end.Y - start.Y) * time + 0.5f));
         }
         public static PointF Lerp(
             PointF start,

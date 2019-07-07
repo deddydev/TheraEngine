@@ -1,10 +1,11 @@
-﻿using System.Runtime.InteropServices;
+﻿using Extensions;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using TheraEngine;
+using TheraEngine.Core;
+using TheraEngine.Core.Maths.Transforms;
 using static System.Math;
 using static System.TMath;
-using System.Collections.Generic;
-using TheraEngine;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core;
 
 namespace System
 {
@@ -480,17 +481,17 @@ namespace System
                 return Identity;
         }
         //map axes strings to/from tuples of inner axis, parity, repetition, frame
-        private static readonly Dictionary<AxisCombo, IVec4> AxesToTuple = new Dictionary<AxisCombo, IVec4>()
+        private static readonly Dictionary<EAxisCombo, IVec4> AxesToTuple = new Dictionary<EAxisCombo, IVec4>()
         {
-            { AxisCombo.SXYZ, new IVec4(0, 0, 0, 0) }, { AxisCombo.SXYX, new IVec4(0, 0, 1, 0) }, { AxisCombo.SXZY, new IVec4(0, 1, 0, 0) }, { AxisCombo.SXZX, new IVec4(0, 1, 1, 0) },
-            { AxisCombo.SYZX, new IVec4(1, 0, 0, 0) }, { AxisCombo.SYZY, new IVec4(1, 0, 1, 0) }, { AxisCombo.SYXZ, new IVec4(1, 1, 0, 0) }, { AxisCombo.SYXY, new IVec4(1, 1, 1, 0) },
-            { AxisCombo.SZXY, new IVec4(2, 0, 0, 0) }, { AxisCombo.SZXZ, new IVec4(2, 0, 1, 0) }, { AxisCombo.SZYX, new IVec4(2, 1, 0, 0) }, { AxisCombo.SZYZ, new IVec4(2, 1, 1, 0) },
-            { AxisCombo.RZYX, new IVec4(0, 0, 0, 1) }, { AxisCombo.RXYX, new IVec4(0, 0, 1, 1) }, { AxisCombo.RYZX, new IVec4(0, 1, 0, 1) }, { AxisCombo.RXZX, new IVec4(0, 1, 1, 1) },
-            { AxisCombo.RXZY, new IVec4(1, 0, 0, 1) }, { AxisCombo.RYZY, new IVec4(1, 0, 1, 1) }, { AxisCombo.RZXY, new IVec4(1, 1, 0, 1) }, { AxisCombo.RYXY, new IVec4(1, 1, 1, 1) },
-            { AxisCombo.RYXZ, new IVec4(2, 0, 0, 1) }, { AxisCombo.RZXZ, new IVec4(2, 0, 1, 1) }, { AxisCombo.RXYZ, new IVec4(2, 1, 0, 1) }, { AxisCombo.RZYZ, new IVec4(2, 1, 1, 1) }
+            { EAxisCombo.SXYZ, new IVec4(0, 0, 0, 0) }, { EAxisCombo.SXYX, new IVec4(0, 0, 1, 0) }, { EAxisCombo.SXZY, new IVec4(0, 1, 0, 0) }, { EAxisCombo.SXZX, new IVec4(0, 1, 1, 0) },
+            { EAxisCombo.SYZX, new IVec4(1, 0, 0, 0) }, { EAxisCombo.SYZY, new IVec4(1, 0, 1, 0) }, { EAxisCombo.SYXZ, new IVec4(1, 1, 0, 0) }, { EAxisCombo.SYXY, new IVec4(1, 1, 1, 0) },
+            { EAxisCombo.SZXY, new IVec4(2, 0, 0, 0) }, { EAxisCombo.SZXZ, new IVec4(2, 0, 1, 0) }, { EAxisCombo.SZYX, new IVec4(2, 1, 0, 0) }, { EAxisCombo.SZYZ, new IVec4(2, 1, 1, 0) },
+            { EAxisCombo.RZYX, new IVec4(0, 0, 0, 1) }, { EAxisCombo.RXYX, new IVec4(0, 0, 1, 1) }, { EAxisCombo.RYZX, new IVec4(0, 1, 0, 1) }, { EAxisCombo.RXZX, new IVec4(0, 1, 1, 1) },
+            { EAxisCombo.RXZY, new IVec4(1, 0, 0, 1) }, { EAxisCombo.RYZY, new IVec4(1, 0, 1, 1) }, { EAxisCombo.RZXY, new IVec4(1, 1, 0, 1) }, { EAxisCombo.RYXY, new IVec4(1, 1, 1, 1) },
+            { EAxisCombo.RYXZ, new IVec4(2, 0, 0, 1) }, { EAxisCombo.RZXZ, new IVec4(2, 0, 1, 1) }, { EAxisCombo.RXYZ, new IVec4(2, 1, 0, 1) }, { EAxisCombo.RZYZ, new IVec4(2, 1, 1, 1) }
         };
         private static readonly int[] NextAxis = new int[4] { 1, 2, 0, 1 };
-        public enum AxisCombo
+        public enum EAxisCombo
         {
             SXYZ, SXYX, SXZY, SXZX,
             SYZX, SYZY, SYXZ, SYXY,
@@ -500,7 +501,7 @@ namespace System
             RYZX, RYZY, RYXZ, RYXY,
             RZXY, RZXZ, RZYX, RZYZ,
         }
-        public static Quat FromEulerAngles(float pitch, float yaw, float roll, AxisCombo axes)
+        public static Quat FromEulerAngles(float pitch, float yaw, float roll, EAxisCombo axes)
         {
             float
                 ai = DegToRad(roll) * 0.5f,

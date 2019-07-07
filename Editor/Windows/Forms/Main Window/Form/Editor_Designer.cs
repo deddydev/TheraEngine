@@ -1,6 +1,7 @@
 ﻿using AppDomainToolkit;
-using Core.Win32.Native;
+using Extensions;
 using Microsoft.Win32;
+using WindowsNativeInterop;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

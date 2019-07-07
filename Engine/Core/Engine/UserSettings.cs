@@ -50,7 +50,7 @@ namespace TheraEngine
     {
         private WindowBorderStyle _windowBorderStyle = WindowBorderStyle.Sizable;
         private bool _fullscreen = false;
-        private VSyncMode _vSyncMode = VSyncMode.Adaptive;
+        private EVSyncMode _vSyncMode = EVSyncMode.Adaptive;
         private EngineQuality _textureQuality = EngineQuality.Highest;
         private EngineQuality _modelQuality = EngineQuality.Highest;
         private EngineQuality _soundQuality = EngineQuality.Highest;
@@ -62,7 +62,7 @@ namespace TheraEngine
         private EPhysicsLibrary _physicsLibrary = EPhysicsLibrary.Bullet;
 
         [TSerialize]
-        public VSyncMode VSync { get => _vSyncMode; set => _vSyncMode = value; }
+        public EVSyncMode VSync { get => _vSyncMode; set => _vSyncMode = value; }
         [TSerialize]
         public EngineQuality TextureQuality { get => _textureQuality; set => _textureQuality = value; }
         [TSerialize]

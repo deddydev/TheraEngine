@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
-using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {

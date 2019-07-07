@@ -1,7 +1,7 @@
 ﻿using TheraEngine;
 using TheraEngine.Core.Reflection;
 
-namespace System
+namespace Extensions
 {
     public static class ObjectExtension
     {

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Extensions;
+using System;
 using TheraEngine.Core.Maths.Transforms;
 using FloatingPoint = System.Single; //replace with double if you want
 

@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using Extensions;
 using ObjLoader.Loader.Data.Elements;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace ObjLoader.Loader.Data.DataStore

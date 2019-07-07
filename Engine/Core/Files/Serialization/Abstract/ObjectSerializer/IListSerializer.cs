@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
-using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -157,7 +156,7 @@ namespace TheraEngine.Core.Files.Serialization
                 ser.ObjectToString(elem, out string subStr);
                 return subStr;
             }
-            str = list.ToStringList(separator, separator, Convert);
+            str = list.ToStringListGeneric(separator, separator, Convert);
             return true;
         }
         #endregion

@@ -1,5 +1,6 @@
-﻿using Core.Win32.Native;
+﻿using Extensions;
 using Microsoft.VisualBasic.FileIO;
+using WindowsNativeInterop;
 using System;
 using System.Collections;
 using System.Collections.Generic;

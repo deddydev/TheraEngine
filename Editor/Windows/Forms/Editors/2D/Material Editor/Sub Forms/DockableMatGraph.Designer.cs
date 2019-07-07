@@ -40,7 +40,7 @@
             this.RenderPanel.Name = "RenderPanel";
             this.RenderPanel.Size = new System.Drawing.Size(378, 332);
             this.RenderPanel.TabIndex = 1;
-            this.RenderPanel.VsyncMode = TheraEngine.VSyncMode.Adaptive;
+            this.RenderPanel.VsyncMode = TheraEngine.EVSyncMode.Adaptive;
             this.RenderPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragDrop);
             this.RenderPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragEnter);
             this.RenderPanel.DragOver += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragOver);

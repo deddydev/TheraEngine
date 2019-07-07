@@ -1,4 +1,5 @@
-﻿using FastColoredTextBoxNS;
+﻿using Extensions;
+using FastColoredTextBoxNS;
 using Svg;
 using System;
 using System.Collections.Generic;

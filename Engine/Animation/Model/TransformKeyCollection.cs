@@ -1,11 +1,9 @@
-﻿using EnumsNET;
+﻿using Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Xml;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Maths.Transforms;

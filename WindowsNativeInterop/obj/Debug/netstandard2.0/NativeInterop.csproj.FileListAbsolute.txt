@@ -1,0 +1,9 @@
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\bin\Debug\netstandard2.0\NativeInterop.deps.json
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\bin\Debug\netstandard2.0\NativeInterop.dll
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\bin\Debug\netstandard2.0\NativeInterop.pdb
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard2.0\NativeInterop.csprojAssemblyReference.cache
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard2.0\NativeInterop.csproj.CoreCompileInputs.cache
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard2.0\NativeInterop.AssemblyInfoInputs.cache
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard2.0\NativeInterop.AssemblyInfo.cs
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard2.0\NativeInterop.dll
+C:\Users\dnedd\source\repos\TheraEngine\NativeInterop\obj\Debug\netstandard2.0\NativeInterop.pdb

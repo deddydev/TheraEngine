@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -245,7 +246,7 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         public T2 Parameter<T2>(int index) where T2 : ShaderVar
         {
-            if (Parameters.IndexInArrayRange(index))
+            if (Parameters.IndexInRange(index))
                 return Parameters[index] as T2;
             throw new IndexOutOfRangeException();
         }
@@ -350,7 +351,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         public void SetTextureUniform(RenderProgram program, int textureIndex, string samplerNameOverride = null)
         {
-            if (!Textures.IndexInArrayRange(textureIndex))
+            if (!Textures.IndexInRange(textureIndex))
                 return;
             
             BaseTexRef tref = Textures[textureIndex];

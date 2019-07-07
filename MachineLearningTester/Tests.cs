@@ -21,19 +21,25 @@ namespace MachineLearningTester
         public static async Task RunAll()
         {
             double rate = 0.8;
-            double maxError = 0.009;
+            double maxError = 0.0009;
+            double momentum = 0.2;
             int digits = 0;
 
             //Task.WaitAll(
-            await TrainLogicOp(ELogicalOpType.OR, rate, maxError, digits);
-            await TrainLogicOp(ELogicalOpType.AND, rate, maxError, digits);
-            await TrainLogicOp(ELogicalOpType.XOR, rate, maxError, digits);
-            await TrainLogicOp(ELogicalOpType.NOR, rate, maxError, digits);
-            await TrainLogicOp(ELogicalOpType.XNOR, rate, maxError, digits);
-            await TrainLogicOp(ELogicalOpType.NAND, rate, maxError, digits);
+            await TrainLogicOp(ELogicalOpType.OR, rate, momentum, maxError, digits);
+            await TrainLogicOp(ELogicalOpType.AND, rate, momentum, maxError, digits);
+            await TrainLogicOp(ELogicalOpType.XOR, rate, momentum, maxError, digits);
+            await TrainLogicOp(ELogicalOpType.NOR, rate, momentum, maxError, digits);
+            await TrainLogicOp(ELogicalOpType.XNOR, rate, momentum, maxError, digits);
+            await TrainLogicOp(ELogicalOpType.NAND, rate, momentum, maxError, digits);
         }
 
-        private static async Task TrainLogicOp(ELogicalOpType type, double learningRate, double maxError, int outputRoundingFracDigits)
+        private static async Task TrainLogicOp(
+            ELogicalOpType type,
+            double learningRate,
+            double momentum,
+            double maxError,
+            int outputRoundingFracDigits)
         {
             Tuple<double[], double[]>[] inputOutput = GetBinOp(type);
 
@@ -49,7 +55,7 @@ namespace MachineLearningTester
             nw.CostChanged += CostChangedMethod;
             timer.Start();
 
-            await Task.Run(() => nw.Train(maxError, EErrorTrainingType.Individual, learningRate, inputOutput));
+            await Task.Run(() => nw.Train(maxError, EErrorTrainingType.Total, learningRate, momentum, inputOutput));
 
             timer.Stop();
             nw.CostChanged -= CostChangedMethod;

@@ -1,10 +1,8 @@
-﻿using System;
+﻿using Extensions;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading.Tasks;
 using TheraEngine.Actors;
-using TheraEngine.Actors.Types;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Cameras;

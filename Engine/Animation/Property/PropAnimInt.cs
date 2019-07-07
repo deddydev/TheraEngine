@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using TheraEngine.Core.Maths;
 
 namespace TheraEngine.Animation

@@ -21,3 +21,7 @@ Build/test/
 Editor/obj/
 Compare-NET-Objects/obj/
 Compare-NET-Objects/bin/
+Extensions/obj/
+Extensions/bin/
+WindowsNativeInterop/obj/
+WindowsNativeInterop/bin/

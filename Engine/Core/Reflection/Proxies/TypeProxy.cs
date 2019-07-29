@@ -10,20 +10,19 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 using TheraEngine.Core.Files.Serialization;
-using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
 {
     /// <summary>
     /// Remotable interface for accessing information of a type.
     /// </summary>
-    [Serializable]
+    //[Serializable]
     public sealed class TypeProxy : MemberInfoProxy
     {
         public static ConcurrentDictionary<Type, TypeProxy> Proxies { get; }
             = new ConcurrentDictionary<Type, TypeProxy>();
         public static TypeProxy Get(Type type)
-            => type == null ? null : Proxies.GetOrAdd(type, new TypeProxy(type));
+            => type == null ? null : /*Proxies.GetOrAdd(type, */new TypeProxy(type);
 
         public static implicit operator TypeProxy(Type type) => Get(type);
         public static explicit operator Type(TypeProxy proxy) => proxy?.Value;
@@ -463,8 +462,8 @@ namespace TheraEngine.Core.Reflection
         /// </summary>
         public object CreateInstance()
         {
-            if (!AppDomainHelper.IsPrimaryDomain)
-                Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
+            //if (!AppDomainHelper.IsPrimaryDomain)
+            //    Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
             return SerializationCommon.CreateInstance(Value);
         }
         /// <summary>
@@ -472,8 +471,8 @@ namespace TheraEngine.Core.Reflection
         /// </summary>
         public object CreateInstance(params object[] args)
         {
-            if (!AppDomainHelper.IsPrimaryDomain)
-                Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
+            //if (!AppDomainHelper.IsPrimaryDomain)
+            //    Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
             return SerializationCommon.CreateInstance(Value, args);
         }
         /// <summary>
@@ -482,8 +481,8 @@ namespace TheraEngine.Core.Reflection
         /// <typeparam name="T">The expected return type.</typeparam>
         public T CreateInstance<T>()
         {
-            if (!AppDomainHelper.IsPrimaryDomain)
-                Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
+            //if (!AppDomainHelper.IsPrimaryDomain)
+            //    Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
             return (T)SerializationCommon.CreateInstance(Value);
         }
         /// <summary>
@@ -492,15 +491,15 @@ namespace TheraEngine.Core.Reflection
         /// <typeparam name="T">The expected return type.</typeparam>
         public T CreateInstance<T>(params object[] args)
         {
-            if (!AppDomainHelper.IsPrimaryDomain)
-                Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
+            //if (!AppDomainHelper.IsPrimaryDomain)
+            //    Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
             return (T)SerializationCommon.CreateInstance(Value, args);
         }
         public TypeProxy GetUnderlyingNullableType() => Nullable.GetUnderlyingType(Value);
         public Array CreateArrayInstance(int length)
         {
-            if (!AppDomainHelper.IsPrimaryDomain)
-                Debug.Print("Creating array instance on AppDomain " + Domain.FriendlyName);
+            //if (!AppDomainHelper.IsPrimaryDomain)
+            //    Debug.Print("Creating array instance on AppDomain " + Domain.FriendlyName);
             return Array.CreateInstance(Value, length);
         }
 
@@ -4014,6 +4013,7 @@ namespace TheraEngine.Core.Reflection
         //    => left != right?.Value;
 
         public override string ToString() => "[" + Domain.FriendlyName + "] " + Value.FullName;
+        [Serializable]
         public class EqualityComparer : IEqualityComparer<TypeProxy>
         {
             public bool Equals(TypeProxy x, TypeProxy y)

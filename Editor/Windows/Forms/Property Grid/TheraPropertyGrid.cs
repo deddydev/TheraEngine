@@ -403,7 +403,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (Disposing || IsDisposed)
                 return;
 
-            var propGridSettings = Editor.GetSettings().PropertyGrid;
+            var settings = Editor.GetSettings();
+            var propGridSettings = settings.PropertyGrid;
             try
             {
                 await LoadPropertiesToPanel(
@@ -456,17 +457,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             //DateTime startTime = DateTime.Now;
 
-            Engine.PrintLine("Loading properties on AppDomain " + AppDomain.CurrentDomain.FriendlyName);
-            await Task.Run(() =>
+            TypeProxy targetObjectType = obj.GetTypeProxy();
+            Engine.PrintLine($"Loading properties for {targetObjectType.GetFriendlyName()}.");
+            //await Task.Run(() =>
             {
-                TypeProxy targetObjectType = obj.GetTypeProxy();
-
                 const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance;
                 props = showProperties ? targetObjectType.GetProperties(flags) : new PropertyInfoProxy[0];
                 methods = showMethods ? targetObjectType.GetMethods(flags) : new MethodInfoProxy[0];
                 events = showEvents ? targetObjectType.GetEvents(flags) : new EventInfoProxy[0];
 
-                Parallel.For(0, props.Length, i =>
+                //Parallel.For(0, props.Length, i =>
+                for (int i = 0; i < props.Length; ++i)
                 {
                     PropertyInfoProxy prop = props[i];
                     ParameterInfoProxy[] indexParams = prop.GetIndexParameters();
@@ -481,7 +482,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                     PropertyData propData = new PropertyData(prop, obj, category);
                     propInfo.TryAdd(i, propData);
-                });
+                }//);
 
                 Parallel.For(0, methods.Length, i =>
                 {
@@ -516,7 +517,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                     eventInfo.TryAdd(i, eventData);
                 });
-            });
+            }//);
 
             if (!pnlProps.Disposing && !pnlProps.IsDisposed && pnlProps.IsHandleCreated)
             {
@@ -632,9 +633,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public static PropGridItem InstantiatePropertyEditor(TypeProxy controlType, PropGridMemberInfo info, PropGridCategory category, PropertyGrid.ValueChangeHandler dataChangeHandler)
         {
+            //Engine.PrintLine("Creating property editor.");
             PropGridItem control = (PropGridItem)Editor.Instance.Invoke((Func<PropGridItem>)(() => 
             {
-                PropGridItem item = controlType.CreateInstance() as PropGridItem;
+                Type type = (Type)controlType;
+                PropGridItem item = Activator.CreateInstance(type) as PropGridItem;
                 if (item != null)
                 {
                     item.Dock = DockStyle.Fill;
@@ -752,6 +755,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             string category,
             PropertyGrid.ValueChangeHandler dataChangeHandler)
         {
+            if (!AppDomainHelper.IsPrimaryDomain)
+                throw new Exception();
+
             string catName = category ?? GetDefaultCatName(info);
             PropGridCategory targetCategory;
 

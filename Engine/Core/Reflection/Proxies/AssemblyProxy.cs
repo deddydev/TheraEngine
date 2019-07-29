@@ -5,11 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security;
-using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
 {
-    public class AssemblyProxy : MarshalByRefObject
+    public class AssemblyProxy : ReflectionProxy
     {
         public static ConcurrentDictionary<Assembly, AssemblyProxy> Proxies { get; }
             = new ConcurrentDictionary<Assembly, AssemblyProxy>();
@@ -23,7 +22,7 @@ namespace TheraEngine.Core.Reflection
         private Assembly Value { get; set; }
 
         //public AssemblyProxy() { }
-        private AssemblyProxy(Assembly value) => Value = value;
+        private AssemblyProxy(Assembly value) : base() => Value = value;
 
         public bool IsDynamic => Value.IsDynamic;
         public ProxyList<TypeProxy> GetExportedTypes()

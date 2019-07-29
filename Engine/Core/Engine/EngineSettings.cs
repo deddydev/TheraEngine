@@ -10,7 +10,6 @@ namespace TheraEngine
     /// Base class for a class that only defines primitive properties; no classes or structs.
     /// Allows reading and writing all defined properties
     /// </summary>
-    [Serializable]
     [TFileExt("set", "txt")]
     public abstract class TSettings : TFileObject
     {
@@ -245,12 +244,21 @@ namespace TheraEngine
         [TSerialize]
         public string TexturesFolder { get; set; }
 
+        /// <summary>
+        /// If true, prepends the currently executing AppDomain to console output.
+        /// </summary>
+        [Description("If true, prepends the currently executing AppDomain to console output.")]
+        [Category("Debug")]
+        [TSerialize]
+        public bool PrintAppDomainInOutput { get; set; }
+
         public EngineSettings()
         {
             EnableDeferredPass = true;
             SkinOnGPU = true;
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;
+            PrintAppDomainInOutput = true;
 
             CapFPS = false;
             TargetFPS = 60.0f;

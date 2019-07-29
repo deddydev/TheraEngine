@@ -318,7 +318,7 @@ namespace TheraEngine.Timers
                 if (value < 1.0)
                 {
                     _targetUpdatePeriod = 0.0f;
-                    Debug.Print("Target update frequency set to unrestricted.");
+                    Engine.PrintLine("Target update frequency set to unrestricted.");
                 }
                 else if (value < MaxFrequency)
                 {

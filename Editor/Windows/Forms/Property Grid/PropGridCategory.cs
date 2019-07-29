@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using TheraEngine;
 using TheraEngine.Core.Maths;
 using TheraEngine.Timers;
 
@@ -216,6 +217,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private Label AddRowToTable(List<PropGridItem> editors)
         {
+            //Engine.PrintLine("Adding row to PropGridCategory.");
             Label label = new Label()
             {
                 TextAlign = ContentAlignment.MiddleRight,

@@ -10,17 +10,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using Extensions;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     public delegate void DelObjectChange(SerializeElement element, object previousObject);
+    [Serializable]
     public sealed class SerializeElement : TObject
     {
         public event DelObjectChange ObjectChanged;
 
         private BaseSerializer.BaseAbstractReaderWriter _owner;
         private object _object;
-        private Type _desiredDerivedObjectType;
+        private TypeProxy _desiredDerivedObjectType;
         private TSerializeMemberInfo _memberInfo;
 
         public EventList<SerializeAttribute> Attributes { get; }
@@ -62,7 +64,7 @@ namespace TheraEngine.Core.Files.Serialization
             get => _memberInfo;
             set
             {
-                Type t = ObjectType;
+                TypeProxy t = ObjectType;
                 if (_memberInfo != null)
                     _memberInfo.MemberTypeChanged -= _memberInfo_MemberTypeChanged;
                 _memberInfo = value ?? new TSerializeMemberInfo(null, "null");
@@ -88,12 +90,12 @@ namespace TheraEngine.Core.Files.Serialization
         public object DefaultMemberObject { get; private set; }
         //public bool IsSharedObject { get; internal set; }
 
-        public Type DesiredDerivedObjectType
+        public TypeProxy DesiredDerivedObjectType
         {
             get => _desiredDerivedObjectType;
             private set
             {
-                Type oldObjType = ObjectType;
+                TypeProxy oldObjType = ObjectType;
                 _desiredDerivedObjectType = value;
                 if (ObjectType != oldObjType)
                     ObjectTypeChanged();
@@ -143,7 +145,7 @@ namespace TheraEngine.Core.Files.Serialization
             get => _object;
             set
             {
-                Type oldObjType = ObjectType;
+                TypeProxy oldObjType = ObjectType;
 
                 object oldValue = _object;
                 UnlinkObjectGuidFromOwner();
@@ -183,7 +185,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// The type of the object assigned to this member.
         /// </summary>
-        public Type ObjectType => _object?.GetType() ?? DesiredDerivedObjectType ?? MemberInfo?.MemberType;
+        public TypeProxy ObjectType => _object?.GetTypeProxy() ?? DesiredDerivedObjectType ?? MemberInfo?.MemberType;
         /// <summary>
         /// <see langword="true"/> if the object's type inherits from the member's type instead of matching it exactly.
         /// </summary>
@@ -197,12 +199,12 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// Methods for serializing data in a specific manner.
         /// </summary>
-        public List<MethodInfo> CustomSerializeMethods { get; private set; }
-        public List<MethodInfo> CustomDeserializeMethods { get; private set; }
-        public List<MethodInfo> PreSerializeMethods { get; private set; }
-        public List<MethodInfo> PostSerializeMethods { get; private set; }
-        public List<MethodInfo> PreDeserializeMethods { get; private set; }
-        public List<MethodInfo> PostDeserializeMethods { get; private set; }
+        public List<MethodInfoProxy> CustomSerializeMethods { get; private set; }
+        public List<MethodInfoProxy> CustomDeserializeMethods { get; private set; }
+        public List<MethodInfoProxy> PreSerializeMethods { get; private set; }
+        public List<MethodInfoProxy> PostSerializeMethods { get; private set; }
+        public List<MethodInfoProxy> PreDeserializeMethods { get; private set; }
+        public List<MethodInfoProxy> PostDeserializeMethods { get; private set; }
         public string Name
         {
             get => MemberInfo?.Name;
@@ -285,12 +287,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (MemberInfo == null || Parent?.CustomDeserializeMethods == null)
                 return false;
 
-            IEnumerable<MethodInfo> customMethods = Parent.CustomDeserializeMethods.Where(
+            IEnumerable<MethodInfoProxy> customMethods = Parent.CustomDeserializeMethods.Where(
                 x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<CustomMemberDeserializeMethod>().Name));
 
-            foreach (MethodInfo customMethod in customMethods)
+            foreach (MethodInfoProxy customMethod in customMethods)
             {
-                ParameterInfo[] parameters = customMethod.GetParameters();
+                ParameterInfoProxy[] parameters = customMethod.GetParameters();
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(GetType()))
                 {
                     //Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {Name} manually via parent.");
@@ -349,12 +351,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (MemberInfo == null || Parent?.CustomSerializeMethods == null)
                 return false;
 
-            IEnumerable<MethodInfo> customMethods = Parent.CustomSerializeMethods.Where(
+            IEnumerable<MethodInfoProxy> customMethods = Parent.CustomSerializeMethods.Where(
                 x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<CustomMemberSerializeMethod>().Name));
 
-            foreach (MethodInfo customMethod in customMethods)
+            foreach (MethodInfoProxy customMethod in customMethods)
             {
-                ParameterInfo[] parameters = customMethod.GetParameters();
+                ParameterInfoProxy[] parameters = customMethod.GetParameters();
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(GetType()))
                 {
                     if (customMethod.ReturnType == typeof(Task))
@@ -405,7 +407,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             DesiredDerivedObjectType = 
                 GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration) ? 
-                    Type.GetType(typeDeclaration) : null;
+                    Engine.DomainProxy.GetTypeFor(typeDeclaration) : null;
 
             if (GetAttributeValue("SharedIndex", out int sharedObjectIndex))
             {
@@ -468,28 +470,28 @@ namespace TheraEngine.Core.Files.Serialization
         }
         private void ObjectTypeChanged()
         {
-            PreSerializeMethods = new List<MethodInfo>();
-            PostSerializeMethods = new List<MethodInfo>();
-            PreDeserializeMethods = new List<MethodInfo>();
-            PostDeserializeMethods = new List<MethodInfo>();
-            CustomSerializeMethods = new List<MethodInfo>();
-            CustomDeserializeMethods = new List<MethodInfo>();
+            PreSerializeMethods = new List<MethodInfoProxy>();
+            PostSerializeMethods = new List<MethodInfoProxy>();
+            PreDeserializeMethods = new List<MethodInfoProxy>();
+            PostDeserializeMethods = new List<MethodInfoProxy>();
+            CustomSerializeMethods = new List<MethodInfoProxy>();
+            CustomDeserializeMethods = new List<MethodInfoProxy>();
 
             if (ObjectType != null)
             {
-                Debug.WriteLine($"Determining object serializer in {AppDomain.CurrentDomain.FriendlyName}");
-                ObjectSerializer = Engine.DomainProxy.DetermineObjectSerializer(ObjectType, false, false);
+                //Debug.WriteLine($"Determining object serializer in {AppDomain.CurrentDomain.FriendlyName}");
+                ObjectSerializer = BaseObjectSerializer.DetermineObjectSerializer(ObjectType, false, false);
                 ObjectSerializer.TreeNode = this;
 
                 if (Owner != null)
                 {
-                    IEnumerable<MethodInfo> methods = ObjectType?.GetMethods(
+                    MethodInfoProxy[] methods = ObjectType?.GetMethods(
                         BindingFlags.NonPublic |
                         BindingFlags.Instance |
                         BindingFlags.Public |
                         BindingFlags.FlattenHierarchy);
 
-                    ConcurrentDictionary<MethodInfo, SerializationAttribute> attribCache = new ConcurrentDictionary<MethodInfo, SerializationAttribute>();
+                    ConcurrentDictionary<MethodInfoProxy, SerializationAttribute> attribCache = new ConcurrentDictionary<MethodInfoProxy, SerializationAttribute>();
                     Parallel.ForEach(methods, m =>
                     {
                         var attribs = m.GetCustomAttributes<SerializationAttribute>();
@@ -559,13 +561,13 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (MemberInfo.Member.MemberType.HasFlag(MemberTypes.Field))
             {
-                FieldInfo info = (FieldInfo)MemberInfo.Member;
+                FieldInfoProxy info = (FieldInfoProxy)MemberInfo.Member;
                 if (!(Parent.DefaultObject is null))
                     DefaultMemberObject = info.GetValue(Parent.DefaultObject);
             }
             else if (MemberInfo.Member.MemberType.HasFlag(MemberTypes.Property))
             {
-                PropertyInfo info = (PropertyInfo)MemberInfo.Member;
+                PropertyInfoProxy info = (PropertyInfoProxy)MemberInfo.Member;
                 if (info.CanRead && !(Parent.DefaultObject is null))
                     DefaultMemberObject = info.GetValue(Parent.DefaultObject);
             }
@@ -583,12 +585,12 @@ namespace TheraEngine.Core.Files.Serialization
             
             if (MemberInfo.Member.MemberType.HasFlag(MemberTypes.Field))
             {
-                FieldInfo info = (FieldInfo)MemberInfo.Member;
+                FieldInfoProxy info = (FieldInfoProxy)MemberInfo.Member;
                 Object = info.GetValue(Parent.Object);
             }
             else if (MemberInfo.Member.MemberType.HasFlag(MemberTypes.Property))
             {
-                PropertyInfo info = (PropertyInfo)MemberInfo.Member;
+                PropertyInfoProxy info = (PropertyInfoProxy)MemberInfo.Member;
                 if (info.CanRead)
                     Object = info.GetValue(Parent.Object);
                 else

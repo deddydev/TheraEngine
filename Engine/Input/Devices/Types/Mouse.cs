@@ -7,6 +7,7 @@ using TheraEngine.Networking;
 
 namespace TheraEngine.Input.Devices
 {
+    [Serializable]
     public abstract class BaseMouse : InputDevice
     {
         public BaseMouse(int index) : base(index) { }
@@ -62,6 +63,7 @@ namespace TheraEngine.Input.Devices
     }
     public delegate void DelMouseScroll(bool down);
     public delegate void DelCursorUpdate(float x, float y);
+    [Serializable]
     public class CursorManager
     {
         /// <summary>
@@ -198,6 +200,7 @@ namespace TheraEngine.Input.Devices
             //Engine.DebugPrint(_name + ": " + type.ToString());
         }
     }
+    [Serializable]
     public class ScrollWheelManager
     {
         List<(EInputPauseType PauseType, DelMouseScroll Method)> _onUpdate = new List<(EInputPauseType, DelMouseScroll)>();

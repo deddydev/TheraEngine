@@ -1,9 +1,11 @@
 ﻿using OpenTK.Input;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace TheraEngine.Input.Devices.OpenTK
 {
+    [Serializable]
     public class TKGamepad : BaseGamePad
     {
         public TKGamepad(int index) : base(index) { }

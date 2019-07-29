@@ -162,7 +162,7 @@ namespace TheraEngine.Core.Files.Serialization
                                 else
                                 {
                                     SerializeElement elem = new SerializeElement(null, new TSerializeMemberInfo(memberType, null));
-                                    var objSer = Engine.DomainProxy.DetermineObjectSerializer(objType, false, true);
+                                    var objSer = BaseObjectSerializer.DetermineObjectSerializer(objType, false, true);
                                     objSer.TreeNode = elem;
                                     objSer.DeserializeTreeFromBinary(ref address, this);
                                     objSer.DeserializeTreeToObject();

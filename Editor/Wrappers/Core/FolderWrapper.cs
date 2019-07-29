@@ -48,12 +48,14 @@ namespace TheraEditor.Wrappers
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));          //12
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
+
+            Engine.Instance.DomainProxy.ReloadTypeCaches += LoadFileTypes;
         }
-        public static void LoadFileTypes()
+        public static void LoadFileTypes(bool now)
         {
             if (_menu.InvokeRequired)
             {
-                _menu.Invoke((Action)LoadFileTypes);
+                _menu.Invoke((Action<bool>)LoadFileTypes);
                 return;
             }
 
@@ -70,19 +72,19 @@ namespace TheraEditor.Wrappers
             newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Enum", null, NewEnumAction));
             newDropdown.DropDownItems.Add(newCodeItem);
 
-            //Engine.PrintLine("Loading importable and creatable file types to folder menu in AppDomain " + AppDomain.CurrentDomain.FriendlyName);
-            //Task import = Task.Run(() =>
-            //{
-            //    Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);
-            //});
-            //Task create = Task.Run(() =>
-            //{
-            //    Program.PopulateMenuDropDown(newDropdown, OnNewClick, IsFileObject);
-            //});
-            //Task.WhenAll(import, create).ContinueWith(t =>
-            //{
-            //    Engine.PrintLine("Finished loading importable and creatable file types to folder menu.");
-            //});
+            Engine.PrintLine("Loading importable and creatable file types to folder menu.");
+            Task import = Task.Run(() =>
+            {
+                Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);
+            });
+            Task create = Task.Run(() =>
+            {
+                Program.PopulateMenuDropDown(newDropdown, OnNewClick, IsFileObject);
+            });
+            Task.WhenAll(import, create).ContinueWith(t =>
+            {
+                Engine.PrintLine("Finished loading importable and creatable file types to folder menu.");
+            });
         }
         
         private enum ECodeFileType

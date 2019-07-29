@@ -30,8 +30,8 @@ namespace TheraEditor.Windows.Forms
                 Name = $"Viewport{(FormIndex + 1).ToString()}_EditorCamera"
             };
 
-            Engine.PreWorldChanged += Engine_WorldPreChanged;
-            Engine.PostWorldChanged += Engine_WorldPostChanged;
+            Engine.Instance.PreWorldChanged += Engine_WorldPreChanged;
+            Engine.Instance.PostWorldChanged += Engine_WorldPostChanged;
 
             RenderPanel.AllowDrop = true;
             RenderPanel.GotFocus += RenderPanel_GotFocus;

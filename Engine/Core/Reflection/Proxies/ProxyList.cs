@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace TheraEngine.Core.Reflection.Proxies
+namespace TheraEngine.Core.Reflection
 {
-    public class ProxyList<T> : MarshalByRefObject, IList<T>
+    public class ProxyList<T> : ReflectionProxy, IList<T>
     {
-        private List<T> _list;
+        private readonly List<T> _list;
 
         //
         // Summary:

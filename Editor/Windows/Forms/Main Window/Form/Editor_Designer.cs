@@ -64,10 +64,10 @@ namespace TheraEditor.Windows.Forms
 
         public Editor() : base()
         {
-            Engine.BeginOperation += BeginOperation;
-            Engine.EndOperation += EndOperation;
+            Engine.PrintLine($"Constructing editor instance.");
 
             InitializeComponent();
+
             DockPanel.Theme = new TheraEditorTheme();
 
             FormTitle2.MouseDown += TitleBar_MouseDown;
@@ -209,10 +209,24 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnShown(EventArgs e)
         {
-            Engine.PreWorldChanged += Engine_PreWorldChanged;
-            Engine.PostWorldChanged += Engine_PostWorldChanged;
+            AppDomainHelper.GameDomainLoaded += AppDomainHelper_GameDomainLoaded;
+            AppDomainHelper.GameDomainUnloaded += AppDomainHelper_GameDomainUnloaded;
+
+            Engine.Instance.PreWorldChanged += Engine_PreWorldChanged;
+            Engine.Instance.PostWorldChanged += Engine_PostWorldChanged;
+
             _editorGameMode = new EditorGameMode();
         }
+
+        private void AppDomainHelper_GameDomainUnloaded()
+        {
+
+        }
+        private void AppDomainHelper_GameDomainLoaded(AppDomain obj)
+        {
+
+        }
+
         private void Engine_PreWorldChanged()
         {
 
@@ -557,7 +571,9 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             GameState = EEditorGameplayState.Editing;
+
             _project = value;
+            Engine.PrintLine($"Set project to {(value?.ToString() ?? "null")}.");
 
             //Engine.ShutDown();
             //Engine.SetGame(_project);

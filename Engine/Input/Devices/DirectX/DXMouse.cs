@@ -2,6 +2,7 @@
 
 namespace TheraEngine.Input.Devices.DirectX
 {
+    [Serializable]
     public class DXMouse : BaseMouse
     {
         public DXMouse(int index) : base(index) { }

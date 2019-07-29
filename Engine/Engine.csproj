@@ -200,6 +200,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>TheraDevKey.pfx</AssemblyOriginatorKeyFile>
@@ -499,6 +500,7 @@
     <Compile Include="Core\Reflection\Proxies\ParameterInfoProxy.cs" />
     <Compile Include="Core\Reflection\Proxies\PropertyInfoProxy.cs" />
     <Compile Include="Core\Reflection\Proxies\ProxyList.cs" />
+    <Compile Include="Core\Reflection\Proxies\ReflectionProxy.cs" />
     <Compile Include="Core\Reflection\Proxies\TypeProxy.cs" />
     <Compile Include="Core\ResourcePool.cs" />
     <EmbeddedResource Include="Core\Engine\Program_Template.tcs" />

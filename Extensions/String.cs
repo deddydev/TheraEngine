@@ -99,6 +99,10 @@ namespace Extensions
         //}
         public static string MakeAbsolutePathRelativeTo(this string mainPath, string otherPath)
         {
+            if (mainPath.StartsWith("file:///"))
+                mainPath = mainPath.Remove(0, 8);
+            if (otherPath.StartsWith("file:///"))
+                otherPath = otherPath.Remove(0, 8);
             string[] mainParts = Path.GetFullPath(mainPath).Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
             string[] otherParts = Path.GetFullPath(otherPath).Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
             

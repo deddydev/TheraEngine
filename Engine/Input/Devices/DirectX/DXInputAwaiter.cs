@@ -1,5 +1,8 @@
-﻿namespace TheraEngine.Input.Devices.DirectX
+﻿using System;
+
+namespace TheraEngine.Input.Devices.DirectX
 {
+    [Serializable]
     public class DXInputAwaiter : InputAwaiter
     {
         public const int MaxControllers = 4;

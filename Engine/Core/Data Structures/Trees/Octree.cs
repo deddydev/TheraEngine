@@ -40,9 +40,9 @@ namespace System
         void Add(T value);
         void Add(IEnumerable<T> value);
         void Remove(T value);
-
-        ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment);
-        ThreadSafeList<T> FindAll(TShape shape, EContainment containment);
+        
+        List<T> FindAll(float radius, Vec3 point, EContainment containment);
+        List<T> FindAll(TShape shape, EContainment containment);
     }
     /// <summary>
     /// A 3D space partitioning tree that recursively divides aabbs into 8 smaller aabbs depending on the items they contain.
@@ -146,12 +146,12 @@ namespace System
         {
             RemovedItems.Enqueue(value);
         }
-
-        public ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment)
+        
+        public List<T> FindAll(float radius, Vec3 point, EContainment containment)
             => FindAll(new Sphere(radius, point), containment);
-        public ThreadSafeList<T> FindAll(TShape shape, EContainment containment)
+        public List<T> FindAll(TShape shape, EContainment containment)
         {
-            ThreadSafeList<T> list = new ThreadSafeList<T>();
+            List<T> list = new List<T>();
             _head.FindAll(shape, list, containment);
             return list;
         }
@@ -178,8 +178,8 @@ namespace System
             public Node(BoundingBoxStruct bounds, int subDivIndex, int subDivLevel, Node parent, Octree<T> owner)
             {
                 _bounds = bounds;
-                _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
-                _items = new ThreadSafeList<T>(_lock);
+                //_lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+                _items = new List<T>();
                 _subNodes = new Node[MaxChildNodeCount];
                 _subDivIndex = subDivIndex;
                 _subDivLevel = subDivLevel;
@@ -193,7 +193,7 @@ namespace System
             protected List<T> _items;
             protected Node[] _subNodes;
             protected Node _parentNode;
-            private readonly ReaderWriterLockSlim _lock;
+            //private readonly ReaderWriterLockSlim _lock;
 
             public Octree<T> Owner { get; set; }
             public Node ParentNode { get => _parentNode; set => _parentNode = value; }
@@ -502,7 +502,7 @@ namespace System
 
                 return closest;
             }
-            public void FindAll(TShape shape, ThreadSafeList<T> list, EContainment containment)
+            public void FindAll(TShape shape, List<T> list, EContainment containment)
             {
                 EContainment c = shape.ContainedWithin(Bounds);
                 if (c == EContainment.Intersects)
@@ -537,9 +537,9 @@ namespace System
             /// Simply collects all the items contained in this node and all of its sub nodes.
             /// </summary>
             /// <returns></returns>
-            public ThreadSafeList<T> CollectChildren()
+            public List<T> CollectChildren()
             {
-                ThreadSafeList<T> list = new ThreadSafeList<T>(_items);
+                List<T> list = new List<T>(_items);
                 foreach (Node node in _subNodes)
                     if (node != null)
                         list.AddRange(node.CollectChildren());

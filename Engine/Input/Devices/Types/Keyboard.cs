@@ -4,6 +4,7 @@ using TheraEngine.Networking;
 
 namespace TheraEngine.Input.Devices
 {
+    [Serializable]
     public abstract class BaseKeyboard : InputDevice
     {
         public BaseKeyboard(int index) : base(index) { }

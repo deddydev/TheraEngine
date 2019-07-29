@@ -52,13 +52,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             
             _object = value;
             TypeProxy type = _object?.GetTypeProxy();
-            if (type != CurrentType)
+            bool nullType = type is null;
+            if (!nullType)
             {
-                _currentType = type;
+                if (type != CurrentType)
+                {
+                    _currentType = type;
+                    UpdateMouseDown();
+                }
+            }
+            else if (!(_currentType is null))
+            {
+                _currentType = null;
                 UpdateMouseDown();
             }
 
-            if (Editor.GetSettings().PropertyGrid.ShowTypeNames && 
+            var settings = Editor.GetSettings();
+            if (settings.PropertyGrid.ShowTypeNames && 
                 !(MemberInfo is PropGridMemberInfoIList ilist && 
                 ilist.ListElementType == CurrentType))
             {
@@ -154,6 +164,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 EngineDomainProxyEditor proxy = Engine.DomainProxy as EngineDomainProxyEditor;
                 while (type != null && type != typeof(object))
                 {
+                    string name = type.GetFriendlyName();
                     if (proxy.FullEditorTypes.ContainsKey(type))
                     {
                         bestType = type;

@@ -6,14 +6,16 @@ using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
 using TheraEngine;
+using TheraEngine.Actors;
 using TheraEngine.Core;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEditor
 {
     /// <summary>
-    /// Proxy that runs methods in the game's domain.
+    /// Proxy that runs the engine in the game's domain.
     /// </summary>
+    //[Serializable]
     public class EngineDomainProxyEditor : EngineDomainProxy
     {
         public ConcurrentDictionary<TypeProxy, TypeProxy> FullEditorTypes { get; private set; }
@@ -24,8 +26,8 @@ namespace TheraEditor
             if (Engine.DesignMode)
                 return;
 
-            InPlaceEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>();
-            FullEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>();
+            InPlaceEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>(new TypeProxy.EqualityComparer());
+            FullEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>(new TypeProxy.EqualityComparer());
 
             Engine.PrintLine("Loading all editor types to property grid in AppDomain " + AppDomain.CurrentDomain.FriendlyName);
             Task propEditorsTask = Task.Run(AddPropControlEditorTypes);
@@ -81,7 +83,12 @@ namespace TheraEditor
         public override void ResetTypeCaches(bool reloadNow = true)
         {
             ReloadEditorTypes();
-            base.ResetTypeCaches();
+            base.ResetTypeCaches(reloadNow);
+        }
+        public override void Start(string gamePath, bool isUIDomain)
+        {
+            base.Start(gamePath, isUIDomain);
+            Engine.SetPaused(true, ELocalPlayerIndex.One, true);
         }
     }
 }

@@ -25,3 +25,8 @@ Extensions/obj/
 Extensions/bin/
 WindowsNativeInterop/obj/
 WindowsNativeInterop/bin/
+GameProjectTemplate/obj/
+GameProjectTemplate/bin/
+GameProjectTemplateInstaller/bin/
+
+GameProjectTemplateInstaller/obj/

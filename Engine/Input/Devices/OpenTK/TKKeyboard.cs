@@ -1,7 +1,9 @@
 ﻿using OpenTK.Input;
+using System;
 
 namespace TheraEngine.Input.Devices.OpenTK
 {
+    [Serializable]
     public class TKKeyboard : BaseKeyboard
     {
         public TKKeyboard(int index) : base(index) { }

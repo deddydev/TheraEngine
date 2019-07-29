@@ -1,8 +1,10 @@
 ﻿using OpenTK.Input;
+using System;
 //using System.Windows.Forms;
 
 namespace TheraEngine.Input.Devices.OpenTK
 {
+    [Serializable]
     public class TKMouse : BaseMouse
     {
         public TKMouse(int index) : base(index) { }

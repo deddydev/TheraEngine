@@ -61,7 +61,7 @@ namespace TheraEngine.Rendering
                 new SortedSet<RenderCommand>(_farToNearSorter),
                 new SortedSet<RenderCommand>(_nearToFarSorter),
             };
-            Engine.LostFocus += Engine_LostFocus;
+            Engine.Instance.LostFocus += Engine_LostFocus;
         }
 
         private void Engine_LostFocus()

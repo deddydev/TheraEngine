@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,10 +34,19 @@ namespace TheraEngine.Core.Reflection
         /// <value>
         ///     <see langword="true"/> if this instance is the primary domain; otherwise, <see langword="false"/>.
         /// </value>
-        public static bool IsPrimaryDomain 
+        public static bool IsPrimaryDomain
             => GetPrimaryAppDomain() == AppDomain.CurrentDomain;
         public static bool IsGameDomain
-            => GetGameAppDomain() == AppDomain.CurrentDomain;
+        {
+            get
+            {
+                var gameDomain = GetGameAppDomain();
+                var primaryDomain = GetPrimaryAppDomain();
+                return gameDomain == AppDomain.CurrentDomain && gameDomain != primaryDomain;
+            }
+        }
+
+        public static bool IsGameDomainAlsoPrimary => GetGameAppDomain() == GetPrimaryAppDomain();
         /// <summary>
         /// Returns the primary application domain.
         /// </summary>
@@ -60,8 +68,8 @@ namespace TheraEngine.Core.Reflection
         private static AppDomain[] GetAppDomains()
             => EnumAppDomains().ToArray();
         private static TypeProxy[] GetExportedTypes()
-            => GetGameAppDomain().GetAssemblies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes().Select(r => TypeProxy.Get(r))).Distinct().ToArray();
-
+            => Engine.DomainProxy.GetExportedTypes().ToArray();
+        
         /// <summary>
         /// The default AppDomain.
         /// </summary>
@@ -94,6 +102,9 @@ namespace TheraEngine.Core.Reflection
         /// Gets the default AppDomain. This property caches the resulting value.
         /// </summary>
         public static AppDomain DefaultAppDomain => _defaultAppDomain.Value;
+
+        public static event Action<AppDomain> GameDomainLoaded;
+        public static event Action GameDomainUnloaded;
 
         /// <summary>
         /// Enumerates all AppDomains in the process.
@@ -217,6 +228,19 @@ namespace TheraEngine.Core.Reflection
             {
                 _domain.SetData(ResultID, _delegate.DynamicInvoke());
             }
+        }
+
+        public static void OnGameDomainLoaded()
+        {
+            ResetAppDomainCache();
+            ResetTypeCache();
+            GameDomainLoaded?.Invoke(GetGameAppDomain());
+        }
+        public static void OnGameDomainUnloaded()
+        {
+            ResetAppDomainCache();
+            ResetTypeCache();
+            GameDomainUnloaded?.Invoke();
         }
 
         #endregion

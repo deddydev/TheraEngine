@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Reflection;
 using static TheraEngine.Core.Files.Serialization.Deserializer.ReaderBinary;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -310,10 +311,10 @@ namespace TheraEngine.Core.Files.Serialization
             private unsafe void WriteObject(SerializeElement node, ref VoidPtr address)
             {
                 object value = node.Object;
-                Type objType = node.ObjectType;
+                TypeProxy objType = node.ObjectType;
                 object defaultValue = node.DefaultObject;
-                
-                Type nulledType = objType.GetUnderlyingNullableType();
+
+                TypeProxy nulledType = objType.GetUnderlyingNullableType();
                 bool nullable = nulledType != null;
                 if (nullable)
                     objType = nulledType;
@@ -407,7 +408,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
 
-            private bool ShouldWriteFileObjectManually(Type objType)
+            private bool ShouldWriteFileObjectManually(TypeProxy objType)
             {
                 TFileExt ext = TFileObject.GetFileExtension(objType);
                 if (ext == null)
@@ -418,7 +419,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                 return serConfig || serState;
             }
-            private void WriteFileObjectManually(ref VoidPtr address, IFileObject fobj, Type objType, SerializeElement node)
+            private void WriteFileObjectManually(ref VoidPtr address, IFileObject fobj, TypeProxy objType, SerializeElement node)
             {
                 int size = node.ManuallyCalculatedSize;
                 address.WriteInt(size);
@@ -432,12 +433,12 @@ namespace TheraEngine.Core.Files.Serialization
 
                 int size = 0;
                 object value = node.Object;
-                Type objType = node.ObjectType;
+                TypeProxy objType = node.ObjectType;
                 object defaultValue = node.DefaultObject;
 
                 if (objType != null)
                 {
-                    Type nulledType = objType.GetUnderlyingNullableType();
+                    TypeProxy nulledType = objType.GetUnderlyingNullableType();
                     bool nullable = nulledType != null;
                     if (nullable)
                         objType = nulledType;
@@ -519,19 +520,19 @@ namespace TheraEngine.Core.Files.Serialization
                 return size;
             }
 
-            private int GetSizeFileObjectManually(IFileObject fobj, Type objectType, SerializeElement node)
+            private int GetSizeFileObjectManually(IFileObject fobj, TypeProxy objectType, SerializeElement node)
             {
                 int size = sizeof(int); //length
                 node.ManuallyCalculatedSize = fobj.ManualGetSizeBinary(StringTable, Flags);
                 size += node.ManuallyCalculatedSize;
                 return size;
             }
-            private int GetSizeArray(object value, Type elementType)
+            private int GetSizeArray(object value, TypeProxy elementType)
             {
                 Array array = value as Array;
                 return 0;
             }
-            private void WriteArray(object value, Type elementType, ref VoidPtr address)
+            private void WriteArray(object value, TypeProxy elementType, ref VoidPtr address)
             {
                 Array array = value as Array;
 

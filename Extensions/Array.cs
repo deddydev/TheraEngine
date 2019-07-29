@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Extensions
 {
@@ -336,10 +340,61 @@ namespace Extensions
 
             return array;
         }
-        public static void ForEach<T>(this T[] data, Action<T> method)
+        public static void ForEach<T>(this T[] array, Action<T> action)
         {
-            if (data != null && method != null)
-                Array.ForEach(data, method);
+            try
+            {
+                if (array != null && action != null)
+                    Array.ForEach(array, action);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+        }
+        public static void ForEachParallel<T>(this T[] array, Action<T, ParallelLoopState> action)
+            => ForEachParallel(array, action, CancellationToken.None);
+        public static void ForEachParallel<T>(this T[] array, Action<T, ParallelLoopState> action, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (array != null && action != null)
+                {
+                    OrderablePartitioner<T> rangePartitioner = Partitioner.Create(array, true);
+                    ParallelOptions options = new ParallelOptions
+                    {
+                        MaxDegreeOfParallelism = Environment.ProcessorCount,
+                        CancellationToken = cancellationToken,
+                    };
+                    Parallel.ForEach(rangePartitioner, options, action);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+        }
+        public static void ForEachParallel<T>(this T[] array, Action<T> action)
+            => ForEachParallel(array, action, CancellationToken.None);
+        public static void ForEachParallel<T>(this T[] array, Action<T> action, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (array != null && action != null)
+                {
+                    OrderablePartitioner<T> rangePartitioner = Partitioner.Create(array, true);
+                    ParallelOptions options = new ParallelOptions
+                    {
+                        MaxDegreeOfParallelism = Environment.ProcessorCount,
+                        CancellationToken = cancellationToken,
+                    };
+                    Parallel.ForEach(rangePartitioner, options, action);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
         }
     }
 }

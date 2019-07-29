@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Extensions
 {
@@ -70,12 +72,25 @@ namespace Extensions
         {
             try
             {
-                foreach (T item in enumeration)
-                    action(item);
+                if (enumeration != null && action != null)
+                    foreach (T item in enumeration)
+                        action(item);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Debug.WriteLine(ex.ToString());
+            }
+        }
+        public static void ForEachParallel<T>(this IEnumerable<T> enumeration, Action<T> action)
+        {
+            try
+            {
+                if (enumeration != null && action != null)
+                    Parallel.ForEach(enumeration, action);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
             }
         }
     }

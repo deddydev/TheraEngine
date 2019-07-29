@@ -46,20 +46,24 @@ namespace TheraEngine.Core.Files
             return true;
         }
 
+        private object _loadLock = new object();
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
-            if (_file != null || LoadAttempted)
+            if (_file != null)
                 return _file;
 
-            LoadAttempted = true;
             IsLoading = true;
 
-            T value = await LoadNewInstanceAsync(progress, cancel);
-            File = value;
+            bool allowLoad = !LoadAttempted;
+            var (instance, _, loadAttempted) = await LoadNewInstanceAsync(progress, cancel, allowLoad);
+            if (allowLoad)
+                LoadAttempted = loadAttempted;
+
+            File = instance;
 
             IsLoading = false;
 
-            return value;
+            return instance;
         }
         
         public static implicit operator LocalFileRef<T>(T file) => file == null ? null : new LocalFileRef<T>(file);

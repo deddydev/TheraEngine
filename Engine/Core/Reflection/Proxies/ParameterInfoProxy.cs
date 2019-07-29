@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace TheraEngine.Core.Reflection
 {
-    public class ParameterInfoProxy : MarshalByRefObject
+    public class ParameterInfoProxy : ReflectionProxy
     {
         public static ConcurrentDictionary<ParameterInfo, ParameterInfoProxy> Proxies { get; }
             = new ConcurrentDictionary<ParameterInfo, ParameterInfoProxy>();
@@ -16,7 +16,7 @@ namespace TheraEngine.Core.Reflection
         private ParameterInfo Value { get; set; }
 
         //public ParameterInfoProxy() { }
-        private ParameterInfoProxy(ParameterInfo value) => Value = value;
+        private ParameterInfoProxy(ParameterInfo value) : base() => Value = value;
 
         public TypeProxy ParameterType => Value.ParameterType;
     }

@@ -8,7 +8,7 @@ namespace Extensions
         public static TypeProxy GetTypeProxy(this object o)
         {
             if (o is IObject iobj && iobj.Domain.IsGameDomain())
-                return iobj.RetrieveTypeProxy();
+                return iobj.GetTypeProxy();
             
             return o.GetType();
         }

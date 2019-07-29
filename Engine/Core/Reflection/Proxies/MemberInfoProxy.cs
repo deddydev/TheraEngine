@@ -3,12 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
 {
-    [Serializable]
-    public abstract class MemberInfoProxy
+    //[Serializable]
+    public abstract class MemberInfoProxy : ReflectionProxy
     {
         public static MemberInfoProxy Get(MemberInfo info)
         {
@@ -29,7 +28,8 @@ namespace TheraEngine.Core.Reflection
         public AppDomain Domain => AppDomain.CurrentDomain;
 
         //public MemberInfoProxy() { }
-        protected MemberInfoProxy(MemberInfo value) => Value = value;
+        protected MemberInfoProxy(MemberInfo value) : base()
+            => Value = value;
 
         //
         // Summary:

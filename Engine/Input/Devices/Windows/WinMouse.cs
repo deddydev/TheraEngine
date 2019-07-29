@@ -1,7 +1,9 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 
 namespace TheraEngine.Input.Devices.Windows
 {
+    [Serializable]
     public class WinMouse : BaseMouse
     {
         public WinMouse(int index) : base(index) { }

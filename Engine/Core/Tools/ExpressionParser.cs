@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Tools
 {
@@ -197,11 +198,11 @@ namespace TheraEngine.Core.Tools
             }
 
             //Handle field/property names
-            List<FieldInfo> fields = new List<FieldInfo>();
-            List<PropertyInfo> properties = new List<PropertyInfo>();
+            List<FieldInfoProxy> fields = new List<FieldInfoProxy>();
+            List<PropertyInfoProxy> properties = new List<PropertyInfoProxy>();
             if (provider != null)
             {
-                Type t = provider.GetType();
+                TypeProxy t = provider.GetTypeProxy();
                 while (t != null && t != typeof(object))
                 {
                     fields.AddRange(t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
@@ -210,7 +211,7 @@ namespace TheraEngine.Core.Tools
                 }
             }
 
-            FieldInfo field = fields.FirstOrDefault(x => x.Name.Equals(token));
+            FieldInfoProxy field = fields.FirstOrDefault(x => x.Name.Equals(token));
             if (field != null)
             {
                 object value = field.GetValue(provider);
@@ -224,7 +225,7 @@ namespace TheraEngine.Core.Tools
                 return value;
             }
 
-            PropertyInfo property = properties.FirstOrDefault(x => x.Name.Equals(token));
+            PropertyInfoProxy property = properties.FirstOrDefault(x => x.Name.Equals(token));
             if (property != null)
             {
                 object value = property.GetValue(provider);

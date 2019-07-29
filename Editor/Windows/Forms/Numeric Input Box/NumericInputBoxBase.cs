@@ -84,7 +84,7 @@ namespace TheraEditor.Windows.Forms
                     Text = Text.Substring(0, Text.Length - _suffix.Length);
                 _suffix = value;
                 if (_suffix != null && !string.IsNullOrWhiteSpace(Text))
-                    Text = Text + _suffix;
+                    Text += _suffix;
             }
         }
         public bool Nullable
@@ -111,7 +111,7 @@ namespace TheraEditor.Windows.Forms
             if (_prefix != null && !Text.StartsWith(_prefix))
                 Text = _prefix + Text;
             if (_suffix != null && !Text.EndsWith(_suffix))
-                Text = Text + _suffix;
+                Text += _suffix;
             base.OnLostFocus(e);
         }
         protected override void OnMouseWheel(MouseEventArgs e)
@@ -286,9 +286,9 @@ namespace TheraEditor.Windows.Forms
         protected string GetTextValue()
         {
             string textValue = Text;
-            if (_prefix != null && textValue.StartsWith(_prefix))
+            if (_prefix != null && textValue.StartsWith(_prefix, StringComparison.InvariantCulture))
                 textValue = textValue.Substring(_prefix.Length, textValue.Length - _prefix.Length);
-            if (_suffix != null && textValue.EndsWith(_suffix))
+            if (_suffix != null && textValue.EndsWith(_suffix, StringComparison.InvariantCulture))
                 textValue = textValue.Substring(0, textValue.Length - _suffix.Length);
             return textValue;
         }

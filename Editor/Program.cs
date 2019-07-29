@@ -8,7 +8,6 @@ using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Core.Reflection;
-using TheraEngine.Core.Reflection.Proxies;
 using TheraEngine.Editor;
 
 namespace TheraEditor
@@ -29,9 +28,11 @@ namespace TheraEditor
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+#if !DEBUG
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             Application.ThreadException += Application_ThreadException;
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+#endif
 
             Application.Run(Editor.Instance);
         }
@@ -76,6 +77,7 @@ namespace TheraEditor
                 else
                 {
                     node = new NamespaceNode(name);
+                    node.CreateButton(true);
                     nodeCache.Add(name, node);
                     tree.Nodes.Add(node.TreeNode);
                 }

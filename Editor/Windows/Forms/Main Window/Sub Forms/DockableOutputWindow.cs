@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Core.Reflection;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -15,7 +16,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnShown(e);
             OutputTextBox.Text = Engine.OutputString;
-            Engine.DebugOutput += Engine_DebugOutput;
+            Engine.Instance.DebugOutput += Engine_DebugOutput;
             if (!OutputTextBox.Focused)
             {
                 OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
@@ -24,7 +25,7 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            Engine.DebugOutput -= Engine_DebugOutput;
+            Engine.Instance.DebugOutput -= Engine_DebugOutput;
             base.OnHandleDestroyed(e);
         }
         

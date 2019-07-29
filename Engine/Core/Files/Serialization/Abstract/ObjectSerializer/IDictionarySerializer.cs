@@ -4,6 +4,7 @@ using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -19,7 +20,7 @@ namespace TheraEngine.Core.Files.Serialization
             DeserializeAsync = TreeNode.MemberInfo?.DeserializeAsync ?? false;
 
             int keyValCount = TreeNode.Children.Count;
-            Type dicType = TreeNode.ObjectType;
+            TypeProxy dicType = TreeNode.ObjectType;
 
             Dictionary = dicType.CreateInstance() as IDictionary;
             TreeNode.Object = Dictionary;
@@ -35,11 +36,11 @@ namespace TheraEngine.Core.Files.Serialization
                 DoneReadingElements?.Invoke();
             }
         }
-        private async void ReadDictionary(Type dicType, int keyValCount)
+        private async void ReadDictionary(TypeProxy dicType, int keyValCount)
         {
-            Type[] args = dicType.GetGenericArguments();
-            Type keyType = args[0];
-            Type valType = args[1];
+            TypeProxy[] args = dicType.GetGenericArguments();
+            TypeProxy keyType = args[0];
+            TypeProxy valType = args[1];
 
             for (int i = 0; i < keyValCount; ++i)
             {
@@ -147,11 +148,11 @@ namespace TheraEngine.Core.Files.Serialization
             throw new NotImplementedException();
         }
 
-        public override bool ObjectFromString(Type type, string value, out object result) => throw new NotImplementedException();
+        public override bool ObjectFromString(TypeProxy type, string value, out object result) => throw new NotImplementedException();
         public override bool ObjectToString(object obj, out string str) => throw new NotImplementedException();
-        public override bool CanWriteAsString(Type type)
+        public override bool CanWriteAsString(TypeProxy type)
         {
-            Type[] types = type.GetGenericArguments();
+            TypeProxy[] types = type.GetGenericArguments();
             return false;
         }
     }

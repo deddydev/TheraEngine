@@ -246,7 +246,7 @@ namespace TheraEngine.Rendering.Models
                         IBone b = inf._bones[j];
                         if (set)
                         {
-                            ThreadSafeList<int> list;
+                            List<int> list;
 
                             //if (!b._influencedVertices.ContainsKey(BindingId))
                             //    b._influencedVertices.Add(BindingId, list = new List<int>());
@@ -260,7 +260,7 @@ namespace TheraEngine.Rendering.Models
                         {
                             //if (b._influencedVertices.ContainsKey(BindingId))
                             //{
-                            ThreadSafeList<int> list = b.InfluencedVertices[BindingId].Item2;
+                            List<int> list = b.InfluencedVertices[BindingId].Item2;
                                 if (list.Contains(point.Index))
                                     list.Remove(point.Index);
                                 //if (list.Count == 0)

@@ -42,9 +42,9 @@ namespace TheraEngine.Core.Files
         public static TFile3rdPartyExt GetFile3rdPartyExtensions<T>() 
             => GetFile3rdPartyExtensions(typeof(T));
 
-        public static Type DetermineType(string path)
+        public static TypeProxy DetermineType(string path)
             => DetermineType(path, out _);
-        public static Type DetermineType(string path, out EFileFormat format)
+        public static TypeProxy DetermineType(string path, out EFileFormat format)
             => SerializationCommon.DetermineType(path, out format);
 
         private static Type[] _thirdPartyCache;
@@ -268,12 +268,12 @@ namespace TheraEngine.Core.Files
         public static async Task<T> LoadAsync<T>(string filePath)
         {
             T file;
-            if (Engine.BeginOperation != null)
+            if (Engine.Instance.BeginOperation != null)
             {
-                int op = Engine.BeginOperation($"Loading file from {filePath}...", $"{filePath} loaded successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Engine.Instance.BeginOperation($"Loading file from {filePath}...", $"{filePath} loaded successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
                 file = (T)(await LoadAsync(typeof(T), filePath, progress, cancel.Token));
-                if (Engine.EndOperation != null)
-                    Engine.EndOperation(op);
+                if (Engine.Instance.EndOperation != null)
+                    Engine.Instance.EndOperation(op);
                 else
                     ((IProgress<float>)progress).Report(1.0f);
             }
@@ -300,6 +300,16 @@ namespace TheraEngine.Core.Files
         public static async Task<object> LoadAsync(
             Type expectedType, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
+            object result = await TryLoadAsync(expectedType, filePath, progress, cancel);
+            if (result != null)
+                return result;
+
+            Engine.LogWarning("{0} cannot be loaded as {1}.", filePath, expectedType.GetFriendlyName());
+            return null;
+        }
+
+        private static async Task<object> TryLoadAsync(Type expectedType, string filePath, IProgress<float> progress, CancellationToken cancel)
+        {
             TFileExt extAttrib = GetFileExtension(expectedType);
             TFile3rdPartyExt tpAttrib = GetFile3rdPartyExtensions(expectedType);
             EFileFormat fmt = GetFormat(filePath, out string ext);
@@ -315,11 +325,11 @@ namespace TheraEngine.Core.Files
                 }
                 else
                 {
-                    EProprietaryFileFormat pfmt = (EProprietaryFileFormat)(int)fmt;
+                    //EProprietaryFileFormat pfmt = (EProprietaryFileFormat)(int)fmt;
 
-                    string fileExt = extAttrib.GetFullExtension(pfmt);
-                    if (string.Equals(ext, fileExt))
-                    {
+                    //string fileExt = extAttrib.GetFullExtension(pfmt);
+                    //if (string.Equals(ext, fileExt))
+                    //{
                         var file = fmt == EFileFormat.XML ?
                             await FromXMLAsync(filePath, progress, cancel) :
                             await FromBinaryAsync(filePath, progress, cancel);
@@ -335,7 +345,7 @@ namespace TheraEngine.Core.Files
                         }
 
                         return file;
-                    }
+                    //}
                 }
             }
             else if (tpAttrib != null)
@@ -346,9 +356,17 @@ namespace TheraEngine.Core.Files
                     return await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
             }
 
-            Engine.LogWarning("{0} cannot be loaded as {1}.", filePath, expectedType.GetFriendlyName());
-            return default;
+            var subClassTypes = AppDomainHelper.FindTypes(x => x.GetType().IsSubclassOf(expectedType));
+            foreach (var subClassType in subClassTypes)
+            {
+                object result = await TryLoadAsync(expectedType, filePath, progress, cancel);
+                if (result != null)
+                    return result;
+            }
+
+            return null;
         }
+
         #endregion
 
         #region XML
@@ -364,7 +382,7 @@ namespace TheraEngine.Core.Files
                 if (!File.Exists(filePath))
                     return null;
 
-                Type fileType = SerializationCommon.DetermineType(filePath, out _);
+                TypeProxy fileType = SerializationCommon.DetermineType(filePath, out _);
                 if (fileType == null)
                     return null;
 
@@ -399,7 +417,7 @@ namespace TheraEngine.Core.Files
                 if (!File.Exists(filePath))
                     return null;
 
-                Type fileType = SerializationCommon.DetermineType(filePath, out EFileFormat format);
+                TypeProxy fileType = SerializationCommon.DetermineType(filePath, out EFileFormat format);
                 if (format != EFileFormat.Binary)
                 {
                     Engine.LogWarning($"Specified to read in {(EFileFormat.Binary).ToString()} format, but file is {format.ToString()}. Reading anyway.");

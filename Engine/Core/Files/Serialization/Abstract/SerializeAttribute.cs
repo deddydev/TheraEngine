@@ -2,6 +2,7 @@
 
 namespace TheraEngine.Core.Files.Serialization
 {
+    [Serializable]
     public class SerializeAttribute : SerializeElementContent
     {
         public SerializeAttribute() { }

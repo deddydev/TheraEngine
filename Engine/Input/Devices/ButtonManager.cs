@@ -7,6 +7,7 @@ namespace TheraEngine.Input.Devices
     public delegate void DelSendButtonPressedState(int buttonIndex, int listIndex, bool pressed);
     public delegate void DelSendButtonAction(int buttonIndex, int listIndex);
     public delegate void DelButtonState(bool pressed);
+    [Serializable]
     public class ButtonManager
     {
         private const float TimerMax = 0.5f;

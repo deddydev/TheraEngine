@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace TheraEngine.Core.Reflection
 {
-    public class MethodBodyProxy : MarshalByRefObject
+    public class MethodBodyProxy : ReflectionProxy
     {
         public static ConcurrentDictionary<MethodBody, MethodBodyProxy> Proxies { get; }
             = new ConcurrentDictionary<MethodBody, MethodBodyProxy>();
@@ -16,6 +16,6 @@ namespace TheraEngine.Core.Reflection
         private MethodBody Value { get; set; }
 
         //public MethodBodyProxy() { }
-        protected MethodBodyProxy(MethodBody value) => Value = value;
+        protected MethodBodyProxy(MethodBody value) : base() => Value = value;
     }
 }

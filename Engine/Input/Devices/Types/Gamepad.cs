@@ -42,6 +42,7 @@ namespace TheraEngine.Input.Devices
     /// <summary>
     /// Input for local
     /// </summary>
+    [Serializable]
     public abstract class BaseGamePad : InputDevice
     {
         public BaseGamePad(int index) : base(index) { }

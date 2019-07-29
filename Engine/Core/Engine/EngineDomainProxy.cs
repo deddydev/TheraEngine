@@ -2,13 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting.Lifetime;
 using System.Threading;
-using TheraEngine.Actors;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
@@ -17,20 +15,26 @@ using static TheraEngine.Core.Files.TFileObject;
 namespace TheraEngine.Core
 {
     /// <summary>
-    /// Proxy that runs methods in the game's domain.
+    /// Proxy that runs the engine in the game's domain.
     /// </summary>
+    //[Serializable]
     public class EngineDomainProxy : MarshalByRefObject
     {
         public Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyLoaders { get; private set; }
         public Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyExporters { get; private set; }
-        private Lazy<Dictionary<ObjectSerializerFor, TypeProxy>> ObjectSerializers { get; set; }
 
+        public event Action Stopped;
+        public event Action Started;
+        public event Action<string> DebugOutput;
+        public event Action<bool> ReloadTypeCaches;
+
+        public AppDomain ProxiedDomain => AppDomain.CurrentDomain;
+
+        public MarshalSponsor SponsorRef { get; }
         public EngineDomainProxy()
         {
-            ClearObjectSerializerCache();
+            SponsorRef = new MarshalSponsor(this);
         }
-
-        public Sponsor SponsorRef { get; } = new Sponsor();
 
         public string GetVersionInfo() =>
 
@@ -45,129 +49,76 @@ namespace TheraEngine.Core
             "AppDomain: "           + AppDomain.CurrentDomain.FriendlyName
             + Environment.NewLine;
 
-        public Type CreateType(string typeDeclaration)
+        public ProxyList<TypeProxy> GetExportedTypes()
         {
-            try
-            {
-                AssemblyQualifiedName asmQualName = new AssemblyQualifiedName(typeDeclaration);
-                string asmName = asmQualName.AssemblyName;
-                //var domains = Engine.EnumAppDomains();
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies(); //domains.SelectMany(x => x.GetAssemblies());
-
-                return Type.GetType(typeDeclaration,
-                    name => assemblies.FirstOrDefault(assembly => assembly.GetName().Name.EqualsInvariantIgnoreCase(name.Name)),
-                    null,
-                    true);
-            }
-            catch// (Exception ex)
-            {
-                //Engine.LogException(ex);
-            }
-            return null;
+            AppDomain domain = AppDomain.CurrentDomain;
+            Assembly[] assemblies = domain.GetAssemblies();
+            return new ProxyList<TypeProxy>(assemblies.Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes().Select(r => TypeProxy.Get(r))).Distinct());
         }
-        public void Run(TGame game)
+
+        //public Type CreateType(string typeDeclaration)
+        //{
+        //    try
+        //    {
+        //        AssemblyQualifiedName asmQualName = new AssemblyQualifiedName(typeDeclaration);
+        //        string asmName = asmQualName.AssemblyName;
+        //        //var domains = Engine.EnumAppDomains();
+        //        var assemblies = AppDomain.CurrentDomain.GetAssemblies(); //domains.SelectMany(x => x.GetAssemblies());
+
+        //        return Type.GetType(typeDeclaration,
+        //            name => assemblies.FirstOrDefault(assembly => assembly.GetName().Name.EqualsInvariantIgnoreCase(name.Name)),
+        //            null,
+        //            true);
+        //    }
+        //    catch// (Exception ex)
+        //    {
+        //        //Engine.LogException(ex);
+        //    }
+        //    return null;
+        //}
+        public async virtual void Start(string gamePath, bool isUIDomain)
         {
-            Engine.SetGame(game);
-            //Engine.SetWorldPanel(Editor.Instance.RenderForm1.RenderPanel, false);
+            Engine.PrintLine($"Starting domain proxy.");
+            AppDomainHelper.OnGameDomainLoaded();
+
             Engine.Initialize();
-            //Editor.Instance.SetRenderTicking(true);
-            Engine.SetPaused(true, ELocalPlayerIndex.One, true);
-
             ResetTypeCaches();
+
+            Engine.Run();
+            if (gamePath.IsExistingDirectoryPath() == false)
+            {
+                TGame game = await LoadAsync<TGame>(gamePath);
+                Engine.SetGame(game);
+            }
+            else
+                Engine.SetGame(null);
+
+            //Engine.SetWorldPanel(Editor.Instance.RenderForm1.RenderPanel, false);
+            //Editor.Instance.SetRenderTicking(true);
+
+            Started?.Invoke();
         }
-        public virtual void Destroyed()
+        public virtual void Stop()
         {
+            Engine.Stop();
             Engine.ShutDown();
             ResetTypeCaches(false);
-            SponsorRef.Release = true;
+            SponsorRef.Release();
+            Stopped?.Invoke();
         }
-        /// <summary>
-        /// Finds the class to use to read and write the given type.
-        /// </summary>
-        /// <param name="objectType"></param>
-        /// <param name="mustAllowStringSerialize"></param>
-        /// <param name="mustAllowBinarySerialize"></param>
-        /// <returns></returns>
-        public BaseObjectSerializer DetermineObjectSerializer(
-            Type objectType, bool mustAllowStringSerialize = false, bool mustAllowBinarySerialize = false)
-        {
-            if (objectType == null)
-            {
-                Engine.LogWarning("Unable to create object serializer for null type.");
-                return null;
-            }
-
-            var temp = ObjectSerializers.Value.Where(kv => 
-                objectType?.IsAssignableTo(kv.Key.ObjectType) ?? false);
-
-            if (mustAllowStringSerialize)
-                temp = temp.Where(kv => kv.Key.CanSerializeAsString);
-            if (mustAllowBinarySerialize)
-                temp = temp.Where(kv => kv.Key.CanSerializeAsBinary);
-
-            TypeProxy[] types = temp.Select(x => x.Value).ToArray();
-
-            TypeProxy serType;
-            switch (types.Length)
-            {
-                case 0:
-                    serType = typeof(CommonObjectSerializer);
-                    break;
-                case 1:
-                    serType = types[0];
-                    break;
-                default:
-                    {
-                        int[] counts = types.Select(x => types.Count(x.IsSubclassOf)).ToArray();
-                        int min = counts.Min();
-                        int[] mins = counts.FindAllMatchIndices(x => x == min);
-                        string msg = "Type " + objectType.GetFriendlyName() + " has multiple valid object serializers: " + types.ToStringList(", ", " and ", x => x.GetFriendlyName());
-                        msg += ". Narrowed down to " + mins.Select(x => types[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
-                        Engine.PrintLine(msg);
-                        serType = types[mins[0]];
-                        break;
-                    }
-            }
-
-            Debug.WriteLine($"AppDomain {AppDomain.CurrentDomain.FriendlyName} - Determined object serializer for {objectType.GetFriendlyName()}: {serType.GetFriendlyName()}");
-
-            return serType.CreateInstance<BaseObjectSerializer>();
-        }
-        private Dictionary<ObjectSerializerFor, TypeProxy> GetObjectSerializers()
-        {
-            Debug.Print("Reloading object serializer cache.");
-            Type baseObjSerType = typeof(BaseObjectSerializer);
-            IEnumerable<TypeProxy> typeList = AppDomainHelper.FindTypes(type =>
-                type.IsAssignableTo(baseObjSerType) &&
-                type.HasCustomAttribute<ObjectSerializerFor>());
-
-            var serializers = new Dictionary<ObjectSerializerFor, TypeProxy>();
-            foreach (Type type in typeList)
-            {
-                var attrib = type.GetCustomAttribute<ObjectSerializerFor>();
-                if (!serializers.ContainsKey(attrib))
-                    serializers.Add(attrib, type);
-            }
-            Debug.Print("Done loading object serializer cache.");
-            return serializers;
-        }
-        public void ClearObjectSerializerCache()
-        {
-            Debug.Print("Clearing object serializer cache.");
-            ObjectSerializers = new Lazy<Dictionary<ObjectSerializerFor, TypeProxy>>(GetObjectSerializers, LazyThreadSafetyMode.PublicationOnly);
-        }
-
         public virtual void ResetTypeCaches(bool reloadNow = true)
         {
             Engine.PrintLine($"{(reloadNow ? "Regenerating" : "Clearing")} type caches.");
-            //FolderWrapper.LoadFileTypes();
 
-            ClearObjectSerializerCache();
+            BaseObjectSerializer.ClearObjectSerializerCache();
             if (reloadNow)
-                _ = ObjectSerializers.Value;
+                _ = BaseObjectSerializer.ObjectSerializers.Value;
             
             ClearThirdPartyTypeCache(reloadNow);
             Reset3rdPartyImportExportMethods(reloadNow);
+
+            ReloadTypeCaches?.Invoke(reloadNow);
+
             Engine.PrintLine($"Done {(reloadNow ? "regenerating" : "clearing")} type caches.");
         }
 
@@ -309,18 +260,11 @@ namespace TheraEngine.Core
             }
         }
 
-        public override object InitializeLifetimeService() => base.InitializeLifetimeService();
-        public class Sponsor : MarshalByRefObject, ISponsor
+        public TypeProxy GetTypeFor(string typeName)
         {
-            public bool Release { get; set; } = false;
-
-            public TimeSpan Renewal(ILease lease)
-            {
-                // if any of these cases is true
-                if (lease == null || lease.CurrentState != LeaseState.Renewing || Release)
-                    return TimeSpan.Zero; // don't renew
-                return TimeSpan.FromSeconds(1); // renew for a second, or however long u want
-            }
+            Engine.PrintLine("Getting type proxy for " + typeName);
+            TypeProxy proxy = Type.GetType(typeName);
+            return proxy;
         }
     }
 }

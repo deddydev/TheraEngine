@@ -105,11 +105,12 @@ namespace TheraEngine.Core.Files
             get => _file != null;
             set
             {
-                LoadAttempted = false;
+                if (value == IsLoaded)
+                    return;
+
+                UnloadReference();
                 if (value)
                     GetInstance();
-                else
-                    UnloadReference();
             }
         }
         public async void Reload()
@@ -163,7 +164,7 @@ namespace TheraEngine.Core.Files
                     }
                     //if (!_file.References.Contains(this))
                     //    _file.References.Add(this);
-                    LoadAttempted = true;
+                    //LoadAttempted = true;
                     OnLoaded(_file);
                 }
                 else
@@ -233,11 +234,9 @@ namespace TheraEngine.Core.Files
         IFileObject IFileRef.GetInstance() => GetInstance();
         public T GetInstance()
         {
-            if (_file != null || LoadAttempted)
+            if (IsLoading || IsLoaded)
                 return _file;
-
-            LoadAttempted = false;
-            GetInstanceAsync().ContinueWith(x => LoadAttempted = true);
+            GetInstanceAsync().ContinueWith(t => { });
             return _file;
         }
 

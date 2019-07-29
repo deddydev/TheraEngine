@@ -20,9 +20,9 @@ namespace TheraEngine
         object UserObject { get; set; }
         bool ConstructedProgrammatically { get; set; }
         AppDomain Domain { get; }
-        bool HasEditorState { get; }
 
 #if EDITOR
+        bool HasEditorState { get; }
         EditorState EditorState { get; set; }
         void OnSelectedChanged(bool selected);
         void OnHighlightChanged(bool highlighted);
@@ -56,40 +56,73 @@ namespace TheraEngine
         //bool RemoveAnimation(AnimationTree anim);
         #endregion
 
-        TypeProxy RetrieveTypeProxy();
+        TypeProxy GetTypeProxy();
     }
 
-    public class MarshalSponsor : MarshalByRefObject, ISponsor
+    public class MarshalSponsor : MarshalByRefObject, ISponsor, IDisposable
     {
         public static readonly TimeSpan RenewalTimeSpan = TimeSpan.FromSeconds(1);
 
-        public bool Release { get; set; } = false;
+        public ILease Lease { get; private set; }
+        public bool WantsRelease { get; set; } = false;
         public bool IsReleased { get; private set; } = false;
+        public MarshalByRefObject Object { get; private set; }
 
         public TimeSpan Renewal(ILease lease)
         {
             // if any of these cases is true
-            if (lease == null || lease.CurrentState != LeaseState.Renewing || Release)
+            IsReleased = lease == null || lease.CurrentState == LeaseState.Expired || WantsRelease;
+            string fn = Object.GetTypeProxy().GetFriendlyName();
+            if (IsReleased)
             {
-                IsReleased = true;
-                return TimeSpan.Zero; // don't renew
+                Engine.PrintLine($"Released lease for {fn}.");
+                return TimeSpan.Zero;
             }
-            IsReleased = lease.CurrentState == LeaseState.Expired;
+            Engine.PrintLine($"Renewed lease for {fn}.");
             return RenewalTimeSpan;
         }
+        
+        public MarshalSponsor(MarshalByRefObject mbro)
+        {
+            Object = mbro;
+            Lease = (ILease)mbro.GetLifetimeService();
+            Lease?.Register(this);
+        }
+
+        public void Dispose()
+        {
+            Lease?.Unregister(this);
+            Lease = null;
+        }
+
+        public override object InitializeLifetimeService() => null;
+        public void Release() => WantsRelease = true;
     }
 
     public delegate void ResourceEventHandler(TObject node);
     public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
 
-    [Serializable]
-    public abstract class TObject : IObject
+    public abstract class TObject : MarshalByRefObject, IObject
     {
+        public TObject()
+        {
+            //if (AppDomainHelper.IsGameDomain && !AppDomainHelper.IsGameDomainAlsoPrimary)
+            //{
+                Sponsor = new MarshalSponsor(this);
+            //Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Created new TObject: {GetType().GetFriendlyName()}.");
+            //}
+        }
+        ~TObject()
+        {
+            Sponsor?.Dispose();
+            Sponsor = null;
+        }
+
         public AppDomain Domain => AppDomain.CurrentDomain;
-        TypeProxy IObject.RetrieveTypeProxy() => GetType();
+        TypeProxy IObject.GetTypeProxy() => GetType();
         
-        internal MarshalSponsor Sponsor { get; set; }
+        public MarshalSponsor Sponsor { get; set; }
 
         [TString(false, false, false)]
         [TSerialize(nameof(Name), NodeType = ENodeType.Attribute)]
@@ -118,7 +151,7 @@ namespace TheraEngine
         [Category("Object")]
         public virtual string Name
         {
-            get => _name ?? this.GetType().GetFriendlyName("[", "]");
+            get => _name ?? GetType().GetFriendlyName("[", "]");
             set
             {
                 string oldName = _name;
@@ -132,8 +165,8 @@ namespace TheraEngine
         #endregion
 
         #region Ticking
-        private ThreadSafeList<(ETickGroup Group, ETickOrder Order, DelTick Tick)> _tickFunctions
-            = new ThreadSafeList<(ETickGroup Group, ETickOrder Order, DelTick Tick)>();
+        private List<(ETickGroup Group, ETickOrder Order, DelTick Tick)> _tickFunctions
+            = new List<(ETickGroup Group, ETickOrder Order, DelTick Tick)>();
         [Browsable(false)]
         public bool IsTicking => _tickFunctions.Count > 0;
         /// <summary>

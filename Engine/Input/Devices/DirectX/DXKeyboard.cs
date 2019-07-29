@@ -2,6 +2,7 @@
 
 namespace TheraEngine.Input.Devices.DirectX
 {
+    [Serializable]
     public class DXKeyboard : BaseKeyboard
     {
         public DXKeyboard(int index) : base(index) { }

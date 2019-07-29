@@ -119,6 +119,8 @@ namespace TheraEngine.Networking
         /// </summary>
         public void RecievePackets()
         {
+            //TODO: parse packets. Assign inputs to controllers and other info to objects.
+
             //_packetCacheReading.Clear();
             //THelpers.Swap(ref _packetCacheRecieving, ref _packetCacheReading);
             //foreach (var packet in _packetCacheReading)

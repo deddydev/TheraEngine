@@ -7,7 +7,6 @@ using TheraEngine.Core.Files;
 
 namespace TheraEditor
 {
-    [Serializable]
     [TFileDef("Editor Settings")]
     public class EditorSettings : TSettings
     {
@@ -72,6 +71,7 @@ namespace TheraEditor
         [TSerialize]
         public bool RenderPhysicsWorld { get; set; }
 
+        [Serializable]
         [TFileDef("Property Grid Settings")]
         public class PropertyGridSettings : TSettings
         {
@@ -111,6 +111,7 @@ namespace TheraEditor
             }
         }
 
+        [Serializable]
         [TFileDef("Control Settings")]
         public class ControlSettings : TSettings
         {

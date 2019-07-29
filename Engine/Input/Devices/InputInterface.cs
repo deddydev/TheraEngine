@@ -26,6 +26,7 @@ namespace TheraEngine.Input.Devices
     /// <summary>
     /// Handles input from keyboards, mice, gamepads, etc.
     /// </summary>
+    [Serializable]
     public class InputInterface : TObject
     {
         /// <summary>

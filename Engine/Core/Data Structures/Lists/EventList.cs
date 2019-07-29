@@ -80,7 +80,7 @@ namespace System.Collections.Generic
     /// A derivation of <see cref="ThreadSafeList{T}"/> that monitors all operations and provides events for each kind of operation.
     /// </summary>
     [Serializable]
-    public class EventList<T> : ThreadSafeList<T>, IEventList<T>
+    public class EventList<T> : List<T>, IEventList<T>
     {
         public delegate void SingleHandler(T item);
         public delegate bool SingleCancelableHandler(T item);

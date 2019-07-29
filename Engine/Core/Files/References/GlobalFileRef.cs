@@ -127,12 +127,12 @@ namespace TheraEngine.Core.Files
         /// </summary>
         public static ConcurrentDictionary<string, IFileObject> GlobalFileInstances { get; } = new ConcurrentDictionary<string, IFileObject>();
 
+        private object _loadLock = new object();
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
-            if (_file != null || LoadAttempted)
+            if (_file != null)
                 return _file;
 
-            LoadAttempted = true;
             IsLoading = true;
 
             string absolutePath = Path.Path;
@@ -167,23 +167,27 @@ namespace TheraEngine.Core.Files
                 }
             }
 
-            T value = await LoadNewInstanceAsync(progress, cancel);
-            File = value;
+            bool allowLoad = !LoadAttempted;
+            var (instance, _, loadAttempted) = await LoadNewInstanceAsync(progress, cancel, allowLoad);
+            if (allowLoad)
+                LoadAttempted = loadAttempted;
+
+            File = instance;
 
             if (absolutePath != null)
             {
                 if (Context == null)
                 {
-                    GlobalFileInstances.AddOrUpdate(absolutePath, value, (key, oldValue) => value);
+                    GlobalFileInstances.AddOrUpdate(absolutePath, instance, (key, oldValue) => instance);
                 }
                 else
                 {
-                    Context.GlobalFileInstances.AddOrUpdate(absolutePath, value, (key, oldValue) => value);
+                    Context.GlobalFileInstances.AddOrUpdate(absolutePath, instance, (key, oldValue) => instance);
                 }
             }
 
             IsLoading = false;
-            return value;
+            return instance;
         }
         
         public static implicit operator GlobalFileRef<T>(T file) => file == null ? null : new GlobalFileRef<T>(file);

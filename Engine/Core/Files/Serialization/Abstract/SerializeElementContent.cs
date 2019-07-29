@@ -1,7 +1,9 @@
 ﻿using System;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
+    [Serializable]
     public class SerializeElementContent : TObject
     {
         public SerializeElementContent() { }
@@ -11,7 +13,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         private object _value;
         private string _stringValue;
-        private Type _valueType;
+        private TypeProxy _valueType;
 
         public bool IsNotNull => _value != null || _stringValue != null;
         public bool SetValueAsObject(object o)
@@ -25,7 +27,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return false;
             }
 
-            var serializer = Engine.DomainProxy.DetermineObjectSerializer(_valueType, true);
+            var serializer = BaseObjectSerializer.DetermineObjectSerializer(_valueType, true);
 
             string str = null;
             IsNonStringObject = serializer == null || !serializer.ObjectToString(_value, out str);
@@ -40,7 +42,7 @@ namespace TheraEngine.Core.Files.Serialization
             _valueType = null;
             IsNonStringObject = false;
         }
-        public bool SetValueAsString(string o, Type type)
+        public bool SetValueAsString(string o, TypeProxy type)
         {
             _stringValue = o;
             _valueType = null;
@@ -51,9 +53,9 @@ namespace TheraEngine.Core.Files.Serialization
         public bool IsNonStringObject { get; private set; } = false;
         public bool IsUnparsedString => _valueType == null;
 
-        private bool ParseStringToObject(Type type)
+        private bool ParseStringToObject(TypeProxy type)
         {
-            BaseObjectSerializer serializer = Engine.DomainProxy.DetermineObjectSerializer(type, true);
+            BaseObjectSerializer serializer = BaseObjectSerializer.DetermineObjectSerializer(type, true);
             if (serializer == null)
             {
                 _valueType = null;
@@ -65,7 +67,7 @@ namespace TheraEngine.Core.Files.Serialization
             
             return true;
         }
-        public bool GetObject(Type expectedType, out object value)
+        public bool GetObject(TypeProxy expectedType, out object value)
         {
             if (expectedType == null)
             {

@@ -32,6 +32,18 @@ namespace TheraEditor
     [TFileDef("Thera Engine Project")]
     public class TProject : TGame
     {
+        public delegate void DelCompileBegun(TProject project);
+        public delegate void DelCompileResult(TProject project, bool success);
+
+        public EngineBuildLogger LastBuildLog { get; private set; }
+        public bool IsCompiling { get; private set; }
+
+        public event DelCompileBegun CompileStarted;
+        public event DelCompileResult CompileCompleted;
+
+        [TSerialize]
+        public string IntermediateBuildDirectory { get; private set; } = "obj";
+
         /// <summary>
         /// This is the global GUID for a C# project.
         /// </summary>
@@ -439,10 +451,13 @@ namespace TheraEditor
 
             File.WriteAllText(SourceDirectory + "Program.cs", progCs.Replace('@', '{').Replace('#', '}'));
         }
+        public string ResolveCSProjPath()
+        {
+            return Path.Combine(DirectoryPath, Name + ".csproj");
+        }
         public async Task GetReferencedAssemblies()
         {
-            string csprojPath = Path.Combine(DirectoryPath, Name + ".csproj");
-
+            string csprojPath = ResolveCSProjPath();
             if (!File.Exists(csprojPath))
                 return;
 
@@ -464,13 +479,10 @@ namespace TheraEditor
                 }
             }
 
-            XMLSchemeDefinition<MSBuild.Project> csprojParser = new XMLSchemeDefinition<MSBuild.Project>();
-            int op = Editor.Instance.BeginOperation($"Reading csproj... {csprojPath}", "Done reading csproj.", out Progress<float> progress, out CancellationTokenSource cancel);
-            MSBuild.Project importProj = await csprojParser.ImportAsync(csprojPath, 0, progress, cancel.Token);
-            Editor.Instance.EndOperation(op);
+            (XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project) = await ReadCSProj();
 
             PrintLine("Iterating through referenced assemblies.");
-            ItemGroup[] itemGroups = importProj.GetChildren<ItemGroup>();
+            ItemGroup[] itemGroups = Project.GetChildren<ItemGroup>();
             foreach (ItemGroup itemGroup in itemGroups)
             {
                 Item[] items = itemGroup.GetChildren<Item>();
@@ -737,18 +749,6 @@ namespace TheraEditor
             await CompileAsync();
         }
 
-        public delegate void DelCompileBegun(TProject project);
-        public delegate void DelCompileResult(TProject project, bool success);
-        
-        public EngineBuildLogger LastBuildLog { get; private set; }
-        public bool IsCompiling { get; private set; }
-
-        public event DelCompileBegun CompileStarted;
-        public event DelCompileResult CompileCompleted;
-
-        [TSerialize]
-        public string IntermediateBuildDirectory { get; private set; } = "obj";
-
         public void DeleteIntermediateDirectory()
         {
             try
@@ -780,6 +780,7 @@ namespace TheraEditor
                 Engine.PrintLine($"Compiling {buildConfiguration} {buildPlatform} {SolutionPath}");
 
                 DeleteIntermediateDirectory();
+                await UpdateEngineLibReferenceAsync();
 
                 LastBuildLog = new EngineBuildLogger();
 
@@ -802,46 +803,122 @@ namespace TheraEditor
             }
             catch (Exception ex)
             {
+                IsCompiling = false;
                 Engine.LogException(ex);
                 DeleteIntermediateDirectory();
-
-                IsCompiling = false;
                 CompileCompleted?.Invoke(this, false);
             }
         }
+        public async Task<(XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project)> ReadCSProj()
+        {
+            string csprojPath = ResolveCSProjPath();
+            XMLSchemeDefinition<MSBuild.Project> csprojDef = new XMLSchemeDefinition<MSBuild.Project>();
+            int op = Editor.Instance.BeginOperation($"Reading csproj... {csprojPath}", "Done reading csproj.",
+                out Progress<float> progress, out CancellationTokenSource cancel);
+            MSBuild.Project csproj = await csprojDef.ImportAsync(csprojPath, 0, progress, cancel.Token);
+            Editor.Instance.EndOperation(op);
+            return (csprojDef, csproj);
+        }
+        public async Task WriteCSProj(XMLSchemeDefinition<MSBuild.Project> definition, MSBuild.Project project)
+        {
+            string csprojPath = ResolveCSProjPath();
+            int op = Editor.Instance.BeginOperation($"Writing csproj... {csprojPath}", "Done writing csproj.",
+                out Progress<float> progress, out CancellationTokenSource cancel);
+            await definition.ExportAsync(csprojPath, project, progress, cancel.Token);
+            Editor.Instance.EndOperation(op);
+        }
+        private async Task UpdateEngineLibReferenceAsync()
+        {
+            (XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project) = await ReadCSProj();
+
+            PrintLine("Updating engine library reference in csproj.");
+            ItemGroup[] itemGroups = Project.GetChildren<ItemGroup>();
+            bool updated = false;
+            ItemGroup refItemGrp = null;
+            foreach (ItemGroup itemGroup in itemGroups)
+            {
+                Item[] items = itemGroup.GetChildren<Item>();
+                foreach (Item item in items)
+                {
+                    if (!item.ElementName.EqualsInvariantIgnoreCase("Reference"))
+                        continue;
+                    refItemGrp = itemGroup;
+
+                    if (!item.Include.StartsWith("TheraEngine"))
+                        continue;
+
+                    if (updated)
+                    {
+                        itemGroup.ChildElements[typeof(Item)].Remove(item);
+                        continue;
+                    }
+
+                    updated = true;
+
+                    item.ClearChildElements();
+                    UpdateItem(item);
+                }
+            }
+            if (!updated)
+            {
+                Item item = new Item("Reference");
+                UpdateItem(item);
+                refItemGrp.AddElements(item);
+            }
+            PrintLine("Done updating engine library reference in csproj.");
+
+            await WriteCSProj(Definition, Project);
+        }
+
+        private void UpdateItem(Item item)
+        {
+            var asm = typeof(Engine).Assembly;
+            item.Include = asm.FullName;
+            string path = asm.CodeBase;
+            string relPath = path.MakeAbsolutePathRelativeTo(DirectoryPath);
+            item.AddElements(
+                new ItemMetadata(0, "SpecificVersion", "True"),
+                new ItemMetadata(1, "HintPath", relPath));
+        }
+
         private void OnBuildCompleted(Task<BuildResult> buildTask)
         {
             BuildResult result = buildTask.Result;
             bool success = result.OverallResult == BuildResultCode.Success;
-            if (success)
+            try
             {
-                ITaskItem[] buildItems = result.ResultsByTarget["Build"].Items;
-                AssemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
-
-                Editor.Instance.CopyEditorLibraries(AssemblyPaths);
-
-                if (Editor.Instance.DockableErrorListFormActive)
+                if (success)
                 {
-                    if (Editor.Instance.InvokeRequired)
-                        Editor.Instance.BeginInvoke((Action)(() => Editor.Instance.ErrorListForm.SetLog(LastBuildLog)));
-                    else
-                        Editor.Instance.ErrorListForm.SetLog(LastBuildLog);
+                    ITaskItem[] buildItems = result.ResultsByTarget["Build"].Items;
+                    AssemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
+
+                    Editor.Instance.CopyEditorLibraries(AssemblyPaths);
+
+                    if (Editor.Instance.DockableErrorListFormActive)
+                    {
+                        if (Editor.Instance.InvokeRequired)
+                            Editor.Instance.BeginInvoke((Action)(() => Editor.Instance.ErrorListForm.SetLog(LastBuildLog)));
+                        else
+                            Editor.Instance.ErrorListForm.SetLog(LastBuildLog);
+                    }
+
+                    PrintLine(SolutionPath + " : Build succeeded.");
+
+                    Export();
+                    CreateGameDomain(true);
                 }
-
-                PrintLine(SolutionPath + " : Build succeeded.");
-                CreateGameDomain(true);
-
-                Export();
+                else
+                {
+                    PrintLine(SolutionPath + " : Build failed.");
+                    LastBuildLog.Display();
+                }
             }
-            else
+            finally
             {
-                PrintLine(SolutionPath + " : Build failed.");
-                LastBuildLog.Display();
+                IsCompiling = false;
+                DeleteIntermediateDirectory();
+                CompileCompleted?.Invoke(this, success);
             }
-            DeleteIntermediateDirectory();
-
-            IsCompiling = false;
-            CompileCompleted?.Invoke(this, success);
         }
 
         //[TPostDeserialize(arguments: false)]

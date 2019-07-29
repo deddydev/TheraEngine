@@ -216,7 +216,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (!string.IsNullOrWhiteSpace(displayNameOverride))
                 name = displayNameOverride;
             else if (!string.IsNullOrWhiteSpace(propName))
-                name = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
+            {
+                var settings = Editor.GetSettings();
+                name = settings.PropertyGridRef.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
+            }
             else
                 name = "[No Name]";
 
@@ -230,36 +233,26 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             MemberInfo = memberInfo;
 
             string displayNameOverride = null;
-            
+
             if (MemberInfo is PropGridMemberInfoProperty propInfo)
             {
-                var attribs = propInfo.Property.GetCustomAttributes(true);
-                foreach (object attrib in attribs)
-                {
-                    switch (attrib)
-                    {
-                        case BrowsableIf browsableIf:
-                            VisibilityCondition = browsableIf.Condition;
-                            break;
-                        case BrowsableAttribute browsable:
-                            Visible = browsable.Browsable;
-                            break;
-                        case ReadOnlyAttribute readOnlyAttrib:
-                            ReadOnly = readOnlyAttrib.IsReadOnly;
-                            break;
-                        case DisplayNameAttribute displayName:
-                            displayNameOverride = displayName.DisplayName;
-                            break;
-                        case EditInPlace editInPlace:
-                            if (this is PropGridObject pobj)
-                                pobj.EditInPlace = pobj.AlwaysVisible = true;
-                            break;
-                        case DescriptionAttribute desc:
-                            if (Label?.Tag is MemberLabelInfo info)
-                                info.Description = desc.Description;
-                            break;
-                    }
-                }
+                propInfo.Property.GetGridDisplayAttributes(
+                    out string visibilityCondition,
+                    out bool visible,
+                    out bool readOnly,
+                    out displayNameOverride,
+                    out bool editInPlace,
+                    out string description);
+
+                VisibilityCondition = visibilityCondition;
+                Visible = visible;
+                ReadOnly = readOnly;
+
+                if (this is PropGridObject pobj)
+                    pobj.EditInPlace = pobj.AlwaysVisible = editInPlace;
+
+                if (Label?.Tag is MemberLabelInfo info)
+                    info.Description = description;
             }
 
             ResolveMemberName(displayNameOverride);

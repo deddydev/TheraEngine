@@ -70,26 +70,76 @@ namespace TheraEngine
         public static readonly string UserSettingsPathAbs = ConfigFolderAbs + "User.xset";
         public static readonly string UserSettingsPathRel = ConfigFolderRel + "User.xset";
 
-        /// <summary>
-        /// Event for when the engine is paused or unpaused and by which player.
-        /// </summary>
-        public static event Action<bool, ELocalPlayerIndex> PauseChanged;
-        /// <summary>
-        /// Event for sending debug console output text.
-        /// </summary>
-        public static event Action<string> DebugOutput;
-        /// <summary>
-        /// Event fired before the current world is changed.
-        /// </summary>
-        public static event Action PreWorldChanged;
-        /// <summary>
-        /// Event fired after the current world is changed.
-        /// </summary>
-        public static event Action PostWorldChanged;
-
         #region Singleton
 
-        public static InternalEnginePersistentSingleton Instance => Singleton<InternalEnginePersistentSingleton>.Instance;
+        /// <summary>
+        /// Gets the domain data key for this type. This property may be called from any AppDomain, and will return the same value regardless of AppDomain.
+        /// </summary>
+        private static string Name => "BA9A49C7E9364060AC4E4DDDBF465684." + typeof(InternalEnginePersistentSingleton).FullName;
+
+        /// <summary>
+        /// A local cache of the instance wrapper.
+        /// </summary>
+        private static readonly Lazy<Wrapper> LazyInstance = AppDomain.CurrentDomain.IsDefaultAppDomain() ? CreateOnDefaultAppDomain() : CreateOnOtherAppDomain();
+
+        /// <summary>
+        /// A local cache of the instance.
+        /// </summary>
+        private static readonly Lazy<InternalEnginePersistentSingleton> CachedLazyInstance = new Lazy<InternalEnginePersistentSingleton>(() => Instance);
+
+        /// <summary>
+        /// Returns a lazy that creates the instance (if necessary) and saves it in the domain data.
+        /// This method must only be called from the default AppDomain.
+        /// </summary>
+        private static Lazy<Wrapper> CreateOnDefaultAppDomain()
+        {
+            return new Lazy<Wrapper>(() =>
+            {
+                var ret = new Wrapper { WrappedInstance = new InternalEnginePersistentSingleton() };
+                AppDomain.CurrentDomain.SetData(Name, ret);
+                return ret;
+            });
+        }
+
+        /// <summary>
+        /// Returns a lazy that calls into the default domain to create the instance and retrieves a proxy into the current domain.
+        /// </summary>
+        private static Lazy<Wrapper> CreateOnOtherAppDomain()
+        {
+            return new Lazy<Wrapper>(() =>
+            {
+                var defaultAppDomain = AppDomainHelper.DefaultAppDomain;
+                if (defaultAppDomain.GetData(Name) is Wrapper ret)
+                    return ret;
+                defaultAppDomain.DoCallBack(CreateCallback);
+                return (Wrapper)defaultAppDomain.GetData(Name);
+            });
+        }
+
+        /// <summary>
+        /// Ensures the instance is created (and saved in the domain data). 
+        /// This method must only be called on the default AppDomain.
+        /// </summary>
+        private static void CreateCallback() { var _ = LazyInstance.Value; }
+
+        /// <summary>
+        /// Gets the process-wide instance. 
+        /// If the current domain is not the default AppDomain, this property returns a new proxy to the actual instance.
+        /// </summary>
+        public static InternalEnginePersistentSingleton Instance => LazyInstance.Value.WrappedInstance;
+
+        /// <summary>
+        /// Gets the process-wide instance. 
+        /// If the current domain is not the default AppDomain, this property returns a cached proxy to the actual instance.
+        /// It is your responsibility to ensure that the cached proxy does not time out; if you don't know what this means, use <see cref="Instance"/> instead.
+        /// </summary>
+        public static InternalEnginePersistentSingleton CachedInstance => CachedLazyInstance.Value;
+
+        private sealed class Wrapper : MarshalByRefObject
+        {
+            public override object InitializeLifetimeService() => null;
+            public InternalEnginePersistentSingleton WrappedInstance { get; set; }
+        }
 
         public static NetworkConnection Network
         {
@@ -128,10 +178,15 @@ namespace TheraEngine
             get => Instance.DefaultEngineSettingsOverrideRef;
             set => Instance.DefaultEngineSettingsOverrideRef = value;
         }
+
         /// <summary>
         /// The settings for the engine, specified by the game.
         /// </summary>
-        public static EngineSettings Settings => Instance.Settings;
+        public static EngineSettings Settings
+        {
+            get => Instance.Settings;
+            set => Instance.Settings = value;
+        }
         /// <summary>
         /// The settings for the engine, specified by the user.
         /// </summary>
@@ -375,14 +430,33 @@ namespace TheraEngine
         private static AbstractPhysicsInterface _physicsInterface;
         #endregion
 
-        public partial class InternalEnginePersistentSingleton : MarshalByRefObject
+        public partial class InternalEnginePersistentSingleton: MarshalByRefObject
         {
-            public InternalEnginePersistentSingleton()
-            {
-                TickLists = new List<DelTick>[45];
-                for (int i = 0; i < TickLists.Length; ++i)
-                    TickLists[i] = new List<DelTick>();
-            }
+            public DelBeginOperation BeginOperation;
+            public DelEndOperation EndOperation;
+
+            public event Action GotFocus;
+            public event Action LostFocus;
+
+            /// <summary>
+            /// Event for when the engine is paused or unpaused and by which player.
+            /// </summary>
+            public event Action<bool, ELocalPlayerIndex> PauseChanged;
+            /// <summary>
+            /// Event for sending debug console output text.
+            /// </summary>
+            public event Action<string> DebugOutput;
+            /// <summary>
+            /// Event fired before the current world is changed.
+            /// </summary>
+            public event Action PreWorldChanged;
+            /// <summary>
+            /// Event fired after the current world is changed.
+            /// </summary>
+            public event Action PostWorldChanged;
+            
+            public ConcurrentDictionary<Type, TypeProxy> TypeProxies { get; }
+                = new ConcurrentDictionary<Type, TypeProxy>();
 
             public ERenderLibrary RenderLibrary { get; set; } = DefaultRenderLibrary;
             public EAudioLibrary AudioLibrary { get; set; } = DefaultAudioLibrary;
@@ -413,12 +487,13 @@ namespace TheraEngine
                 }
             }
 
-            public void GenerateProxy<T>(AppDomain domain, TGame game) where T : EngineDomainProxy, new()
+            public void SetDomainProxy<T>(AppDomain domain, string gamePath) where T : EngineDomainProxy, new()
             {
                 string domainName = domain.FriendlyName;
-                PrintLine("Generating proxy of type " + typeof(T).GetFriendlyName() + " in domain " + domainName);
+                //PrintLine($"Generating engine proxy of type {typeof(T).GetFriendlyName()} for domain {domainName}");
 
-                if (domain == AppDomain.CurrentDomain)
+                bool isUIDomain = domain == AppDomain.CurrentDomain;
+                if (isUIDomain)
                 {
                     DomainProxy = new T();
                 }
@@ -429,32 +504,91 @@ namespace TheraEngine
                     lease.Register(DomainProxy.SponsorRef);
                 }
 
-                DomainProxy.Run(game);
-
-                //dynamic dynProxy = proxy;
-                //string info = dynProxy.GetVersionInfo();
-
-                //Type type = typeof(ProjectDomainProxy);
-                //string info3 = type.Assembly.CodeBase;
-                //string info4 = dynProxy.GetType().Assembly.CodeBase;
-
-                //Engine.PrintLine(info);
-                //Engine.PrintLine(info3);
-                //Engine.PrintLine(info4);
-
-                //Type.TypeCreationFailed = TypeCreationFailed;
+                DomainProxy.Stopped += DomainProxy_Stopped;
+                DomainProxy.Start(gamePath, isUIDomain);
             }
 
-            private Type TypeCreationFailed(string typeDeclaration)
-                => DomainProxy.CreateType(typeDeclaration);
+            private void DomainProxy_Stopped()
+            {
+                PrintLine($"Stopped domain proxy callback occurred in AppDomain {AppDomain.CurrentDomain.FriendlyName}");
+            }
 
+            //private Type TypeCreationFailed(string typeDeclaration)
+            //    => DomainProxy.CreateType(typeDeclaration);
+
+            private EngineDomainProxy _domainProxy = null;
             [Browsable(false)]
-            public EngineDomainProxy DomainProxy { get; set; }
+            public EngineDomainProxy DomainProxy
+            {
+                get
+                {
+                    if (_domainProxy == null)
+                        SetDomainProxy<EngineDomainProxy>(AppDomain.CurrentDomain, null);
+                    return _domainProxy;
+                }
+                set
+                {
+                    _domainProxy = value;
+                }
+            }
 
+            private EngineSettings _cachedSettings;
+            public EngineSettings Settings
+            {
+                get
+                {
+                    if (_cachedSettings == null)
+                        Settings = GetBestSettings();
+                    return _cachedSettings;
+                }
+                set
+                {
+                    bool singleThreaded = false;
+                    bool capFPS = false;
+                    bool capUPS = false;
+                    float fps = 0.0f;
+                    float ups = 0.0f;
+
+                    if (_cachedSettings != null)
+                    {
+                        singleThreaded = _cachedSettings.SingleThreaded;
+                        capFPS = _cachedSettings.CapFPS;
+                        capUPS = _cachedSettings.CapUPS;
+                        fps = _cachedSettings.TargetFPS;
+                        ups = _cachedSettings.TargetUPS;
+
+                        _cachedSettings.SingleThreadedChanged -= Settings_SingleThreadedChanged;
+                        _cachedSettings.FramesPerSecondChanged -= Settings_FramesPerSecondChanged;
+                        _cachedSettings.UpdatePerSecondChanged -= Settings_UpdatePerSecondChanged;
+                    }
+                    _cachedSettings = value;
+                    if (_cachedSettings != null)
+                    {
+                        _cachedSettings.SingleThreadedChanged += Settings_SingleThreadedChanged;
+                        _cachedSettings.FramesPerSecondChanged += Settings_FramesPerSecondChanged;
+                        _cachedSettings.UpdatePerSecondChanged += Settings_UpdatePerSecondChanged;
+
+                        if (_cachedSettings.SingleThreaded != singleThreaded)
+                            Settings_SingleThreadedChanged();
+                        if (_cachedSettings.CapFPS != capFPS || _cachedSettings.TargetFPS != fps)
+                            Settings_FramesPerSecondChanged();
+                        if (_cachedSettings.CapUPS != capUPS || _cachedSettings.TargetUPS != ups)
+                            Settings_UpdatePerSecondChanged();
+                    }
+                }
+            }
+
+            public void SettingsSourcesChanged(bool cacheBestSettingsNow = false)
+            {
+                _cachedSettings = null;
+                if (cacheBestSettingsNow)
+                    Settings = GetBestSettings();
+            }
             /// <summary>
-            /// The settings for the engine, specified by the game.
+            /// Returns settings from the game, from the engine override settings, or the default hardcoded settings.
             /// </summary>
-            public EngineSettings Settings =>
+            /// <returns></returns>
+            public EngineSettings GetBestSettings() =>
                 Game?.EngineSettingsOverrideRef?.File ?? //Game overrides engine settings?
                 DefaultEngineSettingsOverrideRef.File ?? //User overrides engine settings?
                 _defaultEngineSettings.Value; //Fall back to truly default engine settings

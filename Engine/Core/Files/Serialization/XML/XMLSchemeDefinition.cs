@@ -789,7 +789,7 @@ namespace TheraEngine.Core.Files.XML
 
         public void ClearChildElements()
         {
-
+            ChildElements.Clear();
         }
 
         public T2 GetChild<T2>() where T2 : IElement

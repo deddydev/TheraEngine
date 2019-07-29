@@ -9,12 +9,10 @@ namespace TheraEngine
     {
         public RenderForm(TGame game)
         {
-            Engine.SetGame(game);
-            Engine.Instance.GenerateProxy<EngineDomainProxy>(AppDomain.CurrentDomain, game);
+            Engine.Instance.SetDomainProxy<EngineDomainProxy>(AppDomain.CurrentDomain, game.FilePath);
 
             InitializeComponent();
             Engine.SetWorldPanel(renderPanel);
-            Engine.Initialize();
 
             Text = game.Name;
             Icon icon = game.GetIcon();

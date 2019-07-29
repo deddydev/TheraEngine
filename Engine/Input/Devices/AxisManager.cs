@@ -5,6 +5,7 @@ namespace TheraEngine.Input.Devices
 {
     public delegate void DelSendAxisValue(int axisIndex, int listIndex, float value);
     public delegate void DelAxisValue(float value);
+    [Serializable]
     public class AxisManager : ButtonManager
     {
         private readonly DelSendAxisValue SendAxisToServer;

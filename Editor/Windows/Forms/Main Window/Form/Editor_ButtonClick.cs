@@ -10,6 +10,9 @@ using System.Runtime.Remoting.Lifetime;
 using TheraEngine;
 using TheraEngine.Core;
 using TheraEngine.Core.Reflection;
+using Extensions;
+using System.Threading;
+using TheraEngine.Core.Files;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -174,14 +177,14 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public void CreateGameDomain(TProject project, string rootDir, string[] assemblyPaths)
+        public async void CreateGameDomain(TProject project, string rootDir, string[] assemblyPaths)
         {
             if (project == null)
             {
                 try
                 {
                     DestroyGameDomain();
-                    Engine.Instance.GenerateProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null);
+                    Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null);
                 }
                 catch (Exception ex)
                 {
@@ -225,17 +228,22 @@ namespace TheraEditor.Windows.Forms
                             _gameDomain.LoadAssembly(LoadMethod.LoadBits, path);
                         }
 
-                    Engine.Instance.GenerateProxy<EngineDomainProxyEditor>(_gameDomain.Domain, project);
+                    if (project.FilePath.IsExistingDirectoryPath() != false)
+                        await project.ExportXMLAsync(rootDir, "CompiledProject", ESerializeFlags.Default, null, CancellationToken.None);
+
+                    Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, project.FilePath);
                 }
                 catch (Exception ex)
                 {
                     Engine.LogException(ex);
                 }
-
-                Engine.PrintLine("Game domain created.");
-
-                AppDomainHelper.ResetAppDomainCache();
-                Engine.PrintLine("Active domains after load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
+                finally
+                {
+                    Engine.PrintLine("Game domain created.");
+                    AppDomainHelper.ResetAppDomainCache();
+                    Engine.PrintLine("Active domains after load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
+                    AppDomainHelper.OnGameDomainLoaded();
+                }
             }
         }
 
@@ -243,9 +251,10 @@ namespace TheraEditor.Windows.Forms
         {
             if (_gameDomain != null)
             {
-                Engine.DomainProxy.Destroyed();
+                Engine.DomainProxy.Stop();
                 _gameDomain.Dispose();
                 _gameDomain = null;
+                AppDomainHelper.OnGameDomainUnloaded();
             }
         }
 
@@ -282,7 +291,7 @@ namespace TheraEditor.Windows.Forms
 
                 string assemblyName = assembly.GetName().Name;
                 string domainName = AppDomain.CurrentDomain.FriendlyName;
-                Debug.Print($"{nameof(AppDomain)} {domainName} loaded assembly {assemblyName} via {nameof(TheraAssemblyLoader)}");
+                Debug.Print($"[{domainName}] Loaded assembly {assemblyName} via {nameof(TheraAssemblyLoader)}");
 
                 //    break;
                 //default:
@@ -494,7 +503,7 @@ namespace TheraEditor.Windows.Forms
                 var name = new AssemblyName(args.Name);
                 foreach (var path in _probePaths)
                 {
-                    var dllPath = Path.Combine(path, string.Format("{0}.dll", name.Name));
+                    var dllPath = Path.Combine(path, $"{name.Name}.dll");
                     if (File.Exists(dllPath))
                         return _loader.LoadAssembly(LoadMethod, dllPath);
 

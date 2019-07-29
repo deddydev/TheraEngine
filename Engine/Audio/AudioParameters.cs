@@ -125,6 +125,7 @@ namespace TheraEngine.Audio
         /// </summary>
         public UsableValue<Vec3> Velocity { get; set; } = new UsableValue<Vec3>(0.0f, 0.0f, false);
     }
+    [Serializable]
     public class UsableValue<T> where T : struct
     {
         public UsableValue(T value, T defaultValue, bool use = false)

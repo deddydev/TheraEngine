@@ -1,5 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Reflection;
+using Extensions;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -61,7 +67,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// Creates an object from a string.
         /// </summary>
-        public abstract bool ObjectFromString(Type type, string value, out object result);
+        public abstract bool ObjectFromString(TypeProxy type, string value, out object result);
         /// <summary>
         /// Creates a string from an object.
         /// </summary>
@@ -77,6 +83,89 @@ namespace TheraEngine.Core.Files.Serialization
         /// </summary>
         public abstract void SerializeTreeFromObject();
 
-        public abstract bool CanWriteAsString(Type type);
+        public abstract bool CanWriteAsString(TypeProxy type);
+
+        static BaseObjectSerializer()
+        {
+            ClearObjectSerializerCache();
+        }
+
+        public static Lazy<Dictionary<ObjectSerializerFor, TypeProxy>> ObjectSerializers { get; set; }
+        /// <summary>
+        /// Finds the class to use to read and write the given type.
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <param name="mustAllowStringSerialize"></param>
+        /// <param name="mustAllowBinarySerialize"></param>
+        /// <returns></returns>
+        public static BaseObjectSerializer DetermineObjectSerializer(
+            TypeProxy objectType, bool mustAllowStringSerialize = false, bool mustAllowBinarySerialize = false)
+        {
+            if (objectType == null)
+            {
+                Engine.LogWarning("Unable to create object serializer for null type.");
+                return null;
+            }
+
+            var temp = ObjectSerializers.Value.Where(kv =>
+                objectType?.IsAssignableTo(kv.Key.ObjectType) ?? false);
+
+            if (mustAllowStringSerialize)
+                temp = temp.Where(kv => kv.Key.CanSerializeAsString);
+            if (mustAllowBinarySerialize)
+                temp = temp.Where(kv => kv.Key.CanSerializeAsBinary);
+
+            TypeProxy[] types = temp.Select(x => x.Value).ToArray();
+
+            TypeProxy serType;
+            switch (types.Length)
+            {
+                case 0:
+                    serType = typeof(CommonObjectSerializer);
+                    break;
+                case 1:
+                    serType = types[0];
+                    break;
+                default:
+                    {
+                        int[] counts = types.Select(x => types.Count(x.IsSubclassOf)).ToArray();
+                        int min = counts.Min();
+                        int[] mins = counts.FindAllMatchIndices(x => x == min);
+                        string msg = "Type " + objectType.GetFriendlyName() + " has multiple valid object serializers: " + types.ToStringList(", ", " and ", x => x.GetFriendlyName());
+                        msg += ". Narrowed down to " + mins.Select(x => types[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
+                        Engine.PrintLine(msg);
+                        serType = types[mins[0]];
+                        break;
+                    }
+            }
+
+            //Engine.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Determined object serializer for {objectType.GetFriendlyName()}: {serType.GetFriendlyName()}");
+
+            return serType.CreateInstance<BaseObjectSerializer>();
+        }
+        private static Dictionary<ObjectSerializerFor, TypeProxy> GetObjectSerializers()
+        {
+            Engine.PrintLine($"Reloading object serializer cache.");
+            Type baseObjSerType = typeof(BaseObjectSerializer);
+            IEnumerable<TypeProxy> typeList = AppDomainHelper.FindTypes(type =>
+                type.IsAssignableTo(baseObjSerType) &&
+                type.HasCustomAttribute<ObjectSerializerFor>());
+
+            var serializers = new Dictionary<ObjectSerializerFor, TypeProxy>();
+            foreach (Type type in typeList)
+            {
+                var attrib = type.GetCustomAttribute<ObjectSerializerFor>();
+                if (!serializers.ContainsKey(attrib))
+                    serializers.Add(attrib, type);
+            }
+            Engine.PrintLine("Done loading object serializer cache.");
+            return serializers;
+        }
+        public static void ClearObjectSerializerCache()
+        {
+            Engine.PrintLine("Clearing object serializer cache.");
+            ObjectSerializers = new Lazy<Dictionary<ObjectSerializerFor, TypeProxy>>(GetObjectSerializers, LazyThreadSafetyMode.PublicationOnly);
+        }
+
     }
 }

@@ -5,10 +5,10 @@ using System.Threading;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public class BaseSerializer
+    public class BaseSerializer : MarshalByRefObject
     {
         public EProprietaryFileFormat Format { get; protected set; }
-        public abstract class BaseAbstractReaderWriter
+        public abstract class BaseAbstractReaderWriter : MarshalByRefObject
         {
             protected ProgressStream _stream;
 

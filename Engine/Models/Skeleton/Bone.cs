@@ -62,8 +62,8 @@ namespace TheraEngine.Rendering.Models
         void RemovePrimitiveManager(IPrimitiveManager m);
         bool UsesCamera { get; }
         int Index { get; }
-
-        Dictionary<int, Tuple<IPrimitiveManager, ThreadSafeList<int>>> InfluencedVertices { get; }
+        
+        Dictionary<int, Tuple<IPrimitiveManager, List<int>>> InfluencedVertices { get; }
         List<CPUSkinInfo.LiveInfluence> InfluencedInfluences { get; }
 
         void CalcFrameMatrix(ICamera camera, bool force = false);
@@ -152,11 +152,11 @@ namespace TheraEngine.Rendering.Models
         [TSerialize(nameof(ScaleByDistance), NodeType = ENodeType.Attribute)]
         private bool _scaleByDistance = false;
         internal int _index;
-        internal Dictionary<int, Tuple<IPrimitiveManager, ThreadSafeList<int>>> _influencedVertices = new Dictionary<int, Tuple<IPrimitiveManager, ThreadSafeList<int>>>();
+        internal Dictionary<int, Tuple<IPrimitiveManager, List<int>>> _influencedVertices = new Dictionary<int, Tuple<IPrimitiveManager, List<int>>>();
         internal List<CPUSkinInfo.LiveInfluence> _influencedInfluences = new List<CPUSkinInfo.LiveInfluence>();
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
-
-        Dictionary<int, Tuple<IPrimitiveManager, ThreadSafeList<int>>> IBone.InfluencedVertices => _influencedVertices;
+        
+        Dictionary<int, Tuple<IPrimitiveManager, List<int>>> IBone.InfluencedVertices => _influencedVertices;
         List<CPUSkinInfo.LiveInfluence> IBone.InfluencedInfluences => _influencedInfluences;
 
         [TSerialize("Transform")]
@@ -438,7 +438,7 @@ namespace TheraEngine.Rendering.Models
         public void AddPrimitiveManager(IPrimitiveManager m)
         {
             if (!_influencedVertices.ContainsKey(m.BindingId))
-                _influencedVertices.Add(m.BindingId, new Tuple<IPrimitiveManager, ThreadSafeList<int>>(m, new ThreadSafeList<int>()));
+                _influencedVertices.Add(m.BindingId, new Tuple<IPrimitiveManager, List<int>>(m, new List<int>()));
             Skeleton?.AddPrimitiveManager(m);
         }
         public void RemovePrimitiveManager(IPrimitiveManager m)

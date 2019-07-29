@@ -1,9 +1,11 @@
 ﻿using SharpDX.XInput;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace TheraEngine.Input.Devices.DirectX
 {
+    [Serializable]
     public class DXGamepad : BaseGamePad
     {
         private Controller _controller;

@@ -37,16 +37,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             PropGridMemberInfoProperty propInfo = GetMemberInfoAs<PropGridMemberInfoProperty>();
             if (propInfo?.Property != null)
             {
-                object[] attribs = propInfo.Property.GetCustomAttributes(true);
-                if (attribs.FirstOrDefault(x => x is TStringAttribute) is TStringAttribute s)
-                {
-                    btnEdit.Visible = _multiLine = s.MultiLine;
-                    btnBrowse.Visible = s.Path;
-                    chkNull.Visible = s.Nullable;
-                    if (s.Unicode)
-                    {
+                propInfo.Property.GetStringAttributes(
+                    out bool isMultiLine, out bool isPath, out bool isNullable, out bool isUnicode);
 
-                    }
+                btnEdit.Visible = _multiLine = isMultiLine;
+                btnBrowse.Visible = isPath;
+                chkNull.Visible = isNullable;
+                if (isUnicode)
+                {
+
                 }
             }
             textBox.Text = value?.ToString() ?? string.Empty;

@@ -143,7 +143,7 @@ namespace TheraEngine.Core.Files
                 if (!Path.FileExists)
                     return false;
 
-                Type fileType = DetermineType(Path.Path);
+                TypeProxy fileType = DetermineType(Path.Path);
                 return fileType != null && SubType.IsAssignableFrom(fileType);
             }
         }
@@ -207,84 +207,89 @@ namespace TheraEngine.Core.Files
             => LoadNewInstanceAsync().ContinueWith(t => onLoaded?.Invoke(t.Result));
 
         public async Task<T> LoadNewInstanceAsync()
-            => await LoadNewInstanceAsync(null, CancellationToken.None);
-        
-        public virtual async Task<T> LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel)
-        {
-            string absolutePath = Path.Path;
+            => (await LoadNewInstanceAsync(null, CancellationToken.None));
 
-            if (!absolutePath.IsAbsolutePath())
-                return AllowDynamicConstruction ? DynamicConstruct(DefaultConstructionArguments, absolutePath) : null;
-            
-            if (!File.Exists(absolutePath))
+        public async Task<T> LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel)
+        {
+            var (Instance, _, _) = await LoadNewInstanceAsync(progress, cancel, true);
+            return Instance;
+        }
+
+        public async Task<(T Instance, bool LoadedFromFile, bool LoadAttempted)> LoadNewInstanceAsync(
+            IProgress<float> progress,
+            CancellationToken cancel,
+            bool allowLoadingFromFile = true)
+        {
+            T file = null;
+
+            string absolutePath = Path.Path;
+            bool loadedFromFile = false;
+            bool loadAttempted = false;
+
+            if (!allowLoadingFromFile || !absolutePath.IsAbsolutePath() || !File.Exists(absolutePath))
             {
-                if (CreateFileIfNonExistent)
+                if (AllowDynamicConstruction)
                 {
-                    if (AllowDynamicConstruction)
-                    {
-                        T file = DynamicConstruct(DefaultConstructionArguments, absolutePath);
+                    file = DynamicConstruct(DefaultConstructionArguments, absolutePath);
+                    if (CreateFileIfNonExistent && !(file is null))
                         await file.ExportAsync(absolutePath, ESerializeFlags.Default, progress, cancel);
-                        return file;
+                }
+                else
+                {
+                    //Engine.LogWarning($"No file exists at \"{absolutePath}\" and the '{nameof(AllowDynamicConstruction)}' property is not enabled.");
+                }
+            }
+            else
+            {
+                loadAttempted = true;
+                try
+                {
+                    string ext = System.IO.Path.GetExtension(absolutePath);
+                    if (IsThirdPartyImportableExt(ext?.Substring(1)))
+                    {
+                        file = SubType.CreateInstance() as T;
+                        file.FilePath = absolutePath;
+                        file.ManualRead3rdParty(absolutePath);
+                        loadedFromFile = true;
                     }
                     else
                     {
-                        Engine.LogWarning($"No file exists at \"{absolutePath}\" and the '{nameof(CreateFileIfNonExistent)}' property is enabled, but '{nameof(AllowDynamicConstruction)}' is not.");
-                    }
-                }
-                else
-                {
-                    Engine.LogWarning($"No file exists at \"{absolutePath}\" and the '{nameof(CreateFileIfNonExistent)}' property is not enabled.");
-                }
-                return null;
-            }
-
-            try
-            {
-                if (IsThirdPartyImportableExt(System.IO.Path.GetExtension(absolutePath)?.Substring(1)))
-                {
-                    T file = SubType.CreateInstance() as T;
-                    file.FilePath = absolutePath;
-                    file.ManualRead3rdParty(absolutePath);
-                    OnFileLoaded(file);
-                    Loaded?.Invoke(file);
-                    return file;
-                }
-                else
-                {
-                    T file = null;
-                    switch (GetFormat())
-                    {
-                        case EFileFormat.XML:
-                            file = await FromXMLAsync(absolutePath, progress, cancel) as T;
-                            break;
-                        case EFileFormat.Binary:
-                            file = await FromBinaryAsync(absolutePath, progress, cancel) as T;
-                            break;
-                        default:
-                            Engine.LogWarning($"Could not load file at \"{absolutePath}\". Invalid file format.");
-                            break;
-                    }
-                    if (file != null && SubType != null)
-                    {
-                        Type fileType = file?.GetType();
-                        if (!SubType.IsAssignableFrom(fileType))
+                        switch (GetFormat())
                         {
-                            Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {SubType.GetFriendlyName()}.");
-                            return null;
+                            case EFileFormat.XML:
+                                file = await FromXMLAsync(absolutePath, progress, cancel) as T;
+                                loadedFromFile = true;
+                                break;
+                            case EFileFormat.Binary:
+                                file = await FromBinaryAsync(absolutePath, progress, cancel) as T;
+                                loadedFromFile = true;
+                                break;
+                            default:
+                                Engine.LogWarning($"Could not load file at \"{absolutePath}\". Invalid file format.");
+                                break;
                         }
-
-                        OnFileLoaded(file);
-                        Loaded?.Invoke(file);
                     }
-                    return file;
+                }
+                catch (Exception e)
+                {
+                    Engine.LogWarning($"Could not load file at \"{absolutePath}\".\nException:\n\n{e}");
                 }
             }
-            catch (Exception e)
+
+            if (file != null && SubType != null)
             {
-                Engine.LogWarning($"Could not load file at \"{absolutePath}\".\nException:\n\n{e}");
+                TypeProxy fileType = file?.GetTypeProxy();
+                if (!SubType.IsAssignableFrom(fileType))
+                {
+                    Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {SubType.GetFriendlyName()}.");
+                    return (null, loadedFromFile, loadAttempted);
+                }
+
+                OnFileLoaded(file);
+                Loaded?.Invoke(file);
             }
 
-            return null;
+            return (file, loadedFromFile, loadAttempted);
         }
 
         protected virtual void OnFileLoaded(T file)
@@ -322,11 +327,7 @@ namespace TheraEngine.Core.Files
         {
             T file = ConstructNewInstance_Internal(false, constructionArgs);
             if (file != null)
-            {
                 file.FilePath = absolutePath;
-                OnFileLoaded(file);
-                Loaded?.Invoke(file);
-            }
             return file;
         }
 

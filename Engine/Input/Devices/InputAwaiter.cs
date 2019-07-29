@@ -1,6 +1,9 @@
-﻿namespace TheraEngine.Input.Devices
+﻿using System;
+
+namespace TheraEngine.Input.Devices
 {
     public delegate void DelFoundInput(InputDevice device);
+    [Serializable]
     public abstract class InputAwaiter : TObject
     {
         public event DelFoundInput FoundInput;

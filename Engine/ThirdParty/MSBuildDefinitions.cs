@@ -472,6 +472,14 @@ namespace TheraEngine.ThirdParty
             [ElementName(null)]
             public class ItemMetadata : BaseStringElement<Item, ElementString>
             {
+                public ItemMetadata() { }
+                public ItemMetadata(int index, string name, string stringContent)
+                {
+                    ElementIndex = index;
+                    ElementName = name;
+                    StringContent = new ElementString(stringContent);
+                }
+
                 [Attr("Condition", false)]
                 public string Condition { get; set; }
 

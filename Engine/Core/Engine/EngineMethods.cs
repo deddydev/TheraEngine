@@ -23,6 +23,7 @@ using TheraEngine.Rendering.Textures;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using Valve.VR;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine
 {
@@ -41,13 +42,14 @@ namespace TheraEngine
             public override void Write(string message)
             {
                 OutputString += message;
-                DebugOutput?.Invoke(message);
+                Instance.OnDebugOutput(message);
             }
         }
         public static bool FontsLoaded { get; private set; } = false;
         static Engine()
         {
             Debug.Listeners.Add(new EngineTraceListener());
+            //PrintLine("Constructing static engine class.");
 
             _timer.UpdateFrame += EngineTick;
             _timer.SwapBuffers += SwapBuffers;
@@ -65,7 +67,7 @@ namespace TheraEngine
         /// Will create a render form, initialize the engine, and start the game, so no other methods are needed.
         /// </summary>
         /// <param name="game">The game to play.</param>
-        public static void Run(TGame game)
+        public static void RunSingleInstanceOf(TGame game)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -288,9 +290,6 @@ namespace TheraEngine
         public static void Run()
         {
             EngineSettings settings = Settings;
-            settings.SingleThreadedChanged += Settings_SingleThreadedChanged;
-            settings.FramesPerSecondChanged += Settings_FramesPerSecondChanged;
-            settings.UpdatePerSecondChanged += Settings_UpdatePerSecondChanged;
             _timer.Run(settings?.SingleThreaded ?? false);
         }
 
@@ -485,7 +484,7 @@ namespace TheraEngine
                 return;
 
             IsPaused = wantsPause;
-            PauseChanged?.Invoke(IsPaused, toggler);
+            Instance.OnPauseChanged(IsPaused, toggler);
             PrintLine("Engine{0}paused.", IsPaused ? " " : " un");
         }
         public static void Pause(ELocalPlayerIndex toggler, bool force = false)
@@ -515,6 +514,9 @@ namespace TheraEngine
 #if DEBUG || EDITOR
             if (args.Length != 0)
                 message = string.Format(message, args);
+            var sponsor = Settings.Sponsor;
+            if (Settings.PrintAppDomainInOutput)
+                message = $"[{AppDomain.CurrentDomain.FriendlyName}] " + message;
             Debug.Print(message);
 #endif
         }
@@ -606,17 +608,11 @@ namespace TheraEngine
         //public static Viewport GetViewport(ELocalPlayerIndex index)
         //    => BaseRenderPanel.WorldPanel?.GetViewport(index);
 
-        public static DelBeginOperation BeginOperation;
-        public static DelEndOperation EndOperation;
-
         public delegate int DelBeginOperation(string operationMessage, string finishedMessage, out Progress<float> progress, out CancellationTokenSource cancel, TimeSpan? maxOperationTime = null);
         public delegate void DelEndOperation(int operationId);
 
         public static bool IsFocused { get; private set; } = true;
         public static Random Random { get; } = new Random();
-
-        public static event Action GotFocus;
-        public static event Action LostFocus;
 
         /// <summary>
         /// Returns true if any window has focus.
@@ -639,7 +635,7 @@ namespace TheraEngine
                 if (!IsFocused)
                 {
                     IsFocused = true;
-                    GotFocus?.Invoke();
+                    Instance.OnGotFocus();
                 }
             }
             else
@@ -647,7 +643,7 @@ namespace TheraEngine
                 if (IsFocused)
                 {
                     IsFocused = false;
-                    LostFocus?.Invoke();
+                    Instance.OnLostFocus();
                 }
             }
         }
@@ -661,6 +657,34 @@ namespace TheraEngine
                 => Path.Combine(Settings.WorldsFolder ?? string.Empty, fileName);
             public static async Task<World> LoadEngineWorldAsync(string fileName)
                 => await TFileObject.LoadAsync<World>(WorldPath(fileName));
+
+            //public enum EEngineShaderName
+            //{
+            //    Bezier_gs,
+            //    Heightmap_gs,
+            //    CubeMapSphereMap_fs,
+            //    Outline2DUnlitForward_fs,
+            //    StencilExplode_gs,
+            //    VisualizeNBTForward_fs,
+            //    VisualizeNBTForward_gs,
+            //    VisualizeNormal_gs,
+
+            //    HudFBO_fs,
+            //    ParticleInstance_vs,
+            //    ParticleInstance_fs,
+            //    PointLightShadowDepth_fs,
+            //    PointLightShadowDepth_gs,
+
+            //    EditorPreviewIcon_fs, //Move to editor files
+            //    MaterialEditorGraphBG_fs, //Move to editor files
+            
+            //    Common_ColoredDeferred_fs,
+            //    Common_TexturedDeferred_fs,
+            //    Common_TexturedNormalMapDeferred_fs,
+            //    Common_UnlitAlphaTexturedForward_fs,
+            //    Common_UnlitColoredForward_fs,
+            //    Common_UnlitTexturedForward_fs,
+            //}
 
             public static string ShaderPath(string fileName)
                 => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);
@@ -721,14 +745,14 @@ namespace TheraEngine
             public static bool Key(int localPlayerIndex, EKey key, EButtonInputType type)
                 => Get(localPlayerIndex)?.GetKeyState(key, type) ?? false;
             public static bool Button(int localPlayerIndex, EGamePadButton button, EButtonInputType type)
-               => Get(localPlayerIndex)?.GetButtonState(button, type) ?? false;
+                => Get(localPlayerIndex)?.GetButtonState(button, type) ?? false;
             public static bool MouseButton(int localPlayerIndex, EMouseButton button, EButtonInputType type)
-              => Get(localPlayerIndex)?.GetMouseButtonState(button, type) ?? false;
+                => Get(localPlayerIndex)?.GetMouseButtonState(button, type) ?? false;
             public static bool AxisButton(int localPlayerIndex, EGamePadAxis axis, EButtonInputType type)
-               => Get(localPlayerIndex)?.GetAxisState(axis, type) ?? false;
+                => Get(localPlayerIndex)?.GetAxisState(axis, type) ?? false;
 
             public static float Axis(int localPlayerIndex, EGamePadAxis axis)
-              => Get(localPlayerIndex)?.GetAxisValue(axis) ?? 0.0f;
+                => Get(localPlayerIndex)?.GetAxisValue(axis) ?? 0.0f;
             
             public static bool KeyReleased(int localPlayerIndex, EKey key)
                 => Key(localPlayerIndex, key, EButtonInputType.Released);
@@ -760,6 +784,17 @@ namespace TheraEngine
 
         public partial class InternalEnginePersistentSingleton : MarshalByRefObject
         {
+            public void OnGotFocus() => GotFocus?.Invoke();
+            public void OnLostFocus() => LostFocus?.Invoke();
+
+            public InternalEnginePersistentSingleton()
+            {
+                Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Constructing new engine singleton.");
+                TickLists = new List<DelTick>[45];
+                for (int i = 0; i < TickLists.Length; ++i)
+                    TickLists[i] = new List<DelTick>();
+            }
+
             public async Task<EngineSettings> GetSettingsAsync()
             {
                 EngineSettings settings;
@@ -903,6 +938,17 @@ namespace TheraEngine
                 foreach (string path in ttf) LoadCustomFont(path);
                 foreach (string path in otf) LoadCustomFont(path);
             }
+
+            public void OnPauseChanged(bool isPaused, ELocalPlayerIndex toggler)
+                => PauseChanged?.Invoke(isPaused, toggler);
+            public void OnDebugOutput(string message)
+            {
+                if (AppDomainHelper.IsGameDomain && DebugOutput == null)
+                    Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] {message} (This message was not recieved by the GUI)");
+
+                DebugOutput?.Invoke(message);
+            }
+
             #endregion
         }
     }

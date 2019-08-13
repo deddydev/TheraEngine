@@ -7,7 +7,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
-    public abstract class RenderCommand : IComparable<RenderCommand>, IComparable
+    public abstract class RenderCommand : TObjectSlim, IComparable<RenderCommand>, IComparable
     {
         public RenderCommand() { }
         public RenderCommand(ERenderPass renderPass) => RenderPass = renderPass;

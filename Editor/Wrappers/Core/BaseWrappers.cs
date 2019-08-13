@@ -45,7 +45,7 @@ namespace TheraEditor.Wrappers
         }
         public static void LoadWrappers(params Assembly[] assemblies)
         {
-            Wrappers = new Dictionary<TypeProxy, TypeProxy>();
+            Wrappers = new Dictionary<TypeProxy, TypeProxy>(new TypeProxy.EqualityComparer());
             ThirdPartyWrappers = new Dictionary<string, TypeProxy>();
 
             if (assemblies != null)
@@ -206,8 +206,13 @@ namespace TheraEditor.Wrappers
                             }
                             else
                                 match = validInterfaces[0];
-                            
-                            w = NodeWrapperAttribute.Wrappers[match]?.CreateInstance() as BaseFileWrapper;
+
+                            TypeProxy matchType = NodeWrapperAttribute.Wrappers[match];
+                            if (matchType != null)
+                            {
+                                Type matchType2 = (Type)matchType;
+                                w = Activator.CreateInstance(matchType2) as BaseFileWrapper;
+                            }
                         }
                         else
                             tempType = tempType.BaseType;
@@ -217,9 +222,9 @@ namespace TheraEditor.Wrappers
                 if (w == null)
                 {
                     //Make wrapper for whatever file type this is
+                    w = new NonGenericFileWrapper(t);
                     //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
-                    NonGenericFileWrapper wrapper = new NonGenericFileWrapper(t);
-                    w = wrapper;//genericFileWrapper.CreateInstance() as BaseFileWrapper;
+                    //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
                 }
             }
             return w;

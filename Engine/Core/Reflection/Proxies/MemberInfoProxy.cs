@@ -1,8 +1,12 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using TheraEngine.Core.Attributes;
+using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Core.Reflection
 {
@@ -673,5 +677,96 @@ namespace TheraEngine.Core.Reflection
         //     element is not a constructor, method, property, event, type, or field.
         public bool IsDefined(TypeProxy attributeType)
             => Value.IsDefined((Type)attributeType);
+
+        public void GetBrowsableAndCategoryAttributes(out bool browsable, out string category)
+        {
+            object[] attribs = GetCustomAttributes(true);
+            bool isBrowsable = IsGridViewable;
+            bool noBrowsableDisable = attribs.FirstOrDefault(x => x is BrowsableAttribute b && !b.Browsable) is null;
+            browsable = isBrowsable && noBrowsableDisable;
+            var catAttrib = attribs.FirstOrDefault(x => x is CategoryAttribute c) as CategoryAttribute;
+            category = catAttrib?.Category;
+        }
+
+        public void GetStringAttributes(out bool isMultiLine, out bool isPath, out bool isNullable, out bool isUnicode)
+        {
+            TStringAttribute attrib = GetCustomAttribute<TStringAttribute>(true);
+            if (attrib is null)
+            {
+                isMultiLine = false;
+                isPath = false;
+                isNullable = true;
+                isUnicode = false;
+            }
+            else
+            {
+                isMultiLine = attrib.MultiLine;
+                isPath = attrib.Path;
+                isNullable = attrib.Nullable;
+                isUnicode = attrib.Unicode;
+            }
+        }
+
+        public void GetNumericPrefixSuffixAttribute(out string prefix, out string suffix)
+        {
+            TNumericPrefixSuffixAttribute attrib = GetCustomAttribute<TNumericPrefixSuffixAttribute>(true);
+            prefix = attrib?.Prefix;
+            suffix = attrib?.Suffix;
+        }
+
+        public string GetDisplayNameAttribute()
+            => GetCustomAttribute<DisplayNameAttribute>(true)?.DisplayName;
+        
+        public string GetDescriptionAttribute()
+            => GetCustomAttribute<DescriptionAttribute>(true)?.Description;
+
+        public abstract bool IsGridViewable { get; }
+        public abstract bool IsGridWriteable { get; }
+        public void GetGridDisplayAttributes(
+            out string visibilityCondition,
+            out bool visible,
+            out bool readOnly,
+            out string displayNameOverride,
+            out bool editInPlace,
+            out string description)
+        {
+            visibilityCondition = null;
+            visible = IsGridViewable;
+            readOnly = !IsGridWriteable;
+            displayNameOverride = null;
+            editInPlace = false;
+            description = null;
+
+            object[] attribs = GetCustomAttributes(true);
+            foreach (object attrib in attribs)
+            {
+                switch (attrib)
+                {
+                    case BrowsableIf browsableIf:
+                        visibilityCondition = browsableIf.Condition;
+                        break;
+                    case BrowsableAttribute browsable:
+                        visible = visible && browsable.Browsable;
+                        break;
+                    case ReadOnlyAttribute readOnlyAttrib:
+                        readOnly = readOnly || readOnlyAttrib.IsReadOnly;
+                        break;
+                    case DisplayNameAttribute displayName:
+                        displayNameOverride = displayName.DisplayName;
+                        break;
+                    case EditInPlace editInPlaceAttrib:
+                        editInPlace = true;
+                        break;
+                    case DescriptionAttribute desc:
+                        description = desc.Description;
+                        break;
+                }
+            }
+        }
+        //public object[] GetSerializableAttributeProperties(params string[] propertyNames)
+        //{
+        //    object[] attribs = GetCustomAttributes(true);
+
+        //}
     }
 }

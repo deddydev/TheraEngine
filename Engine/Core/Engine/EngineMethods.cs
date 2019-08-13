@@ -24,13 +24,14 @@ using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using Valve.VR;
 using TheraEngine.Core.Reflection;
+using System.Collections.Concurrent;
 
 namespace TheraEngine
 {
     public static partial class Engine
     {
-        public static float CurrentFramesPerSecond => _timer.RenderFrequency;
-        public static float CurrentUpdatesPerSecond => _timer.UpdateFrequency;
+        public static float CurrentFramesPerSecond => Timer.RenderFrequency;
+        public static float CurrentUpdatesPerSecond => Timer.UpdateFrequency;
 
         public static ColorF4 InvalidColor { get; } = Color.Magenta;
 
@@ -51,8 +52,8 @@ namespace TheraEngine
             Debug.Listeners.Add(new EngineTraceListener());
             //PrintLine("Constructing static engine class.");
 
-            _timer.UpdateFrame += EngineTick;
-            _timer.SwapBuffers += SwapBuffers;
+            Timer.UpdateFrame += EngineTick;
+            Timer.SwapBuffers += SwapBuffers;
 
             RenderLibraryChanged();
             RetrieveAudioManager();
@@ -151,7 +152,7 @@ namespace TheraEngine
         
         public static void SetWorldPanel(BaseRenderPanel panel, bool registerTickNow = true)
         {
-            BaseRenderPanel.WorldPanel = panel;
+            Engine.Instance.WorldPanel = panel._context;
             if (registerTickNow)
                 panel?.RegisterTick();
         }
@@ -290,7 +291,7 @@ namespace TheraEngine
         public static void Run()
         {
             EngineSettings settings = Settings;
-            _timer.Run(settings?.SingleThreaded ?? false);
+            Timer.Run(settings?.SingleThreaded ?? false);
         }
 
         private static void Settings_UpdatePerSecondChanged()
@@ -305,8 +306,8 @@ namespace TheraEngine
         }
         private static void Settings_SingleThreadedChanged()
         {
-            if (_timer.IsRunning)
-                _timer.IsSingleThreaded = Settings.SingleThreaded;
+            if (Timer.IsRunning)
+                Timer.IsSingleThreaded = Settings.SingleThreaded;
         }
 
         /// <summary>
@@ -318,10 +319,8 @@ namespace TheraEngine
             settings.SingleThreadedChanged -= Settings_SingleThreadedChanged;
             settings.FramesPerSecondChanged -= Settings_FramesPerSecondChanged;
             settings.UpdatePerSecondChanged -= Settings_UpdatePerSecondChanged;
-            _timer.Stop();
+            Timer.Stop();
         }
-
-        private static event EventHandler<FrameEventArgs> Update;
 
         /// <summary>
         /// Registers the given function to be called every update tick.
@@ -332,11 +331,11 @@ namespace TheraEngine
             Action swapBuffers)
         {
             if (render != null)
-                _timer.RenderFrame += render;
+                Timer.RenderFrame += render;
             if (update != null)
-                Update += update;
+                Instance.Update += update;
             if (swapBuffers != null)
-                _timer.SwapBuffers += swapBuffers;
+                Timer.SwapBuffers += swapBuffers;
         }
         /// <summary>
         /// Registers the given function to be called every render tick.
@@ -347,11 +346,11 @@ namespace TheraEngine
             Action swapBuffers)
         {
             if (render != null)
-                _timer.RenderFrame -= render;
+                Timer.RenderFrame -= render;
             if (update != null)
-                Update -= update;
+                Instance.Update -= update;
             if (swapBuffers != null)
-                _timer.SwapBuffers -= swapBuffers;
+                Timer.SwapBuffers -= swapBuffers;
         }
         /// <summary>
         /// Registers a method to execute in a specific order every update tick.
@@ -412,7 +411,7 @@ namespace TheraEngine
 
             TickGroup(ETickGroup.PostPhysics, delta);
 
-            Update?.Invoke(sender, e);
+            Instance.OnUpdate(sender, e);
 
             Network?.UpdatePacketQueue(e.Time);
 
@@ -511,32 +510,82 @@ namespace TheraEngine
         /// </summary>
         public static void PrintLine(string message, params object[] args)
         {
-#if DEBUG || EDITOR
             if (args.Length != 0)
                 message = string.Format(message, args);
-            var sponsor = Settings.Sponsor;
-            if (Settings.PrintAppDomainInOutput)
+            PrintLine_Internal(message, EOutputVerbosity.Normal, false);
+        }
+
+        public static ConcurrentDictionary<string, DateTime> RecentMessages = new ConcurrentDictionary<string, DateTime>();
+
+        private static void PrintLine_Internal(string message, EOutputVerbosity verbosity, bool printDate)
+        {
+#if DEBUG || EDITOR
+
+            if (verbosity > Settings.OutputVerbosity)
+                return;
+
+            DateTime now = DateTime.Now;
+
+            double recentness = Settings.AllowedOutputRecentnessSeconds;
+            if (recentness > 0.0)
+            {
+                List<string> removeKeys = new List<string>();
+                RecentMessages.ForEach(x =>
+                {
+                    TimeSpan span = now - x.Value;
+                    if (span.TotalSeconds >= recentness)
+                        removeKeys.Add(x.Key);
+                });
+                removeKeys.ForEach(x => RecentMessages.TryRemove(x, out _));
+
+                if (RecentMessages.ContainsKey(message))
+                {
+                    //Messages already cleaned above, just return here
+
+                    //TimeSpan span = now - RecentMessages[message];
+                    //if (span.TotalSeconds <= AllowedOutputRecentness)
+                    return;
+                }
+                else
+                    RecentMessages.TryAdd(message, now);
+            }
+
+            bool printDomain = Settings.PrintAppDomainInOutput;
+
+            if (printDate && printDomain)
+                message = $"[{AppDomain.CurrentDomain.FriendlyName} {now}] " + message;
+            else if (printDomain)
                 message = $"[{AppDomain.CurrentDomain.FriendlyName}] " + message;
+            else if (printDate)
+                message = $"[{now}] " + message;
+            
             Debug.Print(message);
 #endif
+        }
+        public enum EOutputVerbosity
+        {
+            None,
+            Minimal,
+            Normal,
+            Verbose,
         }
 
         public static void LogException(Exception ex)
         {
 #if DEBUG || EDITOR
-            PrintLine(ex.ToString());
+            PrintLine_Internal(ex.ToString(), EOutputVerbosity.Verbose, true);
 #endif
         }
-        public static void LogWarning(string message, params object[] args)
+        public static void LogWarning(string message, int lineIgnoreCount = 0, int includedLineCount = 1)
         {
 #if DEBUG || EDITOR
             //Format and print message
-            message = message ?? "<No Message>";
-            if (args != null && args.Length > 0)
-                message = string.Format(message, args);
+            message = message ?? string.Empty;
+            //if (args != null && args.Length > 0)
+            //    message = string.Format(message, args);
 
-            message += Environment.NewLine + GetStackTrace(4, 1);
-            PrintLine("[{1}] {0}", message, DateTime.Now);
+            message += Environment.NewLine + GetStackTrace(4 + lineIgnoreCount, includedLineCount);
+            PrintLine_Internal(message, EOutputVerbosity.Verbose, true);
 #endif
         }
 
@@ -948,6 +997,8 @@ namespace TheraEngine
 
                 DebugOutput?.Invoke(message);
             }
+
+            internal void OnUpdate(object sender, FrameEventArgs e) => Update?.Invoke(sender, e);
 
             #endregion
         }

@@ -5,6 +5,7 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Shapes
 {
+    [Serializable]
     public struct BoundingBoxStruct
     {
         public Vec3 HalfExtents;

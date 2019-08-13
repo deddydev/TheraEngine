@@ -293,7 +293,7 @@ namespace TheraEngine.Rendering.Models
                 int[] indices = prim?.IndicesElement?.StringContent?.Values;
                 if (indices == null)
                 {
-                    Engine.LogWarning("Mesh has no face indices. Mesh will be empty.", prim.Type.ToString());
+                    Engine.LogWarning("Mesh has no face indices. Mesh will be empty.");
                     return;
                 }
 
@@ -382,7 +382,7 @@ namespace TheraEngine.Rendering.Models
 
                     default:
                     case EColladaPrimitiveType.Polygons:
-                        Engine.LogWarning("Primitive type '{0}' not supported. Mesh will be empty.", prim.Type.ToString());
+                        Engine.LogWarning($"Primitive type '{prim.Type.ToString()}' not supported. Mesh will be empty.");
                         break;
                 }
             }

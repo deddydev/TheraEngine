@@ -281,10 +281,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Label = label;
 
             var prop = (MemberInfo as PropGridMemberInfoProperty)?.Property;
-            string displayNameOverride = prop?.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName;
+            string displayNameOverride = prop?.GetDisplayNameAttribute();
             ResolveMemberName(displayNameOverride);
-
-            string desc = prop?.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            
+            string desc = prop?.GetDescriptionAttribute();
             if (!string.IsNullOrWhiteSpace(desc) && Label?.Tag is MemberLabelInfo info)
                 info.Description = desc;
 

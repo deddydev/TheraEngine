@@ -1,100 +1,74 @@
 ﻿using System;
 using System.Windows.Forms;
-using TheraEditor.Actors.Types.Pawns;
 using TheraEditor.Wrappers;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.GameModes;
+using TheraEngine.Windows.Forms;
 using TheraEngine.Worlds;
-using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableWorldRenderForm : DockContent, IEditorRenderableControl
+    public partial class DockableWorldRenderForm : DockableWorldRenderFormBase<EditorWorldRenderPanel>
     {
-        public DockableWorldRenderForm(ELocalPlayerIndex playerIndex, int formIndex)
+        public DockableWorldRenderForm(ELocalPlayerIndex playerIndex, int formIndex) : base(playerIndex, formIndex)
         {
-            FormIndex = formIndex;
-            PlayerIndex = playerIndex;
+            RenderPanel.AllowDrop = true;
+            RenderPanel.DragDrop += RenderPanel_DragDrop;
+            RenderPanel.DragEnter += RenderPanel_DragEnter;
+            RenderPanel.DragOver += RenderPanel_DragOver;
+            RenderPanel.DragLeave += RenderPanel_DragLeave;
 
             InitializeComponent();
-
+            Controls.Add(RenderPanel);
             Text = $"Viewport {(FormIndex + 1).ToString()}";
-
-            EditorPawn = new EditorCameraPawn(PlayerIndex)
-            {
-                HUD = new EditorUI3D(RenderPanel.ClientSize),
-                Name = $"Viewport{(FormIndex + 1).ToString()}_EditorCamera"
-            };
 
             Engine.Instance.PreWorldChanged += Engine_WorldPreChanged;
             Engine.Instance.PostWorldChanged += Engine_WorldPostChanged;
-
-            RenderPanel.AllowDrop = true;
-            RenderPanel.GotFocus += RenderPanel_GotFocus;
         }
-        
-        private void RenderPanel_GotFocus(object sender, EventArgs e)
+        protected override void OnShown(EventArgs e)
+        {
+            Editor.Instance.EditorGameMode.TargetRenderPanels.Add(RenderPanel);
+            base.OnShown(e);
+        }
+        protected override void RenderPanel_GotFocus(object sender, EventArgs e)
         {
             Engine.SetWorldPanel(RenderPanel, false);
-            Editor.SetActiveEditorControl(this);
+            base.RenderPanel_GotFocus(sender, e);
         }
-
         private void Engine_WorldPreChanged()
         {
-            if (Engine.World != null && EditorPawn != null)
-                Engine.World.DespawnActor(EditorPawn);
+            if (World != null)
+            {
+                if (EditorPawn != null)
+                    World.DespawnActor(EditorPawn);
+            }
         }
         private void Engine_WorldPostChanged()
         {
             if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Engine_WorldPostChanged, BaseRenderPanel.EPanelType.Rendering))
                 return;
 
-            if (Engine.World == null || EditorPawn == null)
+            if (World == null)
             {
                 Text = $"Viewport {(FormIndex + 1).ToString()}";
             }
             else
             {
-                Engine.World.SpawnActor(EditorPawn);
-                Text = $"{Engine.World.Name} (Viewport {(FormIndex + 1).ToString()})";
+                World.SpawnActor(EditorPawn);
+                Text = $"{World.Name} (Viewport {(FormIndex + 1).ToString()})";
             }
         }
-        
-        public int FormIndex { get; private set; }
-        public ELocalPlayerIndex PlayerIndex { get; private set; } = ELocalPlayerIndex.One;
-        public EditorCameraPawn EditorPawn { get; private set; }
-
-        ELocalPlayerIndex IEditorRenderableControl.PlayerIndex => PlayerIndex;
-        BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
-        IPawn IEditorRenderableControl.EditorPawn => EditorPawn;
-        IGameMode IEditorRenderableControl.GameMode => Engine.World?.CurrentGameMode;
-        IWorld IEditorRenderableControl.World => Engine.World;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
             base.OnHandleDestroyed(e);
-            if (Editor.ActiveRenderForm != this)
-                return;
-            Engine.SetWorldPanel(null, false);
-            Editor.SetActiveEditorControl(null);
-        }
-        protected override void OnShown(EventArgs e)
-        {
-            Engine.World?.SpawnActor(EditorPawn);
-            base.OnShown(e);
-        }
-        protected override void OnClosed(EventArgs e)
-        {
-            Engine.World?.DespawnActor(EditorPawn);
-            base.OnClosed(e);
-        }
 
-        protected override string GetPersistString()
-            => GetType() + "," + FormIndex;
+            if (Editor.ActiveRenderForm == this)
+                Engine.SetWorldPanel(null, false);
+        }
 
         #region Drag / Drop Actors
 
@@ -128,13 +102,13 @@ namespace TheraEditor.Windows.Forms
             //Engine.TargetRenderFreq = 20.0f;
             //Engine.TargetUpdateFreq = 20.0f;
 
-            BaseRenderPanel.HoveredPanel = RenderPanel;
+            Engine.Instance.HoveredPanel = RenderPanel.Context;
             RenderPanel.Focus();
             EditorUI3D hud = EditorPawn.HUD.File as EditorUI3D;
-            IMap map = Engine.World.Settings.FindOrCreateMap(Engine.World.Settings.NewActorTargetMapName);
+            IMap map = World.Settings.FindOrCreateMap(World.Settings.NewActorTargetMapName);
             map.Actors.Add(actor);
             Vec3 point = EditorPawn.CameraComp.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance;
-            Engine.World.SpawnActor(actor, point);
+            World.SpawnActor(actor, point);
             _prevTransformType = hud.TransformMode;
             hud.TransformMode = TransformType.DragDrop;
             hud.HighlightedComponent = actor.RootComponentGeneric;
@@ -147,7 +121,7 @@ namespace TheraEditor.Windows.Forms
             if (hud?.DragComponent is null)
                 return;
 
-            Engine.World.DespawnActor(hud.DragComponent.OwningActor);
+            World.DespawnActor(hud.DragComponent.OwningActor);
             hud.DoMouseUp();
             hud.TransformMode = _prevTransformType;
             //Engine.TargetUpdateFreq = _preUpdateFreq;
@@ -167,7 +141,7 @@ namespace TheraEditor.Windows.Forms
             _dragInstance = null;
             _lastDraggedNode = null;
 
-            EditorUI3D hud = EditorPawn.HUD.File as EditorUI3D;
+            EditorUI3D hud = EditorPawn.HUD?.File as EditorUI3D;
             if (hud?.DragComponent is null)
                 return;
 

@@ -30,11 +30,11 @@ namespace TheraEngine.Core.Maths.Transforms
         public event Action Changed;
 
         //private int _updating = 0;
-        private float _oldX, _oldY, _oldZ;
+        public float _oldX, _oldY, _oldZ;
         [TSerialize("XYZ", NodeType = ENodeType.ElementContent)]
-        private Vec3 _data;
-        private EventVec3 _syncX, _syncY, _syncZ, _syncAll;
-        private DelGetVec3Value _setTick = null;
+        public Vec3 _data;
+        public EventVec3 _syncX, _syncY, _syncZ, _syncAll;
+        public DelGetVec3Value _setTick = null;
 
         public void Reset()
         {

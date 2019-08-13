@@ -169,7 +169,7 @@ namespace TheraEngine.Rendering
             {
                 if (viewport != null)
                 {
-                    viewport.RenderingCameras.Push(camera);
+                    viewport.PushRenderingCamera(camera);
 
                     //Enable internal resolution
                     Engine.Renderer.PushRenderArea(viewport.InternalResolution);
@@ -216,7 +216,7 @@ namespace TheraEngine.Rendering
                         target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                     }
                     Engine.Renderer.PopRenderArea();
-                    viewport.RenderingCameras.Pop();
+                    viewport.PopRenderingCamera();
                 }
                 else
                 {

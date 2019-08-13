@@ -41,37 +41,37 @@ namespace TheraEngine.Rendering.Models
 
         //Skinning data first
         [TSerialize(nameof(SingleBindBone), Order = 0)]
-        internal string _singleBindBone;
+        public string _singleBindBone;
         [TSerialize(nameof(UtilizedBones), Order = 1)]
-        internal string[] _utilizedBones;
+        public string[] _utilizedBones;
         //Influence per raw vertex.
         //Count is same as _facePoints.Count
         [TSerialize(nameof(Influences), Order = 2)]
-        internal InfluenceDef[] _influences;
+        public InfluenceDef[] _influences;
 
         //Buffer data second
         [TSerialize(nameof(BufferInfo), Order = 3)]
-        internal VertexShaderDesc _bufferInfo;
+        public VertexShaderDesc _bufferInfo;
         //This is the array data that will be passed through the shader.
         //Each buffer may have repeated values, as there must be a value for each remapped face point.
         [TSerialize(nameof(Buffers), Order = 4)]
-        internal List<DataBuffer> _buffers = null;
+        public List<DataBuffer> _buffers = null;
 
         //Face data last
         //Face points have indices that refer to each buffer.
         //These may contain repeat buffer indices but each point is unique.
         [TSerialize(nameof(FacePoints), Order = 5)]
-        internal List<FacePoint> _facePoints = null;
+        public List<FacePoint> _facePoints = null;
         [TSerialize(nameof(Points), Order = 6)]
-        internal List<IndexPoint> _points = null;
+        public List<IndexPoint> _points = null;
         [TSerialize(nameof(Lines), Order = 7)]
-        internal List<IndexLine> _lines = null;
+        public List<IndexLine> _lines = null;
         //Faces have indices that refer to face points.
         //These may contain repeat vertex indices but each triangle is unique.
         [TSerialize(nameof(Triangles), Order = 8)]
-        internal List<IndexTriangle> _triangles = null;
+        public List<IndexTriangle> _triangles = null;
 
         [TSerialize(nameof(Type), NodeType = ENodeType.Attribute)]
-        internal EPrimitiveType _type = EPrimitiveType.Triangles;
+        public EPrimitiveType _type = EPrimitiveType.Triangles;
     }
 }

@@ -65,6 +65,10 @@ namespace Extensions
             //float seconds = Engine.EndTimer(id);
             //Engine.DebugPrint("Radix Sort took " + seconds + " seconds.");
         }
+        public static void AddRange<T>(this IList<T> list, params T[] values)
+        {
+            list.AddRange(values);
+        }
         public static IList<T> FillWith<T>(this IList<T> list, T value)
         {
             for (int i = 0; i < list.Count; i++)

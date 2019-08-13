@@ -28,6 +28,8 @@ namespace TheraEngine.Core.Reflection
         //public MethodBaseProxy() { }
         protected MethodBaseProxy(MethodBase value) : base(value) => Value = value;
 
+        public override bool IsGridViewable => IsPublic;
+        public override bool IsGridWriteable => false;
         //
         // Summary:
         //     Gets a value indicating whether the method is a generic method definition.

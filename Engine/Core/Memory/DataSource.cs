@@ -6,7 +6,7 @@ using TheraEngine;
 namespace TheraEngine.Core.Memory
 {
     //Stores a reference to unmanaged data
-    public class DataSource : IDisposable
+    public class DataSource : TObjectSlim, IDisposable
     {
         public event Action Modified;
 

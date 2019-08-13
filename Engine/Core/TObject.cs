@@ -1,10 +1,12 @@
-﻿using Extensions;
+using Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Remoting.Lifetime;
+using System.Security.Permissions;
 using TheraEngine.Animation;
+using TheraEngine.Core;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
@@ -12,7 +14,11 @@ using TheraEngine.Input.Devices;
 
 namespace TheraEngine
 {
-    public interface IObject
+    public interface IObjectSlim
+    {
+        TypeProxy GetTypeProxy();
+    }
+    public interface IObject : IObjectSlim
     {
         event RenamedEventHandler Renamed;
 
@@ -55,18 +61,17 @@ namespace TheraEngine
         //    EInputPauseType pausedBehavior = EInputPauseType.TickAlways);
         //bool RemoveAnimation(AnimationTree anim);
         #endregion
-
-        TypeProxy GetTypeProxy();
     }
 
     public class MarshalSponsor : MarshalByRefObject, ISponsor, IDisposable
     {
-        public static readonly TimeSpan RenewalTimeSpan = TimeSpan.FromSeconds(1);
+        public static readonly TimeSpan RenewalTimeSpan = TimeSpan.FromSeconds(1.0);
 
         public ILease Lease { get; private set; }
         public bool WantsRelease { get; set; } = false;
         public bool IsReleased { get; private set; } = false;
-        public MarshalByRefObject Object { get; private set; }
+        public ISponsorableMarshalByRefObject Object { get; private set; }
+        public DateTime LastRenewalTime { get; private set; }
 
         public TimeSpan Renewal(ILease lease)
         {
@@ -78,15 +83,22 @@ namespace TheraEngine
                 Engine.PrintLine($"Released lease for {fn}.");
                 return TimeSpan.Zero;
             }
-            Engine.PrintLine($"Renewed lease for {fn}.");
+            TimeSpan span = DateTime.Now - LastRenewalTime;
+            double sec = Math.Round(span.TotalSeconds, 1);
+            Engine.PrintLine($"Renewed lease for {fn}. {sec} seconds elapsed since last renewal.");
+            LastRenewalTime = DateTime.Now;
             return RenewalTimeSpan;
         }
         
-        public MarshalSponsor(MarshalByRefObject mbro)
+        public MarshalSponsor(ISponsorableMarshalByRefObject mbro)
         {
             Object = mbro;
-            Lease = (ILease)mbro.GetLifetimeService();
-            Lease?.Register(this);
+            Lease = mbro.InitializeLifetimeService() as ILease;
+            if (Lease != null)
+            {
+                Lease.Register(this);
+            }
+            LastRenewalTime = DateTime.Now;
         }
 
         public void Dispose()
@@ -95,7 +107,9 @@ namespace TheraEngine
             Lease = null;
         }
 
+        [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]
         public override object InitializeLifetimeService() => null;
+        
         public void Release() => WantsRelease = true;
     }
 
@@ -103,27 +117,29 @@ namespace TheraEngine
     public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
 
-    public abstract class TObject : MarshalByRefObject, IObject
+    public abstract class TObjectSlim : SponsorableMarshalByRefObject, IObjectSlim
     {
-        public TObject()
-        {
-            //if (AppDomainHelper.IsGameDomain && !AppDomainHelper.IsGameDomainAlsoPrimary)
-            //{
-                Sponsor = new MarshalSponsor(this);
-            //Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Created new TObject: {GetType().GetFriendlyName()}.");
-            //}
-        }
-        ~TObject()
-        {
-            Sponsor?.Dispose();
-            Sponsor = null;
-        }
+        TypeProxy IObjectSlim.GetTypeProxy() => GetType();
 
-        public AppDomain Domain => AppDomain.CurrentDomain;
-        TypeProxy IObject.GetTypeProxy() => GetType();
-        
-        public MarshalSponsor Sponsor { get; set; }
+        #region Debug
 
+        /// <summary>
+        /// Prints a line to output.
+        /// Identical to Engine.PrintLine().
+        /// </summary>
+        protected static void PrintLine(string message, params object[] args) => Debug.Print(message, args);
+        /// <summary>
+        /// Prints a line to output.
+        /// Identical to Engine.PrintLine().
+        /// </summary>
+        protected static void PrintLine(string message) => Debug.Print(message);
+
+        public override string ToString() => GetType().GetFriendlyName();
+
+        #endregion
+    }
+    public abstract class TObject  : TObjectSlim, IObject
+    {
         [TString(false, false, false)]
         [TSerialize(nameof(Name), NodeType = ENodeType.Attribute)]
         public string _name = null;
@@ -163,6 +179,7 @@ namespace TheraEngine
         protected virtual void OnRenamed(string oldName)
             => Renamed?.Invoke(this, oldName);
         #endregion
+
 
         #region Ticking
         private List<(ETickGroup Group, ETickOrder Order, DelTick Tick)> _tickFunctions
@@ -214,7 +231,7 @@ namespace TheraEngine
                     _editorState.Object = this;
             }
         }
-        
+
         void IObject.OnHighlightChanged(bool highlighted) => OnHighlightChanged(highlighted);
         void IObject.OnSelectedChanged(bool selected) => OnSelectedChanged(selected);
         protected internal virtual void OnHighlightChanged(bool highlighted) { }
@@ -323,23 +340,6 @@ namespace TheraEngine
         //}
         private void RemoveAnimationSelf(BaseAnimation anim)
             => _animations.Remove((AnimationTree)anim);
-        #endregion
-
-        #region Debug
-        
-        /// <summary>
-        /// Prints a line to output.
-        /// Identical to Engine.PrintLine().
-        /// </summary>
-        protected static void PrintLine(string message, params object[] args) => Debug.Print(message, args);
-        /// <summary>
-        /// Prints a line to output.
-        /// Identical to Engine.PrintLine().
-        /// </summary>
-        protected static void PrintLine(string message) => Debug.Print(message);
-
-        public override string ToString() => Name;
-
         #endregion
     }
 }

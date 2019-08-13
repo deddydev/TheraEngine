@@ -3,7 +3,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Audio
 {
-    public abstract class AbstractAudioManager
+    public abstract class AbstractAudioManager : TObjectSlim
     {
         public abstract AudioInstance Play(IAudioSource source);
         public abstract bool Play(AudioInstance instance);

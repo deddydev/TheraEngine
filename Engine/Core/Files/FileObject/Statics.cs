@@ -304,7 +304,7 @@ namespace TheraEngine.Core.Files
             if (result != null)
                 return result;
 
-            Engine.LogWarning("{0} cannot be loaded as {1}.", filePath, expectedType.GetFriendlyName());
+            Engine.LogWarning($"{filePath} cannot be loaded as {expectedType.GetFriendlyName()}.");
             return null;
         }
 

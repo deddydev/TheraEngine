@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -25,7 +26,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Flags = flags;
                 Owner = owner;
 
-                Type t = rootFileObject.GetType();
+                TypeProxy t = rootFileObject.GetTypeProxy();
                 RootNode = new SerializeElement(rootFileObject, new TSerializeMemberInfo(t, SerializationCommon.FixElementName(t.Name)));
             }
             
@@ -93,7 +94,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public static bool PreExport(object file, string directory, string fileName, EProprietaryFileFormat format, TFileExt extOverride, out string filePath)
         {
-            Type fileType = file.GetType();
+            TypeProxy fileType = file.GetTypeProxy();
             TFileExt extAttrib = extOverride ?? TFileObject.GetFileExtension(fileType);
             if (extAttrib == null)
             {
@@ -128,7 +129,7 @@ namespace TheraEngine.Core.Files.Serialization
                 directory += Path.DirectorySeparatorChar;
 
             filePath = directory + fileName + "." + ext;
-            if (fileType is IFileObject fobj)
+            if (file is IFileObject fobj)
                 fobj.FilePath = filePath;
 
             return true;

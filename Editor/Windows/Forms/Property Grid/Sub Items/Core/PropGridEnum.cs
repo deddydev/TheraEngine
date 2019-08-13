@@ -63,8 +63,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     //if (string.Equals(_value, temp, StringComparison.InvariantCulture))
                     //    return;
                     _value = temp;
-                
-                    bool flags = DataType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
+
+                    bool flags = DataType.HasFlagsAttribute();
                     tblEnumFlags.Visible = flags;
                     cboEnumNames.Visible = !flags;
                     if (flags)
@@ -191,7 +191,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             bool splitCamelCase = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase;
             FieldInfoProxy field;
             FieldInfoProxy[] fields = enumType.GetFields(BindingFlags.Static | BindingFlags.Public);
-            bool flags = enumType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
+            bool flags = enumType.HasFlagsAttribute();
             if (flags)
             {
                 panel1.Visible = true;
@@ -298,10 +298,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     cboEnumNames.Items.Add(GetFieldName(fields[i], splitCamelCase));
             }
         }
-        private string GetFieldName(FieldInfo field, bool splitCamelCase)
+        private string GetFieldName(FieldInfoProxy field, bool splitCamelCase)
         {
-            DisplayNameAttribute attrib = field.GetCustomAttribute<DisplayNameAttribute>();
-            string name = attrib?.DisplayName ?? field.Name;
+            string displayName = field.GetDisplayNameAttribute();
+            string name = displayName ?? field.Name;
             if (splitCamelCase)
                 name = name.SplitCamelCase();
             return name;

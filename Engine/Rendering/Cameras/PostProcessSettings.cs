@@ -8,7 +8,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Cameras
 {
-    public class PostSettings
+    public class PostSettings : TObject
     {
         //private bool _enabled;
 

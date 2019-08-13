@@ -1,109 +1,201 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using TheraEngine.Core.Files;
+using Extensions;
 using System.Linq;
-using System.Text;
+using TheraEngine.Core.Files.XML;
 using System.Threading.Tasks;
 
 namespace TheraEngine.ThirdParty
 {
-    class VisualStudioSolution
+    [TFile3rdPartyExt("sln")]
+    public class VisualStudioSolution : TFileObject
     {
-        //Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csproj", "{3BA74071-A8FB-473A-9388-0C8F75872F41}"
-        //EndProject
-        //Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thera", "Thera\Thera.csproj", "{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}"
-        //EndProject
-        //Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forms Editor", "Forms Editor\Forms Editor.csproj", "{87E68E70-16FA-4807-B5DB-04AB2468A8EF}"
-        //EndProject
-        //Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChromaCrossfire", "ChromaCrossfire\ChromaCrossfire.csproj", "{30E11483-260E-4AC4-AAE9-C7FBF94D7CE0}"
-        //EndProject
-        //Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{CF1E25A4-E55E-4C0E-A518-8565A4C4F86B}"
-        //EndProject
-        //Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameProjectTemplate", "GameProjectTemplate\GameProjectTemplate.csproj", "{98783021-4704-4548-902A-CFB771E211C6}"
-        //EndProject
-        //Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameProjectTemplateInstaller", "GameProjectTemplateInstaller\GameProjectTemplateInstaller.csproj", "{0A38B131-72DD-498E-A496-8B435DDA956B}"
-        //EndProject
+        public Guid SolutionGuid { get; set; }
+        public string VisualStudioVersion { get; set; }
+        public string MinimumVisualStudioVersion { get; set; }
+        public string[] Platforms { get; set; }
+        public string[] Configurations { get; set; }
+        public Project[] Projects { get; set; }
+        public bool HideSolutionNode { get; set; }
+        
+        public class Project
+        {
+            public Guid TypeGuid { get; set; }
+            public Guid Guid { get; set; }
+            public string Name { get; set; }
+            public string RelativePath { get; set; }
+            public Guid[] Dependencies { get; set; }
 
-        public readonly string Begin = @"
-        Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
-MinimumVisualStudioVersion = 10.0.40219.1 
-{0}
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		DebugEditor|Any CPU     = DebugEditor|Any CPU
-		DebugEditor|x64         = DebugEditor|x64
-		DebugEditor|x86         = DebugEditor|x86
-		DebugGame|Any CPU       = DebugGame|Any CPU
-		DebugGame|x64           = DebugGame|x64
-		DebugGame|x86           = DebugGame|x86
-		ReleaseEditor|Any CPU   = ReleaseEditor|Any CPU
-		ReleaseEditor|x64       = ReleaseEditor|x64
-		ReleaseEditor|x86       = ReleaseEditor|x86
-		ReleaseGame|Any CPU     = ReleaseGame|Any CPU
-		ReleaseGame|x64         = ReleaseGame|x64
-		ReleaseGame|x86         = ReleaseGame|x86
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|Any CPU.ActiveCfg = ReleaseGameObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|Any CPU.Build.0 = ReleaseGameObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|x64.ActiveCfg = DebugGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|x64.Build.0 = DebugGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|x86.ActiveCfg = DebugGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|x86.Build.0 = DebugGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditor|Any CPU.ActiveCfg = DebugEditor|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditor|x64.ActiveCfg = DebugEditor|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditor|x64.Build.0 = DebugEditor|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditor|x86.ActiveCfg = DebugEditor|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditor|x86.Build.0 = DebugEditor|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|Any CPU.ActiveCfg = DebugEditorObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x64.ActiveCfg = DebugEditorObfuscated|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x64.Build.0 = DebugEditorObfuscated|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x86.ActiveCfg = DebugEditorObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x86.Build.0 = DebugEditorObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|Any CPU.ActiveCfg = DebugGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|x64.ActiveCfg = DebugGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|x64.Build.0 = DebugGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|x86.ActiveCfg = DebugGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|x86.Build.0 = DebugGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|Any CPU.ActiveCfg = DebugGameObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x64.ActiveCfg = DebugGameObfuscated|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x64.Build.0 = DebugGameObfuscated|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x86.ActiveCfg = DebugGameObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x86.Build.0 = DebugGameObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|Any CPU.ActiveCfg = ReleaseGameObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|Any CPU.Build.0 = ReleaseGameObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|x64.ActiveCfg = ReleaseGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|x64.Build.0 = ReleaseGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|x86.ActiveCfg = ReleaseGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|x86.Build.0 = ReleaseGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|Any CPU.ActiveCfg = ReleaseEditor|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|x64.ActiveCfg = ReleaseEditor|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|x64.Build.0 = ReleaseEditor|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|x86.ActiveCfg = ReleaseEditor|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|x86.Build.0 = ReleaseEditor|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|Any CPU.ActiveCfg = ReleaseEditorObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x64.ActiveCfg = ReleaseEditorObfuscated|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x64.Build.0 = ReleaseEditorObfuscated|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x86.ActiveCfg = ReleaseEditorObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x86.Build.0 = ReleaseEditorObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|Any CPU.ActiveCfg = ReleaseGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|x64.ActiveCfg = ReleaseGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|x64.Build.0 = ReleaseGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|x86.ActiveCfg = ReleaseGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|x86.Build.0 = ReleaseGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|Any CPU.ActiveCfg = ReleaseGameObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x64.ActiveCfg = ReleaseGameObfuscated|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x64.Build.0 = ReleaseGameObfuscated|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x86.ActiveCfg = ReleaseGameObfuscated|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x86.Build.0 = ReleaseGameObfuscated|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {000ED08C-68F0-4934-A99E-E864CC0DAA75}
-	EndGlobalSection
-EndGlobal";
+            public string GetLine()
+                => $"Project(\"{TypeGuid.ToString("B")}\") = \"{Name}\", \"{RelativePath}\", \"{Guid.ToString("B")}\"";
+        }
+
+        public async Task<(XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project)> ReadProjectAsync(Project project)
+        {
+            string projPath = Path.Combine(DirectoryPath, project.RelativePath);
+            XMLSchemeDefinition<MSBuild.Project> projDef = new XMLSchemeDefinition<MSBuild.Project>();
+            MSBuild.Project proj = await projDef.ImportAsync(projPath, 0);
+            return (projDef, proj);
+        }
+
+        public override void ManualRead3rdParty(string filePath)
+        {
+            List<Project> projects = new List<Project>();
+            HashSet<string> configs = new HashSet<string>();
+            HashSet<string> platforms = new HashSet<string>();
+
+            string[] lines = File.ReadAllLines(filePath);
+            int i = -1;
+            while (++i < lines.Length)
+            {
+                string line = lines[i].Trim();
+                if (line.StartsWith("#"))
+                    continue;
+
+                string[] split = line.Split('=');
+                switch (split.Length)
+                {
+                    default:
+                    case 0:
+                        throw new InvalidOperationException();
+                    case 1:
+                        string str = split[0];
+                        if (str.StartsWith("Microsoft Visual Studio Solution File"))
+                            continue;
+                        else if (str.StartsWith("Global"))
+                        {
+                            while ((line = lines[++i].Trim()).StartsWith("GlobalSection"))
+                            {
+                                int startBracket = line.IndexOf('(') + 1;
+                                int endBracket = line.IndexOf(')');
+                                int len = endBracket - startBracket;
+                                string sectionType = line.Substring(startBracket, len);
+
+                                while (!(line = lines[++i].Trim()).EqualsInvariant("EndGlobalSection"))
+                                {
+                                    switch (sectionType)
+                                    {
+                                        case "SolutionConfigurationPlatforms": //preSolution
+
+                                            int lineIndex = line.IndexOf('|');
+
+                                            string config = line.Substring(0, lineIndex).Trim();
+                                            configs.Add(config);
+
+                                            string plat = line.Substring(lineIndex + 1, line.IndexOf('=') - lineIndex - 1).Trim();
+                                            platforms.Add(plat);
+
+                                            break;
+                                        case "ProjectConfigurationPlatforms": //postSolution
+
+                                            break;
+                                        case "SolutionProperties": //preSolution
+
+                                            if (line.StartsWith("HideSolutionNode", StringComparison.InvariantCulture))
+                                            {
+                                                int startIndex = line.IndexOf('=') + 1;
+                                                string valueStr = line.Substring(startIndex).Trim();
+                                                HideSolutionNode = bool.Parse(valueStr);
+                                            }
+
+                                            break;
+                                        case "ExtensibilityGlobals": //postSolution
+
+                                            if (line.StartsWith("SolutionGuid", StringComparison.InvariantCulture))
+                                            {
+                                                int startIndex = line.IndexOf('=') + 1;
+                                                string guidStr = line.Substring(startIndex).Trim();
+                                                Guid guid = new Guid(guidStr);
+                                                SolutionGuid = guid;
+                                            }
+
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case 2:
+                        string p1 = split[0].Trim();
+                        string p2 = split[1].Trim();
+                        if (p1.EqualsInvariant("VisualStudioVersion"))
+                        {
+                            VisualStudioVersion = p2;
+                        }
+                        else if (p1.EqualsInvariant("MinimumVisualStudioVersion"))
+                        {
+                            MinimumVisualStudioVersion = p2;
+                        }
+                        else if (p1.StartsWith("Project"))
+                        {
+                            Project project = new Project();
+
+                            int startBracket = p1.IndexOf('{') + 1;
+                            int endBracket = p1.IndexOf('}');
+                            int len = endBracket - startBracket;
+                            string typeGuidStr = p1.Substring(startBracket, len);
+                            Guid typeGuid = new Guid(typeGuidStr);
+                            project.TypeGuid = typeGuid;
+
+                            string[] parts = p2.Split(',');
+                            if (parts.Length == 3)
+                            {
+                                string nameStr = parts[0].Trim();
+                                project.Name = nameStr.Substring(1, nameStr.Length - 2);
+
+                                string pathStr = parts[1].Trim();
+                                project.RelativePath = pathStr.Substring(1, pathStr.Length - 2);
+
+                                string guidStr = parts[2].Trim();
+                                project.Guid = new Guid(guidStr.Substring(1, guidStr.Length - 2));
+                            }
+
+                            while (!(line = lines[++i].Trim()).EqualsInvariant("EndProject"))
+                            {
+                                if (line.StartsWith("ProjectSection(ProjectDependencies)"))
+                                {
+                                    List<Guid> dependencies = new List<Guid>();
+                                    while (!(line = lines[++i].Trim()).EqualsInvariant("EndProjectSection"))
+                                    {
+                                        string guidStr = line.Substring(0, line.IndexOf('=')).Trim();
+                                        Guid guid = new Guid(guidStr);
+                                        dependencies.Add(guid);
+                                    }
+                                    project.Dependencies = dependencies.ToArray();
+                                }
+                            }
+
+                            projects.Add(project);
+                        }
+                        break;
+                }
+            }
+
+            Projects = projects.ToArray();
+            Platforms = platforms.ToArray();
+            Configurations = configs.ToArray();
+        }
+        public override void ManualWrite3rdParty(string filePath)
+        {
+            List<string> lines = new List<string>();
+            lines.AddRange(
+                "Microsoft Visual Studio Solution File, Format Version 12.00",
+                "# Visual Studio Version 16",
+                "VisualStudioVersion = " + VisualStudioVersion,
+                "MinimumVisualStudioVersion = " + MinimumVisualStudioVersion);
+            foreach (Project project in Projects)
+            {
+                lines.Add(project.GetLine());
+                if (project.Dependencies != null && project.Dependencies.Length > 0)
+                {
+
+                }
+                lines.Add("EndProject");
+            }
+            File.WriteAllLines(filePath, lines.ToArray());
+        }
     }
 }

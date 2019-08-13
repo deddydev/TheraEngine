@@ -15,21 +15,46 @@ namespace TheraEditor.Windows.Forms
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
+
             OutputTextBox.Text = Engine.OutputString;
-            Engine.Instance.DebugOutput += Engine_DebugOutput;
-            if (!OutputTextBox.Focused)
+
+            OutputTextBox.LostFocus += OutputTextBox_LostFocus;
+            Engine.Instance.DebugOutput += QueueMessage;
+            Application.Idle += Application_Idle;
+
+            OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
+            OutputTextBox.ScrollToCaret();
+        }
+
+        private void OutputTextBox_LostFocus(object sender, EventArgs e)
+        {
+            OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
+            OutputTextBox.ScrollToCaret();
+        }
+
+        private string _queuedMessage = string.Empty;
+        private void Application_Idle(object sender, EventArgs e)
+        {
+            if (_queuedMessage.Length > 0)
             {
-                OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
-                OutputTextBox.ScrollToCaret();
+                DisplayMessage(_queuedMessage);
+                _queuedMessage = string.Empty;
             }
         }
+
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            Engine.Instance.DebugOutput -= Engine_DebugOutput;
+            Engine.Instance.DebugOutput -= QueueMessage;
+            OutputTextBox.LostFocus -= OutputTextBox_LostFocus;
+            Application.Idle -= Application_Idle;
+
             base.OnHandleDestroyed(e);
         }
-        
-        private void Engine_DebugOutput(string message)
+        private void QueueMessage(string message)
+        {
+            _queuedMessage += message;
+        }
+        private void DisplayMessage(string message)
         {
             try
             {
@@ -38,9 +63,11 @@ namespace TheraEditor.Windows.Forms
 
                 if (InvokeRequired)
                 {
-                    BeginInvoke(new Action<string>(Engine_DebugOutput), message);
+                    BeginInvoke(new Action<string>(DisplayMessage), message);
                     return;
                 }
+
+                bool shouldScroll = OutputTextBox.SelectionStart == OutputTextBox.Text.Length;
 
                 OutputTextBox.Text += message;
 
@@ -48,16 +75,15 @@ namespace TheraEditor.Windows.Forms
                 if (activeForm is DockContent c && c.DockPanel != null && c.DockPanel != DockPanel)
                 {
                     Show(c.DockPanel);
-                    OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
-                    OutputTextBox.ScrollToCaret();
+                    shouldScroll = true;
                 }
                 else if (activeForm is IDockPanelOwner dockable && dockable.DockPanelRef != DockPanel)
                 {
                     Show(dockable.DockPanelRef);
-                    OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
-                    OutputTextBox.ScrollToCaret();
+                    shouldScroll = true;
                 }
-                else if (!OutputTextBox.Focused) //Don't scroll to end if user is reading something
+
+                if (shouldScroll)
                 {
                     OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
                     OutputTextBox.ScrollToCaret();

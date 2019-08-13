@@ -61,7 +61,7 @@ namespace TheraEngine.Input.Devices
             }
 
             //TODO: only tick inputs for local controllers that have registered input to the currently focused render panel
-            return _isConnected && BaseRenderPanel.FocusedPanel != null;
+            return _isConnected && Engine.Instance.FocusedPanel != null;
         }
         public static void RegisterButtonEvent(ButtonManager m, EButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
         {

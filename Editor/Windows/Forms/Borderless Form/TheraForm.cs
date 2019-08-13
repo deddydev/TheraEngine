@@ -92,8 +92,14 @@ namespace TheraEditor.Windows.Forms
             control.ForeColor = textColor;
             control.BackColor = backColor;
         }
+        public override string Text
+        {
+            get => base.Text;
+            set => base.Text = FormTitle.Text = value;
+        }
         private void InitBorderless()
         {
+            FormTitle.TextChanged += FormTitle_TextChanged;
             foreach (var control in new[] { MinimizeLabel, MaximizeLabel, CloseLabel })
             {
                 control.MouseEnter += (s, e) => SetLabelColors((Control)s, MouseState.Hover);
@@ -128,6 +134,8 @@ namespace TheraEditor.Windows.Forms
             SizeChanged += FormSizeChanged;
             CloseLabel.MouseClick += (s, e) => Close(e);
         }
+
+        private void FormTitle_TextChanged(object sender, EventArgs e) => base.Text = FormTitle.Text;
 
         protected override void OnLoad(EventArgs e)
         {

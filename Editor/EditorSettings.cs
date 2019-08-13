@@ -71,6 +71,16 @@ namespace TheraEditor
         [TSerialize]
         public bool RenderPhysicsWorld { get; set; }
 
+        public enum EOverwrite
+        {
+            Ask,
+            Always,
+            Never,
+        }
+        [Category("Installation")]
+        [TSerialize]
+        public EOverwrite OverwriteCurrentInstall { get; internal set; } = EOverwrite.Ask;
+        
         [Serializable]
         [TFileDef("Property Grid Settings")]
         public class PropertyGridSettings : TSettings

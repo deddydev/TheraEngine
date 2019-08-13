@@ -5,7 +5,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Physics
 {
-    public abstract class AbstractPhysicsInterface
+    public abstract class AbstractPhysicsInterface : TObjectSlim
     {
         /// <summary>
         /// Creates a new physics scene using the specified physics library.

@@ -78,14 +78,16 @@ namespace TheraEngine.Rendering.OpenGL
             //1281, //Invalid texture format
             //1282,
         };
-        internal unsafe void HandleDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
+        internal unsafe void HandleDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr messagePtr, IntPtr userParam)
         {
             if (_ignoredMessageIds.IndexOf(id) >= 0)
                 return;
 
-            string s = new string((sbyte*)message);
+            string messageStr = new string((sbyte*)messagePtr);
             //if (severity == DebugSeverity.DebugSeverityNotification || type == DebugType.DebugTypeOther || _printMessageIds.IndexOf(id) >= 0)
-                Engine.PrintLine("OPENGL NOTIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);
+                Engine.LogWarning(string.Format(
+                    "OPENGL NOTIF: {0} {1} {2} {3} {4}", 
+                    source, type, id, severity, messageStr), 1, 1);
             //else
             //    throw new Exception(string.Format("OPENGL ERROR: {0} {1} {2} {3} {4}", source, type, id, severity, s));
             //    Engine.PrintLine("OPENGL NOTIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);

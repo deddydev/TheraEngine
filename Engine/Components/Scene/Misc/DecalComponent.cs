@@ -134,13 +134,16 @@ namespace TheraEngine.Components.Scene
                 return;
 
             Viewport v = Engine.Renderer.CurrentlyRenderingViewport;
-            materialProgram.Sampler("Texture0", v.AlbedoOpacityTexture.RenderTextureGeneric, 0);
-            materialProgram.Sampler("Texture1", v.NormalTexture.RenderTextureGeneric, 1);
-            materialProgram.Sampler("Texture2", v.RMSITexture.RenderTextureGeneric, 2);
-            materialProgram.Sampler("Texture3", v.DepthViewTexture.RenderTextureGeneric, 3);
-            materialProgram.Uniform("BoxWorldMatrix", WorldMatrix);
-            materialProgram.Uniform("InvBoxWorldMatrix", InverseWorldMatrix);
-            materialProgram.Uniform("BoxHalfScale", _shape.HalfExtents.Raw);
+            if (v != null)
+            {
+                materialProgram.Sampler("Texture0", v.AlbedoOpacityTexture.RenderTextureGeneric, 0);
+                materialProgram.Sampler("Texture1", v.NormalTexture.RenderTextureGeneric, 1);
+                materialProgram.Sampler("Texture2", v.RMSITexture.RenderTextureGeneric, 2);
+                materialProgram.Sampler("Texture3", v.DepthViewTexture.RenderTextureGeneric, 3);
+                materialProgram.Uniform("BoxWorldMatrix", WorldMatrix);
+                materialProgram.Uniform("InvBoxWorldMatrix", InverseWorldMatrix);
+                materialProgram.Uniform("BoxHalfScale", _shape.HalfExtents.Raw);
+            }
         }
 
         public RenderCommandMesh3D RenderCommandDecal { get; } = new RenderCommandMesh3D(ERenderPass.DeferredDecals);

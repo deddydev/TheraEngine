@@ -194,6 +194,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 string.Format("[Front: {0}] - [Back: {1}]", FrontFace.ToString(), BackFace.ToString());
         }
     }
+    [Serializable]
     public class DepthTest
     {
         [Browsable(false)]
@@ -230,6 +231,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 string.Format("[{0}, Write Depth:{1}]", Function, UpdateDepth);
         }
     }
+    [Serializable]
     public class BlendMode
     {
         [Browsable(false)]

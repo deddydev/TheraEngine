@@ -1,22 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Permissions;
 
 namespace TheraEngine.Core.Reflection
 {
     public abstract class ReflectionProxy : MarshalByRefObject
     {
-        public MarshalSponsor Sponsor { get; set; }
+        //public MarshalSponsor Sponsor { get; set; }
         protected ReflectionProxy()
         {
-            Sponsor = new MarshalSponsor(this);
+            //Sponsor = new MarshalSponsor(this);
         }
-        ~ReflectionProxy()
+        //~ReflectionProxy()
+        //{
+        //    Sponsor?.Dispose();
+        //    Sponsor = null;
+        //}
+        [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]
+        public override object InitializeLifetimeService()
         {
-            Sponsor?.Dispose();
-            Sponsor = null;
+            return null;
         }
     }
 }

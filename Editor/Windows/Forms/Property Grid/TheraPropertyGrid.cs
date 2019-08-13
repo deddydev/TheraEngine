@@ -11,7 +11,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Forms;
+using System.Windows.Threading;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Components;
@@ -25,6 +27,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public partial class TheraPropertyGrid : UserControl, IPropGridMemberOwner
     {
+        public delegate void DelPropertiesLoaded(object objectLoadedFrom);
+        public event DelPropertiesLoaded PropertiesLoaded;
+
         object IPropGridMemberOwner.Value => _targetObject;
         bool IPropGridMemberOwner.ReadOnly => false;
         PropGridMemberInfo IPropGridMemberOwner.MemberInfo { get; }
@@ -355,28 +360,43 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Queue<PropGridItem> VisibleItemsAdditionQueue { get; } = new Queue<PropGridItem>();
 
         private bool _updatingVisibleItems = false;
+        private System.Timers.Timer _updateTimer = new System.Timers.Timer();
         internal void BeginUpdatingVisibleItems(float updateRateInSeconds)
         {
             if (_updatingVisibleItems)
                 return;
 
-            _updatingVisibleItems = true;
-
             int sleepTime = (int)(updateRateInSeconds * 1000.0f);
 
-            Task.Run(() =>
-            {
-                while (_updatingVisibleItems)
-                {
-                    Parallel.For(0, VisibleItems.Count, UpdateItem);
-                    while (VisibleItemsRemovalQueue.Count > 0)
-                        VisibleItems.Remove(VisibleItemsRemovalQueue.Dequeue());
-                    while (VisibleItemsAdditionQueue.Count > 0)
-                        VisibleItems.Add(VisibleItemsAdditionQueue.Dequeue());
-                    Thread.Sleep(sleepTime);
-                }
-            });
+            _updatingVisibleItems = true;
+            _updateTimer.Interval = sleepTime;
+            _updateTimer.Elapsed += UpdateTimer_Tick;
+            _updateTimer.Start();
+
+            //Task.Run(() =>
+            //{
+            //    while (_updatingVisibleItems)
+            //    {
+            //        UpdateTimer_Tick(null, EventArgs.Empty);
+            //        Thread.Sleep(sleepTime);
+            //    }
+            //});
         }
+
+        private void UpdateTimer_Tick(object sender, ElapsedEventArgs e)
+        {
+            if (!_updatingVisibleItems)
+                _updateTimer.Stop();
+
+            Parallel.For(0, VisibleItems.Count, UpdateItem);
+
+            while (VisibleItemsRemovalQueue.Count > 0)
+                VisibleItems.Remove(VisibleItemsRemovalQueue.Dequeue());
+
+            while (VisibleItemsAdditionQueue.Count > 0)
+                VisibleItems.Add(VisibleItemsAdditionQueue.Dequeue());
+        }
+
         private void UpdateItem(int i)
         {
             try
@@ -395,9 +415,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        public event Action<object> PropertiesLoaded;
-
-        private object GetObject() => _targetObject;
         private async void LoadProperties(bool showProperties = true, bool showEvents = false, bool showMethods = false)
         {
             if (Disposing || IsDisposed)
@@ -466,23 +483,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 methods = showMethods ? targetObjectType.GetMethods(flags) : new MethodInfoProxy[0];
                 events = showEvents ? targetObjectType.GetEvents(flags) : new EventInfoProxy[0];
 
-                //Parallel.For(0, props.Length, i =>
-                for (int i = 0; i < props.Length; ++i)
+                Parallel.For(0, props.Length, i =>
+                //for (int i = 0; i < props.Length; ++i)
                 {
                     PropertyInfoProxy prop = props[i];
                     ParameterInfoProxy[] indexParams = prop.GetIndexParameters();
                     if (indexParams.Length > 0)
                         return;
 
-                    //BrowsableAttribute browsable = prop.GetCustomAttribute<BrowsableAttribute>(true);
-                    //if (!(browsable?.Browsable ?? true))
-                    //    return;
-
-                    string category = null;//prop.GetCustomAttribute<CategoryAttribute>(true)?.Category;
+                    prop.GetBrowsableAndCategoryAttributes(out bool browsable, out string category);
+                    if (!browsable)
+                        return;
 
                     PropertyData propData = new PropertyData(prop, obj, category);
                     propInfo.TryAdd(i, propData);
-                }//);
+                });
 
                 Parallel.For(0, methods.Length, i =>
                 {
@@ -1255,6 +1270,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private async void Save(IFileObject file, string path)
         {
+            //TODO: doesn't work cross-domain
             Editor editor = Editor.Instance;
             int op = editor.BeginOperation($"Property Grid: saving {path}", $"Property Grid: done saving {path}", out Progress<float> progress, out CancellationTokenSource cancel);
             await file.ExportAsync(path, ESerializeFlags.Default, progress, cancel.Token);

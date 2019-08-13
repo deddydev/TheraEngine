@@ -118,7 +118,7 @@ namespace TheraEngine.Rendering.Models.Materials
     public interface IShaderSignedType : IShaderVarType { }
     public interface IShaderUnsignedType : IShaderVarType { }
 
-    public abstract class ShaderVar : TObject, IShaderVarOwner
+    public abstract class ShaderVar : TObjectSlim, IShaderVarOwner
     {
         internal const string CategoryName = "Material Parameter";
         internal const string ValueName = "Value";
@@ -333,18 +333,22 @@ namespace TheraEngine.Rendering.Models.Materials
 
         [TString(false, false, false, false)]
         [Category(CategoryName)]
-        public override string Name
+        public string Name
         {
-            get => base.Name;
+            get => _name;
             set
             {
                 //Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(value)
-                base.Name = (value ?? "").ReplaceWhitespace("");
+                string oldName = _name;
+                _name = (value ?? "").ReplaceWhitespace("");
+                Renamed?.Invoke(this, oldName);
             }
         }
+        private string _name;
 
         [Browsable(false)]
         public abstract object GenericValue { get; }
+        public Action<ShaderVar, string> Renamed { get; set; }
 
         internal void SetProgramUniform(RenderProgram program, string name)
         {

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -154,13 +155,14 @@ namespace TheraEngine.Core.Reflection
             else
                 types = ExportedTypes;
 
-            ConcurrentDictionary<int, TypeProxy> matches = new ConcurrentDictionary<int, TypeProxy>();
-            Parallel.For(0, types.Length, i =>
+            Dictionary<int, TypeProxy> matches = new Dictionary<int, TypeProxy>();
+            //Parallel.For(0, types.Length, i =>
+            for (int i = 0; i < types.Length; ++i)
             {
                 TypeProxy type = types[i];
                 if (matchPredicate(type))
-                    matches.AddOrUpdate(i, type, (x, y) => type);
-            });
+                    matches.Add(i, type);
+            }//);
 
             return matches.Values.OrderBy(x => x.Name);
         }
@@ -241,6 +243,15 @@ namespace TheraEngine.Core.Reflection
             ResetAppDomainCache();
             ResetTypeCache();
             GameDomainUnloaded?.Invoke();
+        }
+
+        public static void Sponsor(ISponsorableMarshalByRefObject sponsorableObject)
+        {
+            if (AppDomain.CurrentDomain == sponsorableObject.Domain)
+                return;
+
+            sponsorableObject.Sponsor = new MarshalSponsor(sponsorableObject);
+            Engine.PrintLine($"Sponsored {sponsorableObject.ToString()} in {sponsorableObject.Domain.FriendlyName}.");
         }
 
         #endregion

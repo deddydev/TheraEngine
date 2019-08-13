@@ -15,8 +15,7 @@ using TheraEngine.Core.Reflection;
 namespace TheraEngine.Core.Files.Serialization
 {
     public delegate void DelObjectChange(SerializeElement element, object previousObject);
-    [Serializable]
-    public sealed class SerializeElement : TObject
+    public sealed class SerializeElement : TObjectSlim
     {
         public event DelObjectChange ObjectChanged;
 
@@ -104,34 +103,41 @@ namespace TheraEngine.Core.Files.Serialization
 
         private void UnlinkObjectGuidFromOwner()
         {
-            if (!(_object is TObject tobj) || tobj.Guid == Guid.Empty || 
-                Owner == null || !Owner.WritingSharedObjectIndices.ContainsKey(tobj.Guid))
+            if (!(_object is IObject tobj))
                 return;
 
-            --Owner.WritingSharedObjectIndices[tobj.Guid];
-            if (Owner.WritingSharedObjectIndices[tobj.Guid] > 0)
+            Guid guid = tobj.Guid;
+            if (guid == Guid.Empty || Owner == null || !Owner.WritingSharedObjectIndices.ContainsKey(guid))
                 return;
 
-            Owner.WritingSharedObjectIndices.Remove(tobj.Guid);
-            if (Owner.WritingSharedObjects.ContainsKey(tobj.Guid))
+            --Owner.WritingSharedObjectIndices[guid];
+            if (Owner.WritingSharedObjectIndices[guid] > 0)
+                return;
+
+            Owner.WritingSharedObjectIndices.Remove(guid);
+            if (Owner.WritingSharedObjects.ContainsKey(guid))
             {
-                Owner.WritingSharedObjects.Remove(tobj.Guid);
+                Owner.WritingSharedObjects.Remove(guid);
                 //IsSharedObject = false;
             }
         }
         private void LinkObjectGuidToOwner()
         {
-            if (Owner == null || !(_object is IObject tobj2) || tobj2.Guid == Guid.Empty)
+            if (!(_object is IObject tobj))
                 return;
 
-            if (Owner.WritingSharedObjectIndices.ContainsKey(tobj2.Guid))
-                ++Owner.WritingSharedObjectIndices[tobj2.Guid];
+            Guid guid = tobj.Guid;
+            if (guid == Guid.Empty || Owner == null)
+                return;
+
+            if (Owner.WritingSharedObjectIndices.ContainsKey(guid))
+                ++Owner.WritingSharedObjectIndices[guid];
             else
             {
-                Owner.WritingSharedObjectIndices.Add(tobj2.Guid, 1);
-                if (!Owner.WritingSharedObjects.ContainsKey(tobj2.Guid))
+                Owner.WritingSharedObjectIndices.Add(guid, 1);
+                if (!Owner.WritingSharedObjects.ContainsKey(guid))
                 {
-                    Owner.WritingSharedObjects.Add(tobj2.Guid, this);
+                    Owner.WritingSharedObjects.Add(guid, this);
                     //IsSharedObject = true;
                 }
             }
@@ -205,6 +211,15 @@ namespace TheraEngine.Core.Files.Serialization
         public List<MethodInfoProxy> PostSerializeMethods { get; private set; }
         public List<MethodInfoProxy> PreDeserializeMethods { get; private set; }
         public List<MethodInfoProxy> PostDeserializeMethods { get; private set; }
+        public enum ESerializeMethodType
+        {
+            CustomSerialize,
+            CustomDeserialize,
+            PreSerialize,
+            PostSerialize,
+            PreDeserialize,
+            PostDeserialize,
+        }
         public string Name
         {
             get => MemberInfo?.Name;
@@ -491,44 +506,40 @@ namespace TheraEngine.Core.Files.Serialization
                         BindingFlags.Public |
                         BindingFlags.FlattenHierarchy);
 
-                    ConcurrentDictionary<MethodInfoProxy, SerializationAttribute> attribCache = new ConcurrentDictionary<MethodInfoProxy, SerializationAttribute>();
-                    Parallel.ForEach(methods, m =>
+                    ConcurrentDictionary<MethodInfoProxy, ESerializeMethodType> attribCache = new ConcurrentDictionary<MethodInfoProxy, ESerializeMethodType>();
+                    Task determine = Task.Run(() => Parallel.ForEach(methods, m =>
                     {
-                        var attribs = m.GetCustomAttributes<SerializationAttribute>();
-                        foreach (SerializationAttribute attrib in attribs)
+                        if (m.CanRunForFormat(Owner.Format, out ESerializeMethodType type))
+                            attribCache.AddOrUpdate(m, type, (x, y) => type);
+
+                    })).ContinueWith(t =>
+                    {
+                        foreach (var x in attribCache)
                         {
-                            if (attrib.RunForFormats.HasFlag(Owner.Format))
+                            switch (x.Value)
                             {
-                                attribCache.AddOrUpdate(m, attrib, (x, y) => attrib);
-                                break;
+                                case ESerializeMethodType.PreDeserialize:
+                                    PreDeserializeMethods.Add(x.Key);
+                                    break;
+                                case ESerializeMethodType.PostDeserialize:
+                                    PostDeserializeMethods.Add(x.Key);
+                                    break;
+                                case ESerializeMethodType.PreSerialize:
+                                    PreSerializeMethods.Add(x.Key);
+                                    break;
+                                case ESerializeMethodType.PostSerialize:
+                                    PostSerializeMethods.Add(x.Key);
+                                    break;
+                                case ESerializeMethodType.CustomSerialize:
+                                    CustomSerializeMethods.Add(x.Key);
+                                    break;
+                                case ESerializeMethodType.CustomDeserialize:
+                                    CustomDeserializeMethods.Add(x.Key);
+                                    break;
                             }
                         }
                     });
-
-                    foreach (var x in attribCache)
-                    {
-                        switch (x.Value)
-                        {
-                            case TPreDeserialize _:
-                                PreDeserializeMethods.Add(x.Key);
-                                break;
-                            case TPostDeserialize _:
-                                PostDeserializeMethods.Add(x.Key);
-                                break;
-                            case TPreSerialize _:
-                                PreSerializeMethods.Add(x.Key);
-                                break;
-                            case TPostSerialize _:
-                                PostSerializeMethods.Add(x.Key);
-                                break;
-                            case CustomMemberSerializeMethod _:
-                                CustomSerializeMethods.Add(x.Key);
-                                break;
-                            case CustomMemberDeserializeMethod _:
-                                CustomDeserializeMethods.Add(x.Key);
-                                break;
-                        }
-                    }
+                    determine.Wait();
                 }
             }
             else

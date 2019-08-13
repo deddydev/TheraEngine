@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
@@ -20,6 +21,9 @@ namespace TheraEditor
         [STAThread]
         static void Main()
         {
+            //LifetimeServices.LeaseTime = TimeSpan.FromSeconds(1);
+            //LifetimeServices.RenewOnCallTime = TimeSpan.FromSeconds(1);
+            //LifetimeServices.LeaseManagerPollTime = TimeSpan.FromSeconds(1);
             ServicePointManager.SecurityProtocol |=
                 SecurityProtocolType.Tls |
                 SecurityProtocolType.Tls11 |
@@ -95,13 +99,13 @@ namespace TheraEditor
         /// <param name="onClick">The method to trigger when a leaf button is pressed.
         /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
         /// <param name="match">The predicate method used to find specific types.</param>
-        public static ProxyList<TypeProxy> PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<TypeProxy> match)
+        public static List<TypeProxy> PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<TypeProxy> match)
         {
-            ProxyList<TypeProxy> results = new ProxyList<TypeProxy>(AppDomainHelper.FindTypes(match));
-            ProxyList<NamespaceNode> nodes2 = RemoteFunc.Invoke(AppDomainHelper.GetPrimaryAppDomain(), results, onClick, button, (types, onClick2, button2) =>
-            {
+            List<TypeProxy> results = AppDomainHelper.FindTypes(match).ToList();
+            //ProxyList<NamespaceNode> nodes2 = RemoteFunc.Invoke(AppDomainHelper.GetPrimaryAppDomain(), results, onClick, button, (types, onClick2, button2) =>
+            //{
                 Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-                foreach (TypeProxy type in types)
+                foreach (TypeProxy type in results)
                 {
                     string path = type.Namespace;
                     int dotIndex = path.IndexOf(".");
@@ -115,21 +119,22 @@ namespace TheraEditor
                         node.CreateButton(false);
                         nodeCache.Add(name, node);
                     }
-                    node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, onClick2, false);
+                    node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, onClick, false);
                 }
                 foreach (NamespaceNode node in nodeCache.Values)
                 {
                     if (Editor.Instance.InvokeRequired)
-                        Editor.Instance.BeginInvoke((Action)(() => button2.DropDownItems.Add(node.Button)));
+                        Editor.Instance.BeginInvoke((Action)(() => button.DropDownItems.Add(node.Button)));
                     else
-                        button2.DropDownItems.Add(node.Button);
+                        button.DropDownItems.Add(node.Button);
                 }
-                return new ProxyList<NamespaceNode>(nodeCache.Values);
-            });
+                //return new ProxyList<NamespaceNode>(nodeCache.Values);
+            //});
             return results;
         }
         private class NamespaceNode : MarshalByRefObject
         {
+            public override object InitializeLifetimeService() => null;
             public NamespaceNode(string name)
             {
                 Name = name;
@@ -229,7 +234,9 @@ namespace TheraEditor
                 else
                 {
                     node = new NamespaceNode(name);
+                    node.CreateButton(treeView);
                     Children.Add(name, node);
+                    AddChild(node, treeView);
                 }
                 node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, onClick, treeView);
             }

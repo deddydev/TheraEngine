@@ -9,7 +9,7 @@ namespace TheraEngine.Physics.RayTracing
     /// <summary>
     /// Provides information about a ray intersection.
     /// </summary>
-    public class RayCollisionResult
+    public class RayCollisionResult : TObjectSlim
     {
         public TCollisionObject CollisionObject { get; internal set; }
         public float HitFraction { get; internal set; }
@@ -38,7 +38,7 @@ namespace TheraEngine.Physics.RayTracing
     /// <summary>
     /// Contains properties and methods for projecting a ray in the world and testing for intersections with collision objects.
     /// </summary>
-    public abstract class RayTrace
+    public abstract class RayTrace : TObjectSlim
     {
         public Vec3 StartPointWorld { get; set; }
         public Vec3 EndPointWorld { get; set; }

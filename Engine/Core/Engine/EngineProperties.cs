@@ -215,34 +215,31 @@ namespace TheraEngine
 
         #region Timing
 
-        private static readonly EngineTimer _timer = new EngineTimer();
-        private static InputAwaiter _inputAwaiter;
+        //private static readonly EngineTimer _timer = new EngineTimer();
 
-        public static float RenderFrequency => _timer.RenderFrequency;
-        public static float UpdateFrequency => _timer.UpdateFrequency;
-        public static float RenderDelta => _timer.RenderTime;
-        public static float UpdateDelta => _timer.UpdateTime;
-        public static float RenderPeriod => _timer.RenderPeriod;
-        public static float UpdatePeriod => _timer.UpdatePeriod;
+        public static EngineTimer Timer => Instance.Timer;
+        public static float RenderFrequency => Timer.RenderFrequency;
+        public static float UpdateFrequency => Timer.UpdateFrequency;
+        public static float RenderDelta => Timer.RenderTime;
+        public static float UpdateDelta => Timer.UpdateTime;
+        public static float RenderPeriod => Timer.RenderPeriod;
+        public static float UpdatePeriod => Timer.UpdatePeriod;
 
         /// <summary>
         /// Frames per second that the game will try to render at.
         /// </summary>
         public static float TargetFramesPerSecond
         {
-            get => _timer.TargetRenderFrequency;
-            set
-            {
-                _timer.TargetRenderFrequency = value;
-            }
+            get => Timer.TargetRenderFrequency;
+            set => Timer.TargetRenderFrequency = value;
         }
         /// <summary>
         /// Frames per second that the game will try to update at.
         /// </summary>
         public static float TargetUpdatesPerSecond
         {
-            get => _timer.TargetUpdateFrequency;
-            set => _timer.TargetUpdateFrequency = value;
+            get => Timer.TargetUpdateFrequency;
+            set => Timer.TargetUpdateFrequency = value;
         }
 
         /// <summary>
@@ -251,10 +248,10 @@ namespace TheraEngine
         /// </summary>
         public static float TimeDilation
         {
-            get => _timer.TimeDilation;
+            get => Timer.TimeDilation;
             set
             {
-                _timer.TimeDilation = value;
+                Timer.TimeDilation = value;
             }
         }
 
@@ -320,7 +317,7 @@ namespace TheraEngine
             switch (Instance.AudioLibrary)
             {
                 case EAudioLibrary.OpenAL:
-                    _audioManager = new ALAudioManager();
+                    Instance._audioManager = new ALAudioManager();
                     break;
             }
         }
@@ -341,11 +338,12 @@ namespace TheraEngine
         {
             switch (Instance.PhysicsLibrary)
             {
+                default:
                 case EPhysicsLibrary.Bullet:
-                    _physicsInterface = new BulletPhysicsInterface();
+                    Instance._physicsInterface = new BulletPhysicsInterface();
                     break;
                 case EPhysicsLibrary.Jitter:
-                    _physicsInterface = new JitterPhysicsInterface();
+                    Instance._physicsInterface = new JitterPhysicsInterface();
                     break;
             }
         }
@@ -366,11 +364,12 @@ namespace TheraEngine
             //_inputAwaiter?.Dispose();
             switch (InputLibrary)
             {
+                default:
                 case EInputLibrary.OpenTK:
-                    _inputAwaiter = new TKInputAwaiter(Instance.FoundInput);
+                    Instance.InputAwaiter = new TKInputAwaiter(Instance.FoundInput);
                     break;
                 case EInputLibrary.XInput:
-                    _inputAwaiter = new DXInputAwaiter(Instance.FoundInput);
+                    Instance.InputAwaiter = new DXInputAwaiter(Instance.FoundInput);
                     break;
             }
         }
@@ -384,13 +383,16 @@ namespace TheraEngine
         {
             get
             {
-                if (_renderer == null)
+                if (Instance._renderer == null)
+                {
+                    string domain = AppDomain.CurrentDomain.FriendlyName;
                     throw new InvalidOperationException("No render library set.");
+                }
                 //if (MainThreadID != Thread.CurrentThread.ManagedThreadId)
                 //    throw new Exception("Cannot make render calls off the main thread. Invoke the method containing the calls with RenderPanel.CapturedPanel beforehand.");
-                return _renderer;
+                return Instance._renderer;
             }
-            internal set => _renderer = value;
+            internal set => Instance._renderer = value;
         }
         /// <summary>
         /// Provides an abstraction layer for managing any supported physics engine.
@@ -399,9 +401,9 @@ namespace TheraEngine
         {
             get
             {
-                if (_physicsInterface == null)
+                if (Instance._physicsInterface == null)
                     throw new InvalidOperationException("No physics library set.");
-                return _physicsInterface;
+                return Instance._physicsInterface;
             }
         }
         /// <summary>
@@ -411,13 +413,13 @@ namespace TheraEngine
         {
             get
             {
-                if (_audioManager == null)
+                if (Instance._audioManager == null)
                     throw new InvalidOperationException("No audio library set.");
-                return _audioManager;
+                return Instance._audioManager;
             }
         }
 
-        public static bool IsSingleThreaded => _timer.IsSingleThreaded;
+        public static bool IsSingleThreaded => Timer.IsSingleThreaded;
 
         public static EngineDomainProxy DomainProxy
         {
@@ -425,9 +427,6 @@ namespace TheraEngine
             internal set => Instance.DomainProxy = value;
         }
 
-        private static AbstractRenderer _renderer;
-        private static AbstractAudioManager _audioManager;
-        private static AbstractPhysicsInterface _physicsInterface;
         #endregion
 
         public partial class InternalEnginePersistentSingleton: MarshalByRefObject
@@ -437,6 +436,8 @@ namespace TheraEngine
 
             public event Action GotFocus;
             public event Action LostFocus;
+
+            public RenderContext CapturedRenderContext { get; set; }
 
             /// <summary>
             /// Event for when the engine is paused or unpaused and by which player.
@@ -465,14 +466,23 @@ namespace TheraEngine
             
             private Lazy<EngineSettings> _defaultEngineSettings = new Lazy<EngineSettings>(() => new EngineSettings(), true);
 
+            private Stack<Viewport> CurrentlyRenderingViewports { get; } = new Stack<Viewport>();
             public NetworkConnection Network { get; set; }
             public Server ServerConnection => Network as Server;
             public Client ClientConnection => Network as Client;
             public EngineSingleton Singleton { get; set; }
 
+            public event EventHandler<FrameEventArgs> Update;
+
+            public InputAwaiter InputAwaiter { get; set; }
+
             public GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
                 = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistent = true };
 
+            public void GlobalUpdate() => Scene?.GlobalUpdate();
+            public void GlobalPreRender() => Scene?.GlobalPreRender();
+            public void GlobalSwap() => Scene?.GlobalSwap();
+            
             private TGame _game;
             public IScene Scene => World?.Scene;
             public TGame Game
@@ -499,9 +509,9 @@ namespace TheraEngine
                 }
                 else
                 {
-                    DomainProxy = domain.CreateInstanceAndUnwrap<T>();
-                    var lease = DomainProxy.InitializeLifetimeService() as ILease;
-                    lease.Register(DomainProxy.SponsorRef);
+                    var proxy = domain.CreateInstanceAndUnwrap<T>();
+                    AppDomainHelper.Sponsor(proxy);
+                    DomainProxy = proxy;
                 }
 
                 DomainProxy.Stopped += DomainProxy_Stopped;
@@ -516,6 +526,11 @@ namespace TheraEngine
             //private Type TypeCreationFailed(string typeDeclaration)
             //    => DomainProxy.CreateType(typeDeclaration);
 
+            public event Action<EngineDomainProxy> ProxySet;
+            public event Action<EngineDomainProxy> ProxyUnset;
+            
+            public readonly EngineTimer Timer = new EngineTimer();
+
             private EngineDomainProxy _domainProxy = null;
             [Browsable(false)]
             public EngineDomainProxy DomainProxy
@@ -528,7 +543,9 @@ namespace TheraEngine
                 }
                 set
                 {
+                    ProxyUnset?.Invoke(_domainProxy);
                     _domainProxy = value;
+                    ProxySet?.Invoke(_domainProxy);
                 }
             }
 
@@ -593,6 +610,9 @@ namespace TheraEngine
                 DefaultEngineSettingsOverrideRef.File ?? //User overrides engine settings?
                 _defaultEngineSettings.Value; //Fall back to truly default engine settings
 
+            public void PushRenderingViewport(Viewport viewport) => CurrentlyRenderingViewports.Push(viewport);
+            public void PopRenderingViewport() => CurrentlyRenderingViewports.Pop();
+
             /// <summary>
             /// The settings for the engine, specified by the user.
             /// </summary>
@@ -626,6 +646,25 @@ namespace TheraEngine
             /// Class containing this computer's specs. Use to adjust engine performance accordingly.
             /// </summary>
             public ComputerInfo ComputerInfo { get; } = ComputerInfo.Analyze();
+
+            public AbstractRenderer _renderer;
+            public AbstractAudioManager _audioManager;
+            public AbstractPhysicsInterface _physicsInterface;
+
+            public Viewport CurrentlyRenderingViewport
+            {
+                get
+                {
+                    if (CurrentlyRenderingViewports.Count > 0)
+                        return CurrentlyRenderingViewports.Peek();
+                    return null;
+                }
+            }
+
+            public RenderContext WorldPanel { get; set; }
+            public RenderContext HoveredPanel { get; set; }
+            public RenderContext FocusedPanel { get; set; }
+            public RenderContext RenderingPanel { get; set; }
 
 #if EDITOR
             public EngineEditorState EditorState { get; } = new EngineEditorState();

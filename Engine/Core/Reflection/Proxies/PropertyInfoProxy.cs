@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using TheraEngine.Core.Attributes;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Rendering.UI;
 
@@ -27,6 +28,8 @@ namespace TheraEngine.Core.Reflection
         public bool CanWrite => Value.CanWrite;
         public MethodInfoProxy GetMethod => Value.GetMethod;
         public MethodInfoProxy SetMethod => Value.SetMethod;
+        public override bool IsGridViewable => CanRead && GetMethod.IsPublic;
+        public override bool IsGridWriteable => CanWrite && SetMethod.IsPublic;
 
         public object GetValue(object parentObject)
             => Value.GetValue(parentObject);
@@ -34,66 +37,8 @@ namespace TheraEngine.Core.Reflection
             => Value.SetValue(parentObject, memberObject);
         public ParameterInfoProxy[] GetIndexParameters()
             => Value.GetIndexParameters().Select(x => ParameterInfoProxy.Get(x)).ToArray();
-        public void GetStringAttributes(out bool isMultiLine, out bool isPath, out bool isNullable, out bool isUnicode)
-        {
-            object[] attribs = GetCustomAttributes(true);
-            if (attribs.FirstOrDefault(x => x is TStringAttribute) is TStringAttribute s)
-            {
-                isMultiLine = s.MultiLine;
-                isPath = s.Path;
-                isNullable = s.Nullable;
-                isUnicode = s.Unicode;
-            }
-            else
-            {
-                isMultiLine = false;
-                isPath = false;
-                isNullable = true;
-                isUnicode = false;
-            }
-        }
-        public void GetGridDisplayAttributes(
-            out string visibilityCondition, 
-            out bool visible,
-            out bool readOnly,
-            out string displayNameOverride,
-            out bool editInPlace,
-            out string description)
-        {
-            visibilityCondition = null;
-            visible = GetMethod.IsPublic && CanRead;
-            readOnly = !CanWrite || !SetMethod.IsPublic;
-            displayNameOverride = null;
-            editInPlace = false;
-            description = null;
-
-            var attribs = GetCustomAttributes(true);
-            foreach (object attrib in attribs)
-            {
-                switch (attrib)
-                {
-                    case BrowsableIf browsableIf:
-                        visibilityCondition = browsableIf.Condition;
-                        break;
-                    case BrowsableAttribute browsable:
-                        visible = visible && browsable.Browsable;
-                        break;
-                    case ReadOnlyAttribute readOnlyAttrib:
-                        readOnly = readOnly || readOnlyAttrib.IsReadOnly;
-                        break;
-                    case DisplayNameAttribute displayName:
-                        displayNameOverride = displayName.DisplayName;
-                        break;
-                    case EditInPlace editInPlaceAttrib:
-                        editInPlace = true;
-                        break;
-                    case DescriptionAttribute desc:
-                        description = desc.Description;
-                        break;
-                }
-            }
-        }
         public bool HasIndexParameters()
             => Value.GetIndexParameters().Length > 0;
+
     }
 }

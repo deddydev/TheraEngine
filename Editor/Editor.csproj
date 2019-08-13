@@ -461,6 +461,7 @@
     <Reference Include="WeifenLuo.WinFormsUI.Docking.ThemeVS2015">
       <HintPath>..\Libraries\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\ZipFileWithProgress.cs" />
@@ -469,6 +470,9 @@
     <Compile Include="Intellisense.cs" />
     <Compile Include="Windows\Controls\AutoEllipseLabel.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\DockableWorldRenderFormBase.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Editors\FileEditorTheraForm.cs">
       <SubType>Form</SubType>
@@ -685,6 +689,18 @@
     </Compile>
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridShaderVecColor.Designer.cs">
       <DependentUpon>PropGridShaderVecColor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\ReleaseCreatorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\ReleaseCreatorForm.Designer.cs">
+      <DependentUpon>ReleaseCreatorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\TMessageBox\TMessageBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\TMessageBox\TMessageBox_Statics.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Windows\Forms\UIGameMode.cs" />
     <Compile Include="Windows\Controls\BetterTableLayoutPanel.cs">
@@ -1154,6 +1170,9 @@
     <EmbeddedResource Include="Windows\Forms\Editors\Texture Viewer\TextureViewerForm.resx">
       <DependentUpon>TextureViewerForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\ReleaseCreatorForm.resx">
+      <DependentUpon>ReleaseCreatorForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="TheraDevKey.pfx" />
     <None Include="Windows\Forms\File Navigation\ResourceListView.cs">
       <SubType>Component</SubType>
@@ -1358,6 +1377,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Main Window\Form\Editor_Designer.resx">
       <DependentUpon>Editor_Designer.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Class Creation\ObjectCreator.resx">
       <DependentUpon>ObjectCreator.cs</DependentUpon>

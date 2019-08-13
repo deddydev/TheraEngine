@@ -809,78 +809,6 @@ namespace TheraEditor
                 CompileCompleted?.Invoke(this, false);
             }
         }
-        public async Task<(XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project)> ReadCSProj()
-        {
-            string csprojPath = ResolveCSProjPath();
-            XMLSchemeDefinition<MSBuild.Project> csprojDef = new XMLSchemeDefinition<MSBuild.Project>();
-            int op = Editor.Instance.BeginOperation($"Reading csproj... {csprojPath}", "Done reading csproj.",
-                out Progress<float> progress, out CancellationTokenSource cancel);
-            MSBuild.Project csproj = await csprojDef.ImportAsync(csprojPath, 0, progress, cancel.Token);
-            Editor.Instance.EndOperation(op);
-            return (csprojDef, csproj);
-        }
-        public async Task WriteCSProj(XMLSchemeDefinition<MSBuild.Project> definition, MSBuild.Project project)
-        {
-            string csprojPath = ResolveCSProjPath();
-            int op = Editor.Instance.BeginOperation($"Writing csproj... {csprojPath}", "Done writing csproj.",
-                out Progress<float> progress, out CancellationTokenSource cancel);
-            await definition.ExportAsync(csprojPath, project, progress, cancel.Token);
-            Editor.Instance.EndOperation(op);
-        }
-        private async Task UpdateEngineLibReferenceAsync()
-        {
-            (XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project) = await ReadCSProj();
-
-            PrintLine("Updating engine library reference in csproj.");
-            ItemGroup[] itemGroups = Project.GetChildren<ItemGroup>();
-            bool updated = false;
-            ItemGroup refItemGrp = null;
-            foreach (ItemGroup itemGroup in itemGroups)
-            {
-                Item[] items = itemGroup.GetChildren<Item>();
-                foreach (Item item in items)
-                {
-                    if (!item.ElementName.EqualsInvariantIgnoreCase("Reference"))
-                        continue;
-                    refItemGrp = itemGroup;
-
-                    if (!item.Include.StartsWith("TheraEngine"))
-                        continue;
-
-                    if (updated)
-                    {
-                        itemGroup.ChildElements[typeof(Item)].Remove(item);
-                        continue;
-                    }
-
-                    updated = true;
-
-                    item.ClearChildElements();
-                    UpdateItem(item);
-                }
-            }
-            if (!updated)
-            {
-                Item item = new Item("Reference");
-                UpdateItem(item);
-                refItemGrp.AddElements(item);
-            }
-            PrintLine("Done updating engine library reference in csproj.");
-
-            await WriteCSProj(Definition, Project);
-        }
-
-        private void UpdateItem(Item item)
-        {
-            var asm = typeof(Engine).Assembly;
-            item.Include = asm.FullName;
-            string path = asm.CodeBase;
-            string relPath = path.MakeAbsolutePathRelativeTo(DirectoryPath);
-            item.AddElements(
-                new ItemMetadata(0, "SpecificVersion", "True"),
-                new ItemMetadata(1, "HintPath", relPath));
-        }
-
         private void OnBuildCompleted(Task<BuildResult> buildTask)
         {
             BuildResult result = buildTask.Result;
@@ -920,7 +848,82 @@ namespace TheraEditor
                 CompileCompleted?.Invoke(this, success);
             }
         }
+        public async Task<(XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project)> ReadCSProj()
+        {
+            string csprojPath = ResolveCSProjPath();
+            XMLSchemeDefinition<MSBuild.Project> csprojDef = new XMLSchemeDefinition<MSBuild.Project>();
+            int op = Editor.Instance.BeginOperation($"Reading csproj... {csprojPath}", "Done reading csproj.",
+                out Progress<float> progress, out CancellationTokenSource cancel);
+            MSBuild.Project csproj = await csprojDef.ImportAsync(csprojPath, 0, progress, cancel.Token);
+            Editor.Instance.EndOperation(op);
+            return (csprojDef, csproj);
+        }
+        public async Task WriteCSProj(XMLSchemeDefinition<MSBuild.Project> definition, MSBuild.Project project)
+        {
+            string csprojPath = ResolveCSProjPath();
+            int op = Editor.Instance.BeginOperation($"Writing csproj... {csprojPath}", "Done writing csproj.",
+                out Progress<float> progress, out CancellationTokenSource cancel);
+            await definition.ExportAsync(csprojPath, project, progress, cancel.Token);
+            Editor.Instance.EndOperation(op);
+        }
+        private async Task UpdateEngineLibReferenceAsync()
+        {
+            (XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project) = await ReadCSProj();
 
+            PrintLine("Updating engine library reference in csproj.");
+            ItemGroup[] itemGroups = Project.GetChildren<ItemGroup>();
+            bool updated = false;
+            ItemGroup refItemGrp = null;
+            foreach (ItemGroup itemGroup in itemGroups)
+            {
+                Item[] items = itemGroup.GetChildren<Item>();
+                foreach (Item item in items)
+                {
+                    if (!item.ElementName.EqualsInvariantIgnoreCase("Reference"))
+                        continue;
+
+                    refItemGrp = itemGroup;
+
+                    if (!item.Include.StartsWith("TheraEngine"))
+                        continue;
+
+                    if (updated)
+                    {
+                        itemGroup.ChildElements[typeof(Item)].Remove(item);
+                        continue;
+                    }
+
+                    updated = true;
+
+                    item.ClearChildElements();
+                    UpdateEngineRefPathItem(item);
+                }
+            }
+            if (!updated)
+            {
+                Item item = new Item("Reference");
+                UpdateEngineRefPathItem(item);
+                refItemGrp.AddElements(item);
+            }
+            PrintLine("Done updating engine library reference in csproj.");
+
+            await WriteCSProj(Definition, Project);
+        }
+        private void UpdateEngineRefPathItem(Item item)
+        {
+            //TODO: 
+            //1. Get path to debug game engine build. 
+            //2. Compile it if necessary.
+            //3. Copy TheraEngine.dll to ProjectDir/Lib
+            var asm = typeof(Engine).Assembly;
+            item.Include = asm.FullName;
+            string absPath = asm.CodeBase;
+            string relPath = absPath.MakeAbsolutePathRelativeTo(DirectoryPath);
+            item.AddElements(
+                new ItemMetadata(0, "SpecificVersion", "True"),
+                new ItemMetadata(1, "HintPath", relPath));
+        }
+        
         //[TPostDeserialize(arguments: false)]
         internal void CreateGameDomain(bool compiling = false, Action onComplete = null)
         {

@@ -132,7 +132,7 @@ namespace TheraEditor.Windows.Forms
             {
                 AssemblyName editorVer = Assembly.GetExecutingAssembly().GetName();
                 //AssemblyName engineVer = typeof(Engine).Assembly.GetName();
-                await Github.Updater.CheckUpdates(editorVer);
+                await Github.Updater.TryInstallUpdate(editorVer);
             }
             catch (Exception ex)
             {

@@ -8,6 +8,7 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct RGBAPixel : IBufferable, IByteColor
     {
@@ -32,6 +33,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public Color Color { get => this; set => this = value; }
     }
 
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct RGBPixel : IBufferable, IByteColor
     {
@@ -56,7 +58,8 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public Color Color { get => this; set => this = (RGBPixel)value; }
     }
-    
+
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ARGBPixel
     {
@@ -166,7 +169,8 @@ namespace TheraEngine.Rendering.Models.Materials
             return new ARGBPixel(A, (byte)Math.Max(R - amount, 0), (byte)Math.Max(G - amount, 0), (byte)Math.Max(B - amount, 0));
         }
     }
-    
+
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct HSVPixel
     {

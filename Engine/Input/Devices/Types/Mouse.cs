@@ -144,7 +144,7 @@ namespace TheraEngine.Input.Devices
             _lastY = absPt.Y;
             OnRelative(relX, relY);
 
-            BaseRenderPanel pnl = BaseRenderPanel.HoveredPanel;
+            BaseRenderPanel pnl = Engine.Instance.HoveredPanel?.Control;
             if (pnl != null)
                 absPt = pnl.PointToClient(absPt);
 

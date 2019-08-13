@@ -85,10 +85,17 @@ namespace TheraEditor
             ReloadEditorTypes();
             base.ResetTypeCaches(reloadNow);
         }
-        public override void Start(string gamePath, bool isUIDomain)
+        //public override void Start(string gamePath, bool isUIDomain)
+        //{
+        //    base.Start(gamePath, isUIDomain);
+        //}
+        protected override void OnStarted()
         {
-            base.Start(gamePath, isUIDomain);
+            Engine.SetWorldPanel(Editor.Instance.RenderForm1.RenderPanel, false);
+            Editor.Instance.SetRenderTicking(true);
             Engine.SetPaused(true, ELocalPlayerIndex.One, true);
+
+            base.OnStarted();
         }
     }
 }

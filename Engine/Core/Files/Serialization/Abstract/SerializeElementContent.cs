@@ -3,8 +3,7 @@ using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    [Serializable]
-    public class SerializeElementContent : TObject
+    public class SerializeElementContent : TObjectSlim
     {
         public SerializeElementContent() { }
         public SerializeElementContent(object value) => SetValueAsObject(value);

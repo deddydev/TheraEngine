@@ -30,26 +30,10 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.RenderPanel = new TheraEngine.Windows.Forms.EditorWorldRenderPanel();
             this.SuspendLayout();
-            // 
-            // RenderPanel
-            // 
-            this.RenderPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.RenderPanel.Location = new System.Drawing.Point(0, 0);
-            this.RenderPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.RenderPanel.Name = "RenderPanel";
-            this.RenderPanel.Size = new System.Drawing.Size(650, 410);
-            this.RenderPanel.TabIndex = 0;
-            this.RenderPanel.VsyncMode = TheraEngine.EVSyncMode.Disabled;
-            this.RenderPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragDrop);
-            this.RenderPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragEnter);
-            this.RenderPanel.DragOver += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragOver);
-            this.RenderPanel.DragLeave += new System.EventHandler(this.RenderPanel_DragLeave);
             // 
             // DockableRenderForm
             // 
-            this.Controls.Add(RenderPanel);
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(658, 458);
@@ -62,7 +46,5 @@ namespace TheraEditor.Windows.Forms
         }
 
         #endregion
-
-        public EditorWorldRenderPanel RenderPanel;
     }
 }

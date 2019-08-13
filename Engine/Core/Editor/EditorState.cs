@@ -14,7 +14,7 @@ namespace TheraEngine.Editor
     public delegate void DelPropertyChange(EditorState state, string propertyValue, object oldValue, object newValue);
     public delegate void DelHighlightingChange(bool isHighlighted);
     public delegate void DelSelectedChange(bool isSelected);
-    [Serializable]
+    
     public class EditorState : TObject
     {
         public EditorState(IObject obj) => Object = obj;
@@ -89,7 +89,7 @@ namespace TheraEngine.Editor
             Object?.OnSelectedChanged(_selected);
             SelectedChanged?.Invoke(_selected);
         }
-        private new void OnHighlightedChanged(bool highlighted)
+        private void OnHighlightedChanged(bool highlighted)
         {
             if (Object == this)
                 return;
@@ -294,8 +294,7 @@ namespace TheraEngine.Editor
     /// <summary>
     /// Contains information pertaining to a change in a global setting.
     /// </summary>
-    [Serializable]
-    public class GlobalValueChange
+    public class GlobalValueChange : TObjectSlim
     {
         public List<(EditorState State, int ChangeIndex)> ChangedStates { get; set; }
         //public EditorState State { get; set; }
@@ -359,8 +358,7 @@ namespace TheraEngine.Editor
     /// <summary>
     /// Contains information pertaining to a change on a specific object.
     /// </summary>
-    [Serializable]
-    public abstract class LocalValueChange
+    public abstract class LocalValueChange : TObjectSlim
     {
         public LocalValueChange(object oldValue, object newValue)
         {
@@ -379,7 +377,6 @@ namespace TheraEngine.Editor
 
         public override string ToString() => DisplayChangeAsRedo();
     }
-    [Serializable]
     public class LocalValueChangeIList : LocalValueChange
     {
         public LocalValueChangeIList(object oldValue, object newValue, IList list, int index) : base(oldValue, newValue)
@@ -446,14 +443,14 @@ namespace TheraEngine.Editor
     [Serializable]
     public class LocalValueChangeProperty : LocalValueChange
     {
-        public LocalValueChangeProperty(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo) : base(oldValue, newValue)
+        public LocalValueChangeProperty(object oldValue, object newValue, object propertyOwner, PropertyInfoProxy propertyInfo) : base(oldValue, newValue)
         {
             PropertyOwner = propertyOwner;
             PropertyInfo = propertyInfo;
         }
 
         public object PropertyOwner { get; set; }
-        public PropertyInfo PropertyInfo { get; set; }
+        public PropertyInfoProxy PropertyInfo { get; set; }
 
         public override void ApplyNewValue()
             => PropertyInfo.SetValue(PropertyOwner, NewValue);

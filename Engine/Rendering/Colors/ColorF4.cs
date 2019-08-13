@@ -9,6 +9,7 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ColorF4 : IUniformable4Float, IBufferable, IByteColor
     {

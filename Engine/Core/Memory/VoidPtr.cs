@@ -4,6 +4,7 @@ using System.Text;
 
 namespace TheraEngine.Core.Memory
 {
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct VoidPtr
     {

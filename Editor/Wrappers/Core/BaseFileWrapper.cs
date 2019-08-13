@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Core;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 using WeifenLuo.WinFormsUI.Docking;
@@ -138,66 +139,83 @@ namespace TheraEditor.Wrappers
 
         public virtual async void EditResource()
         {
-            Engine.PrintLine("Editing resource.");
-            if (SingleInstanceRef == null)
-            {
-                Engine.PrintLine("Cannot edit " + FilePath + ", reference is null.");
-                return;
-            }
-            IFileObject file = await SingleInstanceRef.GetInstanceAsync();
+            var file = await SingleInstanceRef.GetInstanceAsync();
             if (file == null)
+                Engine.PrintLine($"Can't open file at {FilePath}.");
+            else
             {
-                Engine.PrintLine("Cannot edit " + FilePath + ", instance is null.");
-                return;
-            }
+                Engine.PrintLine($"Editing file at {FilePath}.");
 
+                if (file is ISponsorableMarshalByRefObject sm && sm.Sponsor is null)
+                    AppDomainHelper.Sponsor(sm);
+
+                //TODO: pre-resolve editor type
+                TypeProxy editorType = ResolveEditorType(FileType);
+                if (editorType != null)
+                    ShowEditor(editorType, file);
+                else
+                    Editor.SetPropertyGridObject(file);
+            }
+        }
+        
+        //private void EditResource(Task<IFileObject> task)
+        //{
+        //    if (!task.IsCompleted)
+        //        return;
+
+        //    IFileObject file = task.Result;
+        //    if (file == null)
+        //        Engine.PrintLine($"Can't open file at {FilePath}.");
+        //    else
+        //    {
+        //        Engine.PrintLine($"Editing file at {FilePath}.");
+
+        //        //TODO: pre-resolve editor type
+        //        TypeProxy editorType = ResolveEditorType(FileType);
+        //        if (editorType != null)
+        //            ShowEditor(editorType, file);
+        //        else
+        //            Editor.SetPropertyGridObject(file);
+        //    }
+        //}
+
+        private static void ShowEditor(TypeProxy editorType, IFileObject file)
+        {
+            //TODO: Casting TypeProxy to Type: type cannot be for a user-created form.
+            //Try to fix this? Probably need to create the form in the game domain,
+            //but I'm not sure if that form can be hosted in the DockPanel on the UI domain
+            Type type = (Type)editorType;
+            Form form = Activator.CreateInstance(type, file) as Form;
+
+            if (form is DockContent dc && !(form is TheraForm))
+                dc.Show(Editor.Instance.DockPanel, DockState.Document);
+            else
+                form?.ShowDialog(Editor.Instance);
+        }
+
+        public static TypeProxy ResolveEditorType(TypeProxy fileType)
+        {
             EngineDomainProxyEditor proxy = Engine.DomainProxy as EngineDomainProxyEditor;
-            var full = proxy.FullEditorTypes;
+            var editorTypes = proxy.FullEditorTypes;
             TypeProxy objType = typeof(object);
 
-            var fileType = FileType;
             while (!(fileType is null) && fileType != objType)
             {
-                if (full.ContainsKey(fileType))
-                {
-                    var editorType = full[fileType];
-                    Type type = (Type)editorType;
-                    Form form = Activator.CreateInstance(type, file) as Form;
-
-                    if (form is DockContent dc && !(form is TheraForm))
-                        dc.Show(Editor.Instance.DockPanel, DockState.Document);
-                    else
-                        form?.ShowDialog(Editor.Instance);
-
-                    return;
-                }
-
+                if (editorTypes.ContainsKey(fileType))
+                    return editorTypes[fileType];
+                
                 TypeProxy[] interfaces = fileType.GetInterfaces();
                 foreach (TypeProxy intfType in interfaces)
-                {
-                    if (full.ContainsKey(intfType))
-                    {
-                        var editorType = full[intfType];
-                        Type type = (Type)editorType;
-                        Form form = Activator.CreateInstance(type, file) as Form;
-
-                        if (form is DockContent dc && !(form is TheraForm))
-                            dc.Show(Editor.Instance.DockPanel, DockState.Document);
-                        else
-                            form?.ShowDialog(Editor.Instance);
-
-                        return;
-                    }
-                }
+                    if (editorTypes.ContainsKey(intfType))
+                        return editorTypes[intfType];
 
                 fileType = fileType.BaseType;
             }
-            
-            Editor.SetPropertyGridObject(file);
+            return null;
         }
         public virtual async void EditResourceRaw()
         {
-            TextFile file = await TFileObject.LoadAsync<TextFile>(FilePath);
+            var file = await TFileObject.LoadAsync<TextFile>(FilePath);
             if (file != null)
                 DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, file);
         }

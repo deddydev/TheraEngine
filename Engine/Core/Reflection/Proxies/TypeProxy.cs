@@ -22,7 +22,7 @@ namespace TheraEngine.Core.Reflection
         public static ConcurrentDictionary<Type, TypeProxy> Proxies { get; }
             = new ConcurrentDictionary<Type, TypeProxy>();
         public static TypeProxy Get(Type type)
-            => type == null ? null : /*Proxies.GetOrAdd(type, */new TypeProxy(type);
+            => type == null ? null : Proxies.GetOrAdd(type, new TypeProxy(type));
 
         public static implicit operator TypeProxy(Type type) => Get(type);
         public static explicit operator Type(TypeProxy proxy) => proxy?.Value;
@@ -31,6 +31,9 @@ namespace TheraEngine.Core.Reflection
 
         //public TypeProxy() { }
         private TypeProxy(Type value) : base(value) => Value = value;
+
+        public override bool IsGridViewable => true;
+        public override bool IsGridWriteable => false;
 
         public string GetFriendlyName(string openBracket = "<", string closeBracket = ">") 
             => Value.GetFriendlyName(openBracket, closeBracket);
@@ -78,7 +81,10 @@ namespace TheraEngine.Core.Reflection
             }
             return null;
         }
-        public void GetGenericParameterConstraints(out Extensions.EGenericVarianceFlag gvf, out ETypeConstraintFlag tcf)
+
+        public bool HasFlagsAttribute() => GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
+        
+        public void GetGenericParameterConstraints(out EGenericVarianceFlag gvf, out ETypeConstraintFlag tcf)
         {
             GenericParameterAttributes gpa = GenericParameterAttributes;
             GenericParameterAttributes variance = gpa & GenericParameterAttributes.VarianceMask;
@@ -460,12 +466,12 @@ namespace TheraEngine.Core.Reflection
         /// <summary>
         /// Creates a new instance of this type.
         /// </summary>
-        public object CreateInstance()
-        {
-            //if (!AppDomainHelper.IsPrimaryDomain)
-            //    Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
-            return SerializationCommon.CreateInstance(Value);
-        }
+        //public object CreateInstance()
+        //{
+        //    //if (!AppDomainHelper.IsPrimaryDomain)
+        //    //    Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
+        //    return SerializationCommon.CreateInstance(Value);
+        //}
         /// <summary>
         /// Creates a new instance of this type using construction arguments.
         /// </summary>
@@ -479,22 +485,22 @@ namespace TheraEngine.Core.Reflection
         /// Creates a new instance of this type.
         /// </summary>
         /// <typeparam name="T">The expected return type.</typeparam>
-        public T CreateInstance<T>()
-        {
-            //if (!AppDomainHelper.IsPrimaryDomain)
-            //    Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
-            return (T)SerializationCommon.CreateInstance(Value);
-        }
+        //public T CreateInstance<T>()
+        //{
+        //    //if (!AppDomainHelper.IsPrimaryDomain)
+        //    //    Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
+        //    return (T)SerializationCommon.CreateInstance(Value);
+        //}
         /// <summary>
         /// Creates a new instance of this type using construction arguments.
         /// </summary>
         /// <typeparam name="T">The expected return type.</typeparam>
-        public T CreateInstance<T>(params object[] args)
-        {
-            //if (!AppDomainHelper.IsPrimaryDomain)
-            //    Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
-            return (T)SerializationCommon.CreateInstance(Value, args);
-        }
+        //public T CreateInstance<T>(params object[] args)
+        //{
+        //    //if (!AppDomainHelper.IsPrimaryDomain)
+        //    //    Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
+        //    return (T)SerializationCommon.CreateInstance(Value, args);
+        //}
         public TypeProxy GetUnderlyingNullableType() => Nullable.GetUnderlyingType(Value);
         public Array CreateArrayInstance(int length)
         {

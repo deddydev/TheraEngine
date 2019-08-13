@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             }
         }
 
-        private void _value_Renamed(TObject node, string oldName)
+        private void _value_Renamed(ShaderVar node, string oldName)
         {
             _headerString.Text = node.Name;
             ArrangeControls();

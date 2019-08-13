@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace TheraEngine.Timers
 {
-    public class EngineTimer
+    public class EngineTimer : TObjectSlim
     {
         const float MaxFrequency = 500.0f; // Frequency cap for Update/RenderFrame events
 
@@ -65,7 +65,7 @@ namespace TheraEngine.Timers
 
             Engine.PrintLine("Started game loop.");
 
-            IsSingleThreaded = singleThreaded;
+            IsSingleThreaded = singleThreaded = true;
             IsRunning = true;
             _watch.Start();
 

@@ -6,7 +6,7 @@ using TheraEngine.Physics.ShapeTracing;
 
 namespace TheraEngine.Physics
 {
-    public abstract class AbstractPhysicsWorld : IDisposable
+    public abstract class AbstractPhysicsWorld : TObjectSlim, IDisposable
     {
         public virtual Vec3 Gravity { get; set; } = new Vec3(0.0f, -9.81f, 0.0f);
         public bool AllowIndividualAabbUpdates { get; set; } = true;

@@ -49,34 +49,17 @@ namespace TheraEngine
             Rendering,
         }
 
-        public static Control GetPanel(EPanelType type)
+        public static RenderContext GetContext(EPanelType type)
         {
             switch (type)
             {
-                case EPanelType.World: return WorldPanel;
-                case EPanelType.Hovered: return HoveredPanel;
-                case EPanelType.Focused: return FocusedPanel;
-                case EPanelType.Rendering: return RenderingPanel;
+                case EPanelType.World: return Engine.Instance.WorldPanel;
+                case EPanelType.Hovered: return Engine.Instance.HoveredPanel;
+                case EPanelType.Focused: return Engine.Instance.FocusedPanel;
+                case EPanelType.Rendering: return Engine.Instance.RenderingPanel;
             }
             return null;
         }
-
-        /// <summary>
-        /// The render panel that hosts the game's current world.
-        /// </summary>
-        public static BaseRenderPanel WorldPanel;
-        /// <summary>
-        /// The render panel that the mouse is currently on top of.
-        /// </summary>
-        public static BaseRenderPanel HoveredPanel;
-        /// <summary>
-        /// The render panel that the mouse has last clicked in and not clicked out of.
-        /// </summary>
-        public static BaseRenderPanel FocusedPanel;
-        /// <summary>
-        /// The render panel that is currently being rendered to.
-        /// </summary>
-        public static BaseRenderPanel RenderingPanel => RenderContext.Captured?.Control;
         
         //protected override CreateParams CreateParams
         //{
@@ -107,10 +90,12 @@ namespace TheraEngine
             //AddViewport();
         }
 
-        protected bool _resizing = false;
-        protected EVSyncMode _vsyncMode = EVSyncMode.Adaptive;
-        internal RenderContext _context;
-        
+        public bool _resizing = false;
+        public EVSyncMode _vsyncMode = EVSyncMode.Adaptive;
+        public RenderContext _context;
+
+        public RenderContext Context => _context;
+
         /// <summary>
         /// Calls the method. Invokes the render panel if necessary.
         /// </summary>
@@ -126,13 +111,13 @@ namespace TheraEngine
         /// </summary>
         public static bool ThreadSafeBlockingInvoke<T>(Delegate method, EPanelType type, out T result, params object[] args)
         {
-            Control panel = GetPanel(type);
-            if (panel == null)
+            RenderContext ctx = GetContext(type);
+            if (ctx is null)
             {
                 result = default;
                 return false;
             }
-            return panel.ThreadSafeBlockingInvoke(method, out result, args);
+            return ctx.Control.ThreadSafeBlockingInvoke(method, out result, args);
         }
         /// <summary>
         /// Returns true if the render panel needs to be invoked from the calling thread.
@@ -141,8 +126,8 @@ namespace TheraEngine
         /// </summary>
         public static bool ThreadSafeBlockingInvoke(Delegate method, EPanelType type, params object[] args)
         {
-            Control panel = GetPanel(type);
-            return panel?.ThreadSafeBlockingInvoke(method, args) ?? false;
+            RenderContext ctx = GetContext(type);
+            return ctx?.Control?.ThreadSafeBlockingInvoke(method, args) ?? false;
         }
         /// <summary>
         /// Calls the method. Invokes render panel if necessary.
@@ -332,14 +317,14 @@ namespace TheraEngine
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
-            if (HoveredPanel != this)
-                HoveredPanel = this;
+            if (Engine.Instance.HoveredPanel != _context)
+                Engine.Instance.HoveredPanel = _context;
         }
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            if (HoveredPanel == this)
-                HoveredPanel = null;
+            if (Engine.Instance.HoveredPanel == _context)
+                Engine.Instance.HoveredPanel = null;
         }
         //protected override void OnMouseDown(MouseEventArgs e)
         //{
@@ -349,14 +334,14 @@ namespace TheraEngine
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
-            if (FocusedPanel != this)
-                FocusedPanel = this;
+            if (Engine.Instance.FocusedPanel != _context)
+                Engine.Instance.FocusedPanel = _context;
         }
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-            if (FocusedPanel == this)
-                FocusedPanel = null;
+            if (Engine.Instance.FocusedPanel == _context)
+                Engine.Instance.FocusedPanel = null;
         }
         //protected override void OnMouseCaptureChanged(EventArgs e)
         //{

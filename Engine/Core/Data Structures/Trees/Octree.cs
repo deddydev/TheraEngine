@@ -56,7 +56,7 @@ namespace System
     /// A 3D space partitioning tree that recursively divides aabbs into 8 smaller aabbs depending on the items they contain.
     /// </summary>
     /// <typeparam name="T">The item type to use. Must be a class deriving from I3DBoundable.</typeparam>
-    public class Octree<T> : IOctree<T> where T : class, I3DRenderable
+    public class Octree<T> : TObjectSlim, IOctree<T> where T : class, I3DRenderable
     {
         public const float MinimumUnit = 10.0f;
         public const int MaxChildNodeCount = 8;
@@ -173,7 +173,7 @@ namespace System
         public void DebugRender(IVolume volume, bool onlyContainingItems, float lineWidth = 2.0f)
             => _head.DebugRender(true, onlyContainingItems, volume, lineWidth);
 
-        private class Node : IOctreeNode
+        private class Node : TObjectSlim, IOctreeNode
         {
             public Node(BoundingBoxStruct bounds, int subDivIndex, int subDivLevel, Node parent, Octree<T> owner)
             {

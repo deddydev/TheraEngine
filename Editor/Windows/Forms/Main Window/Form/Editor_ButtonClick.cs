@@ -1,18 +1,15 @@
 ﻿using AppDomainToolkit;
+using Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting.Lifetime;
-using TheraEngine;
-using TheraEngine.Core;
-using TheraEngine.Core.Reflection;
-using Extensions;
 using System.Threading;
+using TheraEngine;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -140,9 +137,11 @@ namespace TheraEditor.Windows.Forms
             => PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.SettingsRef;
         private void BtnNewMaterial_Click(object sender, EventArgs e) 
             => new MaterialEditorForm().Show();
-        private async void btnUploadNewRelease_Click(object sender, EventArgs e)
+        private void btnUploadNewRelease_Click(object sender, EventArgs e)
         {
-            await Github.ReleaseCreator.CreateNewRelease(Assembly.GetExecutingAssembly(), "test release");
+#if DEBUG
+            ReleaseCreatorForm.ShowInstance();
+#endif
         }
 
         private AppDomainContext<TheraAssemblyTargetLoader, TheraAssemblyResolver> _gameDomain;

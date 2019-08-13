@@ -7,7 +7,7 @@ using System.Threading;
 namespace TheraEngine.Rendering
 {
     public delegate void DelContextsChanged(RenderContext context, bool added);
-    public abstract class RenderContext : IDisposable
+    public abstract class RenderContext : TObjectSlim, IDisposable
     {
         public delegate void ContextChangedEventHandler(bool isCurrent);
         public event ContextChangedEventHandler ContextChanged;
@@ -20,33 +20,33 @@ namespace TheraEngine.Rendering
         public int Height { get; private set; }
 
         private EVSyncMode _vsyncMode;
-        private static RenderContext _current;
         public static RenderContext Captured
         {
-            get => _current;
+            get => Engine.Instance.CapturedRenderContext;
             set
             {
-                if (_current == value)
+                RenderContext current = Engine.Instance.CapturedRenderContext;
+                if (current == value)
                 {
-                    if (_current != null && _current.IsCurrent())
-                        _current.SetCurrent(true);
+                    if (current != null && current.IsCurrent())
+                        current.SetCurrent(true);
                     return;
                 }
 
-                if (value == null && _current != null && _current.IsCurrent())
-                    _current.SetCurrent(false);
+                if (value == null && current != null && current.IsCurrent())
+                    current.SetCurrent(false);
 
-                _current = value;
+                Engine.Instance.CapturedRenderContext = current = value;
 
-                if (_current != null)
+                if (current != null)
                 {
-                    _current.SetCurrent(true);
-                    Engine.Renderer = _current.GetRendererInstance();
-                    _current.ContextChanged?.Invoke(false);
+                    current.SetCurrent(true);
+                    Engine.Renderer = current.GetRendererInstance();
+                    current.ContextChanged?.Invoke(false);
                 }
             }
         }
-        
+
         public BaseRenderPanel Control => _control;
         public List<BaseRenderObject.ContextBind> States { get; } = new List<BaseRenderObject.ContextBind>();
 

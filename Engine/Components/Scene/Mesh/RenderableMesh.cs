@@ -21,7 +21,7 @@ namespace TheraEngine.Components.Scene.Mesh
     /// <summary>
     /// Mesh generated at runtime for internal use.
     /// </summary>
-    public abstract class BaseRenderableMesh3D : I3DRenderable
+    public abstract class BaseRenderableMesh3D : TObject, I3DRenderable
     {
         public BaseRenderableMesh3D() { }
         public BaseRenderableMesh3D(IList<ILOD> lods, ERenderPass renderPass, IRenderInfo3D renderInfo, ISceneComponent component)

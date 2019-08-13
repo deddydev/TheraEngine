@@ -21,13 +21,13 @@ namespace TheraEngine.Windows.Forms
                 if (_owner?.ModelWindow?.World != null)
                 {
                     _owner.ModelWindow.World.CurrentGameModePostChanged -= World_CurrentGameModePostChanged;
-                    _owner.GameMode?.TargetRenderPanels?.Remove(this);
+                    _owner.WindowGameMode?.TargetRenderPanels?.Remove(this);
                 }
                 _owner = value;
                 if (_owner?.ModelWindow?.World != null)
                 {
                     _owner.ModelWindow.World.CurrentGameModePostChanged += World_CurrentGameModePostChanged;
-                    _owner.GameMode?.TargetRenderPanels?.Add(this);
+                    _owner.WindowGameMode?.TargetRenderPanels?.Add(this);
                 }
             }
         }

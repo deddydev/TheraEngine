@@ -7,6 +7,7 @@ using TheraEngine.Core.Memory;
 
 namespace System
 {
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct BoolVec2 : IUniformable2Bool, IBufferable
     {
@@ -59,6 +60,7 @@ namespace System
             _y = y;
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct IVec2 : IUniformable2Int, IBufferable
     {
@@ -207,6 +209,7 @@ namespace System
             return v;
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct UVec2 : IUniformable2UInt, IBufferable
     {
@@ -259,6 +262,7 @@ namespace System
             _y = y;
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct DVec2 : IUniformable2Double, IBufferable
     {
@@ -311,6 +315,7 @@ namespace System
             _y = y;
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct BoolVec3 : IUniformable3Bool, IBufferable
     {
@@ -369,6 +374,7 @@ namespace System
             _z = z;
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct IVec3 : IUniformable3Int, IBufferable
     {
@@ -423,6 +429,7 @@ namespace System
             _z = z;
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct UVec3 : IUniformable3UInt, IBufferable
     {
@@ -477,6 +484,7 @@ namespace System
             _z = z;
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct DVec3 : IUniformable3Double, IBufferable
     {
@@ -531,6 +539,7 @@ namespace System
             _z = z;
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct BoolVec4 : IUniformable4Bool, IBufferable
     {
@@ -587,6 +596,7 @@ namespace System
             _w = w;
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct IVec4 : IUniformable4Int, IBufferable
     {
@@ -648,6 +658,7 @@ namespace System
             _w = w;
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct UVec4 : IUniformable4UInt, IBufferable
     {
@@ -704,6 +715,7 @@ namespace System
             _w = w;
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct DVec4 : IUniformable4Double, IBufferable
     {

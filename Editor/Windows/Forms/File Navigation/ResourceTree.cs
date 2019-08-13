@@ -531,7 +531,7 @@ namespace TheraEditor.Windows.Forms
                         BaseWrapper n = BaseWrapper.Wrap(currentPath);
                         if (n == null)
                         {
-                            Engine.LogWarning("Could not wrap path {0}", currentPath);
+                            Engine.LogWarning($"Could not wrap path {currentPath}");
                             return null;
                         }
                         if (!(n is FolderWrapper))

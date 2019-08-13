@@ -97,14 +97,14 @@ namespace TheraEditor.Windows.Forms
                 {
                     if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && HighlightedComponent != TransformTool3D.Instance.RootComponent))
                         _highlightPoint.RenderInfo.Visible = false;
-                    BaseRenderPanel p = BaseRenderPanel.FocusedPanel;
+                    BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
                     p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Default));
                 }
                 else if (value != null && HighlightedComponent == null)
                 {
                     if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && value != TransformTool3D.Instance.RootComponent))
                         _highlightPoint.RenderInfo.Visible = true;
-                    BaseRenderPanel p = BaseRenderPanel.FocusedPanel;
+                    BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
                     p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Hand));
                 }
 

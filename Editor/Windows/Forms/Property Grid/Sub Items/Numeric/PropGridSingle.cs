@@ -66,16 +66,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (parentInfo is PropGridMemberInfoProperty propInfo)
             {
-                object[] attribs = propInfo.Property.GetCustomAttributes(true);
-                foreach (object attrib in attribs)
-                {
-                    if (attrib is TNumericPrefixSuffixAttribute prefixSuffix)
-                    {
-                        numericInputBox1.NumberPrefix = prefixSuffix.Prefix;
-                        numericInputBox1.NumberSuffix = prefixSuffix.Suffix;
-                        break;
-                    }
-                }
+                propInfo.Property.GetNumericPrefixSuffixAttribute(out string prefix, out string suffix);
+                if (!string.IsNullOrEmpty(prefix))
+                    numericInputBox1.NumberPrefix = prefix;
+                if (!string.IsNullOrEmpty(suffix))
+                    numericInputBox1.NumberSuffix = suffix;
             }
             base.SetReferenceHolder(parentInfo);
         }

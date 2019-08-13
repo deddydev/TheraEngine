@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering
     /// <summary>
     /// This class is meant to be overridden with an implementation such as OpenTK or DirectX
     /// </summary>
-    public abstract class AbstractRenderer
+    public abstract class AbstractRenderer : TObjectSlim
     {
         public const float DefaultPointSize = 5.0f;
         public const float DefaultLineSize = 1.0f;
@@ -316,7 +316,7 @@ namespace TheraEngine.Rendering
         {
             if (DisallowRender(solid))
                 return;
-
+            
             //SetLineSize(lineWidth);
             IPrimitiveManager mesh = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidBox : EDebugPrimitiveType.WireBox);
             mesh.Parameter<ShaderVec4>(0).Value = color;

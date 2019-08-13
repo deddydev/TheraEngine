@@ -3,6 +3,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Core.Reflection
 {
@@ -29,5 +32,41 @@ namespace TheraEngine.Core.Reflection
             => Value.MakeGenericMethod(selectedTypes.Select(x => (Type)x).ToArray());
         public MethodInfoProxy GetGenericMethodDefinition()
             => Value.GetGenericMethodDefinition();
+
+        public bool CanRunForFormat(EProprietaryFileFormatFlag format, out SerializeElement.ESerializeMethodType type)
+        {
+            var attribs = GetCustomAttributes<SerializationAttribute>();
+            foreach (SerializationAttribute attrib in attribs)
+            {
+                if (attrib.RunForFormats.HasFlag(format))
+                {
+                    switch (attrib)
+                    {
+                        case TPreDeserialize _:
+                            type = SerializeElement.ESerializeMethodType.PreDeserialize;
+                            break;
+                        case TPostDeserialize _:
+                            type = SerializeElement.ESerializeMethodType.PostDeserialize;
+                            break;
+                        case TPreSerialize _:
+                            type = SerializeElement.ESerializeMethodType.PreSerialize;
+                            break;
+                        case TPostSerialize _:
+                            type = SerializeElement.ESerializeMethodType.PostSerialize;
+                            break;
+                        case CustomMemberSerializeMethod _:
+                            type = SerializeElement.ESerializeMethodType.CustomSerialize;
+                            break;
+                        default:
+                        case CustomMemberDeserializeMethod _:
+                            type = SerializeElement.ESerializeMethodType.CustomDeserialize;
+                            break;
+                    }
+                    return true;
+                }
+            }
+            type = SerializeElement.ESerializeMethodType.CustomDeserialize;
+            return false;
+        }
     }
 }

@@ -2,11 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting.Lifetime;
+using System.Security.Permissions;
 using System.Threading;
+using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
@@ -14,11 +17,39 @@ using static TheraEngine.Core.Files.TFileObject;
 
 namespace TheraEngine.Core
 {
+    public interface ISponsorableMarshalByRefObject
+    {
+        MarshalSponsor Sponsor { get; set; }
+        AppDomain Domain { get; }
+
+        object InitializeLifetimeService();
+    }
+    public class SponsorableMarshalByRefObject : MarshalByRefObject, ISponsorableMarshalByRefObject
+    {
+        [Browsable(false)]
+        public MarshalSponsor Sponsor { get; set; }
+
+        [Browsable(false)]
+        public AppDomain Domain => AppDomain.CurrentDomain;
+
+        //[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]
+        //public override object InitializeLifetimeService()
+        //{
+        //    ILease lease = (ILease)base.InitializeLifetimeService();
+        //    if (lease.CurrentState == LeaseState.Initial)
+        //    {
+        //        lease.InitialLeaseTime = TimeSpan.FromSeconds(10);
+        //        lease.SponsorshipTimeout = TimeSpan.FromSeconds(10);
+        //        lease.RenewOnCallTime = TimeSpan.FromSeconds(10);
+        //    }
+        //    return lease;
+        //}
+    }
     /// <summary>
     /// Proxy that runs the engine in the game's domain.
     /// </summary>
     //[Serializable]
-    public class EngineDomainProxy : MarshalByRefObject
+    public class EngineDomainProxy : SponsorableMarshalByRefObject
     {
         public Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyLoaders { get; private set; }
         public Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyExporters { get; private set; }
@@ -27,14 +58,6 @@ namespace TheraEngine.Core
         public event Action Started;
         public event Action<string> DebugOutput;
         public event Action<bool> ReloadTypeCaches;
-
-        public AppDomain ProxiedDomain => AppDomain.CurrentDomain;
-
-        public MarshalSponsor SponsorRef { get; }
-        public EngineDomainProxy()
-        {
-            SponsorRef = new MarshalSponsor(this);
-        }
 
         public string GetVersionInfo() =>
 
@@ -93,17 +116,15 @@ namespace TheraEngine.Core
             else
                 Engine.SetGame(null);
 
-            //Engine.SetWorldPanel(Editor.Instance.RenderForm1.RenderPanel, false);
-            //Editor.Instance.SetRenderTicking(true);
-
-            Started?.Invoke();
+            OnStarted();
         }
+        protected virtual void OnStarted() => Started?.Invoke();
         public virtual void Stop()
         {
             Engine.Stop();
             Engine.ShutDown();
             ResetTypeCaches(false);
-            SponsorRef.Release();
+            Sponsor?.Release();
             Stopped?.Invoke();
         }
         public virtual void ResetTypeCaches(bool reloadNow = true)
@@ -262,9 +283,23 @@ namespace TheraEngine.Core
 
         public TypeProxy GetTypeFor(string typeName)
         {
-            Engine.PrintLine("Getting type proxy for " + typeName);
+            //Engine.PrintLine("Getting type proxy for " + typeName);
             TypeProxy proxy = Type.GetType(typeName);
             return proxy;
         }
+
+        public async void ExportFile(IFileObject file, string dir, EProprietaryFileFormat format)
+        {
+            await file.ExportAsync(dir, file.Name, ESerializeFlags.Default, format, null, CancellationToken.None);
+        }
+
+        public T CreateInstance<T>(params object[] args) where T : ISponsorableMarshalByRefObject
+            => (T)Activator.CreateInstance(typeof(T), args);
+
+        //[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]
+        //public override object InitializeLifetimeService()
+        //{
+        //    return null;
+        //}
     }
 }

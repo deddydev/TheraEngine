@@ -68,6 +68,10 @@ namespace TheraEditor.Windows.Forms
 
             InitializeComponent();
 
+#if !DEBUG
+            btnPackageNewRelease.Visible = false;
+#endif
+
             DockPanel.Theme = new TheraEditorTheme();
 
             FormTitle2.MouseDown += TitleBar_MouseDown;
@@ -122,8 +126,9 @@ namespace TheraEditor.Windows.Forms
         public UndoManager UndoManager { get; } = new UndoManager();
 
         private TProject _project;
-        private EditorGameMode _editorGameMode;
         private DeserializeDockContent _deserializeDockContent;
+
+        public EditorGameMode EditorGameMode { get; set; } = new EditorGameMode();
 
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances
@@ -205,7 +210,7 @@ namespace TheraEditor.Windows.Forms
         public bool WelcomeFormActive => GetFormActive(_welcomeForm);
         public DockableWelcomeWindow WelcomeForm => GetForm(ref _welcomeForm);
 
-        #endregion
+#endregion
 
         protected override void OnShown(EventArgs e)
         {
@@ -214,8 +219,6 @@ namespace TheraEditor.Windows.Forms
 
             Engine.Instance.PreWorldChanged += Engine_PreWorldChanged;
             Engine.Instance.PostWorldChanged += Engine_PostWorldChanged;
-
-            _editorGameMode = new EditorGameMode();
         }
 
         private void AppDomainHelper_GameDomainUnloaded()
@@ -256,7 +259,7 @@ namespace TheraEditor.Windows.Forms
             ActorTreeForm.ClearMaps();
         }
 
-        #region World Management
+#region World Management
         /// <summary>
         /// The world that the editor is currently editing.
         /// </summary>
@@ -285,7 +288,7 @@ namespace TheraEditor.Windows.Forms
             }
             
             if (world != null)
-                world.CurrentGameMode = _editorGameMode;
+                world.CurrentGameMode = EditorGameMode;
             Engine.SetCurrentWorld(world);
 
             bool worldExists = Engine.World != null;
@@ -349,9 +352,9 @@ namespace TheraEditor.Windows.Forms
                     CurrentWorld = await TFileObject.LoadAsync<World>(ofd.FileName);
             }
         }
-        #endregion
+#endregion
 
-        #region Overrides
+#region Overrides
         protected override void OnTextChanged(EventArgs e)
         {
             if (FormTitle2 != null)
@@ -448,9 +451,9 @@ namespace TheraEditor.Windows.Forms
         //    RenderForm.RenderPanel.EndResize();
         //    base.OnResizeEnd(e);
         //}
-        #endregion
+#endregion
 
-        #region Ticking
+#region Ticking
         public bool IsRenderTicking { get; private set; }
         public void SetRenderTicking(bool isRendering)
         {
@@ -467,32 +470,29 @@ namespace TheraEditor.Windows.Forms
         }
         private void UpdateTick(object sender, FrameEventArgs e)
         {
-            Engine.Scene?.GlobalUpdate();
+            Engine.Instance.GlobalUpdate();
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.UpdateTick(sender, e);
         }
         private void SwapBuffers()
         {
-            Engine.Scene?.GlobalSwap();
+            Engine.Instance.GlobalSwap();
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.SwapBuffers();
         }
         private void RenderTick(object sender, FrameEventArgs e)
         {
-            if (BaseRenderPanel.WorldPanel == null)
-                return;
-
-            BaseRenderPanel.WorldPanel.CaptureContext();
-            Engine.Scene?.GlobalPreRender();
+            Engine.Instance.WorldPanel?.Capture();
+            Engine.Instance.GlobalPreRender();
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();
         }
-        #endregion
+#endregion
 
-        #region Project Management
+#region Project Management
         public TProject Project
         {
             get => _project;
@@ -646,9 +646,9 @@ namespace TheraEditor.Windows.Forms
                 _project.LastBuildLog.Display();
         }
 
-        #endregion
+#endregion
 
-        #region Game Mode
+#region Game Mode
         private void RegisterInput(InputInterface input)
         {
             input.RegisterKeyEvent(EKey.Escape, EButtonInputType.Pressed, EndGameplay, EInputPauseType.TickAlways);
@@ -826,9 +826,9 @@ namespace TheraEditor.Windows.Forms
 
         private void SetEditingMode()
         {
-            Engine.World.CurrentGameMode = _editorGameMode;
+            Engine.World.CurrentGameMode = EditorGameMode;
         }
-        #endregion
+#endregion
 
         private bool Undo()
         {

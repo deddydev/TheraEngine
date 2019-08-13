@@ -55,6 +55,7 @@ namespace TheraEngine.Core.Reflection.Attributes.Serialization
             if (info == null)
                 throw new ArgumentNullException(nameof(info));
 
+            base.GetObjectData(info, context);
             info.AddValue(nameof(Order), Order);
             info.AddValue(nameof(Arguments), Arguments);
         }

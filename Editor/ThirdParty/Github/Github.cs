@@ -79,9 +79,11 @@ namespace TheraEditor
                 Version ver = name.Version;
                 return $"{name.Name.ReplaceWhitespace("_")}_v{ver}";
             }
-            public static async Task CreateNewRelease(Assembly assembly, string postBody)
+            public static async Task New(string assemblyPath, string postBody)
             {
-                string progDir = Path.GetDirectoryName(assembly.Location);
+                string progDir = Path.GetDirectoryName(assemblyPath);
+                AssemblyName name = AssemblyName.GetAssemblyName(assemblyPath);
+                string tagName = CreateReleaseTagName(name);
                 string[] exts =
                 {
                 ".dll",
@@ -93,9 +95,7 @@ namespace TheraEditor
 //#endif
             };
 
-                Engine.PrintLine("Creating new release...");
-
-                //TODO: create release creator form
+                Engine.PrintLine($"Posting new release for {tagName} at {assemblyPath}...");
 
                 string[] paths = Directory.EnumerateFileSystemEntries(progDir, "*.*", SearchOption.AllDirectories).
                     Where(x => exts.Contains(Path.GetExtension(x).ToLowerInvariant())).ToArray();
@@ -126,8 +126,6 @@ namespace TheraEditor
                     File.Copy(path, newPath + Path.DirectorySeparatorChar + fileName);
                 }
 
-                AssemblyName name = assembly.GetName();
-                string tagName = CreateReleaseTagName(name);
                 string zipFilePath = progDir + Path.DirectorySeparatorChar + tagName + ".zip";
 
                 if (File.Exists(zipFilePath))
@@ -227,7 +225,7 @@ namespace TheraEditor
             }
 
             Engine.PrintLine("Connected successfully.");
-            client = new GitHubClient(new Octokit.ProductHeaderValue(RepoName))
+            client = new GitHubClient(new ProductHeaderValue(RepoName))
             {
                 Credentials = GetBotCredentials()
             };
@@ -235,71 +233,85 @@ namespace TheraEditor
         }
         public static class Updater
         {
-            public static async Task CheckUpdates(params AssemblyName[] assemblies)
+            public static async Task<(bool hasUpdate, Release newestRelease)> HasUpdate(AssemblyName name)
+            {
+                if (!CheckGithubConnection(out GitHubClient client))
+                    return (false, null);
+                return await HasUpdate(name, client);
+            }
+            private static async Task<(bool hasUpdate, Release newestRelease)> HasUpdate(AssemblyName name, GitHubClient client)
+            {
+                IReadOnlyList<Release> releases = await client.Repository.Release.GetAll(RepoOwner, RepoName);
+                if (releases == null || releases.Count == 0)
+                {
+                    Engine.PrintLine("No updates found.");
+                    return (false, null);
+                }
+
+                Version ver = name.Version;
+                Version releaseVer = null;
+                Release newestRelease = null;
+                string tagName;
+                string assemblyName;
+                string versionStr;
+                string[] verParts;
+
+                foreach (Release release in releases)
+                {
+                    tagName = release.TagName;
+
+                    //Searching for the _v backwards will always work 
+                    //because version numbers don't contain underscores or letters
+                    int verIndex = tagName.FindFirstReverse("_v");
+                    if (verIndex <= 0)
+                        continue;
+
+                    assemblyName = tagName.Substring(0, verIndex);
+                    versionStr = tagName.Substring(verIndex + 2);
+                    verParts = versionStr.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (verParts.Length != 4)
+                        continue;
+
+                    Version thisVer = new Version(
+                        int.Parse(verParts[0]),
+                        int.Parse(verParts[1]),
+                        int.Parse(verParts[2]),
+                        int.Parse(verParts[3]));
+
+                    if (releaseVer != null && thisVer.CompareTo(releaseVer) <= 0)
+                        continue;
+
+                    releaseVer = thisVer;
+                    newestRelease = release;
+                }
+
+                if (newestRelease == null)
+                {
+                    Engine.PrintLine("No updates found.");
+                    return (false, null);
+                }
+
+                int comp = releaseVer.CompareTo(ver);
+                if (comp <= 0)
+                {
+                    Engine.PrintLine("You are running the most recent version.");
+                    return (false, newestRelease);
+                }
+
+                return (true, newestRelease);
+            }
+            public static async Task TryInstallUpdate(params AssemblyName[] assemblies)
             {
                 try
                 {
                     if (!CheckGithubConnection(out GitHubClient client))
                         return;
-                    
-                    IReadOnlyList<Release> releases = await client.Repository.Release.GetAll(RepoOwner, RepoName);
-                    if (releases == null || releases.Count == 0)
-                    {
-                        Engine.PrintLine("No updates found.");
-                        return;
-                    }
-                    
+
                     foreach (AssemblyName name in assemblies)
                     {
-                        Version ver = name.Version;
-                        Version releaseVer = null;
-                        Release newestRelease = null;
-                        string tagName;
-                        string assemblyName;
-                        string versionStr;
-                        string[] verParts;
-
-                        foreach (Release release in releases)
-                        {
-                            tagName = release.TagName;
-
-                            //Searching for the _v backwards will always work 
-                            //because version numbers don't contain underscores or letters
-                            int verIndex = tagName.FindFirstReverse("_v");
-                            if (verIndex <= 0)
-                                continue;
-
-                            assemblyName = tagName.Substring(0, verIndex);
-                            versionStr = tagName.Substring(verIndex + 2);
-                            verParts = versionStr.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-                            if (verParts.Length != 4)
-                                continue;
-
-                            Version thisVer = new Version(
-                                int.Parse(verParts[0]),
-                                int.Parse(verParts[1]),
-                                int.Parse(verParts[2]),
-                                int.Parse(verParts[3]));
-
-                            if (releaseVer != null && thisVer.CompareTo(releaseVer) <= 0)
-                                continue;
-
-                            releaseVer = thisVer;
-                            newestRelease = release;
-                        }
-
-                        if (newestRelease == null)
-                        {
-                            Engine.PrintLine("No updates found.");
-                            return;
-                        }
-
-                        int comp = releaseVer.CompareTo(ver);
-                        if (comp <= 0)
-                        {
-                            Engine.PrintLine("You are running the most recent version.");
-                            return;
-                        }
+                        (bool hasUpdate, Release newestRelease) = await HasUpdate(name, client);
+                        if (!hasUpdate)
+                            continue;
 
                         DialogResult update = MessageBox.Show(newestRelease.Name + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
                         if (update != DialogResult.Yes)
@@ -307,8 +319,27 @@ namespace TheraEditor
                             Engine.PrintLine("Update canceled.");
                             return;
                         }
-                                
-                        DialogResult overwrite = MessageBox.Show("Overwrite current installation?", "Overwrite", MessageBoxButtons.YesNoCancel);
+                        
+                        var settings = Editor.GetSettings();
+                        var overwriteOption = settings.OverwriteCurrentInstall;
+                        DialogResult overwrite;
+                        switch (overwriteOption)
+                        {
+                            default:
+                            case EditorSettings.EOverwrite.Ask:
+                                overwrite = MessageBox.Show(
+                                    "Overwrite current installation?",
+                                    "Overwrite",
+                                    MessageBoxButtons.YesNoCancel);
+                                break;
+                            case EditorSettings.EOverwrite.Always:
+                                overwrite = DialogResult.Yes;
+                                break;
+                            case EditorSettings.EOverwrite.Never:
+                                overwrite = DialogResult.No;
+                                break;
+                        }
+                        
                         if (overwrite == DialogResult.Cancel)
                         {
                             Engine.PrintLine("Update canceled.");

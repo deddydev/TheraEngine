@@ -64,10 +64,10 @@ namespace TheraEditor.Actors.Types.Pawns
         private bool _shift = false;
         private bool _leftClickDown = false;
 
-        public bool HasHit => EditorHud.HighlightedComponent != null;
-        public Vec3 HitPoint => EditorHud.HitPoint;
-        public Vec3 HitNormal => EditorHud.HitNormal;
-        public float HitDistance => EditorHud.HitDistance;
+        public bool HasHit => EditorHud?.HighlightedComponent != null;
+        public Vec3 HitPoint => EditorHud?.HitPoint ?? Vec3.Zero;
+        public Vec3 HitNormal => EditorHud?.HitNormal ?? Vec3.Zero;
+        public float HitDistance => EditorHud?.HitDistance ?? 0.0f;
         public Vec3 HitScreenPoint { get; private set; }
         private EditorUI3D EditorHud => HUD?.File as EditorUI3D;
 
@@ -87,8 +87,9 @@ namespace TheraEditor.Actors.Types.Pawns
                 float pitch = y * MouseRotateSpeed;
                 float yaw = -x * MouseRotateSpeed;
 
-                if (EditorHud.SelectedComponent != null)
-                    comp.ArcBallRotate(pitch, yaw, EditorHud.SelectedComponent.WorldPoint);
+                var selComp = EditorHud?.SelectedComponent;
+                if (selComp != null)
+                    comp.ArcBallRotate(pitch, yaw, selComp.WorldPoint);
                 else if (HasHit)
                     comp.ArcBallRotate(pitch, yaw, HitPoint);
                 else

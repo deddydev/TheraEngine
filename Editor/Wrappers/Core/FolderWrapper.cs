@@ -50,6 +50,7 @@ namespace TheraEditor.Wrappers
             _menu.Closing += MenuClosing;
 
             Engine.Instance.DomainProxy.ReloadTypeCaches += LoadFileTypes;
+            LoadFileTypes(true);
         }
         public static void LoadFileTypes(bool now)
         {
@@ -86,7 +87,7 @@ namespace TheraEditor.Wrappers
                 Engine.PrintLine("Finished loading importable and creatable file types to folder menu.");
             });
         }
-        
+
         private enum ECodeFileType
         {
             Class,
@@ -345,7 +346,7 @@ namespace TheraEditor.Wrappers
             }
         }
         public static string GetFolderPath() => GetInstance<FolderWrapper>().FilePath;
-        private static async void OnNewClick(object sender, EventArgs e)
+        private static void OnNewClick(object sender, EventArgs e)
         {
             if (!(sender is ToolStripMenuItem button))
                 return;
@@ -353,21 +354,21 @@ namespace TheraEditor.Wrappers
             TypeProxy fileType = button.Tag as TypeProxy;
 
             object o = Editor.UserCreateInstanceOf(fileType, true, button.Owner);
-            if (!(o is TFileObject file))
+            if (!(o is IFileObject file))
                 return;
-            
-            string dir = GetFolderPath();
 
-            //Node will automatically be added to the file tree
-            if (Serializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
-            {
-                int op = Editor.Instance.BeginOperation($"Exporting {path}...", $"Export to {path} completed.", out Progress<float> progress, out CancellationTokenSource cancel);
-                string name = file.Name;
-                name = name.Replace("<", "[");
-                name = name.Replace(">", "]");
-                await Serializer.ExportXMLAsync(file, dir, file.Name, ESerializeFlags.Default, progress, cancel.Token);
-                Editor.Instance.EndOperation(op);
-            }
+            string dir = GetFolderPath();
+            Engine.DomainProxy.ExportFile(file, dir, EProprietaryFileFormat.XML);
+
+            //if (Serializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
+            //{
+            //    int op = Editor.Instance.BeginOperation($"Exporting {path}...", $"Export to {path} completed.", out Progress<float> progress, out CancellationTokenSource cancel);
+            //    string name = file.Name;
+            //    name = name.Replace("<", "[");
+            //    name = name.Replace(">", "]");
+            //    await Serializer.ExportXMLAsync(file, dir, name, ESerializeFlags.Default, progress, cancel.Token);
+            //    Editor.Instance.EndOperation(op);
+            //}
         }
         private async void NewCodeFile(ECodeFileType type)
         {

@@ -251,6 +251,20 @@ namespace TheraEngine
         [Category("Debug")]
         [TSerialize]
         public bool PrintAppDomainInOutput { get; set; }
+        /// <summary>
+        /// How often the same message is allowed to be printed to output. Reduces output spam.
+        /// </summary>
+        [Description("How often the same message is allowed to be printed to output. Reduces output spam.")]
+        [Category("Debug")]
+        [TSerialize]
+        public double AllowedOutputRecentnessSeconds { get; set; }
+        /// <summary>
+        /// How specific the debug output will be.
+        /// </summary>
+        [Description("How specific the debug output will be.")]
+        [Category("Debug")]
+        [TSerialize]
+        public Engine.EOutputVerbosity OutputVerbosity { get; set; }
 
         public EngineSettings()
         {
@@ -259,6 +273,8 @@ namespace TheraEngine
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;
             PrintAppDomainInOutput = true;
+            OutputVerbosity = Engine.EOutputVerbosity.Verbose;
+            AllowedOutputRecentnessSeconds = 2.0;
 
             CapFPS = false;
             TargetFPS = 60.0f;

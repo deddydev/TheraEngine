@@ -23,42 +23,51 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Rendering
 {
-    public class Viewport
+    public class Viewport : TObjectSlim
     {
         public const string SceneShaderPath = "Scene3D";
-        private static Stack<Viewport> CurrentlyRenderingViewports { get; } = new Stack<Viewport>();
-        public static Viewport CurrentlyRendering => CurrentlyRenderingViewports.Peek();
+        public static Viewport CurrentlyRendering => Engine.Instance.CurrentlyRenderingViewport;
 
-        private BoundingRectangle _region;
-        private BoundingRectangle _internalResolution = new BoundingRectangle();
-        private ICamera _camera;
-        private SSAOInfo _ssaoInfo = new SSAOInfo();
+        public BoundingRectangle _region;
+        public BoundingRectangle _internalResolution = new BoundingRectangle();
+        public ICamera _camera;
+        public SSAOInfo _ssaoInfo = new SSAOInfo();
 
-        internal QuadFrameBuffer SSAOFBO;
-        internal QuadFrameBuffer SSAOBlurFBO;
-        internal FrameBuffer GBufferFBO;
-        internal QuadFrameBuffer BloomBlurFBO1;
-        internal QuadFrameBuffer BloomBlurFBO2;
-        internal QuadFrameBuffer BloomBlurFBO4;
-        internal QuadFrameBuffer BloomBlurFBO8;
-        internal QuadFrameBuffer BloomBlurFBO16;
-        internal QuadFrameBuffer LightCombineFBO;
-        internal QuadFrameBuffer ForwardPassFBO;
-        internal QuadFrameBuffer PostProcessFBO;
-        internal QuadFrameBuffer HUDFBO;
-        internal PrimitiveManager PointLightManager;
-        internal PrimitiveManager SpotLightManager;
-        internal PrimitiveManager DirLightManager;
-        //internal PrimitiveManager DecalManager;
-        //internal QuadFrameBuffer DirLightFBO;
-        internal ICamera RenderingCamera => RenderingCameras.Peek();
-        internal Stack<ICamera> RenderingCameras { get; } = new Stack<ICamera>();
-        internal TexRef2D BrdfTex = null;
+        public QuadFrameBuffer SSAOFBO;
+        public QuadFrameBuffer SSAOBlurFBO;
+        public FrameBuffer GBufferFBO;
+        public QuadFrameBuffer BloomBlurFBO1;
+        public QuadFrameBuffer BloomBlurFBO2;
+        public QuadFrameBuffer BloomBlurFBO4;
+        public QuadFrameBuffer BloomBlurFBO8;
+        public QuadFrameBuffer BloomBlurFBO16;
+        public QuadFrameBuffer LightCombineFBO;
+        public QuadFrameBuffer ForwardPassFBO;
+        public QuadFrameBuffer PostProcessFBO;
+        public QuadFrameBuffer HUDFBO;
+        public PrimitiveManager PointLightManager;
+        public PrimitiveManager SpotLightManager;
+        public PrimitiveManager DirLightManager;
+        //public PrimitiveManager DecalManager;
+        //public QuadFrameBuffer DirLightFBO;
+        public ICamera RenderingCamera => RenderingCameras.Count > 0 ? RenderingCameras.Peek() : null;
+        public Stack<ICamera> RenderingCameras { get; } = new Stack<ICamera>();
 
-        private float _leftPercentage = 0.0f;
-        private float _rightPercentage = 1.0f;
-        private float _bottomPercentage = 0.0f;
-        private float _topPercentage = 1.0f;
+        public TexRef2D _brdfTex = null;
+        public TexRef2D BrdfTex
+        {
+            get
+            {
+                if (_brdfTex is null)
+                    PrecomputeBRDF();
+                return _brdfTex;
+            }
+        }
+
+        public float _leftPercentage = 0.0f;
+        public float _rightPercentage = 1.0f;
+        public float _bottomPercentage = 0.0f;
+        public float _topPercentage = 1.0f;
 
         public ICamera Camera
         {
@@ -93,7 +102,8 @@ namespace TheraEngine.Rendering
         public IVec2 Position { get => _region.OriginTranslation; set => _region.OriginTranslation = value; }
         public int Index { get; private set; }
 
-        internal bool RegeneratingFBOs = false;
+        public bool RegeneratingFBOs = false;
+        public bool FBOsInitialized = false;
 
         public List<LocalPlayerController> Owners { get; } = new List<LocalPlayerController>();
 
@@ -117,7 +127,7 @@ namespace TheraEngine.Rendering
         public BoundingRectangle InternalResolution => _internalResolution;
         public BaseRenderPanel OwningPanel { get; }
 
-        private IUserInterface _hud;
+        public IUserInterface _hud;
         public IUserInterface HUD
         {
             get => _hud;
@@ -143,7 +153,7 @@ namespace TheraEngine.Rendering
             OwningPanel = panel;
             Index = index;
             _ssaoInfo.Generate();
-            PrecomputeBRDF();
+
             Resize(panel.Width, panel.Height);
         }
         public Viewport(int width, int height)
@@ -151,15 +161,15 @@ namespace TheraEngine.Rendering
             Index = 0;
             SetFullScreen();
             _ssaoInfo.Generate();
-            PrecomputeBRDF();
+
             Resize(width, height);
         }
 
-        internal BoundingRectangle BloomRect16;
-        internal BoundingRectangle BloomRect8;
-        internal BoundingRectangle BloomRect4;
-        internal BoundingRectangle BloomRect2;
-        //internal BoundingRectangle BloomRect1;
+        public BoundingRectangle BloomRect16;
+        public BoundingRectangle BloomRect8;
+        public BoundingRectangle BloomRect4;
+        public BoundingRectangle BloomRect2;
+        //public BoundingRectangle BloomRect1;
 
         public void SetInternalResolution(int width, int height)
         {
@@ -177,13 +187,16 @@ namespace TheraEngine.Rendering
             //BloomRect1.Width = width;
             //BloomRect1.Height = height;
 
-            InitFBOs();
-
+            ClearFBOs();
             _camera?.Resize(width, height);
         }
 
+        public void PushRenderingCamera(ICamera camera) => RenderingCameras.Push(camera);
+        public void PopRenderingCamera() => RenderingCameras.Pop();
+
         private void ClearFBOs()
         {
+            FBOsInitialized = false;
             BloomBlurFBO1?.Destroy();
             BloomBlurFBO1 = null;
             BloomBlurFBO2?.Destroy();
@@ -294,13 +307,16 @@ namespace TheraEngine.Rendering
             if (scene == null || camera == null || RegeneratingFBOs)
                 return;
 
-            CurrentlyRenderingViewports.Push(this);
+            Engine.Instance.PushRenderingViewport(this);
             OnRender(scene, camera, target);
-            CurrentlyRenderingViewports.Pop();
+            Engine.Instance.PopRenderingViewport();
         }
         private RenderPasses _renderPasses = new RenderPasses();
         protected virtual void OnRender(IScene scene, ICamera camera, FrameBuffer target)
         {
+            if (!FBOsInitialized)
+                InitializeFBOs();
+
             HUD?.ScreenSpaceUIScene?.Render(HUD.RenderPasses, HUD.ScreenOverlayCamera, this, HUDFBO);
             scene.Render(_renderPasses, camera, this, target);
         }
@@ -639,7 +655,7 @@ namespace TheraEngine.Rendering
         #endregion
 
         #region SSAO
-        private class SSAOInfo
+        public class SSAOInfo : TObjectSlim
         {
             public const int DefaultSamples = 64;
             const int DefaultNoiseWidth = 4, DefaultNoiseHeight = 4;
@@ -733,19 +749,19 @@ namespace TheraEngine.Rendering
             renderParams.DepthTest.Function = EComparison.Always;
             renderParams.DepthTest.UpdateDepth = false;
 
-            BrdfTex = TexRef2D.CreateFrameBufferTexture("BRDF_LUT", width, height, EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat);
-            BrdfTex.Resizable = true;
-            BrdfTex.UWrap = ETexWrapMode.ClampToEdge;
-            BrdfTex.VWrap = ETexWrapMode.ClampToEdge;
-            BrdfTex.MinFilter = ETexMinFilter.Linear;
-            BrdfTex.MagFilter = ETexMagFilter.Linear;
-            BrdfTex.SamplerName = "BRDF";
-            TexRef2D[] texRefs = new TexRef2D[] { BrdfTex };
+            _brdfTex = TexRef2D.CreateFrameBufferTexture("BRDF_LUT", width, height, EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat);
+            _brdfTex.Resizable = true;
+            _brdfTex.UWrap = ETexWrapMode.ClampToEdge;
+            _brdfTex.VWrap = ETexWrapMode.ClampToEdge;
+            _brdfTex.MinFilter = ETexMinFilter.Linear;
+            _brdfTex.MagFilter = ETexMagFilter.Linear;
+            _brdfTex.SamplerName = "BRDF";
+            TexRef2D[] texRefs = new TexRef2D[] { _brdfTex };
 
             GLSLScript shader = Engine.Files.LoadEngineShader(Path.Combine("Scene3D", "BRDF.fs"), EGLSLType.Fragment);
             TMaterial mat = new TMaterial("BRDFMat", renderParams, texRefs, shader);
             MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat);
-            fbo.SetRenderTargets((BrdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
+            fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
             PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), 
                 VertexQuad.MakeQuad( //ndc space quad, so we don't have to load any camera matrices
@@ -773,15 +789,15 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// This method is called to generate all framebuffers necessary to render the final image for the viewport.
         /// </summary>
-        internal protected virtual unsafe void InitFBOs()
+        internal protected virtual unsafe void InitializeFBOs()
         {
             RegeneratingFBOs = true;
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)InitFBOs, BaseRenderPanel.EPanelType.Rendering))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)InitializeFBOs, BaseRenderPanel.EPanelType.Rendering))
                 return;
 
             ClearFBOs();
 
-            if (BrdfTex == null)
+            if (_brdfTex == null)
                 PrecomputeBRDF();
             
             int width = InternalResolution.Width;
@@ -1064,6 +1080,7 @@ namespace TheraEngine.Rendering
             #endregion
 
             RegeneratingFBOs = false;
+            FBOsInitialized = true;
         }
 
         private LightComponent _lightComp;

@@ -87,7 +87,7 @@ namespace TheraEngine.Core.Shapes
     /// <summary>
     /// Contains the points and planes at the edges and near/far of a camera's view.
     /// </summary>
-    public class Frustum : IFrustum
+    public class Frustum : TObjectSlim, IFrustum
     {
         public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 

@@ -203,7 +203,7 @@ namespace TheraEngine.Core.Files
                 }
             }
 
-            Engine.LogWarning("{0} cannot be exported with extension '{1}'.", type.GetFriendlyName(), ext);
+            Engine.LogWarning($"{type.GetFriendlyName()} cannot be exported with extension '{ext}'.");
         }
 
         public async Task ExportAsync(
@@ -254,7 +254,7 @@ namespace TheraEngine.Core.Files
                 await ExportAsync(directory, fileName, flags, format, ext, progress, cancel);
             }
             else
-                Engine.LogWarning("File was not exported; cannot resolve extension for {0}.", GetType().GetFriendlyName());
+                Engine.LogWarning($"File was not exported; cannot resolve extension for {GetType().GetFriendlyName()}.");
         }
         public async Task ExportAsync(
             string directory,

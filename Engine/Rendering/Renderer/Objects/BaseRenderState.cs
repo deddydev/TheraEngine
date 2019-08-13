@@ -7,10 +7,10 @@ namespace TheraEngine.Rendering
     /// <summary>
     /// Identifies a render object that is handled by the renderer and needs to be generated/destroyed during runtime.
     /// </summary>
-    public abstract class BaseRenderObject : TObject, IDisposable
+    public abstract class BaseRenderObject : TObjectSlim, IDisposable
     {
         public const int NullBindingId = 0;
-        public class ContextBind
+        public class ContextBind : TObjectSlim
         {
             //internal bool _generatedFailSafe = false;
             internal int _bindingId = NullBindingId;
@@ -242,7 +242,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         public virtual void Destroy()
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Destroy, BaseRenderPanel.EPanelType.Rendering))
+            //if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Destroy, BaseRenderPanel.EPanelType.Rendering))
                 return;
 
             ContextBind b;

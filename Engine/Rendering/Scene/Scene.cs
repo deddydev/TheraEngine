@@ -37,7 +37,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         OnTopForward,
     }
-    public class RenderPasses
+    public class RenderPasses : TObjectSlim
     {
         public RenderPasses()
         {
@@ -61,12 +61,6 @@ namespace TheraEngine.Rendering
                 new SortedSet<RenderCommand>(_farToNearSorter),
                 new SortedSet<RenderCommand>(_nearToFarSorter),
             };
-            Engine.Instance.LostFocus += Engine_LostFocus;
-        }
-
-        private void Engine_LostFocus()
-        {
-
         }
 
         public bool ShadowPass { get; internal set; }
@@ -159,9 +153,8 @@ namespace TheraEngine.Rendering
         void GlobalPreRender();
         void GlobalUpdate();
         void GlobalSwap();
-
     }
-    public abstract class BaseScene : IScene
+    public abstract class BaseScene : TObjectSlim, IScene
     {
         /// <summary>
         /// Call this method to render the scene.

@@ -117,7 +117,7 @@ namespace TheraEngine.Rendering
             {
                 if (viewport != null)
                 {
-                    viewport.RenderingCameras.Push(camera);
+                    viewport.PushRenderingCamera(camera);
 
                     //Render the to the actual screen resolution
                     Engine.Renderer.PushRenderArea(viewport.Region);
@@ -147,7 +147,7 @@ namespace TheraEngine.Rendering
                     }
                     Engine.Renderer.PopRenderArea();
 
-                    viewport.RenderingCameras.Pop();
+                    viewport.PopRenderingCamera();
                 }
                 else
                 {

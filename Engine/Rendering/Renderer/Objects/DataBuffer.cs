@@ -10,32 +10,32 @@ namespace TheraEngine.Rendering.Models
 {
     public enum EBufferTarget
     {
-        ArrayBuffer             = 34962,
-        ElementArrayBuffer      = 34963,
-        PixelPackBuffer         = 35051,
-        PixelUnpackBuffer       = 35052,
-        UniformBuffer           = 35345,
-        TextureBuffer           = 35882,
+        ArrayBuffer = 34962,
+        ElementArrayBuffer = 34963,
+        PixelPackBuffer = 35051,
+        PixelUnpackBuffer = 35052,
+        UniformBuffer = 35345,
+        TextureBuffer = 35882,
         TransformFeedbackBuffer = 35982,
-        CopyReadBuffer          = 36662,
-        CopyWriteBuffer         = 36663,
-        DrawIndirectBuffer      = 36671,
-        ShaderStorageBuffer     = 37074,
-        DispatchIndirectBuffer  = 37102,
-        QueryBuffer             = 37266,
-        AtomicCounterBuffer     = 37568
+        CopyReadBuffer = 36662,
+        CopyWriteBuffer = 36663,
+        DrawIndirectBuffer = 36671,
+        ShaderStorageBuffer = 37074,
+        DispatchIndirectBuffer = 37102,
+        QueryBuffer = 37266,
+        AtomicCounterBuffer = 37568
     }
     public enum EBufferType
     {
-        Position        = 0, //VertexBuffer.MaxMorphs + 1: 0
-        Normal          = 1, //VertexBuffer.MaxMorphs + 1: 1
-        Binormal        = 2, //VertexBuffer.MaxMorphs + 1: 2
-        Tangent         = 3, //VertexBuffer.MaxMorphs + 1: 3
-        MatrixIds       = 4, //VertexBuffer.MaxMorphs + 1: 4
-        MatrixWeights   = 5, //VertexBuffer.MaxMorphs + 1: 5
-        Color           = 6, //VertexBuffer.MaxColors: 6,7
-        TexCoord        = 7, //VertexBuffer.MaxTexCoords: 8-15
-        Other           = 8, //VertexBuffer.MaxOtherBuffers: 16-25
+        Position = 0, //VertexBuffer.MaxMorphs + 1: 0
+        Normal = 1, //VertexBuffer.MaxMorphs + 1: 1
+        Binormal = 2, //VertexBuffer.MaxMorphs + 1: 2
+        Tangent = 3, //VertexBuffer.MaxMorphs + 1: 3
+        MatrixIds = 4, //VertexBuffer.MaxMorphs + 1: 4
+        MatrixWeights = 5, //VertexBuffer.MaxMorphs + 1: 5
+        Color = 6, //VertexBuffer.MaxColors: 6,7
+        TexCoord = 7, //VertexBuffer.MaxTexCoords: 8-15
+        Other = 8, //VertexBuffer.MaxOtherBuffers: 16-25
     }
     public class VertexAttribInfo
     {
@@ -75,12 +75,12 @@ namespace TheraEngine.Rendering.Models
     }
     public enum EBufferUsage
     {
-        StreamDraw  = 0,
-        StreamRead  = 1,
-        StreamCopy  = 2,
-        StaticDraw  = 4,
-        StaticRead  = 5,
-        StaticCopy  = 6,
+        StreamDraw = 0,
+        StreamRead = 1,
+        StreamCopy = 2,
+        StaticDraw = 4,
+        StaticRead = 5,
+        StaticCopy = 6,
         DynamicDraw = 8,
         DynamicRead = 9,
         DynamicCopy = 10
@@ -89,14 +89,14 @@ namespace TheraEngine.Rendering.Models
     {
         public enum EComponentType
         {
-            SByte   = 0,
-            Byte    = 1,
-            Short   = 2,
-            UShort  = 3,
-            Int     = 4,
-            UInt    = 5,
-            Float   = 6,
-            Double  = 10,
+            SByte = 0,
+            Byte = 1,
+            Short = 2,
+            UShort = 3,
+            Int = 4,
+            UInt = 5,
+            Float = 6,
+            Double = 10,
         }
 
         /// <summary>
@@ -108,29 +108,32 @@ namespace TheraEngine.Rendering.Models
         public EBufferTarget Target { get; private set; } = EBufferTarget.ArrayBuffer;
         public EBufferUsage Usage { get; set; } = EBufferUsage.StaticDraw;
         public int Location { get => _location; set => _location = value; }
-        internal int _vaoId = 0;
+
+        private string _name;
+        public string Name { get => _name; set => _name = value; }
 
         [TSerialize("Index", NodeType = ENodeType.Attribute)]
-        internal int _bufferIndex;
+        public int _bufferIndex;
         [TSerialize("BindLocation", NodeType = ENodeType.Attribute)]
-        private int _location;
+        public int _location;
         [TSerialize("ComponentType", NodeType = ENodeType.Attribute)]
-        internal EComponentType _componentType;
+        public EComponentType _componentType;
         [TSerialize("Normalize", NodeType = ENodeType.Attribute)]
-        internal bool _normalize;
+        public bool _normalize;
         [TSerialize("Integral", NodeType = ENodeType.Attribute)]
-        internal bool _integral = false;
+        public bool _integral = false;
         [TSerialize("ComponentCount", NodeType = ENodeType.Attribute)]
-        internal int _componentCount;
+        public int _componentCount;
         [TSerialize("ElementCount", NodeType = ENodeType.Attribute)]
-        internal int _elementCount;
+        public int _elementCount;
         [TSerialize("Type", NodeType = ENodeType.Attribute)]
-        internal EBufferType _type = EBufferType.Other;
+        public EBufferType _type = EBufferType.Other;
         [TSerialize("Divisor", NodeType = ENodeType.Attribute)]
-        private int _divisor = 0;
+        public int _divisor = 0;
+        public int _vaoId = 0;
 
         [TSerialize("Data", IsElementString = true)]
-        internal DataSource _data;
+        public DataSource _data;
 
         [CustomMemberSerializeMethod("Data")]
         private object CustomDataSerialize()

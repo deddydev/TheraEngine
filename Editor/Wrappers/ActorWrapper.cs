@@ -31,6 +31,7 @@ namespace TheraEditor.Wrappers
         {
             ModelEditorForm d = new ModelEditorForm();
             d.Show();
+
             BaseActor actor = await ResourceRef.GetInstanceAsync();
             d.SetActor(actor);
         }

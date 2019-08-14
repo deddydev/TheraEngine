@@ -1,10 +1,11 @@
 ﻿using Extensions;
 using Microsoft.VisualBasic.FileIO;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -13,6 +14,7 @@ using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Wrappers
 {
+    [Serializable]
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     sealed class NodeWrapperAttribute : Attribute
     {
@@ -30,45 +32,6 @@ namespace TheraEditor.Wrappers
         public string ImageName { get; }
         public string SelectedImageName { get; }
         public string ThirdPartyExtension { get; }
-
-        /// <summary>
-        /// Key is file type, Value is tree node wrapper type
-        /// </summary>
-        public static Dictionary<TypeProxy, TypeProxy> Wrappers { get; private set; }
-        public static Dictionary<string, TypeProxy> ThirdPartyWrappers { get; private set; }
-
-        static NodeWrapperAttribute()
-        {
-            //Load all nodewrapper types from editor assembly
-            //Supports loading nodewrappers from multiple assemblies for the future possibility of file type plugins
-            LoadWrappers(Assembly.GetExecutingAssembly());
-        }
-        public static void LoadWrappers(params Assembly[] assemblies)
-        {
-            Wrappers = new Dictionary<TypeProxy, TypeProxy>(new TypeProxy.EqualityComparer());
-            ThirdPartyWrappers = new Dictionary<string, TypeProxy>();
-
-            if (assemblies != null)
-                foreach (Assembly asm in assemblies)
-                    foreach (Type asmType in asm.GetTypes())
-                        foreach (NodeWrapperAttribute attr in asmType.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
-                        {
-                            if (asmType.BaseType == typeof(ThirdPartyFileWrapper))
-                            {
-                                if (!string.IsNullOrWhiteSpace(attr.ThirdPartyExtension))
-                                    ThirdPartyWrappers[attr.ThirdPartyExtension] = asmType;
-                            }
-                            else if (asmType.BaseType.IsGenericType && asmType.BaseType.GetGenericTypeDefinition() == typeof(FileWrapper<>))
-                            {
-                                Type fileType = asmType.BaseType.GetGenericArguments()[0];
-                                Wrappers[fileType] = asmType;
-                            }
-                            else
-                            {
-                                throw new InvalidOperationException($"{nameof(NodeWrapperAttribute)} must be an attribute on a class that inherits directly from {nameof(FileWrapper<IFileObject>)} or {nameof(ThirdPartyFileWrapper)}.");
-                            }
-                        }
-        }
     }
     public abstract class BaseWrapper : TreeNode
     {
@@ -119,7 +82,7 @@ namespace TheraEditor.Wrappers
         
         public static BaseWrapper Wrap(string path)
         {
-            BaseWrapper w = null;
+            BaseWrapper wrapper = null;
             bool? isDir = path.IsExistingDirectoryPath();
             if (isDir == null)
                 return null;
@@ -127,9 +90,9 @@ namespace TheraEditor.Wrappers
             {
                 try
                 {
-                    w = new FolderWrapper(path);
+                    wrapper = new FolderWrapper(path);
                     if (Directory.GetFileSystemEntries(path).Length > 0)
-                        w.Nodes.Add("...");
+                        wrapper.Nodes.Add("...");
                 }
                 catch { }
             }
@@ -139,95 +102,102 @@ namespace TheraEditor.Wrappers
                 if (!string.IsNullOrWhiteSpace(ext))
                 {
                     ext = ext.Substring(1).ToLowerInvariant();
-                    if (NodeWrapperAttribute.ThirdPartyWrappers.ContainsKey(ext))
+                    if (Editor.DomainProxy.ThirdPartyWrappers.TryGetValue(ext, out TypeProxy value))
                     {
-                        w = NodeWrapperAttribute.ThirdPartyWrappers[ext]?.CreateInstance() as BaseWrapper;
+                        Type type = (Type)value;
+                        wrapper = Activator.CreateInstance(type) as BaseWrapper;
 
-                        w.Text = Path.GetFileName(path);
-                        w.FilePath = w.Name = path;
-                        return w;
+                        wrapper.Text = Path.GetFileName(path);
+                        wrapper.FilePath = wrapper.Name = path;
+
+                        return wrapper;
                     }
                 }
 
                 TypeProxy t = TFileObject.DetermineType(path, out _);
                 //Engine.PrintLine(t.Domain.FriendlyName);
-                w = TryWrapType(t);
-                if (w != null)
+                wrapper = TryWrapType(t);
+                if (wrapper != null)
                 {
-                    w.Text = Path.GetFileName(path);
-                    w.FilePath = w.Name = path;
+                    wrapper.Text = Path.GetFileName(path);
+                    wrapper.FilePath = wrapper.Name = path;
                 }
                 else
-                    w = new GenericFileWrapper(path);
+                    wrapper = new GenericFileWrapper(path);
             }
-            return w;
+            return wrapper;
         }
-        public static BaseFileWrapper Wrap(TFileObject file)
+        //public static BaseFileWrapper Wrap(TFileObject file)
+        //{
+        //    BaseFileWrapper w = TryWrapType(file?.GetType());
+        //    if (w != null)
+        //    {
+        //        TFileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out EFileFormat fmt, out string thirdPartyExt);
+        //        w.Text = name + "." + file.FileExtension.GetFullExtension((EProprietaryFileFormat)fmt);
+        //        w.SingleInstance = file;
+        //        //w.SelectedImageIndex = w.ImageIndex = 0;
+        //    }
+        //    return w;
+        //}
+        public static BaseFileWrapper TryWrapType(TypeProxy type)
         {
-            BaseFileWrapper w = TryWrapType(file?.GetType());
-            if (w != null)
+            if (type is null)
+                return null;
+
+            BaseFileWrapper wrapper = null;
+
+            //Try to find wrapper for type or any inherited type, in order
+            var wrappers = Editor.DomainProxy.Wrappers;
+            TypeProxy currentType = type;
+            while (!(currentType is null) && wrapper is null)
             {
-                TFileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out EFileFormat fmt, out string thirdPartyExt);
-                w.Text = name + "." + file.FileExtension.GetFullExtension((EProprietaryFileFormat)fmt);
-                w.SingleInstance = file;
-                //w.SelectedImageIndex = w.ImageIndex = 0;
-            }
-            return w;
-        }
-        public static BaseFileWrapper TryWrapType(TypeProxy t)
-        {
-            BaseFileWrapper w = null;
-            if (t != null)
-            {
-                //Try to find wrapper for type or any inherited type, in order
-                TypeProxy tempType = t;
-                while (tempType != null && w == null)
+                if (wrappers.TryGetValue(currentType, out TypeProxy matchType))
                 {
-                    if (NodeWrapperAttribute.Wrappers.ContainsKey(tempType))
-                        w = NodeWrapperAttribute.Wrappers[tempType]?.CreateInstance() as BaseFileWrapper;
-                    else
+                    Type wrapperType = (Type)wrappers[currentType];
+                    wrapper = Activator.CreateInstance(wrapperType) as BaseFileWrapper;
+                }
+                else
+                {
+                    TypeProxy[] interfaces = type.GetInterfaces();
+                    var validInterfaces = interfaces.Where(interfaceType => wrappers.Keys.Any(wrapperKeyType => wrapperKeyType == interfaceType)).ToArray();
+                    if (validInterfaces.Length > 0)
                     {
-                        TypeProxy[] interfaces = t.GetInterfaces();
-                        var validInterfaces = interfaces.Where(interfaceType => NodeWrapperAttribute.Wrappers.Keys.Any(wrapperKeyType => wrapperKeyType == interfaceType)).ToArray();
-                        if (validInterfaces.Length > 0)
+                        TypeProxy interfaceType;
+
+                        //TODO: find best interface to use if multiple matches?
+                        if (validInterfaces.Length > 1)
                         {
-                            TypeProxy match;
-
-                            //TODO: find best interface to use if multiple matches?
-                            if (validInterfaces.Length > 1)
-                            {
-                                var counts = validInterfaces.Select(inf => validInterfaces.Count(v => inf.IsAssignableFrom(v))).ToArray();
-                                int min = counts.Min();
-                                int[] mins = counts.FindAllMatchIndices(x => x == min);
-                                string msg = "File of type " + t.GetFriendlyName() + " has multiple valid interface wrappers: " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName());
-                                msg += ". Narrowed down wrappers to " + mins.Select(x => validInterfaces[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
-                                Engine.PrintLine(msg);
-                                match = validInterfaces[mins[0]];
-                            }
-                            else
-                                match = validInterfaces[0];
-
-                            TypeProxy matchType = NodeWrapperAttribute.Wrappers[match];
-                            if (matchType != null)
-                            {
-                                Type matchType2 = (Type)matchType;
-                                w = Activator.CreateInstance(matchType2) as BaseFileWrapper;
-                            }
+                            var counts = validInterfaces.Select(inf => validInterfaces.Count(v => inf.IsAssignableFrom(v))).ToArray();
+                            int min = counts.Min();
+                            int[] mins = counts.FindAllMatchIndices(x => x == min);
+                            string msg = "File of type " + type.GetFriendlyName() + " has multiple valid interface wrappers: " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName());
+                            msg += ". Narrowed down wrappers to " + mins.Select(x => validInterfaces[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
+                            Engine.PrintLine(msg);
+                            interfaceType = validInterfaces[mins[0]];
                         }
                         else
-                            tempType = tempType.BaseType;
+                            interfaceType = validInterfaces[0];
+
+                        if (wrappers.TryGetValue(interfaceType, out matchType))
+                        {
+                            Type wrapperType = (Type)matchType;
+                            wrapper = Activator.CreateInstance(wrapperType) as BaseFileWrapper;
+                        }
                     }
                 }
 
-                if (w == null)
-                {
-                    //Make wrapper for whatever file type this is
-                    w = new NonGenericFileWrapper(t);
-                    //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
-                    //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
-                }
+                currentType = currentType.BaseType;
             }
-            return w;
+
+            if (wrapper == null)
+            {
+                //Make wrapper for whatever file type this is
+                wrapper = new NonGenericFileWrapper(type);
+                //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
+                //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
+            }
+            
+            return wrapper;
         }
         internal protected abstract void OnExpand();
         internal protected abstract void OnCollapse();

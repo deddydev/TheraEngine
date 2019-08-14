@@ -57,7 +57,7 @@ namespace TheraEditor
 
         [TSerialize(State = true)]
         [Category("Code")]
-        public string TargetBuildConfiguration { get; set; } = "Release";
+        public string TargetBuildConfiguration { get; set; } = "Debug";
         [TSerialize(State = true)]
         [Category("Code")]
         public string TargetBuildPlatform { get; set; } = "x64";
@@ -698,7 +698,7 @@ namespace TheraEditor
             #endregion
 
             #region sln
-            PrintLine($"Writing sln... {SolutionPath}");
+            Engine.PrintLine(EOutputVerbosity.Verbose, $"Writing sln... {SolutionPath}");
             //0 = project name, 1 = project GUID, 2 = project type
             //The first GUID is the GUID of a C# project package
             string projTmpl = "Project(\"{2}\") = \"{0}\", \"{0}.csproj\", \"{1}\"\nEndProject\n";
@@ -730,7 +730,7 @@ namespace TheraEditor
             string sln = string.Format(slnTmpl, projects, preSol, postSol, solutionGuid, majorVer.ToString(), ver);
 
             File.WriteAllText(SolutionPath, sln);
-            Engine.PrintLine($"Done writing sln.");
+            Engine.PrintLine(EOutputVerbosity.Verbose, $"Done writing sln.");
             #endregion
 
             //EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
@@ -764,7 +764,7 @@ namespace TheraEditor
         }
 
         public async Task CompileAsync()
-            => await CompileAsync("Debug", IntPtr.Size == 8 ? "x64" : "x86");
+            => await CompileAsync(TargetBuildConfiguration, IntPtr.Size == 8 ? "x64" : "x86");
         public async Task CompileAsync(string buildConfiguration, string buildPlatform)
         {
             if (IsCompiling)

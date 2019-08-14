@@ -9,6 +9,10 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Core;
 using TheraEngine.Core.Reflection;
+using Extensions;
+using TheraEditor.Wrappers;
+using System.Diagnostics;
+using TheraEngine.Core.Files;
 
 namespace TheraEditor
 {
@@ -20,6 +24,54 @@ namespace TheraEditor
     {
         public ConcurrentDictionary<TypeProxy, TypeProxy> FullEditorTypes { get; private set; }
         public ConcurrentDictionary<TypeProxy, TypeProxy> InPlaceEditorTypes { get; private set; }
+        /// <summary>
+        /// Key is file type, Value is tree node wrapper type
+        /// </summary>
+        public ConcurrentDictionary<TypeProxy, TypeProxy> Wrappers { get; private set; }
+        /// <summary>
+        /// Key is lowercase extension, Value is tree node wrapper type
+        /// </summary>
+        public ConcurrentDictionary<string, TypeProxy> ThirdPartyWrappers { get; private set; }
+
+        public async void ReloadNodeWrapperTypes()
+        {
+            Wrappers = new ConcurrentDictionary<TypeProxy, TypeProxy>(new TypeProxy.EqualityComparer());
+            ThirdPartyWrappers = new ConcurrentDictionary<string, TypeProxy>();
+
+            Stopwatch watch = Stopwatch.StartNew();
+            Engine.PrintLine(EOutputVerbosity.Verbose, "Loading file wrappers.");
+            await Task.Run(() => Parallel.ForEach(AppDomainHelper.ExportedTypes, EvaluateType)).ContinueWith(t =>
+            {
+                watch.Stop();
+                Engine.PrintLine(EOutputVerbosity.Verbose, $"File wrappers loaded in {Math.Round((watch.ElapsedMilliseconds / 1000.0), 2).ToString()} seconds.");
+            });
+        }
+        private void EvaluateType(TypeProxy asmType)
+        {
+            NodeWrapperAttribute wrapper = asmType.GetCustomAttribute<NodeWrapperAttribute>();
+            if (wrapper is null)
+                return;
+
+            if (asmType.AnyBaseTypeMatches(IsValidWrapperClass, out TypeProxy match))
+            {
+                if (match == typeof(ThirdPartyFileWrapper))
+                {
+                    string ext = wrapper.ThirdPartyExtension;
+                    if (!string.IsNullOrWhiteSpace(ext))
+                        ThirdPartyWrappers[ext] = asmType;
+                }
+                else
+                {
+                    TypeProxy fileType = match.GetGenericArguments()[0];
+                    Wrappers[fileType] = asmType;
+                }
+            }
+            else
+                throw new InvalidOperationException($"{nameof(NodeWrapperAttribute)} must be an attribute on a class that inherits from {nameof(FileWrapper<IFileObject>)} or {nameof(ThirdPartyFileWrapper)}.");
+        }
+
+        private static bool IsValidWrapperClass(TypeProxy type)
+            => (type == typeof(ThirdPartyFileWrapper)) || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(FileWrapper<>));
 
         public void ReloadEditorTypes()
         {
@@ -29,11 +81,12 @@ namespace TheraEditor
             InPlaceEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>(new TypeProxy.EqualityComparer());
             FullEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>(new TypeProxy.EqualityComparer());
 
-            Engine.PrintLine("Loading all editor types to property grid in AppDomain " + AppDomain.CurrentDomain.FriendlyName);
+            Engine.PrintLine(EOutputVerbosity.Verbose, "Loading all editor types for property grid.");
+            Stopwatch watch = Stopwatch.StartNew();
             Task propEditorsTask = Task.Run(AddPropControlEditorTypes);
             Task fullEditorsTask = Task.Run(AddFullEditorTypes);
             Task.WhenAll(propEditorsTask, fullEditorsTask).ContinueWith(t =>
-                Engine.PrintLine("Finished loading all editor types to property grid in AppDomain " + AppDomain.CurrentDomain.FriendlyName));
+                Engine.PrintLine(EOutputVerbosity.Verbose, $"Finished loading all editor types for property grid in {Math.Round(watch.ElapsedMilliseconds / 1000.0, 2).ToString()} seconds."));
         }
         private void AddPropControlEditorTypes()
         {
@@ -42,7 +95,7 @@ namespace TheraEditor
                 x.IsSubclassOf(typeof(PropGridItem)),
                 Assembly.GetExecutingAssembly());
 
-            Parallel.ForEach(propControls, AddPropControlEditorType);
+            propControls.ForEachParallel(AddPropControlEditorType);
         }
         private void AddPropControlEditorType(TypeProxy propControlType)
         {
@@ -67,7 +120,7 @@ namespace TheraEditor
                 x.HasCustomAttribute<EditorForAttribute>(),
                 Assembly.GetExecutingAssembly());
 
-            Parallel.ForEach(fullEditors, AddFullEditorType);
+            fullEditors.ForEachParallel(AddFullEditorType);
         }
         private void AddFullEditorType(TypeProxy editorType)
         {
@@ -82,6 +135,7 @@ namespace TheraEditor
         }
         public override void ResetTypeCaches(bool reloadNow = true)
         {
+            ReloadNodeWrapperTypes();
             ReloadEditorTypes();
             base.ResetTypeCaches(reloadNow);
         }

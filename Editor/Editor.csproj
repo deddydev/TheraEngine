@@ -1251,6 +1251,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Wrappers\Core\NonGenericFileWrapper.cs" />
+    <Compile Include="Wrappers\GenericTextFileWrapper.cs" />
     <Compile Include="Wrappers\UserInterfaceWrapper.cs" />
     <Compile Include="Wrappers\Code\CSProjWrapper.cs" />
     <Compile Include="Wrappers\Code\SolutionWrapper.cs" />

@@ -18,6 +18,8 @@ using TheraEditor.Wrappers;
 using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -92,15 +94,16 @@ namespace TheraEditor.Windows.Forms
                     _imgList.Images.Add(nameof(Resources.LockedFolder), Resources.GenericFile);
 
                     TypeProxy fileWrapper = typeof(BaseFileWrapper);
-                    var types = AppDomainHelper.FindTypes(t => fileWrapper.IsAssignableFrom(t), Assembly.GetExecutingAssembly());
-                    foreach (Type t in types)
+                    var types = AppDomainHelper.FindTypes(t => fileWrapper.IsAssignableFrom(t));
+                    foreach (TypeProxy type in types)
                     {
-                        var wrapper = t.GetCustomAttribute<NodeWrapperAttribute>();
-                        if (wrapper != null && !string.IsNullOrWhiteSpace(wrapper.ImageName))
+                        NodeWrapperAttribute wrapper = type.GetCustomAttribute<NodeWrapperAttribute>();
+                        string imgName = wrapper?.ImageName;
+                        if (!string.IsNullOrWhiteSpace(imgName))
                         {
-                            object o = Resources.ResourceManager.GetObject(wrapper.ImageName, Resources.Culture);
-                            if (o is Bitmap bmp && !_imgList.Images.ContainsKey(wrapper.ImageName))
-                                _imgList.Images.Add(wrapper.ImageName, bmp);
+                            object resource = Resources.ResourceManager.GetObject(imgName, Resources.Culture);
+                            if (resource is Bitmap bmp && !_imgList.Images.ContainsKey(imgName))
+                                _imgList.Images.Add(imgName, bmp);
                         }
                     }
                 }
@@ -271,18 +274,22 @@ namespace TheraEditor.Windows.Forms
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        internal string GetOrAddIcon(string filePath)
+        private ConcurrentDictionary<string, string> _extHashDictionary = new ConcurrentDictionary<string, string>();
+        public string GetOrAddIcon(string filePath)
         {
-            //string ext = Path.GetExtension(filePath).Substring(1).ToLowerInvariant();
-            //Icon icon = Icon.ExtractAssociatedIcon(filePath);
+            string ext = Path.GetExtension(filePath).ToLowerInvariant();
+            if (_extHashDictionary.TryGetValue(ext, out string hashStr))
+                return hashStr;
 
             //Hash the icon image data and check for match
-            Bitmap bmp = WindowsThumbnailProvider.GetThumbnail(filePath, 24, 24, ThumbnailOptions.IconOnly); //icon.ToBitmap();
+            Bitmap bmp = WindowsThumbnailProvider.GetThumbnail(filePath, 24, 24, ThumbnailOptions.IconOnly);
             ImageConverter converter = new ImageConverter();
             byte[] rawIcon = converter.ConvertTo(bmp, typeof(byte[])) as byte[];
             MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
             byte[] hash = md5.ComputeHash(rawIcon);
-            string hashStr = hash.ToStringList("", "", x => x.ToString("X2"));
+            hashStr = hash.ToStringList("", x => x.ToString("X2"));
+
+            _extHashDictionary.TryAdd(ext, hashStr);
 
             if (!ImageList.Images.ContainsKey(hashStr))
                 ImageList.Images.Add(hashStr, bmp);
@@ -528,19 +535,19 @@ namespace TheraEditor.Windows.Forms
                             continue;
 
                         //Folder or file not found. Add it.
-                        BaseWrapper n = BaseWrapper.Wrap(currentPath);
-                        if (n == null)
+                        BaseWrapper node = BaseWrapper.Wrap(currentPath);
+                        if (node == null)
                         {
                             Engine.LogWarning($"Could not wrap path {currentPath}");
                             return null;
                         }
-                        if (!(n is FolderWrapper))
+                        if (!(node is FolderWrapper))
                         {
                             string key = GetOrAddIcon(currentPath);
-                            n.ImageKey = n.SelectedImageKey = n.StateImageKey = key;
+                            node.ImageKey = node.SelectedImageKey = node.StateImageKey = key;
                         }
-                        current.Nodes.Add(n);
-                        current = n;
+                        current.Nodes.Add(node);
+                        current = node;
                     }
                 }
             }

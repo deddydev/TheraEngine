@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Extensions
 {
@@ -85,6 +89,50 @@ namespace Extensions
                 list[i] = factory(i);
 
             return list;
+        }
+        public static void ForEachParallelIList<T>(this IList<T> array, Action<T, ParallelLoopState> action)
+            => ForEachParallelIList(array, action, CancellationToken.None);
+        public static void ForEachParallelIList<T>(this IList<T> array, Action<T, ParallelLoopState> action, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (array != null && action != null)
+                {
+                    OrderablePartitioner<T> rangePartitioner = Partitioner.Create(array, true);
+                    ParallelOptions options = new ParallelOptions
+                    {
+                        MaxDegreeOfParallelism = Environment.ProcessorCount,
+                        CancellationToken = cancellationToken,
+                    };
+                    Parallel.ForEach(rangePartitioner, options, action);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+        }
+        public static void ForEachParallelIList<T>(this IList<T> array, Action<T> action)
+            => ForEachParallelIList(array, action, CancellationToken.None);
+        public static void ForEachParallelIList<T>(this IList<T> array, Action<T> action, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (array != null && action != null)
+                {
+                    OrderablePartitioner<T> rangePartitioner = Partitioner.Create(array, true);
+                    ParallelOptions options = new ParallelOptions
+                    {
+                        MaxDegreeOfParallelism = Environment.ProcessorCount,
+                        CancellationToken = cancellationToken,
+                    };
+                    Parallel.ForEach(rangePartitioner, options, action);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
         }
     }
 }

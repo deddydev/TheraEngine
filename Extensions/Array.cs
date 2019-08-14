@@ -34,12 +34,29 @@ namespace Extensions
         public static string ToStringList<T>(this IList<T> a, string separator, Func<T, string> elementToString)
         {
             StringBuilder builder = new StringBuilder();
+
             for (int i = 0; i < a.Count; ++i)
                 builder.Append(elementToString(a[i]) + separator);
 
             int sepLen = separator.Length;
             if (builder.Length >= sepLen)
                 builder.Remove(builder.Length - sepLen, sepLen);
+
+            return builder.ToString();
+        }
+        /// <summary>
+        /// Converts the elements of an array into a well-formatted list.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the array.</typeparam>
+        /// <param name="a">The array to format into a list.</param>
+        /// <param name="elementToString">The method for converting individual array elements to strings.</param>
+        /// <returns>A list of the elements in the array as a string.</returns>
+        public static string ToStringList<T>(this IList<T> a, Func<T, string> elementToString)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            for (int i = 0; i < a.Count; ++i)
+                builder.Append(elementToString(a[i]));
 
             return builder.ToString();
         }
@@ -57,6 +74,7 @@ namespace Extensions
             int countMin2 = a.Count - 2;
 
             StringBuilder builder = new StringBuilder();
+
             string sep = separator;
             for (int i = 0; i < countMin2; ++i)
                 builder.Append(elementToString(a[i]) + sep);
@@ -81,6 +99,7 @@ namespace Extensions
         public static string ToStringList<T>(this IList<T> a, string separator, Func<T, int, string> elementToString)
         {
             StringBuilder builder = new StringBuilder();
+
             for (int i = 0; i < a.Count; ++i)
                 builder.Append(elementToString(a[i], i) + separator);
 
@@ -103,6 +122,7 @@ namespace Extensions
             int countMin2 = a.Count - 2;
 
             StringBuilder builder = new StringBuilder();
+
             string sep = separator;
             for (int i = 0; i < a.Count; ++i)
                 builder.Append(elementToString(a[i], i) + sep);
@@ -147,6 +167,7 @@ namespace Extensions
         public static string ToStringListGeneric(this IList a, string separator, Func<object, string> elementToString)
         {
             StringBuilder builder = new StringBuilder();
+
             for (int i = 0; i < a.Count; ++i)
                 builder.Append(elementToString(a[i]) + separator);
 
@@ -170,6 +191,7 @@ namespace Extensions
             int countMin2 = a.Count - 2;
 
             StringBuilder builder = new StringBuilder();
+
             string sep = separator;
             for (int i = 0; i < countMin2; ++i)
                 builder.Append(elementToString(a[i]) + sep);
@@ -194,6 +216,7 @@ namespace Extensions
         public static string ToStringListGeneric(this IList a, string separator, Func<object, int, string> elementToString)
         {
             StringBuilder builder = new StringBuilder();
+
             for (int i = 0; i < a.Count; ++i)
                 builder.Append(elementToString(a[i], i) + separator);
 
@@ -216,6 +239,7 @@ namespace Extensions
             int countMin2 = a.Count - 2;
 
             StringBuilder builder = new StringBuilder();
+
             string sep = separator;
             for (int i = 0; i < a.Count; ++i)
                 builder.Append(elementToString(a[i], i) + sep);
@@ -352,9 +376,9 @@ namespace Extensions
                 Debug.WriteLine(ex.ToString());
             }
         }
-        public static void ForEachParallel<T>(this T[] array, Action<T, ParallelLoopState> action)
-            => ForEachParallel(array, action, CancellationToken.None);
-        public static void ForEachParallel<T>(this T[] array, Action<T, ParallelLoopState> action, CancellationToken cancellationToken)
+        public static void ForEachParallelArray<T>(this T[] array, Action<T, ParallelLoopState> action)
+            => ForEachParallelArray(array, action, CancellationToken.None);
+        public static void ForEachParallelArray<T>(this T[] array, Action<T, ParallelLoopState> action, CancellationToken cancellationToken)
         {
             try
             {
@@ -374,9 +398,9 @@ namespace Extensions
                 Debug.WriteLine(ex.ToString());
             }
         }
-        public static void ForEachParallel<T>(this T[] array, Action<T> action)
-            => ForEachParallel(array, action, CancellationToken.None);
-        public static void ForEachParallel<T>(this T[] array, Action<T> action, CancellationToken cancellationToken)
+        public static void ForEachParallelArray<T>(this T[] array, Action<T> action)
+            => ForEachParallelArray(array, action, CancellationToken.None);
+        public static void ForEachParallelArray<T>(this T[] array, Action<T> action, CancellationToken cancellationToken)
         {
             try
             {

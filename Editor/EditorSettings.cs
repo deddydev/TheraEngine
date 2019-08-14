@@ -79,7 +79,7 @@ namespace TheraEditor
         }
         [Category("Installation")]
         [TSerialize]
-        public EOverwrite OverwriteCurrentInstall { get; internal set; } = EOverwrite.Ask;
+        public EOverwrite OverwriteCurrentInstall { get; set; } = EOverwrite.Ask;
         
         [Serializable]
         [TFileDef("Property Grid Settings")]

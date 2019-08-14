@@ -8,7 +8,7 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace TheraEditor.Wrappers
 {
     [NodeWrapper(nameof(Resources.CSharpScript))]
-    public class CSharpWrapper : FileWrapper<CSharpScript>
+    public class CSharpWrapper : GenericTextFileWrapper<CSharpScript>
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -31,11 +31,6 @@ namespace TheraEditor.Wrappers
         public CSharpWrapper() : base() { }
 
         public override void EditResource()
-        {
-            DockableTextEditor.ShowNew(
-                Editor.Instance.DockPanel,
-                DockState.Document, 
-                Resource);
-        }
+            => DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, Resource);
     }
 }

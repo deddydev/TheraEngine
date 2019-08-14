@@ -66,7 +66,18 @@ namespace TheraEngine.Core.Files
         public FileLoader(string dir, string name, EProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
         #endregion
         
-        public TypeProxy SubType { get; set; } = null;
+        [Browsable(false)]
+        public TypeProxy SubType
+        {
+            get => _subType;
+            set
+            {
+                if (!(value is null) && value.IsAssignableTo(typeof(T)))
+                    _subType = value;
+            }
+        }
+        private TypeProxy _subType = null;
+
         protected bool _updating;
         private PathReference _path;
 

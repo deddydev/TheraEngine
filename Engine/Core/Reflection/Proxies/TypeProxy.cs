@@ -17,7 +17,7 @@ namespace TheraEngine.Core.Reflection
     /// Remotable interface for accessing information of a type.
     /// </summary>
     //[Serializable]
-    public sealed class TypeProxy : MemberInfoProxy
+    public sealed class TypeProxy : MemberInfoProxy, IEquatable<TypeProxy>
     {
         public static ConcurrentDictionary<Type, TypeProxy> Proxies { get; }
             = new ConcurrentDictionary<Type, TypeProxy>();
@@ -82,7 +82,7 @@ namespace TheraEngine.Core.Reflection
             return null;
         }
 
-        public bool HasFlagsAttribute() => GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
+        public bool HasFlagsAttribute() => !(GetCustomAttribute<FlagsAttribute>(false) is null);
         
         public void GetGenericParameterConstraints(out EGenericVarianceFlag gvf, out ETypeConstraintFlag tcf)
         {
@@ -274,7 +274,7 @@ namespace TheraEngine.Core.Reflection
         //     otherwise, false.
         public bool IsAutoLayout => Value.IsAutoLayout;
 
-        public bool HasCustomAttribute<T>() where T : Attribute => GetCustomAttribute<T>() != null;
+        public bool HasCustomAttribute<T>() where T : Attribute => !(GetCustomAttribute<T>() is null);
         //
         // Summary:
         //     Retrieves a collection of custom attributes of a specified type that are applied
@@ -1555,7 +1555,7 @@ namespace TheraEngine.Core.Reflection
         //     true if the underlying system type of o is the same as the underlying system
         //     type of the current System.Type; otherwise, false.
         public bool Equals(TypeProxy o)
-            => Value.Equals(o);
+            => o == this;
         //
         // Summary:
         //     Determines if the underlying system type of the current System.Type is the same
@@ -2190,7 +2190,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     The hash code for this instance.
         public override int GetHashCode()
-            => Value.GetHashCode();
+            => AssemblyQualifiedName.GetHashCode();
         //
         // Summary:
         //     When overridden in a derived class, searches for the specified interface, specifying
@@ -3935,7 +3935,8 @@ namespace TheraEngine.Core.Reflection
         //     true if left is equal to right; otherwise, false.
         [SecuritySafeCritical]
         public static bool operator ==(TypeProxy left, TypeProxy right)
-            => left is null ? right is null : left.EqualTo(right);
+            => left is null ? right is null : !(right is null) &&
+            string.Equals(left.AssemblyQualifiedName, right.AssemblyQualifiedName, StringComparison.InvariantCulture);
         //
         // Summary:
         //     Indicates whether two System.Type objects are not equal.
@@ -3951,7 +3952,8 @@ namespace TheraEngine.Core.Reflection
         //     true if left is not equal to right; otherwise, false.
         [SecuritySafeCritical]
         public static bool operator !=(TypeProxy left, TypeProxy right)
-            => left is null ? !(right is null) : !left.EqualTo(right);
+            => left is null ? !(right is null) : right is null ||
+            !string.Equals(left.AssemblyQualifiedName, right.AssemblyQualifiedName, StringComparison.InvariantCulture);
 
         //
         // Summary:
@@ -4018,7 +4020,37 @@ namespace TheraEngine.Core.Reflection
         //public static bool operator !=(Type left, TypeProxy right)
         //    => left != right?.Value;
 
+        public bool AnyBaseTypeMatches(Predicate<TypeProxy> match)
+        {
+            TypeProxy temp = this;
+            while (!(temp is null) && temp.BaseType != temp)
+            {
+                if (match(temp))
+                    return true;
+
+                temp = temp.BaseType;
+            }
+            return false;
+        }
+        public bool AnyBaseTypeMatches(Predicate<TypeProxy> match, out TypeProxy matchingType)
+        {
+            TypeProxy temp = this;
+            while (!(temp is null) && temp.BaseType != temp)
+            {
+                if (match(temp))
+                {
+                    matchingType = temp;
+                    return true;
+                }
+
+                temp = temp.BaseType;
+            }
+            matchingType = null;
+            return false;
+        }
+
         public override string ToString() => "[" + Domain.FriendlyName + "] " + Value.FullName;
+
         [Serializable]
         public class EqualityComparer : IEqualityComparer<TypeProxy>
         {

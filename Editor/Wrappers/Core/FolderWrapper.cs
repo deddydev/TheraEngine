@@ -248,12 +248,9 @@ namespace TheraEditor.Wrappers
                             continue;
 
                         ResourceTree tree = GetTree();
-                        //Task.Run(() => 
-                        //{
-                            string key = tree.GetOrAddIcon(file);
-                            node.ImageKey = node.SelectedImageKey = node.StateImageKey = key;
-                        //})/*.ContinueWith(t => Nodes.Add(node))*/;
-                       
+                        string key = tree.GetOrAddIcon(file);
+                        node.ImageKey = node.SelectedImageKey = node.StateImageKey = key;
+                                               
                         Nodes.Add(node);
                     }
                 }

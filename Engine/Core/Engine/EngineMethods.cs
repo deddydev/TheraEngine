@@ -28,6 +28,13 @@ using System.Collections.Concurrent;
 
 namespace TheraEngine
 {
+    public enum EOutputVerbosity
+    {
+        None,
+        Minimal,
+        Normal,
+        Verbose,
+    }
     public static partial class Engine
     {
         public static float CurrentFramesPerSecond => Timer.RenderFrequency;
@@ -505,24 +512,47 @@ namespace TheraEngine
         public static bool DesignMode 
             => Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) >= 0;
 
+        public static ConcurrentDictionary<string, DateTime> RecentMessageCache = new ConcurrentDictionary<string, DateTime>();
+
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
         public static void PrintLine(string message, params object[] args)
-        {
-            if (args.Length != 0)
-                message = string.Format(message, args);
-            PrintLine_Internal(message, EOutputVerbosity.Normal, false);
-        }
-
-        public static ConcurrentDictionary<string, DateTime> RecentMessages = new ConcurrentDictionary<string, DateTime>();
-
-        private static void PrintLine_Internal(string message, EOutputVerbosity verbosity, bool printDate)
+            => PrintLine(EOutputVerbosity.Normal, message, args);
+        /// <summary>
+        /// Prints a message for debugging purposes.
+        /// </summary>
+        public static void PrintLine(EOutputVerbosity verbosity, string message, params object[] args)
+            => PrintLine(verbosity, true, message, args);
+        /// <summary>
+        /// Prints a message for debugging purposes.
+        /// </summary>
+        public static void PrintLine(EOutputVerbosity verbosity, bool debugOnly, string message, params object[] args)
+            => PrintLine(verbosity, debugOnly, false, false, false, 0, 0, message, args);
+        /// <summary>
+        /// Prints a message for debugging purposes.
+        /// </summary>
+        public static void PrintLine(
+            EOutputVerbosity verbosity,
+            bool debugOnly,
+            bool printDate,
+            bool printAppDomain,
+            bool printStackTrace,
+            int stackTraceIgnoredLineCount,
+            int stackTraceIncludedLineCount,
+            string message,
+            params object[] args)
         {
 #if DEBUG || EDITOR
 
             if (verbosity > Settings.OutputVerbosity)
                 return;
+
+            if (args.Length > 0)
+                message = string.Format(message, args);
+
+            if (printStackTrace)
+                message += Environment.NewLine + GetStackTrace(stackTraceIgnoredLineCount, stackTraceIncludedLineCount);
 
             DateTime now = DateTime.Now;
 
@@ -530,15 +560,15 @@ namespace TheraEngine
             if (recentness > 0.0)
             {
                 List<string> removeKeys = new List<string>();
-                RecentMessages.ForEach(x =>
+                RecentMessageCache.ForEach(x =>
                 {
                     TimeSpan span = now - x.Value;
                     if (span.TotalSeconds >= recentness)
                         removeKeys.Add(x.Key);
                 });
-                removeKeys.ForEach(x => RecentMessages.TryRemove(x, out _));
+                removeKeys.ForEach(x => RecentMessageCache.TryRemove(x, out _));
 
-                if (RecentMessages.ContainsKey(message))
+                if (RecentMessageCache.ContainsKey(message))
                 {
                     //Messages already cleaned above, just return here
 
@@ -547,10 +577,10 @@ namespace TheraEngine
                     return;
                 }
                 else
-                    RecentMessages.TryAdd(message, now);
+                    RecentMessageCache.TryAdd(message, now);
             }
 
-            bool printDomain = Settings.PrintAppDomainInOutput;
+            bool printDomain = printAppDomain || Settings.PrintAppDomainInOutput;
 
             if (printDate && printDomain)
                 message = $"[{AppDomain.CurrentDomain.FriendlyName} {now}] " + message;
@@ -558,34 +588,24 @@ namespace TheraEngine
                 message = $"[{AppDomain.CurrentDomain.FriendlyName}] " + message;
             else if (printDate)
                 message = $"[{now}] " + message;
-            
-            Debug.Print(message);
+
+            if (debugOnly)
+                Debug.Print(message);
+            else
+                Trace.WriteLine(message);
 #endif
-        }
-        public enum EOutputVerbosity
-        {
-            None,
-            Minimal,
-            Normal,
-            Verbose,
         }
 
         public static void LogException(Exception ex)
         {
 #if DEBUG || EDITOR
-            PrintLine_Internal(ex.ToString(), EOutputVerbosity.Verbose, true);
+            PrintLine(EOutputVerbosity.Verbose, false, ex.ToString());
 #endif
         }
         public static void LogWarning(string message, int lineIgnoreCount = 0, int includedLineCount = 1)
         {
 #if DEBUG || EDITOR
-            //Format and print message
-            message = message ?? string.Empty;
-            //if (args != null && args.Length > 0)
-            //    message = string.Format(message, args);
-
-            message += Environment.NewLine + GetStackTrace(4 + lineIgnoreCount, includedLineCount);
-            PrintLine_Internal(message, EOutputVerbosity.Verbose, true);
+            PrintLine(EOutputVerbosity.Verbose, true, false, false, true, 4 + lineIgnoreCount, includedLineCount, message);
 #endif
         }
 

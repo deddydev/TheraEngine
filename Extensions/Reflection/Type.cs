@@ -178,5 +178,33 @@ namespace Extensions
             }
             return members.ToArray();
         }
+        public static bool AnyBaseTypeMatches(this Type type, Predicate<Type> match)
+        {
+            Type temp = type;
+            while (!(temp is null) && temp.BaseType != temp)
+            {
+                if (match(temp))
+                    return true;
+                
+                temp = temp.BaseType;
+            }
+            return false;
+        }
+        public static bool AnyBaseTypeMatches(this Type type, Predicate<Type> match, out Type matchingType)
+        {
+            Type temp = type;
+            while (!(temp is null) && temp.BaseType != temp)
+            {
+                if (match(temp))
+                {
+                    matchingType = temp;
+                    return true;
+                }
+
+                temp = temp.BaseType;
+            }
+            matchingType = null;
+            return false;
+        }
     }
 }

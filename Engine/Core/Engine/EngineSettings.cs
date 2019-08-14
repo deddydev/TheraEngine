@@ -264,7 +264,7 @@ namespace TheraEngine
         [Description("How specific the debug output will be.")]
         [Category("Debug")]
         [TSerialize]
-        public Engine.EOutputVerbosity OutputVerbosity { get; set; }
+        public EOutputVerbosity OutputVerbosity { get; set; }
 
         public EngineSettings()
         {
@@ -273,7 +273,7 @@ namespace TheraEngine
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;
             PrintAppDomainInOutput = true;
-            OutputVerbosity = Engine.EOutputVerbosity.Verbose;
+            OutputVerbosity = EOutputVerbosity.Verbose;
             AllowedOutputRecentnessSeconds = 2.0;
 
             CapFPS = false;

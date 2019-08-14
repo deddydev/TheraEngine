@@ -81,6 +81,8 @@ namespace TheraEditor.Windows.Forms
             //toolStripProgressBar1.ProgressBar.Value = TargetOperationValue;
         }
         private int TargetOperationValue { get; set; }
+        public static EngineDomainProxyEditor DomainProxy => (EngineDomainProxyEditor)Engine.DomainProxy;
+
         private void TickOperationProgressBar(object sender, FrameEventArgs args)
         {
             int progress = (int)Math.Round(Interp.Lerp(toolStripProgressBar1.ProgressBar.Value, TargetOperationValue, args.Time));

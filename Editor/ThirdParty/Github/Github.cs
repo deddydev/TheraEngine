@@ -202,7 +202,7 @@ namespace TheraEditor
         private static bool CheckGithubConnection(out GitHubClient client)
         {
             //Check to see if the user is online and that github is up and running.
-            Engine.PrintLine("Checking connection to Github...");
+            Engine.PrintLine(EOutputVerbosity.Verbose, "Checking connection to Github...");
             try
             {
                 using (Ping s = new Ping())
@@ -210,7 +210,7 @@ namespace TheraEditor
                     PingReply reply = s.Send(GithubUrl);
                     if (reply.Status != IPStatus.Success)
                     {
-                        Engine.LogWarning($"Could not connect to {GithubUrl}: {reply.Status}");
+                        Engine.PrintLine(EOutputVerbosity.Verbose, $"Could not connect to {GithubUrl}: {reply.Status}");
                         client = null;
                         return false;
                     }
@@ -218,13 +218,13 @@ namespace TheraEditor
             }
             catch (Exception ex)
             {
-                Engine.PrintLine("Unable to connect.");
+                Engine.PrintLine(EOutputVerbosity.Verbose, "Unable to connect.");
                 Engine.LogException(ex);
                 client = null;
                 return false;
             }
 
-            Engine.PrintLine("Connected successfully.");
+            Engine.PrintLine(EOutputVerbosity.Verbose, "Connected successfully.");
             client = new GitHubClient(new ProductHeaderValue(RepoName))
             {
                 Credentials = GetBotCredentials()
@@ -244,7 +244,7 @@ namespace TheraEditor
                 IReadOnlyList<Release> releases = await client.Repository.Release.GetAll(RepoOwner, RepoName);
                 if (releases == null || releases.Count == 0)
                 {
-                    Engine.PrintLine("No updates found.");
+                    Engine.PrintLine($"No updates found for {name.Name}.");
                     return (false, null);
                 }
 
@@ -287,14 +287,14 @@ namespace TheraEditor
 
                 if (newestRelease == null)
                 {
-                    Engine.PrintLine("No updates found.");
+                    Engine.PrintLine($"No updates found for {name.Name}.");
                     return (false, null);
                 }
 
                 int comp = releaseVer.CompareTo(ver);
                 if (comp <= 0)
                 {
-                    Engine.PrintLine("You are running the most recent version.");
+                    Engine.PrintLine($"You are running the most recent version of {name.Name}.");
                     return (false, newestRelease);
                 }
 

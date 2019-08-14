@@ -33,6 +33,8 @@ namespace TheraEditor.Windows.Forms
             Sln = slnTask.Result;
             cboConfiguration.Items.Clear();
             cboConfiguration.Items.AddRange(Sln.Configurations);
+            if (cboConfiguration.Items.Count > 0)
+                cboConfiguration.SelectedIndex = 0;
             CheckVersions();
         }
 
@@ -82,6 +84,12 @@ namespace TheraEditor.Windows.Forms
                 spltcReleaseNotes.Visible = true;
                 spltcReleaseNotes.Panel1Collapsed = !chkEngine.Checked;
             }
+        }
+
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
 
         private async void BtnPost_Click(object sender, EventArgs e)

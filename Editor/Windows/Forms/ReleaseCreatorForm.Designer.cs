@@ -337,6 +337,7 @@
             this.btnCancel.TabIndex = 1;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = false;
+            this.btnCancel.Click += BtnCancel_Click;
             // 
             // btnPost
             // 

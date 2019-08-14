@@ -31,8 +31,6 @@ namespace TheraEditor.Wrappers
         public PythonWrapper() : base() { }
 
         public override void EditResource()
-        {
-            DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, Resource);
-        }
+            => DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, Resource);
     }
 }

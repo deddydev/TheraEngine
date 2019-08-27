@@ -479,10 +479,10 @@ namespace TheraEditor
                 }
             }
 
-            (XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project) = await ReadCSProj();
+            MSBuild.Project project = await ReadCSProj();
 
             PrintLine("Iterating through referenced assemblies.");
-            ItemGroup[] itemGroups = Project.GetChildren<ItemGroup>();
+            ItemGroup[] itemGroups = project.GetChildren<ItemGroup>();
             foreach (ItemGroup itemGroup in itemGroups)
             {
                 Item[] items = itemGroup.GetChildren<Item>();
@@ -690,9 +690,9 @@ namespace TheraEditor
                 beforeBuild,
                 afterBuild);
 
-            XMLSchemeDefinition<MSBuild.Project> csProjExporter = new XMLSchemeDefinition<MSBuild.Project>();
-            op = Editor.Instance.BeginOperation($"Writing csproj... {csprojPath}", "Done writing csproj.", out Progress<float> progress, out CancellationTokenSource cancel);
-            await csProjExporter.ExportAsync(csprojPath, exportProj, progress, cancel.Token);
+            op = Editor.Instance.BeginOperation($"Writing csproj... {csprojPath}", "Done writing csproj.", 
+                out Progress<float> progress, out CancellationTokenSource cancel);
+            await XMLSchemaDefinition<MSBuild.Project>.ExportAsync(csprojPath, exportProj, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
 
             #endregion
@@ -848,30 +848,29 @@ namespace TheraEditor
                 CompileCompleted?.Invoke(this, success);
             }
         }
-        public async Task<(XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project)> ReadCSProj()
+        public async Task<MSBuild.Project> ReadCSProj()
         {
             string csprojPath = ResolveCSProjPath();
-            XMLSchemeDefinition<MSBuild.Project> csprojDef = new XMLSchemeDefinition<MSBuild.Project>();
             int op = Editor.Instance.BeginOperation($"Reading csproj... {csprojPath}", "Done reading csproj.",
                 out Progress<float> progress, out CancellationTokenSource cancel);
-            MSBuild.Project csproj = await csprojDef.ImportAsync(csprojPath, 0, progress, cancel.Token);
+            MSBuild.Project csproj = await XMLSchemaDefinition<MSBuild.Project>.ImportAsync(csprojPath, 0, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
-            return (csprojDef, csproj);
+            return csproj;
         }
-        public async Task WriteCSProj(XMLSchemeDefinition<MSBuild.Project> definition, MSBuild.Project project)
+        public async Task WriteCSProj(MSBuild.Project project)
         {
             string csprojPath = ResolveCSProjPath();
             int op = Editor.Instance.BeginOperation($"Writing csproj... {csprojPath}", "Done writing csproj.",
                 out Progress<float> progress, out CancellationTokenSource cancel);
-            await definition.ExportAsync(csprojPath, project, progress, cancel.Token);
+            await XMLSchemaDefinition<MSBuild.Project>.ExportAsync(csprojPath, project, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
         }
         private async Task UpdateEngineLibReferenceAsync()
         {
-            (XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project) = await ReadCSProj();
+            MSBuild.Project project = await ReadCSProj();
 
             PrintLine("Updating engine library reference in csproj.");
-            ItemGroup[] itemGroups = Project.GetChildren<ItemGroup>();
+            ItemGroup[] itemGroups = project.GetChildren<ItemGroup>();
             bool updated = false;
             ItemGroup refItemGrp = null;
             foreach (ItemGroup itemGroup in itemGroups)
@@ -907,7 +906,7 @@ namespace TheraEditor
             }
             PrintLine("Done updating engine library reference in csproj.");
 
-            await WriteCSProj(Definition, Project);
+            await WriteCSProj(project);
         }
         private void UpdateEngineRefPathItem(Item item)
         {
@@ -925,10 +924,10 @@ namespace TheraEditor
         }
         
         //[TPostDeserialize(arguments: false)]
-        internal void CreateGameDomain(bool compiling = false, Action onComplete = null)
+        internal async void CreateGameDomain(bool compiling = false, Action onComplete = null)
         {
-            Task.Run(async () =>
-            {
+            //Task.Run(async () =>
+            //{
                 string buildPlatform = IntPtr.Size == 8 ? "x64" : "x86";
                 string buildConfiguration = "Debug";
 
@@ -940,10 +939,10 @@ namespace TheraEditor
                 }
 
                 Editor.Instance.CreateGameDomain(this, rootDir, AssemblyPaths);
-            }).ContinueWith(t =>
-            {
+            //}).ContinueWith(t =>
+            //{
                 onComplete?.Invoke();
-            });
+            //});
         }
 
         public void CollectFiles(

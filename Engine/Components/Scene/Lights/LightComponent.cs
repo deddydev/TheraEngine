@@ -91,7 +91,9 @@ namespace TheraEngine.Components.Scene.Lights
         public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true)
         {
             VisibleInIBLCapture = false,
+#if EDITOR
             EditorVisibilityMode = EEditorVisibility.VisibleAlways
+#endif
         };
 
         internal void SetShadowUniforms(RenderProgram program)

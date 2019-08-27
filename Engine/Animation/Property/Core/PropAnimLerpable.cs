@@ -174,7 +174,7 @@ namespace TheraEngine.Animation
         
         public TValue GetValueKeyframed(float second)
         {
-            if (_keyframes.Count == 0)
+            if (Keyframes.Count == 0)
                 return DefaultValue;
 
             if (ConstrainKeyframedFPS)
@@ -190,7 +190,7 @@ namespace TheraEngine.Animation
                 second = floorSec;
             }
 
-            return _keyframes.First.Interpolate(second);
+            return Keyframes.First.Interpolate(second);
         }
         [Category(AnimCategory)]
         public override float CurrentTime
@@ -217,7 +217,7 @@ namespace TheraEngine.Animation
 
             if (_prevKeyframe == null)
                 _prevKeyframe = Keyframes.First;
-            if (_keyframes.Count == 0)
+            if (Keyframes.Count == 0)
             {
                 CurrentPosition = DefaultValue;
                 return;
@@ -264,7 +264,7 @@ namespace TheraEngine.Animation
         }
         private TValue LerpKeyedValues(float floorSec, float ceilSec, float time)
         {
-            TValue floorValue = _keyframes.First.Interpolate(floorSec,
+            TValue floorValue = Keyframes.First.Interpolate(floorSec,
                 out LerpableKeyframe<TValue> prevKey, out LerpableKeyframe<TValue> nextKey, out float normalizedTime);
             TValue ceilValue = prevKey.Interpolate(ceilSec);
             return LerpValues(floorValue, ceilValue, time);

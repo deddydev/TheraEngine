@@ -9,10 +9,10 @@ namespace TheraEngine.Animation
     [TFileDef("Keyframed Property Animation")]
     public abstract class BasePropAnimKeyframed : BasePropAnimBakeable
     {
-        public BasePropAnimKeyframed(float lengthInSeconds, bool looped, bool isBaked = false)
-            : base(lengthInSeconds, looped, isBaked) { }
-        public BasePropAnimKeyframed(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
-            : base(frameCount, framesPerSecond, looped, isBaked) { }
+        public BasePropAnimKeyframed(float lengthInSeconds, bool looped, bool useKeyframes = false)
+            : base(lengthInSeconds, looped, useKeyframes) { }
+        public BasePropAnimKeyframed(int frameCount, float framesPerSecond, bool looped, bool useKeyframes = false)
+            : base(frameCount, framesPerSecond, looped, useKeyframes) { }
         
         protected abstract BaseKeyframeTrack InternalKeyframes { get; }
 
@@ -38,19 +38,19 @@ namespace TheraEngine.Animation
         protected void OnBakedFrameCountChanged() => BakedFrameCountChanged?.Invoke(this);
         protected void OnBakedChanged() => IsBakedChanged?.Invoke(this);
         
-        public BasePropAnimBakeable(float lengthInSeconds, bool looped, bool isBaked = false)
+        public BasePropAnimBakeable(float lengthInSeconds, bool looped, bool useKeyframes = true)
             : base(lengthInSeconds, looped)
         {
             _bakedFPS = 60.0f;
             SetBakedFrameCount();
-            IsBaked = isBaked;
+            IsBaked = !useKeyframes;
         }
-        public BasePropAnimBakeable(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
+        public BasePropAnimBakeable(int frameCount, float framesPerSecond, bool looped, bool useKeyframes = true)
             : base(framesPerSecond <= 0.0f ? 0.0f : frameCount / framesPerSecond, looped)
         {
             _bakedFrameCount = frameCount;
             _bakedFPS = framesPerSecond.ClampMin(0.0f);
-            IsBaked = isBaked;
+            IsBaked = !useKeyframes;
         }
 
         [TSerialize("BakedFrameCount", Order = 1)]

@@ -195,22 +195,15 @@ namespace TheraEditor.Wrappers
 
         public static TypeProxy ResolveEditorType(TypeProxy fileType)
         {
+            if (fileType is null)
+                return null;
+
             EngineDomainProxyEditor proxy = Engine.DomainProxy as EngineDomainProxyEditor;
             var editorTypes = proxy.FullEditorTypes;
-            TypeProxy objType = typeof(object);
 
-            while (!(fileType is null) && fileType != objType)
-            {
-                if (editorTypes.ContainsKey(fileType))
-                    return editorTypes[fileType];
-                
-                TypeProxy[] interfaces = fileType.GetInterfaces();
-                foreach (TypeProxy intfType in interfaces)
-                    if (editorTypes.ContainsKey(intfType))
-                        return editorTypes[intfType];
-
-                fileType = fileType.BaseType;
-            }
+            if (TypeProxy.AnyBaseTypeMatches(fileType, type => editorTypes.ContainsKey(type), out TypeProxy match, true))
+                return editorTypes[match];
+            
             return null;
         }
         public virtual async void EditResourceRaw()
@@ -224,7 +217,7 @@ namespace TheraEditor.Wrappers
         {
 
         }
-        protected internal override void OnCollapse()
+        internal protected override void OnCollapse()
         {
 
         }

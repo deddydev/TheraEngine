@@ -6,7 +6,7 @@ using TheraEngine.Actors;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(nameof(Resources.GenericFile))]
+    [NodeWrapper]
     public class ActorWrapper : FileWrapper<BaseActor>
     {
         #region Menu

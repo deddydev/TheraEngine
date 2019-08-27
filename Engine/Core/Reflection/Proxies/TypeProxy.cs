@@ -2190,7 +2190,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     The hash code for this instance.
         public override int GetHashCode()
-            => AssemblyQualifiedName.GetHashCode();
+            => Value.GetHashCode();
         //
         // Summary:
         //     When overridden in a derived class, searches for the specified interface, specifying
@@ -4020,30 +4020,85 @@ namespace TheraEngine.Core.Reflection
         //public static bool operator !=(Type left, TypeProxy right)
         //    => left != right?.Value;
 
-        public bool AnyBaseTypeMatches(Predicate<TypeProxy> match)
+        public bool AnyBaseTypeMatches(Predicate<TypeProxy> match, bool includeInterfaces = false)
         {
-            TypeProxy temp = this;
-            while (!(temp is null) && temp.BaseType != temp)
+            TypeProxy type = this;
+            while (!(type is null))
             {
-                if (match(temp))
+                if (match(type))
                     return true;
 
-                temp = temp.BaseType;
+                if (includeInterfaces)
+                {
+                    TypeProxy[] interfaces = type.GetInterfaces();
+                    foreach (TypeProxy intfType in interfaces)
+                        if (match(intfType))
+                            return true;
+                }
+
+                if (type.BaseType == type)
+                    break;
+
+                type = type.BaseType;
             }
             return false;
         }
-        public bool AnyBaseTypeMatches(Predicate<TypeProxy> match, out TypeProxy matchingType)
+        public bool AnyBaseTypeMatches(Predicate<TypeProxy> match, out TypeProxy matchingType, bool includeInterfaces = false)
         {
-            TypeProxy temp = this;
-            while (!(temp is null) && temp.BaseType != temp)
+            TypeProxy type = this;
+            while (!(type is null))
             {
-                if (match(temp))
+                if (match(type))
                 {
-                    matchingType = temp;
+                    matchingType = type;
                     return true;
                 }
 
-                temp = temp.BaseType;
+                if (includeInterfaces)
+                {
+                    TypeProxy[] interfaces = type.GetInterfaces();
+                    foreach (TypeProxy intfType in interfaces)
+                        if (match(intfType))
+                        {
+                            matchingType = intfType;
+                            return true;
+                        }
+                }
+
+                if (type.BaseType == type)
+                    break;
+
+                type = type.BaseType;
+            }
+            matchingType = null;
+            return false;
+        }
+        public static bool AnyBaseTypeMatches(TypeProxy targetType, Predicate<TypeProxy> match, out TypeProxy matchingType, bool includeInterfaces = false)
+        {
+            TypeProxy type = targetType;
+            while (!(type is null))
+            {
+                if (match(type))
+                {
+                    matchingType = type;
+                    return true;
+                }
+
+                if (includeInterfaces)
+                {
+                    TypeProxy[] interfaces = type.GetInterfaces();
+                    foreach (TypeProxy intfType in interfaces)
+                        if (match(intfType))
+                        {
+                            matchingType = intfType;
+                            return true;
+                        }
+                }
+
+                if (type.BaseType == type)
+                    break;
+
+                type = type.BaseType;
             }
             matchingType = null;
             return false;
@@ -4056,11 +4111,11 @@ namespace TheraEngine.Core.Reflection
         {
             public bool Equals(TypeProxy x, TypeProxy y)
             {
-                return string.Equals(x.AssemblyQualifiedName, y.AssemblyQualifiedName, StringComparison.InvariantCulture);
+                return x.GetHashCode() == y.GetHashCode();
             }
             public int GetHashCode(TypeProxy x)
             {
-                return x.AssemblyQualifiedName.GetHashCode();
+                return x.GetHashCode();
             }
         }
     }

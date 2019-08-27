@@ -64,8 +64,6 @@ namespace TheraEditor.Windows.Forms
 
         public Editor() : base()
         {
-            Engine.PrintLine($"Constructing editor instance.");
-
             InitializeComponent();
 
 #if !DEBUG
@@ -141,7 +139,7 @@ namespace TheraEditor.Windows.Forms
         public DockableWorldRenderForm GetRenderForm(int i)
         {
             DockableWorldRenderForm form = _renderForms[i];
-            if (form == null || form.IsDisposed)
+            if (form is null || form.IsDisposed)
             {
                 Engine.PrintLine("Created viewport " + (i + 1).ToString());
                 form = _renderForms[i] = new DockableWorldRenderForm(ELocalPlayerIndex.One, i);
@@ -366,7 +364,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
-            Project = null;
+            Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null);
 
             EditorSettings defaultSettings = await DefaultSettingsRef.GetInstanceAsync();
             List<string> recentFiles = defaultSettings?.RecentlyOpenedProjectPaths;

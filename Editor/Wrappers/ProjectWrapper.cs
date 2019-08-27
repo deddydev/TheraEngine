@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
 
 namespace TheraEditor.Wrappers

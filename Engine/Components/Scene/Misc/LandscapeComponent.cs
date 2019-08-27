@@ -438,12 +438,15 @@ namespace TheraEngine.Actors.Types
             FreeImageBitmap bmp = new FreeImageBitmap(_dimensions.X, _dimensions.Y, 0, 32, FREE_IMAGE_TYPE.FIT_FLOAT, scan0);
             return bmp;
         }
+
+#if EDITOR
         protected internal override void OnHighlightChanged(bool highlighted)
         {
             base.OnHighlightChanged(highlighted);
 
             Editor.EditorState.RegisterHighlightedMaterial(_rc.Mesh.Material, highlighted, OwningScene);
         }
+#endif
         
         public override TCollisionShape GetCollisionShape() => _heightFieldShape;
 

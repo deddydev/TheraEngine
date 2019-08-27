@@ -235,7 +235,7 @@ namespace TheraEngine.Animation
             => Interpolate(second, EVectorInterpValueType.Acceleration);
         private TValue Interpolate(float second, EVectorInterpValueType type)
         {
-            if (_keyframes.Count == 0)
+            if (Keyframes.Count == 0)
                 return DefaultValue;
 
             if (ConstrainKeyframedFPS)
@@ -251,7 +251,7 @@ namespace TheraEngine.Animation
                 second = floorSec;
             }
             
-            return _keyframes.First?.Interpolate(second, type) ?? DefaultValue;
+            return Keyframes.First?.Interpolate(second, type) ?? DefaultValue;
         }
         [Category(AnimCategory)]
         [TNumericPrefixSuffix(null, " sec")]
@@ -292,7 +292,7 @@ namespace TheraEngine.Animation
             if (_prevKeyframe == null)
                 _prevKeyframe = Keyframes.GetKeyBefore(_currentTime, true, true);
 
-            if (_keyframes.Count == 0)
+            if (Keyframes.Count == 0)
             {
                 CurrentPosition = DefaultValue;
                 CurrentVelocity = new TValue();
@@ -378,16 +378,16 @@ namespace TheraEngine.Animation
             int compCount = inComps.Length;
 
             //No keyframes? Return default value
-            if (_keyframes.Count == 0)
+            if (Keyframes.Count == 0)
             {
                 min = max = inComps.Select(x => (0.0f, x)).ToArray();
                 return;
             }
 
-            VectorKeyframe<TValue> kf = _keyframes.First;
+            VectorKeyframe<TValue> kf = Keyframes.First;
 
             //Only one keyframe?
-            if (_keyframes.Count == 1)
+            if (Keyframes.Count == 1)
             {
                 //If the second is zero, the in value is irrelevant.
                 if (kf.Second.IsZero())
@@ -397,7 +397,7 @@ namespace TheraEngine.Animation
                 }
                 //Otherwise, if the second is equal to the total length,
                 //the out value is irrelevant.
-                else if (kf.Second.EqualTo(_keyframes.LengthInSeconds))
+                else if (kf.Second.EqualTo(Keyframes.LengthInSeconds))
                 {
                     inComps = GetComponents(velocity ? kf.InTangent : kf.InValue);
                     min = max = inComps.Select(x => (kf.Second, x)).ToArray();
@@ -431,7 +431,7 @@ namespace TheraEngine.Animation
                 float minVal, maxVal, oldMin, oldMax;
 
                 //Evaluate all keyframes
-                for (int i = 0; i < _keyframes.Count; ++i, kf = next)
+                for (int i = 0; i < Keyframes.Count; ++i, kf = next)
                 {
                     //Retrieve the next keyframe; will be the first keyframe if this is the last
                     next = kf.Next ?? 
@@ -470,7 +470,7 @@ namespace TheraEngine.Animation
                         }
                         //Otherwise, if the second is equal to the total length,
                         //the out value is irrelevant.
-                        else if (kf.Second.EqualTo(_keyframes.LengthInSeconds))
+                        else if (kf.Second.EqualTo(Keyframes.LengthInSeconds))
                         {
                             minVal = Math.Min(minVal, inComps[x]);
                             maxVal = Math.Max(maxVal, inComps[x]);

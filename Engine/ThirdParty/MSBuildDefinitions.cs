@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Core.Files.XML;
@@ -87,7 +88,6 @@ namespace TheraEngine.ThirdParty
             /// </summary>
             [Attr("ToolsVersion", false)]
             public string ToolsVersion { get; set; }
-
             /// <summary>
             /// Optional attribute.
             /// <para>
@@ -280,6 +280,13 @@ namespace TheraEngine.ThirdParty
                     }
                 }
             }
+            
+            public Dictionary<string, string> BuildParameters { get; set; } = new Dictionary<string, string>();
+            public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
+            public void Evaluate()
+            {
+
+            }
         }
         /// <summary>
         /// References an MSBuild project SDK. This element can be used as an alternative to the Sdk attribute.
@@ -315,6 +322,8 @@ namespace TheraEngine.ThirdParty
         [ElementName("PropertyGroup")]
         public class PropertyGroup : BaseElement<IPropertyGroupOwner>
         {
+            public Property[] PropertyElements => GetChildren<Property>();
+
             [Attr("Condition", false)]
             public string Condition { get; set; }
 

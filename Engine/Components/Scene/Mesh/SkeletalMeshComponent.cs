@@ -283,6 +283,7 @@ namespace TheraEngine.Components.Scene.Mesh
             TargetSkeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
         }
 
+#if EDITOR
         protected internal override void OnHighlightChanged(bool highlighted)
         {
             base.OnHighlightChanged(highlighted);
@@ -304,5 +305,6 @@ namespace TheraEngine.Components.Scene.Mesh
                     //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
                 }
         }
+#endif
     }
 }

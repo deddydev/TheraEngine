@@ -535,12 +535,7 @@ namespace TheraEngine
             [Browsable(false)]
             public EngineDomainProxy DomainProxy
             {
-                get
-                {
-                    if (_domainProxy == null)
-                        SetDomainProxy<EngineDomainProxy>(AppDomain.CurrentDomain, null);
-                    return _domainProxy;
-                }
+                get => _domainProxy;
                 set
                 {
                     ProxyUnset?.Invoke(_domainProxy);

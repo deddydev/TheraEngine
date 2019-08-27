@@ -8,6 +8,12 @@ using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.ThirdParty;
+using Extensions;
+using static TheraEngine.ThirdParty.MSBuild;
+using Microsoft.Build.Execution;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Evaluation;
+using static TheraEditor.TProject;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -29,6 +35,12 @@ namespace TheraEditor.Windows.Forms
         
         private void SlnLoaded(Task<VisualStudioSolution> slnTask)
         {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action<Task<VisualStudioSolution>>)SlnLoaded, slnTask);
+                return;
+            }
+
             MainPanel.Enabled = true;
             Sln = slnTask.Result;
             cboConfiguration.Items.Clear();
@@ -42,40 +54,130 @@ namespace TheraEditor.Windows.Forms
         public string SlnDir { get; }
         public VisualStudioSolution Sln { get; private set; }
 
-        private async void CheckVersions()
+        private void CheckVersions()
         {
             //Check if editor and/or engine are a newer version than the version on Github.
             //If not, disable their checkboxes.
 
-            AssemblyName engineAssembly = typeof(Engine).Assembly.GetName();
-            AssemblyName editorAssembly = Assembly.GetExecutingAssembly().GetName();
-            var engineUpdate = Github.Updater.HasUpdate(engineAssembly);
-            var editorUpdate = Github.Updater.HasUpdate(editorAssembly);
-            await Task.WhenAll(engineUpdate, editorUpdate);
+            string engineName = typeof(Engine).Assembly.GetName().Name;
+            string editorName = Assembly.GetExecutingAssembly().GetName().Name;
 
-            bool hasEngineUpdate = engineUpdate.IsCompleted && engineUpdate.Result.hasUpdate;
-            bool hasEditorUpdate = editorUpdate.IsCompleted && editorUpdate.Result.hasUpdate;
-            if (!hasEngineUpdate && !hasEditorUpdate)
+            var engineNewer = CheckIfNewerBuild(engineName, "ReleaseGame", "x64");
+            var editorNewer = CheckIfNewerBuild(editorName, "ReleaseEditor", "x64");
+            Task.WhenAll(engineNewer, editorNewer).ContinueWith(SetEnabled);
+        }
+
+        private void SetEnabled(Task<bool[]> result)
+        {
+            if (InvokeRequired)
             {
-                MessageBox.Show("No updates found.");
+                BeginInvoke((Action<Task<bool[]>>)SetEnabled, result);
                 return;
             }
-            //chkEngine.Checked = chkEngine.Enabled = 
-            //chkEditor.Checked = chkEditor.Enabled = 
+            chkEngine.Checked = chkEngine.Enabled = result.Result[0];
+            chkEditor.Checked = chkEditor.Enabled = result.Result[1];
         }
 
-        private void ChkEditor_CheckedChanged(object sender, EventArgs e)
+        public async Task<bool> CheckIfNewerBuild(string name, string configuration, string platform)
         {
-            if (!chkEditor.Checked && !chkEngine.Checked)
-                spltcReleaseNotes.Visible = false;
-            else
+            foreach (var project in Sln.Projects)
             {
-                spltcReleaseNotes.Visible = true;
-                spltcReleaseNotes.Panel2Collapsed = !chkEditor.Checked;
+                //var project = Sln.Projects.FirstOrDefault(x => x.Name.EqualsInvariantIgnoreCase(name));
+                var msbuild = await Sln.ReadProjectAsync(project);
+                //msbuild.Variables["Configuration"] = configuration;
+                //msbuild.Variables["Platform"] = platform;
+
+                var pGrps = msbuild.PropertyGroupElements;
+                if (!pGrps.Any(pGrp => GroupHasAssemblyName(pGrp, name)))
+                    continue;
+
+                var typeProp = pGrps.Select(pGrp => pGrp.PropertyElements.
+                    FirstOrDefault(prop => string.Equals(prop.ElementName, "OutputType", StringComparison.InvariantCultureIgnoreCase))).
+                    FirstOrDefault(prop => prop != null);
+
+                string typeExt = ".exe";
+                if (typeProp != null)
+                {
+                    switch (typeProp.StringContent.Value)
+                    {
+                        default:
+                        case "WinExe":
+                            typeExt = ".exe";
+                            break;
+                        case "Library":
+                            typeExt = ".dll";
+                            break;
+                    }
+                }
+
+                var testGrps = pGrps.Where(pGrp => ConfigConditionMatches(pGrp, configuration, platform));
+                foreach (var pGrp in testGrps)
+                {
+                    var outputPathProp = pGrp.PropertyElements.FirstOrDefault(prop =>
+                        string.Equals(prop.ElementName, "OutputPath", StringComparison.InvariantCultureIgnoreCase));
+
+                    if (outputPathProp is null)
+                        continue;
+
+                    string path = outputPathProp?.StringContent?.Value;
+                    if (!path.IsAbsolutePath())
+                    {
+                        string projPath = Sln.PathForProject(project);
+                        string projDirPath = Path.GetDirectoryName(projPath);
+                        path = Path.GetFullPath(Path.Combine(projDirPath, path));
+                    }
+                    path += name + typeExt;
+                    if (path.IsValidPath())
+                    {
+                        if (!File.Exists(path))
+                        {
+                            Dictionary<string, string> props = new Dictionary<string, string>
+                            {
+                                { "Configuration",  configuration  },
+                                { "Platform",       platform       },
+                            };
+                            EngineBuildLogger logger = new EngineBuildLogger();
+                            BuildRequestData request = new BuildRequestData(Sln.PathForProject(project), props, null, new[] { "Build" }, null);
+                            ProjectCollection pc = new ProjectCollection();
+                            BuildParameters buildParams = new BuildParameters(pc)
+                            {
+                                Loggers = new ILogger[] { logger }
+                            };
+                            BuildManager.DefaultBuildManager.Build(buildParams, request);
+                            if (logger.Errors.Count > 0)
+                                logger.Display();
+                        }
+                        if (File.Exists(path))
+                        {
+                            AssemblyName assembly = AssemblyName.GetAssemblyName(path);
+                            if (assembly != null)
+                            {
+                                var (result, newestRelease) = await Github.Updater.HasUpdate(assembly);
+                                return result == Github.Updater.EVersionRelation.IsNewerBuild;
+                            }
+                        }
+                    }
+                }
             }
+            return false;
         }
 
-        private void ChkEngine_CheckedChanged(object sender, EventArgs e)
+        private bool GroupHasAssemblyName(PropertyGroup group, string assemblyName)
+            => group.GetChildren<PropertyGroup.Property>().Any(prop =>
+                string.Equals(prop.ElementName, "AssemblyName", StringComparison.InvariantCultureIgnoreCase) &&
+                string.Equals(prop.StringContent.Value, assemblyName, StringComparison.InvariantCultureIgnoreCase));
+        
+        private bool ConfigConditionMatches(PropertyGroup group, string configuration, string platform)
+        {
+            string cond = group?.Condition?.Trim();
+            return string.IsNullOrWhiteSpace(cond) || string.Equals(cond,
+                $"'$(Configuration)|$(Platform)' == '{configuration}|{platform}'",
+                StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        private void ChkEditor_CheckedChanged(object sender, EventArgs e) => CheckBoxesChanged();
+        private void ChkEngine_CheckedChanged(object sender, EventArgs e) => CheckBoxesChanged();
+        private void CheckBoxesChanged()
         {
             if (!chkEditor.Checked && !chkEngine.Checked)
                 spltcReleaseNotes.Visible = false;
@@ -83,6 +185,7 @@ namespace TheraEditor.Windows.Forms
             {
                 spltcReleaseNotes.Visible = true;
                 spltcReleaseNotes.Panel1Collapsed = !chkEngine.Checked;
+                spltcReleaseNotes.Panel2Collapsed = !chkEditor.Checked;
             }
         }
 

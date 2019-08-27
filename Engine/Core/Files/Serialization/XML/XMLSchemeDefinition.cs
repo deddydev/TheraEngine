@@ -32,8 +32,8 @@ namespace TheraEngine.Core.Files.XML
     //    string parentTree,
     //    int elementIndex);
     public interface IVersion { string Version { get; set; } }
-    public class BaseXMLSchemeDefinition
-    {
+    //public class BaseXMLSchemeDefinition
+    //{
         public class ChildInfo
         {
             private static readonly TypeProxy[] ElementTypes;
@@ -87,20 +87,19 @@ namespace TheraEngine.Core.Files.XML
                 return string.Join(" ", ElementNames.Select(x => x.Name)) + " " + string.Join(" ", Occurrences);
             }
         }
-    }
-    public class XMLSchemeDefinition<T> : BaseXMLSchemeDefinition where T : class, IElement
+    //}
+    public static class XMLSchemaDefinition<T> where T : class, IElement
     {
-        public XMLSchemeDefinition() { }
-        public async Task<T> ImportAsync(
+        public static async Task<T> ImportAsync(
             string path,
             ulong ignoreFlags)
             => await ImportAsync(path, ignoreFlags, null, CancellationToken.None);
-        public async Task<T> ImportAsync(
+        public static async Task<T> ImportAsync(
             string path,
             ulong ignoreFlags,
             XmlReaderSettings settings)
             => await ImportAsync(path, ignoreFlags, settings, null, CancellationToken.None);
-        public async Task<T> ImportAsync(
+        public static async Task<T> ImportAsync(
             string path,
             ulong ignoreFlags,
             IProgress<float> progress,
@@ -118,7 +117,7 @@ namespace TheraEngine.Core.Files.XML
             };
             return await ImportAsync(path, ignoreFlags, settings, progress, cancel);
         }
-        public async Task<T> ImportAsync(
+        public static async Task<T> ImportAsync(
             string path,
             ulong ignoreFlags,
             XmlReaderSettings settings,
@@ -141,7 +140,7 @@ namespace TheraEngine.Core.Files.XML
                 return await ImportAsync(r, ignoreFlags, cancel);
             }
         }
-        private async Task<T> ImportAsync(
+        private static async Task<T> ImportAsync(
             XmlReader reader,
             ulong ignoreFlags,
             CancellationToken cancel)
@@ -167,7 +166,7 @@ namespace TheraEngine.Core.Files.XML
             
             return null;
         }
-        private async Task<IElement> ParseElementAsync(
+        private static async Task<IElement> ParseElementAsync(
             TypeProxy elementType,
             IElement parent,
             XmlReader reader,
@@ -176,9 +175,9 @@ namespace TheraEngine.Core.Files.XML
             string parentTree,
             int elementIndex,
             CancellationToken cancel)
-            => await ParseElementAsync(elementType.CreateInstance() as IElement, 
+            => await ParseElementAsync(Activator.CreateInstance((Type)elementType) as IElement, 
                 parent, reader, version, ignoreFlags, parentTree, elementIndex, cancel);
-        private async Task<IElement> ParseElementAsync(
+        private static async Task<IElement> ParseElementAsync(
             IElement entry,
             IElement parent,
             XmlReader reader,
@@ -422,9 +421,9 @@ namespace TheraEngine.Core.Files.XML
 
             return entry;
         }
-        public async Task ExportAsync(string path, T file)
+        public static async Task ExportAsync(string path, T file)
             => await ExportAsync(path, file, null, CancellationToken.None);
-        public async Task ExportAsync(
+        public static async Task ExportAsync(
             string path,
             T file,
             IProgress<float> progress,
@@ -445,7 +444,7 @@ namespace TheraEngine.Core.Files.XML
             };
             await ExportAsync(path, file, settings, progress, cancel);
         }
-        public async Task ExportAsync(
+        public static async Task ExportAsync(
             string path,
             T file,
             XmlWriterSettings settings,
@@ -468,13 +467,13 @@ namespace TheraEngine.Core.Files.XML
                 await ExportAsync(file, r, cancel);
             }
         }
-        private async Task ExportAsync(T file, XmlWriter writer, CancellationToken cancel)
+        private static async Task ExportAsync(T file, XmlWriter writer, CancellationToken cancel)
         {
             await writer.WriteStartDocumentAsync();
             await WriteElement(file, writer, cancel);
             await writer.WriteEndDocumentAsync();
         }
-        private async Task WriteElement(
+        private static async Task WriteElement(
             IElement element, 
             XmlWriter writer,
             CancellationToken cancel)
@@ -722,7 +721,7 @@ namespace TheraEngine.Core.Files.XML
     /// 
     /// </summary>
     /// <typeparam name="TParent">The type of the parent element.</typeparam>
-    public abstract class BaseElement<TParent> : IElement where TParent : class, IElement
+    public abstract class BaseElement<TParent> : TObjectSlim, IElement where TParent : class, IElement
     {
         public override string ToString()
         {
@@ -885,7 +884,7 @@ namespace TheraEngine.Core.Files.XML
     #endregion
 
     #region String Elements
-    public abstract class BaseElementString : ISerializableString
+    public abstract class BaseElementString : TObjectSlim, ISerializableString
     {
         public abstract void ReadFromString(string str);
         public abstract string WriteToString();

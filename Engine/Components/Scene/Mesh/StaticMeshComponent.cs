@@ -258,6 +258,8 @@ namespace TheraEngine.Components.Scene.Mesh
                     m.RenderInfo.UnlinkScene();
             base.OnDespawned();
         }
+
+#if EDITOR
         protected internal override void OnHighlightChanged(bool highlighted)
         {
             base.OnHighlightChanged(highlighted);
@@ -281,6 +283,7 @@ namespace TheraEngine.Components.Scene.Mesh
                     //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
                 }
         }
+#endif
 
         public MeshSocket FindOrCreateSocket(string socketName, ITransform transform) => throw new NotImplementedException();
         public void AddToSocket(string socketName, ISceneComponent component) => throw new NotImplementedException();

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using TheraEngine;
 using TheraEngine.Core.Maths;
 using TheraEngine.Timers;
@@ -13,38 +14,76 @@ namespace TheraEditor.Windows.Forms
     {
         private List<OperationInfo> _operations = new List<OperationInfo>();
 
-        public int BeginOperation(string statusBarMessage, string finishedMessage, out Progress<float> progress, out CancellationTokenSource cancel, TimeSpan? maxOperationTime = null)
+        public async Task<T> RunOperationAsync<T>(
+            string statusBarMessage,
+            string finishedMessage,
+            Func<Progress<float>, CancellationTokenSource, Task<T>> task,
+            TimeSpan? maxOperationTime = null)
+        {
+            int index = BeginOperation(
+                statusBarMessage, finishedMessage,
+                out Progress<float> progress, out CancellationTokenSource cancel,
+                maxOperationTime);
+
+            T value = await task(progress, cancel);
+
+            EndOperation(index);
+
+            return value;
+        }
+        public async Task RunOperationAsync(
+            string statusBarMessage,
+            string finishedMessage,
+            Func<Progress<float>, CancellationTokenSource, Task> task,
+            TimeSpan? maxOperationTime = null)
+        {
+            int index = BeginOperation(
+                statusBarMessage, finishedMessage,
+                out Progress<float> progress, out CancellationTokenSource cancel,
+                maxOperationTime);
+
+            await task(progress, cancel);
+
+            EndOperation(index);
+        }
+
+        public int BeginOperation(
+            string statusBarMessage, string finishedMessage,
+            out Progress<float> progress, out CancellationTokenSource cancel,
+            TimeSpan? maxOperationTime = null)
         {
             Engine.PrintLine(statusBarMessage);
 
-            bool noOps = _operations.Count == 0;
+            bool firstOperationAdded = _operations.Count == 0;
             int index = _operations.Count;
 
             progress = new Progress<float>();
-            CancellationTokenSource cancelSource = maxOperationTime == null ? new CancellationTokenSource() : new CancellationTokenSource(maxOperationTime.Value);
+            cancel = maxOperationTime == null ? new CancellationTokenSource() : new CancellationTokenSource(maxOperationTime.Value);
 
-            _operations.Add(new OperationInfo(progress, cancelSource, OnOperationProgressUpdate, index, statusBarMessage, finishedMessage));
-            cancel = cancelSource;
+            _operations.Add(new OperationInfo(progress, cancel, OnOperationProgressUpdate, index, statusBarMessage, finishedMessage));
 
-            if (noOps)
+            if (firstOperationAdded)
                 Engine.RegisterTick(null, TickOperationProgressBar, null);
 
-            void OnStarted()
-            {
-                if (noOps)
-                    toolStripProgressBar1.Value = 0;
-                btnCancelOp.Visible = _operations.Any(x => x != null && x.CanCancel);
-                toolStripProgressBar1.Visible = true;
-                toolStripStatusLabel1.Text = statusBarMessage;
-            }
+            UpdateUI(firstOperationAdded, statusBarMessage);
 
-            if (InvokeRequired)
-                BeginInvoke((Action)OnStarted);
-            else
-                OnStarted();
-            
             return index;
         }
+        private void UpdateUI(bool noOps, string statusBarMessage)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action<bool, string>)UpdateUI, noOps, statusBarMessage);
+                return;
+            }
+
+            if (noOps)
+                toolStripProgressBar1.Value = 0;
+            btnCancelOp.Visible = _operations.Any(x => x != null && x.CanCancel);
+            toolStripProgressBar1.Visible = true;
+            toolStripStatusLabel1.Text = statusBarMessage;
+        }
+
         private void OnOperationProgressUpdate(int operationIndex)
         {
             if (InvokeRequired)
@@ -81,7 +120,7 @@ namespace TheraEditor.Windows.Forms
             //toolStripProgressBar1.ProgressBar.Value = TargetOperationValue;
         }
         private int TargetOperationValue { get; set; }
-        public static EngineDomainProxyEditor DomainProxy => (EngineDomainProxyEditor)Engine.DomainProxy;
+        public static EngineDomainProxyEditor DomainProxy => Engine.DomainProxy as EngineDomainProxyEditor;
 
         private void TickOperationProgressBar(object sender, FrameEventArgs args)
         {

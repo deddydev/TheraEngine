@@ -48,17 +48,19 @@ namespace TheraEditor
         }
         private void EvaluateType(TypeProxy asmType)
         {
-            NodeWrapperAttribute wrapper = asmType.GetCustomAttribute<NodeWrapperAttribute>();
-            if (wrapper is null)
+            if (IsValidWrapperClassBase(asmType))
                 return;
 
-            if (asmType.AnyBaseTypeMatches(IsValidWrapperClass, out TypeProxy match))
+            if (asmType.AnyBaseTypeMatches(IsValidWrapperClassBase, out TypeProxy match))
             {
                 if (match == typeof(ThirdPartyFileWrapper))
                 {
-                    string ext = wrapper.ThirdPartyExtension;
+                    NodeWrapperAttribute wrapper = asmType.GetCustomAttribute<NodeWrapperAttribute>();
+                    string ext = wrapper?.ThirdPartyExtension;
                     if (!string.IsNullOrWhiteSpace(ext))
                         ThirdPartyWrappers[ext] = asmType;
+                    else
+                        Engine.LogWarning($"{asmType.GetFriendlyName()} is derived from '{nameof(ThirdPartyFileWrapper)}' and needs to specify a '{nameof(NodeWrapperAttribute)}' attribute with {nameof(NodeWrapperAttribute.ThirdPartyExtension)} set to a valid extension.");
                 }
                 else
                 {
@@ -66,11 +68,11 @@ namespace TheraEditor
                     Wrappers[fileType] = asmType;
                 }
             }
-            else
-                throw new InvalidOperationException($"{nameof(NodeWrapperAttribute)} must be an attribute on a class that inherits from {nameof(FileWrapper<IFileObject>)} or {nameof(ThirdPartyFileWrapper)}.");
+            //else
+            //    throw new InvalidOperationException($"{nameof(NodeWrapperAttribute)} must be an attribute on a class that inherits from {nameof(FileWrapper<IFileObject>)} or {nameof(ThirdPartyFileWrapper)}.");
         }
 
-        private static bool IsValidWrapperClass(TypeProxy type)
+        private static bool IsValidWrapperClassBase(TypeProxy type)
             => (type == typeof(ThirdPartyFileWrapper)) || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(FileWrapper<>));
 
         public void ReloadEditorTypes()
@@ -145,7 +147,7 @@ namespace TheraEditor
         //}
         protected override void OnStarted()
         {
-            Engine.SetWorldPanel(Editor.Instance.RenderForm1.RenderPanel, false);
+            //Engine.SetWorldPanel(Editor.Instance.RenderForm1.RenderPanel, false);
             Editor.Instance.SetRenderTicking(true);
             Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 

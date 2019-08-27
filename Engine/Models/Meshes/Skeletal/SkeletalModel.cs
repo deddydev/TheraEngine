@@ -61,7 +61,7 @@ namespace TheraEngine.Rendering.Models
                 Collada.EIgnoreFlags.Cameras |
                 Collada.EIgnoreFlags.Lights,
             };
-            Collada.Data data = await Collada.ImportAsync(path, o, progress, cancel);
+            Collada.ImportResult data = await Collada.ImportAsync(path, o, progress, cancel);
             if (data != null && data.Models != null && data.Models.Count > 0)
             {
                 ModelScene scene = data.Models[0];

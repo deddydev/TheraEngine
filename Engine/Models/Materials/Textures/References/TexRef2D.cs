@@ -462,11 +462,10 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             get
             {
-                while (_loadingFillerBitmap) ;
                 if (_loadingFillerBitmap = _fillerBitmap == null)
                 {
-                    Task.Run(GetFillerBitmap).ContinueWith(x => _loadingFillerBitmap = false);
-                    while (_loadingFillerBitmap) ;
+                    GetFillerBitmap();
+                    _loadingFillerBitmap = false;
                 }
                 return _fillerBitmap;
             }

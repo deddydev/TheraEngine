@@ -15,7 +15,7 @@ namespace TheraEditor.Windows.Forms
             get => _file;
             set
             {
-                if (!AllowFileClose())
+                if (!AllowFileClose() || _file == value)
                     return;
 
                 _file = value;
@@ -23,10 +23,10 @@ namespace TheraEditor.Windows.Forms
         }
         IFileObject IFileEditorControl.File => File;
 
-        protected void btnSave_Click(object sender, EventArgs e) => Save();
-        protected void btnSaveAs_Click(object sender, EventArgs e) => SaveAs();
-        protected void btnClose_Click(object sender, EventArgs e) => Close();
-
+        protected void BtnSave_Click(object sender, EventArgs e) => Save();
+        protected void BtnSaveAs_Click(object sender, EventArgs e) => SaveAs();
+        protected void BtnClose_Click(object sender, EventArgs e) => Close();
+        
         public async void Save()
         {
             if (File == null)
@@ -44,14 +44,21 @@ namespace TheraEditor.Windows.Forms
         }
         public async void SaveAs()
         {
-            if (File == null)
+            if (File is null)
                 return;
 
-            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = File.GetFilter() })
+            string filter = File.GetFilter();
+            bool ok;
+            string filePath;
+
+            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = filter })
             {
-                if (sfd.ShowDialog(this) == DialogResult.OK)
-                    await File.ExportAsync(sfd.FileName, ESerializeFlags.Default);
+                ok = sfd.ShowDialog(this) == DialogResult.OK;
+                filePath = sfd.FileName;
             }
+
+            if (ok)
+                await File.ExportAsync(filePath, ESerializeFlags.Default);
         }
         protected override void OnShown(EventArgs e)
         {
@@ -60,9 +67,9 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            bool allow = AllowFileClose();
-            e.Cancel = !allow;
-            if (allow)
+            bool isAllowed = AllowFileClose();
+            e.Cancel = !isAllowed;
+            if (isAllowed)
                 Editor.OpenEditors.Remove(this);
         }
         public bool AllowFileClose()

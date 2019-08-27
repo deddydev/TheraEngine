@@ -33,14 +33,12 @@ namespace TheraEngine.ThirdParty
                 => $"Project(\"{TypeGuid.ToString("B")}\") = \"{Name}\", \"{RelativePath}\", \"{Guid.ToString("B")}\"";
         }
 
-        public async Task<(XMLSchemeDefinition<MSBuild.Project> Definition, MSBuild.Project Project)> ReadProjectAsync(Project project)
-        {
-            string projPath = Path.Combine(DirectoryPath, project.RelativePath);
-            XMLSchemeDefinition<MSBuild.Project> projDef = new XMLSchemeDefinition<MSBuild.Project>();
-            MSBuild.Project proj = await projDef.ImportAsync(projPath, 0);
-            return (projDef, proj);
-        }
+        public string PathForProject(Project project)
+            => Path.Combine(DirectoryPath, project.RelativePath);
 
+        public async Task<MSBuild.Project> ReadProjectAsync(Project project)
+            => await XMLSchemaDefinition<MSBuild.Project>.ImportAsync(PathForProject(project), 0);
+        
         public override void ManualRead3rdParty(string filePath)
         {
             List<Project> projects = new List<Project>();

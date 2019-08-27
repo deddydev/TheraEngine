@@ -247,8 +247,7 @@ namespace TheraEditor.Wrappers
                         if (node == null)
                             continue;
 
-                        ResourceTree tree = GetTree();
-                        string key = tree.GetOrAddIcon(file);
+                        string key = Tree.GetOrAddIconFromPath(file);
                         node.ImageKey = node.SelectedImageKey = node.StateImageKey = key;
                                                
                         Nodes.Add(node);

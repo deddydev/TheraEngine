@@ -86,14 +86,14 @@ namespace TheraEditor
                 string tagName = CreateReleaseTagName(name);
                 string[] exts =
                 {
-                ".dll",
-                ".exe",
-                ".config",
+                    ".dll",
+                    ".exe",
+                    ".config",
 //#if DEBUG
-//                ".pdb", //Debug symbols, not needed for public releases
-//                ".xml", //Library code documentation, also not needed
+//                    ".pdb", //Debug symbols, not needed for public releases
+//                    ".xml", //Library code documentation, also not needed
 //#endif
-            };
+                };
 
                 Engine.PrintLine($"Posting new release for {tagName} at {assemblyPath}...");
 
@@ -233,24 +233,31 @@ namespace TheraEditor
         }
         public static class Updater
         {
-            public static async Task<(bool hasUpdate, Release newestRelease)> HasUpdate(AssemblyName name)
+            public enum EVersionRelation
+            {
+                HasUpdate,
+                IsCurrentRelease,
+                IsNewerBuild,
+                NoInternetConnection,
+            }
+            public static async Task<(EVersionRelation result, Release newestRelease)> HasUpdate(AssemblyName name)
             {
                 if (!CheckGithubConnection(out GitHubClient client))
-                    return (false, null);
+                    return (EVersionRelation.NoInternetConnection, null);
                 return await HasUpdate(name, client);
             }
-            private static async Task<(bool hasUpdate, Release newestRelease)> HasUpdate(AssemblyName name, GitHubClient client)
+            private static async Task<(EVersionRelation result, Release newestRelease)> HasUpdate(AssemblyName name, GitHubClient client)
             {
                 IReadOnlyList<Release> releases = await client.Repository.Release.GetAll(RepoOwner, RepoName);
                 if (releases == null || releases.Count == 0)
                 {
                     Engine.PrintLine($"No updates found for {name.Name}.");
-                    return (false, null);
+                    return (EVersionRelation.IsNewerBuild, null);
                 }
 
                 Version ver = name.Version;
-                Version releaseVer = null;
-                Release newestRelease = null;
+                Version mostRecentVer = null;
+                Release mostRecentRelease = null;
                 string tagName;
                 string assemblyName;
                 string versionStr;
@@ -272,33 +279,32 @@ namespace TheraEditor
                     if (verParts.Length != 4)
                         continue;
 
-                    Version thisVer = new Version(
+                    Version currentVer = new Version(
                         int.Parse(verParts[0]),
                         int.Parse(verParts[1]),
                         int.Parse(verParts[2]),
                         int.Parse(verParts[3]));
 
-                    if (releaseVer != null && thisVer.CompareTo(releaseVer) <= 0)
-                        continue;
-
-                    releaseVer = thisVer;
-                    newestRelease = release;
+                    if (mostRecentVer is null || currentVer.CompareTo(mostRecentVer) > 0)
+                    {
+                        mostRecentVer = currentVer;
+                        mostRecentRelease = release;
+                    }
                 }
 
-                if (newestRelease == null)
-                {
-                    Engine.PrintLine($"No updates found for {name.Name}.");
-                    return (false, null);
-                }
-
-                int comp = releaseVer.CompareTo(ver);
-                if (comp <= 0)
+                int comp = ver.CompareTo(mostRecentVer);
+                if (comp == 0)
                 {
                     Engine.PrintLine($"You are running the most recent version of {name.Name}.");
-                    return (false, newestRelease);
+                    return (EVersionRelation.IsCurrentRelease, mostRecentRelease);
                 }
-
-                return (true, newestRelease);
+                else if (comp > 0)
+                {
+                    Engine.PrintLine($"You are running a newer build of {name.Name}.");
+                    return (EVersionRelation.IsNewerBuild, mostRecentRelease);
+                }
+                else
+                    return (EVersionRelation.HasUpdate, mostRecentRelease);
             }
             public static async Task TryInstallUpdate(params AssemblyName[] assemblies)
             {
@@ -309,8 +315,8 @@ namespace TheraEditor
 
                     foreach (AssemblyName name in assemblies)
                     {
-                        (bool hasUpdate, Release newestRelease) = await HasUpdate(name, client);
-                        if (!hasUpdate)
+                        (EVersionRelation result, Release newestRelease) = await HasUpdate(name, client);
+                        if (result != EVersionRelation.HasUpdate)
                             continue;
 
                         DialogResult update = MessageBox.Show(newestRelease.Name + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
@@ -375,52 +381,18 @@ namespace TheraEditor
                             await webClient.DownloadFileTaskAsync(zipUrl, localUpdateZipPath);
                             webClient.DownloadProgressChanged -= downloadFileProgressChanged;
                             Editor.Instance.EndOperation(op);
-
-                            Engine.PrintLine("Success!");
-                            Engine.PrintLine("Starting install...");
-
-                            Directory.CreateDirectory(localUpdateUnzipPath);
-
-                            op = Editor.Instance.BeginOperation("Extracting new update...", "Update extracted successfully.", out progress, out cancel);
-                            iProg = progress;
-                            await Task.Run(() => ZipFileWithProgress.ExtractToDirectory(localUpdateZipPath, localUpdateUnzipPath, iProg));
-                            Editor.Instance.EndOperation(op);
-
-                            if (overwrite != DialogResult.Yes)
-                                return;
-
-                            Engine.PrintLine("Overwriting installation...");
-
-                            string exePath = Application.ExecutablePath;
-                            string localUpdateDirName = Path.GetFileName(localUpdateUnzipPath);
-                            Process currentProcess = Process.GetCurrentProcess();
-                            string pid = currentProcess.Id.ToString();
-                            string tempPath = Environment.GetEnvironmentVariable("TMP");
-                            string batName = SerializationCommon.ResolveFileName(tempPath, "TheraEngineUpdate", "bat");
-                            string batPath = tempPath + Path.DirectorySeparatorChar + batName;
-
-                            string batchCode =
-                                $"@echo off" + Environment.NewLine +
-                                $"taskkill /pid {pid} /f" + Environment.NewLine +
-                                $"for /d %%I in ({exeDir}\\*) do (" + Environment.NewLine +
-                                $"if /i not \"%%~nxI\" equ \"{localUpdateDirName}\" rmdir /q /s \"%%~I\"" + Environment.NewLine +
-                                $")" + Environment.NewLine +
-                                $"del /q {exeDir}\\*" + Environment.NewLine +
-                                $"xcopy \"{localUpdateUnzipPath}\" \"{exeDir}\" /E /y" + Environment.NewLine +
-                                $"rmdir /S /Q \"{localUpdateUnzipPath}\"" + Environment.NewLine +
-                                $"Start \"\"  \"{exePath}\"" + Environment.NewLine +
-                                $"del %0";
-
-                            File.WriteAllText(batPath, batchCode);
-
-                            ProcessStartInfo info = new ProcessStartInfo(batPath)
-                            {
-                                CreateNoWindow = false,
-                                WindowStyle = ProcessWindowStyle.Hidden,
-                                UseShellExecute = true,
-                            };
-                            Process.Start(info);
                         }
+
+                        Engine.PrintLine("Success! Starting install...");
+
+                        await ExtractZip(localUpdateZipPath, localUpdateUnzipPath);
+
+                        if (overwrite != DialogResult.Yes)
+                            return;
+
+                        Engine.PrintLine("Overwriting installation...");
+
+                        Overwrite(localUpdateUnzipPath, exeDir);
                     }
                 }
                 catch (System.Net.Http.HttpRequestException)
@@ -433,6 +405,46 @@ namespace TheraEditor
                 }
             }
 
+            private static async Task ExtractZip(string zipFilePath, string destinationDirectoryPath)
+            {
+                Directory.CreateDirectory(destinationDirectoryPath);
+                int op = Editor.Instance.BeginOperation("Extracting new update...", "Update extracted successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
+                await Task.Run(() => ZipFileWithProgress.ExtractToDirectory(zipFilePath, destinationDirectoryPath, progress));
+                Editor.Instance.EndOperation(op);
+            }
+
+            private static void Overwrite(string localUpdateUnzipPath, string exeDir)
+            {
+                string exePath = Application.ExecutablePath;
+                string localUpdateDirName = Path.GetFileName(localUpdateUnzipPath);
+                Process currentProcess = Process.GetCurrentProcess();
+                string pid = currentProcess.Id.ToString();
+                string tempPath = Environment.GetEnvironmentVariable("TMP");
+                string batName = SerializationCommon.ResolveFileName(tempPath, "TheraEngineUpdate", "bat");
+                string batPath = tempPath + Path.DirectorySeparatorChar + batName;
+
+                string batchCode =
+                    $"@echo off" + Environment.NewLine +
+                    $"taskkill /pid {pid} /f" + Environment.NewLine +
+                    $"for /d %%I in ({exeDir}\\*) do (" + Environment.NewLine +
+                    $"if /i not \"%%~nxI\" equ \"{localUpdateDirName}\" rmdir /q /s \"%%~I\"" + Environment.NewLine +
+                    $")" + Environment.NewLine +
+                    $"del /q {exeDir}\\*" + Environment.NewLine +
+                    $"xcopy \"{localUpdateUnzipPath}\" \"{exeDir}\" /E /y" + Environment.NewLine +
+                    $"rmdir /S /Q \"{localUpdateUnzipPath}\"" + Environment.NewLine +
+                    $"Start \"\"  \"{exePath}\"" + Environment.NewLine +
+                    $"del %0";
+
+                File.WriteAllText(batPath, batchCode);
+
+                ProcessStartInfo info = new ProcessStartInfo(batPath)
+                {
+                    CreateNoWindow = false,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    UseShellExecute = true,
+                };
+                Process.Start(info);
+            }
             private static void BatProcess_OutputDataReceived(object sender, DataReceivedEventArgs e)
                 => Engine.PrintLine(e.Data);
         }

@@ -57,7 +57,7 @@ namespace TheraEngine.Core.Files
         public GlobalFileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound)
             : base(dir, name, format, createIfNotFound) { }
 
-        internal static bool AddGlobalFileInstance<T>(T file, string path) where T : class, IFileObject
+        internal static bool AddGlobalFileInstance(T file, string path)
         {
             if (string.IsNullOrEmpty(path))
                 return false;

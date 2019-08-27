@@ -157,59 +157,84 @@ namespace TheraEngine.Rendering.OpenGL
 
         protected class GLThreadSubContext : ThreadSubContext
         {
-            private int _versionMin, _versionMax;
             private IGraphicsContext _context;
             private EVSyncMode _vsyncMode = EVSyncMode.Adaptive;
-#if DEBUG
-            private static bool _hasPrintedInfo = false;
-#endif
 
             public IWindowInfo WindowInfo { get; private set; }
 
             public GLThreadSubContext(IntPtr controlHandle, Thread thread)
                 : base(controlHandle, thread) { }
 
+            public class GLSpecs
+            {
+                public string Vendor { get; set; }
+                public string Version { get; set; }
+                public string Renderer { get; set; }
+                public string ShaderLanguageVersion { get; set; }
+                public string[] Extensions { get; set; }
+                public int MaxTextureUnits { get; set; }
+
+                public int VersionMax => Version[0] - 0x30;
+                public int VersionMin => Version[2] - 0x30;
+
+                public bool HasExtension(string extension)
+                    => Array.BinarySearch(Extensions, extension) >= 0;
+
+                public GLSpecs()
+                {
+                    Vendor = GL.GetString(StringName.Vendor);
+                    Version = GL.GetString(StringName.Version);
+                    Renderer = GL.GetString(StringName.Renderer);
+                    ShaderLanguageVersion = GL.GetString(StringName.ShadingLanguageVersion);
+
+                    Extensions = GL.GetString(StringName.Extensions).Split(' ');
+                    Array.Sort(Extensions);
+
+                    GL.GetInteger(GetPName.MaxCombinedTextureImageUnits, out int units);
+                    Engine.ComputerInfo.MaxTextureUnits = MaxTextureUnits = units;
+                }
+
+                public void Print(EOutputVerbosity verbosity)
+                {
+                    string output = string.Empty;
+                    output += "VENDOR: " + Vendor + Environment.NewLine;
+                    output += "VERSION: " + Version + Environment.NewLine;
+                    output += "RENDERER: " + Renderer + Environment.NewLine;
+                    output += "GLSL: " + ShaderLanguageVersion + Environment.NewLine;
+                    output += "TEXTURE UNITS: " + MaxTextureUnits + Environment.NewLine;
+                    output += "EXTENSIONS:" + Environment.NewLine + string.Join(Environment.NewLine, Extensions) + Environment.NewLine;
+                    Engine.PrintLine(verbosity, output);
+                }
+            }
+
+            public static GLSpecs Specification { get; private set; }
+
             public override void Generate()
             {
                 Engine.RenderThreadId = Thread.CurrentThread.ManagedThreadId;
                 WindowInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
                 GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 8, new ColorFormat(0), 2, false);
-                _context = new GraphicsContext(mode, WindowInfo, 4, 6, DebugMode ? GraphicsContextFlags.Debug : GraphicsContextFlags.Default)
-                {
-                    ErrorChecking = DebugMode
-                };
+
+                _context = new GraphicsContext(mode, WindowInfo, 4, 6, 
+                    DebugMode ? GraphicsContextFlags.Debug : GraphicsContextFlags.Default)
+                { ErrorChecking = DebugMode };
+
                 _context.MakeCurrent(WindowInfo);
                 _context.LoadAll();
+
                 VsyncChanged(_vsyncMode);
 
                 //Retrieve OpenGL information
-                string vendor = GL.GetString(StringName.Vendor);
-                string version = GL.GetString(StringName.Version);
-                string renderer = GL.GetString(StringName.Renderer);
-                string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
-                //string extensions = GL.GetString(StringName.Extensions);
-                GL.GetInteger(GetPName.MaxCombinedTextureImageUnits, out int units);
-                Engine.ComputerInfo.MaxTextureUnits = units;
+                bool readSpec = Specification is null;
+                if (readSpec)
+                    Specification = new GLSpecs();
 
-                Engine.PrintLine("Generated OpenGL context on thread " + _thread.ManagedThreadId + ".");
+                Engine.PrintLine(EOutputVerbosity.Verbose, $"Generated OpenGL context on thread {_thread.ManagedThreadId}.");
 
 #if DEBUG
-                if (!_hasPrintedInfo)
-                {
-                    _hasPrintedInfo = true;
-                    string s = "";
-                    s += "VENDOR: " + vendor + Environment.NewLine;
-                    s += "VERSION: " + version + Environment.NewLine;
-                    s += "RENDERER: " + renderer + Environment.NewLine;
-                    s += "GLSL VER: " + shaderVersion + Environment.NewLine;
-                    s += "TOTAL TEX UNITS: " + units + Environment.NewLine;
-                    //s += "EXTENSIONS:" + Environment.NewLine + string.Join(Environment.NewLine, extensions.Split(' ')) + Environment.NewLine;
-                    s.PrintLine();
-                }
+                if (readSpec)
+                    Specification.Print(EOutputVerbosity.Verbose);
 #endif
-
-                _versionMax = version[0] - 0x30;
-                _versionMin = version[2] - 0x30;
             }
 
             internal override void VsyncChanged(EVSyncMode vsyncMode)
@@ -227,11 +252,10 @@ namespace TheraEngine.Rendering.OpenGL
 
             public override void Dispose()
             {
-                if (_context != null)
-                    _context.Dispose();
+                _context?.Dispose();
                 _context = null;
-                if (WindowInfo != null)
-                    WindowInfo.Dispose();
+
+                WindowInfo?.Dispose();
                 WindowInfo = null;
             }
 

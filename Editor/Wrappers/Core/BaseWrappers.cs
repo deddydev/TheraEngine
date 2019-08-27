@@ -1,11 +1,8 @@
 ﻿using Extensions;
 using Microsoft.VisualBasic.FileIO;
 using System;
-using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -18,6 +15,10 @@ namespace TheraEditor.Wrappers
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     sealed class NodeWrapperAttribute : Attribute
     {
+        public NodeWrapperAttribute()
+        {
+
+        }
         public NodeWrapperAttribute(string imageName, string selectedImageName)
         {
             ImageName = imageName;
@@ -56,10 +57,10 @@ namespace TheraEditor.Wrappers
             ContextMenuStrip.Renderer = new TheraForm.TheraToolstripRenderer();
         }
         
-        protected static ResourceTree GetTree()
+        protected static ResourceTree Tree
             => Editor.Instance.ContentTree;
         protected static T GetInstance<T>() where T : BaseWrapper
-            => GetTree().SelectedNode as T;
+            => Tree.SelectedNode as T;
 
         public abstract void Delete();
         public void Rename()

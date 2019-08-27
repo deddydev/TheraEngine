@@ -106,20 +106,19 @@ namespace TheraEngine.Rendering
 
         protected void GetCurrentSubContext()
         {
-            Thread thread = Thread.CurrentThread;
-            
-             CreateContextForThread(thread);
-            if (_subContexts.ContainsKey(thread.ManagedThreadId))
-            {
-                _currentSubContext = _subContexts[thread.ManagedThreadId];
-                _currentSubContext.SetCurrent(true);
-            }
+            int id = Thread.CurrentThread.ManagedThreadId;
+            if (!_subContexts.ContainsKey(id))
+                CreateContextForThread();
+            _currentSubContext = _subContexts[id];
+            _currentSubContext.SetCurrent(true);
         }
         protected abstract ThreadSubContext CreateSubContext(IntPtr handle, Thread thread);
-        internal void CreateContextForThread(Thread thread)
+        internal int CreateContextForThread()
         {
+            Thread thread = Thread.CurrentThread;
+
             if (thread == null || _control == null)
-                return;
+                return -1;
             
             if (!_subContexts.ContainsKey(thread.ManagedThreadId))
             {
@@ -141,6 +140,8 @@ namespace TheraEngine.Rendering
                 c.Generate();
                 _subContexts.TryAdd(thread.ManagedThreadId, c);
             }
+
+            return thread.ManagedThreadId;
         }
         internal void DestroyContextForThread(Thread thread)
         {

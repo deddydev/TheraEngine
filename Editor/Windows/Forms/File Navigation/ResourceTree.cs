@@ -92,23 +92,30 @@ namespace TheraEditor.Windows.Forms
                     _imgList.Images.Add(nameof(Resources.ClosedFolder), Resources.ClosedFolder);
                     _imgList.Images.Add(nameof(Resources.OpenFolder), Resources.OpenFolder);
                     _imgList.Images.Add(nameof(Resources.LockedFolder), Resources.GenericFile);
-
-                    TypeProxy fileWrapper = typeof(BaseFileWrapper);
-                    var types = AppDomainHelper.FindTypes(t => fileWrapper.IsAssignableFrom(t));
+                    
+                    Type baseFileWrapperType = typeof(BaseFileWrapper);
+                    var types = AppDomainHelper.ExportedTypes.Where(type => type.IsAssignableTo(baseFileWrapperType));
                     foreach (TypeProxy type in types)
                     {
                         NodeWrapperAttribute wrapper = type.GetCustomAttribute<NodeWrapperAttribute>();
-                        string imgName = wrapper?.ImageName;
-                        if (!string.IsNullOrWhiteSpace(imgName))
-                        {
-                            object resource = Resources.ResourceManager.GetObject(imgName, Resources.Culture);
-                            if (resource is Bitmap bmp && !_imgList.Images.ContainsKey(imgName))
-                                _imgList.Images.Add(imgName, bmp);
-                        }
+                        if (wrapper is null)
+                            continue;
+
+                        AddImageByResourceName(wrapper.ImageName);
+                        AddImageByResourceName(wrapper.SelectedImageName);
                     }
                 }
                 return _imgList;
             }
+        }
+        private static void AddImageByResourceName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) || _imgList.Images.ContainsKey(name))
+                return;
+            
+            object resource = Resources.ResourceManager.GetObject(name, Resources.Culture);
+            if (resource is Bitmap bmp)
+                _imgList.Images.Add(name, bmp);
         }
         
         //internal void BeginFileSave(string filePath, int op)
@@ -275,7 +282,13 @@ namespace TheraEditor.Windows.Forms
         }
 
         private ConcurrentDictionary<string, string> _extHashDictionary = new ConcurrentDictionary<string, string>();
-        public string GetOrAddIcon(string filePath)
+        /// <summary>
+        /// Reads in an icon from the given path and adds it to the tree's available images.
+        /// Returns the key to use to retrieve the image from ImageList.Images.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public string GetOrAddIconFromPath(string filePath)
         {
             string ext = Path.GetExtension(filePath).ToLowerInvariant();
             if (_extHashDictionary.TryGetValue(ext, out string hashStr))
@@ -305,9 +318,8 @@ namespace TheraEditor.Windows.Forms
                 var func = MappableActions[e.KeyData];
                 e.Handled = func();
                 if (e.Handled)
-                {
-                    Engine.PrintLine(e.KeyData.ToString() + ": " + func.Method.Name);
-                }
+                    Engine.PrintLine(EOutputVerbosity.Verbose, e.KeyData.ToString() + ": " + func.Method.Name);
+                
                 return;
             }
             base.OnKeyDown(e);
@@ -543,7 +555,7 @@ namespace TheraEditor.Windows.Forms
                         }
                         if (!(node is FolderWrapper))
                         {
-                            string key = GetOrAddIcon(currentPath);
+                            string key = GetOrAddIconFromPath(currentPath);
                             node.ImageKey = node.SelectedImageKey = node.StateImageKey = key;
                         }
                         current.Nodes.Add(node);

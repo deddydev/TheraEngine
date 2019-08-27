@@ -36,7 +36,12 @@ namespace TheraEngine.Components.Scene.Transforms
         [TSerialize]
         public LocalFileRef<TCollisionObject> IgnoreCast { get; set; } = null;
         [TSerialize]
-        public IRenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(false, true) { EditorVisibilityMode = EEditorVisibility.VisibleOnlyWhenSelected };
+        public IRenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(false, true)
+        {
+#if EDITOR
+            EditorVisibilityMode = EEditorVisibility.VisibleOnlyWhenSelected
+#endif
+        };
 
         public BoomComponent() : base() { _rc = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render); }
 
@@ -46,10 +51,12 @@ namespace TheraEngine.Components.Scene.Transforms
             Engine.Renderer.RenderLine(GetParentMatrix().Translation, WorldPoint, Color.Black);
         }
 
+#if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
             RenderInfo.Visible = selected;
         }
+#endif
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {

@@ -23,7 +23,9 @@ namespace TheraEngine.Actors
         [Category(SceneComponent.RenderingCategoryName)]
         public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true)
         {
+#if EDITOR
             EditorVisibilityMode = EEditorVisibility.VisibleOnlyWhenSelected
+#endif
         };
         
         [Category(SceneComponent.RenderingCategoryName)]

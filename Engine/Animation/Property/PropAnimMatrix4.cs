@@ -36,7 +36,7 @@ namespace TheraEngine.Animation
         public Matrix4 GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public Matrix4 GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second);
+            => Keyframes.Count == 0 ? DefaultValue : Keyframes.First.Interpolate(second);
         
         public override void Bake(float framesPerSecond)
         {

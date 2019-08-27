@@ -576,7 +576,7 @@ namespace TheraEngine.Animation
         CubicHermite,
         CubicBezier
     }
-    public abstract class Keyframe : IKeyframe, ISerializableString
+    public abstract class Keyframe : TObject, IKeyframe, ISerializableString
     {
         [TSerialize(nameof(Second), NodeType = ENodeType.Attribute)]
         private float _second;

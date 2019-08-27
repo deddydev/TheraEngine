@@ -290,6 +290,8 @@ namespace TheraEditor.Windows.Forms
 
                 string assemblyName = assembly.GetName().Name;
                 string domainName = AppDomain.CurrentDomain.FriendlyName;
+                if (domainName == "TheraEditor.exe")
+                    throw new Exception();
                 Debug.Print($"[{domainName}] Loaded assembly {assemblyName} via {nameof(TheraAssemblyLoader)}");
 
                 //    break;

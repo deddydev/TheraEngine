@@ -7,8 +7,10 @@ namespace Extensions
     {
         public static TypeProxy GetTypeProxy(this object o)
         {
+#if EDITOR
             if (o is IObject iobj && iobj.Domain.IsGameDomain())
                 return iobj.GetTypeProxy();
+#endif
             
             return o.GetType();
         }

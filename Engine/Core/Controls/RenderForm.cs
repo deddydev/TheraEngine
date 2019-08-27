@@ -36,7 +36,7 @@ namespace TheraEngine
                 WindowState = FormWindowState.Maximized;
 
 #if !DEBUG
-            Cursor.Clip = renderPanel1.RectangleToScreen(renderPanel1.ClientRectangle);
+            Cursor.Clip = renderPanel.RectangleToScreen(renderPanel.ClientRectangle);
             Cursor.Hide();
 #endif
 
@@ -50,7 +50,7 @@ namespace TheraEngine
 #if !DEBUG
         protected override void OnSizeChanged(EventArgs e)
         {
-            Cursor.Clip = renderPanel1.RectangleToScreen(renderPanel1.ClientRectangle);
+            Cursor.Clip = renderPanel.RectangleToScreen(renderPanel.ClientRectangle);
             base.OnSizeChanged(e);
         }
 #endif

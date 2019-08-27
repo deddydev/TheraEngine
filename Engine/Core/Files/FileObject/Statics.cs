@@ -313,7 +313,7 @@ namespace TheraEngine.Core.Files
             TFileExt extAttrib = GetFileExtension(expectedType);
             TFile3rdPartyExt tpAttrib = GetFile3rdPartyExtensions(expectedType);
             EFileFormat fmt = GetFormat(filePath, out string ext);
-
+            object file = null;
             if (extAttrib != null)
             {
                 if (fmt == EFileFormat.ThirdParty)
@@ -321,7 +321,7 @@ namespace TheraEngine.Core.Files
                     bool hasWildcard = extAttrib.HasImportableExtension("*");
                     bool hasExt = extAttrib.HasImportableExtension(ext);
                     if (hasWildcard || hasExt)
-                        return await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
+                        file = await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
                 }
                 else
                 {
@@ -330,7 +330,7 @@ namespace TheraEngine.Core.Files
                     //string fileExt = extAttrib.GetFullExtension(pfmt);
                     //if (string.Equals(ext, fileExt))
                     //{
-                        var file = fmt == EFileFormat.XML ?
+                        file = fmt == EFileFormat.XML ?
                             await FromXMLAsync(filePath, progress, cancel) :
                             await FromBinaryAsync(filePath, progress, cancel);
 
@@ -340,11 +340,9 @@ namespace TheraEngine.Core.Files
                             if (!expectedType.IsAssignableFrom(fileType))
                             {
                                 Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {expectedType.GetFriendlyName()}.");
-                                return null;
+                                file = null;
                             }
                         }
-
-                        return file;
                     //}
                 }
             }
@@ -353,18 +351,29 @@ namespace TheraEngine.Core.Files
                 bool hasWildcard = tpAttrib.HasExtension("*");
                 bool hasExt = tpAttrib.HasExtension(ext);
                 if (hasWildcard || hasExt)
-                    return await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
+                    file = await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
             }
 
-            var subClassTypes = AppDomainHelper.FindTypes(x => x.GetType().IsSubclassOf(expectedType));
-            foreach (var subClassType in subClassTypes)
+            if (file is null)
             {
-                object result = await TryLoadAsync(expectedType, filePath, progress, cancel);
-                if (result != null)
-                    return result;
+                var subClassTypes = AppDomainHelper.FindTypes(x => x.GetType().IsSubclassOf(expectedType));
+                foreach (var subClassType in subClassTypes)
+                {
+                    object result = await TryLoadAsync(expectedType, filePath, progress, cancel);
+                    if (result != null)
+                    {
+                        file = result;
+                        break;
+                    }
+                }
             }
 
-            return null;
+            if (file is IFileObject fileObj)
+            {
+                fileObj.FilePath = filePath;
+            }
+
+            return file;
         }
 
         #endregion

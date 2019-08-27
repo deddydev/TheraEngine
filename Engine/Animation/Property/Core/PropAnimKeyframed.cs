@@ -13,15 +13,16 @@ namespace TheraEngine.Animation
 
         public PropAnimKeyframed()
             : this(0.0f, false) { }
-        public PropAnimKeyframed(float lengthInSeconds, bool looped, bool isBaked = false) 
-            : base(lengthInSeconds, looped, isBaked) => ConstructKeyframes();
-        public PropAnimKeyframed(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
-            : base(frameCount, framesPerSecond, looped, isBaked) => ConstructKeyframes();
+        public PropAnimKeyframed(float lengthInSeconds, bool looped, bool useKeyframes = true) 
+            : base(lengthInSeconds, looped, useKeyframes) => ConstructKeyframes();
+        public PropAnimKeyframed(int frameCount, float framesPerSecond, bool looped, bool useKeyframes = true)
+            : base(frameCount, framesPerSecond, looped, useKeyframes) => ConstructKeyframes();
         
-        private void ConstructKeyframes()
+        private KeyframeTrack<T> ConstructKeyframes()
         {
             _keyframes = new KeyframeTrack<T>();
             _keyframes.LengthChanged += KeyframesLengthChanged;
+            return _keyframes;
         }
 
         private bool _updatingLength = false;
@@ -34,10 +35,10 @@ namespace TheraEngine.Animation
             _updatingLength = false;
         }
 
-        protected override BaseKeyframeTrack InternalKeyframes => _keyframes;
+        protected override BaseKeyframeTrack InternalKeyframes => Keyframes;
 
         [Category("Keyframed Property Animation")]
-        public KeyframeTrack<T> Keyframes => _keyframes;
+        public KeyframeTrack<T> Keyframes => _keyframes ?? ConstructKeyframes();
 
         /// <summary>
         /// Appends the keyframes of the given animation to the end of this one.
@@ -46,7 +47,7 @@ namespace TheraEngine.Animation
         public void Append(PropAnimKeyframed<T> other)
             => Keyframes.Append(other.Keyframes);
         
-        public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)_keyframes).GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)Keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)Keyframes).GetEnumerator();
     }
 }

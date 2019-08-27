@@ -1,12 +1,12 @@
-﻿using System.Windows.Forms;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Rendering.Models;
-using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(nameof(Resources.GenericFile))]
+    [NodeWrapper(nameof(Resources.GenericFile), nameof(Resources.GenericFile))]
     public class SkeletalModelWrapper : FileWrapper<SkeletalModel>
     {
         #region Menu

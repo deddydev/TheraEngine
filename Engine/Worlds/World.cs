@@ -329,8 +329,10 @@ namespace TheraEngine.Worlds
 
         private void Render3D()
         {
+#if EDITOR
             if (!(Engine.EditorState?.InEditMode ?? false))
                 return;
+#endif
 
             Engine.Renderer.RenderBox(Settings.Bounds.HalfExtents, Settings.Bounds.Translation.AsTranslationMatrix(), false, Color.Green);
             if (Settings.EnableOriginRebasing)
@@ -343,8 +345,10 @@ namespace TheraEngine.Worlds
         }
         private void Render2D()
         {
+#if EDITOR
             if (!(Engine.EditorState?.InEditMode ?? false))
                 return;
+#endif
 
             if (Settings.PreviewQuadtrees)
                 Scene2D?.RenderTree?.DebugRender(null, true);

@@ -358,7 +358,12 @@ namespace TheraEngine.Rendering.UI
         public RenderCommandMethod2D _rc;
         public virtual void AddRenderables(RenderPasses passes, ICamera camera)
         {
-            if (!RenderTransformation || !Engine.EditorState.InEditMode)
+#if EDITOR
+            if (!Engine.EditorState.InEditMode)
+                return;
+#endif
+
+            if (!RenderTransformation)
                 return;
 
             passes.Add(_rc);

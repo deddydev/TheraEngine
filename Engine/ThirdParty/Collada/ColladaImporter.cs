@@ -24,19 +24,19 @@ namespace TheraEngine.Rendering.Models
 {
     public partial class Collada
     {
-        public class Data
+        public class ImportResult
         {
             public List<ModelScene> Models { get; set; }
             public List<BasePropAnim> PropertyAnimations { get; set; }
             public IActor Actor { get; set; }
         }
 
-        public static Task<Data> ImportAsync(
+        public static Task<ImportResult> ImportAsync(
             string filePath,
             ColladaImportOptions options)
             => ImportAsync(filePath, options, null, CancellationToken.None);
 
-        public static async Task<Data> ImportAsync(
+        public static async Task<ImportResult> ImportAsync(
             string filePath,
             ColladaImportOptions options,
             IProgress<float> progress,
@@ -47,11 +47,11 @@ namespace TheraEngine.Rendering.Models
 
             Engine.PrintLine("Importing Collada scene on thread " + Thread.CurrentThread.ManagedThreadId + ".");
 
-            Data data = new Data();
-            var schemeReader = new XMLSchemeDefinition<COLLADA>();
-            var root = await schemeReader.ImportAsync(filePath, (ulong)options.IgnoreFlags, progress, cancel);
-            if (root == null)
-                return data;
+            ImportResult result = new ImportResult();
+
+            var root = await XMLSchemaDefinition<COLLADA>.ImportAsync(filePath, (ulong)options.IgnoreFlags, progress, cancel);
+            if (root is null)
+                return result;
             
             Matrix4 baseTransform = options.InitialTransform.Matrix;
             var asset = root.AssetElement;
@@ -83,10 +83,10 @@ namespace TheraEngine.Rendering.Models
             }
 
             Scene scene = root.GetChild<Scene>();
-            if (scene == null)
-                return data;
+            if (scene is null)
+                return result;
             
-            data.Models = new List<ModelScene>();
+            result.Models = new List<ModelScene>();
             var visualScenes = scene.GetChildren<Scene.InstanceVisualScene>();
             foreach (var visualSceneRef in visualScenes)
             {
@@ -141,7 +141,7 @@ namespace TheraEngine.Rendering.Models
                             obj.Initialize(modelScene.SkeletalModel, visualScene);
                     }
 
-                    data.Models.Add(modelScene);
+                    result.Models.Add(modelScene);
 
                     if (!options.IgnoreFlags.HasFlag(EIgnoreFlags.Animations))
                     {
@@ -152,27 +152,27 @@ namespace TheraEngine.Rendering.Models
                             {
                                 if (anim == null)
                                 {
-                                    data.PropertyAnimations = new List<BasePropAnim>();
+                                    result.PropertyAnimations = new List<BasePropAnim>();
                                     anim = new SkeletalAnimation()
                                     {
                                         Name = Path.GetFileNameWithoutExtension(filePath),
                                         Looped = true,
                                     };
                                 }
-                                ParseAnimation(animElem, anim, visualScene, data.PropertyAnimations, ref animationLength);
+                                ParseAnimation(animElem, anim, visualScene, result.PropertyAnimations, ref animationLength);
                             }
 
                         if (anim != null && animationLength > 0.0f)
                         {
                             anim.SetLength(animationLength, false);
                             Engine.PrintLine("Model animation imported: " + animationLength.ToString() + " seconds / " + Math.Ceiling(animationLength * 60.0f).ToString() + " frames long at 60fps.");
-                            data.Models[0].Animation = anim;
+                            result.Models[0].Animation = anim;
                         }
                     }
                 }
             }
             
-            return data;
+            return result;
         }
         private enum EInterpType
         {

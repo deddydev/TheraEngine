@@ -100,7 +100,9 @@ namespace TheraEngine.Rendering
         public RenderInfo3D(bool visibleByDefault = true, bool visibleInEditorOnly = false)
         {
             VisibleByDefault = visibleByDefault;
+#if EDITOR
             VisibleInEditorOnly = visibleInEditorOnly;
+#endif
         }
         
         public override int GetHashCode() => SceneID;

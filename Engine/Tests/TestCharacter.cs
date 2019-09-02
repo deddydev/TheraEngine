@@ -1,13 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Animation;
-using TheraEngine.Components.Logic.Animation;
-using TheraEngine.Core.Files;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Rendering.Models;
-
-namespace TheraEngine.Tests
+﻿namespace TheraEngine.Tests
 {
     //public class TestCharacter : CharacterPawn
     //{
@@ -72,7 +63,7 @@ namespace TheraEngine.Tests
     //    //        Collada.EIgnoreFlags.Animations,
     //    //        InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(0.45f), TransformOrder.TRS),
     //    //    };
-            
+
     //    //    Task.Run(() => Collada.ImportAsync(TestDefaults.DesktopPath + "test.dae", options)).ContinueWith(task => SceneImported(task));
     //    //    base.PreConstruct();
     //    //}

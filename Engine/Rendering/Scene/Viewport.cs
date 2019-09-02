@@ -125,7 +125,7 @@ namespace TheraEngine.Rendering
         //}
 
         public BoundingRectangle InternalResolution => _internalResolution;
-        public BaseRenderPanel OwningPanel { get; }
+        public BaseRenderHandler RenderHandler { get; }
 
         public IUserInterface _hud;
         public IUserInterface HUD
@@ -140,7 +140,7 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public Viewport(BaseRenderPanel panel, int index)
+        public Viewport(BaseRenderHandler panel, int index)
         {
             if (index == 0)
             {
@@ -150,7 +150,7 @@ namespace TheraEngine.Rendering
             else
                 ViewportCountChanged(index, panel.Viewports.Count + 1, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
 
-            OwningPanel = panel;
+            RenderHandler = panel;
             Index = index;
             _ssaoInfo.Generate();
 
@@ -292,7 +292,7 @@ namespace TheraEngine.Rendering
             if (Owners.Contains(controller))
                 Owners.Remove(controller);
             if (Owners.Count == 0)
-                OwningPanel.Viewports.Remove(PlayerIndex);
+                RenderHandler.Viewports.Remove(PlayerIndex);
         }
         
         /// <summary>
@@ -741,7 +741,7 @@ namespace TheraEngine.Rendering
 
         protected void PrecomputeBRDF(int width = 512, int height = 512)
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, int>)PrecomputeBRDF, BaseRenderPanel.EPanelType.Rendering, width, height))
+            if (RenderContext.ThreadSafeBlockingInvoke((Action<int, int>)PrecomputeBRDF, RenderContext.EPanelType.Rendering, width, height))
                 return;
 
             RenderingParameters renderParams = new RenderingParameters();
@@ -792,7 +792,7 @@ namespace TheraEngine.Rendering
         internal protected virtual unsafe void InitializeFBOs()
         {
             RegeneratingFBOs = true;
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)InitializeFBOs, BaseRenderPanel.EPanelType.Rendering))
+            if (RenderContext.ThreadSafeBlockingInvoke((Action)InitializeFBOs, RenderContext.EPanelType.Rendering))
                 return;
 
             ClearFBOs();

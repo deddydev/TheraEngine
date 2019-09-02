@@ -29,7 +29,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.renderPanel = new TheraEngine.WorldRenderPanel();
+            this.renderPanel = new RenderPanel<TheraEngine.WorldRenderHandler>();
             this.SuspendLayout();
             // 
             // renderPanel1
@@ -57,6 +57,6 @@
 
         #endregion
 
-        private WorldRenderPanel renderPanel;
+        private RenderPanel<TheraEngine.WorldRenderHandler> renderPanel;
     }
 }

@@ -9,7 +9,7 @@ namespace TheraEngine
     /// Used for rendering using any rasterizer that inherits from AbstractRenderer.
     /// Supports a 2D or 3D scene processor.
     /// </summary>
-    public abstract class RenderPanel<T> : BaseRenderPanel where T : IScene
+    public abstract class RenderHandler<T> : BaseRenderHandler where T : IScene
     {
         public event Action PreRendered, PostRendered;
         /// <summary>
@@ -43,7 +43,7 @@ namespace TheraEngine
         protected virtual void GlobalPostRender() => OnPostRender();
         protected void OnPostRender() => PostRendered?.Invoke();
 
-        protected override void OnUpdate()
+        public override void Update()
         {
             foreach (Viewport v in Viewports.Values)
                 v.Update(GetScene(v), GetCamera(v), GetCullingVolume(v));
@@ -56,7 +56,7 @@ namespace TheraEngine
                 v.SwapBuffers();
             }
         }
-        protected override void OnRender()
+        public override void Render()
         {
             ICamera camera;
             IScene scene;

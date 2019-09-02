@@ -8,7 +8,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Windows.Forms;
@@ -18,7 +17,6 @@ using TheraEditor.Wrappers;
 using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
-using System.Threading.Tasks;
 using System.Collections.Concurrent;
 
 namespace TheraEditor.Windows.Forms

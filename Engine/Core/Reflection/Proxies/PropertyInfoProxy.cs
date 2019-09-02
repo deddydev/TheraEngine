@@ -1,10 +1,6 @@
 ﻿using System.Collections.Concurrent;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using TheraEngine.Core.Attributes;
-using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Core.Reflection
 {
@@ -39,6 +35,5 @@ namespace TheraEngine.Core.Reflection
             => Value.GetIndexParameters().Select(x => ParameterInfoProxy.Get(x)).ToArray();
         public bool HasIndexParameters()
             => Value.GetIndexParameters().Length > 0;
-
     }
 }

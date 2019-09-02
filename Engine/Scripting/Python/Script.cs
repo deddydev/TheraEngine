@@ -1,6 +1,4 @@
-﻿using Microsoft.Scripting.Hosting;
-using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TheraEngine.Core.Files;
 
 namespace TheraEngine.Scripting

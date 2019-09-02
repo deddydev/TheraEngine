@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TheraEngine.Components.Logic.Interaction
+﻿namespace TheraEngine.Components.Logic.Interaction
 {
     /// <summary>
     /// 

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using TheraEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {

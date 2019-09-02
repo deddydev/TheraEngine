@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models;

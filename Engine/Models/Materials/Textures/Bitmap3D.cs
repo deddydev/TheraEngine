@@ -1,5 +1,4 @@
-﻿using OpenTK;
-using System;
+﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Files;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Core.Reflection;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms

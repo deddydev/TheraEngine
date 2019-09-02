@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace TheraEngine.Rendering.UI.Functions
+﻿namespace TheraEngine.Rendering.UI.Functions
 {
     public interface IFuncValueInput : IBaseFuncValue
     {

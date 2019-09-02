@@ -1,8 +1,6 @@
-﻿using TheraEngine.Rendering;
-
-namespace TheraEngine.Windows.Forms
+﻿namespace TheraEngine.Windows.Forms
 {
-    public class EditorWorldRenderPanel : WorldRenderPanel
+    public class EditorWorldRenderHandler : WorldRenderHandler
     {
         protected override void GlobalPreRender()
         {

@@ -12,7 +12,7 @@ namespace TheraEngine
             Engine.Instance.SetDomainProxy<EngineDomainProxy>(AppDomain.CurrentDomain, game.FilePath);
 
             InitializeComponent();
-            Engine.SetWorldPanel(renderPanel);
+            //Engine.SetWorldPanel(renderPanel);
 
             Text = game.Name;
             Icon icon = game.GetIcon();
@@ -62,7 +62,7 @@ namespace TheraEngine
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            renderPanel.UnregisterTick();
+            //renderPanel.UnregisterTick();
         }
         protected override void OnActivated(EventArgs e)
         {

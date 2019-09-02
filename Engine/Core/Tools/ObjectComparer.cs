@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-
-namespace TheraEngine.Core.Tools
+﻿namespace TheraEngine.Core.Tools
 {
     //public class ObjectComparer
     //{
@@ -64,7 +60,7 @@ namespace TheraEngine.Core.Tools
     //            else
     //                continue;
 
-                
+
     //        }
 
     //        return r;

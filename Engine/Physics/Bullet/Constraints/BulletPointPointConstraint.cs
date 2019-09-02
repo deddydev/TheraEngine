@@ -1,5 +1,4 @@
-﻿using System;
-using BulletSharp;
+﻿using BulletSharp;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Physics.Bullet.Constraints

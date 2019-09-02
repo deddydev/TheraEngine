@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using TheraEngine.Core.Memory;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;

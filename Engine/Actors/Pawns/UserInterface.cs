@@ -292,8 +292,8 @@ namespace TheraEngine.Actors.Types.Pawns
             Vec2 result;
             if (v != null)
             {
-                BaseRenderPanel panel = v.OwningPanel;
-                absolute = panel.PointToClient(absolute);
+                RenderContext ctx = v.RenderHandler.Context;
+                absolute = ctx.PointToClient(absolute);
                 result = new Vec2(absolute.X, absolute.Y);
                 result = v.AbsoluteToRelative(result);
             }
@@ -327,8 +327,8 @@ namespace TheraEngine.Actors.Types.Pawns
             Point absolute = Cursor.Position;
             if (v == null)
                 return new Vec2(absolute.X, absolute.Y);
-            BaseRenderPanel panel = v.OwningPanel;
-            absolute = panel.PointToClient(absolute);
+            RenderContext ctx = v.RenderHandler.Context;
+            absolute = ctx.PointToClient(absolute);
             Vec2 result = new Vec2(absolute.X, absolute.Y);
             result = v.AbsoluteToRelative(result);
             return result;

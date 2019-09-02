@@ -497,6 +497,10 @@
     <Compile Include="Windows\Forms\DockableWorldRenderFormBase.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Windows\Forms\Editors\2D\DockableUIEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Editors\BaseEditorRenderHandler.cs" />
     <Compile Include="Windows\Forms\Editors\FileEditorTheraForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -657,9 +661,6 @@
     </Compile>
     <Compile Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatGraph.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatGraph.Designer.cs">
-      <DependentUpon>DockableMatGraph.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Controls\RoundedButton.cs">
       <SubType>Component</SubType>
@@ -866,9 +867,7 @@
     <Compile Include="Windows\Forms\Class Creation\ObjectCreator.Designer.cs">
       <DependentUpon>ObjectCreator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\3D\Model Editor\ModelEditorRenderPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Windows\Forms\Editors\3D\Model Editor\ModelEditorRenderPanel.cs" />
     <Compile Include="Windows\Forms\File Navigation\FileFolderList.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -885,9 +884,7 @@
     <Compile Include="Windows\Forms\Editors\3D\Model Editor\GenericDropDownControl.Designer.cs">
       <DependentUpon>GenericDropDownControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\UIRenderPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Windows\Forms\UIRenderPanel.cs" />
     <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxDecimal.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -1259,9 +1256,7 @@
     <Compile Include="Windows\Forms\File Navigation\ResourceTree.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Overrides\EditorWorldRenderPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Overrides\EditorWorldRenderPanel.cs" />
     <Compile Include="Windows\Forms\Main Window\Misc\UndoManager.cs" />
     <Compile Include="Windows\Forms\Editors\Texture Viewer\TextureViewerForm.cs">
       <SubType>Form</SubType>

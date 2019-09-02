@@ -1,5 +1,4 @@
 ﻿using TheraEngine.Rendering.Models.Materials;
-using System;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;

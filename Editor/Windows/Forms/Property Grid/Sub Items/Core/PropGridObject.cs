@@ -199,11 +199,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             object value = GetValue();
             Form form = _editorType.CreateInstance(value) as Form;
-            if (form is DockContent dc && !(form is TheraForm))
+            if (form is DockContent newFormDockable && !(form is TheraForm))
             {
-                DockContent form2 = ParentCategory.PropertyGrid.FindForm() as DockContent;
-                DockPanel p = form2?.DockPanel ?? Editor.Instance.DockPanel;
-                dc.Show(p, DockState.Document);
+                DockContent propGridForm = ParentCategory.PropertyGrid.FindForm() as DockContent;
+                DockPanel targetDockPanel = propGridForm?.DockPanel ?? Editor.Instance.DockPanel;
+                newFormDockable.Show(targetDockPanel, DockState.Document);
             }
             else
                 form?.ShowDialog(this);

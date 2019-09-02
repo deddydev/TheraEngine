@@ -1,5 +1,4 @@
-﻿using System;
-using TheraEngine.Components.Scene.Mesh;
+﻿using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Rendering.Models;
 using WeifenLuo.WinFormsUI.Docking;
 

@@ -1,6 +1,5 @@
 ﻿using BulletSharp;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics.Bullet;

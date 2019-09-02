@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading;
 using TheraEngine;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths.Transforms;

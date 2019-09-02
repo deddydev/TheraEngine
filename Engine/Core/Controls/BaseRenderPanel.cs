@@ -1,17 +1,8 @@
-﻿using Extensions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
-using TheraEngine.Actors;
-using TheraEngine.Input;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.DirectX;
-using TheraEngine.Rendering.OpenGL;
-using TheraEngine.Timers;
 
 namespace TheraEngine
 {
@@ -21,46 +12,14 @@ namespace TheraEngine
         Enabled,
         Adaptive,
     }
-    public interface IRenderPanel : IEnumerable<Viewport>
+    public interface IRenderPanel
     {
-        Dictionary<ELocalPlayerIndex, Viewport> Viewports { get; }
-        EVSyncMode VsyncMode { get; set; }
-        Point ScreenLocation { get; }
-        Point PointToClient(Point p);
-        Point PointToScreen(Point p);
-        void RegisterTick();
-        void UnregisterTick();
-        void CaptureContext();
         void CreateContext();
-        Viewport GetOrAddViewport(ELocalPlayerIndex index);
-        Viewport GetViewport(ELocalPlayerIndex index);
-        Viewport AddViewport(ELocalPlayerIndex index);
-        void UnregisterController(LocalPlayerController controller);
     }
     public abstract class BaseRenderPanel : UserControl, IRenderPanel
     {
-        public virtual int MaxViewports => 4;
+        public abstract void CreateContext();
 
-        public enum EPanelType
-        {
-            World,
-            Hovered,
-            Focused,
-            Rendering,
-        }
-
-        public static RenderContext GetContext(EPanelType type)
-        {
-            switch (type)
-            {
-                case EPanelType.World: return Engine.Instance.WorldPanel;
-                case EPanelType.Hovered: return Engine.Instance.HoveredPanel;
-                case EPanelType.Focused: return Engine.Instance.FocusedPanel;
-                case EPanelType.Rendering: return Engine.Instance.RenderingPanel;
-            }
-            return null;
-        }
-        
         //protected override CreateParams CreateParams
         //{
         //    get
@@ -70,7 +29,7 @@ namespace TheraEngine
         //        return cp;
         //    }
         //}
-
+        
         public BaseRenderPanel()
         {
             ResizeRedraw = true;
@@ -81,440 +40,107 @@ namespace TheraEngine
                 ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.Opaque,
                 true);
+
             UpdateStyles();
-            
+
             //Create context RIGHT AWAY so render objects can bind to it as they are created
             CreateContext();
-
-            //Add the main viewport - at least one viewport should always be rendering
-            //AddViewport();
         }
 
-        public bool _resizing = false;
-        public EVSyncMode _vsyncMode = EVSyncMode.Adaptive;
-        public RenderContext _context;
-
-        public RenderContext Context => _context;
-
-        /// <summary>
-        /// Calls the method. Invokes the render panel if necessary.
-        /// </summary>
-        //public static void CheckedInvoke(Action method, PanelType type)
-        //{
-        //    if (!NeedsInvoke(method, type))
-        //        method();
-        //}
-        /// <summary>
-        /// Returns true if the render panel needs to be invoked from the calling thread.
-        /// If it does, then it calls the method. You should return from the currently executing method if calling this on the currently executing method.
-        /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
-        /// </summary>
-        public static bool ThreadSafeBlockingInvoke<T>(Delegate method, EPanelType type, out T result, params object[] args)
-        {
-            RenderContext ctx = GetContext(type);
-            if (ctx is null)
-            {
-                result = default;
-                return false;
-            }
-            return ctx.Control.ThreadSafeBlockingInvoke(method, out result, args);
-        }
-        /// <summary>
-        /// Returns true if the render panel needs to be invoked from the calling thread.
-        /// If it does, then it calls the method. You should return from the currently executing method if calling this on the currently executing method.
-        /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
-        /// </summary>
-        public static bool ThreadSafeBlockingInvoke(Delegate method, EPanelType type, params object[] args)
-        {
-            RenderContext ctx = GetContext(type);
-            return ctx?.Control?.ThreadSafeBlockingInvoke(method, args) ?? false;
-        }
-        /// <summary>
-        /// Calls the method. Invokes render panel if necessary.
-        /// </summary>
-        //public static T CheckedInvoke<T>(Func<T> method, PanelType type)
-        //{
-        //    if (!NeedsInvoke(method, out T returnValue, type))
-        //        return (T)method.DynamicInvoke();
-        //    return returnValue;
-        //}
-        /// <summary>
-        /// Returns true if the render panel needs to be invoked from the calling thread.
-        /// If it does, then it calls the method.
-        /// </summary>
-        //public static bool NeedsInvoke<T2>(Func<T2> method, out T2 returnValue, PanelType type)
-        //{
-        //    Control panel = GetPanel(type);
-        //    if (panel != null && panel.InvokeRequired)
-        //    {
-        //        returnValue = (T2)panel.Invoke(method);
-        //        return true;
-        //    }
-        //    returnValue = default;
-        //    return false;
-        //}
-
-        public EVSyncMode VsyncMode
-        {
-            get => _vsyncMode;
-            set
-            {
-                _vsyncMode = value;
-                if (_context != null)
-                    _context.VSyncMode = _vsyncMode;
-            }
-        }
-
-        #region Rendering
-
-        /// <summary>
-        /// Tells the engine to render this panel at whatever rate the engine is running at.
-        /// This panel can also be manually rendered with a custom loop by calling RenderTick(object sender, FrameEventArgs e)
-        /// </summary>
-        public void RegisterTick() => Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
-        /// <summary>
-        /// Tells the engine to stop rendering this panel.
-        /// </summary>
-        public void UnregisterTick() => Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
-
-        public void UpdateTick(object sender, FrameEventArgs e)
-        {
-            OnUpdate();
-        }
-        private void RenderTick(object sender, FrameEventArgs e)
-        {
-            Invalidate();
-        }
         protected override void OnPaintBackground(PaintEventArgs e) { }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            if (_context == null || _context.IsContextDisposed())
-                base.OnPaint(e);
-            else if (Monitor.TryEnter(_context))
-            {
-                try
-                {
-                    _context.Capture(true);
-                    _context.PreRender();
-                    OnRender();
-                    _context.PostRender();
-                    _context.Swap();
-                    _context.ErrorCheck();
-                }
-                finally { Monitor.Exit(_context); }
-            }
-        }
-        /// <summary>
-        /// Overridden by the non-generic derived render panel to render the scene(s).
-        /// </summary>
-        protected abstract void OnRender();
-        protected abstract void OnUpdate();
-        public abstract void SwapBuffers();
-
-        #endregion
-
-        #region Resizing
-        //protected override void OnParentChanged(EventArgs e)
-        //{
-        //    base.OnParentChanged(e);
-
-        //    if (!DesignMode)
-        //    {
-        //        var parent = Parent;
-        //        if (parent != null)
-        //        {
-        //            while (!(parent is Form))
-        //                parent = parent.Parent;
-
-        //            var form = parent as Form;
-
-        //            form.ResizeBegin += (s, ea) => BeginResize();
-        //            form.ResizeEnd += (s, ea) => EndResize();
-        //        }
-        //    }
-        //}
-        //private Timer _timer;
-        //protected override void OnSizeChanged(EventArgs e)
-        //{
-        //    base.OnSizeChanged(e);
-        //    _context?.Update();
-        //    foreach (Viewport v in _viewports)
-        //        v.Resize(Width, Height, false);
-        //    _resizing = true;
-        //    _timer.Start();
-        //}
-        //public void BeginResize()
-        //{
-        //    //Visible = false;
-        //    _resizing = true;
-        //}
-        //public void EndResize()
-        //{
-        //    //_timer.Stop();
-        //    //Visible = true;
-        //    _resizing = false;
-        //    foreach (Viewport v in Viewports.Values)
-        //        v.SetInternalResolution(v.Width, v.Height);
-        //}
+        protected override void OnPaint(PaintEventArgs e) { }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            _context?.Update();
-            foreach (Viewport v in Viewports.Values)
-                v.Resize(Width, Height, true);
-            ScreenLocation = base.PointToScreen(Point.Empty);
+            Engine.DomainProxy.RenderPanelResized(Handle, Width, Height);
+            Engine.DomainProxy.UpdateScreenLocation(Handle, PointToScreen(Point.Empty));
         }
-
         private void UpdateScreenLocation(object sender, EventArgs e)
-            => ScreenLocation = base.PointToScreen(Point.Empty);
-
+            => Engine.DomainProxy.UpdateScreenLocation(Handle, PointToScreen(Point.Empty));
         protected override void OnParentChanged(EventArgs e)
         {
+            Control parent = this;
+            while (parent != null)
+            {
+                parent.Move -= UpdateScreenLocation;
+                parent = parent.Parent;
+            }
+            Form form = ParentForm;
+            if (form != null)
+                form.Move -= UpdateScreenLocation;
+
             base.OnParentChanged(e);
 
-            Control parent = this;
+            parent = this;
             while (parent != null)
             {
                 parent.Move += UpdateScreenLocation;
                 parent = parent.Parent;
             }
-            Form f = ParentForm;
-            if (f != null)
-            {
-                f.Move += UpdateScreenLocation;
-            }
+            form = ParentForm;
+            if (form != null)
+                form.Move += UpdateScreenLocation;
         }
         protected override void OnMove(EventArgs e)
         {
             base.OnMove(e);
             UpdateScreenLocation(this, e);
         }
-
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Point ScreenLocation { get; private set; }
-
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public List<ELocalPlayerIndex> ValidPlayerIndices { get; set; } = new List<ELocalPlayerIndex>()
-        {
-            ELocalPlayerIndex.One,
-            ELocalPlayerIndex.Two,
-            ELocalPlayerIndex.Three,
-            ELocalPlayerIndex.Four,
-        };
-
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Dictionary<ELocalPlayerIndex, Viewport> Viewports { get; set; } = new Dictionary<ELocalPlayerIndex, Viewport>();
-
-        #endregion
-
-        #region Mouse
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            base.OnMouseEnter(e);
-            if (Engine.Instance.HoveredPanel != _context)
-                Engine.Instance.HoveredPanel = _context;
-        }
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            if (Engine.Instance.HoveredPanel == _context)
-                Engine.Instance.HoveredPanel = null;
-        }
-        //protected override void OnMouseDown(MouseEventArgs e)
-        //{
-        //    base.OnMouseDown(e);
-        //    Capture = true;
-        //}
-        protected override void OnGotFocus(EventArgs e)
-        {
-            base.OnGotFocus(e);
-            if (Engine.Instance.FocusedPanel != _context)
-                Engine.Instance.FocusedPanel = _context;
-        }
-        protected override void OnLostFocus(EventArgs e)
-        {
-            base.OnLostFocus(e);
-            if (Engine.Instance.FocusedPanel == _context)
-                Engine.Instance.FocusedPanel = null;
-        }
-        //protected override void OnMouseCaptureChanged(EventArgs e)
-        //{
-        //    base.OnMouseCaptureChanged(e);
-        //    if (Capture)
-        //    {
-        //        if (CapturedPanel != this)
-        //            CapturedPanel = this;
-        //    }
-        //    else
-        //    {
-        //        if (CapturedPanel == this)
-        //            CapturedPanel = null;
-        //    }
-        //}
-        public new Point PointToClient(Point p)
-        {
-            p.X -= ScreenLocation.X;
-            p.Y -= ScreenLocation.Y;
-            //p = base.PointToClient(p);
-            p.Y = Height - p.Y;
-            return p;
-        }
-        public new Point PointToScreen(Point p)
-        {
-            p.Y = Height - p.Y;
-            p.X += ScreenLocation.X;
-            p.Y += ScreenLocation.Y;
-            return p;//base.PointToScreen(p);
-        }
-        #endregion
-
-        #region Context
-        public void CaptureContext()
-        {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(CaptureContext));
-                return;
-            }
-            _context?.Capture();
-        }
-        protected virtual void OnContextChanged(bool isNowCurrent)
-        {
-            //Don't update anything if this context has just been released
-            if (isNowCurrent)
-                OnResize(EventArgs.Empty);
-
-            //_currentPanel = isNowCurrent ? this : null;
-        }
-        /// <summary>
-        /// Generates a new render context for this panel 
-        /// based on the engine's assigned render library.
-        /// If a context exists already, disposes of it.
-        /// </summary>
-        public void CreateContext()
-        {
-            //if (Engine.DesignMode)
-            //    return;
-
-            switch (Engine.RenderLibrary)
-            {
-                case ERenderLibrary.OpenGL:
-                    if (_context is GLWindowContext)
-                        return;
-
-                    _context?.Dispose();
-                    _context = new GLWindowContext(this);
-
-                    break;
-                case ERenderLibrary.Direct3D11:
-                    if (_context is DXWindowContext)
-                        return;
-
-                    _context?.Dispose();
-                    _context = new DXWindowContext(this);
-
-                    break;
-                default:
-                    return;
-            }
-            if (_context != null)
-            {
-                _context.ContextChanged += OnContextChanged;
-                _context.ResetOccured += OnReset;
-                _context.Capture(true);
-                _context.Initialize();
-            }
-        }
         protected void DisposeContext()
-        {
-            if (_context != null)
-            {
-                _context.Dispose();
-                _context = null;
-            }
-        }
-        #endregion
-
-        #region Viewports
-        public Viewport GetOrAddViewport(ELocalPlayerIndex index)
-        {
-            //Sometimes this method is accessed by separate threads at the same time.
-            //Lock to ensure one viewport is added before the other thread checks for its existence.
-            //This method probably won't be called every frame so this shouldn't be a speed issue.
-            //lock (_viewports)
-            //{
-                return GetViewport(index) ?? AddViewport(index);
-            //}
-        }
-        public Viewport GetViewport(ELocalPlayerIndex index)
-        {
-            return Viewports.ContainsKey(index) ? Viewports[index] : null;
-        }
-        public Viewport AddViewport(ELocalPlayerIndex index)
-        {
-            if (Viewports.Count == MaxViewports)
-                return null;
-
-            Viewport newViewport = new Viewport(this, Viewports.Count);
-            Viewports.Add(index, newViewport);
-
-            Engine.PrintLine("Added new viewport to {0}: {1}", GetType().GetFriendlyName(), newViewport.Index);
-
-            //Fix the regions of the rest of the viewports
-            var twoPlayerPref = Engine.Game?.TwoPlayerPref ?? Viewport.ETwoPlayerPreference.SplitHorizontally;
-            var threePlayerPref = Engine.Game?.ThreePlayerPref ?? Viewport.EThreePlayerPreference.PreferFirstPlayer;
-            int i = 0;
-            foreach (var p in Viewports)
-            {
-                p.Value.ViewportCountChanged(i, Viewports.Count, twoPlayerPref, threePlayerPref);
-                p.Value.Resize(Width, Height);
-                p.Value.PlayerIndex = p.Key;
-                ++i;
-            }
-
-            return newViewport;
-        }
-        public void UnregisterController(LocalPlayerController controller)
-        {
-            if (IsDisposed)
-                return;
-
-            if (controller.Viewport != null && Viewports.ContainsValue(controller.Viewport))
-            {
-                Viewport v = controller.Viewport;
-                v.UnregisterController(controller);
-
-                //if (v.Owners.Count == 0)
-                //{
-                //    _viewports.Remove(v);
-                //    for (int i = 0; i < _viewports.Count; ++i)
-                //    {
-                //        Viewport p = _viewports[i];
-                //        p.ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
-                //        p.Resize(Width, Height);
-                //    }
-                //}
-            }
-        }
-        #endregion
-
-        protected virtual void OnReset(object sender, EventArgs e)
-        {
-            _context?.Initialize();
-        }
+            => Engine.DomainProxy.UnregisterRenderPanel(Handle);
         protected override void Dispose(bool disposing)
         {
             DisposeContext();
             base.Dispose(disposing);
         }
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            Engine.DomainProxy.MouseEnter(Handle);
+        }
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            Engine.DomainProxy.MouseLeave(Handle);
+        }
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            Engine.DomainProxy.GotFocus(Handle);
+        }
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            Engine.DomainProxy.LostFocus(Handle);
+        }
+    }
+    public class RenderPanel<T> : BaseRenderPanel where T : class, IRenderHandler
+    {
+        /// <summary>
+        /// Arguments to pass into the constructor of the render handler.
+        /// All arguments must be serializable.
+        /// </summary>
+        public object[] HandlerArgs { get; set; } = new object[0];
+        public override void CreateContext()
+            => Engine.DomainProxy.RegisterRenderPanel<T>(Handle, HandlerArgs);
 
-        public IEnumerator<Viewport> GetEnumerator() => ((IEnumerable<Viewport>)Viewports).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Viewport>)Viewports).GetEnumerator();
+        private T _renderHandlerCache = null;
+        public T RenderHandler  => _renderHandlerCache ?? MarshalRenderHandler(true);
+        
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            _renderHandlerCache?.Sponsor?.Release();
+            base.OnHandleDestroyed(e);
+        }
+        public T MarshalRenderHandler(bool cache)
+        {
+            T handler = (T)Engine.DomainProxy.MarshalRenderHandler(Handle);
+            if (cache)
+            {
+                AppDomainHelper.Sponsor(handler);
+                _renderHandlerCache = handler;
+            }
+            return handler;
+        }
     }
 }

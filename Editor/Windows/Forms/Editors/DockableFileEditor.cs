@@ -10,16 +10,18 @@ namespace TheraEditor.Windows.Forms
     public abstract class DockableFileEditor<T> : DockContent, IFileEditorControl where T : class, IFileObject
     {
         private T _file;
-        public virtual T File
+        public T File
         {
             get => _file;
-            set
-            {
-                if (!AllowFileClose() || _file == value)
-                    return;
+            set => TrySetFile(value);
+        }
+        protected virtual bool TrySetFile(T file)
+        {
+            if (!AllowFileClose() || _file == file)
+                return false;
 
-                _file = value;
-            }
+            _file = file;
+            return true;
         }
         IFileObject IFileEditorControl.File => File;
 
@@ -37,9 +39,10 @@ namespace TheraEditor.Windows.Forms
                 SaveAs();
             else
             {
-                int op = Editor.Instance.BeginOperation($"Saving {path}...", $"Successfully saved {path}.", out Progress<float> progress, out CancellationTokenSource cancel);
-                await File.RootFile.ExportAsync(ESerializeFlags.Default, progress, cancel.Token);
-                Editor.Instance.EndOperation(op);
+                await Editor.Instance.RunOperationAsync(
+                    $"Saving {path}...",
+                    $"Successfully saved {path}.",
+                    async (p, c) => await File.RootFile.ExportAsync(ESerializeFlags.Default, p, c.Token));
             }
         }
         public async void SaveAs()

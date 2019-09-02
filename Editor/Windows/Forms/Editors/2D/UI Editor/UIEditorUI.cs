@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;

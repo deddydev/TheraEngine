@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
-using TheraEngine;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace System.Windows.Forms

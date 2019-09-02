@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Windows.Forms;
-using TheraEngine;
 using TheraEngine.Animation;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid

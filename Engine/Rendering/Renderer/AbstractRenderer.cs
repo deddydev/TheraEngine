@@ -17,6 +17,9 @@ namespace TheraEngine.Rendering
     /// </summary>
     public abstract class AbstractRenderer : TObjectSlim
     {
+        //TODO: each RenderPanel has its own renderer.
+        //Use special code in here for debug features in only certain windows.
+
         public const float DefaultPointSize = 5.0f;
         public const float DefaultLineSize = 1.0f;
         

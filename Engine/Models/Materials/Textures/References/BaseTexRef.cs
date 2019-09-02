@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Threading.Tasks;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models.Materials.Textures;

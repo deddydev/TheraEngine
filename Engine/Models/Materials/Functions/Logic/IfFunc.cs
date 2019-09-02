@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions

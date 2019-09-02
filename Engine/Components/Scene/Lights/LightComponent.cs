@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Core;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;

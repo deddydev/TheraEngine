@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Timers
 {
@@ -63,28 +64,81 @@ namespace TheraEngine.Timers
             if (IsRunning)
                 return;
 
-            Engine.PrintLine("Started game loop.");
+            Engine.PrintLine($"Started {(singleThreaded ? "single" : "multi")}-threaded game loop.");
 
-            IsSingleThreaded = singleThreaded = true;
+            IsSingleThreaded = singleThreaded;
             IsRunning = true;
             _watch.Start();
 
-            if (singleThreaded)
-                Application.Idle += Application_Idle_SingleThread;
+            InitiateLoop(singleThreaded);
+        }
+
+        private void InitiateLoop(bool singleThreaded)
+        {
+            if (AppDomainHelper.IsPrimaryDomain)
+            {
+                if (singleThreaded)
+                    Application.Idle += Application_Idle_SingleThread;
+                else
+                {
+                    _commandsReady = new ManualResetEvent(false);
+                    _commandsSwappedForRender = new ManualResetEvent(false);
+                    _renderDone = new ManualResetEvent(true);
+
+                    Task.Factory.StartNew(RunUpdateMultiThreadInternal, TaskCreationOptions.LongRunning);
+
+                    Application.Idle += Application_Idle_MultiThread;
+                }
+            }
             else
             {
-                _commandsReady = new ManualResetEvent(false);
-                _commandsSwappedForRender = new ManualResetEvent(false);
-                _renderDone = new ManualResetEvent(true);
-                
-                Task.Factory.StartNew(RunUpdateMultiThreadInternal, TaskCreationOptions.LongRunning);
+                if (singleThreaded)
+                {
+                    Task.Factory.StartNew(GameDomainSingleThreadLoop, TaskCreationOptions.LongRunning);
+                }
+                else
+                {
+                    _commandsReady = new ManualResetEvent(false);
+                    _commandsSwappedForRender = new ManualResetEvent(false);
+                    _renderDone = new ManualResetEvent(true);
 
-                Application.Idle += Application_Idle_MultiThread;
+                    Task.Factory.StartNew(RunUpdateMultiThreadInternal, TaskCreationOptions.LongRunning);
+                    Task.Factory.StartNew(RunRenderMultiThreadInternal, TaskCreationOptions.LongRunning);
+                }
             }
         }
 
-        private bool IsApplicationIdle() => NativeMethods.PeekMessage(out _, IntPtr.Zero, 0, 0, 0) == 0;
+        #region Game Domain Loop
+        private void GameDomainSingleThreadLoop()
+        {
+            while (IsSingleThreaded && IsRunning)
+            {
+                DispatchUpdate();
+                SwapBuffers?.Invoke();
+                DispatchRender();
+            }
+        }
+        private void RunRenderMultiThreadInternal()
+        {
+            while (IsRunning && !IsSingleThreaded)
+            {
+                _commandsReady.WaitOne(); //Wait for the update thread to finish
+                _commandsReady.Reset();
 
+                //Swap command buffers
+                //Update commands will be consumed by the render pass
+                //And new update commands will be issued for the next render
+                SwapBuffers?.Invoke();
+                _commandsSwappedForRender.Set();
+
+                DispatchRender();
+                _renderDone.Set(); //Signal the update thread that rendering is done
+            }
+        }
+        #endregion
+
+        #region UI Domain Loop
+        private bool IsApplicationIdle() => NativeMethods.PeekMessage(out _, IntPtr.Zero, 0, 0, 0) == 0;
         private void Application_Idle_SingleThread(object sender, EventArgs e)
         {
             while (IsApplicationIdle() && IsSingleThreaded)
@@ -94,6 +148,26 @@ namespace TheraEngine.Timers
                 DispatchRender();
             }
         }
+        private void Application_Idle_MultiThread(object sender, EventArgs e)
+        {
+            while (IsRunning && IsApplicationIdle())
+            {
+                _commandsReady.WaitOne(); //Wait for the update thread to finish
+                _commandsReady.Reset();
+                    
+                //Swap command buffers
+                //Update commands will be consumed by the render pass
+                //And new update commands will be issued for the next render
+                SwapBuffers?.Invoke();
+                _commandsSwappedForRender.Set();
+                    
+                DispatchRender();
+                _renderDone.Set(); //Signal the update thread that rendering is done
+            }
+        }
+        #endregion
+
+        //This method is commonly used by both loop types
         private void RunUpdateMultiThreadInternal()
         {
             while (IsRunning && !IsSingleThreaded)
@@ -117,32 +191,19 @@ namespace TheraEngine.Timers
             _commandsReady = null;
             _renderDone = null;
         }
-        private void Application_Idle_MultiThread(object sender, EventArgs e)
-        {
-            while (IsRunning && IsApplicationIdle())
-            {
-                _commandsReady.WaitOne(); //Wait for the update thread to finish
-                _commandsReady.Reset();
-                    
-                //Swap command buffers
-                //Update commands will be consumed by the render pass
-                //And new update commands will be issued for the next render
-                SwapBuffers?.Invoke();
-                _commandsSwappedForRender.Set();
-                    
-                DispatchRender();
-                _renderDone.Set(); //Signal the update thread that rendering is done
-            }
-        }
+
         public void Stop()
         {
             IsRunning = false;
 
-            if (_commandsReady != null)
-                Application.Idle -= Application_Idle_MultiThread;
-            else
-                Application.Idle -= Application_Idle_SingleThread;
-            
+            if (AppDomainHelper.IsPrimaryDomain)
+            {
+                if (_commandsReady != null)
+                    Application.Idle -= Application_Idle_MultiThread;
+                else
+                    Application.Idle -= Application_Idle_SingleThread;
+            }
+
             _watch.Stop();
             Engine.PrintLine("Game loop ended.");
         }
@@ -413,6 +474,7 @@ namespace TheraEngine.Timers
         }
     }
 
+    [Serializable]
     public class FrameEventArgs : EventArgs
     {
         public FrameEventArgs() { }

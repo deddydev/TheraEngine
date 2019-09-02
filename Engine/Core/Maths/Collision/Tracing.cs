@@ -1,5 +1,4 @@
 ﻿using TheraEngine.Rendering.Models;
-using System;
 using TheraEngine.Actors;
 using TheraEngine.Core.Maths.Transforms;
 

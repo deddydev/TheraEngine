@@ -1,5 +1,4 @@
 ﻿using BulletSharp;
-using System;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics.RayTracing;
 

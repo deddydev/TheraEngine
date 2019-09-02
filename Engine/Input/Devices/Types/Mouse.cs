@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine.Networking;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Input.Devices
 {
@@ -144,7 +145,7 @@ namespace TheraEngine.Input.Devices
             _lastY = absPt.Y;
             OnRelative(relX, relY);
 
-            BaseRenderPanel pnl = Engine.Instance.HoveredPanel?.Control;
+            RenderContext pnl = Engine.DomainProxy.HoveredPanel;
             if (pnl != null)
                 absPt = pnl.PointToClient(absPt);
 

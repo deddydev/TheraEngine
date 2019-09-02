@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace TheraEngine.Core
+﻿namespace TheraEngine.Core
 {
     public class LocalizedString
     {

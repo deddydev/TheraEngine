@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Runtime.InteropServices;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
 

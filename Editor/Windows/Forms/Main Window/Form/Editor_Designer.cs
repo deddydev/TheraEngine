@@ -21,9 +21,9 @@ using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Networking;
-using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
+using TheraEngine.Rendering;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -35,7 +35,7 @@ namespace TheraEditor.Windows.Forms
         void SaveAs();
         bool AllowFileClose();
     }
-    public interface IEditorRenderableControl
+    public interface IEditorRenderHandler
     {
         /// <summary>
         /// The player index this control allows input from.
@@ -44,7 +44,7 @@ namespace TheraEditor.Windows.Forms
         /// <summary>
         /// The render panel with the viewport that will be possessed by the desired player.
         /// </summary>
-        BaseRenderPanel RenderPanel { get; }
+        RenderContext RenderPanel { get; }
         /// <summary>
         /// The pawn the player will possess for editing purposes.
         /// </summary>
@@ -268,7 +268,7 @@ namespace TheraEditor.Windows.Forms
         }
         private async void SetWorld(IWorld world)
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<IWorld>)SetWorld, BaseRenderPanel.EPanelType.Rendering, world))
+            if (RenderContext.ThreadSafeBlockingInvoke((Action<IWorld>)SetWorld, RenderContext.EPanelType.Rendering, world))
                 return;
 
             if (Engine.World?.EditorState?.HasChanges ?? false)
@@ -385,7 +385,7 @@ namespace TheraEditor.Windows.Forms
 
             if (CloseProject())
             {
-                SetRenderTicking(false);
+                //SetRenderTicking(false);
                 Engine.Stop();
                 Engine.ShutDown();
             }
@@ -449,45 +449,6 @@ namespace TheraEditor.Windows.Forms
         //    RenderForm.RenderPanel.EndResize();
         //    base.OnResizeEnd(e);
         //}
-#endregion
-
-#region Ticking
-        public bool IsRenderTicking { get; private set; }
-        public void SetRenderTicking(bool isRendering)
-        {
-            if (isRendering && !IsRenderTicking)
-            {
-                IsRenderTicking = true;
-                Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
-            }
-            else if (!isRendering && IsRenderTicking)
-            {
-                IsRenderTicking = false;
-                Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
-            }
-        }
-        private void UpdateTick(object sender, FrameEventArgs e)
-        {
-            Engine.Instance.GlobalUpdate();
-            for (int i = 0; i < 4; ++i)
-                if (RenderFormActive(i))
-                    GetRenderForm(i).RenderPanel.UpdateTick(sender, e);
-        }
-        private void SwapBuffers()
-        {
-            Engine.Instance.GlobalSwap();
-            for (int i = 0; i < 4; ++i)
-                if (RenderFormActive(i))
-                    GetRenderForm(i).RenderPanel.SwapBuffers();
-        }
-        private void RenderTick(object sender, FrameEventArgs e)
-        {
-            Engine.Instance.WorldPanel?.Capture();
-            Engine.Instance.GlobalPreRender();
-            for (int i = 0; i < 4; ++i)
-                if (RenderFormActive(i))
-                    GetRenderForm(i).RenderPanel.Invalidate();
-        }
 #endregion
 
 #region Project Management
@@ -669,7 +630,7 @@ namespace TheraEditor.Windows.Forms
             Attached,
         }
         private Rectangle _prevClip;
-        private void CaptureMouse(BaseRenderPanel panel)
+        private void CaptureMouse(Control panel)
         {
             CursorManager.GlobalWrapCursorWithinClip = true;
             Engine.EditorState.InEditMode = false;

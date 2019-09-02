@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using TheraEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Animation
 {

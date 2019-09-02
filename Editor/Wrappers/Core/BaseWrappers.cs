@@ -34,6 +34,8 @@ namespace TheraEditor.Wrappers
         public string SelectedImageName { get; }
         public string ThirdPartyExtension { get; }
     }
+    //TODO: make property of one tree node class
+    //Determine what wrapper to use by extension after game domain load
     public abstract class BaseWrapper : TreeNode
     {
         protected bool _isPopulated = false;

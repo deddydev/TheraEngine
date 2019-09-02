@@ -1,5 +1,4 @@
-﻿using System;
-using TheraEngine.Core.Maths.Transforms;
+﻿using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Logic.Movement
 {

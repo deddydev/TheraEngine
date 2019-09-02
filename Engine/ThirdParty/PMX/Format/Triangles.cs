@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
 
 namespace TheraEngine.ThirdParty.PMX

@@ -1,10 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Rendering.Models;
-
-namespace TheraEditor.Windows.Forms
+﻿namespace TheraEditor.Windows.Forms
 {
     public class BoneTree : TreeViewEx<BoneTreeNode>
     {

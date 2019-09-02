@@ -1,19 +1,22 @@
 ﻿using Extensions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting.Lifetime;
-using System.Security.Permissions;
 using System.Threading;
-using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.DirectX;
+using TheraEngine.Rendering.OpenGL;
+using TheraEngine.Timers;
 using static TheraEngine.Core.Files.TFileObject;
+using static TheraEngine.Rendering.RenderContext;
 
 namespace TheraEngine.Core
 {
@@ -72,6 +75,11 @@ namespace TheraEngine.Core
             "AppDomain: "           + AppDomain.CurrentDomain.FriendlyName
             + Environment.NewLine;
 
+        public RenderContext WorldPanel { get; set; }
+        public RenderContext HoveredPanel { get; set; }
+        public RenderContext FocusedPanel { get; set; }
+        public RenderContext RenderingPanel { get; set; }
+
         public ProxyList<TypeProxy> GetExportedTypes()
         {
             AppDomain domain = AppDomain.CurrentDomain;
@@ -116,6 +124,7 @@ namespace TheraEngine.Core
             else
                 Engine.SetGame(null);
 
+            SetRenderTicking(true);
             OnStarted();
         }
         protected virtual void OnStarted() => Started?.Invoke();
@@ -126,6 +135,69 @@ namespace TheraEngine.Core
             ResetTypeCaches(false);
             Sponsor?.Release();
             Stopped?.Invoke();
+        }
+
+        public bool IsRenderTicking { get; private set; }
+        public void SetRenderTicking(bool isRendering)
+        {
+            if (isRendering && !IsRenderTicking)
+            {
+                IsRenderTicking = true;
+                Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
+            }
+            else if (!isRendering && IsRenderTicking)
+            {
+                IsRenderTicking = false;
+                Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
+            }
+        }
+        //public void Render(RenderContext ctx)
+        //{
+        //    if (ctx == null || ctx.IsContextDisposed())
+        //        return;
+
+        //    if (Monitor.TryEnter(ctx))
+        //    {
+        //        try
+        //        {
+        //            ctx.Render();
+        //        }
+        //        finally { Monitor.Exit(ctx); }
+        //    }
+        //}
+        public RenderContext GetContext(EPanelType type)
+        {
+            switch (type)
+            {
+                case EPanelType.World: return WorldPanel;
+                case EPanelType.Hovered: return HoveredPanel;
+                case EPanelType.Focused: return FocusedPanel;
+                case EPanelType.Rendering: return RenderingPanel;
+            }
+            return null;
+        }
+
+        private void UpdateTick(object sender, FrameEventArgs e)
+        {
+            Engine.Instance.GlobalUpdate();
+            foreach (var ctx in Contexts.Values)
+                ctx.Update();
+        }
+        private void SwapBuffers()
+        {
+            Engine.Instance.GlobalSwap();
+            foreach (var ctx in Contexts.Values)
+                ctx.SwapBuffers();
+        }
+        private void RenderTick(object sender, FrameEventArgs e)
+        {
+            WorldPanel?.Capture();
+            Engine.Instance.GlobalPreRender();
+
+            //TODO: group contexts by world.
+            //Do a global pre-render per world.
+            foreach (var ctx in Contexts.Values)
+                ctx.Render();
         }
         public virtual void ResetTypeCaches(bool reloadNow = true)
         {
@@ -166,7 +238,6 @@ namespace TheraEngine.Core
             }
             return null;
         }
-
         public void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethod<T> loadMethod) where T : class, IFileObject
         {
             if (_3rdPartyLoaders == null)
@@ -295,6 +366,79 @@ namespace TheraEngine.Core
 
         public T CreateInstance<T>(params object[] args) where T : ISponsorableMarshalByRefObject
             => (T)Activator.CreateInstance(typeof(T), args);
+
+        public void LostFocus(IntPtr handle)
+        {
+            if (Contexts.ContainsKey(handle))
+                Contexts[handle].LostFocus();
+        }
+        public void GotFocus(IntPtr handle)
+        {
+            if (Contexts.ContainsKey(handle))
+                Contexts[handle].GotFocus();
+        }
+        public void MouseLeave(IntPtr handle)
+        {
+            if (Contexts.ContainsKey(handle))
+                Contexts[handle].MouseLeave();
+        }
+        public void MouseEnter(IntPtr handle)
+        {
+            if (Contexts.ContainsKey(handle))
+                Contexts[handle].MouseEnter();
+        }
+
+        public ConcurrentDictionary<IntPtr, RenderContext> Contexts { get; } = new ConcurrentDictionary<IntPtr, RenderContext>();
+        public void RegisterRenderPanel<T>(IntPtr handle, params object[] handlerArgs)
+            where T : class, IRenderHandler
+        {
+            if (Contexts.ContainsKey(handle))
+                Contexts[handle]?.Dispose();
+            RenderContext ctx;
+            var rh = Activator.CreateInstance(typeof(T), handlerArgs) as BaseRenderHandler;
+            switch (Engine.RenderLibrary)
+            {
+                case ERenderLibrary.OpenGL:
+                    Contexts[handle] = ctx = new GLWindowContext(handle) { Handler = rh };
+                    break;
+                case ERenderLibrary.Direct3D11:
+                    Contexts[handle] = ctx = new DXWindowContext(handle) { Handler = rh };
+                    break;
+                default:
+                    return;
+            }
+            if (ctx != null)
+            {
+                ctx.Capture(true);
+                ctx.Initialize();
+
+                Engine.PrintLine("Registered render panel " + rh.GetType().GetFriendlyName());
+            }
+        }
+        public void UnregisterRenderPanel(IntPtr handle)
+        {
+            if (Contexts.ContainsKey(handle))
+            {
+                Contexts[handle]?.Dispose();
+                Contexts.TryRemove(handle, out _);
+            }
+        }
+        public void RenderPanelResized(IntPtr handle, int width, int height)
+        {
+            if (Contexts.ContainsKey(handle))
+                Contexts[handle].Resize(width, height);
+        }
+        public void UpdateScreenLocation(IntPtr handle, Point point)
+        {
+            if (Contexts.ContainsKey(handle))
+                Contexts[handle].ScreenLocation = point;
+        }
+        public IRenderHandler MarshalRenderHandler(IntPtr handle)
+        {
+            if (Contexts.ContainsKey(handle))
+                return Contexts[handle].Handler;
+            return null;
+        }
 
         //[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]
         //public override object InitializeLifetimeService()

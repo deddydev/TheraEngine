@@ -1,5 +1,4 @@
-﻿using TheraEngine;
-using System.IO;
+﻿using System.IO;
 using System;
 
 namespace TheraEngine.Core.Memory

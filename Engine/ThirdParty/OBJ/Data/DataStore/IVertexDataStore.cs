@@ -1,4 +1,3 @@
-using System;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace ObjLoader.Loader.Data.DataStore

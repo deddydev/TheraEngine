@@ -1,8 +1,4 @@
-﻿using System;
-using TheraEngine.Components.Scene;
-using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Rendering.Cameras;
+﻿using TheraEngine.Components.Scene;
 
 namespace TheraEngine.Actors.Types.Pawns
 {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using TheraEngine.Core.Memory;
-using TheraEngine.Core.Files.Serialization;
-
-namespace TheraEngine.Core.Files
+﻿namespace TheraEngine.Core.Files
 {
     //public unsafe class BinaryStringTable
     //{

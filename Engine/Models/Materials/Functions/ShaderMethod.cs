@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials.Functions
 {

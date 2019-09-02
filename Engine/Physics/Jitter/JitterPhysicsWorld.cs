@@ -1,8 +1,6 @@
 ﻿using System;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics.ContactTesting;
-using TheraEngine.Physics.Jitter;
-using TheraEngine.Physics.Jitter.Shapes;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
 

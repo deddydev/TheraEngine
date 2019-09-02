@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models

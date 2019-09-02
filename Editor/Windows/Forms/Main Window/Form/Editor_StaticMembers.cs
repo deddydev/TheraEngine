@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
@@ -17,7 +16,7 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         public static Editor Instance => Singleton<Editor>.Instance;
 
-        public static IEditorRenderableControl ActiveRenderForm { get; private set; } = null;
+        public static IEditorRenderHandler ActiveRenderForm { get; private set; } = null;
 
         public static GlobalFileRef<EditorSettings> DefaultSettingsRef { get; } = new GlobalFileRef<EditorSettings>(
             TFileObject.GetFilePath<EditorSettings>(Application.StartupPath, ConfigFileName, EProprietaryFileFormat.XML))

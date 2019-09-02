@@ -7,9 +7,9 @@ namespace TheraEngine
     /// <summary>
     /// Renders the engine's scene that the current world spawns in.
     /// </summary>
-    public class WorldRenderPanel : RenderPanel<IScene>
+    public class WorldRenderHandler : RenderHandler<IScene>
     {
-        public WorldRenderPanel()
+        public WorldRenderHandler()
         {
             Engine.Instance.PreWorldChanged += Engine_PreWorldChanged;
             Engine.Instance.PostWorldChanged += Engine_PostWorldChanged;
@@ -20,7 +20,7 @@ namespace TheraEngine
             if (Engine.World != null)
             {
                 Engine.World.CurrentGameModePostChanged -= World_CurrentGameModePostChanged;
-                Engine.World.CurrentGameMode?.TargetRenderPanels?.Remove(this);
+                Engine.World.CurrentGameMode?.TargetRenderHandlers?.Remove(this);
             }
         }
         private void Engine_PostWorldChanged()
@@ -28,13 +28,13 @@ namespace TheraEngine
             if (Engine.World != null)
             {
                 Engine.World.CurrentGameModePostChanged += World_CurrentGameModePostChanged;
-                Engine.World.CurrentGameMode?.TargetRenderPanels?.Add(this);
+                Engine.World.CurrentGameMode?.TargetRenderHandlers?.Add(this);
             }
         }
         private void World_CurrentGameModePostChanged(IWorld world, IGameMode previous, IGameMode next)
         {
-            previous?.TargetRenderPanels?.Remove(this);
-            next?.TargetRenderPanels?.Add(this);
+            previous?.TargetRenderHandlers?.Remove(this);
+            next?.TargetRenderHandlers?.Add(this);
         }
 
         protected override IScene GetScene(Viewport v) => Engine.Scene;

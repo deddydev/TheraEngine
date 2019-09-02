@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
-using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Actors;
 

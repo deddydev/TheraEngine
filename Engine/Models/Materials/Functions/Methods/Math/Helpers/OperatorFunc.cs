@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using TheraEngine.Rendering.UI.Functions;
-
-namespace TheraEngine.Rendering.Models.Materials.Functions
+﻿namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public abstract class OperatorFunc : ShaderMethod
     {

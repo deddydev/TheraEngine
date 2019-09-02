@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using TheraEngine.Core.Maths.Transforms;
+﻿using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI.Functions

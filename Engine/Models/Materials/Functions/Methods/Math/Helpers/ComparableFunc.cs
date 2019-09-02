@@ -1,6 +1,4 @@
-﻿using TheraEngine.Rendering.UI.Functions;
-
-namespace TheraEngine.Rendering.Models.Materials.Functions
+﻿namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public abstract class ComparableFunc : ShaderMethod
     {

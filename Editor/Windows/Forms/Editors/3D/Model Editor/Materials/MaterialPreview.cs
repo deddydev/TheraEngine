@@ -2,15 +2,12 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Actors;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Shapes;
 using TheraEngine.Worlds;
 
 namespace TheraEditor.Windows.Forms
@@ -24,12 +21,12 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _cameraFovY = value;
-                if (basicRenderPanel1.Camera is PerspectiveCamera cam)
-                {
-                    cam.VerticalFieldOfView = _cameraFovY;
-                    float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
-                    cam.LocalPoint.Z = camDist;
-                }
+            //    if (basicRenderPanel1.Camera is PerspectiveCamera cam)
+            //    {
+            //        cam.VerticalFieldOfView = _cameraFovY;
+            //        float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
+            //        cam.LocalPoint.Z = camDist;
+            //    }
             }
         }
 
@@ -56,7 +53,7 @@ namespace TheraEditor.Windows.Forms
             cam.PostProcessRef.File.ColorGrading.AutoExposure = false;
             cam.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
 
-            basicRenderPanel1.Camera = cam;
+            //basicRenderPanel1.Camera = cam;
 
             if (_light == null)
             {
@@ -75,10 +72,10 @@ namespace TheraEditor.Windows.Forms
                 Bounds = BoundingBox.FromHalfExtentsTranslation(5.0f, 0.0f),
 
             };
-            basicRenderPanel1.World.Settings = settings;
-            basicRenderPanel1.World.BeginPlay();
+            //basicRenderPanel1.World.Settings = settings;
+            //basicRenderPanel1.World.BeginPlay();
 
-            basicRenderPanel1.RegisterTick();
+            //basicRenderPanel1.RegisterTick();
         }
 
         private int _prevX, _prevY;

@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using TheraEngine.Animation;
 using TheraEngine.Core.Attributes;
-using TheraEngine.Core.Maths;
-using TheraEngine.Core.Files;
-using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Components.Logic.Animation
 {

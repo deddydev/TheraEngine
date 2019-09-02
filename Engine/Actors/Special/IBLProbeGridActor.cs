@@ -12,6 +12,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
+using static TheraEngine.Rendering.RenderContext;
 
 namespace TheraEngine.Actors
 {
@@ -169,14 +170,14 @@ namespace TheraEngine.Actors
             if (RootComponent.ChildComponents.Count < 5)
                 return;
 
-            BaseRenderPanel.ThreadSafeBlockingInvoke((Action)(() => 
+            ThreadSafeBlockingInvoke((Action)(() => 
             {
                 IBLProbeComponent probe = (IBLProbeComponent)comp;
                 probe.Capture();
                 probe.GenerateIrradianceMap();
                 probe.GeneratePrefilterMap();
             }),
-            BaseRenderPanel.EPanelType.Rendering);
+            EPanelType.Rendering);
 
             List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
             _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
@@ -186,7 +187,7 @@ namespace TheraEngine.Actors
             if (RootComponent.ChildComponents.Count < 5)
                 return;
 
-            BaseRenderPanel.ThreadSafeBlockingInvoke((Action)(() =>
+            ThreadSafeBlockingInvoke((Action)(() =>
             {
                 foreach (ISceneComponent comp in comps)
                 {
@@ -196,7 +197,7 @@ namespace TheraEngine.Actors
                     probe.GeneratePrefilterMap();
                 }
             }),
-            BaseRenderPanel.EPanelType.Rendering);
+            EPanelType.Rendering);
 
             List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
             _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
@@ -226,7 +227,10 @@ namespace TheraEngine.Actors
         }
         public void InitAndCaptureAll(int colorResolution, bool captureDepth = false, int depthResolution = 1)
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, bool, int>)InitAndCaptureAll, BaseRenderPanel.EPanelType.Rendering, colorResolution, captureDepth, depthResolution))
+            if (ThreadSafeBlockingInvoke(
+                (Action<int, bool, int>)InitAndCaptureAll, 
+                EPanelType.Rendering, 
+                colorResolution, captureDepth, depthResolution))
                 return;
 
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)

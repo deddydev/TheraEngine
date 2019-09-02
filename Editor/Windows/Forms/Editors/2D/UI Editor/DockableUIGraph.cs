@@ -13,72 +13,39 @@ using static TheraEditor.Windows.Forms.TheraForm;
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(IUserInterface))]
-    public partial class DockableUIGraph : DockContent, IEditorRenderableControl
+    public partial class DockableUIGraph : DockableRenderableFileEditor<IUserInterface, UIGraphRenderHandler>
     {
         public DockableUIGraph()
         {
             InitializeComponent();
 
-            RenderPanel.AllowDrop = false;
-            RenderPanel.GotFocus += RenderPanel_GotFocus;
-            RenderPanel.MouseEnter += RenderPanel_MouseEnter;
-            RenderPanel.MouseLeave += RenderPanel_MouseLeave;
-
-            GameMode = new UIEditorGameMode() { RenderPanel = RenderPanel };
-
             tearOffToolStrip1.RenderMode = ToolStripRenderMode.Professional;
             tearOffToolStrip1.Renderer = new TheraToolstripRenderer();
         }
+        public override bool ShouldHideCursor => false;
         public DockableUIGraph(IUserInterface ui) : this()
         {
-            TargetUI = ui;
+            File = ui;
         }
-        public IUserInterface TargetUI
+        protected override bool TrySetFile(IUserInterface file)
         {
-            get => RenderPanel.UI.TargetUI;
-            internal set
-            {
-                RenderPanel.UI.TargetUI = value;
-                if (value != null)
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = value;
-            }
-        }
-        private void RenderPanel_MouseEnter(object sender, EventArgs e) => Cursor.Hide();
-        private void RenderPanel_MouseLeave(object sender, EventArgs e) => Cursor.Show();
-        private void RenderPanel_GotFocus(object sender, EventArgs e)
-        {
-            if (!Engine.DesignMode)
-                Editor.SetActiveEditorControl(this);
-        }
-        protected override void OnGotFocus(EventArgs e)
-        {
-            base.OnGotFocus(e);
-            if (!Engine.DesignMode)
-                Editor.SetActiveEditorControl(this);
-        }
+            if (!base.TrySetFile(file))
+                return false;
 
-        public UIEditorGameMode GameMode { get; set; }
+            RenderPanel.RenderHandler.UI.TargetUI = file;
+            if (file != null)
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = file;
 
-        ELocalPlayerIndex IEditorRenderableControl.PlayerIndex => ELocalPlayerIndex.One;
-        BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
-        IPawn IEditorRenderableControl.EditorPawn => RenderPanel.UI;
-        IGameMode IEditorRenderableControl.GameMode => GameMode;
-        IWorld IEditorRenderableControl.World => RenderPanel.World;
-
-        protected override void OnHandleDestroyed(EventArgs e)
-        {
-            base.OnHandleDestroyed(e);
-            if (!Engine.DesignMode && Editor.ActiveRenderForm == this)
-                Editor.SetActiveEditorControl(null);
+            return true;
         }
         protected override void OnShown(EventArgs e)
         {
-            RenderPanel.FormShown();
+            RenderPanel.RenderHandler.FormShown();
             base.OnShown(e);
         }
         protected override void OnClosed(EventArgs e)
         {
-            RenderPanel.FormClosed();
+            RenderPanel.RenderHandler.FormClosed();
             base.OnClosed(e);
         }
         //private void newUIElementToolStripMenuItem_Click(object sender, EventArgs e)
@@ -93,15 +60,15 @@ namespace TheraEditor.Windows.Forms
         //}
         private void btnZoomExtents_Click(object sender, EventArgs e)
         {
-            RenderPanel.UI.ZoomExtents();
+            RenderPanel.RenderHandler.UI.ZoomExtents();
         }
     }
     public class UIEditorController : LocalPlayerController
     {
         public UIEditorController(ELocalPlayerIndex index) : this(index, null) { }
         public UIEditorController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
-            : base(index, possessionQueue) => SetViewportCamera = SetViewportHUD = false;
+            : base(index, possessionQueue) => InheritControlledPawnCamera = InheritControlledPawnHUD = false;
     }
-    public class UIGraphRenderPanel : UIRenderPanel<UIEditorUI, UIEditorGameMode, UIEditorController> { }
+    public class UIGraphRenderHandler : UIRenderHandler<UIEditorUI, UIEditorGameMode, UIEditorController> { }
     public class UIEditorGameMode : UIGameMode<UIEditorUI, UIEditorController> { }
 }

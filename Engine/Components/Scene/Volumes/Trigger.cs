@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using TheraEngine.Actors;
 using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;

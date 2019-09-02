@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using TheraEditor.Windows.Forms.PropertyGrid;
-using TheraEngine.Rendering.Models;
-using WeifenLuo.WinFormsUI.Docking;
+﻿using TheraEngine.Rendering.Models;
 
 namespace TheraEditor.Windows.Forms
 {

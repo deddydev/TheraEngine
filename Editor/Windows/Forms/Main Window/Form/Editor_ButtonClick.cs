@@ -200,7 +200,7 @@ namespace TheraEditor.Windows.Forms
                     DestroyGameDomain();
                     CopyEditorLibraries(assemblyPaths);
 
-                    string name = project?.Name ?? "EmptyDomain";
+                    string name = project?.Name ?? "UnnamedGame";
                     AppDomainSetup setupInfo = new AppDomainSetup()
                     {
                         ApplicationName = name,
@@ -222,13 +222,12 @@ namespace TheraEditor.Windows.Forms
                             if (!file.Exists)
                                 continue;
 
-                            Engine.PrintLine("Loading compiled assembly at " + path);
                             _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
                             _gameDomain.LoadAssembly(LoadMethod.LoadBits, path);
                         }
 
                     if (project.FilePath.IsExistingDirectoryPath() != false)
-                        await project.ExportXMLAsync(rootDir, "CompiledProject", ESerializeFlags.Default, null, CancellationToken.None);
+                        await project.ExportXMLAsync(rootDir, name, ESerializeFlags.Default, null, CancellationToken.None);
 
                     Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, project.FilePath);
                 }

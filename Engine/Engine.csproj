@@ -431,9 +431,7 @@
     <Compile Include="Components\Scene\UI\UIViewportComponent.cs" />
     <Compile Include="Components\Scene\Volumes\Boost.cs" />
     <Compile Include="Core\Attributes\TNumericPrefixSuffixAttribute.cs" />
-    <Compile Include="Core\Controls\BasicRenderPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Core\Controls\BasicRenderPanel.cs" />
     <Compile Include="Core\Data Structures\ConcurrentHashSet.cs" />
     <Compile Include="Core\Data Structures\Lists\EventArray.cs" />
     <Compile Include="Core\Data Structures\ProgressStream.cs" />
@@ -512,6 +510,7 @@
     <Compile Include="Physics\ContactTest.cs" />
     <Compile Include="Rendering\Cameras\BlendableCamera.cs" />
     <Compile Include="Rendering\Cameras\TypicalCamera.cs" />
+    <Compile Include="Rendering\Renderer\RenderHandler.cs" />
     <Compile Include="Rendering\Scene\RenderInfo3D.cs" />
     <Compile Include="Rendering\Scene\RenderInfo2D.cs" />
     <Compile Include="Shapes\BoundingRectangle.cs" />
@@ -698,9 +697,7 @@
     <Compile Include="Core\Tools\GLSLParser.cs" />
     <Compile Include="Core\Tools\ObjectComparer.cs" />
     <Compile Include="Core\Files\Serialization\XML\XMLSchemeDefinition.cs" />
-    <Compile Include="Core\Controls\WorldRenderPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Core\Controls\WorldRenderPanel.cs" />
     <Compile Include="Animation\Cutscenes\Cutscene.cs" />
     <Compile Include="Core\Editor\EditorState.cs" />
     <Compile Include="Core\Engine\EngineMethods.cs" />
@@ -931,9 +928,7 @@
     <Compile Include="Core\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="Core\Files\FileObject\FileObject.cs" />
     <Compile Include="Core\Time\EngineTimer.cs" />
-    <Compile Include="Core\Controls\RenderPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Core\Controls\RenderPanel.cs" />
     <Compile Include="Core\Controls\RenderForm.cs">
       <SubType>Form</SubType>
     </Compile>

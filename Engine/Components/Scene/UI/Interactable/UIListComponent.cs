@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace TheraEngine.Rendering.UI
+﻿namespace TheraEngine.Rendering.UI
 {
     public class ListHudComponent : UIInteractableComponent
     {

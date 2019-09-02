@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using TheraEngine;
 using TheraEngine.Core.Memory;
 
 namespace System.IO

@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
-using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEngine.Actors;
@@ -215,9 +214,9 @@ namespace TheraEngine
 
         #region Timing
 
-        //private static readonly EngineTimer _timer = new EngineTimer();
+        public static readonly EngineTimer Timer = new EngineTimer();
 
-        public static EngineTimer Timer => Instance.Timer;
+        //public static EngineTimer Timer => Instance.Timer;
         public static float RenderFrequency => Timer.RenderFrequency;
         public static float UpdateFrequency => Timer.UpdateFrequency;
         public static float RenderDelta => Timer.RenderTime;
@@ -295,10 +294,9 @@ namespace TheraEngine
         }
         private static void RenderLibraryChanged()
         {
-            Renderer = RenderContext.Captured?.GetRendererInstance();
             List<RenderContext> contexts = new List<RenderContext>(RenderContext.BoundContexts);
             foreach (RenderContext c in contexts)
-                c.Control?.CreateContext();
+                c.RecreateSelf();
         }
         /// <summary>
         /// The library to play audio with.
@@ -383,16 +381,16 @@ namespace TheraEngine
         {
             get
             {
-                if (Instance._renderer == null)
+                var ctx = RenderContext.Captured;
+                if (ctx is null)
                 {
                     string domain = AppDomain.CurrentDomain.FriendlyName;
                     throw new InvalidOperationException("No render library set.");
                 }
                 //if (MainThreadID != Thread.CurrentThread.ManagedThreadId)
                 //    throw new Exception("Cannot make render calls off the main thread. Invoke the method containing the calls with RenderPanel.CapturedPanel beforehand.");
-                return Instance._renderer;
+                return ctx.Renderer;
             }
-            internal set => Instance._renderer = value;
         }
         /// <summary>
         /// Provides an abstraction layer for managing any supported physics engine.
@@ -437,7 +435,7 @@ namespace TheraEngine
             public event Action GotFocus;
             public event Action LostFocus;
 
-            public RenderContext CapturedRenderContext { get; set; }
+            //public RenderContext CapturedRenderContext { get; set; }
 
             /// <summary>
             /// Event for when the engine is paused or unpaused and by which player.
@@ -471,8 +469,6 @@ namespace TheraEngine
             public Server ServerConnection => Network as Server;
             public Client ClientConnection => Network as Client;
             public EngineSingleton Singleton { get; set; }
-
-            public event EventHandler<FrameEventArgs> Update;
 
             public InputAwaiter InputAwaiter { get; set; }
 
@@ -529,8 +525,6 @@ namespace TheraEngine
             public event Action<EngineDomainProxy> ProxySet;
             public event Action<EngineDomainProxy> ProxyUnset;
             
-            public readonly EngineTimer Timer = new EngineTimer();
-
             private EngineDomainProxy _domainProxy = null;
             [Browsable(false)]
             public EngineDomainProxy DomainProxy
@@ -616,16 +610,6 @@ namespace TheraEngine
             public ConcurrentDictionary<IWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<IWorld, Vec3>();
             public ConcurrentDictionary<IWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<IWorld, Vec3>();
 
-            /// <summary>
-            /// The index of the currently ticking list of functions (group + order + pause)
-            /// </summary>
-            public int CurrentTickList = -1;
-            /// <summary>
-            /// Queue for adding to or removing from the currently ticking list
-            /// </summary>
-            public ConcurrentQueue<Tuple<bool, DelTick>> TickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
-            public List<DelTick>[] TickLists;
-
             public List<DateTime> _debugTimers = new List<DateTime>();
 
             public Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
@@ -642,7 +626,6 @@ namespace TheraEngine
             /// </summary>
             public ComputerInfo ComputerInfo { get; } = ComputerInfo.Analyze();
 
-            public AbstractRenderer _renderer;
             public AbstractAudioManager _audioManager;
             public AbstractPhysicsInterface _physicsInterface;
 
@@ -655,11 +638,6 @@ namespace TheraEngine
                     return null;
                 }
             }
-
-            public RenderContext WorldPanel { get; set; }
-            public RenderContext HoveredPanel { get; set; }
-            public RenderContext FocusedPanel { get; set; }
-            public RenderContext RenderingPanel { get; set; }
 
 #if EDITOR
             public EngineEditorState EditorState { get; } = new EngineEditorState();

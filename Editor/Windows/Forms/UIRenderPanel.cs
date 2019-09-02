@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
@@ -10,42 +9,41 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine
 {
-    public interface IUIRenderPanel : IRenderPanel
+    public interface IUIRenderHandler : IRenderHandler
     {
         IUserInterface UI { get; }
-        World World { get; }
+        IWorld World { get; }
         IUIGameMode GameMode { get; }
 
         void FormShown();
         void FormClosed();
     }
-    public class UIRenderPanel<UIPawnType, UIGameModeType, UIControllerType> : RenderPanel<IScene2D>, IUIRenderPanel 
-        where UIPawnType : class, IActor, IUserInterface, new()
+    public class UIRenderHandler<UIPawnType, UIGameModeType, UIControllerType> : 
+        BaseEditorRenderHandler<IScene2D, UIPawnType, UIGameModeType>, IUIRenderHandler 
+        where UIPawnType : class, IPawn, IUserInterface, new()
         where UIGameModeType : UIGameMode<UIPawnType, UIControllerType>, new()
         where UIControllerType : LocalPlayerController
     {
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public UIPawnType UI { get; }
         /// <summary>
         /// The self-contained world for items displayed by this render panel.
         /// </summary>
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public World World { get; } = new World(new WorldSettings() { TwoDimensional = true });
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public UIGameModeType GameMode { get; }
+        public override IWorld World { get; } = new World(new WorldSettings() { TwoDimensional = true });
+        public override UIGameModeType GameMode { get; }
+        public UIPawnType UI { get; }
 
-        IUserInterface IUIRenderPanel.UI => UI;
-        World IUIRenderPanel.World => World;
-        IUIGameMode IUIRenderPanel.GameMode => GameMode;
+        IUserInterface IUIRenderHandler.UI => UI;
+        IWorld IUIRenderHandler.World => World;
+        IUIGameMode IUIRenderHandler.GameMode => GameMode;
+        public override UIPawnType EditorPawn => UI;
 
         protected override IScene2D GetScene(Viewport v) => World.Scene2D;
         protected override ICamera GetCamera(Viewport v) => UI?.ScreenOverlayCamera;
 
-        public UIRenderPanel()
+        public UIRenderHandler() : base(ELocalPlayerIndex.One)
         {
-            Viewport v = AddViewport(ELocalPlayerIndex.One);
+            Viewport v = GetOrAddViewport(ELocalPlayerIndex.One);
 
-            GameMode = new UIGameModeType { RenderPanel = this };
+            GameMode = new UIGameModeType { RenderHandler = this };
             World.CurrentGameMode = GameMode;
 
             UI = new UIPawnType();
@@ -57,18 +55,18 @@ namespace TheraEngine
         {
             World.BeginPlay();
             World.SpawnActor(UI);
-            RegisterTick();
+            //RegisterTick();
         }
         public void FormClosed()
         {
             World.EndPlay();
             World.DespawnActor(UI);
-            UnregisterTick();
+            //UnregisterTick();
         }
-        protected override void OnResize(EventArgs e)
+        public override void Resize(int width, int height)
         {
-            base.OnResize(e);
-            UI.Resize(new Vec2(Width, Height));
+            base.Resize(width, height);
+            UI?.Resize(new Vec2(Width, Height));
         }
     }
 }

@@ -12,7 +12,6 @@ using TheraEngine.Core.Reflection;
 using Extensions;
 using TheraEditor.Wrappers;
 using System.Diagnostics;
-using TheraEngine.Core.Files;
 
 namespace TheraEditor
 {
@@ -148,7 +147,7 @@ namespace TheraEditor
         protected override void OnStarted()
         {
             //Engine.SetWorldPanel(Editor.Instance.RenderForm1.RenderPanel, false);
-            Editor.Instance.SetRenderTicking(true);
+            //Editor.Instance.SetRenderTicking(true);
             Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
             base.OnStarted();

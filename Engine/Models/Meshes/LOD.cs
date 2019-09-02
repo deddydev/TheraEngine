@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models.Materials;
 

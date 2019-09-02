@@ -9,6 +9,8 @@ namespace TheraEngine.Rendering.OpenGL
 {
     public class GLWindowContext : RenderContext
     {
+        public override AbstractRenderer Renderer { get; } = new GLRenderer();
+
         public const bool DebugMode =
 #if DEBUG
             true;
@@ -22,7 +24,7 @@ namespace TheraEngine.Rendering.OpenGL
             GraphicsContext.DirectRendering = true;
         }
 
-        public GLWindowContext(BaseRenderPanel c) : base(c) { }
+        public GLWindowContext(IntPtr handle) : base(handle) { }
 
         private static Lazy<GLRenderer> _renderer = new Lazy<GLRenderer>(() => new GLRenderer());
 
@@ -44,8 +46,6 @@ namespace TheraEngine.Rendering.OpenGL
                 _disposedValue = true;
             }
         }
-
-        internal override AbstractRenderer GetRendererInstance() => _renderer.Value;
 
         public override void ErrorCheck()
         {
@@ -268,7 +268,7 @@ namespace TheraEngine.Rendering.OpenGL
             
             public override void OnResized(IVec2 size)
             {
-                Size = size;
+                base.OnResized(size);
                 _context?.Update(WindowInfo);
             }
 

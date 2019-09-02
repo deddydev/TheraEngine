@@ -12,10 +12,10 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Actors.Types.Pawns
 {
-    public class EditorCameraPawn : FlyingCameraPawn
+    public class WorldEditorCameraPawn : FlyingCameraPawn
     {
-        public EditorCameraPawn() : base() { }
-        public EditorCameraPawn(ELocalPlayerIndex possessor) : base(possessor) { }
+        public WorldEditorCameraPawn() : base() { }
+        public WorldEditorCameraPawn(ELocalPlayerIndex possessor) : base(possessor) { }
 
         private ICameraTransformable _camera = null;
         public ICameraTransformable TargetCamera

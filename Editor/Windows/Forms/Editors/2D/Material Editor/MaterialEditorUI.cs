@@ -7,7 +7,6 @@ using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models.Materials.Functions;
 using TheraEngine.Rendering.UI;

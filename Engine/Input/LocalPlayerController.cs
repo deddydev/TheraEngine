@@ -69,7 +69,7 @@ namespace TheraEngine.Input
 
                 _viewport = value;
 
-                UpdateViewport(SetViewportHUD, SetViewportCamera);
+                UpdateViewport(InheritControlledPawnHUD, InheritControlledPawnCamera);
 
                 //if (_viewport.OwningPanel.GlobalHud != null)
                 //    _input.WantsInputsRegistered += _viewport.OwningPanel.GlobalHud.RegisterInput;
@@ -116,7 +116,7 @@ namespace TheraEngine.Input
 
                 if (_controlledPawn != null)
                 {
-                    UpdateViewport(SetViewportHUD, SetViewportCamera);
+                    UpdateViewport(InheritControlledPawnHUD, InheritControlledPawnCamera);
 
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
                     if (_controlledPawn.HUD != null && _controlledPawn != _controlledPawn.HUD)
@@ -132,10 +132,10 @@ namespace TheraEngine.Input
 
         /// <summary>
         /// Determines if this local player controller should update
-        /// its assigned viewport with the possessed pawn's HUD.
+        /// its viewport with the possessed pawn's HUD.
         /// </summary>
         [Category("Local Player Controller")]
-        public bool SetViewportHUD
+        public bool InheritControlledPawnHUD
         {
             get => _setViewportHUD;
             set
@@ -146,10 +146,10 @@ namespace TheraEngine.Input
         }
         /// <summary>
         /// Determines if this local player controller should update
-        /// its assigned viewport with the possessed pawn's camera.
+        /// its viewport with the possessed pawn's camera.
         /// </summary>
         [Category("Local Player Controller")]
-        public bool SetViewportCamera
+        public bool InheritControlledPawnCamera
         {
             get => _setViewportCamera;
             set
@@ -162,7 +162,7 @@ namespace TheraEngine.Input
         /// <summary>
         /// Updates the viewport with the HUD and/or camera from the controlled pawn.
         /// </summary>
-        public void UpdateViewport(bool setHUD, bool setCamera)
+        private void UpdateViewport(bool setHUD, bool setCamera)
         {
             if (_viewport == null || _controlledPawn == null)
                 return;

@@ -114,7 +114,7 @@ namespace TheraEngine.GameModes
     {
         bool IsPlaying { get; }
         bool DisallowPausing { get; set; }
-        IEventList<BaseRenderPanel> TargetRenderPanels { get; }
+        IEventList<BaseRenderHandler> TargetRenderHandlers { get; }
         IWorld TargetWorld { get; }
         IEventList<LocalPlayerController> LocalPlayers { get; }
 
@@ -139,8 +139,8 @@ namespace TheraEngine.GameModes
     {
         public BaseGameMode()
         {
-            _targetRenderPanels = new EventList<BaseRenderPanel>();
-            _targetRenderPanels.CollectionChanged += _targetRenderPanels_CollectionChanged;
+            TargetRenderHandlers = new EventList<BaseRenderHandler>();
+            TargetRenderHandlers.CollectionChanged += _targetRenderPanels_CollectionChanged;
         }
 
         private void _targetRenderPanels_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -156,8 +156,8 @@ namespace TheraEngine.GameModes
                 return null;
 
             item.Viewport?.UnregisterController(item);
-
-            var panel = TargetRenderPanels.FirstOrDefault(x => x.ValidPlayerIndices.Contains(item.LocalPlayerIndex));
+            
+            var panel = TargetRenderHandlers.FirstOrDefault(x => x.Context.Handler.ValidPlayerIndices.Contains(item.LocalPlayerIndex));
             if (panel != null)
             {
                 Viewport v = panel.GetOrAddViewport(item.LocalPlayerIndex);
@@ -184,12 +184,11 @@ namespace TheraEngine.GameModes
 
         public bool IsPlaying { get; private set; }
 
-        private IEventList<BaseRenderPanel> _targetRenderPanels;
         /// <summary>
         /// These are the render panels that will be used for the target world's local player controllers.
         /// </summary>
         [Browsable(false)]
-        public IEventList<BaseRenderPanel> TargetRenderPanels => _targetRenderPanels;
+        public IEventList<BaseRenderHandler> TargetRenderHandlers { get; }
         /// <summary>
         /// This is the world that is running this game mode.
         /// </summary>
@@ -380,7 +379,7 @@ namespace TheraEngine.GameModes
         protected internal virtual void HandleLocalPlayerLeft(ControllerType item)
         {
             item.Viewport.HUD = null;
-            item.Viewport.OwningPanel.UnregisterController(item);
+            item.Viewport.RenderHandler.UnregisterController(item);
 
             TargetWorld.DespawnActor(item.ControlledPawn as BaseActor);
             item.UnlinkControlledPawn();

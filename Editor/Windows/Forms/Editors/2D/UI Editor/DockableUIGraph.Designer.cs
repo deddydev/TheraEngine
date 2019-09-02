@@ -1,4 +1,6 @@
-﻿namespace TheraEditor.Windows.Forms
+﻿using TheraEngine;
+
+namespace TheraEditor.Windows.Forms
 {
     partial class DockableUIGraph
     {
@@ -30,7 +32,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DockableUIGraph));
-            this.RenderPanel = new TheraEditor.Windows.Forms.UIGraphRenderPanel();
+            this.RenderPanel = new RenderPanel<UIGraphRenderHandler>();
             this.dockingHostToolStripPanel2 = new TheraEditor.Windows.Forms.DockingHostToolStripPanel();
             this.tearOffToolStrip1 = new TheraEditor.Windows.Forms.TearOffToolStrip();
             this.btnZoomExtents = new System.Windows.Forms.ToolStripButton();
@@ -47,7 +49,6 @@
             this.RenderPanel.Name = "RenderPanel";
             this.RenderPanel.Size = new System.Drawing.Size(328, 184);
             this.RenderPanel.TabIndex = 1;
-            this.RenderPanel.VsyncMode = TheraEngine.EVSyncMode.Adaptive;
             // 
             // dockingHostToolStripPanel2
             // 
@@ -110,7 +111,7 @@
 
         #endregion
 
-        public UIGraphRenderPanel RenderPanel;
+        public RenderPanel<UIGraphRenderHandler> RenderPanel;
         private DockingHostToolStripPanel dockingHostToolStripPanel2;
         private TearOffToolStrip tearOffToolStrip1;
         private System.Windows.Forms.ToolStripButton btnZoomExtents;

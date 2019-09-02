@@ -38,10 +38,10 @@ namespace TheraEditor.Windows.Forms
         public DockableFormInstance<DockablePropertyGrid> UIProps { get; }
         public IUserInterface TargetUI
         {
-            get => UIGraph.Form.TargetUI;
+            get => UIGraph.Form.RenderPanel.RenderHandler.UI.TargetUI;
             set
             {
-                UIGraph.Form.TargetUI = value;
+                UIGraph.Form.RenderPanel.RenderHandler.UI.TargetUI = value;
                 UIProps.Form.PropertyGrid.TargetObject = value;
                 FormTitle2.Text = value != null ? value.Name + " [" + value.FilePath + "]" : string.Empty;
             }

@@ -8,13 +8,13 @@ namespace TheraEditor
     {
         public EditorPlayerController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null) : base(index, possessionQueue)
         {
-            SetViewportCamera = true;
-            SetViewportHUD = true;
+            InheritControlledPawnCamera = true;
+            InheritControlledPawnHUD = true;
         }
         public EditorPlayerController(ELocalPlayerIndex index) : base(index)
         {
-            SetViewportCamera = true;
-            SetViewportHUD = true;
+            InheritControlledPawnCamera = true;
+            InheritControlledPawnHUD = true;
         }
 
         //protected override void RegisterInput(InputInterface input)

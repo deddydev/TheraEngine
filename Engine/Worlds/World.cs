@@ -20,6 +20,10 @@ namespace TheraEngine.Worlds
     {
         event DelGameModeChange CurrentGameModePreChanged;
         event DelGameModeChange CurrentGameModePostChanged;
+        event Action PreBeginPlay;
+        event Action PostBeginPlay;
+        event Action PreEndPlay;
+        event Action PostEndPlay;
 
         GlobalFileRef<WorldSettings> SettingsRef { get; set; }
         GlobalFileRef<WorldState> StateRef { get; set; }
@@ -64,6 +68,10 @@ namespace TheraEngine.Worlds
     {
         public event DelGameModeChange CurrentGameModePreChanged;
         public event DelGameModeChange CurrentGameModePostChanged;
+        public event Action PreBeginPlay;
+        public event Action PostBeginPlay;
+        public event Action PreEndPlay;
+        public event Action PostEndPlay;
 
         public World() : this(new WorldSettings(), new WorldState()) { }
         public World(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
@@ -270,6 +278,8 @@ namespace TheraEngine.Worlds
 
         public virtual void BeginPlay()
         {
+            PreBeginPlay?.Invoke();
+
             if (Settings.TwoDimensional)
             {
                 State.Scene = new Scene2D(Settings.Bounds.HalfExtents.Xy);
@@ -309,9 +319,13 @@ namespace TheraEngine.Worlds
             string cut = Settings.CutsceneToPlayOnBeginPlay;
             if (!string.IsNullOrWhiteSpace(cut) && Settings.Cutscenes.ContainsKey(cut))
                 Settings.Cutscenes[cut]?.Start();
+
+            PostBeginPlay?.Invoke();
         }
         public virtual void EndPlay()
         {
+            PreEndPlay?.Invoke();
+
             foreach (var m in Settings.Maps)
                 m.Value.File.EndPlay();
 
@@ -322,6 +336,7 @@ namespace TheraEngine.Worlds
 
             CurrentGameMode?.EndGameplay();
             IsPlaying = false;
+            PostEndPlay?.Invoke();
         }
 
         private readonly RenderCommandMethod3D _rc3D;

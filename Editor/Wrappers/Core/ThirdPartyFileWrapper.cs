@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Windows.Forms;
-using TheraEngine.Core.Files;
+﻿using System.Windows.Forms;
 
 namespace TheraEditor.Wrappers
 {

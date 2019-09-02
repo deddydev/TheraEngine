@@ -14,7 +14,7 @@ using TheraEngine.Input.Devices;
 
 namespace TheraEngine
 {
-    public interface IObjectSlim
+    public interface IObjectSlim : ISponsorableMarshalByRefObject
     {
         TypeProxy GetTypeProxy();
     }
@@ -25,7 +25,6 @@ namespace TheraEngine
         string Name { get; set; }
         object UserObject { get; set; }
         bool ConstructedProgrammatically { get; set; }
-        AppDomain Domain { get; }
 
 #if EDITOR
         bool HasEditorState { get; }

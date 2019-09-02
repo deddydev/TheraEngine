@@ -129,7 +129,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         public void GenerateSafe()
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)GenerateSafe, BaseRenderPanel.EPanelType.Rendering))
+            if (RenderContext.ThreadSafeBlockingInvoke((Action)GenerateSafe, RenderContext.EPanelType.Rendering))
                 return;
 
             Generate();
@@ -143,7 +143,7 @@ namespace TheraEngine.Rendering
             //if (!Engine.IsInRenderThread())
             //    throw new InvalidOperationException("Render objects must be created on the rendering thread. Try calling GenerateSafe().");
 
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)GenerateSafe, BaseRenderPanel.EPanelType.Rendering))
+            if (RenderContext.ThreadSafeBlockingInvoke((Action)GenerateSafe, RenderContext.EPanelType.Rendering))
                 return IsActive ? BindingId : NullBindingId;
 
             //Make sure current bind is up to date
@@ -181,14 +181,14 @@ namespace TheraEngine.Rendering
         /// </summary>
         protected void Delete()
         {
-            if (RenderContext.Captured == null)
+            if (RenderContext.Captured is null)
                 return;
 
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Delete, BaseRenderPanel.EPanelType.Rendering))
+            if (RenderContext.ThreadSafeBlockingInvoke((Action)Delete, RenderContext.EPanelType.Rendering))
                 return;
 
             //Remove current bind from owners list
-            if (_currentBind == null || _currentBind._context != RenderContext.Captured)
+            if (_currentBind is null || _currentBind._context != RenderContext.Captured)
             {
                 int index = _owners.FindIndex(x => x._context == RenderContext.Captured);
                 if (index >= 0)

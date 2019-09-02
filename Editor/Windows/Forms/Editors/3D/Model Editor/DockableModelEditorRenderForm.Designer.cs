@@ -1,4 +1,5 @@
-﻿using TheraEngine.Windows.Forms;
+﻿using TheraEngine;
+using TheraEngine.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -30,21 +31,7 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.RenderPanel = new ModelEditorRenderPanel();
             this.SuspendLayout();
-            // 
-            // RenderPanel
-            // 
-            this.RenderPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.RenderPanel.Location = new System.Drawing.Point(0, 0);
-            this.RenderPanel.Name = "RenderPanel";
-            this.RenderPanel.Size = new System.Drawing.Size(740, 573);
-            this.RenderPanel.TabIndex = 0;
-            this.RenderPanel.VsyncMode = TheraEngine.EVSyncMode.Disabled;
-            //this.RenderPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragDrop);
-            //this.RenderPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragEnter);
-            //this.RenderPanel.DragOver += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragOver);
-            //this.RenderPanel.DragLeave += new System.EventHandler(this.RenderPanel_DragLeave);
             // 
             // DockableRenderForm
             // 
@@ -59,7 +46,5 @@ namespace TheraEditor.Windows.Forms
         }
 
         #endregion
-
-        public ModelEditorRenderPanel RenderPanel;
     }
 }

@@ -1,7 +1,6 @@
 ﻿using FreeImageAPI;
 using System.Drawing;
 using System.IO;
-using TheraEngine.Tests;
 
 namespace TheraEngine.Rendering.Models.Materials
 {

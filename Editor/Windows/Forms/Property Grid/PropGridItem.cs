@@ -8,10 +8,8 @@ using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Animation;
 using TheraEngine.Core.Reflection;
-using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Tools;
 using TheraEngine.Editor;
-using TheraEngine.Rendering.UI;
 using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid

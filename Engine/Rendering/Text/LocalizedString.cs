@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TheraEngine.Rendering.Text
+﻿namespace TheraEngine.Rendering.Text
 {
     public class LString
     {

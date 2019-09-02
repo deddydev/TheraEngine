@@ -118,7 +118,7 @@ namespace TheraEngine.Rendering
 
         protected override int CreateObject()
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Func<int>)CreateObject, BaseRenderPanel.EPanelType.Rendering))
+            if (RenderContext.ThreadSafeBlockingInvoke((Func<int>)CreateObject, RenderContext.EPanelType.Rendering))
                 return CurrentBind.BindingId;
 
             //Reset caches in case the attached shaders have since the program was last active.

@@ -1,4 +1,6 @@
-﻿namespace TheraEditor.Windows.Forms
+﻿using TheraEngine;
+
+namespace TheraEditor.Windows.Forms
 {
     partial class MaterialPreviewControl
     {
@@ -28,7 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.basicRenderPanel1 = new TheraEngine.BasicRenderPanel();
+            this.basicRenderPanel1 = new RenderPanel<TheraEngine.BasicRenderPanel>();
             this.SuspendLayout();
             // 
             // basicRenderPanel1
@@ -39,7 +41,6 @@
             this.basicRenderPanel1.Name = "basicRenderPanel1";
             this.basicRenderPanel1.Size = new System.Drawing.Size(524, 498);
             this.basicRenderPanel1.TabIndex = 0;
-            this.basicRenderPanel1.VsyncMode = TheraEngine.EVSyncMode.Adaptive;
             // 
             // MaterialPreviewControl
             // 
@@ -57,6 +58,6 @@
         }
 
         #endregion
-        private TheraEngine.BasicRenderPanel basicRenderPanel1;
+        private RenderPanel<TheraEngine.BasicRenderPanel> basicRenderPanel1;
     }
 }

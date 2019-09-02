@@ -1,10 +1,8 @@
-﻿using AppDomainToolkit;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Net;
-using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
@@ -37,9 +35,16 @@ namespace TheraEditor
             Application.ThreadException += Application_ThreadException;
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 #endif
-
+            AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
             Application.Run(Editor.Instance);
         }
+
+        private static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
+        {
+            if (args.LoadedAssembly.GetName().FullName.Contains("Puyo"))
+                throw new Exception();
+        }
+
         static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             List<EditorState> dirty = EditorState.DirtyStates;

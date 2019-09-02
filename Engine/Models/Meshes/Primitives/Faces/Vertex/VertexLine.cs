@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace TheraEngine.Rendering.Models
+﻿namespace TheraEngine.Rendering.Models
 {
     public class VertexLine : VertexPrimitive
     {

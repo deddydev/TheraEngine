@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
 

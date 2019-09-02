@@ -59,6 +59,10 @@ namespace TheraEngine
             Debug.Listeners.Add(new EngineTraceListener());
             //PrintLine("Constructing static engine class.");
 
+            TickLists = new List<DelTick>[45];
+            for (int i = 0; i < TickLists.Length; ++i)
+                TickLists[i] = new List<DelTick>();
+
             Timer.UpdateFrame += EngineTick;
             Timer.SwapBuffers += SwapBuffers;
 
@@ -157,11 +161,11 @@ namespace TheraEngine
         //    return allTypes.Where(x => matchPredicate(x)).OrderBy(x => x.Name);
         //}
         
-        public static void SetWorldPanel(BaseRenderPanel panel, bool registerTickNow = true)
+        public static void SetWorldPanel(RenderContext panel, bool registerTickNow = true)
         {
-            Engine.Instance.WorldPanel = panel._context;
-            if (registerTickNow)
-                panel?.RegisterTick();
+            DomainProxy.WorldPanel = panel;
+            //if (registerTickNow)
+            //    panel?.RegisterTick();
         }
         /// <summary>
         /// Initializes the engine to its beginning state.
@@ -318,6 +322,16 @@ namespace TheraEngine
         }
 
         /// <summary>
+        /// The index of the currently ticking list of functions (group + order + pause)
+        /// </summary>
+        public static int CurrentTickList = -1;
+        /// <summary>
+        /// Queue for adding to or removing from the currently ticking list
+        /// </summary>
+        public static ConcurrentQueue<Tuple<bool, DelTick>> TickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
+        public static List<DelTick>[] TickLists;
+
+        /// <summary>
         /// HALTS update and render ticks. Not recommended for use as this literally halts all visuals and user input.
         /// </summary>
         public static void Stop()
@@ -340,7 +354,7 @@ namespace TheraEngine
             if (render != null)
                 Timer.RenderFrame += render;
             if (update != null)
-                Instance.Update += update;
+                Update += update;
             if (swapBuffers != null)
                 Timer.SwapBuffers += swapBuffers;
         }
@@ -355,7 +369,7 @@ namespace TheraEngine
             if (render != null)
                 Timer.RenderFrame -= render;
             if (update != null)
-                Instance.Update -= update;
+                Update -= update;
             if (swapBuffers != null)
                 Timer.SwapBuffers -= swapBuffers;
         }
@@ -368,18 +382,18 @@ namespace TheraEngine
         /// <param name="pausedBehavior">If the function should even execute at all, depending on the pause state.</param>
         public static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
-            if (function != null)
-            {
-                var list = GetTickList(group, order, pausedBehavior);
-                if (list.Contains(function))
-                    return;
+            if (function is null)
+                return;
+            
+            var list = GetTickList(group, order, pausedBehavior);
+            if (list.Contains(function))
+                return;
 
-                int tickIndex = (int)group + (int)order + (int)pausedBehavior;
-                if (Instance.CurrentTickList == tickIndex)
-                    Instance.TickListQueue.Enqueue(new Tuple<bool, DelTick>(true, function));
-                else
-                    list.Add(function);
-            }
+            int tickIndex = (int)group + (int)order + (int)pausedBehavior;
+            if (CurrentTickList == tickIndex)
+                TickListQueue.Enqueue(new Tuple<bool, DelTick>(true, function));
+            else
+                list.Add(function);
         }
         /// <summary>
         /// Stops running a tick method that was previously registered with the same parameters.
@@ -391,8 +405,8 @@ namespace TheraEngine
             
             var list = GetTickList(group, order, pausedBehavior);
             int tickIndex = (int)group + (int)order + (int)pausedBehavior;
-            if (Instance.CurrentTickList == tickIndex)
-                Instance.TickListQueue.Enqueue(new Tuple<bool, DelTick>(false, function));
+            if (CurrentTickList == tickIndex)
+                TickListQueue.Enqueue(new Tuple<bool, DelTick>(false, function));
             else
                 list.Remove(function);
         }
@@ -400,7 +414,10 @@ namespace TheraEngine
         /// Gets a list of items to tick (in no particular order) that were registered with the following parameters.
         /// </summary>
         private static List<DelTick> GetTickList(ETickGroup group, ETickOrder order, EInputPauseType pausedBehavior)
-            => Instance.TickLists[(int)group + (int)order + (int)pausedBehavior];
+            => TickLists[(int)group + (int)order + (int)pausedBehavior];
+
+        public static event EventHandler<FrameEventArgs> Update;
+
         /// <summary>
         /// Ticks the before, during, and after physics groups. Also steps the physics simulation during the during physics tick group.
         /// Does not tick physics if paused.
@@ -418,12 +435,15 @@ namespace TheraEngine
 
             TickGroup(ETickGroup.PostPhysics, delta);
 
-            Instance.OnUpdate(sender, e);
+            OnUpdate(sender, e);
 
             Network?.UpdatePacketQueue(e.Time);
 
             //SteamAPI.RunCallbacks();
         }
+
+        private static void OnUpdate(object sender, FrameEventArgs e) => Update?.Invoke(sender, e);
+
         private static void SwapBuffers()
         {
             Instance.SwapBuffers();
@@ -451,9 +471,24 @@ namespace TheraEngine
         /// <summary>
         /// Ticks the list of items at the given index (created by adding the tick group, order and pause type together).
         /// </summary>
-        private static void TickList(int index, float delta)
+        public static void TickList(int index, float delta)
         {
-            Instance.TickList(index, delta);
+            List<DelTick> currentList = TickLists[CurrentTickList = index];
+
+            //These can be processed in parallel, as they are in the same tick list and group
+            Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
+            //currentList.ForEach(x => x(delta));
+
+            //Add or remove the list of methods that tried to register to or unregister from this group while it was ticking.
+            while (!TickListQueue.IsEmpty && TickListQueue.TryDequeue(out Tuple<bool, DelTick> result))
+            {
+                if (result.Item1)
+                    currentList.Add(result.Item2);
+                else
+                    currentList.Remove(result.Item2);
+            }
+
+            CurrentTickList = -1;
         }
         /// <summary>
         /// Starts a quick timer to track the number of sceonds elapsed.
@@ -859,9 +894,6 @@ namespace TheraEngine
             public InternalEnginePersistentSingleton()
             {
                 Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Constructing new engine singleton.");
-                TickLists = new List<DelTick>[45];
-                for (int i = 0; i < TickLists.Length; ++i)
-                    TickLists[i] = new List<DelTick>();
             }
 
             public async Task<EngineSettings> GetSettingsAsync()
@@ -917,25 +949,6 @@ namespace TheraEngine
                 THelpers.Swap(ref RebaseWorldsProcessing, ref RebaseWorldsQueue);
                 RebaseWorldsProcessing.ForEach(x => x.Key.RebaseOrigin(x.Value));
                 RebaseWorldsProcessing.Clear();
-            }
-            public void TickList(int index, float delta)
-            {
-                List<DelTick> currentList = TickLists[CurrentTickList = index];
-
-                //These can be processed in parallel, as they are in the same tick list and group
-                Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
-                //currentList.ForEach(x => x(delta));
-
-                //Add or remove the list of methods that tried to register to or unregister from this group while it was ticking.
-                while (!TickListQueue.IsEmpty && TickListQueue.TryDequeue(out Tuple<bool, DelTick> result))
-                {
-                    if (result.Item1)
-                        currentList.Add(result.Item2);
-                    else
-                        currentList.Remove(result.Item2);
-                }
-
-                CurrentTickList = -1;
             }
             public int StartTimer()
             {
@@ -1017,8 +1030,6 @@ namespace TheraEngine
 
                 DebugOutput?.Invoke(message);
             }
-
-            internal void OnUpdate(object sender, FrameEventArgs e) => Update?.Invoke(sender, e);
 
             #endregion
         }

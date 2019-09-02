@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {

@@ -8,35 +8,35 @@ namespace TheraEditor.Windows.Forms
 {
     public interface IUIGameMode : IGameMode
     {
-        IUIRenderPanel RenderPanel { get; set; }
+        IUIRenderHandler RenderHandler { get; set; }
     }
     public class UIGameMode<PawnType, ControllerType> : GameMode<PawnType, ControllerType>, IUIGameMode
         where PawnType : class, IActor, IUserInterface, new()
         where ControllerType : LocalPlayerController
     {
-        private IUIRenderPanel _renderPanel;
-        public IUIRenderPanel RenderPanel
+        private IUIRenderHandler _renderHandler;
+        public IUIRenderHandler RenderHandler
         {
-            get => _renderPanel;
+            get => _renderHandler;
             set
             {
-                _renderPanel = value;
-                TargetRenderPanels.Clear();
-                if (_renderPanel is BaseRenderPanel renderPanel)
-                    TargetRenderPanels.Add(renderPanel);
+                _renderHandler = value;
+                TargetRenderHandlers.Clear();
+                if (_renderHandler != null)
+                    TargetRenderHandlers.Add(_renderHandler);
             }
         }
         protected override void HandleLocalPlayerJoined(ControllerType item)
         {
-            RenderPanel.GetOrAddViewport(item.LocalPlayerIndex)?.RegisterController(item);
+            RenderHandler.RegisterController(item);
 
-            item.EnqueuePosession(RenderPanel.UI);
-            item.Viewport.HUD = RenderPanel.UI;
-            item.ViewportCamera = RenderPanel.UI.ScreenOverlayCamera;
+            item.EnqueuePosession(RenderHandler.UI);
+            item.Viewport.HUD = RenderHandler.UI;
+            item.ViewportCamera = RenderHandler.UI.ScreenOverlayCamera;
         }
         protected override void HandleLocalPlayerLeft(ControllerType item)
         {
-            RenderPanel.UnregisterController(item);
+            RenderHandler.UnregisterController(item);
             item.UnlinkControlledPawn();
         }
     }

@@ -30,7 +30,6 @@
 
 #region Includes
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 

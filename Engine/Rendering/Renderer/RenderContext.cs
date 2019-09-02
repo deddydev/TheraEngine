@@ -1,53 +1,79 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace TheraEngine.Rendering
 {
     public delegate void DelContextsChanged(RenderContext context, bool added);
+    /// <summary>
+    /// This is what handles tying a renderer to the UI.
+    /// </summary>
     public abstract class RenderContext : TObjectSlim, IDisposable
     {
+        public enum EPanelType
+        {
+            World,
+            Hovered,
+            Focused,
+            Rendering,
+        }
+
         public delegate void ContextChangedEventHandler(bool isCurrent);
         public event ContextChangedEventHandler ContextChanged;
         public event EventHandler ResetOccured;
 
+        public abstract AbstractRenderer Renderer { get; }
+
+        private BaseRenderHandler _renderHandler;
+        public BaseRenderHandler Handler
+        {
+            get => _renderHandler;
+            set
+            {
+                if (_renderHandler != null && _renderHandler.Context == this)
+                    _renderHandler.Context = null;
+                _renderHandler = value;
+                if (_renderHandler != null)
+                    _renderHandler.Context = this;
+            }
+        }
+
         public static event DelContextsChanged BoundContextsChanged;
         public static List<RenderContext> BoundContexts = new List<RenderContext>();
 
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        private EVSyncMode _vsyncMode = EVSyncMode.Adaptive;
 
-        private EVSyncMode _vsyncMode;
+        private static RenderContext _captured;
         public static RenderContext Captured
         {
-            get => Engine.Instance.CapturedRenderContext;
+            get => _captured;
             set
             {
-                RenderContext current = Engine.Instance.CapturedRenderContext;
-                if (current == value)
+                if (_captured == value)
                 {
-                    if (current != null && current.IsCurrent())
-                        current.SetCurrent(true);
+                    if (_captured != null && _captured.IsCurrent())
+                        _captured.SetCurrent(true);
                     return;
                 }
 
-                if (value == null && current != null && current.IsCurrent())
-                    current.SetCurrent(false);
+                if (value is null && _captured != null && _captured.IsCurrent())
+                    _captured.SetCurrent(false);
 
-                Engine.Instance.CapturedRenderContext = current = value;
+                _captured = value;
 
-                if (current != null)
+                if (_captured != null)
                 {
-                    current.SetCurrent(true);
-                    Engine.Renderer = current.GetRendererInstance();
-                    current.ContextChanged?.Invoke(false);
+                    _captured.SetCurrent(true);
+                    _captured.ContextChanged?.Invoke(false);
                 }
             }
         }
 
-        public BaseRenderPanel Control => _control;
         public List<BaseRenderObject.ContextBind> States { get; } = new List<BaseRenderObject.ContextBind>();
 
         public EVSyncMode VSyncMode
@@ -61,46 +87,46 @@ namespace TheraEngine.Rendering
             }
         }
 
-        protected BaseRenderPanel _control;
-        protected bool _resetting = false;
-        
-        protected abstract class ThreadSubContext
+        public IntPtr Handle => _handle;
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Point ScreenLocation { get; set; }
+
+        public Point PointToClient(Point p)
         {
-            protected Thread _thread;
-            protected IntPtr _controlHandle;
-
-            public IVec2 Size { get; protected set; }
-
-            public ThreadSubContext(IntPtr controlHandle, Thread thread)
-            {
-                _controlHandle = controlHandle;
-                _thread = thread;
-            }
-            public abstract void Generate();
-            public abstract bool IsCurrent();
-            public abstract bool IsContextDisposed();
-            public abstract void OnSwapBuffers();
-            public abstract void OnResized(IVec2 size);
-            public abstract void SetCurrent(bool current);
-            public abstract void Dispose();
-            internal abstract void VsyncChanged(EVSyncMode vsyncMode);
+            p.X -= ScreenLocation.X;
+            p.Y -= ScreenLocation.Y;
+            p.Y = Handler.Height - p.Y;
+            return p;
+        }
+        public Point PointToScreen(Point p)
+        {
+            p.Y = Handler.Height - p.Y;
+            p.X += ScreenLocation.X;
+            p.Y += ScreenLocation.Y;
+            return p;
         }
 
+        protected IntPtr _handle;
+        protected bool _resetting = false;
+        
         protected ConcurrentDictionary<int, ThreadSubContext> _subContexts = new ConcurrentDictionary<int, ThreadSubContext>();
         protected ThreadSubContext _currentSubContext;
 
-        public RenderContext(BaseRenderPanel c)
+        public RenderContext(IntPtr handle)
         {
-            _control = c;
-            if (_control != null)
-                _control.Resize += OnResized;
+            _handle = handle;
+            //if (_handle != null)
+            //    _handle.Resize += OnResized;
             BoundContexts.Add(this);
             BoundContextsChanged?.Invoke(this, true);
         }
 
         private void OnResized(object sender, EventArgs e)
         {
-            OnResized();
+            //OnResized();
             //_control.Invalidate();
         }
 
@@ -117,24 +143,24 @@ namespace TheraEngine.Rendering
         {
             Thread thread = Thread.CurrentThread;
 
-            if (thread == null || _control == null)
+            if (thread == null || _handle == null)
                 return -1;
             
             if (!_subContexts.ContainsKey(thread.ManagedThreadId))
             {
                 IntPtr handle = IntPtr.Zero;
                 Size size = Size.Empty;
-                if (_control.InvokeRequired)
-                    _control.Invoke((Action)(() =>
-                    {
-                        handle = _control.Handle;
-                        size = _control.ClientSize;
-                    }));
-                else
-                {
-                    handle = _control.Handle;
-                    size = _control.ClientSize;
-                }
+                //if (_handle.InvokeRequired)
+                //    _handle.Invoke((Action)(() =>
+                //    {
+                //        handle = _handle.Handle;
+                //        size = _handle.ClientSize;
+                //    }));
+                //else
+                //{
+                    handle = _handle;
+                    //size = _handle.ClientSize;
+                //}
                 ThreadSubContext c = CreateSubContext(handle, thread);
                 c.OnResized(size);
                 c.Generate();
@@ -155,7 +181,17 @@ namespace TheraEngine.Rendering
             }
         }
 
-        internal abstract AbstractRenderer GetRendererInstance();
+        public void Update() => Handler.Update();
+        public void SwapBuffers() => Handler.SwapBuffers();
+        public void Render()
+        {
+            Capture(true);
+            PreRender();
+            Handler.Render();
+            PostRender();
+            Swap();
+            ErrorCheck();
+        }
 
         public bool IsCurrent()
         {
@@ -180,10 +216,10 @@ namespace TheraEngine.Rendering
                 Engine.LogException(ex);
             }
         }
-        protected void OnResized()
+        protected void OnResized(IVec2 size)
         {
             GetCurrentSubContext();
-            _currentSubContext.OnResized(_control.ClientSize);
+            _currentSubContext.OnResized(size);
         }
         public void SetCurrent(bool current)
         {
@@ -245,11 +281,11 @@ namespace TheraEngine.Rendering
 
         //    _resetting = false;
         //}
-        public void Update()
-        {
-            if (Captured == this)
-                OnResized();
-        }
+        //public void Update()
+        //{
+        //    //if (Captured == this)
+        //    //    OnResized();
+        //}
 
         public abstract void Flush();
         public abstract void Initialize();
@@ -257,9 +293,57 @@ namespace TheraEngine.Rendering
         public abstract void EndDraw();
         //public virtual void Unbind() { }
 
+        public void Resize(int width, int height)
+        {
+            GetCurrentSubContext();
+            _currentSubContext.OnResized(new IVec2(width, height));
+
+            Handler?.Resize(width, height);
+        }
+
+        public virtual void LostFocus() => Handler?.LostFocus();
+        public virtual void GotFocus() => Handler?.GotFocus();
+        public virtual void MouseLeave() => Handler?.MouseLeave();
+        public virtual void MouseEnter() => Handler?.MouseEnter();
+        
+        /// <summary>
+        /// Returns true if the render panel needs to be invoked from the calling thread.
+        /// If it does, then it calls the method. You should return from the currently executing method if calling this on the currently executing method.
+        /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
+        /// </summary>
+        public static bool ThreadSafeBlockingInvoke<T>(Delegate method, EPanelType type, out T result, params object[] args)
+        {
+            RenderContext ctx = Engine.DomainProxy.GetContext(type);
+            if (ctx is null)
+            {
+                result = default;
+                return false;
+            }
+            Control ctrl = Control.FromHandle(ctx.Handle);
+            if (ctrl is null)
+            {
+                result = default;
+                return false;
+            }
+            return ctrl.ThreadSafeBlockingInvoke(method, out result, args);
+        }
+        /// <summary>
+        /// Returns true if the render panel needs to be invoked from the calling thread.
+        /// If it does, then it calls the method. You should return from the currently executing method if calling this on the currently executing method.
+        /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
+        /// </summary>
+        public static bool ThreadSafeBlockingInvoke(Delegate method, EPanelType type, params object[] args)
+        {
+            RenderContext ctx = Engine.DomainProxy.GetContext(type);
+            if (ctx is null)
+                return false;
+            Control ctrl = Control.FromHandle(ctx.Handle);
+            return ctrl?.ThreadSafeBlockingInvoke(method, args) ?? false;
+        }
+
         #region IDisposable Support
         protected bool _disposedValue = false; // To detect redundant calls
-
+        public event Action Disposing;
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposedValue)
@@ -277,18 +361,48 @@ namespace TheraEngine.Rendering
                         BoundContextsChanged?.Invoke(this, false);
                     }
                     Release();
-                    _control.Resize -= OnResized;
-                    _control = null;
+                    //_handle.Resize -= OnResized;
+                    //_handle = null;
                 }
+                Disposing?.Invoke();
             }
         }
-        
+
+        public void RecreateSelf()
+        {
+            var control = Control.FromHandle(Handle) as IRenderPanel;
+            control?.CreateContext();
+        }
+
         // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
         }
+
         #endregion
+
+        protected abstract class ThreadSubContext
+        {
+            protected Thread _thread;
+            protected IntPtr _controlHandle;
+
+            public IVec2 Size { get; private set; }
+
+            public ThreadSubContext(IntPtr controlHandle, Thread thread)
+            {
+                _controlHandle = controlHandle;
+                _thread = thread;
+            }
+            public abstract void Generate();
+            public abstract bool IsCurrent();
+            public abstract bool IsContextDisposed();
+            public abstract void OnSwapBuffers();
+            public virtual void OnResized(IVec2 size) => Size = size;
+            public abstract void SetCurrent(bool current);
+            public abstract void Dispose();
+            internal abstract void VsyncChanged(EVSyncMode vsyncMode);
+        }
     }
 }

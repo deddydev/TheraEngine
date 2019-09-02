@@ -6,7 +6,7 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine
 {
-    public class BasicRenderPanel : RenderPanel<IScene>
+    public class BasicRenderPanel : RenderHandler<IScene>
     {
         public override int MaxViewports => 1;
         

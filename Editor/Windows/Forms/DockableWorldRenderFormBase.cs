@@ -1,30 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Actors.Types.Pawns;
 using TheraEngine;
 using TheraEngine.Actors;
-using TheraEngine.Core;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
+using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class DockableWorldRenderFormBase<T> : DockContent, IEditorRenderableControl where T : BaseRenderPanel, new()
+    public class DockableWorldRenderFormBase<T> : DockContent where T : class, IRenderHandler
     {
-        public DockableWorldRenderFormBase(ELocalPlayerIndex playerIndex, int formIndex)
+        public DockableWorldRenderFormBase(ELocalPlayerIndex playerIndex, int formIndex) : base()
         {
             FormIndex = formIndex;
-            PlayerIndex = playerIndex;
-            RenderPanel = new T
+            RenderPanel = new RenderPanel<T>
             {
                 Dock = DockStyle.Fill,
                 Location = new System.Drawing.Point(0, 0),
@@ -32,75 +26,78 @@ namespace TheraEditor.Windows.Forms
                 Name = "RenderPanel",
                 Size = new System.Drawing.Size(650, 410),
                 TabIndex = 0,
-                VsyncMode = EVSyncMode.Disabled,
-                ValidPlayerIndices = new List<ELocalPlayerIndex>() { playerIndex }
+                HandlerArgs = new object[] { playerIndex }
             };
-            RenderPanel.GotFocus += RenderPanel_GotFocus;
+        }
 
-            var hud = Engine.DomainProxy.CreateInstance<EditorUI3D>((Vec2)RenderPanel.ClientSize);
-            AppDomainHelper.Sponsor(hud);
+        public RenderPanel<T> RenderPanel { get; private set; }
+        public int FormIndex { get; private set; }
 
-            EditorPawn = new EditorCameraPawn(PlayerIndex)
+        protected override string GetPersistString()
+            => GetType().ToString() + "," + FormIndex;
+    }
+    public class WorldEditorRenderHandler : BaseEditorRenderHandler<IScene, WorldEditorCameraPawn, IGameMode>
+    {
+        public override WorldEditorCameraPawn EditorPawn { get; }
+
+        public WorldEditorRenderHandler(ELocalPlayerIndex playerIndex) : base(playerIndex)
+        {
+            int index = (int)playerIndex + 1;
+            EditorPawn = new WorldEditorCameraPawn(PlayerIndex)
             {
-                HUD = hud,
-                Name = $"Viewport{(FormIndex + 1).ToString()}_EditorCamera"
+                HUD = new EditorUI3D(new Vec2(Width, Height)),
+                Name = $"Player{index}_EditorCamera"
             };
-            var vp = RenderPanel.AddViewport(playerIndex);
+
+            Viewport vp = GetOrAddViewport(PlayerIndex);
             vp.Camera = EditorPawn.Camera;
 
-            Engine.Instance.ProxySet += Instance_ProxySet;
-            Engine.Instance.ProxyUnset += Instance_ProxyUnset;
+            if (World != null)
+            {
+                World.PostBeginPlay += World_PostBeginPlay;
+                World.PreEndPlay += World_PreEndPlay;
+
+                if (World.IsPlaying)
+                    World.SpawnActor(EditorPawn);
+            }
+            LinkWorldChangeEvents();
         }
-
-        public T RenderPanel { get; private set; }
-
-        public int FormIndex { get; private set; }
-        public ELocalPlayerIndex PlayerIndex { get; private set; } = ELocalPlayerIndex.One;
-        public EditorCameraPawn EditorPawn { get; private set; }
-
-        protected virtual IWorld World => Engine.World;
-        protected virtual IGameMode GameMode => World?.CurrentGameMode;
-
-        ELocalPlayerIndex IEditorRenderableControl.PlayerIndex => PlayerIndex;
-        BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
-        IPawn IEditorRenderableControl.EditorPawn => EditorPawn;
-        IGameMode IEditorRenderableControl.GameMode => GameMode;
-        IWorld IEditorRenderableControl.World => World;
-
-        protected virtual void RenderPanel_GotFocus(object sender, EventArgs e)
+        public override IWorld World => Engine.World;
+        protected virtual void LinkWorldChangeEvents()
         {
-            Editor.SetActiveEditorControl(this);
+            Engine.Instance.PreWorldChanged += PreWorldChanged;
+            Engine.Instance.PostWorldChanged += PostWorldChanged;
         }
-        protected override void OnHandleDestroyed(EventArgs e)
+        public override void Resize(int width, int height)
         {
-            base.OnHandleDestroyed(e);
+            base.Resize(width, height);
+            EditorPawn?.HUD?.File?.Resize(new Vec2(width, height));
+        }
+        private void PreWorldChanged()
+        {
+            if (World is null)
+                return;
 
-            if (Editor.ActiveRenderForm == this)
-                Editor.SetActiveEditorControl(null);
-        }
+            World.PostBeginPlay -= World_PostBeginPlay;
+            World.PreEndPlay -= World_PreEndPlay;
 
-        protected override void OnShown(EventArgs e)
-        {
-            World?.SpawnActor(EditorPawn);
-            base.OnShown(e);
+            if (World.IsPlaying)
+                World.DespawnActor(EditorPawn);
         }
-        protected override void OnClosed(EventArgs e)
+        private void PostWorldChanged()
         {
-            World?.DespawnActor(EditorPawn);
-            base.OnClosed(e);
-        }
-        private void Instance_ProxyUnset(EngineDomainProxy obj)
-        {
-            EditorPawn.HUD?.Sponsor?.Release();
-            EditorPawn.HUD = null;
-        }
-        private void Instance_ProxySet(EngineDomainProxy obj)
-        {
-            var hud = Engine.DomainProxy.CreateInstance<EditorUI3D>((Vec2)RenderPanel.ClientSize);
-            AppDomainHelper.Sponsor(hud);
+            if (World is null)
+                return;
 
-            EditorPawn.HUD = hud;
+            World.PostBeginPlay += World_PostBeginPlay;
+            World.PreEndPlay += World_PreEndPlay;
+
+            if (World.IsPlaying)
+                World.SpawnActor(EditorPawn);
         }
+        private void World_PreEndPlay() => World.DespawnActor(EditorPawn);
+        private void World_PostBeginPlay() => World.SpawnActor(EditorPawn);
+
         public void AlignView(BoundingBox aabb)
         {
             //Get aspect of the front plane of the aabb
@@ -131,7 +128,5 @@ namespace TheraEditor.Windows.Forms
 
             EditorPawn.RootComponent.Translation = pos;
         }
-        protected override string GetPersistString()
-            => GetType().ToString() + "," + FormIndex;
     }
 }

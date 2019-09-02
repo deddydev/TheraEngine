@@ -278,7 +278,7 @@ namespace TheraEditor.Windows.Forms
             //Editor.Instance.SetRenderTicking(false);
             if (World == null)
                 await InitWorldAsync();
-            RenderForm1.RenderPanel.CaptureContext();
+            //RenderForm1.RenderPanel.CaptureContext();
             SetRenderTicking(true);
         }
         protected override void OnClosed(EventArgs e)
@@ -298,38 +298,38 @@ namespace TheraEditor.Windows.Forms
             if (isRendering && !IsRenderTicking)
             {
                 IsRenderTicking = true;
-                Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
+                //Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
             }
             else if (!isRendering && IsRenderTicking)
             {
                 IsRenderTicking = false;
-                Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
+                //Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
             }
         }
 
-        private void UpdateTick(object sender, FrameEventArgs e)
-        {
-            World.Scene?.GlobalUpdate();
-            for (int i = 0; i < 4; ++i)
-                if (RenderFormActive(i))
-                    GetRenderForm(i).RenderPanel.UpdateTick(sender, e);
-        }
-        private void SwapBuffers()
-        {
-            World.Scene?.GlobalSwap();
-            for (int i = 0; i < 4; ++i)
-                if (RenderFormActive(i))
-                    GetRenderForm(i).RenderPanel.SwapBuffers();
-        }
-        private void RenderTick(object sender, FrameEventArgs e)
-        {
-            RenderForm1.RenderPanel.CaptureContext();
+        //private void UpdateTick(object sender, FrameEventArgs e)
+        //{
+        //    World.Scene?.GlobalUpdate();
+        //    for (int i = 0; i < 4; ++i)
+        //        if (RenderFormActive(i))
+        //            GetRenderForm(i).RenderPanel.UpdateTick(sender, e);
+        //}
+        //private void SwapBuffers()
+        //{
+        //    World.Scene?.GlobalSwap();
+        //    for (int i = 0; i < 4; ++i)
+        //        if (RenderFormActive(i))
+        //            GetRenderForm(i).RenderPanel.SwapBuffers();
+        //}
+        //private void RenderTick(object sender, FrameEventArgs e)
+        //{
+        //    //RenderForm1.RenderPanel.CaptureContext();
 
-            World.Scene?.GlobalPreRender();
-            for (int i = 0; i < 4; ++i)
-                if (RenderFormActive(i))
-                    GetRenderForm(i).RenderPanel.Invalidate();
-        }
+        //    World.Scene?.GlobalPreRender();
+        //    for (int i = 0; i < 4; ++i)
+        //        if (RenderFormActive(i))
+        //            GetRenderForm(i).RenderPanel.Invalidate();
+        //}
 
         private void btnViewport1_Click     (object sender, EventArgs e) => RenderForm1.Focus();
         private void btnViewport2_Click     (object sender, EventArgs e) => RenderForm2.Focus();

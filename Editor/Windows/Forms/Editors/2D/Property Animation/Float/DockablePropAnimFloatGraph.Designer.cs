@@ -1,4 +1,6 @@
-﻿namespace TheraEditor.Windows.Forms
+﻿using TheraEngine;
+
+namespace TheraEditor.Windows.Forms
 {
     partial class DockablePropAnimFloatGraph
     {
@@ -29,7 +31,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.RenderPanel = new TheraEditor.Windows.Forms.PropAnimFloatGraphRenderPanel();
+            this.RenderPanel = new RenderPanel<PropAnimFloatGraphRenderHandler>();
             this.dockingHostToolStripPanel1 = new TheraEditor.Windows.Forms.DockingHostToolStripPanel();
             this.tsPropAnimFloat = new TheraEditor.Windows.Forms.TearOffToolStrip();
             this.toolStripDropDownButton2 = new System.Windows.Forms.ToolStripDropDownButton();
@@ -52,7 +54,6 @@
             this.RenderPanel.Name = "RenderPanel";
             this.RenderPanel.Size = new System.Drawing.Size(667, 383);
             this.RenderPanel.TabIndex = 0;
-            this.RenderPanel.VsyncMode = TheraEngine.EVSyncMode.Adaptive;
             // 
             // dockingHostToolStripPanel1
             // 
@@ -185,7 +186,7 @@
 
         #endregion
 
-        private PropAnimFloatGraphRenderPanel RenderPanel;
+        private RenderPanel<PropAnimFloatGraphRenderHandler> RenderPanel;
         private DockingHostToolStripPanel dockingHostToolStripPanel1;
         private TearOffToolStrip tsPropAnimFloat;
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton2;

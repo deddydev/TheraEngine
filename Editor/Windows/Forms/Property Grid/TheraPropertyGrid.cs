@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
-using System.Windows.Threading;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Components;
@@ -21,6 +20,7 @@ using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
+using TheraEngine.Rendering;
 using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -405,9 +405,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (item.IsDisposed || item.Disposing)
                     RemoveVisibleItem(item);
                 else// if (item.UpdateTimeSpan == null || DateTime.Now - item.LastUpdateTime >= item.UpdateTimeSpan.Value)
-                    BaseRenderPanel.ThreadSafeBlockingInvoke(
+                    RenderContext.ThreadSafeBlockingInvoke(
                         (Action)item.UpdateDisplay,
-                        BaseRenderPanel.EPanelType.Rendering);
+                        RenderContext.EPanelType.Rendering);
             }
             catch (Exception ex)
             {

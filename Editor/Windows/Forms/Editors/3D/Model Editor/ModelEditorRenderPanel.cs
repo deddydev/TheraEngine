@@ -1,5 +1,7 @@
 ﻿using System;
+using TheraEditor;
 using TheraEditor.Windows.Forms;
+using TheraEngine.Actors;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
 using TheraEngine.Rendering;
@@ -7,38 +9,30 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine.Windows.Forms
 {
-    public class ModelEditorRenderPanel : RenderPanel<IScene>
+    public class ModelEditorRenderHandler : WorldEditorRenderHandler
     {
+        public ModelEditorRenderHandler(ELocalPlayerIndex playerIndex) : base(playerIndex)
+        {
+            EditorPawn.MouseTranslateSpeed = 0.02f;
+            EditorPawn.ScrollSpeed = 0.5f;
+            EditorPawn.GamepadTranslateSpeed = 15.0f;
+
+            WindowGameMode?.TargetRenderHandlers?.Add(this);
+
+            if (!ModelEditorWorld.IsPlaying)
+                ModelEditorWorld.BeginPlay();
+        }
+
         public Func<Viewport, IVolume> GetCullingVolumeOverride { get; set; }
         public bool IsEditView { get; set; }
-        private DockableModelEditorRenderForm _owner;
+        public EditorGameMode WindowGameMode { get; set; } = new EditorGameMode();
 
-        public DockableModelEditorRenderForm Owner
-        {
-            get => _owner;
-            set
-            {
-                if (_owner?.ModelWindow?.World != null)
-                {
-                    _owner.ModelWindow.World.CurrentGameModePostChanged -= World_CurrentGameModePostChanged;
-                    _owner.WindowGameMode?.TargetRenderPanels?.Remove(this);
-                }
-                _owner = value;
-                if (_owner?.ModelWindow?.World != null)
-                {
-                    _owner.ModelWindow.World.CurrentGameModePostChanged += World_CurrentGameModePostChanged;
-                    _owner.WindowGameMode?.TargetRenderPanels?.Add(this);
-                }
-            }
-        }
-        private void World_CurrentGameModePostChanged(IWorld world, IGameMode previous, IGameMode next)
-        {
-            previous?.TargetRenderPanels?.Remove(this);
-            next?.TargetRenderPanels?.Add(this);
-        }
+        //TODO: Cache new world per target model.
+        public static World ModelEditorWorld { get; } = new World();
 
-        protected override IScene GetScene(Viewport v)
-            => Owner?.ModelWindow?.World?.Scene;
+        public override IWorld World => ModelEditorWorld;
+        protected override void LinkWorldChangeEvents() { } //World will not change
+
         protected override IVolume GetCullingVolume(Viewport v)
             => GetCullingVolumeOverride?.Invoke(v) ?? base.GetCullingVolume(v);
     }

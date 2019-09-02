@@ -97,15 +97,15 @@ namespace TheraEditor.Windows.Forms
                 {
                     if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && HighlightedComponent != TransformTool3D.Instance.RootComponent))
                         _highlightPoint.RenderInfo.Visible = false;
-                    BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
-                    p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Default));
+                    //BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
+                    //p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Default));
                 }
                 else if (value != null && HighlightedComponent == null)
                 {
                     if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && value != TransformTool3D.Instance.RootComponent))
                         _highlightPoint.RenderInfo.Visible = true;
-                    BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
-                    p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Hand));
+                    //BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
+                    //p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Hand));
                 }
 
                 if (HighlightedComponent != null)
@@ -542,7 +542,7 @@ namespace TheraEditor.Windows.Forms
             if (c == null)
                 return;
 
-            EditorCameraPawn pawn = OwningPawn as EditorCameraPawn;
+            WorldEditorCameraPawn pawn = OwningPawn as WorldEditorCameraPawn;
             if (pawn.Moving)
             {
                 UpdateHighlightPoint(c);

@@ -14,7 +14,7 @@ namespace TheraEditor.Windows.Forms
         /// This will possess and unpossess the necessary viewports and pawns corresponding to the given editor control.
         /// </summary>
         /// <param name="control">The editor control that the user is focused on.</param>
-        public static void SetActiveEditorControl(IEditorRenderableControl control)
+        public static void SetActiveEditorControl(IEditorRenderHandler control)
         {
             if (ActiveRenderForm == control)
                 return;

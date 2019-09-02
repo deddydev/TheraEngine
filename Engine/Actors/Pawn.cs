@@ -8,7 +8,6 @@ using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
-using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;

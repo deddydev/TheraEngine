@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
-using TheraEngine.Actors;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models;
 

@@ -1,7 +1,5 @@
 ﻿using TheraEngine.Core.Files;
 using System.ComponentModel;
-using System.Drawing.Design;
-using System.ComponentModel.Design;
 using TheraEngine.Rendering;
 using TheraEngine.Worlds;
 using TheraEngine.Rendering.Text;

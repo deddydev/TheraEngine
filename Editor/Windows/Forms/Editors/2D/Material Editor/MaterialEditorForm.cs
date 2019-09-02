@@ -33,7 +33,7 @@ namespace TheraEditor.Windows.Forms
             MaterialFunctions.Focus();
             MaterialFunctionProperties.Focus();
             MaterialProperties.Focus();
-            MaterialGraph.RenderPanel.UI.SelectedFunctionChanged += UI_SelectedFunctionChanged;
+            MaterialGraph.RenderPanel.RenderHandler.UI.SelectedFunctionChanged += UI_SelectedFunctionChanged;
         }
         private DockableMatFuncList _matFuncs = null;
         public DockableMatFuncList MaterialFunctions
@@ -108,17 +108,16 @@ namespace TheraEditor.Windows.Forms
                 return _matProps;
             }
         }
-        public override TMaterial File
+        protected override bool TrySetFile(TMaterial file)
         {
-            get => base.File;
-            set
-            {
-                base.File = value;
+            if (!base.TrySetFile(file))
+                return false;
 
-                MaterialGraph.RenderPanel.UI.TargetMaterial = value;
-                MaterialProperties.TargetMaterial = value;
-                FormTitle2.Text = value != null ? value.Name + " [" + value.FilePath + "]" : string.Empty;
-            }
+            MaterialGraph.File = file;
+            MaterialProperties.TargetMaterial = file;
+            FormTitle2.Text = file != null ? file.Name + " [" + file.FilePath + "]" : string.Empty;
+
+            return true;
         }
         private void UI_SelectedFunctionChanged(MaterialFunction func)
         {

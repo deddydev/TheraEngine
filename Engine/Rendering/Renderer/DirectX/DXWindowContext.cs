@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.DirectX
             
         }
 
-        private DXRenderer _renderer;
+        public override AbstractRenderer Renderer { get; } = new DXRenderer();
 
         //TODO: pass DXThreadSubContext as generic into RenderContext; use IRenderContext throughout engine
         public DX11.Device Device => ((DXThreadSubContext)_currentSubContext).Device;
@@ -189,7 +189,7 @@ namespace TheraEngine.Rendering.DirectX
 
             public override void OnResized(IVec2 size)
             {
-                Size = size;
+                base.OnResized(size);
                 //_context?.Update(WindowInfo);
             }
 
@@ -211,7 +211,7 @@ namespace TheraEngine.Rendering.DirectX
         protected override ThreadSubContext CreateSubContext(IntPtr handle, Thread thread)
             => new DXThreadSubContext(handle, thread);
         
-        public DXWindowContext(BaseRenderPanel c) : base(c) { }
+        public DXWindowContext(IntPtr handle) : base(handle) { }
 
         protected override void Dispose(bool disposing)
         {
@@ -228,9 +228,6 @@ namespace TheraEngine.Rendering.DirectX
                 _disposedValue = true;
             }
         }
-
-        internal override AbstractRenderer GetRendererInstance()
-            => _renderer ?? (_renderer = new DXRenderer());
 
         public override void ErrorCheck()
         {

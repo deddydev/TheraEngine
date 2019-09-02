@@ -1,27 +1,21 @@
 ﻿using System;
 using System.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Core.Files;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class DockableRenderableFileEditor<TFile, TRenderHandler> : DockableFileEditor<TFile>
-        where TFile : class, IFileObject
-        where TRenderHandler : class, IUIRenderHandler
+    public abstract class DockableUIEditor<T> : DockContent 
+        where T : class, IUIRenderHandler
     {
-        public RenderPanel<TRenderHandler> RenderPanel { get; private set; }
+        public RenderPanel<T> RenderPanel { get; private set; }
         public abstract bool ShouldHideCursor { get; }
-        
-        public DockableRenderableFileEditor()
+
+        public DockableUIEditor()
         {
             InitializeComponent();
         }
 
-        protected void RenderPanel_GotFocus(object sender, EventArgs e)
-        {
-            if (File != null)
-                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = File;
-        }
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
@@ -42,20 +36,22 @@ namespace TheraEditor.Windows.Forms
             if (ShouldHideCursor)
                 Cursor.Show();
         }
+
         private void InitializeComponent()
         {
-            RenderPanel = new RenderPanel<TRenderHandler>();
+            RenderPanel = new RenderPanel<T>();
 
             SuspendLayout();
 
-            RenderPanel.AllowDrop = false;
+            RenderPanel.AllowDrop = true;
             RenderPanel.Dock = DockStyle.Fill;
             RenderPanel.Location = new System.Drawing.Point(0, 0);
             RenderPanel.Margin = new Padding(0);
             RenderPanel.Name = "RenderPanel";
+            RenderPanel.Size = new System.Drawing.Size(378, 332);
+            RenderPanel.TabIndex = 1;
             RenderPanel.MouseEnter += RenderPanel_MouseEnter;
             RenderPanel.MouseLeave += RenderPanel_MouseLeave;
-            Controls.Add(RenderPanel);
 
             ResumeLayout(false);
         }

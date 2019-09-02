@@ -2,10 +2,8 @@
 using System;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Reflection.Attributes;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid

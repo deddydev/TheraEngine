@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.UI.Functions;

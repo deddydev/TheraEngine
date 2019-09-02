@@ -1,7 +1,4 @@
-﻿using System;
-using System.Reflection;
-
-namespace Extensions
+﻿namespace Extensions
 {
     public static partial class Ext
     {

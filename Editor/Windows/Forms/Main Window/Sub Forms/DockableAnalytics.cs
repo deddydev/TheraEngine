@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using TheraEngine;
-using TheraEngine.Actors;
 using TheraEngine.Rendering;
 using WeifenLuo.WinFormsUI.Docking;
 

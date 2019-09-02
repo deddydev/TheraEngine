@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
 using TheraEngine.Animation;
-using TheraEngine.Core.Attributes;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {

@@ -1,10 +1,8 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine.Core.Reflection;

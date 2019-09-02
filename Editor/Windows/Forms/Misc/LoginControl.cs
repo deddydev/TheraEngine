@@ -1,5 +1,4 @@
-﻿using Octokit;
-using System;
+﻿using System;
 using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms

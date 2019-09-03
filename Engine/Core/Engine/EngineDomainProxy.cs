@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
@@ -15,6 +16,7 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.DirectX;
 using TheraEngine.Rendering.OpenGL;
 using TheraEngine.Timers;
+using TheraEngine.Worlds;
 using static TheraEngine.Core.Files.TFileObject;
 using static TheraEngine.Rendering.RenderContext;
 
@@ -35,6 +37,8 @@ namespace TheraEngine.Core
         [Browsable(false)]
         public AppDomain Domain => AppDomain.CurrentDomain;
 
+        public bool IsSponsored => Sponsor != null;
+
         //[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]
         //public override object InitializeLifetimeService()
         //{
@@ -49,7 +53,7 @@ namespace TheraEngine.Core
         //}
     }
     /// <summary>
-    /// Proxy that runs the engine in the game's domain.
+    /// Proxy that runs code in the game's domain.
     /// </summary>
     //[Serializable]
     public class EngineDomainProxy : SponsorableMarshalByRefObject
@@ -179,20 +183,20 @@ namespace TheraEngine.Core
 
         private void UpdateTick(object sender, FrameEventArgs e)
         {
-            Engine.Instance.GlobalUpdate();
+            Engine.GlobalUpdate();
             foreach (var ctx in Contexts.Values)
                 ctx.Update();
         }
         private void SwapBuffers()
         {
-            Engine.Instance.GlobalSwap();
+            Engine.GlobalSwap();
             foreach (var ctx in Contexts.Values)
                 ctx.SwapBuffers();
         }
         private void RenderTick(object sender, FrameEventArgs e)
         {
             WorldPanel?.Capture();
-            Engine.Instance.GlobalPreRender();
+            Engine.GlobalPreRender();
 
             //TODO: group contexts by world.
             //Do a global pre-render per world.
@@ -369,13 +373,22 @@ namespace TheraEngine.Core
 
         public void LostFocus(IntPtr handle)
         {
-            if (Contexts.ContainsKey(handle))
-                Contexts[handle].LostFocus();
+            if (!Contexts.ContainsKey(handle))
+                return;
+
+            var ctx = Contexts[handle];
+            if (FocusedPanel == ctx)
+                FocusedPanel = null;
+            Contexts[handle].LostFocus();
         }
         public void GotFocus(IntPtr handle)
         {
-            if (Contexts.ContainsKey(handle))
-                Contexts[handle].GotFocus();
+            if (!Contexts.ContainsKey(handle))
+                return;
+
+            var ctx = Contexts[handle];
+            FocusedPanel = ctx;
+            ctx.GotFocus();
         }
         public void MouseLeave(IntPtr handle)
         {
@@ -394,15 +407,17 @@ namespace TheraEngine.Core
         {
             if (Contexts.ContainsKey(handle))
                 Contexts[handle]?.Dispose();
+
+            var handler = Activator.CreateInstance(typeof(T), handlerArgs) as BaseRenderHandler;
+
             RenderContext ctx;
-            var rh = Activator.CreateInstance(typeof(T), handlerArgs) as BaseRenderHandler;
-            switch (Engine.RenderLibrary)
+            switch (handler.RenderLibrary)
             {
                 case ERenderLibrary.OpenGL:
-                    Contexts[handle] = ctx = new GLWindowContext(handle) { Handler = rh };
+                    Contexts[handle] = ctx = new GLWindowContext(handle) { Handler = handler };
                     break;
                 case ERenderLibrary.Direct3D11:
-                    Contexts[handle] = ctx = new DXWindowContext(handle) { Handler = rh };
+                    Contexts[handle] = ctx = new DXWindowContext(handle) { Handler = handler };
                     break;
                 default:
                     return;
@@ -412,16 +427,16 @@ namespace TheraEngine.Core
                 ctx.Capture(true);
                 ctx.Initialize();
 
-                Engine.PrintLine("Registered render panel " + rh.GetType().GetFriendlyName());
+                Engine.PrintLine("Registered render panel " + handler.GetType().GetFriendlyName());
             }
         }
         public void UnregisterRenderPanel(IntPtr handle)
         {
-            if (Contexts.ContainsKey(handle))
-            {
-                Contexts[handle]?.Dispose();
-                Contexts.TryRemove(handle, out _);
-            }
+            if (!Contexts.ContainsKey(handle))
+                return;
+            
+            Contexts.TryRemove(handle, out var ctx);
+            ctx?.Dispose();
         }
         public void RenderPanelResized(IntPtr handle, int width, int height)
         {
@@ -438,6 +453,17 @@ namespace TheraEngine.Core
             if (Contexts.ContainsKey(handle))
                 return Contexts[handle].Handler;
             return null;
+        }
+
+        public async Task<T> GetInstanceAsync<T>(FileRef<T> fileRef) where T : class, IFileObject
+        {
+            return await fileRef.LoadNewInstanceAsync();
+        }
+
+        public async virtual void SetWorld(FileRef<World> worldRef)
+        {
+            World world = await worldRef.GetInstanceAsync();
+            Engine.SetCurrentWorld(world);
         }
 
         //[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]

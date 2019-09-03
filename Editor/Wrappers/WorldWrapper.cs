@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheraEngine.Worlds;
 using TheraEditor.Windows.Forms;
 using TheraEditor.Properties;
+using TheraEngine;
 
 namespace TheraEditor.Wrappers
 {
@@ -29,14 +30,11 @@ namespace TheraEditor.Wrappers
 
         public WorldWrapper() : base() { }
 
-        public override async void EditResource()
+        public override void EditResource()
         {
-            World world = await ResourceRef.GetInstanceAsync();
-            if (world == null)
-                return;
+            Editor.Instance.TrySetWorld(ResourceRef);
 
-            Editor.Instance.CurrentWorld = world;
-            Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = world.Settings;
+            //Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = world.Settings;
 
             //int i = 0;
             //for (; i < 4; ++i)

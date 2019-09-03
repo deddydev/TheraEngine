@@ -28,13 +28,13 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnShown(EventArgs e)
         {
-            Editor.Instance.EditorGameMode.TargetRenderHandlers.Add(RenderPanel.RenderHandler);
+            //Editor.Instance.EditorGameMode.TargetRenderHandlers.Add(RenderPanel.RenderHandler);
             base.OnShown(e);
         }
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            Editor.Instance.EditorGameMode.TargetRenderHandlers.Remove(RenderPanel.RenderHandler);
+            //Editor.Instance.EditorGameMode.TargetRenderHandlers.Remove(RenderPanel.RenderHandler);
         }
         //#region Drag / Drop Actors
 

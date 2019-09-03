@@ -24,6 +24,7 @@ using TheraEngine.Networking;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 using TheraEngine.Rendering;
+using System.Threading.Tasks;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -125,8 +126,6 @@ namespace TheraEditor.Windows.Forms
 
         private TProject _project;
         private DeserializeDockContent _deserializeDockContent;
-
-        public EditorGameMode EditorGameMode { get; set; } = new EditorGameMode();
 
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances
@@ -258,71 +257,80 @@ namespace TheraEditor.Windows.Forms
         }
 
 #region World Management
-        /// <summary>
-        /// The world that the editor is currently editing.
-        /// </summary>
-        public IWorld CurrentWorld
+        internal void TrySetWorld(FileRef<World> worldRef)
         {
-            get => Engine.World;
-            set => SetWorld(value);
-        }
-        private async void SetWorld(IWorld world)
-        {
-            if (RenderContext.ThreadSafeBlockingInvoke((Action<IWorld>)SetWorld, RenderContext.EPanelType.Rendering, world))
+            if (RenderContext.ThreadSafeBlockingInvoke(
+                (Action<FileRef<World>>)TrySetWorld, 
+                RenderContext.EPanelType.Rendering, 
+                worldRef))
                 return;
 
-            if (Engine.World?.EditorState?.HasChanges ?? false)
-            {
-                DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-                switch (r)
-                {
-                    case DialogResult.Cancel:
-                        return;
-                    case DialogResult.Yes:
-                        await Engine.World.ExportAsync();
-                        break;
-                }
-                Engine.World.EditorState = null;
-            }
-            
-            if (world != null)
-                world.CurrentGameMode = EditorGameMode;
-            Engine.SetCurrentWorld(world);
+            IWorld prevWorld = DomainProxy.World;
+            if (!CanCloseWorld(prevWorld))
+                return;
 
-            bool worldExists = Engine.World != null;
+            DomainProxy.SetWorld(worldRef);
+
+            //TODO: make an event
+            WorldPostChanged();
+        }
+        private void WorldPreChanged()
+        {
+            IWorld world = DomainProxy.World;
+            bool worldExists = world != null;
+            if (worldExists)
+            {
+                world.State.SpawnedActors.PostAnythingAdded -= SpawnedActors_PostAdded;
+                world.State.SpawnedActors.PostAnythingRemoved -= SpawnedActors_PostRemoved;
+            }
+        }
+        private void WorldPostChanged()
+        {
+            IWorld world = DomainProxy.World;
+            bool worldExists = world != null;
 
             btnWorldSettings.Enabled = btnSaveWorld.Enabled = btnSaveWorldAs.Enabled = worldExists;
+            PropertyGridForm.PropertyGrid.TargetObject = world?.Settings;
 
             GenerateInitialActorList();
             if (worldExists)
             {
-                Engine.World.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
-                Engine.World.State.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
+                world.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
+                world.State.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
             }
-            PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
         }
         public bool CloseWorld()
         {
-            if (CurrentWorld == null)
+            IWorld world = DomainProxy.World;
+            if (world is null)
                 return true;
 
-            if (CurrentWorld.EditorState?.HasChanges ?? false)
+            if (!CanCloseWorld(world))
+                return false;
+
+            DomainProxy.World = null;
+
+            return true;
+        }
+        private bool CanCloseWorld(IWorld world)
+        {
+            if (world?.EditorState?.HasChanges ?? false)
             {
-                DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-                switch (r)
+                DialogResult result = MessageBox.Show(this,
+                    "Save changes to current world?", "Save changes?",
+                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+
+                switch (result)
                 {
+                    default:
                     case DialogResult.Cancel:
                         return false;
                     case DialogResult.Yes:
-                        SaveFile(CurrentWorld);
-                        break;
+                        Task.Run(() => SaveFile(world)).ContinueWith(t => world.EditorState = null);
+                        return true;
                 }
             }
-
-            CurrentWorld.EditorState = null;
-            CurrentWorld = null;
-
-            return true;
+            return false;
         }
         /// <summary>
         /// Creates and loads a new world for editing.
@@ -333,9 +341,9 @@ namespace TheraEditor.Windows.Forms
             if (!CloseWorld())
                 return;
 
-            CurrentWorld = new World();
+            DomainProxy.CreateNewWorld();
         }
-        public async void OpenWorld()
+        public void OpenWorld()
         {
             if (!CloseWorld())
                 return;
@@ -347,7 +355,7 @@ namespace TheraEditor.Windows.Forms
             })
             {
                 if (ofd.ShowDialog(this) == DialogResult.OK)
-                    CurrentWorld = await TFileObject.LoadAsync<World>(ofd.FileName);
+                    DomainProxy.LoadWorldFromFile(ofd.FileName);
             }
         }
 #endregion
@@ -581,7 +589,7 @@ namespace TheraEditor.Windows.Forms
                 //SetRenderTicking(true);
                 //Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
-                CurrentWorld = _project.OpeningWorldRef?.File;
+                DomainProxy.SetWorld(_project.OpeningWorldRef);
 
                 UpdateRecentProjectPaths();
             }
@@ -777,17 +785,9 @@ namespace TheraEditor.Windows.Forms
                 Engine.World.DespawnActor(FlyingCameraDetachedPawn);
             }
         }
-        private void SetGameplayMode()
-        {
-            IGameMode gameMode = Engine.GetGameMode() ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
-            Engine.World.CurrentGameMode = gameMode;
-        }
-
-        private void SetEditingMode()
-        {
-            Engine.World.CurrentGameMode = EditorGameMode;
-        }
-#endregion
+        private void SetGameplayMode() => DomainProxy.SetGameplayMode();
+        private void SetEditingMode() => DomainProxy.SetEditorGameMode();
+        #endregion
 
         private bool Undo()
         {
@@ -968,9 +968,8 @@ namespace TheraEditor.Windows.Forms
         }
         private async void SaveFile(IFileObject file, string filePath, ESerializeFlags flags = ESerializeFlags.Default)
         {
-            int op = BeginOperation("Saving file...", "File saved.", out Progress<float> progress, out CancellationTokenSource cancel);
-            await file.ExportAsync(filePath, flags, progress, cancel.Token);
-            EndOperation(op);
+            await RunOperationAsync("Saving file...", "File saved.",
+                async (p, c) => await file.ExportAsync(filePath, flags, p, c.Token));
         }
 
         /// <summary>

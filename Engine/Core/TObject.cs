@@ -120,6 +120,9 @@ namespace TheraEngine
     {
         TypeProxy IObjectSlim.GetTypeProxy() => GetType();
 
+        public bool ExistsInOtherDomain(AppDomain thisDomain)
+            => thisDomain != Domain;
+
         #region Debug
 
         /// <summary>

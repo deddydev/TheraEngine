@@ -152,26 +152,34 @@ namespace TheraEngine
             get => Instance.Singleton;
             set => Instance.Singleton = value;
         }
-        /// <summary>
-        /// The world that is currently being rendered and played in.
-        /// </summary>
+
+        public static void GlobalUpdate() => Scene?.GlobalUpdate();
+        public static void GlobalPreRender() => Scene?.GlobalPreRender();
+        public static void GlobalSwap() => Scene?.GlobalSwap();
+
+        private static IWorld _world;
         public static IWorld World
         {
-            get => Instance.World;
-            private set => Instance.World = value;
+            get => _world;
+            set
+            {
+                _world = value;
+            }
         }
-        /// <summary>
-        /// The scene containing actors of the world the engine is currently hosting.
-        /// </summary>
-        public static IScene Scene => Instance.Scene;
-        /// <summary>
-        /// Information necessary to run a game.
-        /// </summary>
+        public static IScene Scene => World?.Scene;
+        private static TGame _game;
         public static TGame Game
         {
-            get => Instance.Game;
-            private set => Instance.Game = value;
+            get => _game;
+            internal set
+            {
+                if (_game == value)
+                    return;
+
+                _game = value;
+            }
         }
+
         public static GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef
         {
             get => Instance.DefaultEngineSettingsOverrideRef;
@@ -475,24 +483,6 @@ namespace TheraEngine
             public GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
                 = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistent = true };
 
-            public void GlobalUpdate() => Scene?.GlobalUpdate();
-            public void GlobalPreRender() => Scene?.GlobalPreRender();
-            public void GlobalSwap() => Scene?.GlobalSwap();
-            
-            private TGame _game;
-            public IScene Scene => World?.Scene;
-            public TGame Game
-            {
-                get => _game;
-                internal set
-                {
-                    if (_game == value)
-                        return;
-
-                    _game = value;
-                }
-            }
-
             public void SetDomainProxy<T>(AppDomain domain, string gamePath) where T : EngineDomainProxy, new()
             {
                 string domainName = domain.FriendlyName;
@@ -618,7 +608,6 @@ namespace TheraEngine
             /// <summary>
             /// The world that is currently being rendered and played in.
             /// </summary>
-            public IWorld World { get; internal set; } = null;
             public bool IsPaused { get; internal set; } = false;
 
             /// <summary>

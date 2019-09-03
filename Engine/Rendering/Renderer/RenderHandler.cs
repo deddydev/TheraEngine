@@ -39,6 +39,8 @@ namespace TheraEngine.Rendering
     public abstract class BaseRenderHandler : TObjectSlim, IRenderHandler, IEnumerable<Viewport>
     {
         public virtual int MaxViewports => 4;
+        public ERenderLibrary RenderLibrary { get; set; } = ERenderLibrary.OpenGL;
+
         /// <summary>
         /// The RenderContext for this handler 
         /// is what handles tying a renderer to the UI.

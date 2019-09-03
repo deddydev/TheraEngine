@@ -44,9 +44,9 @@ namespace TheraEditor.Windows.Forms
         private void BtnOpenWorld_Click(object sender, EventArgs e)
             => OpenWorld();
         private void BtnSaveWorld_Click(object sender, EventArgs e)
-            => SaveFile(CurrentWorld);
+            => SaveFile(DomainProxy.World);
         private void saveAsToolStripMenuItem1_Click(object sender, EventArgs e)
-            => SaveFileAs(CurrentWorld);
+            => SaveFileAs(DomainProxy.World);
         private void extensionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
@@ -76,6 +76,12 @@ namespace TheraEditor.Windows.Forms
         private void visualStudioToolStripMenuItem_Click(object sender, EventArgs e)
         {
             EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
+            if (dte is null)
+            {
+                Engine.PrintLine($"Unable to launch Visual Studio.");
+                return;
+            }
+
             Engine.PrintLine($"Launched Visual Studio {dte.Edition} {dte.Version}.");
             dte.MainWindow.Visible = true;
             dte.UserControl = true;
@@ -289,7 +295,7 @@ namespace TheraEditor.Windows.Forms
 
                 string assemblyName = assembly.GetName().Name;
                 string domainName = AppDomain.CurrentDomain.FriendlyName;
-                if (domainName == "TheraEditor.exe")
+                if (domainName == AppDomainHelper.GetPrimaryAppDomain().FriendlyName)
                     throw new Exception();
                 Debug.Print($"[{domainName}] Loaded assembly {assemblyName} via {nameof(TheraAssemblyLoader)}");
 

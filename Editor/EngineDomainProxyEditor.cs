@@ -12,6 +12,11 @@ using TheraEngine.Core.Reflection;
 using Extensions;
 using TheraEditor.Wrappers;
 using System.Diagnostics;
+using TheraEngine.Core.Files;
+using TheraEngine.Worlds;
+using TheraEngine.GameModes;
+using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Input;
 
 namespace TheraEditor
 {
@@ -21,6 +26,13 @@ namespace TheraEditor
     //[Serializable]
     public class EngineDomainProxyEditor : EngineDomainProxy
     {
+        public EditorGameMode EditorGameMode { get; set; } = new EditorGameMode();
+        public IWorld World
+        {
+            get => Engine.World;
+            set => SetWorld_Internal(value);
+        }
+
         public ConcurrentDictionary<TypeProxy, TypeProxy> FullEditorTypes { get; private set; }
         public ConcurrentDictionary<TypeProxy, TypeProxy> InPlaceEditorTypes { get; private set; }
         /// <summary>
@@ -151,6 +163,43 @@ namespace TheraEditor
             Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
             base.OnStarted();
+        }
+        public override async void SetWorld(FileRef<World> worldRef)
+        {
+            //TODO: get instance async returns world task, not serializable nor marshalable
+            World world = await worldRef.GetInstanceAsync();
+            SetWorld_Internal(world);
+        }
+        public async void LoadWorldFromFile(string fileName)
+        {
+            World world = await TFileObject.LoadAsync<World>(fileName);
+            SetWorld_Internal(world);
+        }
+        public void CreateNewWorld()
+        {
+            World world = new World();
+            SetWorld_Internal(world);
+        }
+        private void SetWorld_Internal(IWorld world)
+        {
+            Engine.SetCurrentWorld(world);
+            if (world != null)
+                world.CurrentGameMode = EditorGameMode;
+        }
+        public void SetEditorGameMode()
+        {
+            IWorld world = Engine.World;
+            if (world != null)
+                world.CurrentGameMode = EditorGameMode;
+        }
+        public void SetGameplayMode()
+        {
+            IWorld world = Engine.World;
+            if (world != null)
+            {
+                IGameMode gameMode = Engine.GetGameMode() ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
+                world.CurrentGameMode = gameMode;
+            }
         }
     }
 }

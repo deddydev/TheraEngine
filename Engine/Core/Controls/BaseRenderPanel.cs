@@ -86,12 +86,10 @@ namespace TheraEngine
             base.OnMove(e);
             UpdateScreenLocation(this, e);
         }
-        protected void DisposeContext()
-            => Engine.DomainProxy.UnregisterRenderPanel(Handle);
-        protected override void Dispose(bool disposing)
+        protected override void DestroyHandle()
         {
-            DisposeContext();
-            base.Dispose(disposing);
+            Engine.DomainProxy.UnregisterRenderPanel(Handle);
+            base.DestroyHandle();
         }
         protected override void OnMouseEnter(EventArgs e)
         {

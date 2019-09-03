@@ -174,10 +174,11 @@ namespace TheraEngine.Rendering
             if (thread == null)
                 return;
 
-            if (_subContexts.ContainsKey(thread.ManagedThreadId))
+            int id = thread.ManagedThreadId;
+            if (_subContexts.ContainsKey(id))
             {
-                _subContexts[thread.ManagedThreadId].Dispose();
-                _subContexts.TryRemove(thread.ManagedThreadId, out ThreadSubContext value);
+                _subContexts.TryRemove(id, out ThreadSubContext value);
+                value?.Dispose();
             }
         }
 

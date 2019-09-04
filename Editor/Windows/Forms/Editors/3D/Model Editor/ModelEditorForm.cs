@@ -18,7 +18,6 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
-using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -46,6 +45,9 @@ namespace TheraEditor.Windows.Forms
         public ModelEditorForm(StaticModel model) : this() => SetModel(model);
         public ModelEditorForm(BaseActor actor) : this() => SetActor(actor);
         public ModelEditorForm(PropAnimVec3 vec3Anim) : this() => SetAnim(vec3Anim);
+
+        public int WorldManagerId { get; private set; }
+        public event Action WorldManagerChanged;
 
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances

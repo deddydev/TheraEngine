@@ -433,6 +433,7 @@
     <Compile Include="Core\Attributes\TNumericPrefixSuffixAttribute.cs" />
     <Compile Include="Core\Controls\BasicRenderPanel.cs" />
     <Compile Include="Core\Data Structures\ConcurrentHashSet.cs" />
+    <Compile Include="Core\Data Structures\Lists\ConsistentIndexList.cs" />
     <Compile Include="Core\Data Structures\Lists\EventArray.cs" />
     <Compile Include="Core\Data Structures\ProgressStream.cs" />
     <Compile Include="Core\Editor\StateChange.cs" />
@@ -1078,6 +1079,7 @@
     <Compile Include="Models\Skeleton\Skeleton.cs" />
     <Compile Include="Models\Materials\Textures\Rendering\RenderTex2D.cs" />
     <Compile Include="Physics\Bullet\BulletDebugDrawer.cs" />
+    <Compile Include="Worlds\WorldManager.cs" />
     <Compile Include="Worlds\WorldSettings.cs" />
     <Compile Include="Worlds\WorldState.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

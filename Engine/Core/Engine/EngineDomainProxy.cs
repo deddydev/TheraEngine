@@ -134,6 +134,8 @@ namespace TheraEngine.Core
         protected virtual void OnStarted() => Started?.Invoke();
         public virtual void Stop()
         {
+            Engine.PrintLine($"Stopping domain proxy.");
+            SetRenderTicking(false);
             Engine.Stop();
             Engine.ShutDown();
             ResetTypeCaches(false);
@@ -183,25 +185,45 @@ namespace TheraEngine.Core
 
         private void UpdateTick(object sender, FrameEventArgs e)
         {
-            Engine.GlobalUpdate();
-            foreach (var ctx in Contexts.Values)
-                ctx.Update();
+            foreach (WorldManager m in WorldManagers)
+            {
+                if (m.AssociatedContexts.Count == 0)
+                    continue;
+
+                //m.AssociatedContexts[0].Capture(true);
+                m.GlobalUpdate();
+
+                foreach (var ctx in m.AssociatedContexts)
+                    ctx.Update();
+            }
         }
         private void SwapBuffers()
         {
-            Engine.GlobalSwap();
-            foreach (var ctx in Contexts.Values)
-                ctx.SwapBuffers();
+            foreach (WorldManager m in WorldManagers)
+            {
+                if (m.AssociatedContexts.Count == 0)
+                    continue;
+
+                //m.AssociatedContexts[0].Capture(true);
+                m.GlobalSwap();
+
+                foreach (var ctx in m.AssociatedContexts)
+                    ctx.SwapBuffers();
+            }
         }
         private void RenderTick(object sender, FrameEventArgs e)
         {
-            WorldPanel?.Capture();
-            Engine.GlobalPreRender();
+            foreach (WorldManager m in WorldManagers)
+            {
+                if (m.AssociatedContexts.Count == 0)
+                    continue;
 
-            //TODO: group contexts by world.
-            //Do a global pre-render per world.
-            foreach (var ctx in Contexts.Values)
-                ctx.Render();
+                m.AssociatedContexts[0].Capture(true);
+                m.GlobalPreRender();
+
+                foreach (var ctx in m.AssociatedContexts)
+                    ctx.Render();
+            }
         }
         public virtual void ResetTypeCaches(bool reloadNow = true)
         {
@@ -401,7 +423,50 @@ namespace TheraEngine.Core
                 Contexts[handle].MouseEnter();
         }
 
+        //TODO: editor world manager, model editor world manager, UI editor world managers
+        public ConsistentIndexList<WorldManager> WorldManagers { get; } = new ConsistentIndexList<WorldManager>();
         public ConcurrentDictionary<IntPtr, RenderContext> Contexts { get; } = new ConcurrentDictionary<IntPtr, RenderContext>();
+
+        public int RegisterWorldManager<T>(params object[] args) where T : WorldManager
+        {
+            WorldManager manager = (WorldManager)Activator.CreateInstance(typeof(T), args);
+            int index = WorldManagers.Add(manager);
+            manager.ID = index;
+            return index;
+        }
+        public void UnregisterWorldManager(int index)
+        {
+            WorldManagers.RemoveAt(index);
+        }
+        public void UnlinkRenderPanelFromWorldManager(IntPtr handle)
+        {
+            if (!Contexts.ContainsKey(handle))
+                return;
+
+            RenderContext ctx = Contexts[handle];
+            int id = ctx?.Handler?.WorldManager?.ID ?? -1;
+            ctx.Handler.WorldManager = null;
+            if (WorldManagers.HasValueAtIndex(id))
+                WorldManagers[id].AssociatedContexts.Remove(ctx);
+        }
+        public void LinkRenderPanelToWorldManager(IntPtr handle, int worldManagerId)
+        {
+            if (!Contexts.ContainsKey(handle) || !WorldManagers.HasValueAtIndex(worldManagerId))
+                return;
+
+            UnlinkRenderPanelFromWorldManager(handle);
+
+            WorldManager worldManager = WorldManagers[worldManagerId];
+            List<RenderContext> ctxList = worldManager.AssociatedContexts;
+            RenderContext ctx = Contexts[handle];
+            ctx.Handler.WorldManager = worldManager;
+
+            if (!ctxList.Contains(ctx))
+            {
+                ctxList.Add(ctx);
+                Engine.PrintLine("Linked render panel to world manager successfully.");
+            }
+        }
         public void RegisterRenderPanel<T>(IntPtr handle, params object[] handlerArgs)
             where T : class, IRenderHandler
         {
@@ -460,9 +525,9 @@ namespace TheraEngine.Core
             return await fileRef.LoadNewInstanceAsync();
         }
 
-        public async virtual void SetWorld(FileRef<World> worldRef)
+        public async virtual void SetWorld(string filePath)
         {
-            World world = await worldRef.GetInstanceAsync();
+            World world = await LoadAsync<World>(filePath);
             Engine.SetCurrentWorld(world);
         }
 

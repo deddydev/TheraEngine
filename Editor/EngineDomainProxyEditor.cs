@@ -164,15 +164,9 @@ namespace TheraEditor
 
             base.OnStarted();
         }
-        public override async void SetWorld(FileRef<World> worldRef)
+        public async override void SetWorld(string filePath)
         {
-            //TODO: get instance async returns world task, not serializable nor marshalable
-            World world = await worldRef.GetInstanceAsync();
-            SetWorld_Internal(world);
-        }
-        public async void LoadWorldFromFile(string fileName)
-        {
-            World world = await TFileObject.LoadAsync<World>(fileName);
+            World world = await TFileObject.LoadAsync<World>(filePath);
             SetWorld_Internal(world);
         }
         public void CreateNewWorld()

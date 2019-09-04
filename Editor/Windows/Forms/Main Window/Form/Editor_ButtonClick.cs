@@ -184,11 +184,12 @@ namespace TheraEditor.Windows.Forms
 
         public async void CreateGameDomain(TProject project, string rootDir, string[] assemblyPaths)
         {
-            if (project == null)
+            DestroyGameDomain();
+
+            if (project is null)
             {
                 try
                 {
-                    DestroyGameDomain();
                     Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null);
                 }
                 catch (Exception ex)
@@ -203,7 +204,6 @@ namespace TheraEditor.Windows.Forms
 
                 try
                 {
-                    DestroyGameDomain();
                     CopyEditorLibraries(assemblyPaths);
 
                     string name = project?.Name ?? "UnnamedGame";
@@ -253,13 +253,10 @@ namespace TheraEditor.Windows.Forms
 
         private void DestroyGameDomain()
         {
-            if (_gameDomain != null)
-            {
-                Engine.DomainProxy.Stop();
-                _gameDomain.Dispose();
-                _gameDomain = null;
-                AppDomainHelper.OnGameDomainUnloaded();
-            }
+            Engine.DomainProxy.Stop();
+            _gameDomain?.Dispose();
+            _gameDomain = null;
+            AppDomainHelper.OnGameDomainUnloaded();
         }
 
         public class TheraAssemblyLoader : MarshalByRefObject, IAssemblyLoader

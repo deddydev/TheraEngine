@@ -4,6 +4,7 @@ using TheraEngine.Actors;
 using TheraEngine.Input;
 using Extensions;
 using System.ComponentModel;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Rendering
 {
@@ -143,6 +144,8 @@ namespace TheraEngine.Rendering
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Dictionary<ELocalPlayerIndex, Viewport> Viewports { get; set; } = new Dictionary<ELocalPlayerIndex, Viewport>();
+
+        public WorldManager WorldManager { get; internal set; }
 
         public IEnumerator<Viewport> GetEnumerator() => ((IEnumerable<Viewport>)Viewports).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Viewport>)Viewports).GetEnumerator();

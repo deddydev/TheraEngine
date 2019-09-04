@@ -153,10 +153,6 @@ namespace TheraEngine
             set => Instance.Singleton = value;
         }
 
-        public static void GlobalUpdate() => Scene?.GlobalUpdate();
-        public static void GlobalPreRender() => Scene?.GlobalPreRender();
-        public static void GlobalSwap() => Scene?.GlobalSwap();
-
         private static IWorld _world;
         public static IWorld World
         {

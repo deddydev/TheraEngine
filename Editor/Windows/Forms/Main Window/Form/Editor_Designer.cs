@@ -1,7 +1,6 @@
 ﻿using AppDomainToolkit;
 using Extensions;
 using Microsoft.Win32;
-using WindowsNativeInterop;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
@@ -18,13 +17,12 @@ using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 using TheraEngine.GameModes;
-using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Networking;
+using TheraEngine.Rendering;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
-using TheraEngine.Rendering;
-using System.Threading.Tasks;
+using WindowsNativeInterop;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -269,7 +267,7 @@ namespace TheraEditor.Windows.Forms
             if (!CanCloseWorld(prevWorld))
                 return;
 
-            DomainProxy.SetWorld(worldRef);
+            DomainProxy.SetWorld(worldRef.Path.Path);
 
             //TODO: make an event
             WorldPostChanged();
@@ -330,7 +328,7 @@ namespace TheraEditor.Windows.Forms
                         return true;
                 }
             }
-            return false;
+            return true;
         }
         /// <summary>
         /// Creates and loads a new world for editing.
@@ -355,7 +353,7 @@ namespace TheraEditor.Windows.Forms
             })
             {
                 if (ofd.ShowDialog(this) == DialogResult.OK)
-                    DomainProxy.LoadWorldFromFile(ofd.FileName);
+                    DomainProxy.SetWorld(ofd.FileName);
             }
         }
 #endregion
@@ -589,7 +587,7 @@ namespace TheraEditor.Windows.Forms
                 //SetRenderTicking(true);
                 //Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
-                DomainProxy.SetWorld(_project.OpeningWorldRef);
+                DomainProxy.SetWorld(_project.OpeningWorldRef.Path.Path);
 
                 UpdateRecentProjectPaths();
             }

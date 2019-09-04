@@ -111,6 +111,10 @@ namespace TheraEngine
             base.OnLostFocus(e);
             Engine.DomainProxy.LostFocus(Handle);
         }
+        public void LinkToWorldManager(int worldManagerId)
+            => Engine.DomainProxy.LinkRenderPanelToWorldManager(Handle, worldManagerId);
+        public void UnlinkFromWorldManager()
+            => Engine.DomainProxy.UnlinkRenderPanelFromWorldManager(Handle);
     }
     public class RenderPanel<T> : BaseRenderPanel where T : class, IRenderHandler
     {

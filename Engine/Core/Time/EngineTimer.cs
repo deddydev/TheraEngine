@@ -72,7 +72,13 @@ namespace TheraEngine.Timers
 
             InitiateLoop(singleThreaded);
         }
-
+        private int _spinCount = 1000;
+        private void MakeManualResetEvents()
+        {
+            _commandsReady = new ManualResetEvent(false);
+            _commandsSwappedForRender = new ManualResetEvent(false);
+            _renderDone = new ManualResetEvent(true);
+        }
         private void InitiateLoop(bool singleThreaded)
         {
             if (AppDomainHelper.IsPrimaryDomain)
@@ -81,11 +87,9 @@ namespace TheraEngine.Timers
                     Application.Idle += Application_Idle_SingleThread;
                 else
                 {
-                    _commandsReady = new ManualResetEvent(false);
-                    _commandsSwappedForRender = new ManualResetEvent(false);
-                    _renderDone = new ManualResetEvent(true);
+                    MakeManualResetEvents();
 
-                    Task.Factory.StartNew(RunUpdateMultiThreadInternal, TaskCreationOptions.LongRunning);
+                    Task.Run(RunUpdateMultiThreadInternal);
 
                     Application.Idle += Application_Idle_MultiThread;
                 }
@@ -94,16 +98,14 @@ namespace TheraEngine.Timers
             {
                 if (singleThreaded)
                 {
-                    Task.Factory.StartNew(GameDomainSingleThreadLoop, TaskCreationOptions.LongRunning);
+                    Task.Run(GameDomainSingleThreadLoop);
                 }
                 else
                 {
-                    _commandsReady = new ManualResetEvent(false);
-                    _commandsSwappedForRender = new ManualResetEvent(false);
-                    _renderDone = new ManualResetEvent(true);
+                    MakeManualResetEvents();
 
-                    Task.Factory.StartNew(RunUpdateMultiThreadInternal, TaskCreationOptions.LongRunning);
-                    Task.Factory.StartNew(RunRenderMultiThreadInternal, TaskCreationOptions.LongRunning);
+                    Task.Run(RunUpdateMultiThreadInternal);
+                    Task.Run(RunRenderMultiThreadInternal);
                 }
             }
         }
@@ -461,9 +463,7 @@ namespace TheraEngine.Timers
                         Application.Idle += Application_Idle_SingleThread;
                     else
                     {
-                        _commandsReady = new ManualResetEvent(false);
-                        _commandsSwappedForRender = new ManualResetEvent(false);
-                        _renderDone = new ManualResetEvent(true);
+                        MakeManualResetEvents();
 
                         Task.Factory.StartNew(RunUpdateMultiThreadInternal, TaskCreationOptions.LongRunning);
 

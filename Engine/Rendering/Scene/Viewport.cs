@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering
     public class Viewport : TObjectSlim
     {
         public const string SceneShaderPath = "Scene3D";
-        public static Viewport CurrentlyRendering => Engine.Instance.CurrentlyRenderingViewport;
+        public static Viewport CurrentlyRendering => Engine.CurrentlyRenderingViewport;
 
         public BoundingRectangle _region;
         public BoundingRectangle _internalResolution = new BoundingRectangle();
@@ -307,9 +307,9 @@ namespace TheraEngine.Rendering
             if (scene == null || camera == null || RegeneratingFBOs)
                 return;
 
-            Engine.Instance.PushRenderingViewport(this);
+            Engine.PushRenderingViewport(this);
             OnRender(scene, camera, target);
-            Engine.Instance.PopRenderingViewport();
+            Engine.PopRenderingViewport();
         }
         private RenderPasses _renderPasses = new RenderPasses();
         protected virtual void OnRender(IScene scene, ICamera camera, FrameBuffer target)

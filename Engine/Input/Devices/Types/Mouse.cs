@@ -145,7 +145,7 @@ namespace TheraEngine.Input.Devices
             _lastY = absPt.Y;
             OnRelative(relX, relY);
 
-            RenderContext pnl = Engine.DomainProxy.HoveredPanel;
+            RenderContext pnl = RenderContext.Hovered;
             if (pnl != null)
                 absPt = pnl.PointToClient(absPt);
 

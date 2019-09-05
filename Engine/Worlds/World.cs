@@ -303,8 +303,7 @@ namespace TheraEngine.Worlds
             if (s3D != null)
             {
                 s3D.RenderTree.Swap();
-                if (s3D.IBLProbeActor != null)
-                    s3D.IBLProbeActor.InitAndCaptureAll(512);
+                s3D.IBLProbeActor?.InitAndCaptureAll(512);
             }
             IScene2D s2D = Scene2D;
             if (s2D != null)

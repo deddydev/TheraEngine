@@ -18,7 +18,7 @@ namespace TheraEditor.Windows.Forms
             OutputTextBox.Text = Engine.OutputString;
 
             OutputTextBox.LostFocus += OutputTextBox_LostFocus;
-            Engine.Instance.DebugOutput += QueueMessage;
+            Engine.DebugOutput += QueueMessage;
             Application.Idle += Application_Idle;
 
             OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
@@ -43,7 +43,7 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            Engine.Instance.DebugOutput -= QueueMessage;
+            Engine.DebugOutput -= QueueMessage;
             OutputTextBox.LostFocus -= OutputTextBox_LostFocus;
             Application.Idle -= Application_Idle;
 

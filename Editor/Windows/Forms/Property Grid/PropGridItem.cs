@@ -352,9 +352,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         
         public string VisibilityCondition { get; set; }
-        public TimeSpan? UpdateTimeSpan { get; set; }
-        public DateTime LastUpdateTime { get; set; }
-        public DateTime LastDisplayChangeTime { get; set; }
+        public TimeSpan? UpdateTimeSpan { get; set; } = null;
+        public DateTime LastUpdateTime { get; private set; }
+        public DateTime LastDisplayChangeTime { get; private set; }
 
         protected abstract bool UpdateDisplayInternal(object value);
         
@@ -428,6 +428,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 accessor = accessor.Substring(1);
             return accessor;
         }
+
+        /// <summary>
+        /// Returns true if enough time has elapsed since the last update to warrant another.
+        /// </summary>
+        /// <returns></returns>
+        public bool AllowUpdate()
+            => UpdateTimeSpan == null || (DateTime.Now - LastUpdateTime) >= UpdateTimeSpan.Value;
+
         private void CreateAnimation(object sender, EventArgs e)
         {
             string path = GetAnimationMemberPath(out PropGridMemberInfo animOwner);

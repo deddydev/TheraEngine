@@ -212,8 +212,8 @@ namespace TheraEditor.Windows.Forms
             AppDomainHelper.GameDomainLoaded += AppDomainHelper_GameDomainLoaded;
             AppDomainHelper.GameDomainUnloaded += AppDomainHelper_GameDomainUnloaded;
 
-            Engine.Instance.PreWorldChanged += Engine_PreWorldChanged;
-            Engine.Instance.PostWorldChanged += Engine_PostWorldChanged;
+            Engine.PreWorldChanged += Engine_PreWorldChanged;
+            Engine.PostWorldChanged += Engine_PostWorldChanged;
         }
 
         private void AppDomainHelper_GameDomainUnloaded()

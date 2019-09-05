@@ -79,11 +79,6 @@ namespace TheraEngine.Core
             "AppDomain: "           + AppDomain.CurrentDomain.FriendlyName
             + Environment.NewLine;
 
-        public RenderContext WorldPanel { get; set; }
-        public RenderContext HoveredPanel { get; set; }
-        public RenderContext FocusedPanel { get; set; }
-        public RenderContext RenderingPanel { get; set; }
-
         public ProxyList<TypeProxy> GetExportedTypes()
         {
             AppDomain domain = AppDomain.CurrentDomain;
@@ -113,6 +108,8 @@ namespace TheraEngine.Core
         //}
         public async virtual void Start(string gamePath, bool isUIDomain)
         {
+            Engine.InputLibrary = EInputLibrary.OpenTK;
+
             Engine.PrintLine($"Starting domain proxy.");
             AppDomainHelper.OnGameDomainLoaded();
 
@@ -176,9 +173,9 @@ namespace TheraEngine.Core
             switch (type)
             {
                 case EPanelType.World: return WorldPanel;
-                case EPanelType.Hovered: return HoveredPanel;
-                case EPanelType.Focused: return FocusedPanel;
-                case EPanelType.Rendering: return RenderingPanel;
+                case EPanelType.Hovered: return Hovered;
+                case EPanelType.Focused: return Focused;
+                case EPanelType.Rendering: return Captured;
             }
             return null;
         }
@@ -190,11 +187,14 @@ namespace TheraEngine.Core
                 if (m.AssociatedContexts.Count == 0)
                     continue;
 
-                //m.AssociatedContexts[0].Capture(true);
                 m.GlobalUpdate();
 
-                foreach (var ctx in m.AssociatedContexts)
-                    ctx.Update();
+                try
+                {
+                    foreach (var ctx in m.AssociatedContexts)
+                        ctx.Update();
+                }
+                catch { }
             }
         }
         private void SwapBuffers()
@@ -204,11 +204,14 @@ namespace TheraEngine.Core
                 if (m.AssociatedContexts.Count == 0)
                     continue;
 
-                //m.AssociatedContexts[0].Capture(true);
                 m.GlobalSwap();
 
-                foreach (var ctx in m.AssociatedContexts)
-                    ctx.SwapBuffers();
+                try
+                {
+                    foreach (var ctx in m.AssociatedContexts)
+                        ctx.SwapBuffers();
+                }
+                catch { }
             }
         }
         private void RenderTick(object sender, FrameEventArgs e)
@@ -221,8 +224,12 @@ namespace TheraEngine.Core
                 m.AssociatedContexts[0].Capture(true);
                 m.GlobalPreRender();
 
-                foreach (var ctx in m.AssociatedContexts)
-                    ctx.Render();
+                try
+                {
+                    foreach (var ctx in m.AssociatedContexts)
+                        ctx.Render();
+                }
+                catch { }
             }
         }
         public virtual void ResetTypeCaches(bool reloadNow = true)
@@ -399,8 +406,8 @@ namespace TheraEngine.Core
                 return;
 
             var ctx = Contexts[handle];
-            if (FocusedPanel == ctx)
-                FocusedPanel = null;
+            if (Focused == ctx)
+                Focused = null;
             Contexts[handle].LostFocus();
         }
         public void GotFocus(IntPtr handle)
@@ -409,18 +416,27 @@ namespace TheraEngine.Core
                 return;
 
             var ctx = Contexts[handle];
-            FocusedPanel = ctx;
+            Focused = ctx;
             ctx.GotFocus();
         }
         public void MouseLeave(IntPtr handle)
         {
-            if (Contexts.ContainsKey(handle))
-                Contexts[handle].MouseLeave();
+            if (!Contexts.ContainsKey(handle))
+                return;
+
+            var ctx = Contexts[handle];
+            if (Hovered == ctx)
+                Hovered = null;
+            ctx.MouseLeave();
         }
         public void MouseEnter(IntPtr handle)
         {
-            if (Contexts.ContainsKey(handle))
-                Contexts[handle].MouseEnter();
+            if (!Contexts.ContainsKey(handle))
+                return;
+
+            var ctx = Contexts[handle];
+            Hovered = ctx;
+            ctx.MouseEnter();
         }
 
         //TODO: editor world manager, model editor world manager, UI editor world managers

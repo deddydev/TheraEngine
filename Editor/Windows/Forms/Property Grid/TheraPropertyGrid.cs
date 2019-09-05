@@ -351,6 +351,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         internal void StopUpdatingVisibleItems()
         {
             _updatingVisibleItems = false;
+            _updateTimer.Stop();
+            _updateTimer.Elapsed -= UpdateTimer_Tick;
         }
         /// <summary>
         /// List of all visible PropGridItems that need to be updated.
@@ -360,34 +362,40 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Queue<PropGridItem> VisibleItemsAdditionQueue { get; } = new Queue<PropGridItem>();
 
         private bool _updatingVisibleItems = false;
-        private System.Timers.Timer _updateTimer = new System.Timers.Timer();
-        internal void BeginUpdatingVisibleItems(float updateRateInSeconds)
+        private readonly System.Timers.Timer _updateTimer = new System.Timers.Timer() { AutoReset = true };
+
+        private void BeginUpdatingVisibleItems(float updateRateInSeconds)
         {
             if (_updatingVisibleItems)
                 return;
-
-            int sleepTime = (int)(updateRateInSeconds * 1000.0f);
-
             _updatingVisibleItems = true;
+
+            double sleepTime = updateRateInSeconds * 1000.0;
             _updateTimer.Interval = sleepTime;
             _updateTimer.Elapsed += UpdateTimer_Tick;
             _updateTimer.Start();
 
-            //Task.Run(() =>
-            //{
-            //    while (_updatingVisibleItems)
-            //    {
-            //        UpdateTimer_Tick(null, EventArgs.Empty);
-            //        Thread.Sleep(sleepTime);
-            //    }
-            //});
+            //Task.Run(() => UpdateItemsContinuous(updateRateInSeconds));
         }
 
         private void UpdateTimer_Tick(object sender, ElapsedEventArgs e)
         {
-            if (!_updatingVisibleItems)
+            if (!_updatingVisibleItems || IsDisposed || Disposing)
                 _updateTimer.Stop();
 
+            UpdateItems();
+        }
+        //private void UpdateItemsTask(float updateRateInSeconds)
+        //{
+        //    int sleepTime = (int)(updateRateInSeconds * 1000.0f);
+        //    while (_updatingVisibleItems)
+        //    {
+        //        UpdateItems();
+        //        Thread.Sleep(sleepTime);
+        //    }
+        //}
+        private void UpdateItems()
+        {
             Parallel.For(0, VisibleItems.Count, UpdateItem);
 
             while (VisibleItemsRemovalQueue.Count > 0)
@@ -399,15 +407,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void UpdateItem(int i)
         {
+            if (Disposing || IsDisposed)
+                return;
+
             try
             {
                 PropGridItem item = VisibleItems[i];
                 if (item.IsDisposed || item.Disposing)
                     RemoveVisibleItem(item);
-                else// if (item.UpdateTimeSpan == null || DateTime.Now - item.LastUpdateTime >= item.UpdateTimeSpan.Value)
-                    RenderContext.ThreadSafeBlockingInvoke(
-                        (Action)item.UpdateDisplay,
-                        RenderContext.EPanelType.Rendering);
+                else if (item.AllowUpdate())
+                    BeginInvoke((Action)item.UpdateDisplay);
             }
             catch (Exception ex)
             {
@@ -415,7 +424,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        private async void LoadProperties(bool showProperties = true, bool showEvents = false, bool showMethods = false)
+        private async void LoadProperties(
+            bool showProperties = true, 
+            bool showEvents = false, 
+            bool showMethods = false)
         {
             if (Disposing || IsDisposed)
                 return;

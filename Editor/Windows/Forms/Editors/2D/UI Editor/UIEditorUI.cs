@@ -134,7 +134,7 @@ namespace TheraEditor.Windows.Forms
             if (_selectedComp == _highlightedComp)
             {
                 _dragComp = _selectedComp;
-                if (_selectedComp == null)
+                if (_selectedComp is null)
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = TargetUI;
             }
             else

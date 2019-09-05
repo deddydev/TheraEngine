@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds
 {
     public class WorldManager
     {
-        public World World { get; set; }
+        public World World { get; set; } = new World();
         public List<RenderContext> AssociatedContexts { get; set; } = new List<RenderContext>();
         public int ID { get; internal set; }
 

@@ -17,7 +17,7 @@ namespace TheraEngine.Input.Devices.OpenTK
             for (int i = 0; i < _registeredKeys.Count; ++i)
             {
                 int keyIndex = (int)_registeredKeys[i];
-                _buttonStates[keyIndex].Tick(state.IsKeyDown((Key)keyIndex), delta);
+                _buttonStates[keyIndex]?.Tick(state.IsKeyDown((Key)keyIndex), delta);
             }
         }
     }

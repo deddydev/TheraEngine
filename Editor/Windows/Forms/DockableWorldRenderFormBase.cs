@@ -65,8 +65,8 @@ namespace TheraEditor.Windows.Forms
         public override IWorld World => Engine.World;
         protected virtual void LinkWorldChangeEvents()
         {
-            Engine.Instance.PreWorldChanged += PreWorldChanged;
-            Engine.Instance.PostWorldChanged += PostWorldChanged;
+            Engine.PreWorldChanged += PreWorldChanged;
+            Engine.PostWorldChanged += PostWorldChanged;
         }
         public override void Resize(int width, int height)
         {

@@ -140,14 +140,14 @@ namespace TheraEngine.Core.Files
             string path,
             ESerializeFlags flags = ESerializeFlags.Default)
         {
-            if (Engine.Instance.BeginOperation == null)
+            if (Engine.BeginOperation is null)
                 await ExportAsync(path, flags, null, CancellationToken.None);
             else
             {
-                int op = Engine.Instance.BeginOperation($"Exporting file to {path}...", $"{path} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Engine.BeginOperation($"Exporting file to {path}...", $"{path} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
                 await ExportAsync(path, flags, progress, cancel.Token);
-                if (Engine.Instance.EndOperation != null)
-                    Engine.Instance.EndOperation(op);
+                if (Engine.EndOperation != null)
+                    Engine.EndOperation(op);
                 else
                     ((IProgress<float>)progress).Report(1.0f);
             }
@@ -218,14 +218,14 @@ namespace TheraEngine.Core.Files
             ESerializeFlags flags = ESerializeFlags.Default,
             EProprietaryFileFormat? propFormat = null)
         {
-            if (Engine.Instance.BeginOperation == null)
+            if (Engine.BeginOperation == null)
                 await ExportAsync(directory, fileName, flags, propFormat, null, CancellationToken.None);
             else
             {
-                int op = Engine.Instance.BeginOperation($"Exporting file to {FilePath}...", $"{FilePath} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", $"{FilePath} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
                 await ExportAsync(directory, fileName, flags, propFormat, progress, cancel.Token);
-                if (Engine.Instance.EndOperation != null)
-                    Engine.Instance.EndOperation(op);
+                if (Engine.EndOperation != null)
+                    Engine.EndOperation(op);
                 else
                     ((IProgress<float>)progress).Report(1.0f);
             }

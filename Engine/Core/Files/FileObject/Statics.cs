@@ -268,12 +268,12 @@ namespace TheraEngine.Core.Files
         public static async Task<T> LoadAsync<T>(string filePath)
         {
             T file;
-            if (Engine.Instance.BeginOperation != null)
+            if (Engine.BeginOperation != null)
             {
-                int op = Engine.Instance.BeginOperation($"Loading file from {filePath}...", $"{filePath} loaded successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Engine.BeginOperation($"Loading file from {filePath}...", $"{filePath} loaded successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
                 file = (T)(await LoadAsync(typeof(T), filePath, progress, cancel.Token));
-                if (Engine.Instance.EndOperation != null)
-                    Engine.Instance.EndOperation(op);
+                if (Engine.EndOperation != null)
+                    Engine.EndOperation(op);
                 else
                     ((IProgress<float>)progress).Report(1.0f);
             }

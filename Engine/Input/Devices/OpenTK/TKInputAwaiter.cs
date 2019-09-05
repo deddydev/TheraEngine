@@ -22,25 +22,37 @@ namespace TheraEngine.Input.Devices.OpenTK
             for (int i = 0; i < MaxControllers; ++i)
                 if (gamepads[i] == null)
                 {
-                    GamePadState gamepadState = GamePad.GetState(i);
-                    if (gamepadState.IsConnected)
+                    try
                     {
-                        GamePadCapabilities c = GamePad.GetCapabilities(i);
-                        OnFoundGamepad(i);
+                        GamePadState gamepadState = GamePad.GetState(i);
+                        if (gamepadState.IsConnected)
+                        {
+                            //GamePadCapabilities c = GamePad.GetCapabilities(i);
+                            OnFoundGamepad(i);
+                        }
                     }
+                    catch { }
                 }
 
             if (keyboards[0] == null)
             {
-                KeyboardState keyboardState = Keyboard.GetState();
-                if (keyboardState.IsConnected)
-                    OnFoundKeyboard(0);
+                try
+                {
+                    KeyboardState keyboardState = Keyboard.GetState();
+                    if (keyboardState.IsConnected)
+                        OnFoundKeyboard(0);
+                }
+                catch { }
             }
             if (mice[0] == null)
             {
-                MouseState mouseState = Mouse.GetState();
-                if (mouseState.IsConnected)
-                    OnFoundMouse(0);
+                try
+                {
+                    MouseState mouseState = Mouse.GetState();
+                    if (mouseState.IsConnected)
+                        OnFoundMouse(0);
+                }
+                catch { }
             }
         }
     }

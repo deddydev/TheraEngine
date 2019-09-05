@@ -163,7 +163,7 @@ namespace TheraEngine
         
         public static void SetWorldPanel(RenderContext panel, bool registerTickNow = true)
         {
-            DomainProxy.WorldPanel = panel;
+            RenderContext.WorldPanel = panel;
             //if (registerTickNow)
             //    panel?.RegisterTick();
         }
@@ -424,7 +424,7 @@ namespace TheraEngine
         /// </summary>
         private static void EngineTick(object sender, FrameEventArgs e)
         {
-            Network?.RecievePackets();
+            //Network?.RecievePackets();
             
             float delta = e.Time * TimeDilation;
 
@@ -437,17 +437,14 @@ namespace TheraEngine
 
             OnUpdate(sender, e);
 
-            Network?.UpdatePacketQueue(e.Time);
+            //Network?.UpdatePacketQueue(e.Time);
 
             //SteamAPI.RunCallbacks();
         }
 
-        private static void OnUpdate(object sender, FrameEventArgs e) => Update?.Invoke(sender, e);
+        private static void OnUpdate(object sender, FrameEventArgs e) 
+            => Update?.Invoke(sender, e);
 
-        private static void SwapBuffers()
-        {
-            Instance.SwapBuffers();
-        }
         /// <summary>
         /// Ticks all lists of methods registered to this group.
         /// Goes through timers, input, animation, logic and scene ticks in that order,
@@ -491,12 +488,51 @@ namespace TheraEngine
             CurrentTickList = -1;
         }
         /// <summary>
+        /// Tells the engine to play in a new world.
+        /// </summary>
+        /// <param name="world">The world to play in.</param>
+        /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
+        public static void SetCurrentWorld(IWorld world)
+        {
+            if (World == world)
+                return;
+
+            PreWorldChanged?.Invoke();
+
+            World?.EndPlay();
+            World = world;
+            World?.BeginPlay();
+
+            PostWorldChanged?.Invoke();
+        }
+        public static void QueueRebaseOrigin(IWorld world, Vec3 point)
+        {
+            if (!world.IsRebasingOrigin)
+                RebaseWorldsQueue.AddOrUpdate(world, t => point, (t, t2) => point);
+        }
+        /// <summary>
+        /// Called when the input awaiter discovers a new input device.
+        /// </summary>
+        /// <param name="device">The device that was found.</param>
+        internal static void FoundInput(InputDevice device)
+        {
+            World?.CurrentGameMode?.FoundInput(device);
+        }
+        public static void SwapBuffers()
+        {
+            THelpers.Swap(ref RebaseWorldsProcessing, ref RebaseWorldsQueue);
+            RebaseWorldsProcessing.ForEach(x => x.Key.RebaseOrigin(x.Value));
+            RebaseWorldsProcessing.Clear();
+        }
+        /// <summary>
         /// Starts a quick timer to track the number of sceonds elapsed.
         /// Returns the id of the timer.
         /// </summary>
         public static int StartTimer()
         {
-            return Instance.StartTimer();
+            int id = _debugTimers.Count;
+            _debugTimers.Add(DateTime.Now);
+            return id;
         }
         /// <summary>
         /// Ends the timer and returns the amount of time elapsed, in seconds.
@@ -504,8 +540,11 @@ namespace TheraEngine
         /// <param name="id">The id of the timer.</param>
         public static float EndTimer(int id)
         {
-            return Instance.EndTimer(id);
+            float seconds = (float)(DateTime.Now - _debugTimers[id]).TotalSeconds;
+            _debugTimers.RemoveAt(id);
+            return seconds;
         }
+
         /// <summary>
         /// Toggles the pause state. If currently paused, will unpause. If currently unpaused, will pause.
         /// </summary>
@@ -913,56 +952,6 @@ namespace TheraEngine
                 }
                 return _defaultEngineSettings.Value;
             }
-            /// <summary>
-            /// Tells the engine to play in a new world.
-            /// </summary>
-            /// <param name="world">The world to play in.</param>
-            /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
-            public void SetCurrentWorld(IWorld world)
-            {
-                if (World == world)
-                    return;
-
-                PreWorldChanged?.Invoke();
-
-                World?.EndPlay();
-                World = world;
-                World?.BeginPlay();
-
-                PostWorldChanged?.Invoke();
-            }
-            public void QueueRebaseOrigin(IWorld world, Vec3 point)
-            {
-                if (!world.IsRebasingOrigin)
-                    RebaseWorldsQueue.AddOrUpdate(world, t => point, (t, t2) => point);
-            }
-            /// <summary>
-            /// Called when the input awaiter discovers a new input device.
-            /// </summary>
-            /// <param name="device">The device that was found.</param>
-            internal void FoundInput(InputDevice device)
-            {
-                World?.CurrentGameMode?.FoundInput(device);
-            }
-            public void SwapBuffers()
-            {
-                THelpers.Swap(ref RebaseWorldsProcessing, ref RebaseWorldsQueue);
-                RebaseWorldsProcessing.ForEach(x => x.Key.RebaseOrigin(x.Value));
-                RebaseWorldsProcessing.Clear();
-            }
-            public int StartTimer()
-            {
-                int id = _debugTimers.Count;
-                _debugTimers.Add(DateTime.Now);
-                return id;
-            }
-            public float EndTimer(int id)
-            {
-                float seconds = (float)(DateTime.Now - _debugTimers[id]).TotalSeconds;
-                _debugTimers.RemoveAt(id);
-                return seconds;
-            }
-
             #region Fonts
             /// <summary>
             /// Creates a new font object given the font's name and parameters.

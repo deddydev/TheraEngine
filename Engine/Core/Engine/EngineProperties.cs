@@ -140,19 +140,6 @@ namespace TheraEngine
             public InternalEnginePersistentSingleton WrappedInstance { get; set; }
         }
 
-        public static NetworkConnection Network
-        {
-            get => Instance.Network;
-            set => Instance.Network = value;
-        }
-        public static Server ServerConnection => Instance.ServerConnection;
-        public static Client ClientConnection => Instance.ClientConnection;
-        public static EngineSingleton Singleton
-        {
-            get => Instance.Singleton;
-            set => Instance.Singleton = value;
-        }
-
         private static IWorld _world;
         public static IWorld World
         {
@@ -176,45 +163,10 @@ namespace TheraEngine
             }
         }
 
-        public static GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef
-        {
-            get => Instance.DefaultEngineSettingsOverrideRef;
-            set => Instance.DefaultEngineSettingsOverrideRef = value;
-        }
-
-        /// <summary>
-        /// The settings for the engine, specified by the game.
-        /// </summary>
-        public static EngineSettings Settings
-        {
-            get => Instance.Settings;
-            set => Instance.Settings = value;
-        }
-        /// <summary>
-        /// The settings for the engine, specified by the user.
-        /// </summary>
-        public static UserSettings UserSettings => Instance.UserSettings;
-
-        /// <summary>
-        /// Class containing this computer's specs. Use to adjust engine performance accordingly.
-        /// </summary>
-        public static ComputerInfo ComputerInfo => Instance.ComputerInfo;
 
 #if EDITOR
-        public static EngineEditorState EditorState => Instance.EditorState;
+        public static EngineEditorState EditorState { get; } = new EngineEditorState();
 #endif
-
-        public static bool IsPaused
-        {
-            get => Instance.IsPaused;
-            private set => Instance.IsPaused = value;
-        }
-
-        public static void SetCurrentWorld(IWorld world)
-            => Instance.SetCurrentWorld(world);
-
-        public static void QueueRebaseOrigin(IWorld world, Vec3 point)
-            => Instance.QueueRebaseOrigin(world, point);
 
         #region Timing
 
@@ -289,13 +241,14 @@ namespace TheraEngine
         /// </summary>
         public static ERenderLibrary RenderLibrary
         {
-            get => Instance.RenderLibrary;
+            get => _renderLibrary;
             internal set
             {
-                Instance.RenderLibrary = value;
+                _renderLibrary = value;
                 RenderLibraryChanged();
             }
         }
+        private static ERenderLibrary _renderLibrary = DefaultRenderLibrary;
         private static void RenderLibraryChanged()
         {
             List<RenderContext> contexts = new List<RenderContext>(RenderContext.BoundContexts);
@@ -307,19 +260,20 @@ namespace TheraEngine
         /// </summary>
         public static EAudioLibrary AudioLibrary
         {
-            get => Instance.AudioLibrary;
+            get => _audioLibrary;
             internal set
             {
-                Instance.AudioLibrary = value;
+                _audioLibrary = value;
                 RetrieveAudioManager();
             }
         }
+        private static EAudioLibrary _audioLibrary = DefaultAudioLibrary;
         private static void RetrieveAudioManager()
         {
-            switch (Instance.AudioLibrary)
+            switch (AudioLibrary)
             {
                 case EAudioLibrary.OpenAL:
-                    Instance._audioManager = new ALAudioManager();
+                    _audioManager = new ALAudioManager();
                     break;
             }
         }
@@ -328,24 +282,25 @@ namespace TheraEngine
         /// </summary>
         public static EPhysicsLibrary PhysicsLibrary
         {
-            get => Instance.PhysicsLibrary;
+            get => _physicsLibrary;
             internal set
             {
-                Instance.PhysicsLibrary = value;
+                _physicsLibrary = value;
                 RetrievePhysicsInterface();
             }
         }
+        private static EPhysicsLibrary _physicsLibrary = DefaultPhysicsLibrary;
 
         private static void RetrievePhysicsInterface()
         {
-            switch (Instance.PhysicsLibrary)
+            switch (PhysicsLibrary)
             {
                 default:
                 case EPhysicsLibrary.Bullet:
-                    Instance._physicsInterface = new BulletPhysicsInterface();
+                    _physicsInterface = new BulletPhysicsInterface();
                     break;
                 case EPhysicsLibrary.Jitter:
-                    Instance._physicsInterface = new JitterPhysicsInterface();
+                    _physicsInterface = new JitterPhysicsInterface();
                     break;
             }
         }
@@ -354,24 +309,31 @@ namespace TheraEngine
         /// </summary>
         public static EInputLibrary InputLibrary
         {
-            get => Instance.InputLibrary;
+            get => _inputLibrary;
             internal set
             {
-                Instance.InputLibrary = value;
+                _inputLibrary = value;
                 InputLibraryChanged();
             }
         }
+        private static EInputLibrary _inputLibrary = DefaultInputLibrary;
+
+        public static InputAwaiter InputAwaiter { get; set; }
+
         private static void InputLibraryChanged()
         {
+            if (!AppDomainHelper.IsGameDomain && !AppDomainHelper.IsGameDomainAlsoPrimary)
+                return;
+
             //_inputAwaiter?.Dispose();
             switch (InputLibrary)
             {
                 default:
                 case EInputLibrary.OpenTK:
-                    Instance.InputAwaiter = new TKInputAwaiter(Instance.FoundInput);
+                    InputAwaiter = new TKInputAwaiter(FoundInput);
                     break;
                 case EInputLibrary.XInput:
-                    Instance.InputAwaiter = new DXInputAwaiter(Instance.FoundInput);
+                    InputAwaiter = new DXInputAwaiter(FoundInput);
                     break;
             }
         }
@@ -388,7 +350,7 @@ namespace TheraEngine
                 var ctx = RenderContext.Captured;
                 if (ctx is null)
                 {
-                    string domain = AppDomain.CurrentDomain.FriendlyName;
+                    //string domain = AppDomain.CurrentDomain.FriendlyName;
                     throw new InvalidOperationException("No render library set.");
                 }
                 //if (MainThreadID != Thread.CurrentThread.ManagedThreadId)
@@ -403,9 +365,9 @@ namespace TheraEngine
         {
             get
             {
-                if (Instance._physicsInterface == null)
+                if (_physicsInterface is null)
                     throw new InvalidOperationException("No physics library set.");
-                return Instance._physicsInterface;
+                return _physicsInterface;
             }
         }
         /// <summary>
@@ -415,9 +377,9 @@ namespace TheraEngine
         {
             get
             {
-                if (Instance._audioManager == null)
+                if (_audioManager is null)
                     throw new InvalidOperationException("No audio library set.");
-                return Instance._audioManager;
+                return _audioManager;
             }
         }
 
@@ -431,54 +393,145 @@ namespace TheraEngine
 
         #endregion
 
+        /// <summary>
+        /// The world that is currently being rendered and played in.
+        /// </summary>
+        public static bool IsPaused { get; private set; } = false;
+
+        /// <summary>
+        /// Event fired before the current world is changed.
+        /// </summary>
+        public static event Action PreWorldChanged;
+        /// <summary>
+        /// Event fired after the current world is changed.
+        /// </summary>
+        public static event Action PostWorldChanged;
+
+        public static ConcurrentDictionary<IWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<IWorld, Vec3>();
+        public static ConcurrentDictionary<IWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<IWorld, Vec3>();
+
+        private static List<DateTime> _debugTimers = new List<DateTime>();
+
+        private static Stack<Viewport> CurrentlyRenderingViewports { get; } = new Stack<Viewport>();
+        public static void PushRenderingViewport(Viewport viewport) => CurrentlyRenderingViewports.Push(viewport);
+        public static void PopRenderingViewport() => CurrentlyRenderingViewports.Pop();
+
+        public static DelBeginOperation BeginOperation;
+        public static DelEndOperation EndOperation;
+
+        public static event Action GotFocus;
+        public static event Action LostFocus;
+
+        //public RenderContext CapturedRenderContext { get; set; }
+
+        /// <summary>
+        /// Event for when the engine is paused or unpaused and by which player.
+        /// </summary>
+        public static event Action<bool, ELocalPlayerIndex> PauseChanged;
+        /// <summary>
+        /// Event for sending debug console output text.
+        /// </summary>
+        public static event Action<string> DebugOutput;
+
+        private static Lazy<EngineSettings> _defaultEngineSettings = new Lazy<EngineSettings>(() => new EngineSettings(), true);
+
+        public static NetworkConnection Network { get; set; }
+        public static Server ServerConnection => Network as Server;
+        public static Client ClientConnection => Network as Client;
+        public static EngineSingleton Singleton { get; set; }
+
+        public static GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
+            = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistent = true };
+
+        private static EngineSettings _cachedSettings;
+        public static EngineSettings Settings
+        {
+            get
+            {
+                if (_cachedSettings == null)
+                    Settings = GetBestSettings();
+                return _cachedSettings;
+            }
+            set
+            {
+                bool singleThreaded = false;
+                bool capFPS = false;
+                bool capUPS = false;
+                float fps = 0.0f;
+                float ups = 0.0f;
+
+                if (_cachedSettings != null)
+                {
+                    singleThreaded = _cachedSettings.SingleThreaded;
+                    capFPS = _cachedSettings.CapFPS;
+                    capUPS = _cachedSettings.CapUPS;
+                    fps = _cachedSettings.TargetFPS;
+                    ups = _cachedSettings.TargetUPS;
+
+                    _cachedSettings.SingleThreadedChanged -= Settings_SingleThreadedChanged;
+                    _cachedSettings.FramesPerSecondChanged -= Settings_FramesPerSecondChanged;
+                    _cachedSettings.UpdatePerSecondChanged -= Settings_UpdatePerSecondChanged;
+                }
+                _cachedSettings = value;
+                if (_cachedSettings != null)
+                {
+                    _cachedSettings.SingleThreadedChanged += Settings_SingleThreadedChanged;
+                    _cachedSettings.FramesPerSecondChanged += Settings_FramesPerSecondChanged;
+                    _cachedSettings.UpdatePerSecondChanged += Settings_UpdatePerSecondChanged;
+
+                    if (_cachedSettings.SingleThreaded != singleThreaded)
+                        Settings_SingleThreadedChanged();
+                    if (_cachedSettings.CapFPS != capFPS || _cachedSettings.TargetFPS != fps)
+                        Settings_FramesPerSecondChanged();
+                    if (_cachedSettings.CapUPS != capUPS || _cachedSettings.TargetUPS != ups)
+                        Settings_UpdatePerSecondChanged();
+                }
+            }
+        }
+
+        public static void SettingsSourcesChanged(bool cacheBestSettingsNow = false)
+        {
+            _cachedSettings = null;
+            if (cacheBestSettingsNow)
+                Settings = GetBestSettings();
+        }
+        /// <summary>
+        /// Returns settings from the game, from the engine override settings, or the default hardcoded settings.
+        /// </summary>
+        /// <returns></returns>
+        public static EngineSettings GetBestSettings() =>
+            Game?.EngineSettingsOverrideRef?.File ?? //Game overrides engine settings?
+            DefaultEngineSettingsOverrideRef.File ?? //User overrides engine settings?
+            _defaultEngineSettings.Value; //Fall back to truly default engine settings
+
+        /// <summary>
+        /// The settings for the engine, specified by the user.
+        /// </summary>
+        public static UserSettings UserSettings => Game?.UserSettingsRef?.File;
+
+        public static Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
+        public static PrivateFontCollection _fontCollection = new PrivateFontCollection();
+
+        /// <summary>
+        /// Class containing this computer's specs. Use to adjust engine performance accordingly.
+        /// </summary>
+        public static ComputerInfo ComputerInfo { get; } = ComputerInfo.Analyze();
+
+        public static AbstractAudioManager _audioManager;
+        public static AbstractPhysicsInterface _physicsInterface;
+
+        public static Viewport CurrentlyRenderingViewport
+        {
+            get
+            {
+                if (CurrentlyRenderingViewports.Count > 0)
+                    return CurrentlyRenderingViewports.Peek();
+                return null;
+            }
+        }
+
         public partial class InternalEnginePersistentSingleton: MarshalByRefObject
         {
-            public DelBeginOperation BeginOperation;
-            public DelEndOperation EndOperation;
-
-            public event Action GotFocus;
-            public event Action LostFocus;
-
-            //public RenderContext CapturedRenderContext { get; set; }
-
-            /// <summary>
-            /// Event for when the engine is paused or unpaused and by which player.
-            /// </summary>
-            public event Action<bool, ELocalPlayerIndex> PauseChanged;
-            /// <summary>
-            /// Event for sending debug console output text.
-            /// </summary>
-            public event Action<string> DebugOutput;
-            /// <summary>
-            /// Event fired before the current world is changed.
-            /// </summary>
-            public event Action PreWorldChanged;
-            /// <summary>
-            /// Event fired after the current world is changed.
-            /// </summary>
-            public event Action PostWorldChanged;
-            
-            public ConcurrentDictionary<Type, TypeProxy> TypeProxies { get; }
-                = new ConcurrentDictionary<Type, TypeProxy>();
-
-            public ERenderLibrary RenderLibrary { get; set; } = DefaultRenderLibrary;
-            public EAudioLibrary AudioLibrary { get; set; } = DefaultAudioLibrary;
-            public EInputLibrary InputLibrary { get; set; } = DefaultInputLibrary;
-            public EPhysicsLibrary PhysicsLibrary { get; set; } = DefaultPhysicsLibrary;
-            
-            private Lazy<EngineSettings> _defaultEngineSettings = new Lazy<EngineSettings>(() => new EngineSettings(), true);
-
-            private Stack<Viewport> CurrentlyRenderingViewports { get; } = new Stack<Viewport>();
-            public NetworkConnection Network { get; set; }
-            public Server ServerConnection => Network as Server;
-            public Client ClientConnection => Network as Client;
-            public EngineSingleton Singleton { get; set; }
-
-            public InputAwaiter InputAwaiter { get; set; }
-
-            public GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
-                = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistent = true };
-
             public void SetDomainProxy<T>(AppDomain domain, string gamePath) where T : EngineDomainProxy, new()
             {
                 string domainName = domain.FriendlyName;
@@ -496,6 +549,7 @@ namespace TheraEngine
                     DomainProxy = proxy;
                 }
 
+                Engine.InputAwaiter = null;
                 DomainProxy.Stopped += DomainProxy_Stopped;
                 DomainProxy.Start(gamePath, isUIDomain);
             }
@@ -523,110 +577,6 @@ namespace TheraEngine
                     ProxySet?.Invoke(_domainProxy);
                 }
             }
-
-            private EngineSettings _cachedSettings;
-            public EngineSettings Settings
-            {
-                get
-                {
-                    if (_cachedSettings == null)
-                        Settings = GetBestSettings();
-                    return _cachedSettings;
-                }
-                set
-                {
-                    bool singleThreaded = false;
-                    bool capFPS = false;
-                    bool capUPS = false;
-                    float fps = 0.0f;
-                    float ups = 0.0f;
-
-                    if (_cachedSettings != null)
-                    {
-                        singleThreaded = _cachedSettings.SingleThreaded;
-                        capFPS = _cachedSettings.CapFPS;
-                        capUPS = _cachedSettings.CapUPS;
-                        fps = _cachedSettings.TargetFPS;
-                        ups = _cachedSettings.TargetUPS;
-
-                        _cachedSettings.SingleThreadedChanged -= Settings_SingleThreadedChanged;
-                        _cachedSettings.FramesPerSecondChanged -= Settings_FramesPerSecondChanged;
-                        _cachedSettings.UpdatePerSecondChanged -= Settings_UpdatePerSecondChanged;
-                    }
-                    _cachedSettings = value;
-                    if (_cachedSettings != null)
-                    {
-                        _cachedSettings.SingleThreadedChanged += Settings_SingleThreadedChanged;
-                        _cachedSettings.FramesPerSecondChanged += Settings_FramesPerSecondChanged;
-                        _cachedSettings.UpdatePerSecondChanged += Settings_UpdatePerSecondChanged;
-
-                        if (_cachedSettings.SingleThreaded != singleThreaded)
-                            Settings_SingleThreadedChanged();
-                        if (_cachedSettings.CapFPS != capFPS || _cachedSettings.TargetFPS != fps)
-                            Settings_FramesPerSecondChanged();
-                        if (_cachedSettings.CapUPS != capUPS || _cachedSettings.TargetUPS != ups)
-                            Settings_UpdatePerSecondChanged();
-                    }
-                }
-            }
-
-            public void SettingsSourcesChanged(bool cacheBestSettingsNow = false)
-            {
-                _cachedSettings = null;
-                if (cacheBestSettingsNow)
-                    Settings = GetBestSettings();
-            }
-            /// <summary>
-            /// Returns settings from the game, from the engine override settings, or the default hardcoded settings.
-            /// </summary>
-            /// <returns></returns>
-            public EngineSettings GetBestSettings() =>
-                Game?.EngineSettingsOverrideRef?.File ?? //Game overrides engine settings?
-                DefaultEngineSettingsOverrideRef.File ?? //User overrides engine settings?
-                _defaultEngineSettings.Value; //Fall back to truly default engine settings
-
-            public void PushRenderingViewport(Viewport viewport) => CurrentlyRenderingViewports.Push(viewport);
-            public void PopRenderingViewport() => CurrentlyRenderingViewports.Pop();
-
-            /// <summary>
-            /// The settings for the engine, specified by the user.
-            /// </summary>
-            public UserSettings UserSettings => Game?.UserSettingsRef?.File;
-
-            public ConcurrentDictionary<IWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<IWorld, Vec3>();
-            public ConcurrentDictionary<IWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<IWorld, Vec3>();
-
-            public List<DateTime> _debugTimers = new List<DateTime>();
-
-            public Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
-            public PrivateFontCollection _fontCollection = new PrivateFontCollection();
-
-            /// <summary>
-            /// The world that is currently being rendered and played in.
-            /// </summary>
-            public bool IsPaused { get; internal set; } = false;
-
-            /// <summary>
-            /// Class containing this computer's specs. Use to adjust engine performance accordingly.
-            /// </summary>
-            public ComputerInfo ComputerInfo { get; } = ComputerInfo.Analyze();
-
-            public AbstractAudioManager _audioManager;
-            public AbstractPhysicsInterface _physicsInterface;
-
-            public Viewport CurrentlyRenderingViewport
-            {
-                get
-                {
-                    if (CurrentlyRenderingViewports.Count > 0)
-                        return CurrentlyRenderingViewports.Peek();
-                    return null;
-                }
-            }
-
-#if EDITOR
-            public EngineEditorState EditorState { get; } = new EngineEditorState();
-#endif
         }
     }
 }

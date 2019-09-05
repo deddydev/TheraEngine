@@ -15,6 +15,10 @@ namespace TheraEngine.Rendering
     /// </summary>
     public abstract class RenderContext : TObjectSlim, IDisposable
     {
+        public static RenderContext WorldPanel { get; set; }
+        public static RenderContext Hovered { get; set; }
+        public static RenderContext Focused { get; set; }
+
         public enum EPanelType
         {
             World,

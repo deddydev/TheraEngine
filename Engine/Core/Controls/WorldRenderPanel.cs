@@ -11,8 +11,8 @@ namespace TheraEngine
     {
         public WorldRenderHandler()
         {
-            Engine.Instance.PreWorldChanged += Engine_PreWorldChanged;
-            Engine.Instance.PostWorldChanged += Engine_PostWorldChanged;
+            Engine.PreWorldChanged += Engine_PreWorldChanged;
+            Engine.PostWorldChanged += Engine_PostWorldChanged;
         }
 
         private void Engine_PreWorldChanged()

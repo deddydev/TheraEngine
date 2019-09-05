@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
+using TheraEngine.Worlds;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -11,10 +12,25 @@ namespace TheraEditor.Windows.Forms
     {
         public RenderPanel<TRenderHandler> RenderPanel { get; private set; }
         public abstract bool ShouldHideCursor { get; }
+        private int _worldManagerId;
         
         public DockableRenderableFileEditor()
         {
             InitializeComponent();
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            _worldManagerId = Editor.DomainProxy.RegisterWorldManager<WorldManager>();
+            Editor.DomainProxy.LinkRenderPanelToWorldManager(RenderPanel.Handle, _worldManagerId);
+        }
+        protected override void DestroyHandle()
+        {
+            Editor.DomainProxy.UnlinkRenderPanelFromWorldManager(RenderPanel.Handle);
+
+            base.DestroyHandle();
         }
 
         protected void RenderPanel_GotFocus(object sender, EventArgs e)

@@ -1,4 +1,7 @@
-﻿namespace TheraEngine.Windows.Forms
+﻿using TheraEngine;
+using TheraEngine.Rendering;
+
+namespace TheraEditor.Windows.Forms
 {
     public class EditorWorldRenderHandler : WorldRenderHandler
     {

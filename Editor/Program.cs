@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Core.Reflection;
@@ -30,12 +31,12 @@ namespace TheraEditor
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-#if !DEBUG
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             Application.ThreadException += Application_ThreadException;
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-#endif
+            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
             AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
+
             Application.Run(Editor.Instance);
         }
 
@@ -59,6 +60,16 @@ namespace TheraEditor
 
             List<EditorState> dirty = EditorState.DirtyStates;
             Exception ex = e.ExceptionObject as Exception;
+            using (IssueDialog d = new IssueDialog(ex, dirty))
+                d.Show();
+        }
+        private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            if (e.Exception is null)
+                return;
+
+            List<EditorState> dirty = EditorState.DirtyStates;
+            Exception ex = e.Exception;
             using (IssueDialog d = new IssueDialog(ex, dirty))
                 d.Show();
         }

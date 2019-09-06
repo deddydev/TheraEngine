@@ -6,6 +6,13 @@ using TheraEngine.Worlds;
 
 namespace TheraEditor.Windows.Forms
 {
+    public class UIWorldManager : WorldManager
+    {
+        public UIWorldManager()
+        {
+            World = new World(new WorldSettings() { TwoDimensional = true });
+        }
+    }
     public abstract class DockableRenderableFileEditor<TFile, TRenderHandler> : DockableFileEditor<TFile>
         where TFile : class, IFileObject
         where TRenderHandler : class, IUIRenderHandler
@@ -23,12 +30,12 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnHandleCreated(e);
 
-            _worldManagerId = Editor.DomainProxy.RegisterWorldManager<WorldManager>();
-            Editor.DomainProxy.LinkRenderPanelToWorldManager(RenderPanel.Handle, _worldManagerId);
+            _worldManagerId = Editor.DomainProxy.RegisterWorldManager<UIWorldManager>();
+            RenderPanel.LinkToWorldManager(_worldManagerId);
         }
         protected override void DestroyHandle()
         {
-            Editor.DomainProxy.UnlinkRenderPanelFromWorldManager(RenderPanel.Handle);
+            RenderPanel.UnlinkFromWorldManager();
 
             base.DestroyHandle();
         }

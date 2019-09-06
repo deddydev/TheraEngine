@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 using TheraEditor.Actors.Types.Pawns;
 using TheraEngine;

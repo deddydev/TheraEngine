@@ -26,6 +26,13 @@ namespace TheraEngine.Core
                 _list[index] = value;
             }
         }
+        public int IndexOfNextAddition(int offset)
+        {
+            if (_nullIndices.Count > offset)
+                return _nullIndices[offset];
+            else
+                return _list.Count + offset - _nullIndices.Count;
+        }
         public int Add(T item)
         {
             int index;

@@ -27,7 +27,7 @@ namespace TheraEngine
         /// <summary>
         /// The self-contained world for items displayed by this render panel.
         /// </summary>
-        public override IWorld World { get; } = new World(new WorldSettings() { TwoDimensional = true });
+        public override IWorld World => WorldManager?.World;
         public override UIGameModeType GameMode { get; }
         public UIPawnType UI { get; }
 
@@ -44,21 +44,55 @@ namespace TheraEngine
             Viewport v = GetOrAddViewport(ELocalPlayerIndex.One);
 
             GameMode = new UIGameModeType { RenderHandler = this };
-            World.CurrentGameMode = GameMode;
+            if (World != null)
+                World.CurrentGameMode = GameMode;
 
             UI = new UIPawnType();
 
             v.HUD = UI;
             v.Camera = UI.ScreenOverlayCamera;
         }
+        protected override void OnWorldManagerPreChanged()
+        {
+            if (Visible)
+            {
+                if (World != null)
+                {
+                    World.DespawnActor(UI);
+                    World.EndPlay();
+                    World.CurrentGameMode = null;
+                }
+            }
+            base.OnWorldManagerPreChanged();
+        }
+        protected override void OnWorldManagerPostChanged()
+        {
+            if (Visible)
+            {
+                if (World != null)
+                {
+                    World.CurrentGameMode = GameMode;
+                    World.BeginPlay();
+                    World.SpawnActor(UI);
+                }
+            }
+            base.OnWorldManagerPostChanged();
+        }
+        public bool Visible { get; private set; }
         public void FormShown()
         {
+            Visible = true;
+            if (World is null)
+                return;
             World.BeginPlay();
             World.SpawnActor(UI);
             //RegisterTick();
         }
         public void FormClosed()
         {
+            Visible = false;
+            if (World is null)
+                return;
             World.EndPlay();
             World.DespawnActor(UI);
             //UnregisterTick();

@@ -35,6 +35,18 @@ namespace TheraEditor
 
         public ConcurrentDictionary<TypeProxy, TypeProxy> FullEditorTypes { get; private set; }
         public ConcurrentDictionary<TypeProxy, TypeProxy> InPlaceEditorTypes { get; private set; }
+
+        public void AddRenderHandlerToEditorGameMode(IntPtr handle)
+        {
+            if (Contexts.ContainsKey(handle))
+                EditorGameMode.TargetRenderHandlers.Add(Contexts[handle].Handler);
+        }
+        public void RemoveRenderHandlerFromEditorGameMode(IntPtr handle)
+        {
+            if (Contexts.ContainsKey(handle))
+                EditorGameMode.TargetRenderHandlers.Remove(Contexts[handle].Handler);
+        }
+
         /// <summary>
         /// Key is file type, Value is tree node wrapper type
         /// </summary>

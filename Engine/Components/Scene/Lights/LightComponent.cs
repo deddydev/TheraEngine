@@ -134,6 +134,8 @@ namespace TheraEngine.Components.Scene.Lights
         {
             //if (!_lastPassRendered)
             //    return;
+            if (ShadowMap is null)
+                return;
 
             Engine.Renderer.MaterialOverride = ShadowMap.Material;
             Engine.Renderer.PushRenderArea(_region);

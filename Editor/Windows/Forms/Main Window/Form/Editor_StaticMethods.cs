@@ -33,13 +33,15 @@ namespace TheraEditor.Windows.Forms
 
                 //if (!sameGameMode)
                 //ActiveRenderForm.GameMode.EndGameplay();
-                ActiveRenderForm.World.CurrentGameMode = null;
+                if (ActiveRenderForm.World != null)
+                    ActiveRenderForm.World.CurrentGameMode = null;
             }
             ActiveRenderForm = control;
             if (ActiveRenderForm?.GameMode != null)
             {
                 //if (!sameGameMode)
-                ActiveRenderForm.World.CurrentGameMode = ActiveRenderForm.GameMode;
+                if (ActiveRenderForm.World != null)
+                    ActiveRenderForm.World.CurrentGameMode = ActiveRenderForm.GameMode;
                 //ActiveRenderForm.GameMode.BeginGameplay();
 
                 //int index = (int)control.PlayerIndex;W

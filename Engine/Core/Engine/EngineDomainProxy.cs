@@ -199,6 +199,12 @@ namespace TheraEngine.Core
         }
         private void SwapBuffers()
         {
+            while (_managerAddQueue.TryDequeue(out WorldManager manager))
+                WorldManagers.Add(manager);
+
+            while (_managerRemoveQueue.TryDequeue(out int index))
+                WorldManagers.RemoveAt(index);
+
             foreach (WorldManager m in WorldManagers)
             {
                 if (m.AssociatedContexts.Count == 0)
@@ -443,16 +449,20 @@ namespace TheraEngine.Core
         public ConsistentIndexList<WorldManager> WorldManagers { get; } = new ConsistentIndexList<WorldManager>();
         public ConcurrentDictionary<IntPtr, RenderContext> Contexts { get; } = new ConcurrentDictionary<IntPtr, RenderContext>();
 
+        public ConcurrentQueue<WorldManager> _managerAddQueue = new ConcurrentQueue<WorldManager>();
+        public ConcurrentQueue<int> _managerRemoveQueue = new ConcurrentQueue<int>();
+
         public int RegisterWorldManager<T>(params object[] args) where T : WorldManager
         {
             WorldManager manager = (WorldManager)Activator.CreateInstance(typeof(T), args);
-            int index = WorldManagers.Add(manager);
+            int index = WorldManagers.IndexOfNextAddition(_managerAddQueue.Count);
+            _managerAddQueue.Enqueue(manager);
             manager.ID = index;
             return index;
         }
         public void UnregisterWorldManager(int index)
         {
-            WorldManagers.RemoveAt(index);
+            _managerRemoveQueue.Enqueue(index);
         }
         public void UnlinkRenderPanelFromWorldManager(IntPtr handle)
         {
@@ -473,13 +483,12 @@ namespace TheraEngine.Core
             UnlinkRenderPanelFromWorldManager(handle);
 
             WorldManager worldManager = WorldManagers[worldManagerId];
-            List<RenderContext> ctxList = worldManager.AssociatedContexts;
             RenderContext ctx = Contexts[handle];
-            ctx.Handler.WorldManager = worldManager;
 
-            if (!ctxList.Contains(ctx))
+            if (!worldManager.AssociatedContexts.Contains(ctx))
             {
-                ctxList.Add(ctx);
+                worldManager.AssociatedContexts.Add(ctx);
+                ctx.Handler.WorldManager = worldManager;
                 Engine.PrintLine("Linked render panel to world manager successfully.");
             }
         }

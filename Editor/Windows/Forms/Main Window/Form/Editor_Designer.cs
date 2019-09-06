@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Core;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 using TheraEngine.GameModes;
@@ -205,29 +206,33 @@ namespace TheraEditor.Windows.Forms
         public bool WelcomeFormActive => GetFormActive(_welcomeForm);
         public DockableWelcomeWindow WelcomeForm => GetForm(ref _welcomeForm);
 
-#endregion
+        #endregion
 
+        public int WorldManagerId { get; private set; }
         protected override void OnShown(EventArgs e)
         {
-            AppDomainHelper.GameDomainLoaded += AppDomainHelper_GameDomainLoaded;
-            AppDomainHelper.GameDomainUnloaded += AppDomainHelper_GameDomainUnloaded;
-
-            Engine.PreWorldChanged += Engine_PreWorldChanged;
-            Engine.PostWorldChanged += Engine_PostWorldChanged;
+            Engine.Instance.ProxySet += Instance_ProxySet;
+            Engine.Instance.ProxyUnset += Instance_ProxyUnset;
+            Instance_ProxySet(Engine.DomainProxy);
+        }
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            if (e.Cancel)
+                return;
+            
+            Engine.Instance.ProxySet -= Instance_ProxySet;
+            Engine.Instance.ProxyUnset -= Instance_ProxyUnset;
+            Instance_ProxyUnset(null);
         }
 
-        private void AppDomainHelper_GameDomainUnloaded()
+        private void Instance_ProxyUnset(EngineDomainProxy obj)
         {
-
+            Engine.DomainProxy.UnregisterWorldManager(WorldManagerId);
         }
-        private void AppDomainHelper_GameDomainLoaded(AppDomain obj)
+        private void Instance_ProxySet(EngineDomainProxy obj)
         {
-
-        }
-
-        private void Engine_PreWorldChanged()
-        {
-
+            WorldManagerId = obj.RegisterWorldManager<EditorWorldManager>();
         }
         private void Engine_PostWorldChanged()
         {

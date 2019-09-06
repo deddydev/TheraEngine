@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 using TheraEditor.Wrappers;
 using TheraEngine;
@@ -28,13 +29,19 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnShown(EventArgs e)
         {
-            //Editor.Instance.EditorGameMode.TargetRenderHandlers.Add(RenderPanel.RenderHandler);
             base.OnShown(e);
+
+            Editor.DomainProxy.AddRenderHandlerToEditorGameMode(RenderPanel.Handle);
+            RenderPanel.LinkToWorldManager(Editor.Instance.WorldManagerId);
         }
-        protected override void OnClosed(EventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
-            base.OnClosed(e);
-            //Editor.Instance.EditorGameMode.TargetRenderHandlers.Remove(RenderPanel.RenderHandler);
+            base.OnClosing(e);
+            if (e.Cancel)
+                return;
+
+            RenderPanel.UnlinkFromWorldManager();
+            Editor.DomainProxy.RemoveRenderHandlerFromEditorGameMode(RenderPanel.Handle);
         }
         //#region Drag / Drop Actors
 

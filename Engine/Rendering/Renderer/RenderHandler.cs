@@ -5,6 +5,7 @@ using TheraEngine.Input;
 using Extensions;
 using System.ComponentModel;
 using TheraEngine.Worlds;
+using System;
 
 namespace TheraEngine.Rendering
 {
@@ -52,6 +53,7 @@ namespace TheraEngine.Rendering
             set => _context = value;
         }
         private RenderContext _context;
+        private WorldManager _worldManager;
 
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -79,7 +81,7 @@ namespace TheraEngine.Rendering
 
         public Viewport GetViewport(ELocalPlayerIndex index)
             => Viewports.ContainsKey(index) ? Viewports[index] : null;
-        
+
         private Viewport AddViewport(ELocalPlayerIndex index)
         {
             if (Viewports.Count == MaxViewports)
@@ -107,7 +109,7 @@ namespace TheraEngine.Rendering
 
         public void RegisterController(LocalPlayerController controller)
             => GetOrAddViewport(controller.LocalPlayerIndex)?.RegisterController(controller);
-        
+
         public void UnregisterController(LocalPlayerController controller)
         {
             if (controller.Viewport != null && Viewports.ContainsValue(controller.Viewport))
@@ -145,7 +147,21 @@ namespace TheraEngine.Rendering
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Dictionary<ELocalPlayerIndex, Viewport> Viewports { get; set; } = new Dictionary<ELocalPlayerIndex, Viewport>();
 
-        public WorldManager WorldManager { get; internal set; }
+        public WorldManager WorldManager
+        {
+            get => _worldManager;
+            internal set
+            {
+                OnWorldManagerPreChanged();
+                _worldManager = value;
+                OnWorldManagerPostChanged();
+            }
+        }
+        
+        public event Action WorldManagerPreChanged;
+        public event Action WorldManagerPostChanged;
+        protected virtual void OnWorldManagerPreChanged() => WorldManagerPreChanged?.Invoke();
+        protected virtual void OnWorldManagerPostChanged() => WorldManagerPostChanged?.Invoke();
 
         public IEnumerator<Viewport> GetEnumerator() => ((IEnumerable<Viewport>)Viewports).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Viewport>)Viewports).GetEnumerator();

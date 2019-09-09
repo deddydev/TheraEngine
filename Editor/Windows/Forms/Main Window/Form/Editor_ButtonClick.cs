@@ -64,9 +64,9 @@ namespace TheraEditor.Windows.Forms
         private void btnCloseWorld_Click(object sender, EventArgs e)
             => CloseWorld();
         private void btnUndo_Click(object sender, EventArgs e)
-            => UndoManager.Undo();
+            => DomainProxy.Undo();
         private void btnRedo_Click(object sender, EventArgs e)
-            => UndoManager.Redo();
+            => DomainProxy.Redo();
         private void btnViewTools_Click(object sender, EventArgs e)
         {
 

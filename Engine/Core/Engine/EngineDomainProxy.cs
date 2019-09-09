@@ -26,6 +26,7 @@ namespace TheraEngine.Core
     {
         MarshalSponsor Sponsor { get; set; }
         AppDomain Domain { get; }
+        bool IsSponsored { get; }
 
         object InitializeLifetimeService();
     }
@@ -37,6 +38,7 @@ namespace TheraEngine.Core
         [Browsable(false)]
         public AppDomain Domain => AppDomain.CurrentDomain;
 
+        [Browsable(false)]
         public bool IsSponsored => Sponsor != null;
 
         //[SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]
@@ -108,6 +110,7 @@ namespace TheraEngine.Core
         //}
         public async virtual void Start(string gamePath, bool isUIDomain)
         {
+            Engine.InputAwaiter = null;
             Engine.InputLibrary = EInputLibrary.OpenTK;
 
             Engine.PrintLine($"Starting domain proxy.");
@@ -199,14 +202,16 @@ namespace TheraEngine.Core
         }
         private void SwapBuffers()
         {
-            while (_managerAddQueue.TryDequeue(out WorldManager manager))
-                WorldManagers.Add(manager);
-
             while (_managerRemoveQueue.TryDequeue(out int index))
                 WorldManagers.RemoveAt(index);
 
+            while (_managerAddQueue.TryDequeue(out WorldManager manager))
+                WorldManagers.Add(manager);
+
             foreach (WorldManager m in WorldManagers)
             {
+                m.SwapBuffers();
+
                 if (m.AssociatedContexts.Count == 0)
                     continue;
 
@@ -473,7 +478,7 @@ namespace TheraEngine.Core
             int id = ctx?.Handler?.WorldManager?.ID ?? -1;
             ctx.Handler.WorldManager = null;
             if (WorldManagers.HasValueAtIndex(id))
-                WorldManagers[id].AssociatedContexts.Remove(ctx);
+                WorldManagers[id].RemoveContext(ctx);
         }
         public void LinkRenderPanelToWorldManager(IntPtr handle, int worldManagerId)
         {
@@ -485,12 +490,12 @@ namespace TheraEngine.Core
             WorldManager worldManager = WorldManagers[worldManagerId];
             RenderContext ctx = Contexts[handle];
 
-            if (!worldManager.AssociatedContexts.Contains(ctx))
-            {
-                worldManager.AssociatedContexts.Add(ctx);
-                ctx.Handler.WorldManager = worldManager;
-                Engine.PrintLine("Linked render panel to world manager successfully.");
-            }
+            if (worldManager.AssociatedContexts.Contains(ctx))
+                return;
+
+            worldManager.AddContext(ctx);
+            ctx.Handler.WorldManager = worldManager;
+            Engine.PrintLine("Linked render panel to world manager successfully.");
         }
         public void RegisterRenderPanel<T>(IntPtr handle, params object[] handlerArgs)
             where T : class, IRenderHandler

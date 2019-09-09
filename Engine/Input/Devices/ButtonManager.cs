@@ -168,34 +168,40 @@ namespace TheraEngine.Input.Devices
         {
             int index = (int)EInputPauseType.TickAlways;
 
+            //Always ticking list
             ExecutePressedStateList(index, pressed);
 
             index = Engine.IsPaused ?
                 (int)EInputPauseType.TickOnlyWhenPaused :
                 (int)EInputPauseType.TickOnlyWhenUnpaused;
 
+            //Pause dependent list
             ExecutePressedStateList(index, pressed);
         }
         protected void PerformAction(EButtonInputType type)
         {
             int index = (int)type * 3;
 
+            //Always ticking list
             ExecuteActionList(index);
 
             index += Engine.IsPaused ?
                 (int)EInputPauseType.TickOnlyWhenPaused : 
                 (int)EInputPauseType.TickOnlyWhenUnpaused;
 
+            //Pause dependent list
             ExecuteActionList(index);
         }
         private void ExecuteActionList(int listIndex)
         {
             List<Action> list = _actions[listIndex];
-            if (list == null)
+            if (list is null)
                 return;
 
-            SendActionToServer(Index, listIndex);
+            //Inform the server of the input
+            SendActionToServer?.Invoke(Index, listIndex);
 
+            //Run the input locally
             int i = list.Count;
             for (int x = 0; x < i; ++x)
                 list[x]();
@@ -203,11 +209,13 @@ namespace TheraEngine.Input.Devices
         private void ExecutePressedStateList(int listIndex, bool pressed)
         {
             List<DelButtonState> list = _onStateChanged[listIndex];
-            if (list == null)
+            if (list is null)
                 return;
 
-            SendActionToServer(Index, listIndex);
+            //Inform the server of the input
+            SendStateToServer?.Invoke(Index, listIndex, pressed);
 
+            //Run the input locally
             int i = list.Count;
             for (int x = 0; x < i; ++x)
                 list[x](pressed);

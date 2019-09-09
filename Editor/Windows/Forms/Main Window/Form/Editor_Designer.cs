@@ -120,8 +120,6 @@ namespace TheraEditor.Windows.Forms
         [Browsable(false)]
         public TreeView ActorTree => ActorTreeForm.ActorTree;
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Browsable(false)]
-        public UndoManager UndoManager { get; } = new UndoManager();
 
         private TProject _project;
         private DeserializeDockContent _deserializeDockContent;
@@ -229,20 +227,14 @@ namespace TheraEditor.Windows.Forms
         private void Instance_ProxyUnset(EngineDomainProxy obj)
         {
             Engine.DomainProxy.UnregisterWorldManager(WorldManagerId);
+            DomainProxy.PreWorldChanged -= WorldPreChanged;
+            DomainProxy.PostWorldChanged -= WorldPostChanged;
         }
         private void Instance_ProxySet(EngineDomainProxy obj)
         {
             WorldManagerId = obj.RegisterWorldManager<EditorWorldManager>();
-        }
-        private void Engine_PostWorldChanged()
-        {
-            var sref = Engine.World?.SettingsRef;
-            if (sref != null)
-            {
-                sref.RegisterLoadEvent(WorldSettingsLoaded);
-                sref.RegisterUnloadEvent(WorldSettingsUnloaded);
-            }
-            ActorTreeForm.GenerateInitialActorList();
+            DomainProxy.PreWorldChanged += WorldPreChanged;
+            DomainProxy.PostWorldChanged += WorldPostChanged;
         }
         private void WorldSettingsUnloaded(WorldSettings settings)
         {
@@ -273,9 +265,6 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             DomainProxy.SetWorld(worldRef.Path.Path);
-
-            //TODO: make an event
-            WorldPostChanged();
         }
         private void WorldPreChanged()
         {
@@ -292,10 +281,17 @@ namespace TheraEditor.Windows.Forms
             IWorld world = DomainProxy.World;
             bool worldExists = world != null;
 
+            var sref = world?.SettingsRef;
+            if (sref != null)
+            {
+                sref.RegisterLoadEvent(WorldSettingsLoaded);
+                sref.RegisterUnloadEvent(WorldSettingsUnloaded);
+            }
+
             btnWorldSettings.Enabled = btnSaveWorld.Enabled = btnSaveWorldAs.Enabled = worldExists;
             PropertyGridForm.PropertyGrid.TargetObject = world?.Settings;
 
-            GenerateInitialActorList();
+            GenerateInitialActorList(world);
             if (worldExists)
             {
                 world.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
@@ -794,18 +790,18 @@ namespace TheraEditor.Windows.Forms
 
         private bool Undo()
         {
-            bool canUndo = UndoManager.CanUndo;
-            UndoManager.Undo();
+            bool canUndo = DomainProxy.CanUndo;
+            DomainProxy.Undo();
             return canUndo;
         }
         private bool Redo()
         {
-            bool canRedo = UndoManager.CanRedo;
-            UndoManager.Redo();
+            bool canRedo = DomainProxy.CanRedo;
+            DomainProxy.Redo();
             return canRedo;
         }
 
-        private void GenerateInitialActorList() => ActorTreeForm.GenerateInitialActorList();
+        private void GenerateInitialActorList(IWorld world) => ActorTreeForm.GenerateInitialActorList(world);
         private void SpawnedActors_PostAdded(IActor item) => ActorTreeForm.ActorSpawned(item);
         private void SpawnedActors_PostRemoved(IActor item) => ActorTreeForm.ActorDespawned(item);
 

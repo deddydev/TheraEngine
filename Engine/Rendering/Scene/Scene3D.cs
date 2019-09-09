@@ -166,6 +166,7 @@ namespace TheraEngine.Rendering
             //_timeQuery.BeginQuery(EQueryTarget.TimeElapsed);
             Engine.Renderer.PushCamera(camera);
             Engine.Renderer.PushCurrent3DScene(this);
+            try
             {
                 if (viewport != null)
                 {
@@ -187,11 +188,11 @@ namespace TheraEngine.Rendering
                         RenderLightPass(viewport);
                         RenderForwardPass(viewport, renderingPasses);
                         RenderBloomPass(viewport);
-                        
+
                         if (camera is TypicalCamera typicalCamera)
                         {
                             typicalCamera.PostProcessRef?.File?.ColorGrading?.UpdateExposure(viewport.HDRSceneTexture);
-                            
+
                             TMaterial postMat = typicalCamera.PostProcessMaterial?.File;
                             if (postMat != null)
                                 RenderPostProcessPass(viewport, postMat);
@@ -245,8 +246,11 @@ namespace TheraEngine.Rendering
                     target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }
             }
-            Engine.Renderer.PopCurrent3DScene();
-            Engine.Renderer.PopCamera();
+            finally
+            {
+                Engine.Renderer.PopCurrent3DScene();
+                Engine.Renderer.PopCamera();
+            }
             //_renderFPS = 1.0f / (_timeQuery.EndAndGetQueryInt() * 1e-9f);
             //Engine.PrintLine(_renderMS.ToString() + " ms");
         }

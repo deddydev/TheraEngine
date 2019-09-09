@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering;
 
@@ -13,7 +15,20 @@ namespace TheraEngine.Worlds
             set => _targetWorld = value;
         }
 
-        public List<RenderContext> AssociatedContexts { get; set; } = new List<RenderContext>();
+        private List<RenderContext> _contexts = new List<RenderContext>();
+        public IReadOnlyList<RenderContext> AssociatedContexts => _contexts;
+
+        private ConcurrentQueue<RenderContext> _contextAddQueue = new ConcurrentQueue<RenderContext>();
+        private ConcurrentQueue<RenderContext> _contextRemoveQueue = new ConcurrentQueue<RenderContext>();
+        
+        public virtual void SwapBuffers()
+        {
+            while (_contextRemoveQueue.TryDequeue(out RenderContext ctx))
+                _contexts.Remove(ctx);
+            while (_contextAddQueue.TryDequeue(out RenderContext ctx))
+                _contexts.Add(ctx);
+        }
+
         public int ID { get; internal set; }
 
         public async void LoadWorldFromPath(string filePath)
@@ -29,5 +44,7 @@ namespace TheraEngine.Worlds
         public void GlobalPreRender() => World?.Scene?.GlobalPreRender();
         public void GlobalSwap() => World?.Scene?.GlobalSwap();
 
+        public void AddContext(RenderContext ctx) => _contextAddQueue.Enqueue(ctx);
+        public void RemoveContext(RenderContext ctx) => _contextRemoveQueue.Enqueue(ctx);
     }
 }

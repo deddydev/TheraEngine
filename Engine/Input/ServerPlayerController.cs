@@ -1,84 +1,34 @@
 ﻿using System.Collections.Generic;
-using TheraEngine.Input.Devices;
-using TheraEngine.Rendering;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Actors;
-using System.Collections.Concurrent;
 using System.ComponentModel;
+using TheraEngine.Actors;
+using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Input
 {
     public class ServerPlayerController : PlayerController
     {
-        public static Dictionary<int, ConcurrentQueue<Camera>> CameraPossessionQueue = new Dictionary<int, ConcurrentQueue<Camera>>();
-        
         public ServerPlayerController(int serverPlayerIndex, Queue<IPawn> possessionQueue = null) : base()
         {
             _input = new InputInterface(serverPlayerIndex);
-            _input.WantsInputsRegistered += RegisterInput;
+            _input.InputRegistration += RegisterInput;
 
             _possessionQueue = possessionQueue;
             if (_possessionQueue.Count != 0 && ControlledPawn == null)
                 ControlledPawn = _possessionQueue.Dequeue();
-
-            if (CameraPossessionQueue.ContainsKey(serverPlayerIndex))
-            {
-                Camera camera;
-                while (!CameraPossessionQueue[serverPlayerIndex].TryDequeue(out camera)) ;
-                ViewportCamera = camera;
-            }
         }
         public ServerPlayerController(int serverPlayerIndex) : base()
         {
             _input = new InputInterface(serverPlayerIndex);
-            _input.WantsInputsRegistered += RegisterInput;
+            _input.InputRegistration += RegisterInput;
 
             _possessionQueue = new Queue<IPawn>();
-
-            if (CameraPossessionQueue.ContainsKey(serverPlayerIndex))
-            {
-                Camera camera;
-                while (!CameraPossessionQueue[serverPlayerIndex].TryDequeue(out camera)) ;
-                ViewportCamera = camera;
-            }
         }
 
-        private Viewport _viewport;
         protected InputInterface _input;
 
         [Category("Server Player Controller")]
         public InputInterface Input => _input;
         
-        [Category("Server Player Controller")]
-        public Viewport Viewport
-        {
-            get => _viewport;
-            set
-            {
-                //if (_viewport != null && _viewport.OwningPanel.GlobalHud != null)
-                //    _input.WantsInputsRegistered -= _viewport.OwningPanel.GlobalHud.RegisterInput;
-
-                _viewport = value;
-
-                UpdateViewport(SetViewportHUD, SetViewportCamera);
-
-                //if (_viewport.OwningPanel.GlobalHud != null)
-                //    _input.WantsInputsRegistered += _viewport.OwningPanel.GlobalHud.RegisterInput;
-
-            }
-        }
-
-        [Category("Local Player Controller")]
-        public ICamera ViewportCamera
-        {
-            get => _viewport?.Camera;
-            set
-            {
-                if (_viewport != null)
-                    _viewport.Camera = value;
-            }
-        }
-
         [Category("Pawn Controller")]
         public override IPawn ControlledPawn
         {
@@ -93,9 +43,9 @@ namespace TheraEngine.Input
                     _controlledPawn.OnUnPossessed();
                     _input.TryUnregisterInput();
 
-                    _input.WantsInputsRegistered -= _controlledPawn.RegisterInput;
+                    _input.InputRegistration -= _controlledPawn.RegisterInput;
                     if (_controlledPawn.HUD?.IsLoaded ?? false && _controlledPawn != _controlledPawn.HUD.File)
-                        _input.WantsInputsRegistered -= _controlledPawn.HUD.File.RegisterInput;
+                        _input.InputRegistration -= _controlledPawn.HUD.File.RegisterInput;
                 }
 
                 _controlledPawn = value;
@@ -107,11 +57,9 @@ namespace TheraEngine.Input
 
                 if (_controlledPawn != null)
                 {
-                    UpdateViewport(SetViewportHUD, SetViewportCamera);
-
-                    _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
+                    _input.InputRegistration += _controlledPawn.RegisterInput;
                     if (_controlledPawn.HUD?.IsLoaded ?? false && _controlledPawn != _controlledPawn.HUD.File)
-                        _input.WantsInputsRegistered += _controlledPawn.HUD.File.RegisterInput;
+                        _input.InputRegistration += _controlledPawn.HUD.File.RegisterInput;
 
                     _controlledPawn.OnPossessed(this);
                     _input.TryRegisterInput();
@@ -119,51 +67,6 @@ namespace TheraEngine.Input
             }
         }
 
-        private bool _setViewportHUD = true, _setViewportCamera = true;
-
-        /// <summary>
-        /// Determines if this local player controller should update
-        /// its viewport with the currently possessed pawn's HUD.
-        /// </summary>
-        [Category("Local Player Controller")]
-        public bool SetViewportHUD
-        {
-            get => _setViewportHUD;
-            set
-            {
-                _setViewportHUD = value;
-                UpdateViewport(_setViewportHUD, _setViewportCamera);
-            }
-        }
-        /// <summary>
-        /// Determines if this local player controller should update
-        /// its viewport with the currently possessed pawn's camera.
-        /// </summary>
-        [Category("Local Player Controller")]
-        public bool SetViewportCamera
-        {
-            get => _setViewportCamera;
-            set
-            {
-                _setViewportCamera = value;
-                UpdateViewport(_setViewportHUD, _setViewportCamera);
-            }
-        }
-
-        /// <summary>
-        /// Updates the viewport with the HUD and/or camera from the controlled pawn.
-        /// </summary>
-        public void UpdateViewport(bool setHUD, bool setCamera)
-        {
-            if (_viewport == null || _controlledPawn == null)
-                return;
-
-            if (setHUD)
-                _viewport.HUD = _controlledPawn.HUD?.File;
-
-            if (setCamera)
-                _viewport.Camera = _controlledPawn.CurrentCameraComponent?.Camera;
-        }
         protected virtual void RegisterInput(InputInterface input)
         {
             //input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause);
@@ -180,8 +83,7 @@ namespace TheraEngine.Input
         internal void Destroy()
         {
             UnlinkControlledPawn();
-            Viewport = null;
-            _input.WantsInputsRegistered -= RegisterInput;
+            _input.InputRegistration -= RegisterInput;
         }
         internal void UnlinkControlledPawn()
         {

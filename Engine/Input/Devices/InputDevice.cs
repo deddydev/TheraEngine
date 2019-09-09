@@ -15,7 +15,9 @@ namespace TheraEngine.Input.Devices
     public abstract class InputDevice : TObject
     {
         //TODO: mouse and keyboard should just be their own global devices for ALL input from ANY mice or keyboards
-        public static Dictionary<EInputDeviceType, InputDevice[]> CurrentDevices =
+        public static IReadOnlyDictionary<EInputDeviceType, InputDevice[]> CurrentDevices => _currentDevices;
+        
+        private static readonly Dictionary<EInputDeviceType, InputDevice[]> _currentDevices =
             new Dictionary<EInputDeviceType, InputDevice[]>()
         {
             { EInputDeviceType.Gamepad,  new InputDevice[4] },
@@ -35,6 +37,8 @@ namespace TheraEngine.Input.Devices
         public int Index => _index;
         public abstract EDeviceType DeviceType { get; }
         public InputInterface InputInterface { get; internal set; }
+
+        private int GetServerIndex() => InputInterface?.GetServerIndex() ?? -1;
 
         protected InputDevice(int index)
         {
@@ -86,7 +90,8 @@ namespace TheraEngine.Input.Devices
             packet.DeviceType = DeviceType;
             packet.InputType = EInputType.ButtonAction;
             packet.InputIndex = (byte)buttonIndex;
-            //packet.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            packet.ListIndex = (byte)listIndex;
+            packet.PlayerIndex = (byte)GetServerIndex();
 
             Engine.Network.SendPacket(packet);
         }
@@ -100,7 +105,8 @@ namespace TheraEngine.Input.Devices
             packet.Header.DeviceType = DeviceType;
             packet.Header.InputType = EInputType.ButtonPressedState;
             packet.Header.InputIndex = (byte)buttonIndex;
-            //packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            packet.Header.ListIndex = (byte)listIndex;
+            packet.Header.PlayerIndex = (byte)GetServerIndex();
             packet.Pressed = (byte)(pressed ? 1 : 0);
 
             Engine.Network.SendPacket(packet);
@@ -115,7 +121,8 @@ namespace TheraEngine.Input.Devices
             packet.DeviceType = DeviceType;
             packet.InputType = EInputType.AxisButtonAction;
             packet.InputIndex = (byte)axisIndex;
-            //packet.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            packet.ListIndex = (byte)listIndex;
+            packet.PlayerIndex = (byte)GetServerIndex();
 
             Engine.Network.SendPacket(packet);
         }
@@ -129,7 +136,8 @@ namespace TheraEngine.Input.Devices
             packet.Header.DeviceType = DeviceType;
             packet.Header.InputType = EInputType.AxisButtonPressedState;
             packet.Header.InputIndex = (byte)axisIndex;
-            //packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            packet.Header.ListIndex = (byte)listIndex;
+            packet.Header.PlayerIndex = (byte)GetServerIndex();
             packet.Pressed = (byte)(pressed ? 1 : 0);
 
             Engine.Network.SendPacket(packet);
@@ -144,7 +152,8 @@ namespace TheraEngine.Input.Devices
             packet.Header.DeviceType = DeviceType;
             packet.Header.InputType = EInputType.AxisValue;
             packet.Header.InputIndex = (byte)axisIndex;
-            //packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            packet.Header.ListIndex = (byte)listIndex;
+            packet.Header.PlayerIndex = (byte)GetServerIndex();
             packet.Value = value;
 
             Engine.Network.SendPacket(packet);

@@ -42,13 +42,23 @@ namespace TheraEngine
                 true);
 
             UpdateStyles();
-
-            //Create context RIGHT AWAY so render objects can bind to it as they are created
-            CreateContext();
         }
 
         protected override void OnPaintBackground(PaintEventArgs e) { }
         protected override void OnPaint(PaintEventArgs e) { }
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            Engine.DomainProxy.RenderPanelResized(Handle, Width, Height);
+            Engine.DomainProxy.UpdateScreenLocation(Handle, PointToScreen(Point.Empty));
+        }
+
+        protected override void OnClientSizeChanged(EventArgs e)
+        {
+            base.OnClientSizeChanged(e);
+            Engine.DomainProxy.RenderPanelResized(Handle, Width, Height);
+            Engine.DomainProxy.UpdateScreenLocation(Handle, PointToScreen(Point.Empty));
+        }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -85,6 +95,13 @@ namespace TheraEngine
         {
             base.OnMove(e);
             UpdateScreenLocation(this, e);
+        }
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            //Create context RIGHT AWAY so render objects can bind to it as they are created
+            CreateContext();
         }
         protected override void DestroyHandle()
         {

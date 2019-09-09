@@ -72,6 +72,7 @@ namespace TheraEngine.Networking
         public EInputType InputType;
         public byte PlayerIndex;
         public byte InputIndex;
+        public byte ListIndex;
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TPacketPressedInput

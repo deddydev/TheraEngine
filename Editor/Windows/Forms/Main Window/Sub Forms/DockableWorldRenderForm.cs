@@ -12,7 +12,7 @@ using TheraEngine.Worlds;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableWorldRenderForm : DockableWorldRenderFormBase<EditorWorldRenderHandler>
+    public partial class DockableWorldRenderForm : DockableWorldRenderFormBase<WorldEditorRenderHandler>
     {
         public DockableWorldRenderForm(ELocalPlayerIndex playerIndex, int formIndex)
             : base(playerIndex, formIndex)

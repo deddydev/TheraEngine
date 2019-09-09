@@ -20,7 +20,7 @@ namespace TheraEngine.Input.Devices.OpenTK
             var keyboards = InputDevice.CurrentDevices[EInputDeviceType.Keyboard];
             var mice = InputDevice.CurrentDevices[EInputDeviceType.Mouse];
             for (int i = 0; i < MaxControllers; ++i)
-                if (gamepads[i] == null)
+                if (gamepads[i] is null)
                 {
                     try
                     {
@@ -34,7 +34,7 @@ namespace TheraEngine.Input.Devices.OpenTK
                     catch { }
                 }
 
-            if (keyboards[0] == null)
+            if (keyboards[0] is null)
             {
                 try
                 {
@@ -44,7 +44,7 @@ namespace TheraEngine.Input.Devices.OpenTK
                 }
                 catch { }
             }
-            if (mice[0] == null)
+            if (mice[0] is null)
             {
                 try
                 {

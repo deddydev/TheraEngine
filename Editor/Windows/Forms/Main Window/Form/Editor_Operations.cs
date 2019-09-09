@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Maths;
+using TheraEngine.Editor;
 using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms
@@ -82,6 +84,70 @@ namespace TheraEditor.Windows.Forms
             btnCancelOp.Visible = _operations.Any(x => x != null && x.CanCancel);
             toolStripProgressBar1.Visible = true;
             toolStripStatusLabel1.Text = statusBarMessage;
+        }
+
+        public void AddChangeToUI(string undoStr, string redoStr)
+        {
+            if (InvokeRequired)
+            {
+                Invoke((Action)(() => AddChangeToUI(undoStr, redoStr)));
+                return;
+            }
+
+            ToolStripItemCollection redoColl = btnRedo.DropDownItems;
+            redoColl.Clear();
+
+            btnRedo.Enabled = false;
+            btnUndo.Enabled = true;
+
+            ToolStripButton item = new ToolStripButton(undoStr, null, UndoStateClicked) { Tag = redoStr };
+            btnUndo.DropDownItems.Insert(0, item);
+        }
+        private void UndoStateClicked(object sender, EventArgs e)
+        {
+            ToolStripButton item = sender as ToolStripButton;
+            ToolStripMenuItem menu = item.OwnerItem as ToolStripMenuItem;
+            int changeIndex = menu.DropDownItems.IndexOf(item);
+            DomainProxy.Undo(changeIndex + 1);
+        }
+        public void OnUndo()
+        {
+            if (InvokeRequired)
+            {
+                Invoke((Action)OnUndo);
+                return;
+            }
+
+            ToolStripItemCollection undoColl = btnUndo.DropDownItems;
+            ToolStripItemCollection redoColl = btnRedo.DropDownItems;
+            ToolStripButton item = undoColl[0] as ToolStripButton;
+            undoColl.RemoveAt(0);
+
+            item = new ToolStripButton(item.Tag as string, null, RedoStateClicked) { Tag = item.Text };
+            redoColl.Insert(0, item);
+        }
+        private void RedoStateClicked(object sender, EventArgs e)
+        {
+            ToolStripButton item = sender as ToolStripButton;
+            ToolStripMenuItem menu = item.OwnerItem as ToolStripMenuItem;
+            int changeIndex = menu.DropDownItems.IndexOf(item);
+            DomainProxy.Redo(changeIndex + 1);
+        }
+        public void OnRedo()
+        {
+            if (InvokeRequired)
+            {
+                Invoke((Action)OnRedo);
+                return;
+            }
+
+            ToolStripItemCollection undoColl = btnUndo.DropDownItems;
+            ToolStripItemCollection redoColl = btnRedo.DropDownItems;
+            ToolStripButton item = redoColl[0] as ToolStripButton;
+            redoColl.RemoveAt(0);
+
+            item = new ToolStripButton(item.Tag as string, null, UndoStateClicked) { Tag = item.Text };
+            undoColl.Insert(0, item);
         }
 
         private void OnOperationProgressUpdate(int operationIndex)
@@ -214,6 +280,14 @@ namespace TheraEditor.Windows.Forms
                 if (Progress != null)
                     Progress.ProgressChanged -= Progress_ProgressChanged;
             }
+        }
+
+        public void SetSelectedTreeNode(TreeNode t)
+        {
+            if (t.TreeView.InvokeRequired)
+                t.TreeView.BeginInvoke((Action)(() => t.TreeView.SelectedNode = t));
+            else
+                t.TreeView.SelectedNode = t;
         }
     }
 }

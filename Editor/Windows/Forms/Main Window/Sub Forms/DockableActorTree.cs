@@ -62,21 +62,21 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        internal void GenerateInitialActorList()
+        internal void GenerateInitialActorList(IWorld world)
         {
             if (InvokeRequired)
             {
-                BeginInvoke(new Action(GenerateInitialActorList));
+                BeginInvoke((Action<IWorld>)GenerateInitialActorList, world);
                 return;
             }
 
             ClearMaps();
 
-            if (Engine.World == null || Engine.ShuttingDown)
+            if (world is null || Engine.ShuttingDown)
                 return;
-            
-            Engine.World.Settings.Maps.ForEach(x => CacheMap(x.Value.File));
-            Engine.World.State.SpawnedActors.ForEach(ActorSpawned);
+
+            world.Settings.Maps.ForEach(x => CacheMap(x.Value.File));
+            world.State.SpawnedActors.ForEach(ActorSpawned);
         }
         internal TreeNode CacheMap(IMap map)
         {
@@ -114,7 +114,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            if (Engine.World == null || Engine.ShuttingDown || item == null)
+            if (item?.OwningWorld is null || Engine.ShuttingDown)
                 return;
 
             IMap map = item.MapAttachment;
@@ -141,10 +141,10 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            if (Engine.World == null || Engine.ShuttingDown || item == null)
+            if (item is null || Engine.ShuttingDown)
                 return;
 
-            if (item?.EditorState?.TreeNode != null)
+            if (item.EditorState?.TreeNode != null)
             {
                 item.EditorState.TreeNode.Remove();
                 item.EditorState.TreeNode = null;

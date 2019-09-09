@@ -325,7 +325,6 @@ namespace TheraEngine
             if (!AppDomainHelper.IsGameDomain && !AppDomainHelper.IsGameDomainAlsoPrimary)
                 return;
 
-            //_inputAwaiter?.Dispose();
             switch (InputLibrary)
             {
                 default:
@@ -530,6 +529,12 @@ namespace TheraEngine
             }
         }
 
+        /// <summary>
+        /// This singleton represents the engine for all AppDomains, 
+        /// residing in the UI domain and marshalled to all others.
+        /// Statics are not persistent across AppDomains so the static engine members
+        /// are completely separate entities per AppDomain, which is why this singleton exists.
+        /// </summary>
         public partial class InternalEnginePersistentSingleton: MarshalByRefObject
         {
             public void SetDomainProxy<T>(AppDomain domain, string gamePath) where T : EngineDomainProxy, new()
@@ -549,7 +554,6 @@ namespace TheraEngine
                     DomainProxy = proxy;
                 }
 
-                Engine.InputAwaiter = null;
                 DomainProxy.Stopped += DomainProxy_Stopped;
                 DomainProxy.Start(gamePath, isUIDomain);
             }

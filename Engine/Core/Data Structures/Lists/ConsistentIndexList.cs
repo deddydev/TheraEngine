@@ -81,12 +81,12 @@ namespace TheraEngine.Core
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             foreach (int i in _activeIndices)
-                yield return _list[_activeIndices[i]];
+                yield return _list[i];
         }
         IEnumerator IEnumerable.GetEnumerator()
         {
             foreach (int i in _activeIndices)
-                yield return _list[_activeIndices[i]];
+                yield return _list[i];
         }
     }
 }

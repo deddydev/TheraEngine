@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using TheraEditor.Actors.Types.Pawns;
 using TheraEngine;
 using TheraEngine.Actors;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
@@ -22,13 +23,11 @@ namespace TheraEditor.Windows.Forms
             RenderPanel = new RenderPanel<T>
             {
                 Dock = DockStyle.Fill,
-                Location = new System.Drawing.Point(0, 0),
-                Margin = new Padding(3, 2, 3, 2),
                 Name = "RenderPanel",
-                Size = new System.Drawing.Size(650, 410),
                 TabIndex = 0,
                 HandlerArgs = new object[] { playerIndex }
             };
+            Controls.Add(RenderPanel);
         }
 
         public RenderPanel<T> RenderPanel { get; private set; }

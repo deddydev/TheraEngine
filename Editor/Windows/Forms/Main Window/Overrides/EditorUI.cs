@@ -43,7 +43,7 @@ namespace TheraEditor.Windows.Forms
             ISocket socket = TransformTool3D.Instance.TargetSocket;
             if (TransformTool3D.Instance.PrevRootWorldMatrix != socket.WorldMatrix)
             {
-                Editor.Instance.UndoManager.AddChange(
+                Editor.DomainProxy.UndoManager.AddChange(
                     ((IObject)socket).EditorState,
                     new LocalValueChangeProperty(
                         TransformTool3D.Instance.PrevRootWorldMatrix,
@@ -621,7 +621,7 @@ namespace TheraEditor.Windows.Forms
             if (DragComponent != null)
             {
                 LocalValueChangeProperty change = new LocalValueChangeProperty(_prevDragMatrix, DragComponent.WorldMatrix, DragComponent, DragComponent.GetType().GetProperty(nameof(DragComponent.WorldMatrix)));
-                Editor.Instance.UndoManager.AddChange(DragComponent.EditorState, change);
+                Editor.DomainProxy.UndoManager.AddChange(DragComponent.EditorState, change);
                 //_selectedComponent = null;
                 DragComponent = null;
             }
@@ -639,17 +639,12 @@ namespace TheraEditor.Windows.Forms
             SelectedComponent = comp;
             PostSelectedComponentChanged(selectedByViewport);
 
-            if (!fromActorTree)
-            {
-                TreeNode t = SelectedComponent?.OwningActor?.EditorState?.TreeNode;
-                if (t?.TreeView == null)
-                    return;
-                
-                if (t.TreeView.InvokeRequired)
-                    t.TreeView.BeginInvoke((Action) (() => t.TreeView.SelectedNode = t));
-                else
-                    t.TreeView.SelectedNode = t;
-            }
+            if (fromActorTree)
+                return;
+            
+            TreeNode t = SelectedComponent?.OwningActor?.EditorState?.TreeNode;
+            if (!(t?.TreeView is null))
+                Editor.Instance.SetSelectedTreeNode(t);
         }
         private void PreSelectedComponentChanged(bool selectedByViewport)
         {

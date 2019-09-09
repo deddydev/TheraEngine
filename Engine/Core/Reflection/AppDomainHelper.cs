@@ -248,7 +248,7 @@ namespace TheraEngine.Core.Reflection
                 return;
 
             sponsorableObject.Sponsor = new MarshalSponsor(sponsorableObject);
-            Engine.PrintLine($"Sponsored {sponsorableObject.ToString()} in {sponsorableObject.Domain.FriendlyName}.");
+            Engine.PrintLine($"Sponsored {sponsorableObject.ToString()} from AppDomain {sponsorableObject.Domain.FriendlyName}.");
         }
 
         #endregion

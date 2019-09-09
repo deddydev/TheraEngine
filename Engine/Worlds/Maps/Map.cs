@@ -42,6 +42,7 @@ namespace TheraEngine.Worlds
             Actors = actors == null ? new EventList<IActor>(false, false) : new EventList<IActor>(actors.ToList(), false, false);
         }
 
+        [Browsable(false)]
         public IWorld OwningWorld { get; set; }
 
         [TSerialize]

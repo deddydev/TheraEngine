@@ -5,7 +5,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public class EventColorF3 : IByteColor
+    public class EventColorF3 : TObjectSlim, IByteColor
     {
         public event Action RedChanged;
         public event Action GreenChanged;

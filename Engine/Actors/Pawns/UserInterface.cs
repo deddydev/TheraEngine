@@ -114,7 +114,7 @@ namespace TheraEngine.Actors.Types.Pawns
                         //Unlink input commands from the owning controller to this hud
                         input = _owningPawn.LocalPlayerController.Input;
                         input.TryUnregisterInput();
-                        input.WantsInputsRegistered -= RegisterInput;
+                        input.InputRegistration -= RegisterInput;
                         input.TryRegisterInput();
                     }
                 }
@@ -129,7 +129,7 @@ namespace TheraEngine.Actors.Types.Pawns
                     {
                         //Link input commands from the owning controller to this hud
                         input = _owningPawn.LocalPlayerController.Input;
-                        input.WantsInputsRegistered += RegisterInput;
+                        input.InputRegistration += RegisterInput;
                         input.TryRegisterInput();
                     }
                 }

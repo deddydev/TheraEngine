@@ -35,7 +35,7 @@ namespace TheraEngine.Input.Devices
         /// </summary>
         public static List<DelWantsInputsRegistered> GlobalRegisters { get; } = new List<DelWantsInputsRegistered>();
 
-        public event DelWantsInputsRegistered WantsInputsRegistered;
+        public event DelWantsInputsRegistered InputRegistration;
 
         public InputInterface(int localPlayerIndex)
             => LocalPlayerIndex = localPlayerIndex;
@@ -43,6 +43,8 @@ namespace TheraEngine.Input.Devices
         public BaseGamePad Gamepad { get; private set; }
         public BaseKeyboard Keyboard { get; private set; }
         public BaseMouse Mouse { get; private set; }
+
+        public int GetServerIndex() => -1; //TODO
 
         //TODO: contain reference to owning local player controller
         //and use its player index enum instead
@@ -84,7 +86,7 @@ namespace TheraEngine.Input.Devices
 
                 _unregister = false;
                 //Interface gets input from pawn, hud, local controller, and global list
-                WantsInputsRegistered?.Invoke(this);
+                InputRegistration?.Invoke(this);
                 foreach (DelWantsInputsRegistered register in GlobalRegisters)
                     register(this);
             }
@@ -98,7 +100,7 @@ namespace TheraEngine.Input.Devices
                 //This way the user doesn't have to do any extra work
                 //other than just registering the inputs.
                 _unregister = true;
-                WantsInputsRegistered?.Invoke(this);
+                InputRegistration?.Invoke(this);
                 foreach (DelWantsInputsRegistered register in GlobalRegisters)
                     register(this);
                 _unregister = false;

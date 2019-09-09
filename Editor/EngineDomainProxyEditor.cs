@@ -26,12 +26,20 @@ namespace TheraEditor
     //[Serializable]
     public class EngineDomainProxyEditor : EngineDomainProxy
     {
+        public UndoManager UndoManager { get; } = new UndoManager();
+
         public EditorGameMode EditorGameMode { get; set; } = new EditorGameMode();
         public IWorld World
         {
             get => Engine.World;
             set => SetWorld_Internal(value);
         }
+
+        public event Action PostWorldChanged;
+        public event Action PreWorldChanged;
+
+        private void Engine_PreWorldChanged() => PreWorldChanged?.Invoke();
+        private void Engine_PostWorldChanged() => PostWorldChanged?.Invoke();
 
         public ConcurrentDictionary<TypeProxy, TypeProxy> FullEditorTypes { get; private set; }
         public ConcurrentDictionary<TypeProxy, TypeProxy> InPlaceEditorTypes { get; private set; }
@@ -55,6 +63,11 @@ namespace TheraEditor
         /// Key is lowercase extension, Value is tree node wrapper type
         /// </summary>
         public ConcurrentDictionary<string, TypeProxy> ThirdPartyWrappers { get; private set; }
+
+        public bool CanUndo => UndoManager.CanUndo;
+        public bool CanRedo => UndoManager.CanRedo;
+        public void Undo(int count = 1) => UndoManager.Undo(count);
+        public void Redo(int count = 1) => UndoManager.Redo(count);
 
         public async void ReloadNodeWrapperTypes()
         {
@@ -168,14 +181,23 @@ namespace TheraEditor
         //{
         //    base.Start(gamePath, isUIDomain);
         //}
+        public override void Stop()
+        {
+            Engine.PostWorldChanged -= Engine_PostWorldChanged;
+            Engine.PreWorldChanged -= Engine_PreWorldChanged;
+
+            base.Stop();
+        }
         protected override void OnStarted()
         {
-            //Engine.SetWorldPanel(Editor.Instance.RenderForm1.RenderPanel, false);
-            //Editor.Instance.SetRenderTicking(true);
             Engine.SetPaused(true, ELocalPlayerIndex.One, true);
+
+            Engine.PostWorldChanged += Engine_PostWorldChanged;
+            Engine.PreWorldChanged += Engine_PreWorldChanged;
 
             base.OnStarted();
         }
+
         public async override void SetWorld(string filePath)
         {
             World world = await TFileObject.LoadAsync<World>(filePath);

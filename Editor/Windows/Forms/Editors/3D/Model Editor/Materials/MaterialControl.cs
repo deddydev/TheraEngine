@@ -210,7 +210,7 @@ namespace TheraEditor.Windows.Forms
         }
         
         public void HandleChange(params LocalValueChange[] changes)
-            => Editor.Instance.UndoManager.AddChange(Material.EditorState, changes);
+            => Editor.DomainProxy.UndoManager.AddChange(Material.EditorState, changes);
         
         private void lstTextures_SelectedIndexChanged(object sender, EventArgs e)
         {

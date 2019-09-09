@@ -43,7 +43,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (!(Grid.TargetObject is IObject obj))
                     return;
                 Grid.btnSave.Visible = Grid.btnSaveAs.Visible = true;
-                Editor.Instance.UndoManager.AddChange(obj.EditorState, changes);
+                Editor.DomainProxy.UndoManager.AddChange(obj.EditorState, changes);
             }
         }
 

@@ -27,7 +27,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         public override bool IsReadOnly()
-            => base.IsReadOnly() || Property == null || !Property.CanWrite;
+            => base.IsReadOnly() || Property.IsNull() || !Property.CanWrite;
         
         internal protected override void SubmitStateChange(object oldValue, object newValue, ValueChangeHandler dataChangeHandler)
             => dataChangeHandler?.HandleChange(new LocalValueChangeProperty(oldValue, newValue, Owner.Value, Property));
@@ -36,7 +36,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             get
             {
-                if (Property is null)
+                if (Property.IsNull())
                     throw new InvalidOperationException($"{nameof(Property)} cannot be null.");
 
                 if (!Property.CanRead)
@@ -48,14 +48,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //return the default value for the data type.
                 //This specifically fixes the owner-property mismatch exception
                 //when the grid is switching target sub object
-                if (o is null || !Property.DeclaringType.IsAssignableFrom(o.GetTypeProxy()))
+                if (o.IsNull() || !Property.DeclaringType.IsAssignableFrom(o.GetTypeProxy()))
                     return DataType.GetDefaultValue();
 
                 return Property.GetValue(o);
             }
             set
             {
-                if (Property == null)
+                if (Property.IsNull())
                     throw new InvalidOperationException($"{nameof(Property)} cannot be null.");
 
                 if (!Property.CanWrite)
@@ -63,7 +63,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 object o = Owner.Value;
 
-                if (!(o is null) && Property.DeclaringType.IsAssignableFrom(o.GetTypeProxy()))
+                if (o.IsNotNull() && Property.DeclaringType.IsAssignableFrom(o.GetTypeProxy()))
                     Property.SetValue(o, value);
             }
         }

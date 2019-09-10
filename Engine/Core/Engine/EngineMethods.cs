@@ -68,7 +68,7 @@ namespace TheraEngine
 
             RenderLibraryChanged();
             RetrieveAudioManager();
-            InputLibraryChanged();
+            //InputLibraryChanged();
             RetrievePhysicsInterface();
 
             //LoadCustomFonts();

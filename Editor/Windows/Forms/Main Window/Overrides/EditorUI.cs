@@ -71,7 +71,7 @@ namespace TheraEditor.Windows.Forms
         private Vec3 _hitNormal;
         private float _hitDistance;
 
-        private DateTime _lastFPSUpdateTime;
+        private float _elapsedSecSinceLastFPSUpdate;
         //private Vec3 _lastHitPoint;
         private HighlightPoint _highlightPoint = new HighlightPoint();
         TRigidBody _pickedBody;
@@ -448,22 +448,27 @@ namespace TheraEditor.Windows.Forms
         private int _averageFPSCount = 1;
         private void Tick(float delta)
         {
-            DateTime now = DateTime.Now;
-            if ((now - _lastFPSUpdateTime).TotalSeconds >= FPSUpdateIntervalSeconds)
+            UpdateFPS(delta);
+            MouseMove();
+        }
+
+        private void UpdateFPS(float delta)
+        {
+            _elapsedSecSinceLastFPSUpdate += delta;
+            if (_elapsedSecSinceLastFPSUpdate >= FPSUpdateIntervalSeconds)
             {
                 FPSText.Text = "FPS: " + Math.Round(_averageFPS / _averageFPSCount, 0, MidpointRounding.AwayFromZero);
                 _averageFPSCount = 1;
                 _averageFPS = Engine.RenderFrequency;
-                _lastFPSUpdateTime = now;
+                _elapsedSecSinceLastFPSUpdate = 0.0f;
             }
             else
             {
                 _averageFPS += Engine.RenderFrequency;
                 ++_averageFPSCount;
             }
-
-            MouseMove();
         }
+
         private void MouseMove()
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport;
@@ -493,11 +498,10 @@ namespace TheraEditor.Windows.Forms
             }
             else if (dragComp != null) //Dragging and dropping object?
             {
-                IRigidBodyCollidable p = dragComp as IRigidBodyCollidable;
                 ISceneComponent comp = v.PickScene(
                     viewportPoint, true, true, true,
                     out _hitNormal, out _hitPoint, out float dist,
-                    p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
+                    dragComp is IRigidBodyCollidable p ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
 
                 if (dist > DraggingTestDistance)
                     comp = null;
@@ -539,7 +543,7 @@ namespace TheraEditor.Windows.Forms
         private void HighlightScene(Viewport viewport, Vec2 viewportPoint)
         {
             ICamera c = viewport.Camera;
-            if (c == null)
+            if (c.IsNull())
                 return;
 
             WorldEditorCameraPawn pawn = OwningPawn as WorldEditorCameraPawn;

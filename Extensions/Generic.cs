@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Extensions
 {
-    public static partial class Ext
+    public static class GenericExtensions
     {
         /// <summary>
         /// Clamps the value between min and max values.
@@ -35,12 +35,9 @@ namespace Extensions
             Marshal.Copy(data, 0, (IntPtr)addr, Math.Min(data.Length, sizeof(T)));
             return value;
         }
-        public static bool IsBoxed<T>(this T value)
-        {
-            return
-                (typeof(T).IsInterface || typeof(T) == typeof(object)) &&
-                value != null &&
-                value.GetType().IsValueType;
-        }
+        public static bool IsBoxed<T>(this T value) =>
+            (typeof(T).IsInterface || typeof(T) == typeof(object)) &&
+            value != null &&
+            value.GetType().IsValueType;
     }
 }

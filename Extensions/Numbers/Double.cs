@@ -2,39 +2,30 @@
 
 namespace Extensions
 {
-    public static partial class Ext
+    public static class DoubleExtensions
     {
+        public const Double ZeroTolerance = 1e-6;
+
         public static double RoundToNearestMultiple(this double value, double multiple)
             => Math.Round((value / multiple), MidpointRounding.AwayFromZero) * multiple;
         public static double Round(this double value, int digits = 0, MidpointRounding midpointRounding = MidpointRounding.AwayFromZero)
             => Math.Round(value, digits, midpointRounding);
 
-        public const Double ZeroToleranceD = 1e-6;
-        public static bool IsZero(this Double value, double tolerance = ZeroToleranceD)
-        {
-            return Math.Abs(value) < tolerance;
-        }
-        public static bool EqualTo(this Double value, Double other, double tolerance = ZeroToleranceD)
-        {
-            return Math.Abs(other - value) < tolerance;
-        }
+        public static bool IsZero(this Double value, double tolerance = ZeroTolerance)
+            => Math.Abs(value) < tolerance;
+        public static bool EqualTo(this Double value, Double other, double tolerance = ZeroTolerance)
+            => Math.Abs(other - value) < tolerance;
         public static unsafe Double Reverse(this Double value)
         {
             *(uint*)(&value) = ((uint*)&value)->Reverse();
             return value;
         }
         public static Double Clamp(this Double value, Double min, Double max)
-        {
-            return value <= min ? min : value >= max ? max : value;
-        }
-        public static Double ClampMin(this Double value, Double min)
-        {
-            return value <= min ? min : value;
-        }
+            => value <= min ? min : value >= max ? max : value;
+        public static Double ClampMin(this Double value, Double min) 
+            => value <= min ? min : value;
         public static Double ClampMax(this Double value, Double max)
-        {
-            return value >= max ? max : value;
-        }
+            => value >= max ? max : value;
         /// <summary>
         /// Remaps values outside of a range into the first multiple of that range.
         /// When it comes to signed numbers, negative is highest.
@@ -67,8 +58,6 @@ namespace Extensions
             return value;
         }
         public static bool CompareEquality(this Double value, Double other, Double tolerance = 0.0001f)
-        {
-            return Math.Abs(value - other) < tolerance;
-        }
+            => Math.Abs(value - other) < tolerance;
     }
 }

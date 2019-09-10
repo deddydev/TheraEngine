@@ -2,14 +2,14 @@
 
 namespace Extensions
 {
-    public static partial class Ext
+    public static class SingleExtensions
     {
-        public const Single ZeroToleranceF = 1e-6f;
+        public const Single ZeroTolerance = 1e-6f;
 
-        public static bool IsZero(this Single value, Single tolerance = ZeroToleranceF)
+        public static bool IsZero(this Single value, Single tolerance = ZeroTolerance)
             => Math.Abs(value) < tolerance;
 
-        public static bool EqualTo(this Single value, Single other, Single tolerance = ZeroToleranceF)
+        public static bool EqualTo(this Single value, Single other, Single tolerance = ZeroTolerance)
             => Math.Abs(other - value) < tolerance;
 
         public static unsafe Single Reverse(this Single value)

@@ -122,7 +122,7 @@ namespace TheraEditor.Windows.Forms
         /// <returns></returns>
         public bool IsToolStripDocked(ToolStrip toolStrip)
         {
-            if (toolStrip == null)
+            if (toolStrip is null)
                 throw new ArgumentException("ToolStrip provided to IsToolStripDocked was null.");
 
             return DockedToolStrips.Contains(toolStrip);

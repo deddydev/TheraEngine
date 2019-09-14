@@ -63,7 +63,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         protected bool IsEditable() =>
             !ReadOnly &&
-            (MemberInfo == null || !MemberInfo.IsReadOnly()) &&
+            (MemberInfo is null || !MemberInfo.IsReadOnly()) &&
             (!(ParentCategory?.ReadOnly ?? false));
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void ResolveMemberName(string displayNameOverride)
         {
-            if (Label == null)
+            if (Label is null)
                 return;
 
             string propName = MemberInfo?.DisplayName; //editors[0].GetParentInfo<PropGridItemRefPropertyInfo>()?.Property?.Name;
@@ -293,8 +293,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public void UpdateDisplay()
         {
             if (IsEditing ||
-                MemberInfo == null || 
-                ParentCategory == null || 
+                MemberInfo is null || 
+                ParentCategory is null || 
                 !ParentCategory.Visible ||
                 !ParentCategory.PropertyTable.Visible)
                 return;
@@ -304,7 +304,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             bool displayChanged = false;
 
             var parent = MemberInfo?.Owner?.Value;
-            if (parent == null || EvaluateVisibilityCondition(parent))
+            if (parent is null || EvaluateVisibilityCondition(parent))
             {
                 if (!Visible)
                     Visible = true;
@@ -434,18 +434,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// </summary>
         /// <returns></returns>
         public bool AllowUpdate()
-            => UpdateTimeSpan == null || (DateTime.Now - LastUpdateTime) >= UpdateTimeSpan.Value;
+            => UpdateTimeSpan is null || (DateTime.Now - LastUpdateTime) >= UpdateTimeSpan.Value;
 
         private void CreateAnimation(object sender, EventArgs e)
         {
             string path = GetAnimationMemberPath(out PropGridMemberInfo animOwner);
-            if (animOwner == null)
+            if (animOwner is null)
                 return;
             TObject obj = animOwner.Owner?.Value as TObject;
             
             AnimationTree anim = new AnimationTree(animOwner.DisplayName, path, CreateAnimation());
 
-            if (obj.Animations == null)
+            if (obj.Animations is null)
                 obj.Animations = new EventList<AnimationTree>();
 
             obj.Animations.Add(anim);

@@ -35,7 +35,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         public override void CompareType(CompareParms parms)
         {
             //This should never happen, null check happens one level up
-            if (parms == null || parms.Object1 == null || parms.Object2 == null)
+            if (parms is null || parms.Object1 is null || parms.Object2 is null)
                 return;
 
             if (ListsHaveDifferentCounts(parms)) 
@@ -49,10 +49,10 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             IList ilist1 = parms.Object1 as IList;
             IList ilist2 = parms.Object2 as IList;
 
-            if (ilist1 == null)
+            if (ilist1 is null)
                 throw new ArgumentException("parms.Object1");
 
-            if (ilist2 == null)
+            if (ilist2 is null)
                 throw new ArgumentException("parms.Object2");
 
             //Objects must be the same length

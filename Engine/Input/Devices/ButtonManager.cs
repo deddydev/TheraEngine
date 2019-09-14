@@ -44,14 +44,14 @@ namespace TheraEngine.Input.Devices
         protected float _timer;
 
         #region Registration
-        public virtual bool IsEmpty() => _usedActions.Count == 0 && _onStateChanged.All(x => x == null || x.Count == 0);
+        public virtual bool IsEmpty() => _usedActions.Count == 0 && _onStateChanged.All(x => x is null || x.Count == 0);
         public void Register(Action func, EButtonInputType type, EInputPauseType pauseType, bool unregister)
         {
             int index = (int)type * 3 + (int)pauseType;
             if (unregister)
             {
                 List<Action> list = _actions[index];
-                if (list == null)
+                if (list is null)
                     return;
                 list.Remove(func);
                 if (list.Count == 0)
@@ -62,7 +62,7 @@ namespace TheraEngine.Input.Devices
             }
             else
             {
-                if (_actions[index] == null)
+                if (_actions[index] is null)
                 {
                     _actions[index] = new List<Action>() { func };
                     _usedActions.Add(index);
@@ -90,7 +90,7 @@ namespace TheraEngine.Input.Devices
             if (unregister)
             {
                 List<DelButtonState> list = _onStateChanged[index];
-                if (list == null)
+                if (list is null)
                     return;
                 list.Remove(func);
                 if (list.Count == 0)
@@ -98,7 +98,7 @@ namespace TheraEngine.Input.Devices
             }
             else
             {
-                if (_onStateChanged[index] == null)
+                if (_onStateChanged[index] is null)
                     _onStateChanged[index] = new List<DelButtonState>() { func };
                 else
                     _onStateChanged[index].Add(func);

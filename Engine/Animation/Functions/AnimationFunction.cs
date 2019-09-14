@@ -10,7 +10,7 @@ namespace TheraEngine.Animation
         private object[] _results = null;
         public T GetOutputValue<T>(int index)
         {
-            if (_results == null)
+            if (_results is null)
             {
 
             }

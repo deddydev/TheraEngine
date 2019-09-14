@@ -1506,7 +1506,7 @@ namespace FastColoredTextBoxNS
                     }
 
                 //create ReadOnlyStyle
-                if (readonlyStyle == null)
+                if (readonlyStyle is null)
                     readonlyStyle = new ReadOnlyStyle();
 
                 //set/clear style

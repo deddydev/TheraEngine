@@ -60,7 +60,7 @@ namespace TheraEditor.Windows.Forms
             int index = _operations.Count;
 
             progress = new Progress<float>();
-            cancel = maxOperationTime == null ? new CancellationTokenSource() : new CancellationTokenSource(maxOperationTime.Value);
+            cancel = maxOperationTime is null ? new CancellationTokenSource() : new CancellationTokenSource(maxOperationTime.Value);
 
             _operations.Add(new OperationInfo(progress, cancel, OnOperationProgressUpdate, index, statusBarMessage, finishedMessage));
 
@@ -224,7 +224,7 @@ namespace TheraEditor.Windows.Forms
                 Engine.PrintLine(message);
             }
 
-            if (_operations.Count == 0 || _operations.All(x => x == null))
+            if (_operations.Count == 0 || _operations.All(x => x is null))
             {
                 _operations.Clear();
                 btnCancelOp.Visible = false;

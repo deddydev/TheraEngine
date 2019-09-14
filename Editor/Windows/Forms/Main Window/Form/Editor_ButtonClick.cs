@@ -154,7 +154,7 @@ namespace TheraEditor.Windows.Forms
 
         public void CopyEditorLibraries(string[] assemblyPaths)
         {
-            if (assemblyPaths == null || assemblyPaths.Length == 0)
+            if (assemblyPaths is null || assemblyPaths.Length == 0)
                 return;
 
             //Get editor exe path
@@ -213,7 +213,7 @@ namespace TheraEditor.Windows.Forms
                         ApplicationBase = rootDir,
                         PrivateBinPath = rootDir,
                         ShadowCopyFiles = "true",
-                        ShadowCopyDirectories = assemblyPaths == null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x))),
+                        ShadowCopyDirectories = assemblyPaths is null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x))),
                         LoaderOptimization = LoaderOptimization.MultiDomain,
                         //DisallowApplicationBaseProbing = true,
                     };

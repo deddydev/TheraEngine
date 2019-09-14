@@ -107,7 +107,7 @@ namespace TheraEngine.Components.Scene.Lights
         {
             _region.Width = width;
             _region.Height = height;
-            if (ShadowMap == null)
+            if (ShadowMap is null)
                 ShadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(width, height));
             else
                 ShadowMap.Resize(width, height);

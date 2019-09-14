@@ -65,7 +65,7 @@ namespace TheraEngine.Actors.Types
             set
             {
                 GlobalFileRef<TextureFile2D> tref = SkyboxTextureRef;
-                if (tref == null)
+                if (tref is null)
                     return;
 
                 tref.AbsolutePath = value;
@@ -102,11 +102,11 @@ namespace TheraEngine.Actors.Types
                 //Update model reference and renderable mesh
 
                 StaticModel model = RootComponent?.ModelRef?.File;
-                if (model == null || model.RigidChildren.Count == 0)
+                if (model is null || model.RigidChildren.Count == 0)
                     return;
 
                 StaticRigidSubMesh mesh = model.RigidChildren[0];
-                if (mesh == null)
+                if (mesh is null)
                     return;
                 
                 if (mesh.LODs.Count > 0)
@@ -117,15 +117,15 @@ namespace TheraEngine.Actors.Types
                 }
 
                 var renderMeshes = RootComponent?.Meshes;
-                if (renderMeshes == null || renderMeshes.Count <= 0)
+                if (renderMeshes is null || renderMeshes.Count <= 0)
                     return;
 
                 StaticRenderableMesh rmesh = renderMeshes[0];
-                if (rmesh.LODs == null || rmesh.LODs.Count == 0)
+                if (rmesh.LODs is null || rmesh.LODs.Count == 0)
                     return;
 
                 RenderableLOD rlod = rmesh?.LODs[0];
-                if (rlod == null)
+                if (rlod is null)
                     return;
 
                 rlod.Manager.Material = _material;
@@ -134,7 +134,7 @@ namespace TheraEngine.Actors.Types
 
         private void TextureLoaded(TextureFile2D tex)
         {
-            if (Material == null || Material.Textures.Length == 0)
+            if (Material is null || Material.Textures.Length == 0)
                 return;
 
             TexRef2D tref = (TexRef2D)Material.Textures[0];
@@ -149,7 +149,7 @@ namespace TheraEngine.Actors.Types
             tref.OnMipLoaded(tex);
             tref.GetRenderTextureGeneric(true).PushData();
 
-            BoundingBox.ECubemapTextureUVs uvType = tex == null || tex.Bitmaps.Length == 0 || tex.Bitmaps[0] == null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
+            BoundingBox.ECubemapTextureUVs uvType = tex is null || tex.Bitmaps.Length == 0 || tex.Bitmaps[0] is null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
                 BoundingBox.ECubemapTextureUVs.WidthLarger :
                 BoundingBox.ECubemapTextureUVs.HeightLarger;
 
@@ -162,11 +162,11 @@ namespace TheraEngine.Actors.Types
         private void Remake()
         {
             StaticModel model = RootComponent?.ModelRef?.File;
-            if (model == null || model.RigidChildren.Count == 0)
+            if (model is null || model.RigidChildren.Count == 0)
                 return;
 
             StaticRigidSubMesh mesh = model.RigidChildren[0];
-            if (mesh == null)
+            if (mesh is null)
                 return;
 
             BoundingBox box = mesh.RenderInfo.CullingVolume as BoundingBox;
@@ -187,16 +187,16 @@ namespace TheraEngine.Actors.Types
             }
 
             var renderMeshes = RootComponent?.Meshes;
-            if (renderMeshes == null || renderMeshes.Count <= 0 || renderMeshes[0] == null)
+            if (renderMeshes is null || renderMeshes.Count <= 0 || renderMeshes[0] is null)
                 return;
             
             StaticRenderableMesh rmesh = renderMeshes[0];
             //rmesh.RenderInfo.CullingVolume = box.HardCopy();
-            if (rmesh.LODs == null || rmesh.LODs.Count == 0)
+            if (rmesh.LODs is null || rmesh.LODs.Count == 0)
                 return;
 
             RenderableLOD rlod = rmesh.LODs[0];
-            if (rlod == null)
+            if (rlod is null)
                 return;
 
             rlod.Manager.Data?.Dispose();
@@ -236,7 +236,7 @@ namespace TheraEngine.Actors.Types
             _material = TMaterial.CreateUnlitTextureMaterialForward(texRef);
             _material.RenderParams = renderParams;
 
-            _uvType = tex == null || tex.Bitmaps.Length == 0 || tex.Bitmaps[0] == null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
+            _uvType = tex is null || tex.Bitmaps.Length == 0 || tex.Bitmaps[0] is null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
                 BoundingBox.ECubemapTextureUVs.WidthLarger :
                 BoundingBox.ECubemapTextureUVs.HeightLarger;
 

@@ -153,7 +153,7 @@ namespace TheraEngine.Rendering
             out GLSLScript[] shaderFiles,
             out ShaderVar[] shaderVars)
         {
-            if (resultFunction == null)
+            if (resultFunction is null)
             {
                 shaderFiles = null;
                 shaderVars = null;

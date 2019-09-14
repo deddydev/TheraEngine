@@ -69,7 +69,7 @@ namespace TheraEngine.Input.Devices
         private ButtonManager FindOrCacheButton(EGamePadButton button)
         {
             int index = (int)button;
-            if (_buttonStates[index] == null && ButtonExists(button))
+            if (_buttonStates[index] is null && ButtonExists(button))
                _buttonStates[index] = new ButtonManager(index, button.ToString(), SendButtonPressedState, SendButtonAction);
             return _buttonStates[index];
         }
@@ -77,7 +77,7 @@ namespace TheraEngine.Input.Devices
         private AxisManager FindOrCacheAxis(EGamePadAxis axis)
         {
             int index = (int)axis;
-            if (_axisStates[index] == null && AxisExists(axis))
+            if (_axisStates[index] is null && AxisExists(axis))
                 _axisStates[index] = new AxisManager(index, axis.ToString(), SendAxisButtonPressedState, SendAxisButtonAction, SendAxisValue);
             return _axisStates[index];
         }

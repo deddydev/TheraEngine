@@ -69,7 +69,7 @@ namespace SevenZip.Compression.LZ
 			_keepSizeBefore = keepSizeBefore;
 			_keepSizeAfter = keepSizeAfter;
 			UInt32 blockSize = keepSizeBefore + keepSizeAfter + keepSizeReserv;
-			if (_bufferBase == null || _blockSize != blockSize)
+			if (_bufferBase is null || _blockSize != blockSize)
 			{
 				Free();
 				_blockSize = blockSize;

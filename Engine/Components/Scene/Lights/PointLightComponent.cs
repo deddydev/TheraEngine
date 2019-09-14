@@ -81,7 +81,7 @@ namespace TheraEngine.Components.Scene.Lights
                 {
                     s3d.Lights.Add(this);
 
-                    if (ShadowMap == null)
+                    if (ShadowMap is null)
                         SetShadowMapResolution(1024, 1024);
                 }
                 _influenceVolume.RenderInfo.LinkScene(_influenceVolume, s3d);
@@ -121,7 +121,7 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void SetShadowMapResolution(int width, int height)
         {
-            bool wasNull = ShadowMap == null;
+            bool wasNull = ShadowMap is null;
             int res = Math.Max(width, height);
             base.SetShadowMapResolution(res, res);
             if (wasNull)

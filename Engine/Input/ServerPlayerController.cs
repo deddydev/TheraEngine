@@ -13,7 +13,7 @@ namespace TheraEngine.Input
             _input.InputRegistration += RegisterInput;
 
             _possessionQueue = possessionQueue;
-            if (_possessionQueue.Count != 0 && ControlledPawn == null)
+            if (_possessionQueue.Count != 0 && ControlledPawn is null)
                 ControlledPawn = _possessionQueue.Dequeue();
         }
         public ServerPlayerController(int serverPlayerIndex) : base()
@@ -50,10 +50,10 @@ namespace TheraEngine.Input
 
                 _controlledPawn = value;
 
-                if (_controlledPawn == null && _possessionQueue.Count != 0)
+                if (_controlledPawn is null && _possessionQueue.Count != 0)
                     _controlledPawn = _possessionQueue.Dequeue();
 
-                //Engine.PrintLine("Assigned new controlled pawn to Player " + _serverPlayerIndex + ": " + (_controlledPawn == null ? "null" : _controlledPawn.GetType().GetFriendlyName()));
+                //Engine.PrintLine("Assigned new controlled pawn to Player " + _serverPlayerIndex + ": " + (_controlledPawn is null ? "null" : _controlledPawn.GetType().GetFriendlyName()));
 
                 if (_controlledPawn != null)
                 {

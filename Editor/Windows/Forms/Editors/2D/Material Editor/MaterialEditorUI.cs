@@ -35,7 +35,7 @@ namespace TheraEditor.Windows.Forms
                 _targetMaterial = value;
                 if (_targetMaterial != null)
                 {
-                    if (_targetMaterial.EditorMaterialEnd == null)
+                    if (_targetMaterial.EditorMaterialEnd is null)
                         _targetMaterial.EditorMaterialEnd = Decompile(_targetMaterial);
                     EndFunc = _targetMaterial.EditorMaterialEnd;
                 }
@@ -73,7 +73,7 @@ namespace TheraEditor.Windows.Forms
 
         public void AddMaterialFunction(MaterialFunction func)
         {
-            if (func == null)
+            if (func is null)
                 return;
 
             BaseTransformComponent.ChildComponents.Add(func);
@@ -81,7 +81,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void RemoveMaterialFunction(MaterialFunction func)
         {
-            if (func == null)
+            if (func is null)
                 return;
 
             func.DetachFromParent();
@@ -178,7 +178,7 @@ namespace TheraEditor.Windows.Forms
             Vec2 diff = GetWorldCursorDiff(CursorPosition());
             if (CtrlDown)
             {
-                if (_inputTree == null)
+                if (_inputTree is null)
                 {
                     _inputTree = new HashSet<MaterialFunction>();
                     _draggedFunc.CollectInputTreeRecursive(_inputTree);
@@ -272,7 +272,7 @@ namespace TheraEditor.Windows.Forms
         }
         protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
         {
-            if (EndFunc == null)
+            if (EndFunc is null)
             {
                 min = Vec2.Zero;
                 max = Vec2.Zero;
@@ -289,7 +289,7 @@ namespace TheraEditor.Windows.Forms
                     if (input.Connection != null)
                         DrawBezier(input.Connection.WorldPoint.Xy + boxDim, input.WorldPoint.Xy + boxDim, input.GetTypeColor());
 
-            if (_draggedArg == null)
+            if (_draggedArg is null)
                 return;
 
             Vec2 start = _cursorBezier.StartPoint.Xy + boxDim;

@@ -66,7 +66,7 @@ namespace TheraEngine.Core.Files
             return instance;
         }
         
-        public static implicit operator LocalFileRef<T>(T file) => file == null ? null : new LocalFileRef<T>(file);
+        public static implicit operator LocalFileRef<T>(T file) => file is null ? null : new LocalFileRef<T>(file);
         public static implicit operator LocalFileRef<T>(Type type) => new LocalFileRef<T>(type);
         public static implicit operator LocalFileRef<T>(string relativePath) => new LocalFileRef<T>(relativePath);
 

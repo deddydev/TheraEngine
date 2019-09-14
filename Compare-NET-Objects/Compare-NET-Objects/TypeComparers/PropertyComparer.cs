@@ -72,7 +72,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             PropertyEntity secondObjectInfo = GetSecondObjectInfo(info, object2Properties);
 
             //If the property does not exist, and we are ignoring the object types, skip it
-            if (parms.Config.IgnoreObjectTypes && secondObjectInfo == null)
+            if (parms.Config.IgnoreObjectTypes && secondObjectInfo is null)
                 return;
 
             //If the property does not pass the predicate, skip it
@@ -244,7 +244,7 @@ See https://github.com/GregFinzer/Compare-Net-Objects/issues/103";
         {
             IDictionary<string, object> expandoPropertyValues = objectValue as IDictionary<string, object>;
 
-            if (expandoPropertyValues == null)
+            if (expandoPropertyValues is null)
                 return new List<PropertyEntity>();
 
             List<PropertyEntity> currentProperties  = new List<PropertyEntity>();
@@ -258,7 +258,7 @@ See https://github.com/GregFinzer/Compare-Net-Objects/issues/103";
                 propertyEntity.CanWrite = true;
                 propertyEntity.DeclaringType = objectType;
 
-                if (propertyValue.Value == null)
+                if (propertyValue.Value is null)
                 {
                     propertyEntity.PropertyType = null;
                     propertyEntity.ReflectedType = null;
@@ -303,7 +303,7 @@ See https://github.com/GregFinzer/Compare-Net-Objects/issues/103";
 #else
             var type = info.DeclaringType;
 #endif
-            if (type == null)
+            if (type is null)
             {
                 if (config.SkipInvalidIndexers)
                     return false;
@@ -311,7 +311,7 @@ See https://github.com/GregFinzer/Compare-Net-Objects/issues/103";
                 throw new Exception("Cannot compare objects with a null indexer for object " + breadCrumb);
             }
 
-            if (type.GetProperty("Count") == null
+            if (type.GetProperty("Count") is null
                 || type.GetProperty("Count").PropertyType != typeof(Int32))
             {
                 if (config.SkipInvalidIndexers)

@@ -150,7 +150,7 @@ namespace TheraEngine.Rendering.Models
                         foreach (LibraryAnimations lib in root.GetLibraries<LibraryAnimations>())
                             foreach (LibraryAnimations.Animation animElem in lib.AnimationElements)
                             {
-                                if (anim == null)
+                                if (anim is null)
                                 {
                                     result.PropertyAnimations = new List<BasePropAnim>();
                                     anim = new SkeletalAnimation()
@@ -203,7 +203,7 @@ namespace TheraEngine.Rendering.Models
             {
                 Bone bone = new Bone(node.Name ?? node.ID, Transform.DeriveTRS(invParent * bindMatrix));
                 node.UserData = bone;
-                if (parent == null)
+                if (parent is null)
                     rootBone = bone;
                 else
                     bone.Parent = parent;
@@ -214,7 +214,7 @@ namespace TheraEngine.Rendering.Models
             foreach (Node e in node.NodeElements)
             {
                 Bone b = EnumNode(parent, e, nodes, objects, bindMatrix, inv, lights, cameras, ignore);
-                if (rootBone == null && b != null)
+                if (rootBone is null && b != null)
                     rootBone = b;
             }
 
@@ -362,7 +362,7 @@ namespace TheraEngine.Rendering.Models
                     else
                         throw new InvalidOperationException("No valid geometry or morph controller entry for object.");
                 }
-                if (data == null)
+                if (data is null)
                 {
                     //Something went wrong and the mesh couldn't be created
                     return;
@@ -381,7 +381,7 @@ namespace TheraEngine.Rendering.Models
                         m = CreateMaterial(mat);
                 }
 
-                if (m == null)
+                if (m is null)
                     m = TMaterial.CreateLitColorMaterial();
 
                 Sphere sphere = null;
@@ -417,7 +417,7 @@ namespace TheraEngine.Rendering.Models
                     else
                         throw new InvalidOperationException("No valid geometry or morph controller entry for object.");
                 }
-                if (data == null)
+                if (data is null)
                 {
                     //Something went wrong and the mesh couldn't be created
                     return;
@@ -436,7 +436,7 @@ namespace TheraEngine.Rendering.Models
                         m = CreateMaterial(mat);
                 }
 
-                if (m == null)
+                if (m is null)
                     m = TMaterial.CreateLitColorMaterial();
 
                 Sphere sphere = null;
@@ -472,7 +472,7 @@ namespace TheraEngine.Rendering.Models
                         if (tex != null)
                         {
                             var image = tex.Root.GetIDEntry<IImage>(tex.TextureID);
-                            if (image == null)
+                            if (image is null)
                                 continue;
                             TexRef2D texRef = new TexRef2D();
                             if (image is Image14X img14x)

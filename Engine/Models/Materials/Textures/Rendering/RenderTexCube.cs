@@ -53,7 +53,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             get => _mipmaps;
             set => _mipmaps = value;
         }
-        public int Dimension => _mipmaps == null ? _dimension : (_mipmaps.Length > 0 ? _mipmaps[0].Sides[0].Width : _dimension);
+        public int Dimension => _mipmaps is null ? _dimension : (_mipmaps.Length > 0 ? _mipmaps[0].Sides[0].Width : _dimension);
 
         public override int MaxDimension => Dimension;
 
@@ -77,7 +77,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
             ESizedInternalFormat sizedInternalFormat = (ESizedInternalFormat)(int)InternalFormat;
 
-            if (_mipmaps == null || _mipmaps.Length == 0)
+            if (_mipmaps is null || _mipmaps.Length == 0)
             {
                 int mipCount = SmallestMipmapLevel + 1;
                 if (!Resizable && !_storageSet)
@@ -141,7 +141,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             }
             _hasPushed = true;
 
-            //int max = _mipmaps == null || _mipmaps.Length == 0 ? 0 : _mipmaps.Length - 1;
+            //int max = _mipmaps is null || _mipmaps.Length == 0 ? 0 : _mipmaps.Length - 1;
             //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureBaseLevel, 0);
             //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMaxLevel, max);
             //Engine.Renderer.TexParameter(TextureTarget, ETexParamName.TextureMinLod, 0);

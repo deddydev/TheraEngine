@@ -145,6 +145,7 @@ namespace TheraEditor
                 {
                     //if (!_inPlaceEditorTypes.ContainsKey(varType))
                     InPlaceEditorTypes.AddOrUpdate(varType, propControlType, (x, y) => propControlType);
+                    Engine.PrintLine($"{propControlType.GetFriendlyName()} is the editor for {varType.GetFriendlyName()}.");
                     //else
                     //    throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
                 }

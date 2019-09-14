@@ -137,7 +137,7 @@ namespace GraphLib
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            if (ParentForm == null)
+            if (ParentForm is null)
             {
                 // paint background when control is used in editor
                 base.OnPaintBackground(e);

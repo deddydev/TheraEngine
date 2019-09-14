@@ -26,7 +26,7 @@
         /// </param>
         public DisposableAppDomain(AppDomain domain)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
@@ -94,7 +94,7 @@
                 if (!this.IsDisposed)
                 {
                     // Do *not* unload the current app domain.
-                    if (!(this.Domain == null || this.Domain.Equals(AppDomain.CurrentDomain)))
+                    if (!(this.Domain is null || this.Domain.Equals(AppDomain.CurrentDomain)))
                     {
                         AppDomain.Unload(this.Domain);
                     }

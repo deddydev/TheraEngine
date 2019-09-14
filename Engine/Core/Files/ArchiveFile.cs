@@ -67,7 +67,7 @@ namespace TheraEngine.Core.Files
             {
                 get
                 {
-                    if (_file == null)
+                    if (_file is null)
                         ReadBytes();
                     return _file;
                 }

@@ -80,7 +80,7 @@ namespace TheraEngine.Components.Scene
         public void SetCurrentForPlayer(ELocalPlayerIndex playerIndex)
         {
             Camera c = Camera;
-            if (c == null)
+            if (c is null)
             {
                 Engine.LogWarning("Camera component has no camera set.");
                 return;
@@ -110,7 +110,7 @@ namespace TheraEngine.Components.Scene
             if (controller != null)
             {
                 Camera c = Camera;
-                if (c == null)
+                if (c is null)
                 {
                     Engine.LogWarning("Camera component has no camera set.");
                     return;
@@ -126,7 +126,7 @@ namespace TheraEngine.Components.Scene
             if (OwningActor is IPawn pawn && pawn.Controller is LocalPlayerController controller)
             {
                 Camera c = Camera;
-                if (c == null)
+                if (c is null)
                 {
                     Engine.LogWarning("Camera component has no camera set.");
                     return;
@@ -183,7 +183,7 @@ namespace TheraEngine.Components.Scene
         protected override void GenerateChildCache(List<ISceneComponent> cache)
         {
             base.GenerateChildCache(cache);
-            if (OwningActor is IPawn p && p.CurrentCameraComponent == null)
+            if (OwningActor is IPawn p && p.CurrentCameraComponent is null)
                 p.CurrentCameraComponent = this;
         }
 

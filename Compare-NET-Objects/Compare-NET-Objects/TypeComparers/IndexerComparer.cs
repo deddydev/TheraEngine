@@ -26,7 +26,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// </summary>
         public void CompareIndexer(CompareParms parms, PropertyEntity info, PropertyEntity secondObjectInfo)
         {
-            if (info == null)
+            if (info is null)
                 throw new ArgumentNullException("info");
 #if !NETSTANDARD
             var type = info.ReflectedType;
@@ -35,7 +35,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             var type = info.DeclaringType;
             var type2 = secondObjectInfo.DeclaringType;
 #endif
-            if (type == null || type2 == null)
+            if (type is null || type2 is null)
                 throw new ArgumentNullException("info");
 
             int indexerCount1 = (int)type.GetProperty("Count").GetGetMethod().Invoke(parms.Object1, new object[] { });
@@ -125,7 +125,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
 
         private bool IndexersHaveDifferentLength(CompareParms parms, PropertyEntity info, PropertyEntity secondObjectInfo)
         {
-            if (info == null)
+            if (info is null)
                 throw new ArgumentNullException("info");
 
 #if !NETSTANDARD
@@ -135,7 +135,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             var type = info.DeclaringType;
             var type2 = secondObjectInfo.DeclaringType;
 #endif
-            if (type == null || type2 == null)
+            if (type is null || type2 is null)
                 throw new ArgumentNullException("info");
 
             int indexerCount1 = (int)type.GetProperty("Count").GetGetMethod().Invoke(parms.Object1, new object[] { });

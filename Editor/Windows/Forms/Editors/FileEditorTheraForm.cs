@@ -29,7 +29,7 @@ namespace TheraEditor.Windows.Forms
         
         public async void Save()
         {
-            if (File == null)
+            if (File is null)
                 return;
 
             string path = File.FilePath;
@@ -45,7 +45,7 @@ namespace TheraEditor.Windows.Forms
         }
         public async void SaveAs()
         {
-            if (File == null)
+            if (File is null)
                 return;
 
             using (SaveFileDialog sfd = new SaveFileDialog() { Filter = File.GetFilter() })
@@ -68,7 +68,7 @@ namespace TheraEditor.Windows.Forms
         }
         public bool AllowFileClose()
         {
-            if (_file == null || !_file.HasEditorState || !_file.EditorState.IsDirty)
+            if (_file is null || !_file.HasEditorState || !_file.EditorState.IsDirty)
                 return true;
 
             string path =

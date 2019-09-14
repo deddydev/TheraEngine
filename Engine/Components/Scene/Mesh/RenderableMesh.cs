@@ -105,7 +105,7 @@ namespace TheraEngine.Components.Scene.Mesh
             while (true)
             {
                 var currentLOD = CurrentLOD;
-                if (currentLOD == null)
+                if (currentLOD is null)
                     break;
 
                 if (viewDist < currentLOD.VisibleDistance)

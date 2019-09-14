@@ -126,7 +126,7 @@ namespace TheraEngine.Rendering.Models
             public IID GetElement(COLLADA root)
             {
                 List<IID> elements = GetElements(root);
-                if (elements == null || elements.Count == 0)
+                if (elements is null || elements.Count == 0)
                     return default;
                 if (elements.Count == 1)
                     return elements[0];
@@ -1618,7 +1618,7 @@ namespace TheraEngine.Rendering.Models
                             public override void PostRead()
                             {
                                 var values = IndicesElement?.StringContent?.Values;
-                                if (values == null || InputElements == null)
+                                if (values is null || InputElements is null)
                                 {
                                     PointCount = FaceCount = 0;
                                     return;

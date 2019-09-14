@@ -227,7 +227,7 @@ namespace TheraEditor.Windows.Forms
             GlobalFileRef<GLSLScript> fileRef = lstShaders.SelectedItems[0].Tag as GlobalFileRef<GLSLScript>;
             GLSLScript file = fileRef.File;
 
-            if (file == null)
+            if (file is null)
                 return;
 
             if (_textEditors.ContainsKey(file))

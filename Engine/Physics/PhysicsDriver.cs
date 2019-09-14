@@ -202,10 +202,10 @@ namespace TheraEngine.Physics
         [Category("Physics Driver")]
         public bool Kinematic
         {
-            get => _collision == null ? false : _collision.CollisionFlags.HasFlag(CollisionFlags.KinematicObject);
+            get => _collision is null ? false : _collision.CollisionFlags.HasFlag(CollisionFlags.KinematicObject);
             set
             {
-                if (_collision == null)
+                if (_collision is null)
                     return;
 
                 if (value)
@@ -217,10 +217,10 @@ namespace TheraEngine.Physics
         [Category("Physics Driver")]
         public bool Static
         {
-            get => _collision == null ? false : _collision.CollisionFlags.HasFlag(CollisionFlags.StaticObject);
+            get => _collision is null ? false : _collision.CollisionFlags.HasFlag(CollisionFlags.StaticObject);
             set
             {
-                if (_collision == null)
+                if (_collision is null)
                     return;
 
                 if (value)
@@ -294,7 +294,7 @@ namespace TheraEngine.Physics
         public void OnSpawned()
         {
             _isSpawned = true;
-            if (_collision == null)
+            if (_collision is null)
                 return;
 
             //if (Engine.World != null)
@@ -306,7 +306,7 @@ namespace TheraEngine.Physics
         public void OnDespawned()
         {
             _isSpawned = false;
-            if (_collision == null)
+            if (_collision is null)
                 return;
 
             if (_collision.IsInWorld/* && Engine.World != null*/)

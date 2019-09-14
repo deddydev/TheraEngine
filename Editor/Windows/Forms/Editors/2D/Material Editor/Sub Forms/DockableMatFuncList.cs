@@ -43,7 +43,7 @@ namespace TheraEditor.Windows.Forms
             //                _funcDic.Add(keyword, new List<int>() { _funcs.Count });
 
             //        BetterListViewGroup grp = betterListView1.Groups[def.Category];
-            //        if (grp == null)
+            //        if (grp is null)
             //        {
             //            grp = new BetterListViewGroup(def.Category, def.Category);
             //            betterListView1.Groups.Add(grp);
@@ -65,7 +65,7 @@ namespace TheraEditor.Windows.Forms
             //                    !type.FitsConstraints(gvf, tcf)// ||
 
             //                    //Has no default constructor?
-            //                    //type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null) == null
+            //                    //type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null) is null
             //                    );
             //                }
 

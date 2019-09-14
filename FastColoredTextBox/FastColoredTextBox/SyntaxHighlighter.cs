@@ -399,7 +399,7 @@ namespace FastColoredTextBoxNS
             XmlNode brackets = doc.SelectSingleNode("doc/brackets");
             if (brackets != null)
             {
-                if (brackets.Attributes["left"] == null || brackets.Attributes["right"] == null ||
+                if (brackets.Attributes["left"] is null || brackets.Attributes["right"] is null ||
                     brackets.Attributes["left"].Value == "" || brackets.Attributes["right"].Value == "")
                 {
                     desc.leftBracket = '\x0';
@@ -411,7 +411,7 @@ namespace FastColoredTextBoxNS
                     desc.rightBracket = brackets.Attributes["right"].Value[0];
                 }
 
-                if (brackets.Attributes["left2"] == null || brackets.Attributes["right2"] == null ||
+                if (brackets.Attributes["left2"] is null || brackets.Attributes["right2"] is null ||
                     brackets.Attributes["left2"].Value == "" || brackets.Attributes["right2"].Value == "")
                 {
                     desc.leftBracket2 = '\x0';
@@ -423,7 +423,7 @@ namespace FastColoredTextBoxNS
                     desc.rightBracket2 = brackets.Attributes["right2"].Value[0];
                 }
 
-                if (brackets.Attributes["strategy"] == null || brackets.Attributes["strategy"].Value == "")
+                if (brackets.Attributes["strategy"] is null || brackets.Attributes["strategy"].Value == "")
                     desc.bracketsHighlightStrategy = BracketsHighlightStrategy.Strategy2;
                 else
                     desc.bracketsHighlightStrategy = (BracketsHighlightStrategy)Enum.Parse(typeof(BracketsHighlightStrategy), brackets.Attributes["strategy"].Value);
@@ -467,7 +467,7 @@ namespace FastColoredTextBoxNS
             XmlAttribute styleA = ruleNode.Attributes["style"];
             XmlAttribute optionsA = ruleNode.Attributes["options"];
             //Style
-            if (styleA == null)
+            if (styleA is null)
                 throw new Exception("Rule must contain style name.");
             if (!styles.ContainsKey(styleA.Value))
                 throw new Exception("Style '" + styleA.Value + "' is not found.");
@@ -705,7 +705,7 @@ namespace FastColoredTextBoxNS
             //clear style of changed range
             range.ClearStyle(StringStyle, CommentStyle, NumberStyle, AttributeStyle, ClassNameStyle, KeywordStyle);
             //
-            if (CSharpStringRegex == null)
+            if (CSharpStringRegex is null)
                 InitCShaprRegex();
             //string highlighting
             range.SetStyle(StringStyle, CSharpStringRegex);
@@ -728,7 +728,7 @@ namespace FastColoredTextBoxNS
                 //remove C# highlighting from this fragment
                 r.ClearStyle(StyleIndex.All);
                 //do XML highlighting
-                if (HTMLTagRegex == null)
+                if (HTMLTagRegex is null)
                     InitHTMLRegex();
                 //
                 r.SetStyle(CommentStyle);
@@ -786,7 +786,7 @@ namespace FastColoredTextBoxNS
             //clear style of changed range
             range.ClearStyle(StringStyle, CommentStyle, NumberStyle, ClassNameStyle, KeywordStyle);
             //
-            if (VBStringRegex == null)
+            if (VBStringRegex is null)
                 InitVBRegex();
             //string highlighting
             range.SetStyle(StringStyle, VBStringRegex);
@@ -854,7 +854,7 @@ namespace FastColoredTextBoxNS
             range.ClearStyle(CommentStyle, TagBracketStyle, TagNameStyle, AttributeStyle, AttributeValueStyle,
                              HtmlEntityStyle);
             //
-            if (HTMLTagRegex == null)
+            if (HTMLTagRegex is null)
                 InitHTMLRegex();
             //comment highlighting
             range.SetStyle(CommentStyle, HTMLCommentRegex1);
@@ -924,7 +924,7 @@ namespace FastColoredTextBoxNS
                              XmlEntityStyle, XmlCDataStyle);
 
             //
-            if (XMLTagRegex == null)
+            if (XMLTagRegex is null)
             {
                 InitXMLRegex();
             }
@@ -1048,7 +1048,7 @@ namespace FastColoredTextBoxNS
             range.ClearStyle(CommentStyle, StringStyle, NumberStyle, VariableStyle, StatementsStyle, KeywordStyle,
                              FunctionsStyle, TypesStyle);
             //
-            if (SQLStringRegex == null)
+            if (SQLStringRegex is null)
                 InitSQLRegex();
             //comment highlighting
             range.SetStyle(CommentStyle, SQLCommentRegex1);
@@ -1121,7 +1121,7 @@ namespace FastColoredTextBoxNS
 ";
 
             //
-            if (PHPStringRegex == null)
+            if (PHPStringRegex is null)
                 InitPHPRegex();
             //string highlighting
             range.SetStyle(StringStyle, PHPStringRegex);
@@ -1181,7 +1181,7 @@ namespace FastColoredTextBoxNS
             //clear style of changed range
             range.ClearStyle(StringStyle, CommentStyle, NumberStyle, KeywordStyle);
             //
-            if (JScriptStringRegex == null)
+            if (JScriptStringRegex is null)
                 InitJScriptRegex();
             //string highlighting
             range.SetStyle(StringStyle, JScriptStringRegex);
@@ -1241,7 +1241,7 @@ namespace FastColoredTextBoxNS
             //clear style of changed range
             range.ClearStyle(StringStyle, CommentStyle, NumberStyle, KeywordStyle, FunctionsStyle);
             //
-            if (LuaStringRegex == null)
+            if (LuaStringRegex is null)
                 InitLuaRegex();
             //string highlighting
             range.SetStyle(StringStyle, LuaStringRegex);

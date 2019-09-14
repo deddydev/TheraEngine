@@ -63,7 +63,7 @@ namespace TheraEngine.Core.Files
         }
         public static Type[] DetermineThirdPartyTypes(string ext)
         {
-            if (_thirdPartyCache == null)
+            if (_thirdPartyCache is null)
                 ClearThirdPartyTypeCache(true);
             return _thirdPartyCache.Where(t => t.GetCustomAttribute<TFile3rdPartyExt>()?.HasExtension(ext) ?? false).ToArray();
         }
@@ -392,7 +392,7 @@ namespace TheraEngine.Core.Files
                     return null;
 
                 TypeProxy fileType = SerializationCommon.DetermineType(filePath, out _);
-                if (fileType == null)
+                if (fileType is null)
                     return null;
 
                 Deserializer deser = new Deserializer();

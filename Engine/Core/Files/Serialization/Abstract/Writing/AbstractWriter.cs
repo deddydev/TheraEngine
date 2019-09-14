@@ -96,7 +96,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             TypeProxy fileType = file.GetTypeProxy();
             TFileExt extAttrib = extOverride ?? TFileObject.GetFileExtension(fileType);
-            if (extAttrib == null)
+            if (extAttrib is null)
             {
                 Engine.LogWarning($"No {nameof(TFileExt)} attribute specified for {fileType.GetFriendlyName()}.");
                 filePath = null;

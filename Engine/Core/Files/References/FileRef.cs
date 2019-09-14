@@ -210,7 +210,7 @@ namespace TheraEngine.Core.Files
         //    IProgress<float> progress, 
         //    CancellationToken cancel)
         //{
-        //    if (_file == null)
+        //    if (_file is null)
         //        return;
 
         //    await _file.ExportAsync(dir, name, format, thirdPartyExt, flags, progress, cancel);

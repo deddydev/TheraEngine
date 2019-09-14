@@ -73,14 +73,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 ilist.ListElementType == CurrentType))
             {
                 string typeName = (value?.GetTypeProxy() ?? DataType).GetFriendlyName();
-                lblObjectTypeName.Text = "[" + typeName + "] " + (value == null ? "null" : value.ToString());
+                lblObjectTypeName.Text = "[" + typeName + "] " + (value is null ? "null" : value.ToString());
             }
             else
             {
-                lblObjectTypeName.Text = value == null ? "null" : value.ToString();
+                lblObjectTypeName.Text = value is null ? "null" : value.ToString();
             }
 
-            if (chkNull.Checked = _object == null)
+            if (chkNull.Checked = _object is null)
             {
                 pnlProps.Visible = false;
                 lblObjectTypeName.Enabled = false;
@@ -176,7 +176,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         if (proxy.FullEditorTypes.ContainsKey(intfType))
                         {
                             compareType = intfType;
-                            if (bestType == null || compareType.IsAssignableTo(bestType))
+                            if (bestType is null || compareType.IsAssignableTo(bestType))
                                 bestType = compareType;
                         }
                     }

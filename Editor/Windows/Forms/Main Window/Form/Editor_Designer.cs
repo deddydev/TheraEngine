@@ -97,7 +97,7 @@ namespace TheraEditor.Windows.Forms
             lblYourIpPort.Text = "Your IP: " + NetworkConnection.GetLocalIPAddressV4();
             CursorManager.GlobalWrapCursorWithinClip = false;
 
-            if (lblVersion == null)
+            if (lblVersion is null)
                 return;
 
 #if DEBUG
@@ -467,7 +467,7 @@ namespace TheraEditor.Windows.Forms
         public static List<IFileEditorControl> OpenEditors { get; } = new List<IFileEditorControl>(); 
         private bool CloseProject()
         {
-            if (_project == null)
+            if (_project is null)
                 return true;
 
             var editors = OpenEditors.ToArray();
@@ -855,7 +855,7 @@ namespace TheraEditor.Windows.Forms
         private void connectAsServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Server s = Engine.ServerConnection;
-            if (s == null)
+            if (s is null)
             {
                 s = new Server();
                 Engine.Network = s;
@@ -869,7 +869,7 @@ namespace TheraEditor.Windows.Forms
         private async void connectAsClientToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Client c = Engine.ClientConnection;
-            if (c == null)
+            if (c is null)
             {
                 c = new Client();
                 Engine.Network = c;
@@ -939,7 +939,7 @@ namespace TheraEditor.Windows.Forms
 
         public void SaveFile(IFileObject file)
         {
-            if (file == null)
+            if (file is null)
                 return;
 
             if (string.IsNullOrEmpty(file.FilePath))
@@ -952,7 +952,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void SaveFileAs(IFileObject file)
         {
-            if (file == null)
+            if (file is null)
                 return;
 
             string filter = RemoteFunc.Invoke(AppDomainHelper.GetGameAppDomain(), file, (marshaledFile) =>

@@ -447,7 +447,7 @@ namespace TheraEngine
         {
             get
             {
-                if (_cachedSettings == null)
+                if (_cachedSettings is null)
                     Settings = GetBestSettings();
                 return _cachedSettings;
             }

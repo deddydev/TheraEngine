@@ -126,6 +126,7 @@ namespace TheraEngine.Core.Files
         /// Instances of files that are loaded only once and are accessable by all global references to that file.
         /// </summary>
         public static ConcurrentDictionary<string, IFileObject> GlobalFileInstances { get; } = new ConcurrentDictionary<string, IFileObject>();
+        public bool LoadInGameDomain { get; set; }
 
         private object _loadLock = new object();
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
@@ -138,7 +139,7 @@ namespace TheraEngine.Core.Files
             string absolutePath = Path.Path;
             if (absolutePath != null)
             {
-                if (Context == null)
+                if (Context is null)
                 {
                     if (GlobalFileInstances.TryGetValue(absolutePath, out IFileObject file))
                     {
@@ -176,7 +177,7 @@ namespace TheraEngine.Core.Files
 
             if (absolutePath != null)
             {
-                if (Context == null)
+                if (Context is null)
                 {
                     GlobalFileInstances.AddOrUpdate(absolutePath, instance, (key, oldValue) => instance);
                 }
@@ -190,7 +191,7 @@ namespace TheraEngine.Core.Files
             return instance;
         }
         
-        public static implicit operator GlobalFileRef<T>(T file) => file == null ? null : new GlobalFileRef<T>(file);
+        public static implicit operator GlobalFileRef<T>(T file) => file is null ? null : new GlobalFileRef<T>(file);
         public static implicit operator GlobalFileRef<T>(Type type) => new GlobalFileRef<T>(type);
         public static implicit operator GlobalFileRef<T>(string relativePath) => new GlobalFileRef<T>(relativePath);
 

@@ -37,7 +37,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         public override void CompareType(CompareParms parms)
         {
             //This should never happen, null check happens one level up
-            if (parms.Object1 == null || parms.Object2 == null)
+            if (parms.Object1 is null || parms.Object2 is null)
                 return;
 
             parms.Object1 = ((IList) parms.Object1).Cast<object>().ToArray();

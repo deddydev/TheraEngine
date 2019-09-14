@@ -41,7 +41,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             DataSet dataSet2 = parms.Object2 as DataSet;
 
             //This should never happen, null check happens one level up
-            if (dataSet1 == null || dataSet2 == null)
+            if (dataSet1 is null || dataSet2 is null)
                 return;
 
             if (TableCountsDifferent(parms, dataSet2, dataSet1)) return;

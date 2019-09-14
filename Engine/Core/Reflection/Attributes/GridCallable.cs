@@ -15,6 +15,6 @@ namespace TheraEngine.Core.Reflection.Attributes
         public string Condition { get; set; }
 
         public bool Evaluate(object owningObject) 
-            => Condition == null ? true : ExpressionParser.Evaluate<bool>(Condition, owningObject);
+            => Condition is null ? true : ExpressionParser.Evaluate<bool>(Condition, owningObject);
     }
 }

@@ -52,7 +52,7 @@ namespace AppDomainToolkit
             LoadMethod loadMethod = LoadMethod.LoadFrom)
         {
             this.probePaths = new HashSet<string>();
-            this.loader = loader == null ? new AssemblyLoader() : loader;
+            this.loader = loader is null ? new AssemblyLoader() : loader;
             this.LoadMethod = loadMethod;
         }
 

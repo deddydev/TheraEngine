@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering
             {
                 _shaders = value ?? new List<RenderShader>();
 
-                if (_shaders.Any(x => x == null))
+                if (_shaders.Any(x => x is null))
                     _shaders = _shaders.Where(x => x != null).ToList();
 
                 ShaderTypeMask = EProgramStageMask.None;
@@ -60,7 +60,7 @@ namespace TheraEngine.Rendering
 
         public int AddShader(GLSLScript shader)
         {
-            if (shader == null)
+            if (shader is null)
                 return -1;
             RenderShader rs = new RenderShader(shader) { OwningProgram = this };
             _shaders.Add(rs);
@@ -70,7 +70,7 @@ namespace TheraEngine.Rendering
         }
         public int AddShader(RenderShader shader)
         {
-            if (shader == null)
+            if (shader is null)
                 return -1;
             shader.OwningProgram = this;
             _shaders.Add(shader);
@@ -80,7 +80,7 @@ namespace TheraEngine.Rendering
         }
         public void RemoveShader(RenderShader shader)
         {
-            if (shader == null || !_shaders.Contains(shader))
+            if (shader is null || !_shaders.Contains(shader))
                 return;
             shader.OwningProgram = null;
             _shaders.Remove(shader);

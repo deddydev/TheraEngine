@@ -18,7 +18,7 @@ namespace TheraEditor.Windows.Forms
             lstRigid.Items.Clear();
             lstSoft.Items.Clear();
 
-            if (comp?.Model == null)
+            if (comp?.Model is null)
                 return;
 
             Tuple<StaticRigidSubMesh, StaticRenderableMesh> rigidMeshTag;
@@ -45,7 +45,7 @@ namespace TheraEditor.Windows.Forms
             lstRigid.Items.Clear();
             lstSoft.Items.Clear();
 
-            if (comp?.Model == null)
+            if (comp?.Model is null)
                 return;
 
             Tuple<SkeletalRigidSubMesh, SkeletalRenderableMesh> rigidMeshTag;

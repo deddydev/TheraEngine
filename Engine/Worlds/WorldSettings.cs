@@ -226,14 +226,14 @@ namespace TheraEngine.Worlds
         }
         private void _maps_Removed(string key, LocalFileRef<IMap> value)
         {
-            if (value == null)
+            if (value is null)
                 return;
             value.UnregisterLoadEvent(MapLoaded);
             value.UnregisterUnloadEvent(MapUnloaded);
         }
         private void _maps_Added(string key, LocalFileRef<IMap> value)
         {
-            if (value == null)
+            if (value is null)
                 return;
             value.RegisterLoadEvent(MapLoaded);
             value.RegisterUnloadEvent(MapUnloaded);

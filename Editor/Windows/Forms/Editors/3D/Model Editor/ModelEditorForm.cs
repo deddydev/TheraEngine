@@ -60,7 +60,7 @@ namespace TheraEditor.Windows.Forms
         public DockableModelEditorRenderForm GetRenderForm(int i)
         {
             DockableModelEditorRenderForm form = _renderForms[i];
-            if (form == null || form.IsDisposed)
+            if (form is null || form.IsDisposed)
             {
                 Engine.PrintLine("Created model editor viewport " + (i + 1).ToString());
                 form = _renderForms[i] = new DockableModelEditorRenderForm(ELocalPlayerIndex.One, i, this);
@@ -78,7 +78,7 @@ namespace TheraEditor.Windows.Forms
         
         public T GetForm<T>(ref T value, DockPane pane, DockAlignment align, double prop) where T : DockContent, new()
         {
-            if (value == null || value.IsDisposed)
+            if (value is null || value.IsDisposed)
             {
                 value = new T();
                 //Engine.PrintLine("Created " + value.GetType().GetFriendlyName());
@@ -89,7 +89,7 @@ namespace TheraEditor.Windows.Forms
 
         public T GetForm<T>(ref T value, DockState state) where T : DockContent, new()
         {
-            if (value == null || value.IsDisposed)
+            if (value is null || value.IsDisposed)
             {
                 value = new T();
                 //Engine.PrintLine("Created " + value.GetType().GetFriendlyName());
@@ -152,7 +152,7 @@ namespace TheraEditor.Windows.Forms
         {
             //bool fileDoesNotExist = !ModelEditorWorld.FileExists;
             World world;// = await ModelEditorWorld.GetInstanceAsync();
-            //if (world == null)
+            //if (world is null)
             //{
                 List<BaseActor> actors = new List<BaseActor>();
 
@@ -190,7 +190,7 @@ namespace TheraEditor.Windows.Forms
 
         public async void SetActor(BaseActor actor)
         {
-            if (World == null)
+            if (World is null)
             {
                 await InitWorldAsync();
             }
@@ -207,7 +207,7 @@ namespace TheraEditor.Windows.Forms
         }
         public async void SetModel(StaticModel stm)
         {
-            if (World == null)
+            if (World is null)
                 await InitWorldAsync();
 
             FormTitle2.Text = stm?.FilePath ?? stm?.Name ?? string.Empty;
@@ -230,7 +230,7 @@ namespace TheraEditor.Windows.Forms
         }
         public async void SetModel(SkeletalModel skm)
         {
-            if (World == null)
+            if (World is null)
                 await InitWorldAsync();
 
             Skeleton skel = skm.SkeletonRef?.File;
@@ -259,7 +259,7 @@ namespace TheraEditor.Windows.Forms
         }
         public async void SetAnim(PropAnimVec3 vec3anim)
         {
-            if (World == null)
+            if (World is null)
                 await InitWorldAsync();
 
             FormTitle2.Text = vec3anim?.FilePath ?? vec3anim?.Name ?? string.Empty;
@@ -278,7 +278,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnShown(e);
             //Editor.Instance.SetRenderTicking(false);
-            if (World == null)
+            if (World is null)
                 await InitWorldAsync();
             //RenderForm1.RenderPanel.CaptureContext();
             SetRenderTicking(true);

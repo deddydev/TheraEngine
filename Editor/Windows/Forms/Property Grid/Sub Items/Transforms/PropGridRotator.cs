@@ -55,7 +55,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void numericInputBoxPitch_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
-            if (_rotator == null || _updating)
+            if (_rotator is null || _updating)
                 return;
 
             _rotator.Pitch = current.Value;
@@ -63,7 +63,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void numericInputBoxYaw_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
-            if (_rotator == null || _updating)
+            if (_rotator is null || _updating)
                 return;
 
             _rotator.Yaw = current.Value;
@@ -71,7 +71,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void numericInputBoxRoll_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
-            if (_rotator == null || _updating)
+            if (_rotator is null || _updating)
                 return;
 
             _rotator.Roll = current.Value;
@@ -79,7 +79,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void cboOrder_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (_rotator == null || _updating)
+            if (_rotator is null || _updating)
                 return;
 
             SubmitPreManualStateChange(_rotator, nameof(Rotator.Order));

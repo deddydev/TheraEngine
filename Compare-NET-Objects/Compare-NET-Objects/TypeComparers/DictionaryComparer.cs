@@ -35,7 +35,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         public override void CompareType(CompareParms parms)
         {
             //This should never happen, null check happens one level up
-            if (parms.Object1 == null || parms.Object2 == null)
+            if (parms.Object1 is null || parms.Object2 is null)
                 return;
 
             try
@@ -117,10 +117,10 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             IDictionary iDict1 = parms.Object1 as IDictionary;
             IDictionary iDict2 = parms.Object2 as IDictionary;
 
-            if (iDict1 == null)
+            if (iDict1 is null)
                 throw new ArgumentException("parms.Object1");
 
-            if (iDict2 == null)
+            if (iDict2 is null)
                 throw new ArgumentException("parms.Object2");
 
             if (iDict1.Count != iDict2.Count)

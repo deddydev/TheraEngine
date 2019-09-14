@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering
         }
         public void EndQuery()
         {
-            if (CurrentQuery == null)
+            if (CurrentQuery is null)
                 return;
             Engine.Renderer.EndQuery(CurrentQuery.Value);
             CurrentQuery = null;
@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering
         }
         public void AwaitResult(Action<RenderQuery> onReady)
         {
-            if (onReady == null)
+            if (onReady is null)
                 AwaitResult();
             else
                 Task.Run(() => AwaitResult()).ContinueWith(t => onReady(this));

@@ -200,7 +200,7 @@ namespace TheraEngine.Rendering.UI.Functions
                 foreach (var input in _execInputs)
                 {
                     func = input?.ConnectedToGeneric?.OwningFunction;
-                    if (func == null)
+                    if (func is null)
                         continue;
                     func.GetMinMax(out Vec2 min2, out Vec2 max2, false, true);
                     min = Vec2.ComponentMin(min, min2);
@@ -209,7 +209,7 @@ namespace TheraEngine.Rendering.UI.Functions
                 foreach (var input in _valueInputs)
                 {
                     func = input?.Connection?.OwningFunction;
-                    if (func == null)
+                    if (func is null)
                         continue;
                     func.GetMinMax(out Vec2 min2, out Vec2 max2, false, true);
                     min = Vec2.ComponentMin(min, min2);
@@ -221,7 +221,7 @@ namespace TheraEngine.Rendering.UI.Functions
                 foreach (var output in _execOutputs)
                 {
                     func = output?.ConnectedToGeneric?.OwningFunction;
-                    if (func == null)
+                    if (func is null)
                         continue;
                     func.GetMinMax(out Vec2 min2, out Vec2 max2, true, false);
                     min = Vec2.ComponentMin(min, min2);
@@ -233,7 +233,7 @@ namespace TheraEngine.Rendering.UI.Functions
                     foreach (var input in list)
                     {
                         func = input?.OwningFunction;
-                        if (func == null)
+                        if (func is null)
                             continue;
                         func.GetMinMax(out Vec2 min2, out Vec2 max2, true, false);
                         min = Vec2.ComponentMin(min, min2);

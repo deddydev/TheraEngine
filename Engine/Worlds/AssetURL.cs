@@ -14,7 +14,7 @@ namespace TheraEngine.Worlds
         //{
         //    get
         //    {
-        //        if (!CacheObject || _resolvedObject == null)
+        //        if (!CacheObject || _resolvedObject is null)
         //            ResolveObject(out _resolvedObject, true);
         //        return _resolvedObject;
         //    }
@@ -60,7 +60,7 @@ namespace TheraEngine.Worlds
         //{
         //    asset = null;
         //    var fref = WorldFilePath.GetFileRef();
-        //    if (fref == null)
+        //    if (fref is null)
         //        return EAssetResolveError.NoReferenceExists;
 
         //    if (onlyIfWorldLoaded && !fref.IsLoaded)

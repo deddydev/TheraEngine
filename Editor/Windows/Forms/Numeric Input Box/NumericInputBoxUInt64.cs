@@ -18,8 +18,8 @@ namespace TheraEditor.Windows.Forms
             => value + (UInt64)(negative ? -(long)increment : (long)increment);
         protected override bool NumbersAreEqual(UInt64? value1, UInt64? value2)
         {
-            bool null1 = value1 == null;
-            bool null2 = value2 == null;
+            bool null1 = value1 is null;
+            bool null2 = value2 is null;
             if (null1 && null2)
                 return true;
             if (null1 || null2)

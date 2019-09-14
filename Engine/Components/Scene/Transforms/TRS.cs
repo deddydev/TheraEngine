@@ -74,7 +74,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected internal override void OnDeserialized()
         {
-            if (_scale == null)
+            if (_scale is null)
                 _scale = new EventVec3();
             _scale.Changed += RecalcLocalTransform;
             base.OnDeserialized();

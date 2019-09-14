@@ -222,14 +222,14 @@ namespace TheraEngine.Actors
         
         public virtual void OnPossessed(PawnController possessor)
         {
-            if (possessor == null)
+            if (possessor is null)
                 OnUnPossessed();
 
             Controller = possessor;
         }
         public virtual void OnUnPossessed()
         {
-            if (Controller == null)
+            if (Controller is null)
                 return;
 
             Controller = null;

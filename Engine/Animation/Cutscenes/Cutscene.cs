@@ -191,7 +191,7 @@ namespace TheraEngine.Animation.Cutscenes
         }
         protected override void OnProgressed(float delta)
         {
-            if (CurrentSceneClip == null)
+            if (CurrentSceneClip is null)
             {
                 //Progress animations in this cutscene level
 

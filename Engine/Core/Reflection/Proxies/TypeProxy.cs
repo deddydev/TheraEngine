@@ -22,7 +22,7 @@ namespace TheraEngine.Core.Reflection
         public static ConcurrentDictionary<Type, TypeProxy> Proxies { get; }
             = new ConcurrentDictionary<Type, TypeProxy>();
         public static TypeProxy Get(Type type)
-            => type == null ? null : Proxies.GetOrAdd(type, new TypeProxy(type));
+            => type is null ? null : Proxies.GetOrAdd(type, new TypeProxy(type));
 
         public static implicit operator TypeProxy(Type type) => Get(type);
         public static explicit operator Type(TypeProxy proxy) => proxy?.Value;
@@ -2190,7 +2190,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     The hash code for this instance.
         public override int GetHashCode()
-            => Value.GetHashCode();
+            => Value.FullName?.GetHashCode() ?? Value.Name.GetHashCode();
         //
         // Summary:
         //     When overridden in a derived class, searches for the specified interface, specifying
@@ -3936,7 +3936,7 @@ namespace TheraEngine.Core.Reflection
         [SecuritySafeCritical]
         public static bool operator ==(TypeProxy left, TypeProxy right)
             => left is null ? right is null : !(right is null) &&
-            string.Equals(left.AssemblyQualifiedName, right.AssemblyQualifiedName, StringComparison.InvariantCulture);
+            string.Equals(left.FullName, right.FullName, StringComparison.InvariantCulture);
         //
         // Summary:
         //     Indicates whether two System.Type objects are not equal.
@@ -3953,7 +3953,7 @@ namespace TheraEngine.Core.Reflection
         [SecuritySafeCritical]
         public static bool operator !=(TypeProxy left, TypeProxy right)
             => left is null ? !(right is null) : right is null ||
-            !string.Equals(left.AssemblyQualifiedName, right.AssemblyQualifiedName, StringComparison.InvariantCulture);
+            !string.Equals(left.FullName, right.FullName, StringComparison.InvariantCulture);
 
         //
         // Summary:
@@ -4111,7 +4111,7 @@ namespace TheraEngine.Core.Reflection
         {
             public bool Equals(TypeProxy x, TypeProxy y)
             {
-                return x.GetHashCode() == y.GetHashCode();
+                return string.Equals(x.FullName, y.FullName);
             }
             public int GetHashCode(TypeProxy x)
             {

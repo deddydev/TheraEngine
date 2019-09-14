@@ -57,7 +57,7 @@ namespace ObjLoader.Loader.Loaders
         {
             var parseAction = GetKeywordAction(keyword);
 
-            if (parseAction == null)
+            if (parseAction is null)
             {
                 _unrecognizedLines.Add(keyword + " " + data);
                 return;

@@ -39,7 +39,7 @@ namespace TheraEngine.Worlds
             _visibleByDefault = visibleAtSpawn;
             _spawnPosition = spawnOrigin;
 
-            Actors = actors == null ? new EventList<IActor>(false, false) : new EventList<IActor>(actors.ToList(), false, false);
+            Actors = actors is null ? new EventList<IActor>(false, false) : new EventList<IActor>(actors.ToList(), false, false);
         }
 
         [Browsable(false)]
@@ -82,7 +82,7 @@ namespace TheraEngine.Worlds
 
         private void _actors_PostAnythingAdded(IActor item)
         {
-            if (item == null)
+            if (item is null)
                 return;
             
             if (item.IsSpawned && !item.IsSpawnedIn(OwningWorld))

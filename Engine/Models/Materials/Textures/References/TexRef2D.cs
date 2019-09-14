@@ -1,4 +1,5 @@
 ﻿using Extensions;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -6,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Textures;
 
@@ -115,7 +117,7 @@ namespace TheraEngine.Rendering.Models.Materials
                     for (int i = 0; i < Mipmaps.Length; ++i)
                     {
                         var fileRef = Mipmaps[i];
-                        if (fileRef == null)
+                        if (fileRef is null)
                             Mipmaps[i] = fileRef = new GlobalFileRef<TextureFile2D>();
 
                         fileRef.UnregisterLoadEvent(OnMipLoaded);
@@ -241,7 +243,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         protected virtual void SetParameters()
         {
-            if (_texture == null)
+            if (_texture is null)
                 return;
 
             _texture.Bind();
@@ -360,7 +362,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_isLoading)
                 return;
 
-            if (doNotLoad && _texture == null)
+            if (doNotLoad && _texture is null)
                 return;
 
             RenderTex2D t = GetTexture(true);
@@ -393,18 +395,18 @@ namespace TheraEngine.Rendering.Models.Materials
         /// <param name="force">If true, sets the formats/type even if the mipmaps are loaded.</param>
         public void DetermineTextureFormat(bool force = true)
         {
-            if (_mipmaps == null || _mipmaps.Length <= 0)
+            if (_mipmaps is null || _mipmaps.Length <= 0)
                 return;
 
             GlobalFileRef<TextureFile2D> tref = _mipmaps[0];
             //if (!tref.IsLoaded && !force)
             //    return;
             TextureFile2D t = tref?.File;
-            if (t == null || t.Bitmaps.Length <= 0)
+            if (t is null || t.Bitmaps.Length <= 0)
                 return;
 
             Bitmap b = t.Bitmaps[0];
-            if (b == null)
+            if (b is null)
                 return;
 
             switch (b.PixelFormat)
@@ -462,7 +464,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             get
             {
-                if (_loadingFillerBitmap = _fillerBitmap == null)
+                if (_loadingFillerBitmap = _fillerBitmap is null)
                 {
                     GetFillerBitmap();
                     _loadingFillerBitmap = false;
@@ -473,6 +475,26 @@ namespace TheraEngine.Rendering.Models.Materials
         
         public bool Rectangle { get; set; } = false;
         public bool MultiSample { get; set; } = false;
+        public float DotLuminance { get; private set; }
+        public unsafe void CalcDotLuminance()
+        {
+            //Calculate average color value using 1x1 mipmap of scene
+            var tex = RenderTextureGeneric;
+            tex.Bind();
+            tex.GenerateMipmaps();
+
+            //Get the average color from the scene texture
+            Vec3 rgb = new Vec3();
+            IntPtr addr = (IntPtr)rgb.Data;
+            Engine.Renderer.GetTexImage(tex.BindingId, tex.SmallestMipmapLevel, EPixelFormat.Rgb, EPixelType.Float, sizeof(Vec3), addr);
+
+            if (float.IsNaN(rgb.X)) return;
+            if (float.IsNaN(rgb.Y)) return;
+            if (float.IsNaN(rgb.Z)) return;
+
+            //Calculate luminance factor off of the average color
+            DotLuminance = rgb.Dot(Vec3.Luminance);
+        }
 
         private static bool _loadingFillerBitmap = false;
         private static Bitmap _fillerBitmap = null;

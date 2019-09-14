@@ -198,6 +198,7 @@ namespace TheraEngine.Rendering.Cameras
         /// </summary>
         public void TranslateAbsolute(float x, float y, float z) 
             => TranslateAbsolute(new Vec3(x, y, z));
+
         /// <summary>
         /// Translates the camera relative to the world.
         /// </summary>
@@ -286,5 +287,10 @@ namespace TheraEngine.Rendering.Cameras
             => PostProcessRef?.File?.Bloom?.SetUniforms(program);
         public override void SetPostProcessUniforms(RenderProgram program)
             => PostProcessRef?.File?.SetUniforms(program);
+
+        public override bool UsesAutoExposure 
+            => PostProcessRef?.File?.ColorGrading?.RequiresAutoExposure ?? false;
+        public override void UpdateExposure(TexRef2D texture)
+            => PostProcessRef?.File?.ColorGrading?.UpdateExposure(texture);
     }
 }

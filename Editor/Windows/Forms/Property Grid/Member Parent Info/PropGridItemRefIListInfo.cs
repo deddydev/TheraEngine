@@ -19,7 +19,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public int Index { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override TypeProxy DataType => List == null ? ListElementType : (Index >= 0 && Index < List.Count ? List[Index]?.GetTypeProxy() ?? ListElementType : ListElementType);
+        public override TypeProxy DataType => List is null ? ListElementType : (Index >= 0 && Index < List.Count ? List[Index]?.GetTypeProxy() ?? ListElementType : ListElementType);
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public TypeProxy ListElementType { get; private set; }
@@ -33,7 +33,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         public override bool IsReadOnly() 
-            => base.IsReadOnly() || List == null || List.IsReadOnly;
+            => base.IsReadOnly() || List is null || List.IsReadOnly;
         
         internal protected override void SubmitStateChange(object oldValue, object newValue, ValueChangeHandler dataChangeHandler)
             => dataChangeHandler?.HandleChange(new LocalValueChangeIList(oldValue, newValue, List, Index));
@@ -42,7 +42,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             get
             {
-                if (List == null || Index < 0 || Index >= List.Count)
+                if (List is null || Index < 0 || Index >= List.Count)
                     return DataType.GetDefaultValue();
                 return List[Index];
             }

@@ -74,5 +74,12 @@ namespace TheraEngine.Rendering
             FullScreenMesh.Render();
             Engine.Renderer.PopCamera();
         }
+
+        public void RenderTo(FrameBuffer target)
+        {
+            target.Bind(EFramebufferTarget.DrawFramebuffer);
+            RenderFullscreen();
+            target.Unbind(EFramebufferTarget.DrawFramebuffer);
+        }
     }
 }

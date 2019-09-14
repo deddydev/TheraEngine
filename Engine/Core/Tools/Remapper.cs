@@ -22,7 +22,7 @@ namespace System
 
         public T[] GetFirstAppearanceBuffer<T>()
         {
-            if (_source == null || !(_source is IList<T> list))
+            if (_source is null || !(_source is IList<T> list))
                 throw new InvalidOperationException();
 
             return ImplementationTable.Select(x => list[x]).ToArray();

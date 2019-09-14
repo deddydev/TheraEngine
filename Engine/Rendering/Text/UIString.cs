@@ -83,7 +83,7 @@ namespace TheraEngine.Rendering.Text
             get => _font;
             set
             {
-                if (value == null)
+                if (value is null)
                     return;
 
                 _font = value;

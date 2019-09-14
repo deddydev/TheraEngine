@@ -83,7 +83,7 @@ namespace TheraEngine.Core.Tools
                 //Get current token from the array
                 String token = tokens[i];
                 //Ignore blank tokens
-                if (token == null || token.Length == 0)
+                if (token is null || token.Length == 0)
                     continue;
                 //Push open parentheses to the stack
                 if (token.Equals("("))
@@ -168,7 +168,7 @@ namespace TheraEngine.Core.Tools
                 if (paramEnd > paramStart)
                 {
                     string methodName = token.Substring(0, paramStart);
-                    MethodInfo[] methods = provider == null ? new MethodInfo[0] : provider.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(x => string.Equals(x.Name, methodName)).ToArray();
+                    MethodInfo[] methods = provider is null ? new MethodInfo[0] : provider.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(x => string.Equals(x.Name, methodName)).ToArray();
                     var parameters = token.Substring(paramStart + 1, paramEnd - (paramStart + 1)).Split(',');
                     
                     //TODO: invoke matching method, return value
@@ -409,9 +409,9 @@ namespace TheraEngine.Core.Tools
                         value1 = GetValue(stackToken1, provider);
                     }
 
-                    if (value1 == null)
+                    if (value1 is null)
                     {
-                        bool isNull = value2 == null;
+                        bool isNull = value2 is null;
                         if (token == "==")
                             stack.Push(isNull ? "true" : "false");
                         else if (token == "!=")
@@ -420,7 +420,7 @@ namespace TheraEngine.Core.Tools
                             throw new Exception();
                         continue;
                     }
-                    else if (value2 == null)
+                    else if (value2 is null)
                     {
                         if (token == "==")
                             stack.Push("false");
@@ -478,7 +478,7 @@ namespace TheraEngine.Core.Tools
                 {
                     //Push numbers directly to the stack; ignore '('
                     //object value = GetValue(token, provider);
-                    //stack.Push(value == null ? "null" : value.ToString());
+                    //stack.Push(value is null ? "null" : value.ToString());
                     stack.Push(token);
                 }
             }

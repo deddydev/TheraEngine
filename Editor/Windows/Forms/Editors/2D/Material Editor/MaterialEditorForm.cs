@@ -40,7 +40,7 @@ namespace TheraEditor.Windows.Forms
         {
             get
             {
-                if (_matFuncs == null || _matFuncs.IsDisposed)
+                if (_matFuncs is null || _matFuncs.IsDisposed)
                 {
                     Engine.PrintLine("Created material functions form");
                     _matFuncs = new DockableMatFuncList();
@@ -56,7 +56,7 @@ namespace TheraEditor.Windows.Forms
         {
             get
             {
-                if (_texRefForm == null || _texRefForm.IsDisposed)
+                if (_texRefForm is null || _texRefForm.IsDisposed)
                 {
                     Engine.PrintLine("Created texture reference editor");
                     _texRefForm = new DockableTexRefControl();
@@ -71,7 +71,7 @@ namespace TheraEditor.Windows.Forms
         {
             get
             {
-                if (_materialGraph == null || _materialGraph.IsDisposed)
+                if (_materialGraph is null || _materialGraph.IsDisposed)
                 {
                     Engine.PrintLine("Created material graph viewport");
                     _materialGraph = new DockableMatGraph();
@@ -85,7 +85,7 @@ namespace TheraEditor.Windows.Forms
         {
             get
             {
-                if (_matFuncProps == null || _matFuncProps.IsDisposed)
+                if (_matFuncProps is null || _matFuncProps.IsDisposed)
                 {
                     Engine.PrintLine("Created material function property grid");
                     _matFuncProps = new DockableMatFuncProps();
@@ -99,7 +99,7 @@ namespace TheraEditor.Windows.Forms
         {
             get
             {
-                if (_matProps == null || _matProps.IsDisposed)
+                if (_matProps is null || _matProps.IsDisposed)
                 {
                     Engine.PrintLine("Created material property grid");
                     _matProps = new DockableMatProps();

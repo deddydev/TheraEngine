@@ -35,7 +35,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public PropGridItemRefNullableInfo(IPropGridMemberOwner owner, PropGridMemberInfo parentInfo, TypeProxy valueType) : base(owner)
         {
-            if (parentInfo?.DataType == null || 
+            if (parentInfo?.DataType is null || 
                 !parentInfo.DataType.IsGenericType || 
                 parentInfo.DataType.GetGenericTypeDefinition() != typeof(Nullable<>))
                 throw new Exception();

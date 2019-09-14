@@ -18,21 +18,24 @@ namespace TheraEngine.Core
             get => _list[index];
             set
             {
-                if (_list[index] == default && value != default)
-                    _activeIndices.Add(index);
-                else if (_list[index] != default && value == default)
-                    _activeIndices.Remove(index);
+                lock (_activeIndices)
+                {
+                    if (_list[index] == default && value != default)
+                        _activeIndices.Add(index);
+                    else if (_list[index] != default && value == default)
+                        _activeIndices.Remove(index);
+                }
 
                 _list[index] = value;
             }
         }
-        public int IndexOfNextAddition(int offset)
-        {
-            if (_nullIndices.Count > offset)
-                return _nullIndices[offset];
-            else
-                return _list.Count + offset - _nullIndices.Count;
-        }
+        //public int IndexOfNextAddition(int offset)
+        //{
+        //    if (_nullIndices.Count > offset)
+        //        return _nullIndices[offset];
+        //    else
+        //        return _list.Count + offset - _nullIndices.Count;
+        //}
         public int Add(T item)
         {
             int index;
@@ -47,7 +50,10 @@ namespace TheraEngine.Core
                 index = _list.Count;
                 _list.Add(item);
             }
-            _activeIndices.Add(index);
+            lock (_activeIndices)
+            {
+                _activeIndices.Add(index);
+            }
             return index;
         }
         public void Remove(T item)
@@ -73,20 +79,30 @@ namespace TheraEngine.Core
                     addIndex = ~addIndex;
                 _nullIndices.Insert(addIndex, index);
             }
-            _activeIndices.Remove(index);
+            lock (_activeIndices)
+            {
+                _activeIndices.Remove(index);
+            }
         }
+
         public bool HasValueAtIndex(int index)
             => index >= 0 && index < _list.Count && _list[index] != default;
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            foreach (int i in _activeIndices)
-                yield return _list[i];
+            lock (_activeIndices)
+            {
+                foreach (int i in _activeIndices)
+                    yield return _list[i];
+            }
         }
         IEnumerator IEnumerable.GetEnumerator()
         {
-            foreach (int i in _activeIndices)
+            lock (_activeIndices)
+            {
+                foreach (int i in _activeIndices)
                 yield return _list[i];
+            }
         }
     }
 }

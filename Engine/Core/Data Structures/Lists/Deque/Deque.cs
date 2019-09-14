@@ -80,7 +80,7 @@ namespace System.Collections
         {
             #region Require
 
-            if(col == null)
+            if(col is null)
             {
                 throw new ArgumentNullException("col");
             }
@@ -129,7 +129,7 @@ namespace System.Collections
         {
             foreach(object o in this)
             {
-                if(o == null && obj == null)
+                if(o is null && obj is null)
                 {
                     return true;
                 }
@@ -416,7 +416,7 @@ namespace System.Collections
         {            
             #region Require
 
-            if(deque == null)
+            if(deque is null)
             {
                 throw new ArgumentNullException("deque");
             }
@@ -453,12 +453,12 @@ namespace System.Collections
                     b = b.Previous;
                 }
 
-                Debug.Assert(f.Next == null && b.Previous == null, "Front/Back Termination Test");
+                Debug.Assert(f.Next is null && b.Previous is null, "Front/Back Termination Test");
                 Debug.Assert(f == back && b == front, "Front/Back Equality Test");
             }
             else
             {
-                Debug.Assert(front == null && back == null, "Front/Back Null Test - Count == 0");
+                Debug.Assert(front is null && back is null, "Front/Back Null Test - Count == 0");
             }
         }
 
@@ -631,7 +631,7 @@ namespace System.Collections
             {
                 #region Require
 
-                if(deque == null)
+                if(deque is null)
                 {
                     throw new ArgumentNullException("deque");
                 }
@@ -846,7 +846,7 @@ namespace System.Collections
         {
             #region Require
 
-            if(array == null)
+            if(array is null)
             {
                 throw new ArgumentNullException("array");
             }

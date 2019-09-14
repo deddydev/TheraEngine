@@ -82,7 +82,7 @@ namespace Extensions
         }
         public static IList<T> FillWith<T>(this IList<T> list, Func<int, T> factory)
         {
-            if (factory == null)
+            if (factory is null)
                 return list;
 
             for (int i = 0; i < list.Count; i++)

@@ -1443,7 +1443,7 @@ btConvexHullInternal::Edge* btConvexHullInternal::findMaxAngle(bool ccw, const V
                 else
                 {
                     int cmp;
-                    if (minEdge == NULL)
+                    if (minEdge is null)
                     {
                         minCot = cot;
                         minEdge = e;
@@ -1893,7 +1893,7 @@ void btConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
 
         if ((c0 == first0) && (c1 == first1))
         {
-            if (toPrev0 == NULL)
+            if (toPrev0 is null)
             {
                 pendingHead0->link(pendingTail0);
                 c0->edges = pendingTail0;
@@ -1912,7 +1912,7 @@ void btConvexHullInternal::merge(IntermediateHull& h0, IntermediateHull& h1)
                 }
             }
 
-            if (toPrev1 == NULL)
+            if (toPrev1 is null)
             {
                 pendingTail1->link(pendingHead1);
                 c1->edges = pendingTail1;

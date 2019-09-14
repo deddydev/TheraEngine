@@ -26,12 +26,12 @@
         /// </returns>
         public static TResult Invoke<TResult>(AppDomain domain, Func<TResult> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
 
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -63,12 +63,12 @@
         /// </returns>
         public static TResult Invoke<T, TResult>(AppDomain domain, T arg1, Func<T, TResult> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
 
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -106,12 +106,12 @@
         /// </returns>
         public static TResult Invoke<T1, T2, TResult>(AppDomain domain, T1 arg1, T2 arg2, Func<T1, T2, TResult> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
 
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -155,12 +155,12 @@
         /// </returns>
         public static TResult Invoke<T1, T2, T3, TResult>(AppDomain domain, T1 arg1, T2 arg2, T3 arg3, Func<T1, T2, T3, TResult> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
 
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -210,12 +210,12 @@
         /// </returns>
         public static TResult Invoke<T1, T2, T3, T4, TResult>(AppDomain domain, T1 arg1, T2 arg2, T3 arg3, T4 arg4, Func<T1, T2, T3, T4, TResult> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
 
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -259,7 +259,7 @@
         /// </returns>
         public TResult Invoke(Func<TResult> toInvoke)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -308,7 +308,7 @@
         /// </returns>
         public TResult Invoke(T arg, Func<T, TResult> toInvoke)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -363,7 +363,7 @@
         /// </returns>
         public TResult Invoke(T1 arg1, T2 arg2, Func<T1, T2, TResult> toInvoke)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -424,7 +424,7 @@
         /// </returns>
         public TResult Invoke(T1 arg1, T2 arg2, T3 arg3, Func<T1, T2, T3, TResult> toInvoke)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -491,7 +491,7 @@
         /// </returns>
         public TResult Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, Func<T1, T2, T3, T4, TResult> toInvoke)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }

@@ -165,12 +165,12 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            if (_targetAnimation == null)
+            if (_targetAnimation is null)
                 return;
 
             if (AnimLength != _targetAnimation.LengthInSeconds ||
                 KeyCount != _targetAnimation.Keyframes.Count ||
-                _rcSpline.Mesh == null)
+                _rcSpline.Mesh is null)
             {
                 RegenerateSplinePrimitive();
                 return;
@@ -273,7 +273,7 @@ namespace TheraEditor.Windows.Forms
             _rcKfLines.Mesh?.Dispose();
             _rcKfLines.Mesh = null;
 
-            if (_targetAnimation == null || (AnimLength = _targetAnimation.LengthInSeconds) <= 0.0f)
+            if (_targetAnimation is null || (AnimLength = _targetAnimation.LengthInSeconds) <= 0.0f)
             {
                 _regenerating = false;
                 return;
@@ -426,7 +426,7 @@ void main()
         }
         protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
         {
-            //if (_targetAnimation == null)
+            //if (_targetAnimation is null)
             {
                 min = Vec2.Zero;
                 max = Vec2.Zero;
@@ -537,7 +537,7 @@ void main()
         
         private void TogglePlay()
         {
-            if (_targetAnimation == null)
+            if (_targetAnimation is null)
                 return;
 
             _targetAnimation.State = _targetAnimation.State == EAnimationState.Playing ? EAnimationState.Paused : EAnimationState.Playing;
@@ -639,7 +639,7 @@ void main()
 
                     float length = TMath.Max(_targetAnimation.LengthInSeconds, sec);
                     var track = _targetAnimation.Keyframes;
-                    bool nullTrack = track == null;
+                    bool nullTrack = track is null;
                     if (length > _targetAnimation.LengthInSeconds)
                         _targetAnimation.SetLength(length, false, nullTrack);
 
@@ -906,7 +906,7 @@ void main()
         protected override void HighlightScene()
         {
             ClosestPositionIndices = null;
-            if (KeyframeInOutPosInOutTan == null)
+            if (KeyframeInOutPosInOutTan is null)
                 return;
 
             Vec2 cursorPos = CursorPositionTransformRelative();
@@ -922,7 +922,7 @@ void main()
         }
         protected override void AddRenderables(RenderPasses passes)
         {
-            if (_targetAnimation == null)
+            if (_targetAnimation is null)
                 return;
             
             passes.Add(_rcSpline);

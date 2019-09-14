@@ -227,14 +227,14 @@ namespace TheraEngine.Rendering
         }
         public void AddPreRenderedObject(IPreRendered obj)
         {
-            if (obj == null)
+            if (obj is null)
                 return;
             if (!_preRenderList.Contains(obj))
                 _preRenderAddWaitList.Add(obj);
         }
         public void RemovePreRenderedObject(IPreRendered obj)
         {
-            if (obj == null)
+            if (obj is null)
                 return;
             if (_preRenderList.Contains(obj))
                 _preRenderRemoveWaitList.Add(obj);

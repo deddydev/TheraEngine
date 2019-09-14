@@ -16,7 +16,7 @@ namespace TheraEditor.Windows.Forms
 
         public void DisplayMaterials(StaticModel staticModel)
         {
-            if (staticModel == null)
+            if (staticModel is null)
                 return;
 
             HashSet<int> ids = new HashSet<int>();
@@ -52,7 +52,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void DisplayMaterials(SkeletalModel skelModel)
         {
-            if (skelModel == null)
+            if (skelModel is null)
                 return;
 
             HashSet<int> ids = new HashSet<int>();
@@ -90,7 +90,7 @@ namespace TheraEditor.Windows.Forms
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
             ModelEditorForm f = DockPanel.FindForm() as ModelEditorForm;
-            if (f == null)
+            if (f is null)
                 return;
             if (listView1.SelectedItems.Count == 0)
             {

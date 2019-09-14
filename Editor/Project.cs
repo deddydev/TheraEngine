@@ -79,7 +79,7 @@ namespace TheraEditor
         }
 
         [Browsable(false)]
-        public string SolutionPath => DirectoryPath == null ? null :
+        public string SolutionPath => DirectoryPath is null ? null :
             Path.Combine(DirectoryPath, Name + ".sln");
 
         private string _localBinariesDirectory;
@@ -294,7 +294,7 @@ namespace TheraEditor
             FilePath = GetFilePath<TProject>(directory, Name, EProprietaryFileFormat.XML);
             void Update<T>(ref GlobalFileRef<T> gref, string defaultName) where T : TFileObject, new()
             {
-                if (gref == null)
+                if (gref is null)
                 {
                     gref = new GlobalFileRef<T>(
                         directory, defaultName, EProprietaryFileFormat.XML, new T());
@@ -522,7 +522,7 @@ namespace TheraEditor
                     File.Copy(path, libPath, true);
 
                     var libPathRef = ReferencedAssemblies.FirstOrDefault(x => x.Path.EqualsInvariantIgnoreCase(libPath));
-                    if (libPathRef == null)
+                    if (libPathRef is null)
                         ReferencedAssemblies.Add(new PathReference(libPath, EPathType.FileRelative));
                 }
             }
@@ -932,7 +932,7 @@ namespace TheraEditor
                 string buildConfiguration = "Debug";
 
                 string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
-                if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths == null))
+                if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths is null))
                 {
                     await CompileAsync(buildConfiguration, buildPlatform);
                     return;
@@ -1028,7 +1028,7 @@ namespace TheraEditor
 
             public void Initialize(IEventSource eventSource)
             {
-                if ((_source = eventSource) == null)
+                if ((_source = eventSource) is null)
                     return;
 
                 _source.BuildFinished += BuildFinishedHandler;
@@ -1047,7 +1047,7 @@ namespace TheraEditor
 
             public void Shutdown()
             {
-                if (_source == null)
+                if (_source is null)
                     return;
 
                 _source.BuildFinished -= BuildFinishedHandler;

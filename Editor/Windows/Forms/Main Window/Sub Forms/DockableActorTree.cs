@@ -33,7 +33,7 @@ namespace TheraEditor.Windows.Forms
             if (!Editor.Instance.PropertyGridFormActive)
                 return;
             
-            if (ActorTree.SelectedNode == null)
+            if (ActorTree.SelectedNode is null)
             {
                 EditorHUD?.SetSelectedComponent(false, null, true);
                 Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
@@ -81,9 +81,9 @@ namespace TheraEditor.Windows.Forms
         internal TreeNode CacheMap(IMap map)
         {
             TreeNode mapNode;
-            if (map == null)
+            if (map is null)
             {
-                if (_dynamicActorsMapNode == null)
+                if (_dynamicActorsMapNode is null)
                 {
                     _dynamicActorsMapNode = new TreeNode("Dynamic Actors");
                     ActorTree.Nodes.Insert(0, _dynamicActorsMapNode);
@@ -215,7 +215,7 @@ namespace TheraEditor.Windows.Forms
 
             splt1.Visible = btnMoveUp.Visible || btnMoveDown.Visible || btnMoveAsSibToParent.Visible || btnMoveAsChildToSibNext.Visible || btnMoveAsChildToSibPrev.Visible || btnNewSiblingSceneComp.Visible;
 
-            if (node == null)
+            if (node is null)
             {
                 btnNewLogicComp.Visible = false;
                 btnRemove.Enabled = false;
@@ -281,7 +281,7 @@ namespace TheraEditor.Windows.Forms
 
         private void btnNewActor_Click(object sender, EventArgs e)
         {
-            if (Engine.World?.Settings == null)
+            if (Engine.World?.Settings is null)
                 return;
 
             TreeNode node = ActorTree.SelectedNode;
@@ -306,11 +306,11 @@ namespace TheraEditor.Windows.Forms
                     return;
             }
 
-            if (targetMap == null)
+            if (targetMap is null)
                 targetMap = Engine.World.Settings.FindOrCreateMap(Engine.World.Settings.NewActorTargetMapName);
 
             IActor newActor = Editor.UserCreateInstanceOf<IActor>();
-            if (newActor == null)
+            if (newActor is null)
                 return;
 
             targetMap.Actors.Add(newActor);
@@ -320,7 +320,7 @@ namespace TheraEditor.Windows.Forms
         private void btnRemove_Click(object sender, EventArgs e)
         {
             TreeNode node = ActorTree.SelectedNode;
-            if (node?.Tag == null)
+            if (node?.Tag is null)
                 return;
             switch (node.Tag)
             {

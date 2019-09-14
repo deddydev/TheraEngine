@@ -51,7 +51,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             FieldInfo secondFieldInfo = GetSecondFieldInfo(parms, item);
 
             //If the field does not exist, and we are ignoring the object types, skip it
-            if (parms.Config.IgnoreObjectTypes && secondFieldInfo == null)
+            if (parms.Config.IgnoreObjectTypes && secondFieldInfo is null)
                 return;
 
             //If the field does not pass the predicate, skip it
@@ -127,7 +127,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
                 }
             }
 
-            if (currentFields == null)
+            if (currentFields is null)
                 currentFields = Cache.GetFieldInfo(parms.Config, parms.Object1Type);
             return currentFields;
         }

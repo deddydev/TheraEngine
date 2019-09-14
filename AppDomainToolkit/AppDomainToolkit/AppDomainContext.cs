@@ -254,7 +254,7 @@ namespace AppDomainToolkit
             where TNewAssemblyTargetLoader : MarshalByRefObject, TAssemblyTargetLoader, IAssemblyTargetLoader, new()
             where TNewAssemblyResolver : MarshalByRefObject, TAssemblyResolver, IAssemblyResolver, new()
         {
-            if (setupInfo == null)
+            if (setupInfo is null)
             {
                 throw new ArgumentNullException("setupInfo");
             }
@@ -275,7 +275,7 @@ namespace AppDomainToolkit
         /// <exception cref="ArgumentNullException"></exception>
         public static AppDomainContext<TAssemblyTargetLoader, TAssemblyResolver> Wrap(AppDomain domain)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
@@ -291,7 +291,7 @@ namespace AppDomainToolkit
         /// <inheritdoc />
         public IAssemblyTarget FindByCodeBase(Uri codebaseUri)
         {
-            if (codebaseUri == null)
+            if (codebaseUri is null)
             {
                 throw new ArgumentNullException("codebaseUri");
             }

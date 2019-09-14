@@ -24,7 +24,7 @@ namespace TheraEngine.Rendering.Models.Materials
             EPixelFormat format,
             EPixelInternalFormat internalFormat)
         {
-            if (viewedTexture == null)
+            if (viewedTexture is null)
                 throw new InvalidOperationException("Viewed texture cannot be null.");
 
             _name = viewedTexture.Name + "_View";

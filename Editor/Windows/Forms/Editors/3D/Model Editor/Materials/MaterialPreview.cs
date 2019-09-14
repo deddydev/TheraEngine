@@ -55,7 +55,7 @@ namespace TheraEditor.Windows.Forms
 
             //basicRenderPanel1.Camera = cam;
 
-            if (_light == null)
+            if (_light is null)
             {
                 _light = new DirectionalLightComponent();
                 _light.SetShadowMapResolution(128, 128);
@@ -153,7 +153,7 @@ namespace TheraEditor.Windows.Forms
                 
                 if (_material != null)
                 {
-                    if (_spherePrim == null)
+                    if (_spherePrim is null)
                     {
                         //basicRenderPanel1.World.Clear(BoundingBoxStruct.FromHalfExtentsTranslation(5.0f, 0.0f));
                         //basicRenderPanel1.World.Lights.Add(_light);

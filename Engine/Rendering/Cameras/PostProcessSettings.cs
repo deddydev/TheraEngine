@@ -270,29 +270,14 @@ uniform ColorGradeStruct ColorGrade;";
         }
 
         [Browsable(false)]
-        public bool AllowsAutoExposure => AutoExposure || Exposure < MinExposure || Exposure > MaxExposure;
+        public bool RequiresAutoExposure => AutoExposure || Exposure < MinExposure || Exposure > MaxExposure;
         
         public unsafe void UpdateExposure(TexRef2D hdrSceneTexture)
         {
-            if (!AllowsAutoExposure)
+            if (!RequiresAutoExposure)
                 return;
-            
-            //Calculate average color value using 1x1 mipmap of scene
-            var tex = hdrSceneTexture.RenderTextureGeneric;
-            tex.Bind();
-            tex.GenerateMipmaps();
 
-            //Get the average color from the scene texture
-            Vec3 rgb = new Vec3();
-            IntPtr addr = (IntPtr)rgb.Data;
-            Engine.Renderer.GetTexImage(tex.BindingId, tex.SmallestMipmapLevel, EPixelFormat.Rgb, EPixelType.Float, sizeof(Vec3), addr);
-            
-            if (float.IsNaN(rgb.X)) return;
-            if (float.IsNaN(rgb.Y)) return;
-            if (float.IsNaN(rgb.Z)) return;
-
-            //Calculate luminance factor off of the average color
-            float lumDot = rgb.Dot(Vec3.Luminance);
+            float lumDot = hdrSceneTexture.DotLuminance;
 
             //If the dot factor is zero, this means the screen is perfectly black.
             //Usually that means nothing is being rendered, so don't update the exposure now.

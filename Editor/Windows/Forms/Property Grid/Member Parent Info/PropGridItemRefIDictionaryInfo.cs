@@ -56,7 +56,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 else
                 {
                     IDictionary dic = Dictionary;
-                    if (dic == null)
+                    if (dic is null)
                         return null;
                     return dic[Key];
                 }
@@ -64,7 +64,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             set
             {
                 IDictionary dic = Dictionary;
-                if (dic == null)
+                if (dic is null)
                     return;
 
                 if (!IsKey)

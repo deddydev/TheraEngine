@@ -203,7 +203,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
             TextFile text = await TFileObject.LoadAsync<TextFile>(filePath);
-            if (text == null)
+            if (text is null)
             {
                 Engine.PrintLine("Unable to open " + filePath);
                 return;

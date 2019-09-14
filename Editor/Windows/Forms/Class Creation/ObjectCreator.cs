@@ -451,7 +451,7 @@ namespace TheraEditor.Windows.Forms
                     object[] paramData = FinalArguments.IndexInRange(ConstructorIndex) ? FinalArguments[ConstructorIndex] : null;
                     if (ConstructorIndex < PublicInstanceConstructors.Length)
                     {
-                        if (paramData == null || paramData.Length == 0)
+                        if (paramData is null || paramData.Length == 0)
                         {
                             bool hasParameterlessConstructor = ClassType.GetConstructors().FirstOrDefault(x => x.GetParameters().Length == 0) != null;
                             if (hasParameterlessConstructor)
@@ -494,7 +494,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void SetTargetType(TypeProxy type)
         {
-            if (type == null)
+            if (type is null)
                 return;
 
             ClassType = type;
@@ -639,12 +639,12 @@ namespace TheraEditor.Windows.Forms
 
         private void ResizeArray(NumericInputBoxBase<int> box, int? previous, int? current)
         {
-            if (current == null)
+            if (current is null)
                 return;
 
             object[][] array = FinalArguments;
             int countBefore;
-            if (array == null)
+            if (array is null)
             {
                 array = new object[current.Value][];
                 if (current.Value == 0)
@@ -690,7 +690,7 @@ namespace TheraEditor.Windows.Forms
         {
             Control paramTool = null;
             bool nullable = false;
-            if (type == null)
+            if (type is null)
                 return null;
             if (type.IsGenericParameter)
             {
@@ -719,7 +719,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             Tag = arg,
                             ThreeState = nullable,
-                            CheckState = (arg.Value == null ? CheckState.Indeterminate : ((bool)arg.Value == true ? CheckState.Checked : CheckState.Unchecked)),
+                            CheckState = (arg.Value is null ? CheckState.Indeterminate : ((bool)arg.Value == true ? CheckState.Checked : CheckState.Unchecked)),
                         };
                         box.CheckedChanged += (sender, e) =>
                         {
@@ -951,7 +951,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         Label objectSelectionLabel = new Label()
                         {
-                            Text = arg.Value == null ? "null" : arg.Value.ToString(),
+                            Text = arg.Value is null ? "null" : arg.Value.ToString(),
                             Tag = arg,
                         };
                         objectSelectionLabel.MouseEnter += (sender, e) =>
@@ -978,11 +978,11 @@ namespace TheraEditor.Windows.Forms
                             }
                             object o = Editor.UserCreateInstanceOf(argType, true, this);
 
-                            if (o == null && argInfo.Type.IsValueType)
+                            if (o is null && argInfo.Type.IsValueType)
                                 o = argInfo.Type.GetDefaultValue();
 
                             argInfo.Value = o;
-                            s.Text = o == null ? "null" : o.ToString();
+                            s.Text = o is null ? "null" : o.ToString();
                             FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = o;
                         };
                         paramTool = objectSelectionLabel;
@@ -1008,57 +1008,57 @@ namespace TheraEditor.Windows.Forms
 
         private void numericInputBoxByte1_ValueChanged(NumericInputBoxBase<byte> box, byte? previous, byte? current)
         {
-            chkNull.Checked = current == null;
+            chkNull.Checked = current is null;
         }
 
         private void numericInputBoxSByte1_ValueChanged(NumericInputBoxBase<sbyte> box, sbyte? previous, sbyte? current)
         {
-            chkNull.Checked = current == null;
+            chkNull.Checked = current is null;
         }
 
         private void numericInputBoxInt161_ValueChanged(NumericInputBoxBase<short> box, short? previous, short? current)
         {
-            chkNull.Checked = current == null;
+            chkNull.Checked = current is null;
         }
 
         private void numericInputBoxUInt161_ValueChanged(NumericInputBoxBase<ushort> box, ushort? previous, ushort? current)
         {
-            chkNull.Checked = current == null;
+            chkNull.Checked = current is null;
         }
 
         private void numericInputBoxInt321_ValueChanged(NumericInputBoxBase<int> box, int? previous, int? current)
         {
-            chkNull.Checked = current == null;
+            chkNull.Checked = current is null;
         }
 
         private void numericInputBoxUInt321_ValueChanged(NumericInputBoxBase<uint> box, uint? previous, uint? current)
         {
-            chkNull.Checked = current == null;
+            chkNull.Checked = current is null;
         }
 
         private void numericInputBoxInt641_ValueChanged(NumericInputBoxBase<long> box, long? previous, long? current)
         {
-            chkNull.Checked = current == null;
+            chkNull.Checked = current is null;
         }
 
         private void numericInputBoxUInt641_ValueChanged(NumericInputBoxBase<ulong> box, ulong? previous, ulong? current)
         {
-            chkNull.Checked = current == null;
+            chkNull.Checked = current is null;
         }
 
         private void numericInputBoxSingle1_ValueChanged(NumericInputBoxBase<float> box, float? previous, float? current)
         {
-            chkNull.Checked = current == null;
+            chkNull.Checked = current is null;
         }
 
         private void numericInputBoxDouble1_ValueChanged(NumericInputBoxBase<double> box, double? previous, double? current)
         {
-            chkNull.Checked = current == null;
+            chkNull.Checked = current is null;
         }
 
         private void numericInputBoxDecimal1_ValueChanged(NumericInputBoxBase<decimal> box, decimal? previous, decimal? current)
         {
-            chkNull.Checked = current == null;
+            chkNull.Checked = current is null;
         }
     }
 }

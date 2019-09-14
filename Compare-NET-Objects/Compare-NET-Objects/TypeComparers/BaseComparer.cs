@@ -47,12 +47,12 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// <returns>The new breadcrumb</returns>
         protected string AddBreadCrumb(ComparisonConfig config, string existing, string name, string extra, string index)
         {
-            if (config == null)
+            if (config is null)
                 throw new ArgumentNullException("config");
 
             bool useIndex = !String.IsNullOrEmpty(index);
 
-            if (name == null)
+            if (name is null)
                 throw new ArgumentNullException("name");
             
             bool useName = name.Length > 0;
@@ -101,7 +101,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// <param name="parameters"></param>
         protected void AddDifference(CompareParms parameters)
         {
-            if (parameters == null)
+            if (parameters is null)
                 throw new ArgumentNullException("parameters");
 
             Difference difference = new Difference
@@ -125,10 +125,10 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// <param name="result">The comparison result</param>
         protected void AddDifference(ComparisonResult result, Difference difference)
         {
-            if (result == null)
+            if (result is null)
                 throw new ArgumentNullException("result");
 
-            if (difference == null)
+            if (difference is null)
                 throw new ArgumentNullException("difference");
 
             difference.ActualName = result.Config.ActualName;
@@ -155,7 +155,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         {
             try
             {
-                if (value == null)
+                if (value is null)
                     return "(null)";
 
                 #if !NETSTANDARD

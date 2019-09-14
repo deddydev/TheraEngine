@@ -113,7 +113,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected internal override void OnDeserialized()
         {
-            if (_rotation == null)
+            if (_rotation is null)
                 _rotation = new Rotator();
             _rotation.Changed += RecalcLocalTransform;
             base.OnDeserialized();

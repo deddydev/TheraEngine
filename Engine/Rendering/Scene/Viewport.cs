@@ -78,7 +78,7 @@ namespace TheraEngine.Rendering
                 
                 _camera = value;
 
-                //Engine.PrintLine("Updated viewport " + _index + " camera: " + (_worldCamera == null ? "null" : _worldCamera.GetType().GetFriendlyName()));
+                //Engine.PrintLine("Updated viewport " + _index + " camera: " + (_worldCamera is null ? "null" : _worldCamera.GetType().GetFriendlyName()));
 
                 if (_camera != null)
                 {
@@ -136,7 +136,7 @@ namespace TheraEngine.Rendering
                 _hud = value;
                 _hud?.Resize(Region.Extents);
 
-                //Engine.PrintLine("Updated viewport " + _index + " HUD: " + (_hud == null ? "null" : _hud.GetType().GetFriendlyName()));
+                //Engine.PrintLine("Updated viewport " + _index + " HUD: " + (_hud is null ? "null" : _hud.GetType().GetFriendlyName()));
             }
         }
 
@@ -187,8 +187,10 @@ namespace TheraEngine.Rendering
             //BloomRect1.Width = width;
             //BloomRect1.Height = height;
 
-            ClearFBOs();
+            //ClearFBOs();
             _camera?.Resize(width, height);
+
+            FBOsInitialized = false;
         }
 
         public void PushRenderingCamera(ICamera camera) => RenderingCameras.Push(camera);
@@ -304,7 +306,7 @@ namespace TheraEngine.Rendering
         /// <param name="target"></param>
         public void Render(IScene scene, ICamera camera, FrameBuffer target)
         {
-            if (scene == null || camera == null || RegeneratingFBOs)
+            if (scene is null || camera is null || RegeneratingFBOs)
                 return;
 
             Engine.PushRenderingViewport(this);
@@ -342,7 +344,7 @@ namespace TheraEngine.Rendering
             => _camera?.ScreenToWorld(ToInternalResCoords(viewportPoint.Xy), viewportPoint.Z) ?? viewportPoint;
         public Vec3 WorldToScreen(Vec3 worldPoint)
         {
-            if (_camera == null)
+            if (_camera is null)
                 return Vec3.Zero;
             Vec3 screenPoint = _camera.WorldToScreen(worldPoint);
             screenPoint.Xy = FromInternalResCoords(screenPoint.Xy);
@@ -797,7 +799,7 @@ namespace TheraEngine.Rendering
 
             ClearFBOs();
 
-            if (_brdfTex == null)
+            if (_brdfTex is null)
                 PrecomputeBRDF();
             
             int width = InternalResolution.Width;
@@ -1088,7 +1090,7 @@ namespace TheraEngine.Rendering
 
         private void LightManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
-            if (RenderingCamera == null)
+            if (RenderingCamera is null)
                 return;
             //RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(materialProgram);
             _lightComp.SetShadowUniforms(materialProgram);
@@ -1096,13 +1098,13 @@ namespace TheraEngine.Rendering
         }
         private void LightCombineFBO_SettingUniforms(RenderProgram program)
         {
-            if (RenderingCamera == null)
+            if (RenderingCamera is null)
                 return;
 
             RenderingCamera.SetUniforms(program);
 
             var probeActor = RenderingCamera.OwningComponent?.OwningScene3D?.IBLProbeActor;
-            if (probeActor == null || probeActor.RootComponent.ChildComponents.Count == 0)
+            if (probeActor is null || probeActor.RootComponent.ChildComponents.Count == 0)
                 return;
 
             IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
@@ -1138,7 +1140,7 @@ namespace TheraEngine.Rendering
         
         private void SSAO_SetUniforms(RenderProgram program)
         {
-            if (RenderingCamera == null)
+            if (RenderingCamera is null)
                 return;
             program.Uniform("NoiseScale", InternalResolution.Extents / 4.0f);
             program.Uniform("Samples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
@@ -1148,7 +1150,7 @@ namespace TheraEngine.Rendering
 
         private void _postProcess_SettingUniforms(RenderProgram program)
         {
-            if (RenderingCamera == null)
+            if (RenderingCamera is null)
                 return;
 
             RenderingCamera.SetUniforms(program);

@@ -99,7 +99,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             TypeProxy elementType = type.DetermineElementType();
             BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
-            if (ser == null || !ser.CanWriteAsString(elementType))
+            if (ser is null || !ser.CanWriteAsString(elementType))
             {
                 result = null;
                 return false;
@@ -144,7 +144,7 @@ namespace TheraEngine.Core.Files.Serialization
             Type arrayType = list.GetType();
             Type elementType = arrayType.DetermineElementType();
             BaseObjectSerializer ser = BaseObjectSerializer.DetermineObjectSerializer(elementType, true);
-            if (ser == null || !ser.CanWriteAsString(elementType))
+            if (ser is null || !ser.CanWriteAsString(elementType))
                 return false;
 
             const string separator = "|";

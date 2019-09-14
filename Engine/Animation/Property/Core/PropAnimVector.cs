@@ -224,7 +224,7 @@ namespace TheraEngine.Animation
             => _getValue = !IsBaked ? (DelGetValue<TValue>)GetValueKeyframed : GetValueBakedBySecond;
 
         public TValue GetValueBaked(int frameIndex)
-            => _baked == null || _baked.Length == 0 ? new TValue() :
+            => _baked is null || _baked.Length == 0 ? new TValue() :
             _baked[frameIndex.Clamp(0, _baked.Length - 1)];
 
         public TValue GetValueKeyframed(float second)
@@ -289,7 +289,7 @@ namespace TheraEngine.Animation
                 return;
             }
 
-            if (_prevKeyframe == null)
+            if (_prevKeyframe is null)
                 _prevKeyframe = Keyframes.GetKeyBefore(_currentTime, true, true);
 
             if (Keyframes.Count == 0)
@@ -439,7 +439,7 @@ namespace TheraEngine.Animation
                         (VectorKeyframe<TValue>)kf.OwningTrack.FirstKey :
                         null);
 
-                    if (next == null)
+                    if (next is null)
                         break;
 
                     inComps = GetComponents(velocity ? next.InTangent : next.InValue);
@@ -536,7 +536,7 @@ namespace TheraEngine.Animation
 
                                     //Find real second within the animation using normalized time value
                                     float interpSec = 0.0f;
-                                    if (kf.Next == null)
+                                    if (kf.Next is null)
                                     {
                                         //This is the last keyframe,
                                         //So evaluate past the end to the first keyframe
@@ -595,7 +595,7 @@ namespace TheraEngine.Animation
 
                                         //Find real second within the animation using normalized time value
                                         float interpSec = 0.0f;
-                                        if (kf.Next == null)
+                                        if (kf.Next is null)
                                         {
                                             //This is the last keyframe,
                                             //So evaluate past the end to the first keyframe
@@ -912,7 +912,7 @@ namespace TheraEngine.Animation
         public T InterpolatePositionNextNormalized(float time)
         {
             var next = GetNextKeyframe(out float span);
-            if (next == null)
+            if (next is null)
                 return OutValue;
             return _interpolate(next, span * time, span);
         }
@@ -922,7 +922,7 @@ namespace TheraEngine.Animation
         public T InterpolateVelocityNextNormalized(float time)
         {
             var next = GetNextKeyframe(out float span);
-            if (next == null)
+            if (next is null)
                 return OutTangent;
             return _interpolateVelocity(next, span * time, span);
         }
@@ -932,7 +932,7 @@ namespace TheraEngine.Animation
         public T InterpolateAccelerationNextNormalized(float time)
         {
             var next = GetNextKeyframe(out float span);
-            if (next == null)
+            if (next is null)
                 return default;
             return _interpolateAcceleration(next, span * time, span);
         }
@@ -942,7 +942,7 @@ namespace TheraEngine.Animation
         /// </summary>
         public T InterpolatePositionNormalized(VectorKeyframe<T> next, float time)
         {
-            if (next == null)
+            if (next is null)
                 return OutValue;
 
             float span;
@@ -957,7 +957,7 @@ namespace TheraEngine.Animation
         /// </summary>
         public T InterpolateVelocityNormalized(VectorKeyframe<T> next, float time)
         {
-            if (next == null)
+            if (next is null)
                 return OutTangent;
 
             float span;
@@ -972,7 +972,7 @@ namespace TheraEngine.Animation
         /// </summary>
         public T InterpolateAccelerationNormalized(VectorKeyframe<T> next, float time)
         {
-            if (next == null)
+            if (next is null)
                 return default;
 
             float span;

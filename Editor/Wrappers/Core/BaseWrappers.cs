@@ -87,7 +87,7 @@ namespace TheraEditor.Wrappers
         {
             BaseWrapper wrapper = null;
             bool? isDir = path.IsExistingDirectoryPath();
-            if (isDir == null)
+            if (isDir is null)
                 return null;
             if (isDir.Value)
             {
@@ -192,7 +192,7 @@ namespace TheraEditor.Wrappers
                 currentType = currentType.BaseType;
             }
 
-            if (wrapper == null)
+            if (wrapper is null)
             {
                 //Make wrapper for whatever file type this is
                 wrapper = new NonGenericFileWrapper(type);
@@ -209,7 +209,7 @@ namespace TheraEditor.Wrappers
         internal void HandlePathDrop(string path, bool copy)
         {
             bool? isDir = path.IsExistingDirectoryPath();
-            if (isDir == null)
+            if (isDir is null)
                 return;
             string newPath = this is BaseFileWrapper ? Path.GetDirectoryName(FilePath) : FilePath;
             try

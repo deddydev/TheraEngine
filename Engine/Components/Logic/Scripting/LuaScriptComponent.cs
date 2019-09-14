@@ -33,7 +33,7 @@ namespace TheraEngine.Components.Logic.Scripting
         }
         public override bool Execute(string methodName, params object[] args)
         {
-            if (LuaScript == null)
+            if (LuaScript is null)
                 return false;
 
             object func = LuaScript.Globals[methodName];

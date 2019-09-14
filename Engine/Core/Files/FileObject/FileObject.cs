@@ -48,7 +48,7 @@ namespace TheraEngine.Core.Files
         {
             get
             {
-                if (_rootFile == null || _rootFile == this)
+                if (_rootFile is null || _rootFile == this)
                     return _filePath;
 
                 return _rootFile.FilePath;
@@ -218,7 +218,7 @@ namespace TheraEngine.Core.Files
             ESerializeFlags flags = ESerializeFlags.Default,
             EProprietaryFileFormat? propFormat = null)
         {
-            if (Engine.BeginOperation == null)
+            if (Engine.BeginOperation is null)
                 await ExportAsync(directory, fileName, flags, propFormat, null, CancellationToken.None);
             else
             {
@@ -333,7 +333,7 @@ namespace TheraEngine.Core.Files
 
             TFile3rdPartyExt ext = File3rdPartyExtensions;
 
-            if (ext == null)
+            if (ext is null)
             {
                 Engine.LogWarning($"No {nameof(TFile3rdPartyExt)} attribute specified for {GetType().GetFriendlyName()}.");
                 return;

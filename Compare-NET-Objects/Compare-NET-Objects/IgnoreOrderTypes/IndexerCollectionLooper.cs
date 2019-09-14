@@ -13,7 +13,7 @@ namespace KellermanSoftware.CompareNetObjects.IgnoreOrderTypes
         public IndexerCollectionLooper(object obj, PropertyInfo info, int cnt)
         {
             _indexer = obj;
-            if (info == null)
+            if (info is null)
                 throw new ArgumentNullException("info");
 
             _info = info;

@@ -59,7 +59,7 @@ namespace ObjLoader.Loader.Data.DataStore
 
         private void PushGroupIfNeeded()
         {
-            if (_currentGroup == null)
+            if (_currentGroup is null)
             {
                 PushGroup("default");
             }

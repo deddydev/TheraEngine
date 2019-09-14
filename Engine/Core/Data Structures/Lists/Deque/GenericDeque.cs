@@ -80,7 +80,7 @@ namespace System.Collections.Generic
         {
             #region Require
 
-            if(collection == null)
+            if(collection is null)
             {
                 throw new ArgumentNullException("col");
             }
@@ -104,7 +104,7 @@ namespace System.Collections.Generic
         {
             get
             {
-                if (index >= count || front == null)
+                if (index >= count || front is null)
                     return default(T);
 
                 Node c = front;
@@ -114,7 +114,7 @@ namespace System.Collections.Generic
             }
             set
             {
-                if (index >= count || front == null)
+                if (index >= count || front is null)
                     return;
 
                 Node c = front;
@@ -141,12 +141,12 @@ namespace System.Collections.Generic
             }
 
             Node f = front;
-            if (f == null)
+            if (f is null)
                 f = front = new Node(defaultValue);
 
             for (int i = 0; i < Size; i++)
             {
-                if (f.Next == null)
+                if (f.Next is null)
                     f.Next = new Node(defaultValue) { Previous = f };
 
                 f = f.Next;
@@ -482,7 +482,7 @@ namespace System.Collections.Generic
         {            
             #region Require
 
-            if(deque == null)
+            if(deque is null)
             {
                 throw new ArgumentNullException("deque");
             }
@@ -519,12 +519,12 @@ namespace System.Collections.Generic
             //        b = b.Previous;
             //    }
 
-            //    Debug.Assert(f.Next == null && b.Previous == null, "Front/Back Termination Test");
+            //    Debug.Assert(f.Next is null && b.Previous is null, "Front/Back Termination Test");
             //    Debug.Assert(f == back && b == front, "Front/Back Equality Test");
             //}
             //else
             //{
-            //    Debug.Assert(front == null && back == null, "Front/Back Null Test - Count == 0");
+            //    Debug.Assert(front is null && back is null, "Front/Back Null Test - Count == 0");
             //}
         }
 
@@ -572,7 +572,7 @@ namespace System.Collections.Generic
         {
             #region Require
 
-            if(array == null)
+            if(array is null)
             {
                 throw new ArgumentNullException("array");
             }

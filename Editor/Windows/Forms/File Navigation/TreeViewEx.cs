@@ -44,7 +44,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnBeforeLabelEdit(NodeLabelEditEventArgs e)
         {
             NodeRequestTextEventArgs editTextArgs = new NodeRequestTextEventArgs(e.Node, _postEditText ?? e.Node.Text);
-            if (_postEditText == null)
+            if (_postEditText is null)
                 OnRequestEditText(editTextArgs);
             _postEditText = null;
             if (editTextArgs.Cancel)

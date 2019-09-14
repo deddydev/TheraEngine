@@ -164,7 +164,7 @@ namespace TheraEngine.Rendering.UI
                 }
                 base.OwningActor = value as BaseActor;
 
-                //if (ParentSocket == null)
+                //if (ParentSocket is null)
                     PerformResize();
             }
         }

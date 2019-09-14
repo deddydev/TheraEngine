@@ -26,8 +26,8 @@ namespace TheraEditor.Windows.Forms
             => (sbyte)(value + (negative ? -increment : increment));
         protected override bool NumbersAreEqual(SByte? value1, SByte? value2)
         {
-            bool null1 = value1 == null;
-            bool null2 = value2 == null;
+            bool null1 = value1 is null;
+            bool null2 = value2 is null;
             if (null1 && null2)
                 return true;
             if (null1 || null2)

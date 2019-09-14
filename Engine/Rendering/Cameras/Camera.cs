@@ -79,6 +79,8 @@ namespace TheraEngine.Rendering.Cameras
         void SetBloomUniforms(RenderProgram program);
         void SetAmbientOcclusionUniforms(RenderProgram program);
         void SetPostProcessUniforms(RenderProgram program);
+
+        bool UsesAutoExposure { get; }
     }
     public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
     public abstract class Camera : TFileObject, ICamera
@@ -294,7 +296,7 @@ namespace TheraEngine.Rendering.Cameras
                 return _cameraProjToWorldSpaceMatrix;
             }
         }
-        
+
         protected void OnTransformChanged(bool updateTransformedFrustum = true)
         {
             _matrixInvalidated = true;
@@ -451,5 +453,9 @@ namespace TheraEngine.Rendering.Cameras
         public abstract void SetBloomUniforms(RenderProgram program);
         public abstract void SetAmbientOcclusionUniforms(RenderProgram program);
         public abstract void SetPostProcessUniforms(RenderProgram program);
+
+        public abstract bool UsesAutoExposure { get; }
+
+        public abstract void UpdateExposure(TexRef2D texture);
     }
 }

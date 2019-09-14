@@ -29,7 +29,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// <returns></returns>
         public override bool IsTypeMatch(Type type1, Type type2)
         {
-            if (type1 == null || type2 == null)
+            if (type1 is null || type2 is null)
                 return false;
 
             return TypeHelper.IsEnumerable(type1) || TypeHelper.IsEnumerable(type2);
@@ -69,7 +69,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
                 }
             }
 
-            if (enumerableGenArg == null)
+            if (enumerableGenArg is null)
             {
 #if NETSTANDARD
                 throw new Exception("Cannot get IEnumerable definition");

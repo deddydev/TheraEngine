@@ -156,7 +156,7 @@ namespace TheraEngine.Editor
         //    _selectedMaterials = new Dictionary<int, StencilTest>();
         internal static void RegisterHighlightedMaterial(TMaterial m, bool highlighted, IScene scene)
         {
-            //if (m == null)
+            //if (m is null)
             //    return;
             //if (highlighted)
             //{
@@ -185,7 +185,7 @@ namespace TheraEngine.Editor
 
         public static void RegisterSelectedMesh(TMaterial m, bool selected, IScene scene)
         {
-            //if (m == null)
+            //if (m is null)
             //    return;
             //if (selected)
             //{
@@ -428,16 +428,16 @@ namespace TheraEngine.Editor
         {
             return string.Format("{0}.{1} {2} -> {3}",
               FieldOwner.ToString(), FieldInfo.Name.ToString(),
-              OldValue == null ? "null" : OldValue.ToString(),
-              NewValue == null ? "null" : NewValue.ToString());
+              OldValue is null ? "null" : OldValue.ToString(),
+              NewValue is null ? "null" : NewValue.ToString());
         }
 
         public override string DisplayChangeAsUndo()
         {
             return string.Format("{0}.{1} {2} <- {3}",
               FieldOwner.ToString(), FieldInfo.Name.ToString(),
-              OldValue == null ? "null" : OldValue.ToString(),
-              NewValue == null ? "null" : NewValue.ToString());
+              OldValue is null ? "null" : OldValue.ToString(),
+              NewValue is null ? "null" : NewValue.ToString());
         }
     }
     [Serializable]
@@ -461,16 +461,16 @@ namespace TheraEngine.Editor
         {
             return string.Format("{0}.{1} {2} -> {3}",
               PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
-              OldValue == null ? "null" : OldValue.ToString(),
-              NewValue == null ? "null" : NewValue.ToString());
+              OldValue is null ? "null" : OldValue.ToString(),
+              NewValue is null ? "null" : NewValue.ToString());
         }
 
         public override string DisplayChangeAsUndo()
         {
             return string.Format("{0}.{1} {2} <- {3}",
               PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
-              OldValue == null ? "null" : OldValue.ToString(),
-              NewValue == null ? "null" : NewValue.ToString());
+              OldValue is null ? "null" : OldValue.ToString(),
+              NewValue is null ? "null" : NewValue.ToString());
         }
     }
     [Serializable]
@@ -524,16 +524,16 @@ namespace TheraEngine.Editor
         {
             return string.Format("{0}.{1} {2} -> {3}",
               DictionaryOwner.ToString(), KeyForValue.ToString(),
-              OldValue == null ? "null" : OldValue.ToString(),
-              NewValue == null ? "null" : NewValue.ToString());
+              OldValue is null ? "null" : OldValue.ToString(),
+              NewValue is null ? "null" : NewValue.ToString());
         }
 
         public override string DisplayChangeAsUndo()
         {
             return string.Format("{0}.{1} {2} <- {3}",
               DictionaryOwner.ToString(), KeyForValue.ToString(),
-              OldValue == null ? "null" : OldValue.ToString(),
-              NewValue == null ? "null" : NewValue.ToString());
+              OldValue is null ? "null" : OldValue.ToString(),
+              NewValue is null ? "null" : NewValue.ToString());
         }
     }
 #endif

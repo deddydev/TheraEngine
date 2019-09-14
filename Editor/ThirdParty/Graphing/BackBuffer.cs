@@ -58,7 +58,7 @@ namespace GraphLib
 
             if ((width != this.width) || 
                 (height != this.height) || 
-                graphics == null)
+                graphics is null)
             {
                 this.width = width;
                 this.height = height;

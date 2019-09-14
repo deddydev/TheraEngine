@@ -152,7 +152,7 @@ namespace TheraEngine.GameModes
 
         public virtual Viewport LinkControllerToViewport(LocalPlayerController item)
         {
-            if (item == null)
+            if (item is null)
                 return null;
 
             item.Viewport?.UnregisterController(item);

@@ -116,11 +116,11 @@ namespace TheraEngine.Actors.Types
         {
             //_cubeTex = new TexRefCube("", 512, new CubeMipmap(Engine.LoadEngineTexture2D("skybox.png")));
             
-            if (RenderFBO == null)
+            if (RenderFBO is null)
                 SetCaptureResolution(512);
 
             IScene3D scene = OwningScene3D;
-            if (scene == null)
+            if (scene is null)
                 return;
 
             scene.UpdateShadowMaps();

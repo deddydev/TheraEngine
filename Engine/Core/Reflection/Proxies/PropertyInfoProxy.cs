@@ -9,7 +9,7 @@ namespace TheraEngine.Core.Reflection
         public static ConcurrentDictionary<PropertyInfo, PropertyInfoProxy> Proxies { get; }
             = new ConcurrentDictionary<PropertyInfo, PropertyInfoProxy>();
         public static PropertyInfoProxy Get(PropertyInfo info)
-            => info == null ? null : Proxies.GetOrAdd(info, new PropertyInfoProxy(info));
+            => info is null ? null : Proxies.GetOrAdd(info, new PropertyInfoProxy(info));
         public static implicit operator PropertyInfoProxy(PropertyInfo info) => Get(info);
         public static implicit operator PropertyInfo(PropertyInfoProxy proxy) => proxy.Value;
 

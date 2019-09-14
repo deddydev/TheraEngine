@@ -349,7 +349,7 @@ namespace TheraEngine.Core.Files.Serialization
                     address.WriteByte((byte)flags);
                 }
 
-                if (value == null || value is bool)
+                if (value is null || value is bool)
                     return;
 
                 //First, handle built-in primitive types
@@ -411,7 +411,7 @@ namespace TheraEngine.Core.Files.Serialization
             private bool ShouldWriteFileObjectManually(TypeProxy objType)
             {
                 TFileExt ext = TFileObject.GetFileExtension(objType);
-                if (ext == null)
+                if (ext is null)
                     return false;
 
                 bool serConfig = ext.ManualBinConfigSerialize;
@@ -446,7 +446,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                 ++size; //flags byte
 
-                if (value == defaultValue || value == null || value is bool)
+                if (value == defaultValue || value is null || value is bool)
                     return size;
                 else if (node.IsDerivedType)
                 {
@@ -598,7 +598,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             private void WriteString(string value, ref VoidPtr address)
             {
-                int offset = value == null ? 0 : StringTable[value] + 1;
+                int offset = value is null ? 0 : StringTable[value] + 1;
                 switch (StringOffsetSize)
                 {
                     case 1: address.Byte = (byte)offset; break;

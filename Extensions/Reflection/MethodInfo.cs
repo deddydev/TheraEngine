@@ -11,7 +11,7 @@ namespace Extensions
             => type.IsDefined(attributeType);
         public static string GetFriendlyName(this MethodBase method, bool nameOnly = false, string openBracket = "<", string closeBracket = ">")
         {
-            if (method == null)
+            if (method is null)
                 return "null";
             
             string friendlyName = "";
@@ -97,7 +97,7 @@ namespace Extensions
                 if (p.HasDefaultValue)
                 {
                     friendlyName += " = ";
-                    if (p.DefaultValue == null)
+                    if (p.DefaultValue is null)
                     {
                         friendlyName += "null";
                     }

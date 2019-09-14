@@ -132,7 +132,7 @@ namespace SevenZip.Compression.LZMA
 		}
         private void Create()
 		{
-			if (_matchFinder == null)
+			if (_matchFinder is null)
 			{
 				LZ.BinTree bt = new LZ.BinTree();
 				int numHashbytes = 4;
@@ -987,7 +987,7 @@ namespace SevenZip.Compression.LZMA
 		}
         private void SetStreams(Stream inStream, Stream outStream, Int64 inSize, Int64 outSize)
 		{
-            if (outStream == null)
+            if (outStream is null)
             {
                 throw new ArgumentNullException(nameof(outStream));
             }
@@ -1035,7 +1035,7 @@ namespace SevenZip.Compression.LZMA
 		}
 		public void WriteCoderProperties(Stream outStream)
 		{
-            if (outStream == null)
+            if (outStream is null)
             {
                 throw new ArgumentNullException(nameof(outStream));
             }

@@ -52,7 +52,7 @@ namespace TheraEngine.Rendering
 
                 base.Visible = value;
 
-                if (Scene == null)
+                if (Scene is null)
                     return;
 
                 if (value)
@@ -70,7 +70,7 @@ namespace TheraEngine.Rendering
 
         public bool DeeperThan(IRenderInfo2D other)
         {
-            if (other == null)
+            if (other is null)
                 return true;
 
             if (LayerIndex > other.LayerIndex)
@@ -83,7 +83,7 @@ namespace TheraEngine.Rendering
 
         public void LinkScene(I2DRenderable r2D, IScene2D scene, bool forceVisible = false)
         {
-            if (r2D == null || scene == null)
+            if (r2D is null || scene is null)
                 return;
 
             Scene = null;
@@ -104,7 +104,7 @@ namespace TheraEngine.Rendering
 
         public void UnlinkScene()
         {
-            if (Owner == null || Scene == null)
+            if (Owner is null || Scene is null)
                 return;
 
             Scene.Renderables.Remove(Owner);

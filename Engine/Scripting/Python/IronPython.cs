@@ -19,7 +19,7 @@ namespace TheraEngine.Scripting
         {
             get
             {
-                if (_engine == null)
+                if (_engine is null)
                     Initialize();
                 return _engine;
             }

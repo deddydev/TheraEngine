@@ -53,7 +53,7 @@ namespace TheraEngine.Core.Files.XML
                     TypeProxy t = Types[i];
                     ElementName nameAttrib = t.GetCustomAttribute<ElementName>();
                     ElementNames[i] = nameAttrib;
-                    if (nameAttrib == null)
+                    if (nameAttrib is null)
                         Engine.PrintLine(Data.ChildEntryType.GetFriendlyName() + " has no 'Name' attribute");
                 }
             }
@@ -148,7 +148,7 @@ namespace TheraEngine.Core.Files.XML
             string previousTree = "";
             Type t = typeof(T);
             ElementName name = t.GetCustomAttribute<ElementName>();
-            if (name == null || string.IsNullOrEmpty(name.Name))
+            if (name is null || string.IsNullOrEmpty(name.Name))
             {
                 Engine.PrintLine(t.GetFriendlyName() + " has no 'Name' attribute.");
                 return null;
@@ -243,10 +243,10 @@ namespace TheraEngine.Core.Files.XML
                         MemberInfo info = members.FirstOrDefault(x =>
                         {
                             var a = x.GetCustomAttribute<Attr>();
-                            return a == null ? false : string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
+                            return a is null ? false : string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
                         });
 
-                        if (info == null)
+                        if (info is null)
                         {
                             //Engine.PrintLine("Attribute '{0}[{1}]' not supported by parser. Value = '{2}'", parentTree, name, value);
                         }
@@ -308,7 +308,7 @@ namespace TheraEngine.Core.Files.XML
                         if (entry.WantsManualRead)
                         {
                             IElement e = entry.ManualReadChildElement(elementName, version);
-                            if (e == null)
+                            if (e is null)
                             {
                                 //Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
                                 await reader.SkipAsync();
@@ -341,7 +341,7 @@ namespace TheraEngine.Core.Files.XML
                                     //If no exact name matches, find a null name child element.
                                     //This means the class is for an element with ANY name.
                                     if (typeIndex < 0)
-                                        typeIndex = Array.FindIndex(child.ElementNames, name => name.Name == null && name.VersionMatches(version));
+                                        typeIndex = Array.FindIndex(child.ElementNames, name => name.Name is null && name.VersionMatches(version));
                                     
                                     if (typeIndex >= 0)
                                     {
@@ -373,7 +373,7 @@ namespace TheraEngine.Core.Files.XML
                                         return false;
                                     });
 
-                                    if (info == null)
+                                    if (info is null)
                                     {
                                         //Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
                                         await reader.SkipAsync();
@@ -542,7 +542,7 @@ namespace TheraEngine.Core.Files.XML
         }
         protected ElementName(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
+            if (info is null)
                 throw new ArgumentNullException(nameof(info));
 
             Name = info.GetString(nameof(Name));
@@ -557,7 +557,7 @@ namespace TheraEngine.Core.Files.XML
         }
         public bool VersionMatches(string version)
         {
-            if (version == null)
+            if (version is null)
                 return true;
             string elemVer = Version;
             for (int i = 0; i < elemVer.Length; ++i)
@@ -750,7 +750,7 @@ namespace TheraEngine.Core.Files.XML
             }
             set
             {
-                if (Attribute.GetCustomAttribute(GetType(), typeof(ElementName)) is ElementName name && name.Name == null)
+                if (Attribute.GetCustomAttribute(GetType(), typeof(ElementName)) is ElementName name && name.Name is null)
                     _elementName = value;
             }
         }
@@ -778,7 +778,7 @@ namespace TheraEngine.Core.Files.XML
                     else if (Parent.Root != null)
                         Root = Parent.Root;
 
-                    if (Root == null)
+                    if (Root is null)
                         throw new Exception("Generic root is null. Make sure the root element implements the IRoot interface.");
                 }
             }
@@ -850,7 +850,7 @@ namespace TheraEngine.Core.Files.XML
 
         public void AddElements(params IElement[] elements)
         {
-            if (elements == null || elements.Length == 0)
+            if (elements is null || elements.Length == 0)
                 return;
 
             Type t = GetType();
@@ -866,7 +866,7 @@ namespace TheraEngine.Core.Files.XML
                 if (ChildElements.ContainsKey(elemType))
                 {
                     var list = ChildElements[elemType];
-                    if (list == null)
+                    if (list is null)
                     {
                         list = new List<IElement>();
                         ChildElements[elemType] = list;

@@ -118,7 +118,7 @@ namespace TheraEngine.Audio
             out int bitsPerSample,
             out int sampleRate)
         {
-            if (waveFileStream == null)
+            if (waveFileStream is null)
                 throw new ArgumentNullException(nameof(waveFileStream));
             
             RIFFHeader riff = waveFileStream.Read<RIFFHeader>();

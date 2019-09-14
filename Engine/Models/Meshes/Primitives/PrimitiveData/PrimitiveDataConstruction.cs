@@ -79,7 +79,7 @@ namespace TheraEngine.Rendering.Models
             }
 
             int[] firstAppearanceArray = null;
-            if (remapper == null)
+            if (remapper is null)
             {
                 firstAppearanceArray = new int[vertices.Count];
                 for (int i = 0; i < vertices.Count; ++i)

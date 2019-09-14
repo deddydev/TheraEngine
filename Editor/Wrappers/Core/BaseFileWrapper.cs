@@ -139,7 +139,7 @@ namespace TheraEditor.Wrappers
         public virtual async void EditResource()
         {
             var file = await SingleInstanceRef.GetInstanceAsync();
-            if (file == null)
+            if (file is null)
                 Engine.PrintLine($"Can't open file at {FilePath}.");
             else
             {
@@ -163,7 +163,7 @@ namespace TheraEditor.Wrappers
         //        return;
 
         //    IFileObject file = task.Result;
-        //    if (file == null)
+        //    if (file is null)
         //        Engine.PrintLine($"Can't open file at {FilePath}.");
         //    else
         //    {
@@ -222,7 +222,7 @@ namespace TheraEditor.Wrappers
         }
         public override void Delete()
         {
-            if (Parent == null)
+            if (Parent is null)
                 return;
 
             ResourceTree tree = TreeView;

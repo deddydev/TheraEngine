@@ -65,7 +65,7 @@ namespace KellermanSoftware.CompareNetObjects.IgnoreOrderTypes
 
             while (enumerator1.MoveNext())
             {
-                if (enumerator1.Current == null)
+                if (enumerator1.Current is null)
                 {
                     return false;
                 }
@@ -88,7 +88,7 @@ namespace KellermanSoftware.CompareNetObjects.IgnoreOrderTypes
                         continue;
                     }
 
-                    if (enumerator2.Current == null)
+                    if (enumerator2.Current is null)
                     {
                         return false;
                     }
@@ -151,7 +151,7 @@ namespace KellermanSoftware.CompareNetObjects.IgnoreOrderTypes
 
             while (enumerator1.MoveNext())
             {
-                if (enumerator1.Current == null)
+                if (enumerator1.Current is null)
                 {
                     continue;
                 }
@@ -186,7 +186,7 @@ namespace KellermanSoftware.CompareNetObjects.IgnoreOrderTypes
 
                 while (enumerator2.MoveNext())
                 {
-                    if (enumerator2.Current == null)
+                    if (enumerator2.Current is null)
                     {
                         continue;
                     }
@@ -256,7 +256,7 @@ namespace KellermanSoftware.CompareNetObjects.IgnoreOrderTypes
             {
                 var info = properties.FirstOrDefault(o => o.Name == item);
 
-                if (info == null)
+                if (info is null)
                 {
                     throw new Exception(string.Format("Invalid CollectionMatchingSpec.  No such property {0} for type {1} ",
                         item,
@@ -265,7 +265,7 @@ namespace KellermanSoftware.CompareNetObjects.IgnoreOrderTypes
 
                 var propertyValue = info.GetValue(currentObject, null);
 
-                if (result.Config.TreatStringEmptyAndNullTheSame && info.PropertyType == typeof(string) && propertyValue == null)
+                if (result.Config.TreatStringEmptyAndNullTheSame && info.PropertyType == typeof(string) && propertyValue is null)
                 {
                     propertyValue = string.Empty;
                 }
@@ -274,7 +274,7 @@ namespace KellermanSoftware.CompareNetObjects.IgnoreOrderTypes
                     propertyValue = ((string)propertyValue).ToLowerInvariant();
                 }
 
-                if (propertyValue == null)
+                if (propertyValue is null)
                 {
                     sb.AppendFormat("{0}:(null),",item);
                 }

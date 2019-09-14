@@ -70,7 +70,7 @@ namespace TheraEngine.Rendering.Models
 
         public void SetData(FacePoint facepoint, List<DataBuffer> buffers)
         {
-            if (facepoint.BufferIndices == null)
+            if (facepoint.BufferIndices is null)
                 return;
 
             for (int i = 0; i < facepoint.BufferIndices.Count; ++i)
@@ -103,7 +103,7 @@ namespace TheraEngine.Rendering.Models
         }
         public void GetData(FacePoint facepoint, List<DataBuffer> buffers)
         {
-            if (facepoint.BufferIndices == null)
+            if (facepoint.BufferIndices is null)
                 return;
 
             for (int i = 0; i < facepoint.BufferIndices.Count; ++i)
@@ -141,7 +141,7 @@ namespace TheraEngine.Rendering.Models
         public bool Equals(Vertex other)
         {
             const float precision = 0.00001f;
-            if (other == null)
+            if (other is null)
                 return false;
             if (Influence != other.Influence)
                 return false;

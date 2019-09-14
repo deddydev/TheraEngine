@@ -247,7 +247,7 @@ namespace TheraEngine.Rendering.Models
             set
             {
                 Matrix4 frameMatrix = OwningComponent.InverseWorldMatrix * value;
-                Matrix4 localMatrix = Parent == null ? frameMatrix : Parent.InverseFrameMatrix * frameMatrix;
+                Matrix4 localMatrix = Parent is null ? frameMatrix : Parent.InverseFrameMatrix * frameMatrix;
                 FrameState.Matrix = localMatrix;
 
                 if (_rigidBodyCollision != null)
@@ -420,7 +420,7 @@ namespace TheraEngine.Rendering.Models
         public float DistanceScaleScreenSize { get; set; } = 1.0f;
 
         public Matrix4 WorldToLocalMatrix(Matrix4 worldMatrix)
-            => (Parent == null ? (OwningComponent == null ? Matrix4.Identity : OwningComponent.InverseWorldMatrix) : Parent.InverseWorldMatrix) * worldMatrix;
+            => (Parent is null ? (OwningComponent is null ? Matrix4.Identity : OwningComponent.InverseWorldMatrix) : Parent.InverseWorldMatrix) * worldMatrix;
         
         public void HandleWorldTranslation(Vec3 delta)
         {
@@ -653,7 +653,7 @@ namespace TheraEngine.Rendering.Models
 
         private void HandleBillboarding(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, ICamera camera)
         {
-            if (camera == null)
+            if (camera is null)
                 return;
 
             //Apply local translation component to parent matrix

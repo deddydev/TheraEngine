@@ -105,11 +105,11 @@ namespace TheraEngine.Physics.RayTracing
         internal override void Reset() => Result = null;
 
         public TCollisionObject CollisionObject => Result?.CollisionObject;
-        public float HitFraction => Result == null ? 1.0f : Result.HitFraction;
-        public Vec3 HitNormalWorld => Result == null ? Vec3.Zero : Result.HitNormalWorld;
-        public Vec3 HitPointWorld => Result == null ? Vec3.Zero : Result.HitPointWorld;
-        public int ShapePart => Result == null ? -1 : Result.ShapePart;
-        public int TriangleIndex => Result == null ? -1 : Result.TriangleIndex;
+        public float HitFraction => Result is null ? 1.0f : Result.HitFraction;
+        public Vec3 HitNormalWorld => Result is null ? Vec3.Zero : Result.HitNormalWorld;
+        public Vec3 HitPointWorld => Result is null ? Vec3.Zero : Result.HitPointWorld;
+        public int ShapePart => Result is null ? -1 : Result.ShapePart;
+        public int TriangleIndex => Result is null ? -1 : Result.TriangleIndex;
 
         public RayTraceSingle(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored)
             : base(start, end, collisionGroupFlags, collidesWithFlags, ignored) { }
@@ -154,7 +154,7 @@ namespace TheraEngine.Physics.RayTracing
                 return;
 
             Vec3 hitPointWorld = Vec3.Lerp(StartPointWorld, EndPointWorld, hitFraction);
-            if (Result == null)
+            if (Result is null)
                 Result = new RayCollisionResult(obj, hitFraction, hitNormal, hitPointWorld, shapePart, triangleIndex);
             else if (hitFraction < Result.HitFraction)
             {

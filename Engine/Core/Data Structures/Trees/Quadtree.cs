@@ -111,14 +111,14 @@ namespace System
         {
             while (MovedItems.TryDequeue(out T item))
             {
-                if (item == null)
+                if (item is null)
                     continue;
 
                 ((Node)item.RenderInfo.QuadtreeNode).ItemMoved_Internal(item);
             }
             while (RemovedItems.TryDequeue(out T item))
             {
-                if (item == null)
+                if (item is null)
                     continue;
 
                 _head.RemoveHereOrSmaller(item);
@@ -126,7 +126,7 @@ namespace System
             }
             while (AddedItems.TryDequeue(out T item))
             {
-                if (item == null)
+                if (item is null)
                     continue;
 
                 item.RenderInfo.SceneID = ItemID++;
@@ -266,7 +266,7 @@ namespace System
             }
             public void ItemMoved_Internal(T item)
             {
-                if (item == null)
+                if (item is null)
                     return;
 
                 //Still within the same volume?
@@ -401,7 +401,7 @@ namespace System
             /// <param name="item">The item to remove.</param>
             public bool RemoveHereOrSmaller(T item)
             {
-                if (item == null)
+                if (item is null)
                     return false;
 
                 if (_items.Contains(item))
@@ -440,7 +440,7 @@ namespace System
             /// <returns>True if the node was added.</returns>
             internal bool AddHereOrSmaller(T item, int ignoreSubNode = -1)
             {
-                if (item == null)
+                if (item is null)
                     return false;
 
                 if (!item.RenderInfo.AxisAlignedRegion.IsEmpty())
@@ -469,7 +469,7 @@ namespace System
 
             internal void AddHere(T item)
             {
-                if (item == null)
+                if (item is null)
                     return;
 
                 _items.Add(item);
@@ -477,7 +477,7 @@ namespace System
             }
             internal void RemoveHere(T item)
             {
-                if (item == null)
+                if (item is null)
                     return;
 
                 _items.Remove(item);

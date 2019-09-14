@@ -264,7 +264,7 @@ namespace TheraEngine.Actors.Types
                 }
                 int x = 0;
 
-                if (RootComponent.Meshes == null)
+                if (RootComponent.Meshes is null)
                     return;
 
                 for (int i = 0; i < 3; ++i)
@@ -350,7 +350,7 @@ namespace TheraEngine.Actors.Types
 
         private Matrix4 GetWorldMatrix()
         {
-            if (_targetSocket == null)
+            if (_targetSocket is null)
                 return Matrix4.Identity;
 
             switch (TransformSpace)
@@ -396,7 +396,7 @@ namespace TheraEngine.Actors.Types
         }
         private Matrix4 GetInvWorldMatrix()
         {
-            if (_targetSocket == null)
+            if (_targetSocket is null)
                 return Matrix4.Identity;
 
             switch (TransformSpace)
@@ -429,7 +429,7 @@ namespace TheraEngine.Actors.Types
 
         public static TransformTool3D GetInstance(IWorld world, ISocket comp, TransformType transformType)
         {
-            if (world == null)
+            if (world is null)
                 return null;
 
             if (!Instance.IsSpawnedIn(world))

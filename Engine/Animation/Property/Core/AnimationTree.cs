@@ -27,7 +27,7 @@ namespace TheraEngine.Animation
             {
                 AnimationMember member = new AnimationMember(childMemberName);
 
-                if (last == null)
+                if (last is null)
                     RootMember = member;
                 else
                     last.Children.Add(member);

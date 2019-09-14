@@ -188,7 +188,7 @@ namespace TheraEngine.Actors.Types.Pawns
         //UIComponent current = null;
         ////Larger z-indices means the component is closer
         //foreach (UIComponent comp in results)
-        //    if (current == null || comp.LayerIndex >= current.LayerIndex)
+        //    if (current is null || comp.LayerIndex >= current.LayerIndex)
         //        current = comp;
         //return current;
         //return RootComponent.FindComponent(viewportPoint);
@@ -325,7 +325,7 @@ namespace TheraEngine.Actors.Types.Pawns
         public Vec2 CursorPositionViewport(Viewport v)
         {
             Point absolute = Cursor.Position;
-            if (v == null)
+            if (v is null)
                 return new Vec2(absolute.X, absolute.Y);
             RenderContext ctx = v.RenderHandler.Context;
             absolute = ctx.PointToClient(absolute);

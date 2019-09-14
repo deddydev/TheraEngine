@@ -20,7 +20,6 @@ using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
-using TheraEngine.Rendering;
 using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -79,6 +78,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     Engine.LogException(ex);
                     types = GetControlTypes(null);
                 }
+                Engine.PrintLine("Got control types for " + property.Name + ": " + types.ToArray().ToStringList(", ", ", ", t => t.GetFriendlyName()));
                 ControlTypes = types;
                 Property = property;
                 Category = category;
@@ -468,7 +468,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 category.DestroyProperties();
             categories.Clear();
 
-            if (obj == null)
+            if (obj is null)
                 return;
 
             pnlProps.RowStyles.Clear();
@@ -624,23 +624,29 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var inPlace = proxy.InPlaceEditorTypes;
             while (subType != null)
             {
-                if (mainControlType == null)
+                if (mainControlType is null)
                 {
-                    TypeProxy subType2 = subType;
+                    TypeProxy modifiedSubType;
+
                     if (subType.IsGenericType && !inPlace.ContainsKey(subType))
-                        subType2 = subType.GetGenericTypeDefinition();
-                    if (inPlace.ContainsKey(subType2))
+                        modifiedSubType = subType.GetGenericTypeDefinition();
+                    else
+                        modifiedSubType = subType;
+
+                    if (inPlace.ContainsKey(modifiedSubType))
                     {
-                        mainControlType = inPlace[subType2];
+                        mainControlType = inPlace[modifiedSubType];
+                        //Engine.PrintLine($"{subType2.GetFriendlyName()} -> {mainControlType.GetFriendlyName()}");
                         if (!controlTypes.Contains(mainControlType))
                             controlTypes.PushFront(mainControlType);
                     }
                 }
                 TypeProxy[] interfaces = subType.GetInterfaces();
-                foreach (TypeProxy i in interfaces)
-                    if (inPlace.ContainsKey(i))
+                foreach (TypeProxy interfaceType in interfaces)
+                    if (inPlace.ContainsKey(interfaceType))
                     {
-                        TypeProxy controlType = inPlace[i];
+                        TypeProxy controlType = inPlace[interfaceType];
+                        //Engine.PrintLine($"{interfaceType.GetFriendlyName()} -> {controlType.GetFriendlyName()}");
                         if (!controlTypes.Contains(controlType))
                             controlTypes.PushBack(controlType);
                     }
@@ -649,7 +655,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             if (controlTypes.Count == 0)
             {
-                //Engine.LogWarning("Unable to find control for " + (propertyType == null ? "null" : propertyType.GetFriendlyName()));
+                //Engine.LogWarning($"{(propertyType is null ? "null" : propertyType.GetFriendlyName())} -> {nameof(PropGridObject)} (Unable to find control)");
                 controlTypes.PushBack(typeof(PropGridObject));
             }
             else if (controlTypes.Count > 1)
@@ -700,7 +706,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //    };
 
         //    //var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
-        //    string catName = MethodName;//category == null ? MethodName : category.Category;
+        //    string catName = MethodName;//category is null ? MethodName : category.Category;
         //    if (categories.ContainsKey(catName))
         //        categories[catName].AddMethod(control, attribs, displayName);
         //    else
@@ -733,7 +739,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //    };
 
         //    //var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
-        //    string catName = EventName;//category == null ? MethodName : category.Category;
+        //    string catName = EventName;//category is null ? MethodName : category.Category;
         //    if (categories.ContainsKey(catName))
         //        categories[catName].AddEvent(control, attribs, displayName);
         //    else
@@ -812,7 +818,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void PopulateSceneComponentTree(TreeNodeCollection nodes, ISceneComponent currentSceneComp)
         {
-            if (currentSceneComp == null)
+            if (currentSceneComp is null)
             {
                 nodes.Clear();
                 return;
@@ -887,7 +893,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
 
             TreeNode node = treeViewSceneComps.GetNodeAt(e.Location);
-            if (node == null)
+            if (node is null)
             {
                 treeViewSceneComps.SelectedNode = _selectedSceneComp = null;
                 return;
@@ -964,7 +970,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (!(TargetObject is IActor a))
                 return;
             ILogicComponent comp = Editor.UserCreateInstanceOf<ILogicComponent>();
-            if (comp == null)
+            if (comp is null)
                 return;
             int i = (lstLogicComps.SelectedIndex + 1).Clamp(0, a.LogicComponents.Count);
             if (i == a.LogicComponents.Count)
@@ -1028,7 +1034,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void UpdateCtxSceneComp()
         {
-            if (_selectedSceneComp == null)
+            if (_selectedSceneComp is null)
             {
                 btnAddChildSceneComp.Enabled =
                 btnMoveDownSceneComp.Enabled =
@@ -1066,13 +1072,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
             ISceneComponent comp = Editor.UserCreateInstanceOf<ISceneComponent>();
-            if (comp == null)
+            if (comp is null)
                 return;
 
             sibComps.Add(comp);
 
             TreeNode t = new TreeNode(comp.Name) { Tag = comp };
-            if (_selectedSceneComp.Parent == null)
+            if (_selectedSceneComp.Parent is null)
                 treeViewSceneComps.Nodes.Add(t);
             else
                 _selectedSceneComp.Parent.Nodes.Add(t);
@@ -1102,7 +1108,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnAddChildSceneComp_Click(object sender, EventArgs e)
         {
             ISceneComponent comp = Editor.UserCreateInstanceOf<ISceneComponent>();
-            if (comp == null)
+            if (comp is null)
                 return;
 
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;

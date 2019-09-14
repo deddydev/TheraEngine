@@ -163,52 +163,53 @@ namespace TheraEngine.Rendering
         #region Passes
         public void RenderDeferred(RenderPasses renderingPasses, ICamera camera, Viewport viewport, FrameBuffer target)
         {
+            AbstractRenderer renderer = Engine.Renderer;
             //_timeQuery.BeginQuery(EQueryTarget.TimeElapsed);
-            Engine.Renderer.PushCamera(camera);
-            Engine.Renderer.PushCurrent3DScene(this);
+            renderer.PushCamera(camera);
+            renderer.PushCurrent3DScene(this);
             try
             {
                 if (viewport != null)
                 {
+                    if (!viewport.FBOsInitialized)
+                        viewport.InitializeFBOs();
+
                     viewport.PushRenderingCamera(camera);
 
                     //Enable internal resolution
-                    Engine.Renderer.PushRenderArea(viewport.InternalResolution);
+                    renderer.PushRenderArea(viewport.InternalResolution);
                     {
                         RenderDeferredPass(viewport, renderingPasses);
 
-                        viewport.SSAOBlurFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        viewport.SSAOFBO.RenderFullscreen();
-                        viewport.SSAOBlurFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-                        viewport.GBufferFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        viewport.SSAOBlurFBO.RenderFullscreen();
-                        viewport.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                        viewport.SSAOFBO.RenderTo(viewport.SSAOBlurFBO);
+                        viewport.SSAOBlurFBO.RenderTo(viewport.GBufferFBO);
 
                         RenderLightPass(viewport);
                         RenderForwardPass(viewport, renderingPasses);
                         RenderBloomPass(viewport);
 
+                        if (camera.UsesAutoExposure)
+                        {
+                            viewport.HDRSceneTexture.CalcDotLuminance();
+                        }
+
                         if (camera is TypicalCamera typicalCamera)
                         {
-                            typicalCamera.PostProcessRef?.File?.ColorGrading?.UpdateExposure(viewport.HDRSceneTexture);
+                            typicalCamera.UpdateExposure(viewport.HDRSceneTexture);
 
                             TMaterial postMat = typicalCamera.PostProcessMaterial?.File;
                             if (postMat != null)
                                 RenderPostProcessPass(viewport, postMat);
                         }
-                        else if (camera is BlendableCamera bcam)
+                        else if (camera is BlendableCamera blendableCamera)
                         {
-                            var tcam1 = bcam.View1 as TypicalCamera;
-                            var tcam2 = bcam.View2 as TypicalCamera;
-                            tcam1.PostProcessRef?.File?.ColorGrading?.UpdateExposure(viewport.HDRSceneTexture);
-                            tcam2.PostProcessRef?.File?.ColorGrading?.UpdateExposure(viewport.HDRSceneTexture);
+                            blendableCamera.UpdateExposure(viewport.HDRSceneTexture);
                         }
                     }
-                    Engine.Renderer.PopRenderArea();
+                    renderer.PopRenderArea();
 
                     //Full viewport resolution now
-                    Engine.Renderer.PushRenderArea(viewport.Region);
+                    renderer.PushRenderArea(viewport.Region);
                     {
                         //Render the last pass to the actual screen resolution, 
                         //or the provided target FBO
@@ -216,31 +217,31 @@ namespace TheraEngine.Rendering
                         viewport.PostProcessFBO.RenderFullscreen();
                         target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                     }
-                    Engine.Renderer.PopRenderArea();
+                    renderer.PopRenderArea();
                     viewport.PopRenderingCamera();
                 }
                 else
                 {
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
 
-                    Engine.Renderer.ClearDepth(1.0f);
-                    Engine.Renderer.EnableDepthTest(true);
-                    Engine.Renderer.AllowDepthWrite(true);
-                    Engine.Renderer.StencilMask(~0);
-                    Engine.Renderer.ClearStencil(0);
-                    Engine.Renderer.Clear(target?.TextureTypes ?? EFBOTextureType.Color | EFBOTextureType.Depth | EFBOTextureType.Stencil);
+                    renderer.ClearDepth(1.0f);
+                    renderer.EnableDepthTest(true);
+                    renderer.AllowDepthWrite(true);
+                    renderer.StencilMask(~0);
+                    renderer.ClearStencil(0);
+                    renderer.Clear(target?.TextureTypes ?? EFBOTextureType.Color | EFBOTextureType.Depth | EFBOTextureType.Stencil);
 
-                    Engine.Renderer.AllowDepthWrite(false);
+                    renderer.AllowDepthWrite(false);
                     renderingPasses.Render(ERenderPass.Background);
 
-                    Engine.Renderer.AllowDepthWrite(true);
+                    renderer.AllowDepthWrite(true);
                     renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
                     renderingPasses.Render(ERenderPass.OpaqueForward);
                     renderingPasses.Render(ERenderPass.TransparentForward);
 
                     //Render forward on-top objects last
                     //Disable depth fail for objects on top
-                    Engine.Renderer.DepthFunc(EComparison.Always);
+                    renderer.DepthFunc(EComparison.Always);
                     renderingPasses.Render(ERenderPass.OnTopForward);
 
                     target?.Unbind(EFramebufferTarget.DrawFramebuffer);
@@ -248,8 +249,8 @@ namespace TheraEngine.Rendering
             }
             finally
             {
-                Engine.Renderer.PopCurrent3DScene();
-                Engine.Renderer.PopCamera();
+                renderer.PopCurrent3DScene();
+                renderer.PopCamera();
             }
             //_renderFPS = 1.0f / (_timeQuery.EndAndGetQueryInt() * 1e-9f);
             //Engine.PrintLine(_renderMS.ToString() + " ms");

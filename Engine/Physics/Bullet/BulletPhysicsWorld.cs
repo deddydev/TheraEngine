@@ -266,7 +266,7 @@ namespace TheraEngine.Physics
         {
             public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
             {
-                if (proxy0 == null || proxy1 == null)
+                if (proxy0 is null || proxy1 is null)
                     return false;
 
                 bool collides =
@@ -323,7 +323,7 @@ namespace TheraEngine.Physics
         }
         public override void Dispose()
         {
-            if (_dynamicsWorld == null)
+            if (_dynamicsWorld is null)
                 return;
             
             //Remove and dispose of constraints

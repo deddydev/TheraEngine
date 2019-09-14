@@ -113,7 +113,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public async Task<bool> TryInvokeManualParentDeserializeAsync<T>(TSerializeMemberInfo member, SerializeElement parent, T data)
         {
-            if (parent?.CustomDeserializeMethods == null)
+            if (parent?.CustomDeserializeMethods is null)
                 return false;
 
             IEnumerable<MethodInfoProxy> customMethods = parent.CustomDeserializeMethods.Where(
@@ -219,7 +219,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                             if (manuallySerialized ||
                                 ShouldWriteDefaultMembers ||
-                                !IsObjectDefault(resultMemberValue, TreeNode.DefaultObject == null ? null : member.GetObject(TreeNode.DefaultObject)))
+                                !IsObjectDefault(resultMemberValue, TreeNode.DefaultObject is null ? null : member.GetObject(TreeNode.DefaultObject)))
                             {
                                 SerializeAttribute attribute = new SerializeAttribute { Name = member.Name };
                                 attribute.SetValueAsObject(resultMemberValue);
@@ -254,7 +254,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                             if (manuallySerialized ||
                                 ShouldWriteDefaultMembers ||
-                                !IsObjectDefault(resultMemberValue, TreeNode.DefaultObject == null ? null : member.GetObject(TreeNode.DefaultObject)))
+                                !IsObjectDefault(resultMemberValue, TreeNode.DefaultObject is null ? null : member.GetObject(TreeNode.DefaultObject)))
                             {
                                 if (!parent.Content.SetValueAsObject(resultMemberValue))
                                 {
@@ -272,7 +272,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <returns></returns>
         public async Task<bool> TryInvokeManualParentSerializeAsync(string memberName, SerializeElement parent, SerializeElement element)
         {
-            if (parent?.CustomSerializeMethods == null)
+            if (parent?.CustomSerializeMethods is null)
                 return false;
 
             IEnumerable<MethodInfoProxy> customMethods = parent.CustomSerializeMethods.Where(
@@ -301,7 +301,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <returns></returns>
         public async Task<(bool, object)> TryInvokeManualParentSerializeAsync(string memberName, SerializeElement parent)
         {
-            if (parent?.CustomSerializeMethods == null)
+            if (parent?.CustomSerializeMethods is null)
                 return (false, null);
 
             IEnumerable<MethodInfoProxy> customMethods = parent.CustomSerializeMethods.Where(
@@ -356,7 +356,7 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     type = type.GetGenericArguments()[0];
                     var ser = DetermineObjectSerializer(type, true);
-                    if (ser == null)
+                    if (ser is null)
                     {
                         result = null;
                         return false;
@@ -442,7 +442,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public override bool ObjectToString(object obj, out string str)
         {
-            if (obj == null)
+            if (obj is null)
             {
                 str = string.Empty;
                 return true;

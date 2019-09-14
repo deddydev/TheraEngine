@@ -30,7 +30,7 @@ namespace TheraEngine.Input.Devices.DirectX
             //var keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
             //var mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
             //for (int i = 0; i < MaxControllers; ++i)
-            //    if (gamepads[i] == null)
+            //    if (gamepads[i] is null)
             //    {
 
             //        GamePadState gamepadState = GamePad.GetState(i);
@@ -41,13 +41,13 @@ namespace TheraEngine.Input.Devices.DirectX
             //        }
             //    }
 
-            //if (keyboards[0] == null)
+            //if (keyboards[0] is null)
             //{
             //    KeyboardState keyboardState = Keyboard.GetState();
             //    if (keyboardState.IsConnected)
             //        OnFoundKeyboard(0);
             //}
-            //if (mice[0] == null)
+            //if (mice[0] is null)
             //{
             //    MouseState mouseState = Mouse.GetState();
             //    if (mouseState.IsConnected)

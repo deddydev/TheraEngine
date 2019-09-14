@@ -475,7 +475,7 @@ namespace TheraEditor.Windows.Forms
 
         public string Format(string format, object arg, IFormatProvider formatProvider)
         {
-            if (format == null || !format.StartsWith(FileSizeFormat))
+            if (format is null || !format.StartsWith(FileSizeFormat))
                 return DefaultFormat(format, arg, formatProvider);
 
             if (arg is string)

@@ -125,7 +125,7 @@ namespace TheraEngine
         //    //TODO: search all appdomains, return marshalbyrefobject list containing typeproxies
         //    IEnumerable<Assembly> search;
 
-        //    if (assemblies == null || assemblies.Length == 0)
+        //    if (assemblies is null || assemblies.Length == 0)
         //    {
         //        search = AppDomain.CurrentDomain.GetAssemblies();
         //        ////PrintLine("FindTypes; returning assemblies from domains:");
@@ -253,7 +253,7 @@ namespace TheraEngine
 
             try
             {
-                if (OpenVR.Init(ref peError, EVRApplicationType.VRApplication_Scene) == null)
+                if (OpenVR.Init(ref peError, EVRApplicationType.VRApplication_Scene) is null)
                     LogWarning(peError.ToString());
                 else
                     PrintLine("VR system initialized successfully.");
@@ -400,7 +400,7 @@ namespace TheraEngine
         /// </summary>
         public static void UnregisterTick(ETickGroup group, ETickOrder order, DelTick function, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
-            if (function == null)
+            if (function is null)
                 return;
             
             var list = GetTickList(group, order, pausedBehavior);
@@ -865,7 +865,7 @@ namespace TheraEngine
 
             //internal static bool AddLocalFileInstance<T>(string path, T file) where T : class, IFileObject
             //{
-            //    if (string.IsNullOrEmpty(path) || file == null)
+            //    if (string.IsNullOrEmpty(path) || file is null)
             //        return false;
 
             //    LocalFileInstances.AddOrUpdate(path, new List<IFileObject>() { file }, (key, oldValue) =>
@@ -963,7 +963,7 @@ namespace TheraEngine
             public Font MakeFont(string fontName, float size, FontStyle style)
             {
                 FontFamily family = GetCustomFontFamily(fontName);
-                if (family == null)
+                if (family is null)
                     return new Font("Segoe UI", size, style);
                 return new Font(family, size, style);
             }
@@ -1014,7 +1014,7 @@ namespace TheraEngine
                 => PauseChanged?.Invoke(isPaused, toggler);
             public void OnDebugOutput(string message)
             {
-                if (AppDomainHelper.IsGameDomain && DebugOutput == null)
+                if (AppDomainHelper.IsGameDomain && DebugOutput is null)
                     Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] {message} (This message was not recieved by the GUI)");
 
                 DebugOutput?.Invoke(message);

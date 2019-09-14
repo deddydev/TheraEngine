@@ -82,7 +82,7 @@ namespace TheraEditor
                 => Editor.Instance.Project?.Intellisense?.GetTypeInfo(TypeNames[i]);
             public string GetFullNamespacePath()
             {
-                if (ParentNamespace == null)
+                if (ParentNamespace is null)
                     return Name;
                 else
                     return ParentNamespace + "." + Name;

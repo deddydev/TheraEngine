@@ -93,7 +93,7 @@ namespace KellermanSoftware.CompareNetObjects.Reports
         /// <returns></returns>
         private string EscapeString(object value)
         {
-            if (value == null)
+            if (value is null)
                 return string.Empty;
 
             string data = value.ToString();

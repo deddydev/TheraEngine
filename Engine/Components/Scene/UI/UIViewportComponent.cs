@@ -80,7 +80,7 @@ namespace TheraEngine.Rendering.UI
                 return;
 
             ICamera c = ViewportCamera;
-            if (!IsVisible || c == null)
+            if (!IsVisible || c is null)
                 return;
             
             _updating = true;
@@ -97,7 +97,7 @@ namespace TheraEngine.Rendering.UI
                 return;
 
             ICamera c = ViewportCamera;
-            if (!IsVisible || c == null)
+            if (!IsVisible || c is null)
                 return;
 
             _swapping = true;
@@ -114,7 +114,7 @@ namespace TheraEngine.Rendering.UI
                 return;
 
             ICamera c = ViewportCamera;
-            if (!IsVisible || c == null)
+            if (!IsVisible || c is null)
                 return;
             
             _rendering = true;

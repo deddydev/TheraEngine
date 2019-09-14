@@ -93,16 +93,16 @@ namespace TheraEditor.Windows.Forms
                 if (HighlightedComponent == value)
                     return;
 
-                if (value == null && HighlightedComponent != null)
+                if (value is null && HighlightedComponent != null)
                 {
-                    if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && HighlightedComponent != TransformTool3D.Instance.RootComponent))
+                    if (TransformTool3D.Instance is null || (TransformTool3D.Instance != null && HighlightedComponent != TransformTool3D.Instance.RootComponent))
                         _highlightPoint.RenderInfo.Visible = false;
                     //BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
                     //p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Default));
                 }
-                else if (value != null && HighlightedComponent == null)
+                else if (value != null && HighlightedComponent is null)
                 {
-                    if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && value != TransformTool3D.Instance.RootComponent))
+                    if (TransformTool3D.Instance is null || (TransformTool3D.Instance != null && value != TransformTool3D.Instance.RootComponent))
                         _highlightPoint.RenderInfo.Visible = true;
                     //BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
                     //p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Hand));
@@ -160,7 +160,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void UpdateMatHighlight(TMaterial m, bool highlighted)
         {
-            if (m == null)
+            if (m is null)
                 return;
 
             if (highlighted)
@@ -507,7 +507,7 @@ namespace TheraEditor.Windows.Forms
                     comp = null;
 
                 float upDist = 0.0f;
-                if (comp == null)
+                if (comp is null)
                 {
                     _hitNormal = Vec3.Up;
                     float depth = TMath.DistanceToDepth(DraggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
@@ -682,7 +682,7 @@ namespace TheraEditor.Windows.Forms
 
             if (SelectedComponent != null)
             {
-                if (OwningWorld == null)
+                if (OwningWorld is null)
                     return;
 
                 _highlightPoint.RenderInfo.Visible = false;

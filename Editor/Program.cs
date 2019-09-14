@@ -203,7 +203,7 @@ namespace TheraEditor
 
                 if (treeView)
                 {
-                    if (TreeNode == null)
+                    if (TreeNode is null)
                         CreateButton(true);
 
                     TreeNode treeNode = new TreeNode(displayText)
@@ -215,7 +215,7 @@ namespace TheraEditor
                 }
                 else
                 {
-                    if (Button == null)
+                    if (Button is null)
                         CreateButton(false);
 
                     ToolStripMenuItem btn = new ToolStripMenuItem(displayText)

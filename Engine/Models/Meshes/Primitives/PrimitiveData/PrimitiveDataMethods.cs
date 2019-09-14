@@ -238,7 +238,7 @@ namespace TheraEngine.Rendering.Models
             List<int> bindingIds = new List<int>();
             foreach (DataBuffer b in _buffers)
             {
-                if (b == null)
+                if (b is null)
                 {
                     //bindingIds.Add(0);
                     continue;
@@ -266,7 +266,7 @@ namespace TheraEngine.Rendering.Models
             int instanceDivisor = 0,
             EBufferTarget target = EBufferTarget.ArrayBuffer) where T : struct
         {
-            if (_buffers == null)
+            if (_buffers is null)
                 _buffers = new List<DataBuffer>();
 
             int bufferIndex = _buffers.Count;
@@ -301,7 +301,7 @@ namespace TheraEngine.Rendering.Models
             int instanceDivisor = 0,
             EBufferTarget target = EBufferTarget.ArrayBuffer) where T : struct
         {
-            if (_buffers == null)
+            if (_buffers is null)
                 throw new InvalidOperationException();
             if (bufferIndex < 0 || bufferIndex >= _buffers.Count)
                 throw new IndexOutOfRangeException();
@@ -336,7 +336,7 @@ namespace TheraEngine.Rendering.Models
             int instanceDivisor = 0,
             EBufferTarget target = EBufferTarget.ArrayBuffer) where T : unmanaged, IBufferable
         {
-            if (_buffers == null)
+            if (_buffers is null)
                 _buffers = new List<DataBuffer>();
 
             int bufferIndex = _buffers.Count;
@@ -372,7 +372,7 @@ namespace TheraEngine.Rendering.Models
             int instanceDivisor = 0,
             EBufferTarget target = EBufferTarget.ArrayBuffer) where T : unmanaged, IBufferable
         {
-            if (_buffers == null)
+            if (_buffers is null)
                 throw new InvalidOperationException();
             if (bufferIndex < 0 || bufferIndex >= _buffers.Count)
                 throw new IndexOutOfRangeException();
@@ -402,7 +402,7 @@ namespace TheraEngine.Rendering.Models
 
         public Remapper GetBuffer<T>(int bufferIndex, out T[] array, bool remap = false) where T : unmanaged, IBufferable
         {
-            if (_buffers == null || bufferIndex < 0 || bufferIndex >= _buffers.Count)
+            if (_buffers is null || bufferIndex < 0 || bufferIndex >= _buffers.Count)
             {
                 array = null;
                 return null;

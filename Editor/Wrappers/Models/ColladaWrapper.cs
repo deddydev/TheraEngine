@@ -88,11 +88,11 @@ namespace TheraEditor.Wrappers
             var data = await Collada.ImportAsync(FilePath, o, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
 
-            if (data == null || data.Models.Count == 0)
+            if (data is null || data.Models.Count == 0)
                 return;
 
             TFileObject skeleton = data.Models[0].Skeleton;
-            if (skeleton == null)
+            if (skeleton is null)
                 return;
 
             string dir = Path.GetDirectoryName(FilePath);
@@ -117,11 +117,11 @@ namespace TheraEditor.Wrappers
                 $"Importing {Path.GetFileName(FilePath)} as static model...", "Model imported.", 
                 async (p, c) => await Collada.ImportAsync(FilePath, o, p, c.Token));
 
-            if (data == null || data.Models.Count == 0)
+            if (data is null || data.Models.Count == 0)
                 return;
 
             TFileObject staticModel = data.Models[0].StaticModel;
-            if (staticModel == null)
+            if (staticModel is null)
                 return;
             
             string dir = Path.GetDirectoryName(FilePath);
@@ -146,11 +146,11 @@ namespace TheraEditor.Wrappers
             var data = await Collada.ImportAsync(FilePath, o, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
             
-            if (data == null || data.Models.Count == 0)
+            if (data is null || data.Models.Count == 0)
                 return;
 
             TFileObject skeletalModel = data.Models[0].SkeletalModel;
-            if (skeletalModel == null)
+            if (skeletalModel is null)
                 return;
             
             string dir = Path.GetDirectoryName(FilePath);

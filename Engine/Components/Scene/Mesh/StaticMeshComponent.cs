@@ -26,7 +26,7 @@ namespace TheraEngine.Components.Scene.Mesh
             _modelRef = model ?? new GlobalFileRef<StaticModel>();
             _modelRef.RegisterLoadEvent(OnModelLoaded);
 
-            if (info == null)
+            if (info is null)
                 RigidBodyCollision = null;
             else
             {
@@ -171,7 +171,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
         private void OnModelUnloaded(StaticModel model)
         {
-            if (model == null)
+            if (model is null)
                 return;
 
             model.RigidChildren.PostAnythingAdded -= RigidChildren_PostAnythingAdded;
@@ -185,7 +185,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         private void OnModelLoaded(StaticModel model)
         {
-            if (model == null)
+            if (model is null)
                 return;
 
             model.RigidChildren.PostAnythingAdded += RigidChildren_PostAnythingAdded;
@@ -237,7 +237,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
         public override void OnSpawned()
         {
-            if (Meshes == null)
+            if (Meshes is null)
             {
                 if (_modelRef.IsLoaded)
                     OnModelLoaded(_modelRef.File);
@@ -264,7 +264,7 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             base.OnHighlightChanged(highlighted);
 
-            if (OwningScene == null)
+            if (OwningScene is null)
                 return;
 
             foreach (StaticRenderableMesh m in Meshes)

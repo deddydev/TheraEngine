@@ -15,7 +15,7 @@ namespace Extensions
 
         public static bool IsOverlapped(this IWin32Window window)
         {
-            if (window == null)
+            if (window is null)
                 return false;
             if (window.Handle == IntPtr.Zero)
                 return false;
@@ -113,7 +113,7 @@ namespace Extensions
                 if (c.Visible && c.Bounds.Contains(pos))
                 {
                     child = c.FindControlAtPoint(new Point(pos.X - c.Left, pos.Y - c.Top));
-                    if (child == null) return c;
+                    if (child is null) return c;
                     else return child;
                 }
             }

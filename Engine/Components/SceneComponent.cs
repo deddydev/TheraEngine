@@ -407,12 +407,12 @@ namespace TheraEngine.Components
         /// Returns the world transform of the parent scene component.
         /// </summary>
         public Matrix4 GetParentMatrix()
-            => ParentSocket == null ? Matrix4.Identity : ParentSocket.WorldMatrix;
+            => ParentSocket is null ? Matrix4.Identity : ParentSocket.WorldMatrix;
         /// <summary>
         /// Returns the inverse of the world transform of the parent scene component.
         /// </summary>
         public Matrix4 GetInverseParentMatrix()
-            => ParentSocket == null ? Matrix4.Identity : ParentSocket.InverseWorldMatrix;
+            => ParentSocket is null ? Matrix4.Identity : ParentSocket.InverseWorldMatrix;
 
         /// <summary>
         /// Gets the transformation of this component in relation to the actor's root component.
@@ -439,7 +439,7 @@ namespace TheraEngine.Components
         //[Browsable(false)]
         //[Category("Rendering")]
         //public bool IsSpawned
-        //    => OwningActor == null ? false : OwningActor.IsSpawned;
+        //    => OwningActor is null ? false : OwningActor.IsSpawned;
         //[Browsable(false)]
         [Category("Scene Component")]
         public virtual ISocket ParentSocket
@@ -616,7 +616,7 @@ namespace TheraEngine.Components
         }
         protected virtual void HandleSingleChildAdded(ISceneComponent item)
         {
-            if (item == null)
+            if (item is null)
             {
                 Engine.LogWarning("Null scene component child added.");
                 return;
@@ -648,7 +648,7 @@ namespace TheraEngine.Components
         /// <returns>The socket that this component was attached to. Null if failed to attach.</returns>
         public ISocket AttachTo(SkeletalMeshComponent mesh, string socketName)
         {
-            if (mesh == null)
+            if (mesh is null)
             {
                 Engine.LogWarning("Cannot attach to a null skeletal mesh.");
                 return null;
@@ -685,7 +685,7 @@ namespace TheraEngine.Components
         /// <returns>The socket that this component was attached to. Null if failed to attach.</returns>
         public ISocket AttachTo(StaticMeshComponent mesh, string socketName)
         {
-            if (mesh == null)
+            if (mesh is null)
             {
                 Engine.LogWarning("Cannot attach to a null static mesh.");
                 return null;
@@ -746,7 +746,7 @@ namespace TheraEngine.Components
 #if EDITOR
         protected void AddPreviewRenderCommand(RenderCommandMesh3D renderCommand, RenderPasses passes, ICamera camera, bool scaleByDistance, float scale)
         {
-            if (passes.ShadowPass || camera == null)
+            if (passes.ShadowPass || camera is null)
                 return;
 
             float camDist = camera.DistanceFromScreenPlane(WorldPoint);

@@ -32,12 +32,12 @@ namespace TheraEditor.Wrappers
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             SolutionWrapper w = GetInstance<SolutionWrapper>();
-            w.ContextMenu.MenuItems[2].Visible = false;
+            w.ContextMenuStrip.Items[2].Visible = false;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             SolutionWrapper w = GetInstance<SolutionWrapper>();
-            w.ContextMenu.MenuItems[2].Visible = 
+            w.ContextMenuStrip.Items[2].Visible = 
                 string.Equals(w.FilePath, Editor.Instance.Project?.SolutionPath ?? string.Empty,
                 StringComparison.InvariantCultureIgnoreCase);
         }

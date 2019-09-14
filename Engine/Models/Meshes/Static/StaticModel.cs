@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.Models
         //[CustomXMLSerializeMethod(nameof(Collision))]
         //private void SerializeConvexShape(XmlWriter writer)
         //{
-        //    if (_collision == null)
+        //    if (_collision is null)
         //        return;
 
         //    //TODO: serialize convex shape collision using bullet serializer

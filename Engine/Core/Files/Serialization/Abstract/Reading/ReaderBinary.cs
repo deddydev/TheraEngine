@@ -81,7 +81,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 object obj = null;
                 Type objType = memberType;
-                //if (objType == null)
+                //if (objType is null)
                 //{
                 //    Engine.LogWarning($"{nameof(objType)} cannot be null.");
                 //    return null;
@@ -181,7 +181,7 @@ namespace TheraEngine.Core.Files.Serialization
             private bool ShouldReadFileObjectManually(Type objType)
             {
                 TFileExt ext = TFileObject.GetFileExtension(objType);
-                if (ext == null)
+                if (ext is null)
                     return false;
 
                 bool serConfig = ext.ManualBinConfigSerialize;

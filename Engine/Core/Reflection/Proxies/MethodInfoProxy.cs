@@ -14,7 +14,7 @@ namespace TheraEngine.Core.Reflection
         public static ConcurrentDictionary<MethodInfo, MethodInfoProxy> Proxies { get; } 
             = new ConcurrentDictionary<MethodInfo, MethodInfoProxy>();
         public static MethodInfoProxy Get(MethodInfo info)
-            => info == null ? null : Proxies.GetOrAdd(info, new MethodInfoProxy(info));
+            => info is null ? null : Proxies.GetOrAdd(info, new MethodInfoProxy(info));
         public static implicit operator MethodInfoProxy(MethodInfo info) => Get(info);
         public static explicit operator MethodInfo(MethodInfoProxy proxy) => proxy.Value;
 

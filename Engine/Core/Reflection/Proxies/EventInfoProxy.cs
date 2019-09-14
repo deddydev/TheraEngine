@@ -8,7 +8,7 @@ namespace TheraEngine.Core.Reflection
         public static ConcurrentDictionary<EventInfo, EventInfoProxy> Proxies { get; }
             = new ConcurrentDictionary<EventInfo, EventInfoProxy>();
         public static EventInfoProxy Get(EventInfo info)
-            => info == null ? null : Proxies.GetOrAdd(info, new EventInfoProxy(info));
+            => info is null ? null : Proxies.GetOrAdd(info, new EventInfoProxy(info));
         public static implicit operator EventInfoProxy(EventInfo info) => Get(info);
         public static implicit operator EventInfo(EventInfoProxy proxy) => proxy.Value;
 

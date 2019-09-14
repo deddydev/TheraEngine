@@ -26,9 +26,9 @@
         public static Task<TResult> InvokeAsync<TResult>(AppDomain domain,
             Func<Task<TResult>> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
                 throw new ArgumentNullException("domain");
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
 
             var proxy = Remote<RemoteFuncAsync<TResult>>.CreateProxy(domain);
@@ -61,9 +61,9 @@
         public static Task<TResult> InvokeAsync<T1, TResult>(AppDomain domain, T1 arg1,
             Func<T1, Task<TResult>> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
                 throw new ArgumentNullException("domain");
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
 
             var proxy = Remote<RemoteFuncAsync<T1, TResult>>.CreateProxy(domain);
@@ -102,9 +102,9 @@
         public static Task<TResult> InvokeAsync<T1, T2, TResult>(AppDomain domain, T1 arg1, T2 arg2,
             Func<T1, T2, Task<TResult>> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
                 throw new ArgumentNullException("domain");
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
 
             var proxy = Remote<RemoteFuncAsync<T1, T2, TResult>>.CreateProxy(domain);
@@ -149,9 +149,9 @@
         public static Task<TResult> InvokeAsync<T1, T2, T3, TResult>(AppDomain domain, T1 arg1, T2 arg2, T3 arg3,
             Func<T1, T2, T3, Task<TResult>> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
                 throw new ArgumentNullException("domain");
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
 
             var proxy = Remote<RemoteFuncAsync<T1, T2, T3, TResult>>.CreateProxy(domain);
@@ -202,9 +202,9 @@
         public static Task<TResult> InvokeAsync<T1, T2, T3, T4, TResult>(AppDomain domain, T1 arg1, T2 arg2, T3 arg3, T4 arg4,
             Func<T1, T2, T3, T4, Task<TResult>> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
                 throw new ArgumentNullException("domain");
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
 
             var proxy = Remote<RemoteFuncAsync<T1, T2, T3, T4, TResult>>.CreateProxy(domain);
@@ -261,9 +261,9 @@
         public static Task<TResult> InvokeAsync<T1, T2, T3, T4, T5, TResult>(AppDomain domain, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5,
             Func<T1, T2, T3, T4, T5, Task<TResult>> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
                 throw new ArgumentNullException("domain");
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
 
             var proxy = Remote<RemoteFuncAsync<T1, T2, T3, T4, T5, TResult>>.CreateProxy(domain);
@@ -292,9 +292,9 @@
         /// </param>
         public void Invoke(Func<Task<TResult>> toInvoke, MarshalableTaskCompletionSource<TResult> tcs)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
-            if (tcs == null)
+            if (tcs is null)
                 throw new ArgumentNullException("tcs");
             toInvoke.Invoke().ContinueWith(t =>
              {
@@ -335,9 +335,9 @@
         /// </param>
         public void Invoke(T1 arg1, Func<T1, Task<TResult>> toInvoke, MarshalableTaskCompletionSource<TResult> tcs)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
-            if (tcs == null)
+            if (tcs is null)
                 throw new ArgumentNullException("tcs");
             toInvoke.Invoke(arg1).ContinueWith(t =>
              {
@@ -382,9 +382,9 @@
         /// </param>
         public void Invoke(T1 arg1, T2 arg2, Func<T1, T2, Task<TResult>> toInvoke, MarshalableTaskCompletionSource<TResult> tcs)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
-            if (tcs == null)
+            if (tcs is null)
                 throw new ArgumentNullException("tcs");
             toInvoke.Invoke(arg1, arg2).ContinueWith(t =>
             {
@@ -435,9 +435,9 @@
         /// </param>
         public void Invoke(T1 arg1, T2 arg2, T3 arg3, Func<T1, T2, T3, Task<TResult>> toInvoke, MarshalableTaskCompletionSource<TResult> tcs)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
-            if (tcs == null)
+            if (tcs is null)
                 throw new ArgumentNullException("tcs");
             toInvoke.Invoke(arg1, arg2, arg3).ContinueWith(t =>
              {
@@ -494,9 +494,9 @@
         /// </param>
         public void Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, Func<T1, T2, T3, T4, Task<TResult>> toInvoke, MarshalableTaskCompletionSource<TResult> tcs)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
-            if (tcs == null)
+            if (tcs is null)
                 throw new ArgumentNullException("tcs");
 
             toInvoke.Invoke(arg1, arg2, arg3, arg4).ContinueWith(t =>
@@ -560,9 +560,9 @@
         /// </param>
         public void Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, Func<T1, T2, T3, T4, T5, Task<TResult>> toInvoke, MarshalableTaskCompletionSource<TResult> tcs)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
                 throw new ArgumentNullException("toInvoke");
-            if (tcs == null)
+            if (tcs is null)
                 throw new ArgumentNullException("tcs");
 
             toInvoke.Invoke(arg1, arg2, arg3, arg4, arg5).ContinueWith(t =>

@@ -84,11 +84,11 @@ namespace TheraEngine.Physics.ShapeTracing
         internal override void Reset() => Result = null;
 
         public TCollisionObject CollisionObject => Result?.CollisionObject;
-        public float HitFraction => Result == null ? 1.0f : Result.HitFraction;
-        public Vec3 HitNormalWorld => Result == null ? Vec3.Zero : Result.HitNormalWorld;
-        public Vec3 HitPointWorld => Result == null ? Vec3.Zero : Result.HitPointWorld;
-        public int ShapePart => Result == null ? -1 : Result.ShapePart;
-        public int TriangleIndex => Result == null ? -1 : Result.TriangleIndex;
+        public float HitFraction => Result is null ? 1.0f : Result.HitFraction;
+        public Vec3 HitNormalWorld => Result is null ? Vec3.Zero : Result.HitNormalWorld;
+        public Vec3 HitPointWorld => Result is null ? Vec3.Zero : Result.HitPointWorld;
+        public int ShapePart => Result is null ? -1 : Result.ShapePart;
+        public int TriangleIndex => Result is null ? -1 : Result.TriangleIndex;
 
         public ShapeTraceSingle(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)
             : base(shape, start, end, collisionGroup, collidesWith, ignored) { }
@@ -129,7 +129,7 @@ namespace TheraEngine.Physics.ShapeTracing
             if (!normalInWorldSpace)
                 hitNormal = Vec3.TransformNormal(hitNormal, obj.WorldTransform);
             
-            if (Result == null)
+            if (Result is null)
                 Result = new ShapeCollisionResult(obj, hitFraction, hitNormal, hitPointWorld, shapePart, triangleIndex);
             else if (hitFraction < Result.HitFraction)
             {

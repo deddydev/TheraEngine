@@ -27,7 +27,7 @@ namespace TheraEditor.Wrappers
         private async Task GenerateSolution()
         {
             var res = await ResourceRef.GetInstanceAsync();
-            if (res == null)
+            if (res is null)
                 return;
 
             await res.GenerateSolutionAsync();
@@ -43,7 +43,7 @@ namespace TheraEditor.Wrappers
         }
         #endregion
 
-        public ProjectWrapper() : base(_menu) { }
+        public ProjectWrapper() : base(_menu) { ResourceRef.LoadInGameDomain = false; }
         
         public override async void EditResource()
         {

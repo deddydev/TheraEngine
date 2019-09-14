@@ -195,12 +195,12 @@ namespace TheraEngine.Rendering.Models.Materials
             //                            value = Activator.CreateInstance(valueType, arrayCount);
             //                            name = name.Substring(0, arrayIndexStart);
 
-            //                            if (match == null)
+            //                            if (match is null)
             //                                value = shaderType.GetDefaultValue();
             //                            else
             //                                value = match.GenericValue;
             //                        }
-            //                        else if (match == null)
+            //                        else if (match is null)
             //                            value = shaderType.GetDefaultValue();
             //                        else
             //                            value = match.GenericValue;
@@ -274,7 +274,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         public void SetUniforms(RenderProgram program)
         {
-            if (program == null)
+            if (program is null)
                 program = Program;
 
             //Apply special rendering parameters
@@ -355,7 +355,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 return;
             
             BaseTexRef tref = Textures[textureIndex];
-            if (tref == null)
+            if (tref is null)
                 return;
 
             var tex = tref.GetRenderTextureGeneric(tref.FrameBufferAttachment != null); //await tref.GetRenderTextureGenericAsync();

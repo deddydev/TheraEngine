@@ -93,7 +93,7 @@ namespace TheraEngine.Animation
 
         public void BlendWith(SkeletalAnimationPose other, float otherWeight)
         {
-            if (other == null)
+            if (other is null)
                 return;
             foreach (string name in GetCommonNames(other))
             {
@@ -187,7 +187,7 @@ namespace TheraEngine.Animation
             for (int i = 0; i < 9; ++i)
             {
                 float? value = values[i];
-                _values[i] = value == null ? new FrameValueWeight(i >= 6 ? 1.0f : 0.0f, 0.0f) : new FrameValueWeight(value.Value, 1.0f);
+                _values[i] = value is null ? new FrameValueWeight(i >= 6 ? 1.0f : 0.0f, 0.0f) : new FrameValueWeight(value.Value, 1.0f);
             }
         }
         //public BoneFrame(string name, Vec3 translation, Rotator rotation, Vec3 scale, params float[] weights)
@@ -253,7 +253,7 @@ namespace TheraEngine.Animation
             Vec3 t;
             Vec3 s;
 
-            if (otherBoneFrame == null)
+            if (otherBoneFrame is null)
             {
                 otherWeight = 1.0f - otherWeight;
                 for (int i = 0; i < _values.Length; ++i)

@@ -94,7 +94,7 @@ namespace TheraEngine.Rendering.DirectX
         
         public override void RenderCurrentPrimitiveManager(int instances)
         {
-            if (_currentPrimitiveManager == null)
+            if (_currentPrimitiveManager is null)
                 return;
 
             EPrimitiveType type = _currentPrimitiveManager.Data._type;

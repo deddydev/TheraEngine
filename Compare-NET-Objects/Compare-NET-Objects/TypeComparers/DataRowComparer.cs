@@ -38,7 +38,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             DataRow dataRow2 = parms.Object2 as DataRow;
 
             //This should never happen, null check happens one level up
-            if (dataRow1 == null || dataRow2 == null)
+            if (dataRow1 is null || dataRow2 is null)
                 return;
 
             for (int i = 0; i < Math.Min(dataRow2.Table.Columns.Count, dataRow1.Table.Columns.Count); i++)

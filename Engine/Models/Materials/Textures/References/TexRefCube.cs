@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public void FillRenderMap(RenderCubeMipmap mip, int mipIndex)
         {
-            if (mip == null)
+            if (mip is null)
                 return;
             if (IsCrossMap)
             {
@@ -237,7 +237,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private void SetParameters()
         {
-            if (_texture == null)
+            if (_texture is null)
                 return;
 
             _texture.Bind();

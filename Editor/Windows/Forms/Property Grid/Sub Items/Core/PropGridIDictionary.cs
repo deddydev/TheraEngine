@@ -36,7 +36,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             lblObjectTypeName.Text = type.GetFriendlyName();
             chkNull.Visible = !type.IsValueType;
 
-            if (!(chkNull.Checked = Dictionary == null))
+            if (!(chkNull.Checked = Dictionary is null))
             {
                 lblObjectTypeName.Enabled = Dictionary.Count > 0;
                 btnAdd.Visible = !Dictionary.IsFixedSize;
@@ -74,7 +74,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             propGridDicItems.PropertyTable.SuspendLayout();
 
-            if (dic == null)
+            if (dic is null)
                 propGridDicItems.DestroyProperties();
             else
                 await Task.Run(() =>
@@ -146,7 +146,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Color _prevLabelColor;
         private void Label_MouseLeave(object sender, EventArgs e)
         {
-            if (Dictionary == null || Dictionary.Count == 0)
+            if (Dictionary is null || Dictionary.Count == 0)
                 return;
             Label label = (Label)sender;
             label.BackColor = _prevLabelColor;
@@ -154,7 +154,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void Label_MouseEnter(object sender, EventArgs e)
         {
-            if (Dictionary == null || Dictionary.Count == 0)
+            if (Dictionary is null || Dictionary.Count == 0)
                 return;
             Label label = (Label)sender;
             _prevLabelColor = label.BackColor;
@@ -165,10 +165,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             int i = Dictionary.Count;
             object key = Editor.UserCreateInstanceOf(_keyType, true, this);
-            if (key == null)
+            if (key is null)
                 return;
             object value = Editor.UserCreateInstanceOf(_valueType, true, this);
-            if (value == null)
+            if (value is null)
                 return;
             
             Dictionary.Add(key, value);

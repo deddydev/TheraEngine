@@ -294,7 +294,7 @@ namespace TheraEngine.Actors
 #if EDITOR
         protected internal override void OnHighlightChanged(bool highlighted)
         {
-            if (SceneComponentCache == null)
+            if (SceneComponentCache is null)
                 return;
 
             foreach (ISceneComponent s in SceneComponentCache)
@@ -302,7 +302,7 @@ namespace TheraEngine.Actors
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (SceneComponentCache == null)
+            if (SceneComponentCache is null)
                 return;
 
             foreach (ISceneComponent s in SceneComponentCache)

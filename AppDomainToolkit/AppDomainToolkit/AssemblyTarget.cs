@@ -52,7 +52,7 @@
         /// </returns>
         public static IAssemblyTarget FromAssembly(Assembly assembly)
         {
-            if (assembly == null)
+            if (assembly is null)
             {
                 throw new ArgumentNullException("assembly");
             }
@@ -85,7 +85,7 @@
         /// </returns>
         public static IAssemblyTarget FromPath(Uri codebase, string location = null, string fullname = null)
         {
-            if (codebase == null)
+            if (codebase is null)
             {
                 throw new ArgumentNullException("codebase", "Codebase URI cannot be null!");
             }
@@ -120,7 +120,7 @@
         /// </returns>
         public static IAssemblyTarget FromDynamic(string fullName)
         {
-            if (fullName == null)
+            if (fullName is null)
             {
                 throw new ArgumentNullException("fullName", "FullName cannot be null!");
             }

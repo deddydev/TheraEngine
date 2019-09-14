@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering
                     int th = -1;
                     foreach (var tex in _material.Textures)
                     {
-                        if (tex.FrameBufferAttachment == null)
+                        if (tex.FrameBufferAttachment is null)
                             continue;
 
                         if (tex is TexRef2D tref)

@@ -101,7 +101,7 @@ namespace TheraEngine.Core.Files.Serialization
         public static BaseObjectSerializer DetermineObjectSerializer(
             TypeProxy objectType, bool mustAllowStringSerialize = false, bool mustAllowBinarySerialize = false)
         {
-            if (objectType == null)
+            if (objectType is null)
             {
                 Engine.LogWarning("Unable to create object serializer for null type.");
                 return null;

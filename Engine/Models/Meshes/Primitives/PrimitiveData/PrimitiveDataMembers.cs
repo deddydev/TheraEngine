@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering.Models
         public event Action BufferInfoChanged;
 
         [Browsable(false)]
-        public bool HasSkinning => _utilizedBones == null ? false : _utilizedBones.Length > 0;
+        public bool HasSkinning => _utilizedBones is null ? false : _utilizedBones.Length > 0;
         [Browsable(false)]
         public string SingleBindBone
         {

@@ -13,7 +13,7 @@ namespace TheraEngine.Core.Reflection
         public static ConcurrentDictionary<Assembly, AssemblyProxy> Proxies { get; }
             = new ConcurrentDictionary<Assembly, AssemblyProxy>();
         public static AssemblyProxy Get(Assembly assembly)
-            => assembly == null ? null : Proxies.GetOrAdd(assembly, new AssemblyProxy(assembly));
+            => assembly is null ? null : Proxies.GetOrAdd(assembly, new AssemblyProxy(assembly));
         public AppDomain Domain => AppDomain.CurrentDomain;
 
         public static implicit operator AssemblyProxy(Assembly assembly) => Get(assembly);

@@ -51,7 +51,7 @@ namespace TheraEngine.Components.Scene.Volumes
         private ContactTestMulti _test = new ContactTestMulti(null, 0, 0);
         private void Tick(float delta)
         {
-            if (RigidBodyCollision == null)
+            if (RigidBodyCollision is null)
                 return;
 
             ushort group = RigidBodyCollision.CollisionGroup;

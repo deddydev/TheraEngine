@@ -31,12 +31,12 @@
         /// </param>
         public static void Invoke(AppDomain domain, Action toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
 
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -62,12 +62,12 @@
         /// </param>
         public static void Invoke<T>(AppDomain domain, T arg, Action<T> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
 
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -99,12 +99,12 @@
         /// </param>
         public static void Invoke<T1, T2>(AppDomain domain, T1 arg1, T2 arg2, Action<T1, T2> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
 
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -142,12 +142,12 @@
         /// </param>
         public static void Invoke<T1, T2, T3>(AppDomain domain, T1 arg1, T2 arg2, T3 arg3, Action<T1, T2, T3> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
 
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -191,12 +191,12 @@
         /// </param>
         public static void Invoke<T1, T2, T3, T4>(AppDomain domain, T1 arg1, T2 arg2, T3 arg3, T4 arg4, Action<T1, T2, T3, T4> toInvoke)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }
 
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -207,7 +207,7 @@
 
         public void Invoke(Action toInvoke)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -250,7 +250,7 @@
         /// </param>
         public void Invoke(T arg1, Action<T> toInvoke)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -299,7 +299,7 @@
         /// </param>
         public void Invoke(T1 arg1, T2 arg2, Action<T1, T2> toInvoke)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -354,7 +354,7 @@
         /// </param>
         public void Invoke(T1 arg1, T2 arg2, T3 arg3, Action<T1, T2, T3> toInvoke)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }
@@ -415,7 +415,7 @@
         /// </param>
         public void Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, Action<T1, T2, T3, T4> toInvoke)
         {
-            if (toInvoke == null)
+            if (toInvoke is null)
             {
                 throw new ArgumentNullException("toInvoke");
             }

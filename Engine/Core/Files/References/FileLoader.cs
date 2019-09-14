@@ -168,7 +168,7 @@ namespace TheraEngine.Core.Files
         /// </summary>
         public virtual void RegisterLoadEvent(Action<T> onLoaded)
         {
-            if (onLoaded == null)
+            if (onLoaded is null)
                 return;
 
             Loaded += onLoaded;
@@ -176,7 +176,7 @@ namespace TheraEngine.Core.Files
         protected void OnLoaded(T file) => Loaded?.Invoke(file);
         public virtual void UnregisterLoadEvent(Action<T> onLoaded)
         {
-            if (onLoaded == null)
+            if (onLoaded is null)
                 return;
             Loaded -= onLoaded;
         }
@@ -362,9 +362,9 @@ namespace TheraEngine.Core.Files
             }
             else
             {
-                if (args == null)
+                if (args is null)
                     args = new (Type, object)[0];
-                if (SubType.GetConstructor(args.Select(x => x.Type).ToArray()) == null)
+                if (SubType.GetConstructor(args.Select(x => x.Type).ToArray()) is null)
                 {
                     Engine.LogWarning("Can't automatically instantiate '" + SubType.GetFriendlyName() + "' with " + (args.Length == 0 ?
                         "no parameters." : "these parameters: " + string.Join(", ", args.Select(x => x.Type.GetFriendlyName()))));

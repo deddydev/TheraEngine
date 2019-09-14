@@ -39,7 +39,7 @@ namespace TheraEngine.Core.Files
         {
             get
             {
-                if (_text == null && !string.IsNullOrWhiteSpace(FilePath))
+                if (_text is null && !string.IsNullOrWhiteSpace(FilePath))
                     _encoding = GetEncoding(FilePath);
                 return _encoding;
             }

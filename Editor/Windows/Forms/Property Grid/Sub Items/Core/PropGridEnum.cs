@@ -183,7 +183,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void UpdateControls(TypeProxy enumType)
         {
-            if (enumType == null)
+            if (enumType is null)
                 return;
             
             bool splitCamelCase = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase;

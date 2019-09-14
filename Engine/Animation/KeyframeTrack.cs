@@ -247,10 +247,10 @@ namespace TheraEngine.Animation
         
         public void Add(T key)
         {
-            if (key == null)
+            if (key is null)
                 return;
             
-            if (First == null)
+            if (First is null)
             {
                 //Reset key location before adding
                 key.Remove();
@@ -264,7 +264,7 @@ namespace TheraEngine.Animation
         }
         public void RemoveLast()
         {
-            if (Last == null)
+            if (Last is null)
                 return;
 
             if (First == Last)
@@ -283,7 +283,7 @@ namespace TheraEngine.Animation
         }
         public void RemoveFirst()
         {
-            if (First == null)
+            if (First is null)
                 return;
 
             if (First == Last)
@@ -325,7 +325,7 @@ namespace TheraEngine.Animation
             Keyframe node = First;
             do
             {
-                if (node == null)
+                if (node is null)
                     break;
                 yield return node;
                 node = node.Next;
@@ -337,7 +337,7 @@ namespace TheraEngine.Animation
             Keyframe node = First;
             do
             {
-                if (node == null)
+                if (node is null)
                     break;
                 yield return (T)node;
                 node = node.Next;
@@ -502,12 +502,12 @@ namespace TheraEngine.Animation
             object defaultObj = valueType.GetDefaultValue();
             for (int i = 0; i < keyCount; ++i)
             {
-                float sec                   = seconds       == null || !seconds.IndexInRange(i)                     ? 0.0f                   : seconds[i];
-                EVectorInterpType interp    = interpTypes   == null || !interpTypes.IndexInRange(i)                 ? EVectorInterpType.Step : interpTypes[i];
-                object inVal                = inValues      == null || !((Array)inValues).IndexInRangeGeneric(i)    ? defaultObj             : ((Array)inValues).GetValue(i);
-                object outVal               = outValues     == null || !((Array)outValues).IndexInRangeGeneric(i)   ? defaultObj             : ((Array)outValues).GetValue(i);
-                object inTan                = inTans        == null || !((Array)inTans).IndexInRangeGeneric(i)      ? defaultObj             : ((Array)inTans).GetValue(i);
-                object outTan               = outTans       == null || !((Array)outTans).IndexInRangeGeneric(i)     ? defaultObj             : ((Array)outTans).GetValue(i);
+                float sec                   = seconds       is null || !seconds.IndexInRange(i)                     ? 0.0f                   : seconds[i];
+                EVectorInterpType interp    = interpTypes   is null || !interpTypes.IndexInRange(i)                 ? EVectorInterpType.Step : interpTypes[i];
+                object inVal                = inValues      is null || !((Array)inValues).IndexInRangeGeneric(i)    ? defaultObj             : ((Array)inValues).GetValue(i);
+                object outVal               = outValues     is null || !((Array)outValues).IndexInRangeGeneric(i)   ? defaultObj             : ((Array)outValues).GetValue(i);
+                object inTan                = inTans        is null || !((Array)inTans).IndexInRangeGeneric(i)      ? defaultObj             : ((Array)inTans).GetValue(i);
+                object outTan               = outTans       is null || !((Array)outTans).IndexInRangeGeneric(i)     ? defaultObj             : ((Array)outTans).GetValue(i);
 
                 kf = new T();
 
@@ -612,10 +612,10 @@ namespace TheraEngine.Animation
         public Keyframe Prev => _prev;
         [Browsable(false)]
         [Category("Keyframe")]
-        public bool IsFirst => _prev == null;
+        public bool IsFirst => _prev is null;
         [Browsable(false)]
         [Category("Keyframe")]
-        public bool IsLast => _next == null;
+        public bool IsLast => _next is null;
         [Browsable(false)]
         public BaseKeyframeTrack OwningTrack
         {
@@ -636,7 +636,7 @@ namespace TheraEngine.Animation
         private BaseKeyframeTrack _owningTrack = null;
         public void UpdateLink(Keyframe key, bool notifyChange = true)
         {
-            if (key == null || key == this)
+            if (key is null || key == this)
                 return;
 
             //if (_next == key)
@@ -653,7 +653,7 @@ namespace TheraEngine.Animation
             if (key.Second >= Second)
             {
                 //After current key
-                if (Next == null || key.Second < Next.Second)
+                if (Next is null || key.Second < Next.Second)
                 {
                     if (_next != key)
                     {
@@ -678,7 +678,7 @@ namespace TheraEngine.Animation
             else
             {
                 //Before current key
-                if (Prev == null || key.Second >= Prev.Second)
+                if (Prev is null || key.Second >= Prev.Second)
                 {
                     if (_prev != key)
                     {

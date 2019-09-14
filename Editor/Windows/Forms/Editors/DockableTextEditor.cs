@@ -149,7 +149,7 @@ namespace TheraEditor.Windows.Forms
             get => _targetFile;
             set
             {
-                string path = _targetFile == null || _targetFile.RootFile != _targetFile ? null : _targetFile.FilePath;
+                string path = _targetFile is null || _targetFile.RootFile != _targetFile ? null : _targetFile.FilePath;
                 if (!string.IsNullOrWhiteSpace(path))
                 {
                     if (TextEditorInstances.ContainsKey(path))
@@ -160,7 +160,7 @@ namespace TheraEditor.Windows.Forms
 
                 _targetFile = value;
 
-                path = _targetFile == null || _targetFile.RootFile != _targetFile ? string.Empty : _targetFile.FilePath ?? string.Empty;
+                path = _targetFile is null || _targetFile.RootFile != _targetFile ? string.Empty : _targetFile.FilePath ?? string.Empty;
                 if (_isStreaming = !string.IsNullOrWhiteSpace(path))
                 {
                     if (!TextEditorInstances.ContainsKey(path))
@@ -1034,7 +1034,7 @@ namespace TheraEditor.Windows.Forms
         //}
         //private void SelectHoveredLine()
         //{
-        //    if (HoveredWordRange == null)
+        //    if (HoveredWordRange is null)
         //        return;
             
         //    Range line = HoveredWordRange.Clone();
@@ -1500,7 +1500,7 @@ namespace TheraEditor.Windows.Forms
             public string InsertSpaces(string fragment)
             {
                 var m = Regex.Match(fragment, Pattern);
-                if (m == null)
+                if (m is null)
                     return fragment;
                 if (m.Groups[1].Value == "" && m.Groups[3].Value == "")
                     return fragment;
@@ -1605,13 +1605,13 @@ namespace TheraEditor.Windows.Forms
 
         private void bookmarkPlusButton_Click(object sender, EventArgs e)
         {
-            if (TextBox == null)
+            if (TextBox is null)
                 return;
             TextBox.BookmarkLine(TextBox.Selection.Start.iLine);
         }
         private void bookmarkMinusButton_Click(object sender, EventArgs e)
         {
-            if (TextBox == null)
+            if (TextBox is null)
                 return;
             TextBox.UnbookmarkLine(TextBox.Selection.Start.iLine);
         }
@@ -1780,7 +1780,7 @@ namespace TheraEditor.Windows.Forms
         private void btnSaveAs_Click(object sender, EventArgs e) => SaveAs();
         public void SaveAs()
         {
-            if (TargetFile == null)
+            if (TargetFile is null)
                 return;
 
             string filter = TargetFile.GetFilter(true, true, false, false);
@@ -1795,7 +1795,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void Save()
         {
-            if (TargetFile == null)
+            if (TargetFile is null)
                 return;
 
             if (TextBox.IsChanged)

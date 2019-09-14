@@ -73,7 +73,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void OnDragEnter(DragEventArgs e)
         {
             _wasVisible = pnlProps.Visible;
-            if (_wasNull = _object == null)
+            if (_wasNull = _object is null)
                 _object = DataType.CreateInstance();
             if (!pnlProps.Visible)
                 pnlProps.Visible = true;

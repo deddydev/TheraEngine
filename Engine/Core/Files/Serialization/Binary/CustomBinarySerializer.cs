@@ -225,7 +225,7 @@ namespace TheraEngine.Core.Files.Serialization
         //}
         //private static int GetSizeObject(MemberTreeNode node, BinaryStringTable table)
         //{
-        //    if (node.Object == null)
+        //    if (node.Object is null)
         //        return 0;
 
         //    int size = 0;
@@ -262,7 +262,7 @@ namespace TheraEngine.Core.Files.Serialization
         //}
         private static void WriteObject(MemberTreeNode node, ref VoidPtr address, BinaryStringTable table)
         {
-            if (node.Object == null)
+            if (node.Object is null)
                 return;
 
             //Write flags at the start of the object data block
@@ -365,7 +365,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             else if (t == typeof(string))
             {
-                address.Int = value == null ? -1 : table[value.ToString()];
+                address.Int = value is null ? -1 : table[value.ToString()];
                 address += 4;
             }
             else if (t.IsEnum)

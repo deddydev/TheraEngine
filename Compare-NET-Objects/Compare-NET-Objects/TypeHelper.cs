@@ -40,7 +40,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <param name="objectValue">The object value.</param>
         public static bool IsExpandoObject(object objectValue)
         {
-            if (objectValue == null)
+            if (objectValue is null)
                 return false;
 
             if (IsDynamicObject(objectValue.GetType()))
@@ -70,7 +70,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool CanHaveChildren(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return !IsSimpleType(type)
@@ -96,7 +96,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsArray(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type.IsArray;
@@ -109,7 +109,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsImmutableArray(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type.Namespace == "System.Collections.Immutable" 
@@ -123,7 +123,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsStruct(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type.GetTypeInfo().IsValueType && !IsSimpleType(type) && !IsImmutableArray(type);
@@ -136,7 +136,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsTimespan(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(TimeSpan);
@@ -149,7 +149,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsClass(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type.GetTypeInfo().IsClass;
@@ -162,7 +162,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsInterface(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
 #if PORTABLE
@@ -179,7 +179,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsUri(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return (typeof(Uri).IsAssignableFrom(type));
@@ -192,7 +192,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsPointer(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(IntPtr) || type == typeof(UIntPtr);
@@ -205,7 +205,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsEnum(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type.GetTypeInfo().IsEnum;
@@ -218,7 +218,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsIDictionary(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return (typeof(IDictionary).IsAssignableFrom(type));
@@ -231,7 +231,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsHashSet(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type.GetTypeInfo().IsGenericType
@@ -245,7 +245,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsIList(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return typeof(IList).IsAssignableFrom(type) && !IsImmutableArray(type);
@@ -258,7 +258,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsEnumerable(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 #if !NETSTANDARD
             var toCheck = type.ReflectedType;
@@ -275,7 +275,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsDouble(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(Double);
@@ -288,7 +288,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsDecimal(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(Decimal);
@@ -301,7 +301,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsDateTime(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof (DateTime);
@@ -313,7 +313,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <param name="type"></param>
         public static bool IsDateTimeOffset(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(DateTimeOffset);
@@ -326,7 +326,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsStringBuilder(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(StringBuilder);
@@ -339,7 +339,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsString(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(string);
@@ -352,7 +352,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsSimpleType(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             if (type.GetTypeInfo().IsGenericType && type.GetTypeInfo().GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -375,7 +375,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsRuntimeType(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return (typeof(Type).IsAssignableFrom(type));
@@ -390,7 +390,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsIpEndPoint(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(IPEndPoint);
@@ -403,7 +403,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsDataset(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(DataSet);
@@ -416,7 +416,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsDataTable(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(DataTable);
@@ -429,7 +429,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsDataRow(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(DataRow);
@@ -442,7 +442,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns></returns>
         public static bool IsDataColumn(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(DataColumn);
@@ -454,7 +454,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <param name="type">The type1.</param>
         public static bool IsFont(Type type)
         {
-            if (type == null)
+            if (type is null)
                 return false;
 
             return type == typeof(Font);

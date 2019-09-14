@@ -39,7 +39,7 @@ namespace TheraEngine.Input.Devices
             if (unregister)
             {
                 List<DelAxisValue> list = _axisActions[index];
-                if (list == null)
+                if (list is null)
                     return;
                 list.Remove(func);
                 if (list.Count == 0)
@@ -50,7 +50,7 @@ namespace TheraEngine.Input.Devices
             }
             else
             {
-                if (_actions[index] == null)
+                if (_actions[index] is null)
                 {
                     _axisActions[index] = new List<DelAxisValue>() { func };
                     _usedAxisActions.Add(index);

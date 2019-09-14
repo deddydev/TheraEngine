@@ -39,7 +39,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             IPEndPoint ipEndPoint2 = parms.Object2 as IPEndPoint;
 
             //Null check happens above
-            if (ipEndPoint1 == null || ipEndPoint2 == null)
+            if (ipEndPoint1 is null || ipEndPoint2 is null)
                 return;
 
             ComparePort(parms, ipEndPoint1, ipEndPoint2);

@@ -16,7 +16,7 @@ namespace TheraEditor.Windows.Forms
         {
             get
             {
-                if (_devEnvPath == null)
+                if (_devEnvPath is null)
                 {
                     _devEnvPath = FindDevEnv()[0];
                 }
@@ -94,7 +94,7 @@ namespace TheraEditor.Windows.Forms
             EnvDTE80.DTE2 res = null;
             DateTime startTime = DateTime.Now;
 
-            while (res == null && DateTime.Now.Subtract(startTime).Seconds < timeout)
+            while (res is null && DateTime.Now.Subtract(startTime).Seconds < timeout)
             {
                 Thread.Sleep(1000);
                 res = GetDTE(processId);

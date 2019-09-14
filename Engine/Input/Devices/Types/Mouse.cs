@@ -37,7 +37,7 @@ namespace TheraEngine.Input.Devices
         private ButtonManager FindOrCacheButton(EMouseButton button)
         {
             int index = (int)button;
-            if (_buttonStates[index] == null)
+            if (_buttonStates[index] is null)
                 _buttonStates[index] = new ButtonManager(index, button.ToString(), SendButtonPressedState, SendButtonAction);
             return _buttonStates[index];
         }
@@ -160,7 +160,7 @@ namespace TheraEngine.Input.Devices
             if (unregister)
             {
                 List<DelCursorUpdate> list = _onCursorUpdate[index];
-                if (list == null)
+                if (list is null)
                     return;
                 list.Remove(func);
                 if (list.Count == 0)
@@ -168,7 +168,7 @@ namespace TheraEngine.Input.Devices
             }
             else
             {
-                if (_onCursorUpdate[index] == null)
+                if (_onCursorUpdate[index] is null)
                     _onCursorUpdate[index] = new List<DelCursorUpdate>() { func };
                 else
                     _onCursorUpdate[index].Add(func);

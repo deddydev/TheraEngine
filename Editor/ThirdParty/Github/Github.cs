@@ -249,7 +249,7 @@ namespace TheraEditor
             private static async Task<(EVersionRelation result, Release newestRelease)> HasUpdate(AssemblyName name, GitHubClient client)
             {
                 IReadOnlyList<Release> releases = await client.Repository.Release.GetAll(RepoOwner, RepoName);
-                if (releases == null || releases.Count == 0)
+                if (releases is null || releases.Count == 0)
                 {
                     Engine.PrintLine($"No updates found for {name.Name}.");
                     return (EVersionRelation.IsNewerBuild, null);

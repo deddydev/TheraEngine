@@ -4993,7 +4993,7 @@ public class OpenVR
 		public CVRSystem VRSystem()
 		{
 			CheckClear();
-			if (m_pVRSystem == null)
+			if (m_pVRSystem is null)
 			{
 				var eError = EVRInitError.None;
 				var pInterface = OpenVRInterop.GetGenericInterface(FnTable_Prefix+IVRSystem_Version, ref eError);
@@ -5006,7 +5006,7 @@ public class OpenVR
 		public CVRChaperone VRChaperone()
 		{
 			CheckClear();
-			if (m_pVRChaperone == null)
+			if (m_pVRChaperone is null)
 			{
 				var eError = EVRInitError.None;
 				var pInterface = OpenVRInterop.GetGenericInterface(FnTable_Prefix+IVRChaperone_Version, ref eError);
@@ -5019,7 +5019,7 @@ public class OpenVR
 		public CVRChaperoneSetup VRChaperoneSetup()
 		{
 			CheckClear();
-			if (m_pVRChaperoneSetup == null)
+			if (m_pVRChaperoneSetup is null)
 			{
 				var eError = EVRInitError.None;
 				var pInterface = OpenVRInterop.GetGenericInterface(FnTable_Prefix+IVRChaperoneSetup_Version, ref eError);
@@ -5032,7 +5032,7 @@ public class OpenVR
 		public CVRCompositor VRCompositor()
 		{
 			CheckClear();
-			if (m_pVRCompositor == null)
+			if (m_pVRCompositor is null)
 			{
 				var eError = EVRInitError.None;
 				var pInterface = OpenVRInterop.GetGenericInterface(FnTable_Prefix+IVRCompositor_Version, ref eError);
@@ -5045,7 +5045,7 @@ public class OpenVR
 		public CVROverlay VROverlay()
 		{
 			CheckClear();
-			if (m_pVROverlay == null)
+			if (m_pVROverlay is null)
 			{
 				var eError = EVRInitError.None;
 				var pInterface = OpenVRInterop.GetGenericInterface(FnTable_Prefix+IVROverlay_Version, ref eError);
@@ -5058,7 +5058,7 @@ public class OpenVR
 		public CVRRenderModels VRRenderModels()
 		{
 			CheckClear();
-			if (m_pVRRenderModels == null)
+			if (m_pVRRenderModels is null)
 			{
 				var eError = EVRInitError.None;
 				var pInterface = OpenVRInterop.GetGenericInterface(FnTable_Prefix+IVRRenderModels_Version, ref eError);
@@ -5071,7 +5071,7 @@ public class OpenVR
 		public CVRExtendedDisplay VRExtendedDisplay()
 		{
 			CheckClear();
-			if (m_pVRExtendedDisplay == null)
+			if (m_pVRExtendedDisplay is null)
 			{
 				var eError = EVRInitError.None;
 				var pInterface = OpenVRInterop.GetGenericInterface(FnTable_Prefix+IVRExtendedDisplay_Version, ref eError);
@@ -5084,7 +5084,7 @@ public class OpenVR
 		public CVRSettings VRSettings()
 		{
 			CheckClear();
-			if (m_pVRSettings == null)
+			if (m_pVRSettings is null)
 			{
 				var eError = EVRInitError.None;
 				var pInterface = OpenVRInterop.GetGenericInterface(FnTable_Prefix+IVRSettings_Version, ref eError);
@@ -5097,7 +5097,7 @@ public class OpenVR
 		public CVRApplications VRApplications()
 		{
 			CheckClear();
-			if (m_pVRApplications == null)
+			if (m_pVRApplications is null)
 			{
 				var eError = EVRInitError.None;
 				var pInterface = OpenVRInterop.GetGenericInterface(FnTable_Prefix+IVRApplications_Version, ref eError);
@@ -5110,7 +5110,7 @@ public class OpenVR
 		public CVRScreenshots VRScreenshots()
 		{
 			CheckClear();
-			if (m_pVRScreenshots == null)
+			if (m_pVRScreenshots is null)
 			{
 				var eError = EVRInitError.None;
 				var pInterface = OpenVRInterop.GetGenericInterface(FnTable_Prefix+IVRScreenshots_Version, ref eError);
@@ -5123,7 +5123,7 @@ public class OpenVR
 		public CVRTrackedCamera VRTrackedCamera()
 		{
 			CheckClear();
-			if (m_pVRTrackedCamera == null)
+			if (m_pVRTrackedCamera is null)
 			{
 				var eError = EVRInitError.None;
 				var pInterface = OpenVRInterop.GetGenericInterface(FnTable_Prefix+IVRTrackedCamera_Version, ref eError);
@@ -5151,7 +5151,7 @@ public class OpenVR
 	{
 		get
 		{
-			if (_OpenVRInternal_ModuleContext == null)
+			if (_OpenVRInternal_ModuleContext is null)
 				_OpenVRInternal_ModuleContext = new COpenVRContext();
 			return _OpenVRInternal_ModuleContext;
 		}

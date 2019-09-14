@@ -113,11 +113,11 @@ namespace System.ComponentModel
         }
 
         public bool AllowSerialize(object obj)
-            => Condition == null ? true : ExpressionParser.Evaluate<bool>(Condition, obj);
+            => Condition is null ? true : ExpressionParser.Evaluate<bool>(Condition, obj);
 
         protected TSerialize(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
+            if (info is null)
                 throw new ArgumentNullException(nameof(info));
 
             Order = info.GetInt32(nameof(Order));
@@ -132,7 +132,7 @@ namespace System.ComponentModel
         }
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
+            if (info is null)
                 throw new ArgumentNullException(nameof(info));
 
             info.AddValue(nameof(Order), Order);

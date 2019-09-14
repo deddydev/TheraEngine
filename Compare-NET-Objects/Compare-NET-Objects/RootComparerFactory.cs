@@ -23,7 +23,7 @@ namespace KellermanSoftware.CompareNetObjects
         public static RootComparer GetRootComparer()
         {
             lock(_locker)
-                if (_rootComparer == null)
+                if (_rootComparer is null)
                     _rootComparer= BuildRootComparer();
 
             return _rootComparer;

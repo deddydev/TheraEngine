@@ -85,7 +85,7 @@ namespace TheraEngine.Timers
             else
                 Reset();
 
-            if (maxFires == 0 || method == null)
+            if (maxFires == 0 || method is null)
                 return;
             
             _multiMethod = method;
@@ -110,7 +110,7 @@ namespace TheraEngine.Timers
             else
                 Reset();
 
-            if (maxFires == 0 || method == null)
+            if (maxFires == 0 || method is null)
                 return;
             
             _singleMethod = method;

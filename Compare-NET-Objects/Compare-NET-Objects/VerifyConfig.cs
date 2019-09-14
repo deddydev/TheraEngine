@@ -27,7 +27,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// </exception>
         public void VerifySpec(ComparisonConfig config)
         {
-            if (config.CollectionMatchingSpec == null)
+            if (config.CollectionMatchingSpec is null)
                 return;
 
             foreach (var kvp in config.CollectionMatchingSpec)

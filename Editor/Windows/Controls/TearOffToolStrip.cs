@@ -93,10 +93,10 @@ namespace TheraEditor.Windows.Forms
             if (DesignMode == true)
                 return;
 
-            if (TopToolStripPanel == null
-                && BottomToolStripPanel == null
-                && LeftToolStripPanel == null
-                && RightToolStripPanel == null)
+            if (TopToolStripPanel is null
+                && BottomToolStripPanel is null
+                && LeftToolStripPanel is null
+                && RightToolStripPanel is null)
                 return;
 
             if (!TopToolStripPanel.IsPointWithinMe(MousePosition)
@@ -165,7 +165,7 @@ namespace TheraEditor.Windows.Forms
         {
             // always dock a double-clicked toolbar to the panel
             // from whence it came, or else the top tool strip panel by default
-            if (LastDockedPanel == null)
+            if (LastDockedPanel is null)
                 LastDockedPanel = TopToolStripPanel;
 
             DockTo(LastDockedPanel);
@@ -184,7 +184,7 @@ namespace TheraEditor.Windows.Forms
             // if NULL is specified for the panel to which to dock
             // of if our Parent is a ToolStripPanel (i.e., we're already docked)
             // stop and return to the caller
-            if ((panel == null)
+            if ((panel is null)
                 || (Parent is ToolStripPanel))
                 return;
 

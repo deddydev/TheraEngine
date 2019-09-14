@@ -89,7 +89,7 @@ namespace TheraEngine.Rendering.Models.Materials
                     for (int i = 0; i < Mipmaps.Length; ++i)
                     {
                         var fileRef = Mipmaps[i];
-                        if (fileRef == null)
+                        if (fileRef is null)
                             Mipmaps[i] = new GlobalFileRef<TBitmap3D>();
                         {
                             fileRef.UnregisterLoadEvent(OnMipLoaded);
@@ -223,7 +223,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private void SetParameters()
         {
-            if (_texture == null)
+            if (_texture is null)
                 return;
 
             _texture.Bind();
@@ -311,7 +311,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_isLoading)
                 return;
 
-            if (doNotLoad && _texture == null)
+            if (doNotLoad && _texture is null)
                 return;
 
             RenderTex3D t = GetTexture(true);
@@ -384,7 +384,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             //if (_mipmaps != null && _mipmaps.Length > 0)
             //    _texture = new RenderTex3D(InternalFormat, PixelFormat, PixelType,
-            //        _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray())
+            //        _mipmaps.SelectMany(x => x.File is null || x.File.Bitmaps is null ? new Bitmap[0] : x.File.Bitmaps).ToArray())
             //    {
             //        Resizable = Resizable,
             //    };

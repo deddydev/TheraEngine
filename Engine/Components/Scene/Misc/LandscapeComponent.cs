@@ -182,7 +182,7 @@ namespace TheraEngine.Actors.Types
         }
         public unsafe void GenerateHeightFieldMesh(TMaterial material, int stride = 1)
         {
-            if (_heightFieldShape == null)
+            if (_heightFieldShape is null)
                 throw new InvalidOperationException();
 
             _stride = stride;
@@ -257,7 +257,7 @@ namespace TheraEngine.Actors.Types
         /// </summary>
         public void HeightDataChanged()
         {
-            if (_heightFieldShape == null)
+            if (_heightFieldShape is null)
                 throw new InvalidOperationException();
             
             var pos = _rc.Mesh.Data[EBufferType.Position];

@@ -68,7 +68,7 @@ namespace TheraEngine.Rendering
 
                 base.Visible = value;
 
-                if (Scene == null)
+                if (Scene is null)
                     return;
 
                 if (value)
@@ -83,7 +83,7 @@ namespace TheraEngine.Rendering
         /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
         /// </summary>
         //[Browsable(false)]
-        //public float RenderOrder => RenderOrderFunc == null ? 0.0f : RenderOrderFunc();
+        //public float RenderOrder => RenderOrderFunc is null ? 0.0f : RenderOrderFunc();
         [TSerialize]
         public bool ReceivesShadows { get; set; } = true;
         [TSerialize]
@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering
 
         public void LinkScene(I3DRenderable r3d, IScene3D scene, bool forceVisible = false)
         {
-            if (r3d == null || scene == null)
+            if (r3d is null || scene is null)
                 return;
 
             Scene = null;
@@ -130,7 +130,7 @@ namespace TheraEngine.Rendering
 
         public void UnlinkScene()
         {
-            if (Owner == null || Scene == null)
+            if (Owner is null || Scene is null)
                 return;
 
             Scene.Renderables.Remove(Owner);

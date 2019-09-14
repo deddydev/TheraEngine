@@ -35,7 +35,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         public static bool CanConnect(MatFuncValueInput input, MatFuncValueOutput output)
         {
             return true;
-            //if (input == null || output == null)
+            //if (input is null || output is null)
             //    return false;
 
             //MaterialFunction inFunc = input.ParentSocket;

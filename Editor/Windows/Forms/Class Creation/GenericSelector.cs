@@ -156,7 +156,7 @@ namespace TheraEditor.Windows.Forms
                     !type.FitsConstraints(gvf, tcf)// ||
 
                     //Has no default constructor?
-                    //type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null) == null
+                    //type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null) is null
                     );
                 }
 
@@ -179,7 +179,7 @@ namespace TheraEditor.Windows.Forms
                         root.Text = f.GetFriendlyName();
                         SelectedTypes[(int)root.Tag] = f;
 
-                        btnOkay.Enabled = !SelectedTypes.Any(x => x == null);
+                        btnOkay.Enabled = !SelectedTypes.Any(x => x is null);
                     }
                 }
 

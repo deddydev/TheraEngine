@@ -75,7 +75,7 @@ namespace TheraEngine.Components.Scene.Transforms
         [TPostDeserialize]
         protected internal virtual void OnDeserialized()
         {
-            if (_translation == null)
+            if (_translation is null)
                 _translation = new EventVec3();
             _translation.Changed += RecalcLocalTransform;
             RecalcLocalTransform();

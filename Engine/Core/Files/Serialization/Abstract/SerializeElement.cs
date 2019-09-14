@@ -105,7 +105,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return;
 
             Guid guid = tobj.Guid;
-            if (guid == Guid.Empty || Owner == null || !Owner.WritingSharedObjectIndices.ContainsKey(guid))
+            if (guid == Guid.Empty || Owner is null || !Owner.WritingSharedObjectIndices.ContainsKey(guid))
                 return;
 
             --Owner.WritingSharedObjectIndices[guid];
@@ -125,7 +125,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return;
 
             Guid guid = tobj.Guid;
-            if (guid == Guid.Empty || Owner == null)
+            if (guid == Guid.Empty || Owner is null)
                 return;
 
             if (Owner.WritingSharedObjectIndices.ContainsKey(guid))
@@ -156,7 +156,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                 _object = value;
 
-                if (Owner != null && Parent == null && _object != null)
+                if (Owner != null && Parent is null && _object != null)
                 {
                     Owner.RootFileObject = _object;
                     if (_object is IFileObject fobj)
@@ -181,7 +181,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// True if this node is just for categorization of the child nodes.
         /// </summary>
-        public bool IsGroupingNode => MemberInfo == null;
+        public bool IsGroupingNode => MemberInfo is null;
         /// <summary>
         /// How many checkpoints need to be hit for this node and all child nodes to advance the progression handler.
         /// </summary>
@@ -193,7 +193,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// <see langword="true"/> if the object's type inherits from the member's type instead of matching it exactly.
         /// </summary>
-        public bool IsDerivedType => Parent == null || (ObjectType?.IsSubclassOf(MemberInfo.MemberType) ?? false);
+        public bool IsDerivedType => Parent is null || (ObjectType?.IsSubclassOf(MemberInfo.MemberType) ?? false);
         
         /// <summary>
         /// The class handling how to read and write all members of any given object.
@@ -284,7 +284,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
         private void ChildElements_PostAnythingAdded(SerializeElement item)
         {
-            if (item == null)
+            if (item is null)
                 return;
             item.Parent?.Children?.Remove(item);
             item.Owner = Owner;
@@ -297,7 +297,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <returns></returns>
         public async Task<bool> TryInvokeManualParentDeserializeAsync()
         {
-            if (MemberInfo == null || Parent?.CustomDeserializeMethods == null)
+            if (MemberInfo is null || Parent?.CustomDeserializeMethods is null)
                 return false;
 
             IEnumerable<MethodInfoProxy> customMethods = Parent.CustomDeserializeMethods.Where(
@@ -337,7 +337,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (ObjectType?.IsSubclassOf(typeof(TFileObject)) ?? false)
             {
                 TFileExt ext = TFileObject.GetFileExtension(ObjectType);
-                if (ext == null)
+                if (ext is null)
                     return false;
 
                 bool serConfig = ext.ManualXmlConfigSerialize;
@@ -361,7 +361,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <returns></returns>
         public async Task<bool> TryInvokeManualParentSerializeAsync()
         {
-            if (MemberInfo == null || Parent?.CustomSerializeMethods == null)
+            if (MemberInfo is null || Parent?.CustomSerializeMethods is null)
                 return false;
 
             IEnumerable<MethodInfoProxy> customMethods = Parent.CustomSerializeMethods.Where(
@@ -397,7 +397,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return false;
             
             TFileExt ext = TFileObject.GetFileExtension(ObjectType);
-            if (ext == null)
+            if (ext is null)
                 return false;
 
             bool serConfig = ext.ManualXmlConfigSerialize;
@@ -462,7 +462,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             await FileObjectCheckAsync();
             
-            if (Object == null || IsObjectDefault())
+            if (Object is null || IsObjectDefault())
                 return;
 
             if (ObjectType.IsAbstract || ObjectType.IsInterface)

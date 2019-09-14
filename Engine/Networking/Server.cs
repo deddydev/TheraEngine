@@ -43,7 +43,7 @@ namespace TheraEngine.Networking
                 case EConnectionMessage.Request:
                     Engine.PrintLine($"Recieved connection request from {endPoint.ToString()}.");
                     NetworkClient client = FindConnectedClient(endPoint);
-                    if (client == null)
+                    if (client is null)
                     {
                         client = new NetworkClient(endPoint);
                         int index = AddClient(client);

@@ -28,7 +28,7 @@ namespace KellermanSoftware.CompareNetObjects
         {
             try
             {
-                if (parms.Object1 == null && parms.Object2 == null)
+                if (parms.Object1 is null && parms.Object2 is null)
                     return true;
 
                 Type t1 = parms.Object1 != null ? parms.Object1.GetType() : null;
@@ -106,7 +106,7 @@ namespace KellermanSoftware.CompareNetObjects
         private bool EitherObjectIsNull(CompareParms parms)
         {
             //Check if one of them is null
-            if (parms.Object1 == null || parms.Object2 == null)
+            if (parms.Object1 is null || parms.Object2 is null)
             {
                 AddDifference(parms);
                 return true;

@@ -136,7 +136,7 @@ namespace TheraEngine.Rendering.Models
         }
         internal void WorldMatrixChanged()
         {
-            //_cullingVolume.SetRenderTransform(_owningComponent == null ? Matrix4.Identity : _owningComponent.WorldMatrix);
+            //_cullingVolume.SetRenderTransform(_owningComponent is null ? Matrix4.Identity : _owningComponent.WorldMatrix);
         }
         //RenderingParameters p = new RenderingParameters()
         //{
@@ -151,7 +151,7 @@ namespace TheraEngine.Rendering.Models
             foreach (IBone b in BoneNameCache.Values)
             {
                 Vec3 point = b.WorldMatrix.Translation;
-                Engine.Renderer.RenderPoint(point, b.Parent == null ? Color.Orange : Color.Purple, false, 5.0f);
+                Engine.Renderer.RenderPoint(point, b.Parent is null ? Color.Orange : Color.Purple, false, 5.0f);
                 if (b.Parent != null)
                     Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.Translation, Color.Blue, false, 1.0f);
                 //float scale = AbstractRenderer.CurrentCamera.DistanceScale(point, 2.0f);

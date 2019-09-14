@@ -33,7 +33,7 @@ namespace TheraEngine.Input
                 _controlledPawn?.OnUnPossessed();
                 _controlledPawn = value;
 
-                if (_controlledPawn == null && _possessionQueue.Count != 0)
+                if (_controlledPawn is null && _possessionQueue.Count != 0)
                     _controlledPawn = _possessionQueue.Dequeue();
                 
                 _controlledPawn?.OnPossessed(this);
@@ -46,7 +46,7 @@ namespace TheraEngine.Input
         /// <param name="pawn">The pawn to possess.</param>
         public void EnqueuePosession(IPawn pawn)
         {
-            if (ControlledPawn == null)
+            if (ControlledPawn is null)
                 ControlledPawn = pawn;
             else
                 _possessionQueue.Enqueue(pawn);

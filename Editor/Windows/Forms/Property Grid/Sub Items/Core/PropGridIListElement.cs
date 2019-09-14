@@ -31,8 +31,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         protected override bool UpdateDisplayInternal(object value)
         {
-            //foreach (PropGridItem item in pnlEditors.Controls)
-            //    item.UpdateDisplay();
+            foreach (PropGridItem item in pnlEditors.Controls)
+                item.UpdateDisplay();
             return true;
         }
         protected internal override void SetReferenceHolder(PropGridMemberInfo parentInfo)
@@ -58,7 +58,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnRemove_Click(object sender, EventArgs e)
         {
             var parentInfo = GetMemberInfoAs<PropGridMemberInfoIList>();
-            if (parentInfo == null)
+            if (parentInfo is null)
                 return;
 
             int index = parentInfo.Index;

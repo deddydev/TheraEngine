@@ -26,7 +26,7 @@ namespace System.Collections.Generic
             {
                 #region Require
 
-                if(deque == null)
+                if(deque is null)
                 {
                     throw new ArgumentNullException("deque");
                 }

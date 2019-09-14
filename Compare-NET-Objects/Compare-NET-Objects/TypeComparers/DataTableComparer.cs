@@ -41,7 +41,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             DataTable dataTable2 = parms.Object2 as DataTable;
 
             //This should never happen, null check happens one level up
-            if (dataTable1 == null || dataTable2 == null)
+            if (dataTable1 is null || dataTable2 is null)
                 return;
 
             //Only compare specific table names
@@ -83,10 +83,10 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             DataTable dataTable1 = parms.Object1 as DataTable;
             DataTable dataTable2 = parms.Object2 as DataTable;
 
-            if (dataTable1 == null)
+            if (dataTable1 is null)
                 throw new ArgumentException("parms.Object1");
 
-            if (dataTable2 == null)
+            if (dataTable2 is null)
                 throw new ArgumentException("parms.Object2");
 
             if (dataTable1.Columns.Count != dataTable2.Columns.Count)
@@ -138,10 +138,10 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             DataTable dataTable1 = parms.Object1 as DataTable;
             DataTable dataTable2 = parms.Object2 as DataTable;
 
-            if (dataTable1 == null)
+            if (dataTable1 is null)
                 throw new ArgumentException("parms.Object1");
 
-            if (dataTable2 == null)
+            if (dataTable2 is null)
                 throw new ArgumentException("parms.Object2");
 
             for (int i = 0; i < Math.Min(dataTable1.Rows.Count, dataTable2.Rows.Count); i++)

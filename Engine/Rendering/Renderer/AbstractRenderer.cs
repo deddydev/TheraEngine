@@ -343,16 +343,16 @@ namespace TheraEngine.Rendering
                 mTop = _debugPrimitives[topStr];
             if (_debugPrimitives.ContainsKey(botStr))
                 mBot = _debugPrimitives[botStr];
-            if (mCyl == null || mTop == null || mBot == null)
+            if (mCyl is null || mTop is null || mBot is null)
             {
                 Capsule.WireframeMeshParts(
                     Vec3.Zero, Vec3.Up, 1.0f, 1.0f, 30, 
                     out PrimitiveData cylData, out PrimitiveData topData, out PrimitiveData botData);
-                if (mCyl == null)
+                if (mCyl is null)
                     mCyl = AssignDebugPrimitive(cylStr, new PrimitiveManager(cylData, TMaterial.CreateUnlitColorMaterialForward()));
-                if (mTop == null)
+                if (mTop is null)
                     mTop = AssignDebugPrimitive(topStr, new PrimitiveManager(topData, TMaterial.CreateUnlitColorMaterialForward()));
-                if (mBot == null)
+                if (mBot is null)
                     mBot = AssignDebugPrimitive(botStr, new PrimitiveManager(botData, TMaterial.CreateUnlitColorMaterialForward()));
             }
             Matrix4 axisRotation = Matrix4.CreateFromQuaternion(Quat.BetweenVectors(Vec3.Up, localUpAxis));

@@ -39,7 +39,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         public override void CompareType(CompareParms parms)
         {
             //This should never happen, null check happens one level up
-            if (parms.Object1 == null || parms.Object2 == null)
+            if (parms.Object1 is null || parms.Object2 is null)
                 return;
 
             DataColumn col1 = (DataColumn)parms.Object1;

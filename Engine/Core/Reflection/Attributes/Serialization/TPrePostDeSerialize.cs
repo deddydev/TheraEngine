@@ -15,14 +15,14 @@ namespace TheraEngine.Core.Reflection.Attributes.Serialization
         }
         protected SerializationAttribute(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
+            if (info is null)
                 throw new ArgumentNullException(nameof(info));
 
             RunForFormats = (EProprietaryFileFormatFlag)info.GetUInt16(nameof(RunForFormats));
         }
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
+            if (info is null)
                 throw new ArgumentNullException(nameof(info));
 
             info.AddValue(nameof(RunForFormats), (ushort)RunForFormats);
@@ -43,7 +43,7 @@ namespace TheraEngine.Core.Reflection.Attributes.Serialization
         }
         protected PrePostSerializationAttribute(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            if (info == null)
+            if (info is null)
                 throw new ArgumentNullException(nameof(info));
 
             Order = info.GetInt32(nameof(Order));
@@ -52,7 +52,7 @@ namespace TheraEngine.Core.Reflection.Attributes.Serialization
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
+            if (info is null)
                 throw new ArgumentNullException(nameof(info));
 
             base.GetObjectData(info, context);

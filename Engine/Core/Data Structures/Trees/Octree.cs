@@ -335,7 +335,7 @@ namespace System
                                 continue;
 #endif
                             bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
-                            if (allowRender && (r.RenderInfo.CullingVolume == null || (c = cullingVolume.Contains(r.RenderInfo.CullingVolume)) != EContainment.Disjoint))
+                            if (allowRender && (r.RenderInfo.CullingVolume is null || (c = cullingVolume.Contains(r.RenderInfo.CullingVolume)) != EContainment.Disjoint))
                             {
                                 if (!shadowPass)
                                     r.RenderInfo.LastRenderedTime = DateTime.Now;
@@ -433,7 +433,7 @@ namespace System
             /// <returns>True if the node was added.</returns>
             internal bool AddHereOrSmaller(T item, int ignoreSubNode = -1)
             {
-                if (item == null)
+                if (item is null)
                     return false;
 
                 if (item.RenderInfo.CullingVolume != null && _bounds.Contains(item.RenderInfo.CullingVolume) == EContainment.Contains)

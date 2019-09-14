@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering
         
         public void SetRenderDistanceByCamera(Camera camera, Vec3 point, bool planar)
         {
-            if (camera == null)
+            if (camera is null)
                 RenderDistance = 0.0f;
              else
                 RenderDistance = planar ?
@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering
 
         public override void Render(bool shadowPass)
         {
-            if (shadowPass && Mesh?.Data?.Triangles == null)
+            if (shadowPass && Mesh?.Data?.Triangles is null)
                 return;
 
             Mesh?.Render(WorldMatrix, NormalMatrix, MaterialOverride);
@@ -138,7 +138,7 @@ namespace TheraEngine.Rendering
 
         public override void Render(bool shadowPass)
         {
-            if (shadowPass && Mesh?.Data?.Triangles == null)
+            if (shadowPass && Mesh?.Data?.Triangles is null)
                 return;
 
             Mesh?.Render(WorldMatrix, Matrix3.Identity, MaterialOverride);

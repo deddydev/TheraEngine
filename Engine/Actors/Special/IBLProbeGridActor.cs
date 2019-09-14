@@ -77,7 +77,7 @@ namespace TheraEngine.Actors
             base.OnSpawnedPostComponentSpawn();
 
             IScene3D r3d = OwningScene3D;
-            if (r3d != null && r3d.IBLProbeActor == null)
+            if (r3d != null && r3d.IBLProbeActor is null)
                 r3d.IBLProbeActor = this;
         }
         protected override void OnDespawned()
@@ -249,7 +249,7 @@ namespace TheraEngine.Actors
         }
         private void Render()
         {
-            if (_cells == null)
+            if (_cells is null)
                 return;
 
             foreach (var cell in _cells.Cells)

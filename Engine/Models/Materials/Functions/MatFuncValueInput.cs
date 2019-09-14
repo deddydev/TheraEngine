@@ -34,7 +34,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
 
         protected override void DetermineBestArgType(MatFuncValueOutput connection)
         {
-            if (connection == null)
+            if (connection is null)
             {
 
             }

@@ -64,7 +64,7 @@ namespace TheraEditor.Windows.Forms
         {
             get
             {
-                if (_imgList == null)
+                if (_imgList is null)
                 {
                     _imgList = new ImageList()
                     {
@@ -272,7 +272,7 @@ namespace TheraEditor.Windows.Forms
         [Description("Copies the selected nodes to the clipboard.")]
         public bool CopySelectedNodes()
         {
-            if (SelectedNodes == null || SelectedNodes.Count == 0)
+            if (SelectedNodes is null || SelectedNodes.Count == 0)
                 return false;
             SetClipboard(SelectedNodes.Select(x => x.FilePath).ToArray(), false);
             return true;
@@ -280,7 +280,7 @@ namespace TheraEditor.Windows.Forms
         [Description("Removes the selected nodes and moves them to the clipboard.")]
         public bool CutSelectedNodes()
         {
-            if (SelectedNodes == null || SelectedNodes.Count == 0)
+            if (SelectedNodes is null || SelectedNodes.Count == 0)
                 return false;
             SetClipboard(SelectedNodes.Select(x => x.FilePath).ToArray(), true);
             return true;
@@ -302,7 +302,7 @@ namespace TheraEditor.Windows.Forms
         #region Copy Cut Paste
         public static void SetClipboard(string[] paths, bool cut)
         {
-            if (paths == null || paths.Length == 0)
+            if (paths is null || paths.Length == 0)
                 return;
 
             DataObject data = new DataObject(DataFormats.FileDrop, paths);
@@ -327,7 +327,7 @@ namespace TheraEditor.Windows.Forms
                 if (!cut && flag != 5)
                     return;
             }
-            if (pastedPaths == null || pastedPaths.Length == 0)
+            if (pastedPaths is null || pastedPaths.Length == 0)
                 return;
             
             bool? isDestDir = destPath.IsDirectory();
@@ -340,7 +340,7 @@ namespace TheraEditor.Windows.Forms
             foreach (string pastedPath in pastedPaths)
             {
                 bool? isDir = pastedPath.IsDirectory();
-                if (isDir == null)
+                if (isDir is null)
                     continue;
 
                 string name = Path.GetFileName(pastedPath);
@@ -679,7 +679,7 @@ namespace TheraEditor.Windows.Forms
                 }
             }
 
-            if (EditingLabelNode == null && _labelToolTip.Active)
+            if (EditingLabelNode is null && _labelToolTip.Active)
                 _labelToolTip.Hide(this);
         }
         #endregion
@@ -753,7 +753,7 @@ namespace TheraEditor.Windows.Forms
             _dropNode = GetNodeAt(PointToClient(new Point(e.X, e.Y))) as BaseWrapper;
 
             string[] paths = e.Data.GetData(DataFormats.FileDrop) as string[];
-            if (_dropNode == null && (paths == null || paths.Length == 0))
+            if (_dropNode is null && (paths is null || paths.Length == 0))
             {
                 _dropNode = null;
                 SelectedNode = null;
@@ -834,7 +834,7 @@ namespace TheraEditor.Windows.Forms
 
         //private static bool TryDrop(FileObject dragging, FileObject dropping)
         //{
-        //    //if (dropping.Parent == null)
+        //    //if (dropping.Parent is null)
         //    //    return false;
 
         //    bool good = false;
@@ -961,7 +961,7 @@ namespace TheraEditor.Windows.Forms
             Point pt = PointToClient(MousePosition);
             TreeNode node = GetNodeAt(pt);
 
-            if (node == null) return;
+            if (node is null) return;
             if (pt.Y < 30)
             {
                 if (node.PrevVisibleNode != null)
@@ -1018,8 +1018,8 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnBeforeSelect(e);
             
-            bool bControl = (ModifierKeys == Keys.Control && DraggedNodes == null);
-            bool bShift = (ModifierKeys == Keys.Shift && DraggedNodes == null);
+            bool bControl = (ModifierKeys == Keys.Control && DraggedNodes is null);
+            bool bShift = (ModifierKeys == Keys.Shift && DraggedNodes is null);
             BaseWrapper node = e.Node as BaseWrapper;
 
             // selecting twice the node while pressing CTRL ?
@@ -1041,8 +1041,8 @@ namespace TheraEditor.Windows.Forms
         }
         private void OnAfterSelectMultiselect(TreeViewEventArgs e)
         {
-            bool bControl = (ModifierKeys == Keys.Control && DraggedNodes == null);
-            bool bShift = (ModifierKeys == Keys.Shift && DraggedNodes == null);
+            bool bControl = (ModifierKeys == Keys.Control && DraggedNodes is null);
+            bool bShift = (ModifierKeys == Keys.Shift && DraggedNodes is null);
             BaseWrapper node = (BaseWrapper)e.Node;
 
             BeginUpdate();
@@ -1096,7 +1096,7 @@ namespace TheraEditor.Windows.Forms
                     // case 2 : nor the begin nor the end node are descendant one another
                     else
                     {
-                        if ((uppernode.Parent == null && bottomnode.Parent == null) || (uppernode.Parent != null && uppernode.Parent.Nodes.Contains(bottomnode))) // are they siblings ?
+                        if ((uppernode.Parent is null && bottomnode.Parent is null) || (uppernode.Parent != null && uppernode.Parent.Nodes.Contains(bottomnode))) // are they siblings ?
                         {
                             int nIndexUpper = uppernode.Index;
                             int nIndexBottom = bottomnode.Index;
@@ -1209,7 +1209,7 @@ namespace TheraEditor.Windows.Forms
         //{
         //    var nodes = SelectedNodes;
         //    var singleNode = SelectedNode as IMultiSelectableWrapper;
-        //    if (singleNode == null) return null;
+        //    if (singleNode is null) return null;
 
         //    foreach (var node in nodes)
         //    {

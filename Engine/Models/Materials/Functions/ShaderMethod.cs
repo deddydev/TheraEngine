@@ -135,7 +135,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
         public string[] GetOutputNames()
             => OutputArguments.Select(x => x.OutputVarName).ToArray();
         public string[] GetInputNames()
-            => InputArguments.Select(x => x.Connection == null ? x.DefaultValue?.GetShaderValueString() ?? "" : x.Connection.OutputVarName).ToArray();
+            => InputArguments.Select(x => x.Connection is null ? x.DefaultValue?.GetShaderValueString() ?? "" : x.Connection.OutputVarName).ToArray();
         
         public string GetMethodSyntax()
         {

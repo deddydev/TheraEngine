@@ -40,11 +40,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
                 lblObjectTypeName.Text = string.Empty;
 
-            lblObjectTypeName.Text += List == null ? "null" : List.Count + (List.Count == 1 ? " item" : " items");
+            lblObjectTypeName.Text += List is null ? "null" : List.Count + (List.Count == 1 ? " item" : " items");
             
             chkNull.Visible = !DataType.IsValueType;
             
-            if (!(chkNull.Checked = List == null))
+            if (!(chkNull.Checked = List is null))
             {
                 lblObjectTypeName.Enabled = List.Count > 0;
                 btnAdd.Visible = !List.IsFixedSize;
@@ -174,7 +174,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Color _prevLabelColor;
         private void Label_MouseLeave(object sender, EventArgs e)
         {
-            if (List == null || List.Count == 0)
+            if (List is null || List.Count == 0)
                 return;
 
             Label label = (Label)sender;
@@ -183,7 +183,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void Label_MouseEnter(object sender, EventArgs e)
         {
-            if (List == null || List.Count == 0)
+            if (List is null || List.Count == 0)
                 return;
 
             Label label = (Label)sender;
@@ -195,7 +195,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             int i = List.Count;
             object value = Editor.UserCreateInstanceOf(_elementType, true, this);
-            if (value == null)
+            if (value is null)
                 return;
 
             List.Add(value);

@@ -168,7 +168,7 @@ namespace TheraEngine.Components.Scene.Lights
                 if (Type == ELightType.Dynamic)
                 {
                     s3d.Lights.Add(this);
-                    if (ShadowMap == null)
+                    if (ShadowMap is null)
                         SetShadowMapResolution(_region.Width, _region.Height);
 
                     //ShadowCamera.LocalPoint.Raw = WorldPoint;
@@ -214,7 +214,7 @@ namespace TheraEngine.Components.Scene.Lights
         public override void SetShadowMapResolution(int width, int height)
         {
             base.SetShadowMapResolution(width, height);
-            if (ShadowCamera == null)
+            if (ShadowCamera is null)
             {
                 float cutoff = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees);
                 ShadowCamera = new PerspectiveCamera(1.0f, _distance, cutoff * 2.0f, 1.0f);

@@ -75,7 +75,7 @@ namespace TheraEngine
         public TimeSpan Renewal(ILease lease)
         {
             // if any of these cases is true
-            IsReleased = lease == null || lease.CurrentState == LeaseState.Expired || WantsRelease;
+            IsReleased = lease is null || lease.CurrentState == LeaseState.Expired || WantsRelease;
             string fn = Object.GetTypeProxy().GetFriendlyName();
             if (IsReleased)
             {
@@ -316,11 +316,11 @@ namespace TheraEngine
         //    ETickOrder order = ETickOrder.Animation,
         //    EInputPauseType pausedBehavior = EInputPauseType.TickOnlyWhenUnpaused)
         //{
-        //    if (anim == null)
+        //    if (anim is null)
         //        return;
         //    if (removeOnEnd)
         //        anim.AnimationEnded += RemoveAnimationSelf;
-        //    if (_animations == null)
+        //    if (_animations is null)
         //        _animations = new EventList<AnimationTree>();
         //    _animations.Add(anim);
         //    anim.Group = group;
@@ -332,7 +332,7 @@ namespace TheraEngine
         //}
         //public bool RemoveAnimation(AnimationTree anim)
         //{
-        //    if (anim == null)
+        //    if (anim is null)
         //        return false;
         //    anim.Owners.Remove(this);
         //    bool removed = _animations.Remove(anim);

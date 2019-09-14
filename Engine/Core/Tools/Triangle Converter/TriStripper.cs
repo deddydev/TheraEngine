@@ -270,7 +270,7 @@ namespace TheraEngine.TriangleConverter
                 var Link = LinkToNeighbour(Node, ClockWise, ref Order, false);
 
                 // Is it the end of the strip?
-                if (Link == null)
+                if (Link is null)
                 {
                     Size--;
                     i = _Triangles.Count;
@@ -319,7 +319,7 @@ namespace TheraEngine.TriangleConverter
                 var Link = BackLinkToNeighbour(Node, ClockWise, ref Order);
 
                 //Is it the end of the strip?
-                if (Link == null)
+                if (Link is null)
                     break;
                 else
                 {

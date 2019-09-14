@@ -92,7 +92,7 @@ namespace TheraEngine.Rendering.Models
         private static TMaterial CreateMaterial(ObjLoader.Loader.Data.Material objMat, string dirPath, bool forward)
         {
             GLSLScript shader = GetOBJFragmentShader(forward);
-            if (objMat == null)
+            if (objMat is null)
             {
                 ShaderVar[] parameters = new ShaderVar[]
                 {

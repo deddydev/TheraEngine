@@ -73,7 +73,7 @@
         }
         public override bool CanConnectTo(TOutput other)
         {
-            if (other == null || Connection == other)
+            if (other is null || Connection == other)
                 return false;
             
             int otherType = other.CurrentArgumentType;

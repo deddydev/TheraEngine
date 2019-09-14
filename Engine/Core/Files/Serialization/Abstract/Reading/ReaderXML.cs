@@ -125,7 +125,7 @@ namespace TheraEngine.Core.Files.Serialization
                         case XmlNodeType.EndElement:
                             name = _reader.Name;
                             await _reader.ReadAsync();
-                            if (node == null)
+                            if (node is null)
                                 Engine.LogWarning("No start element read for " + name);
                             else if (!string.Equals(node.Name, name, StringComparison.InvariantCulture))
                                 Engine.LogWarning("End element / start element mismatch.");                            

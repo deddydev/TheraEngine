@@ -161,7 +161,7 @@ namespace TheraEngine.Components.Logic.Movement
         }
         protected virtual void TickWalking(float delta, Vec3 movementInput)
         {
-            if (OwningActor == null)
+            if (OwningActor is null)
                 return;
 
             Matrix4 inputTransform;
@@ -296,7 +296,7 @@ namespace TheraEngine.Components.Logic.Movement
         }
         protected virtual void TickFalling(float delta, Vec3 movementInput)
         {
-            if (OwningActor == null)
+            if (OwningActor is null)
                 return;
 
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
@@ -307,7 +307,7 @@ namespace TheraEngine.Components.Logic.Movement
         }
         public void Jump()
         {
-            if (OwningActor == null)
+            if (OwningActor is null)
                 return;
 
             //Nothing to jump OFF of?
@@ -319,7 +319,7 @@ namespace TheraEngine.Components.Logic.Movement
             TRigidBody chara = root?.RigidBodyCollision;
 
             //If the root has no rigid body, the player can't jump
-            if (chara == null)
+            if (chara is null)
                 return;
             
             _postWalkAllowJump = false;

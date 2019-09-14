@@ -119,7 +119,7 @@ namespace TheraEngine.Components.Scene
         }
         public override void OnSpawned()
         {
-            if (Material == null)
+            if (Material is null)
                 return;
 
             PrimitiveData decalMesh = BoundingBox.SolidMesh(-Vec3.One, Vec3.One);
@@ -130,7 +130,7 @@ namespace TheraEngine.Components.Scene
         }
         protected virtual void DecalManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
-            if (materialProgram == null)
+            if (materialProgram is null)
                 return;
 
             Viewport v = Engine.Renderer.CurrentlyRenderingViewport;

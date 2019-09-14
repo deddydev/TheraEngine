@@ -12,7 +12,7 @@ namespace KellermanSoftware.CompareNetObjects
         /// <returns>The HTML-encoded text.</returns>
         public static string HtmlEncode(string text)
         {
-            if (text == null)
+            if (text is null)
                 return null;
 
             StringBuilder sb = new StringBuilder(text.Length);

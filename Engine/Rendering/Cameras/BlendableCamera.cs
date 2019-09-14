@@ -4,6 +4,7 @@ using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Cameras
 {
@@ -180,6 +181,16 @@ namespace TheraEngine.Rendering.Cameras
         {
             View1?.SetPostProcessUniforms(program);
             View2?.SetPostProcessUniforms(program);
+        }
+
+        public override bool UsesAutoExposure =>
+            (View1?.UsesAutoExposure ?? false) ||
+            (View2?.UsesAutoExposure ?? false);
+
+        public override void UpdateExposure(TexRef2D texture)
+        {
+            View1?.UpdateExposure(texture);
+            View2?.UpdateExposure(texture);
         }
     }
 }

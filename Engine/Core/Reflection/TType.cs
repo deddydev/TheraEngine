@@ -104,7 +104,7 @@ namespace TheraEngine.Core.Reflection
         
         private TType(Type type)
         {
-            if (type == null)
+            if (type is null)
                 throw new InvalidOperationException();
 
             RemoteDomain = AppDomain.CurrentDomain;
@@ -190,10 +190,10 @@ namespace TheraEngine.Core.Reflection
             IsClass = type.IsClass;
             IsSecurityTransparent = type.IsSecurityTransparent;
 
-            BaseType = type.BaseType == null ? null : new TType(type.BaseType);
-            ReflectedType = type.ReflectedType == null ? null : new TType(type.ReflectedType);
-            DeclaringType = type.DeclaringType == null ? null : new TType(type.DeclaringType);
-            UnderlyingSystemType = type.UnderlyingSystemType == null || 
+            BaseType = type.BaseType is null ? null : new TType(type.BaseType);
+            ReflectedType = type.ReflectedType is null ? null : new TType(type.ReflectedType);
+            DeclaringType = type.DeclaringType is null ? null : new TType(type.DeclaringType);
+            UnderlyingSystemType = type.UnderlyingSystemType is null || 
                 type.UnderlyingSystemType.AssemblyQualifiedName.EqualsInvariant(AssemblyQualifiedName)
                 ? null : new TType(type.UnderlyingSystemType);
 

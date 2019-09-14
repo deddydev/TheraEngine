@@ -159,7 +159,7 @@ namespace TheraEngine.Core
         }
         //public void Render(RenderContext ctx)
         //{
-        //    if (ctx == null || ctx.IsContextDisposed())
+        //    if (ctx is null || ctx.IsContextDisposed())
         //        return;
 
         //    if (Monitor.TryEnter(ctx))
@@ -202,12 +202,6 @@ namespace TheraEngine.Core
         }
         private void SwapBuffers()
         {
-            while (_managerRemoveQueue.TryDequeue(out int index))
-                WorldManagers.RemoveAt(index);
-
-            while (_managerAddQueue.TryDequeue(out WorldManager manager))
-                WorldManagers.Add(manager);
-
             foreach (WorldManager m in WorldManagers)
             {
                 m.SwapBuffers();
@@ -261,13 +255,13 @@ namespace TheraEngine.Core
 
         public Delegate Get3rdPartyLoader(Type fileType, string extension)
         {
-            if (_3rdPartyLoaders == null)
+            if (_3rdPartyLoaders is null)
                 Reset3rdPartyImportExportMethods();
             return Get3rdPartyMethod(_3rdPartyLoaders, fileType, extension);
         }
         public Delegate Get3rdPartyExporter(Type fileType, string extension)
         {
-            if (_3rdPartyExporters == null)
+            if (_3rdPartyExporters is null)
                 Reset3rdPartyImportExportMethods();
             return Get3rdPartyMethod(_3rdPartyExporters, fileType, extension);
         }
@@ -284,25 +278,25 @@ namespace TheraEngine.Core
         }
         public void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethod<T> loadMethod) where T : class, IFileObject
         {
-            if (_3rdPartyLoaders == null)
+            if (_3rdPartyLoaders is null)
                 Reset3rdPartyImportExportMethods();
             Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
         }
         public void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethod<T> exportMethod) where T : class, IFileObject
         {
-            if (_3rdPartyExporters == null)
+            if (_3rdPartyExporters is null)
                 Reset3rdPartyImportExportMethods();
             Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
         }
         public void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethodAsync<T> loadMethod) where T : class, IFileObject
         {
-            if (_3rdPartyLoaders == null)
+            if (_3rdPartyLoaders is null)
                 Reset3rdPartyImportExportMethods();
             Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
         }
         public void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethodAsync<T> exportMethod) where T : class, IFileObject
         {
-            if (_3rdPartyExporters == null)
+            if (_3rdPartyExporters is null)
                 Reset3rdPartyImportExportMethods();
             Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
         }
@@ -314,7 +308,7 @@ namespace TheraEngine.Core
         {
             extension = extension.ToLowerInvariant();
 
-            if (methodDic == null)
+            if (methodDic is null)
                 methodDic = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
 
             Dictionary<TypeProxy, Delegate> typesforExt;
@@ -342,7 +336,7 @@ namespace TheraEngine.Core
                     foreach (TypeProxy type in types)
                     {
                         TFileExt attrib = GetFileExtension(type);
-                        if (attrib == null)
+                        if (attrib is null)
                             continue;
 
                         ReadLoaders(_3rdPartyLoaders, type, attrib.ImportableExtensions);
@@ -454,20 +448,16 @@ namespace TheraEngine.Core
         public ConsistentIndexList<WorldManager> WorldManagers { get; } = new ConsistentIndexList<WorldManager>();
         public ConcurrentDictionary<IntPtr, RenderContext> Contexts { get; } = new ConcurrentDictionary<IntPtr, RenderContext>();
 
-        public ConcurrentQueue<WorldManager> _managerAddQueue = new ConcurrentQueue<WorldManager>();
-        public ConcurrentQueue<int> _managerRemoveQueue = new ConcurrentQueue<int>();
-
         public int RegisterWorldManager<T>(params object[] args) where T : WorldManager
         {
             WorldManager manager = (WorldManager)Activator.CreateInstance(typeof(T), args);
-            int index = WorldManagers.IndexOfNextAddition(_managerAddQueue.Count);
-            _managerAddQueue.Enqueue(manager);
+            int index = WorldManagers.Add(manager);
             manager.ID = index;
             return index;
         }
         public void UnregisterWorldManager(int index)
         {
-            _managerRemoveQueue.Enqueue(index);
+            WorldManagers.RemoveAt(index);
         }
         public void UnlinkRenderPanelFromWorldManager(IntPtr handle)
         {
@@ -482,7 +472,10 @@ namespace TheraEngine.Core
         }
         public void LinkRenderPanelToWorldManager(IntPtr handle, int worldManagerId)
         {
-            if (!Contexts.ContainsKey(handle) || !WorldManagers.HasValueAtIndex(worldManagerId))
+            if (!Contexts.ContainsKey(handle))
+                return;
+
+            if (!WorldManagers.HasValueAtIndex(worldManagerId))
                 return;
 
             UnlinkRenderPanelFromWorldManager(handle);
@@ -519,9 +512,6 @@ namespace TheraEngine.Core
             }
             if (ctx != null)
             {
-                ctx.Capture(true);
-                ctx.Initialize();
-
                 Engine.PrintLine("Registered render panel " + handler.GetType().GetFriendlyName());
             }
         }

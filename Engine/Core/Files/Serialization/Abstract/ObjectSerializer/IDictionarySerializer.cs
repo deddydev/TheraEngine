@@ -76,7 +76,7 @@ namespace TheraEngine.Core.Files.Serialization
         private void ValNode_ObjectChanged(SerializeElement valNode, object prev)
         {
             SerializeElement keyNode = valNode.Parent.Children[0];
-            //if (keyNode.Object == null)
+            //if (keyNode.Object is null)
             //    return;
 
             if (Dictionary.Contains(keyNode.Object))
@@ -90,7 +90,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (Dictionary.Contains(prev))
                 Dictionary.Remove(prev);
 
-            //if (keyNode.Object == null)
+            //if (keyNode.Object is null)
             //    return;
             if (Dictionary.Contains(keyNode.Object))
                 return;

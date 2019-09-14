@@ -20,7 +20,7 @@ namespace TheraEngine.Core.Files.Serialization
             _value = o;
             _valueType = _value?.GetType();
 
-            if (_value == null)
+            if (_value is null)
             {
                 IsNonStringObject = true;
                 return false;
@@ -29,7 +29,7 @@ namespace TheraEngine.Core.Files.Serialization
             var serializer = BaseObjectSerializer.DetermineObjectSerializer(_valueType, true);
 
             string str = null;
-            IsNonStringObject = serializer == null || !serializer.ObjectToString(_value, out str);
+            IsNonStringObject = serializer is null || !serializer.ObjectToString(_value, out str);
             _stringValue = str;
             
             return !IsNonStringObject;
@@ -50,12 +50,12 @@ namespace TheraEngine.Core.Files.Serialization
         }
 
         public bool IsNonStringObject { get; private set; } = false;
-        public bool IsUnparsedString => _valueType == null;
+        public bool IsUnparsedString => _valueType is null;
 
         private bool ParseStringToObject(TypeProxy type)
         {
             BaseObjectSerializer serializer = BaseObjectSerializer.DetermineObjectSerializer(type, true);
-            if (serializer == null)
+            if (serializer is null)
             {
                 _valueType = null;
                 return false;
@@ -68,13 +68,13 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public bool GetObject(TypeProxy expectedType, out object value)
         {
-            if (expectedType == null)
+            if (expectedType is null)
             {
                 value = _value;
                 return _value != null && !IsUnparsedString;
             }
 
-            bool success = IsNotNull && (IsUnparsedString ? ParseStringToObject(expectedType) : (_value == null || expectedType.IsInstanceOfType(_value)));
+            bool success = IsNotNull && (IsUnparsedString ? ParseStringToObject(expectedType) : (_value is null || expectedType.IsInstanceOfType(_value)));
 
             value = success ? _value : default;
 

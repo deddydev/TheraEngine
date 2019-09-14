@@ -307,7 +307,7 @@ namespace TheraEngine.Rendering.Models
             _boneRemap = null;
             if (skeleton != null)
             {
-                if (_data._utilizedBones == null || _data._utilizedBones.Length <= 1)
+                if (_data._utilizedBones is null || _data._utilizedBones.Length <= 1)
                 {
                     if (!string.IsNullOrEmpty(_data.SingleBindBone) &&
                         skeleton.BoneNameCache.ContainsKey(_data.SingleBindBone))
@@ -338,7 +338,7 @@ namespace TheraEngine.Rendering.Models
                                 {
                                     BoneWeight weight = inf.Weights[j];
                                     int index;
-                                    if (weight == null || (index = _data._utilizedBones.IndexOf(weight.Bone)) < 0)
+                                    if (weight is null || (index = _data._utilizedBones.IndexOf(weight.Bone)) < 0)
                                     {
                                         matrixIndices[i][j] = 0;
                                         matrixWeights[i][j] = 0.0f;
@@ -375,7 +375,7 @@ namespace TheraEngine.Rendering.Models
                             {
                                 BoneWeight weight = inf.Weights[j];
                                 int index;
-                                if (weight == null || (index = _data.UtilizedBones.IndexOf(weight.Bone)) < 0)
+                                if (weight is null || (index = _data.UtilizedBones.IndexOf(weight.Bone)) < 0)
                                 {
                                     matrixIndices[i][j] = 0.0f;
                                     matrixWeights[i][j] = 0.0f;
@@ -513,7 +513,7 @@ namespace TheraEngine.Rendering.Models
             => Render(modelMatrix, normalMatrix, null, instances);
         public void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial materialOverride, int instances = 1)
         {
-            if (_data == null || !_allowRender)
+            if (_data is null || !_allowRender)
                 return;
 
             if (_remake)
@@ -543,7 +543,7 @@ namespace TheraEngine.Rendering.Models
             }
 
             TMaterial mat = GetRenderMaterial(materialOverride);
-            if (mat == null)
+            if (mat is null)
                 return;
 
             RenderProgram vtxProg, matProg;
@@ -566,7 +566,7 @@ namespace TheraEngine.Rendering.Models
             }
             else
             {
-                if (VertexFragProgram == null)
+                if (VertexFragProgram is null)
                 {
                     VertexFragProgram = new RenderProgram(Material.FragmentShaders[0], _vertexShader);
                     //_vertexFragProgram.Generate();
@@ -624,7 +624,7 @@ namespace TheraEngine.Rendering.Models
             }
             else
             {
-                if (VertexFragProgram == null)
+                if (VertexFragProgram is null)
                 {
                     VertexFragProgram = new RenderProgram(Material.FragmentShaders[0], _vertexShader);
                     //_vertexFragProgram.Generate();

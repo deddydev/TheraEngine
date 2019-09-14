@@ -35,7 +35,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             Uri uri2 = parms.Object2 as Uri;
 
             //This should never happen, null check happens one level up
-            if (uri1 == null || uri2 == null)
+            if (uri1 is null || uri2 is null)
                 return;
 
             if (uri1.OriginalString != uri2.OriginalString)

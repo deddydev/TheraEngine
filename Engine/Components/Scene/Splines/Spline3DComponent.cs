@@ -120,7 +120,7 @@ namespace TheraEngine.Components.Scene
             _extremaPrimitive?.Dispose();
             _extremaPrimitive = null;
 
-            if (_spline == null || _spline.LengthInSeconds <= 0.0f)
+            if (_spline is null || _spline.LengthInSeconds <= 0.0f)
                 return;
 
             //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
@@ -316,7 +316,7 @@ void main()
         private readonly RenderCommandMesh3D _rcExtrema = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
         public void AddRenderables(RenderPasses passes, ICamera camera)
         {
-            if (_spline == null)
+            if (_spline is null)
                 return;
 
             if (RenderSpline)

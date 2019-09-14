@@ -146,7 +146,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         private void SkeletonLoaded(Skeleton skel)
         {
-            if (ModelRef == null || !ModelRef.IsLoaded)
+            if (ModelRef is null || !ModelRef.IsLoaded)
                 return;
 
             if (IsSpawned)
@@ -176,12 +176,12 @@ namespace TheraEngine.Components.Scene.Mesh
                     m.Destroy();
                 }
             
-            if (model == null)
+            if (model is null)
                 return;
 
             TargetSkeleton = skeletonOverride ?? await model.SkeletonRef?.GetInstanceAsync();
 
-            if (TargetSkeleton == null)
+            if (TargetSkeleton is null)
                 return;
 
             TargetSkeleton.OwningComponent = this;

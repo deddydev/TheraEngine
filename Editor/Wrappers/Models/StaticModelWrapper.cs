@@ -33,7 +33,7 @@ namespace TheraEditor.Wrappers
 
         public override async void EditResource()
         {
-            if (_form == null || _form.Disposing || _form.IsDisposed)
+            if (_form is null || _form.Disposing || _form.IsDisposed)
             {
                 var modelTask = ResourceRef.GetInstanceAsync();
 

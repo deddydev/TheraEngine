@@ -102,7 +102,7 @@ namespace TheraEngine.Animation
         {
             var next = Next;
             float span;
-            if (next == null)
+            if (next is null)
             {
                 if (OwningTrack != null && OwningTrack.FirstKey != this)
                 {
@@ -121,7 +121,7 @@ namespace TheraEngine.Animation
         {
             var prev = Prev;
             float span;
-            if (prev == null)
+            if (prev is null)
             {
                 if (OwningTrack != null && OwningTrack.LastKey != this)
                 {

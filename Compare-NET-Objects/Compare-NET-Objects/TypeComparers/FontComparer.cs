@@ -40,7 +40,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             Font font1 = parms.Object1 as Font;
             Font font2 = parms.Object2 as Font;
 
-            if (font1 == null || font2 == null)
+            if (font1 is null || font2 is null)
                 return;
 
             CompareProp(parms, font1.Bold, font2.Bold, "Bold");

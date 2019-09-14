@@ -123,7 +123,7 @@ namespace TheraEngine.Components.Logic.Animation
             AnimState destinationState,
             AnimStateTransition transition)
         {
-            if (destinationState == null)
+            if (destinationState is null)
                 return;
             //destinationState.Start();
             _stateQueue.AddLast(destinationState);
@@ -136,7 +136,7 @@ namespace TheraEngine.Components.Logic.Animation
         }
         internal void Tick(float delta, Skeleton skeleton)
         {
-            if (skeleton == null)
+            if (skeleton is null)
                 return;
 
             var stateNode = _stateQueue.First;
@@ -150,7 +150,7 @@ namespace TheraEngine.Components.Logic.Animation
                 anim.Tick(delta);
             }
 
-            if (baseFrame == null)
+            if (baseFrame is null)
                 return;
 
             if (_blendQueue.Count > 0)

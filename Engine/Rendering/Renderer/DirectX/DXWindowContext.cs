@@ -147,7 +147,7 @@ namespace TheraEngine.Rendering.DirectX
             {
                 _vsyncMode = vsyncMode;
 
-                //if (_context == null)
+                //if (_context is null)
                 //    return;
                 //switch (vsyncMode)
                 //{
@@ -172,7 +172,7 @@ namespace TheraEngine.Rendering.DirectX
             }
 
             public override bool IsContextDisposed()
-                => Device == null || Device.IsDisposed;
+                => Device is null || Device.IsDisposed;
 
             public override bool IsCurrent()
             {
@@ -239,6 +239,7 @@ namespace TheraEngine.Rendering.DirectX
 
         public unsafe override void Initialize()
         {
+            IsInitialized = true;
             GetCurrentSubContext();
             
             //Set up constant rendering parameters

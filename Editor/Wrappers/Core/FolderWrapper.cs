@@ -171,7 +171,7 @@ namespace TheraEditor.Wrappers
 
         public override void Delete()
         {
-            if (Parent == null)
+            if (Parent is null)
                 return;
 
             ResourceTree tree = TreeView;
@@ -216,7 +216,7 @@ namespace TheraEditor.Wrappers
                         DirectoryInfo subDirInfo = new DirectoryInfo(subDir);
 
                         BaseWrapper node = Wrap(subDir);
-                        if (node == null)
+                        if (node is null)
                             continue;
 
                         try
@@ -244,7 +244,7 @@ namespace TheraEditor.Wrappers
                     foreach (string file in files)
                     {
                         BaseWrapper node = Wrap(file);
-                        if (node == null)
+                        if (node is null)
                             continue;
 
                         string key = Tree.GetOrAddIconFromPath(file);
@@ -287,7 +287,7 @@ namespace TheraEditor.Wrappers
                 return;
 
             TypeProxy fileType = button.Tag as TypeProxy;
-            if (fileType == null)
+            if (fileType is null)
                 return;
 
             if (fileType.ContainsGenericParameters)
@@ -325,7 +325,7 @@ namespace TheraEditor.Wrappers
                     object file = await TFileObject.LoadAsync((Type)marshaledFileType, path, progress, cancel.Token);
                     Editor.Instance.EndOperation(op);
 
-                    if (file == null)
+                    if (file is null)
                         return;
 
                     FolderWrapper folderNode = GetInstance<FolderWrapper>();

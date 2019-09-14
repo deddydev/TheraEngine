@@ -249,7 +249,7 @@ namespace System.Collections.Generic
         public new void AddRange(IEnumerable<T> collection) => AddRange(collection, true, true);
         public void AddRange(IEnumerable<T> collection, bool reportAddedRange, bool reportModified)
         {
-            if (collection == null)
+            if (collection is null)
                 return;
 
             if (!_allowDuplicates)
@@ -554,7 +554,7 @@ namespace System.Collections.Generic
         public new void InsertRange(int index, IEnumerable<T> collection) => InsertRange(index, collection, true, true);
         public void InsertRange(int index, IEnumerable<T> collection, bool reportInsertedRange, bool reportModified)
         {
-            if (collection == null)
+            if (collection is null)
                 return;
 
             if (!_allowDuplicates)

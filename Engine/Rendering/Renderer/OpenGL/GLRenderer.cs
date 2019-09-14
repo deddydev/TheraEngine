@@ -382,7 +382,7 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void ApplyRenderParams(RenderingParameters r)
         {
-            if (r == null)
+            if (r is null)
                 return;
 
             Engine.Renderer.ColorMask(r.WriteRed, r.WriteGreen, r.WriteBlue, r.WriteAlpha);
@@ -1067,7 +1067,7 @@ namespace TheraEngine.Rendering.OpenGL
         /// </summary>
         public override void BindPrimitiveManager(IPrimitiveManager manager)
         {
-            GL.BindVertexArray(manager == null ? 0 : manager.BindingId);
+            GL.BindVertexArray(manager is null ? 0 : manager.BindingId);
             base.BindPrimitiveManager(manager);
         }
         /// <summary>
@@ -1084,7 +1084,7 @@ namespace TheraEngine.Rendering.OpenGL
         /// </summary>
         public override void RenderCurrentPrimitiveManager(int instances)
         {
-            if (_currentPrimitiveManager == null)
+            if (_currentPrimitiveManager is null)
                 return;
             
             PrimitiveType type = (PrimitiveType)(int)_currentPrimitiveManager.Data._type;

@@ -147,7 +147,7 @@ namespace TheraEngine.Rendering
         {
             Thread thread = Thread.CurrentThread;
 
-            if (thread == null || _handle == null)
+            if (thread is null || _handle == IntPtr.Zero)
                 return -1;
             
             if (!_subContexts.ContainsKey(thread.ManagedThreadId))
@@ -175,7 +175,7 @@ namespace TheraEngine.Rendering
         }
         internal void DestroyContextForThread(Thread thread)
         {
-            if (thread == null)
+            if (thread is null)
                 return;
 
             int id = thread.ManagedThreadId;
@@ -190,7 +190,7 @@ namespace TheraEngine.Rendering
         public void SwapBuffers() => Handler.SwapBuffers();
         public void Render()
         {
-            Capture(true);
+            Capture();
             PreRender();
             Handler.Render();
             PostRender();
@@ -237,12 +237,14 @@ namespace TheraEngine.Rendering
         {
             //try
             //{
-                if (force || Captured != this)
-                {
-                    if (force)
-                        Captured = null;
-                    Captured = this;
-                }
+            if (force || Captured != this)
+            {
+                if (force)
+                    Captured = null;
+                Captured = this;
+                if (!IsInitialized)
+                    Initialize();
+            }
             //}
             //catch { Reset(); }
         }
@@ -291,7 +293,7 @@ namespace TheraEngine.Rendering
         //    //if (Captured == this)
         //    //    OnResized();
         //}
-
+        public bool IsInitialized { get; protected set; }
         public abstract void Flush();
         public abstract void Initialize();
         public abstract void BeginDraw();

@@ -93,7 +93,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _nullable = value;
-                if (!_nullable && _currentValue == null)
+                if (!_nullable && _currentValue is null)
                     SetValue(DefaultValue, false);
             }
         }
@@ -198,7 +198,7 @@ namespace TheraEditor.Windows.Forms
                 case Keys.Up:
                     {
                         GetValueFromText();
-                        if (_currentValue == null)
+                        if (_currentValue is null)
                             return;
                         T increment = e.KeyCode == Keys.Down || e.KeyCode == Keys.Up ? (e.Shift ? SmallerIncrement : SmallIncrement) : (e.Shift ? LargerIncrement : LargeIncrement);
                         SetValue(Increment(_currentValue.Value, increment, e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Down), true);
@@ -255,7 +255,7 @@ namespace TheraEditor.Windows.Forms
         protected void UpdateTextWithValue(bool force = false)
         {
             if (!Focused || force)
-                Text = _currentValue == null ? "<null>" : Focused ? _currentValue.Value.ToString() : (_prefix + _currentValue.Value.ToString() + _suffix);
+                Text = _currentValue is null ? "<null>" : Focused ? _currentValue.Value.ToString() : (_prefix + _currentValue.Value.ToString() + _suffix);
         }
 
         protected void GetValueFromText()
@@ -269,7 +269,7 @@ namespace TheraEditor.Windows.Forms
 
         public void SetValue(T? value, bool forceTextUpdate)
         {
-            T? newValue = value == null ?
+            T? newValue = value is null ?
                 (Nullable ? null : (T?)DefaultValue) :
                 Round(Clamp(value.Value, MinimumValue, MaximumValue));
 

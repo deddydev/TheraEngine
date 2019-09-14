@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering.Models
                     break;
                 }
 
-            if (jointSIDs == null)
+            if (jointSIDs is null)
                 return null;
 
             //Populate bone list
@@ -151,7 +151,7 @@ namespace TheraEngine.Rendering.Models
             string[] geomIds = nameArray?.StringContent?.Values;
             float[] weights = weightArray?.StringContent?.Values;
 
-            if (geomIds == null || weights == null)
+            if (geomIds is null || weights is null)
             {
                 Engine.LogWarning("Morph set for '" + morph.BaseMeshUrl.TargetID + "' does not have valid target and weight inputs.");
                 return null;
@@ -219,7 +219,7 @@ namespace TheraEngine.Rendering.Models
             info._boneCount = boneCount;
 
             var m = geo.MeshElement;
-            if (m == null)
+            if (m is null)
                 return;
 
             Vertices vertsElem;
@@ -290,7 +290,7 @@ namespace TheraEngine.Rendering.Models
                 
                 Vertex[][] vertices = new Vertex[prim.PointCount][];
                 int[] indices = prim?.IndicesElement?.StringContent?.Values;
-                if (indices == null)
+                if (indices is null)
                 {
                     Engine.LogWarning("Mesh has no face indices. Mesh will be empty.");
                     return;
@@ -407,13 +407,13 @@ namespace TheraEngine.Rendering.Models
             float[] list = src.GetArrayElement<FloatArray>().StringContent.Values;
             for (int i = 0, x = 0; i < prim.PointCount; ++i, x += prim.InputElements.Length)
             {
-                if (vertices[i] == null)
+                if (vertices[i] is null)
                     vertices[i] = new Vertex[maxSets];
 
                 startIndex = (pointIndex = indices[x + offset]) * stride;
 
                 Vertex vtx = vertices[i][set];
-                if (vtx == null)
+                if (vtx is null)
                     vtx = new Vertex();
 
                 switch (semantic)

@@ -138,7 +138,7 @@ namespace TheraEngine.Rendering.Cameras
         {
             LocalPoint.SetRawNoUpdate(translation);
 
-            if (ViewTarget == null)
+            if (ViewTarget is null)
                 SetRotationsNoUpdate(rotation);
 
             if (aspect != null)
@@ -207,7 +207,7 @@ namespace TheraEngine.Rendering.Cameras
             _height = height;
             if (!_overrideAspect)
                 _aspect = _width / _height;
-            if (_transformedFrustumCascade == null)
+            if (_transformedFrustumCascade is null)
                 InitFrustumCascade();
             base.Resize(width, height);
         }

@@ -277,25 +277,25 @@ namespace Extensions
         /// Use this so you don't have to write that every time.
         /// </summary>
         public static bool IndexInRangeGeneric(this IList a, int value)
-            => a == null ? false : value >= 0 && value < a.Count;
+            => a is null ? false : value >= 0 && value < a.Count;
         /// <summary>
         /// Returns true if index >= 0 && index is less than length.
         /// Use this so you don't have to write that every time.
         /// </summary>
         public static bool IndexInRangeGeneric(this Array a, int value)
-            => a == null ? false : value >= 0 && value < a.Length;
+            => a is null ? false : value >= 0 && value < a.Length;
         /// <summary>
         /// Returns true if index >= 0 && index is less than length.
         /// Use this so you don't have to write that every time.
         /// </summary>
         public static bool IndexInRange<T>(this IList<T> a, int value)
-            => a == null ? false : value >= 0 && value < a.Count;
+            => a is null ? false : value >= 0 && value < a.Count;
         /// <summary>
         /// Returns true if index >= 0 && index is less than length.
         /// Use this so you don't have to write that every time.
         /// </summary>
         public static bool IndexInRange<T>(this T[] a, int value)
-            => a == null ? false : value >= 0 && value < a.Length;
+            => a is null ? false : value >= 0 && value < a.Length;
 
         public static int[] FindAllOccurences<T>(this IList<T> a, T o) where T : IEquatable<T>
         {
@@ -356,7 +356,7 @@ namespace Extensions
         }
         public static T[] FillWith<T>(this T[] array, Func<int, T> factory)
         {
-            if (factory == null)
+            if (factory is null)
                 return array;
 
             for (int i = 0; i < array.Length; i++)

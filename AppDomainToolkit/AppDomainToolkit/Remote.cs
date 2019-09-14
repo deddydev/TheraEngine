@@ -103,7 +103,7 @@
         /// </returns>
         internal static Remote<T> CreateProxy(DisposableAppDomain wrappedDomain, params object[] constructorArgs)
         {
-            if (wrappedDomain == null)
+            if (wrappedDomain is null)
             {
                 throw new ArgumentNullException("domain");
             }
@@ -141,7 +141,7 @@
         /// </returns>
         public static Remote<T> CreateProxy(AppDomain domain, params object[] constructorArgs)
         {
-            if (domain == null)
+            if (domain is null)
             {
                 throw new ArgumentNullException("domain");
             }

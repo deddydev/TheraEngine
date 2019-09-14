@@ -97,6 +97,7 @@ namespace TheraEngine.Rendering.OpenGL
 
         public unsafe override void Initialize()
         {
+            IsInitialized = true;
             GetCurrentSubContext();
             
             GL.Enable(EnableCap.Multisample);
@@ -240,7 +241,7 @@ namespace TheraEngine.Rendering.OpenGL
             internal override void VsyncChanged(EVSyncMode vsyncMode)
             {
                 _vsyncMode = vsyncMode;
-                if (_context == null)
+                if (_context is null)
                     return;
                 switch (vsyncMode)
                 {

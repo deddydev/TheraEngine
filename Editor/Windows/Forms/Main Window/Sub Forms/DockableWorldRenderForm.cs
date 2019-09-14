@@ -53,7 +53,7 @@ namespace TheraEditor.Windows.Forms
         //{
         //    BaseWrapper[] dragNodes = Editor.Instance.ContentTree?.DraggedNodes;
 
-        //    if (dragNodes == null || dragNodes.Length != 1)
+        //    if (dragNodes is null || dragNodes.Length != 1)
         //        return;
 
         //    if (!(dragNodes[0] is BaseFileWrapper wrapper))

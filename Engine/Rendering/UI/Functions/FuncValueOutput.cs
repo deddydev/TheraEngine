@@ -74,7 +74,7 @@ namespace TheraEngine.Rendering.UI.Functions
         
         public override bool CanConnectTo(TInput other)
         {
-            if (other == null || Connections.Contains(other))
+            if (other is null || Connections.Contains(other))
                 return false;
 
             int otherType = other.CurrentArgumentType;

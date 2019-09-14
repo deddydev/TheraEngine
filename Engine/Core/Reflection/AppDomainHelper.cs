@@ -120,7 +120,7 @@ namespace TheraEngine.Core.Reflection
                 while (true)
                 {
                     host.NextDomain(enumeration, out object domain);
-                    if (domain == null)
+                    if (domain is null)
                         yield break;
                     yield return (AppDomain)domain;
                 }

@@ -51,7 +51,7 @@ namespace TheraEngine.TriangleConverter
 
         public override bool Equals(object obj)
         {
-            if (obj == null || !(obj is TriangleEdge))
+            if (obj is null || !(obj is TriangleEdge))
                 return false;
 
             return this == obj as TriangleEdge;
@@ -87,7 +87,7 @@ namespace TheraEngine.TriangleConverter
         }
         public override bool Equals(object obj)
         {
-            if (obj == null || !(obj is TriEdge))
+            if (obj is null || !(obj is TriEdge))
                 return false;
 
             return this == obj as TriEdge;

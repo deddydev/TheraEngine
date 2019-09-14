@@ -101,7 +101,7 @@ namespace TheraEngine.Rendering.Text
         //}
         //public void Add(UIString2D text, bool redraw = true)
         //{
-        //    if (text == null)
+        //    if (text is null)
         //        return;
 
         //    text.Parent = this;
@@ -125,8 +125,8 @@ namespace TheraEngine.Rendering.Text
         {
             forceFullRedraw = true;
 
-            if (texture == null ||
-                texture.Mipmaps == null ||
+            if (texture is null ||
+                texture.Mipmaps is null ||
                 texture.Mipmaps.Length == 0)
                 return;
 

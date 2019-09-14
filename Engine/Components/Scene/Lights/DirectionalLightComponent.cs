@@ -89,7 +89,7 @@ namespace TheraEngine.Components.Scene.Lights
                 if (Type == ELightType.Dynamic)
                 {
                     s3d.Lights.Add(this);
-                    if (ShadowMap == null)
+                    if (ShadowMap is null)
                         SetShadowMapResolution(_region.Width, _region.Height);
 
                     ShadowCamera.LocalPoint.Raw = WorldPoint;
@@ -127,7 +127,7 @@ namespace TheraEngine.Components.Scene.Lights
         public override void SetShadowMapResolution(int width, int height)
         {
             base.SetShadowMapResolution(width, height);
-            if (ShadowCamera == null)
+            if (ShadowCamera is null)
             {
                 ShadowCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Half, 0.0f, Scale.Z);
                 ShadowCamera.LocalRotation.SyncFrom(_rotation);

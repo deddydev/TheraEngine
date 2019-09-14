@@ -22,7 +22,7 @@ namespace KellermanSoftware.CompareNetObjects.Reports
         public virtual void OutputFiles(List<Difference> differences, string expectedFilePath, string actualFilePath)
         {
 
-            if (differences == null)
+            if (differences is null)
                 throw new ArgumentNullException("differences");
 
             StringBuilder sb1 = new StringBuilder(differences.Count*80);

@@ -131,20 +131,20 @@ namespace TheraEngine.Animation
         //No two members can share the same name
         internal void MethodTick(object obj, float delta)
         {
-            if (obj == null || MemberNotFound)
+            if (obj is null || MemberNotFound)
                 return;
 
-            if (_methodCache == null)
+            if (_methodCache is null)
             {
                 Type type = obj.GetType();
                 while (type != null)
                 {
-                    if ((_methodCache = type.GetMethod(_memberName)) == null)
+                    if ((_methodCache = type.GetMethod(_memberName)) is null)
                         type = type.BaseType;
                     else
                         break;
                 }
-                if (MemberNotFound = _methodCache == null)
+                if (MemberNotFound = _methodCache is null)
                     return;
             }
 
@@ -152,20 +152,20 @@ namespace TheraEngine.Animation
         }
         internal void PropertyTick(object obj, float delta)
         {
-            if (obj == null || MemberNotFound)
+            if (obj is null || MemberNotFound)
                 return;
 
-            if (_propertyCache == null)
+            if (_propertyCache is null)
             {
                 Type type = obj.GetType();
                 while (type != null)
                 {
-                    if ((_propertyCache = type.GetProperty(_memberName)) == null)
+                    if ((_propertyCache = type.GetProperty(_memberName)) is null)
                         type = type.BaseType;
                     else
                         break;
                 }
-                if (MemberNotFound = _propertyCache == null)
+                if (MemberNotFound = _propertyCache is null)
                     return;
             }
 
@@ -180,20 +180,20 @@ namespace TheraEngine.Animation
         }
         internal void FieldTick(object obj, float delta)
         {
-            if (obj == null || MemberNotFound)
+            if (obj is null || MemberNotFound)
                 return;
 
-            if (_fieldCache == null)
+            if (_fieldCache is null)
             {
                 Type type = obj.GetType();
                 while (type != null)
                 {
-                    if ((_fieldCache = type.GetField(_memberName)) == null)
+                    if ((_fieldCache = type.GetField(_memberName)) is null)
                         type = type.BaseType;
                     else
                         break;
                 }
-                if (MemberNotFound = _fieldCache == null)
+                if (MemberNotFound = _fieldCache is null)
                     return;
             }
 

@@ -46,12 +46,12 @@ namespace KellermanSoftware.CompareNetObjects.Reports
         {
             RegistryKey registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\WinMergeU.exe");
 
-            if (registryKey == null)
+            if (registryKey is null)
                 return null;
 
             object value = registryKey.GetValue("");
 
-            if (value == null)
+            if (value is null)
                 return null;
 
             return value.ToString();

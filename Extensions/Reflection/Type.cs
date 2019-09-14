@@ -75,7 +75,7 @@ namespace Extensions
         /// </summary>
         public static string GetFriendlyName(this Type type, Dictionary<Type, string> translations, string openBracket = "<", string closeBracket = ">")
         {
-            if (type == null)
+            if (type is null)
                 return "null";
             else if (translations.ContainsKey(type))
                 return translations[type];
@@ -93,7 +93,7 @@ namespace Extensions
         /// Returns the default value for the given type. Similar to default(T).
         /// </summary>
         public static object GetDefaultValue(this Type t)
-            => t == null ? null : (t.IsValueType && Nullable.GetUnderlyingType(t) == null) ? t.CreateInstance() : null;
+            => t is null ? null : (t.IsValueType && Nullable.GetUnderlyingType(t) is null) ? t.CreateInstance() : null;
 
         public static void GetGenericParameterConstraints(this Type genericTypeParam, out EGenericVarianceFlag gvf, out ETypeConstraintFlag tcf)
         {

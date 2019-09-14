@@ -80,7 +80,7 @@ namespace TheraEngine.Core.Files.Serialization
                 DeserializeAsync = attrib.DeserializeAsync;
             }
 
-            if (attrib == null || !attrib.UseCategory)
+            if (attrib is null || !attrib.UseCategory)
                 return;
 
             if (attrib.OverrideCategory != null)
@@ -93,11 +93,11 @@ namespace TheraEngine.Core.Files.Serialization
             }
         }
         public bool AllowSerialize(object obj)
-            => Condition == null || ExpressionParser.Evaluate<bool>(Condition, obj);
+            => Condition is null || ExpressionParser.Evaluate<bool>(Condition, obj);
 
         public void SetObject(object parentObject, object memberObject)
         {
-            if (Member == null)
+            if (Member is null)
                 return;
             if (Member.MemberType.HasFlag(MemberTypes.Field))
                 ((FieldInfoProxy)Member).SetValue(parentObject, memberObject);
@@ -175,7 +175,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         internal static string GetTypeName(TypeProxy t)
         {
-            if (t == null || t.IsInterface)
+            if (t is null || t.IsInterface)
                 return null;
             string name = t.Name;
             if (t.IsGenericType)
@@ -675,7 +675,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             string validStartChars = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
             string validChars = validStartChars + "-.1234567890";
-            if (name == null)
+            if (name is null)
                 throw new Exception("Element name cannot be null.");
             name = name.Replace(" ", "");
             if (name.ToLowerInvariant().StartsWith("xml"))
@@ -809,7 +809,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 Engine.PrintLine(e.ToString());
             }
-            //if (fileType == null)
+            //if (fileType is null)
             //    Engine.LogWarning("Cannot determine the type of file at " + filePath + ".");
             return fileType;
         }

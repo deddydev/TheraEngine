@@ -145,7 +145,7 @@ namespace TheraEditor
                 {
                     //if (!_inPlaceEditorTypes.ContainsKey(varType))
                     InPlaceEditorTypes.AddOrUpdate(varType, propControlType, (x, y) => propControlType);
-                    Engine.PrintLine($"{propControlType.GetFriendlyName()} is the editor for {varType.GetFriendlyName()}.");
+                    Engine.PrintLine(EOutputVerbosity.Verbose, $"{propControlType.GetFriendlyName()} is the editor for {varType.GetFriendlyName()}.");
                     //else
                     //    throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
                 }
@@ -219,15 +219,16 @@ namespace TheraEditor
         {
             IWorld world = Engine.World;
             if (world != null)
-                world.CurrentGameMode = EditorGameMode;
+                world.CurrentGameMode = CurrentGameMode = EditorGameMode;
         }
+        public IGameMode CurrentGameMode { get; set; }
         public void SetGameplayMode()
         {
             IWorld world = Engine.World;
             if (world != null)
             {
-                IGameMode gameMode = Engine.GetGameMode() ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
-                world.CurrentGameMode = gameMode;
+                CurrentGameMode = Engine.GetGameMode() ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
+                world.CurrentGameMode = CurrentGameMode;
             }
         }
     }

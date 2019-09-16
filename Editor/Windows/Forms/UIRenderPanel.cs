@@ -36,7 +36,7 @@ namespace TheraEngine
         IUIGameMode IUIRenderHandler.GameMode => GameMode;
         public override UIPawnType EditorPawn => UI;
 
-        protected override IScene2D GetScene(Viewport v) => World.Scene2D;
+        protected override IScene2D GetScene(Viewport v) => World?.Scene2D;
         protected override ICamera GetCamera(Viewport v) => UI?.ScreenOverlayCamera;
 
         public UIRenderHandler() : base(ELocalPlayerIndex.One)

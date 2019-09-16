@@ -273,7 +273,7 @@ namespace TheraEngine
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;
             PrintAppDomainInOutput = true;
-            OutputVerbosity = EOutputVerbosity.Verbose;
+            OutputVerbosity = EOutputVerbosity.Normal;
             AllowedOutputRecentnessSeconds = 2.0;
 
             CapFPS = false;

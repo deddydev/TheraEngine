@@ -25,6 +25,7 @@ using TheraEngine.Worlds;
 using Valve.VR;
 using TheraEngine.Core.Reflection;
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 
 namespace TheraEngine
 {
@@ -59,6 +60,8 @@ namespace TheraEngine
             Debug.Listeners.Add(new EngineTraceListener());
             //PrintLine("Constructing static engine class.");
 
+            //TODO: change tick order to int. 
+            //Allocate tick order values as they are requested in a dictionary.
             TickLists = new List<DelTick>[45];
             for (int i = 0; i < TickLists.Length; ++i)
                 TickLists[i] = new List<DelTick>();
@@ -424,6 +427,7 @@ namespace TheraEngine
         /// </summary>
         private static void EngineTick(object sender, FrameEventArgs e)
         {
+            ClearMarkers();
             //Network?.RecievePackets();
             
             float delta = e.Time * TimeDilation;
@@ -440,6 +444,27 @@ namespace TheraEngine
             //Network?.UpdatePacketQueue(e.Time);
 
             //SteamAPI.RunCallbacks();
+            PrintMarkers();
+        }
+
+        private static Dictionary<int, List<string>> Sequences { get; } = new Dictionary<int, List<string>>();
+        public static void SequenceMarker(int id, [CallerMemberName]string name = "")
+        {
+            if (Sequences.ContainsKey(id))
+                Sequences[id].Add(name);
+            else
+                Sequences[id] = new List<string>() { name };
+        }
+        private static void PrintMarkers()
+        {
+            foreach (var kv in Sequences)
+            {
+                PrintLine($"Sequence {kv.Key}: {kv.Value.ToStringList(",")}");
+            }
+        }
+        private static void ClearMarkers()
+        {
+            Sequences.Clear();
         }
 
         private static void OnUpdate(object sender, FrameEventArgs e) 

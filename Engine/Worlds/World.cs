@@ -42,6 +42,10 @@ namespace TheraEngine.Worlds
         bool IsRebasingOrigin { get; }
         int SpawnedActorCount { get; }
 
+        void GlobalUpdate();
+        void GlobalSwap();
+        void GlobalPreRender();
+
         void SpawnActor(IActor item);
         void SpawnActor(IActor actor, Vec3 position);
         void DespawnActor(IActor baseActor);
@@ -372,5 +376,18 @@ namespace TheraEngine.Worlds
             => passes.Add(_rc3D);
         void I2DRenderable.AddRenderables(RenderPasses passes, ICamera camera)
             => passes.Add(_rc2D);
+
+        void IWorld.GlobalUpdate()
+        {
+            Scene?.GlobalUpdate();
+        }
+        void IWorld.GlobalSwap()
+        {
+            Scene?.GlobalSwap();
+        }
+        void IWorld.GlobalPreRender()
+        {
+            Scene?.GlobalPreRender();
+        }
     }
 }

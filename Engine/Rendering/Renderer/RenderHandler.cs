@@ -6,6 +6,7 @@ using Extensions;
 using System.ComponentModel;
 using TheraEngine.Worlds;
 using System;
+using System.Collections.Concurrent;
 
 namespace TheraEngine.Rendering
 {
@@ -15,7 +16,7 @@ namespace TheraEngine.Rendering
         int Width { get; }
         int Height { get; }
         List<ELocalPlayerIndex> ValidPlayerIndices { get; set; }
-        Dictionary<ELocalPlayerIndex, Viewport> Viewports { get; set; }
+        IReadOnlyDictionary<ELocalPlayerIndex, Viewport> Viewports { get; }
 
         void Render();
         void Update();
@@ -88,7 +89,7 @@ namespace TheraEngine.Rendering
                 return null;
 
             Viewport newViewport = new Viewport(this, Viewports.Count);
-            Viewports.Add(index, newViewport);
+            Viewports.TryAdd(index, newViewport);
 
             Engine.PrintLine("Added new viewport to {0}: {1}", GetType().GetFriendlyName(), newViewport.Index);
 
@@ -112,7 +113,7 @@ namespace TheraEngine.Rendering
 
         public void UnregisterController(LocalPlayerController controller)
         {
-            if (controller.Viewport != null && Viewports.ContainsValue(controller.Viewport))
+            if (controller.Viewport != null && Viewports.Values.Contains(controller.Viewport))
             {
                 Viewport v = controller.Viewport;
                 v.UnregisterController(controller);
@@ -145,7 +146,7 @@ namespace TheraEngine.Rendering
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public Dictionary<ELocalPlayerIndex, Viewport> Viewports { get; set; } = new Dictionary<ELocalPlayerIndex, Viewport>();
+        public ConcurrentDictionary<ELocalPlayerIndex, Viewport> Viewports { get; private set; } = new ConcurrentDictionary<ELocalPlayerIndex, Viewport>();
 
         public WorldManager WorldManager
         {
@@ -157,7 +158,9 @@ namespace TheraEngine.Rendering
                 OnWorldManagerPostChanged();
             }
         }
-        
+
+        IReadOnlyDictionary<ELocalPlayerIndex, Viewport> IRenderHandler.Viewports => Viewports;
+
         public event Action WorldManagerPreChanged;
         public event Action WorldManagerPostChanged;
         protected virtual void OnWorldManagerPreChanged() => WorldManagerPreChanged?.Invoke();

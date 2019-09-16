@@ -44,7 +44,7 @@ namespace TheraEditor.Windows.Forms
                     ActiveRenderForm.World.CurrentGameMode = ActiveRenderForm.GameMode;
                 //ActiveRenderForm.GameMode.BeginGameplay();
 
-                //int index = (int)control.PlayerIndex;W
+                //int index = (int)control.PlayerIndex;
                 //if (index < ActiveRenderForm.GameMode.LocalPlayers.Count)
                 //{
                 //    LocalPlayerController c = ActiveRenderForm.GameMode.LocalPlayers[index];
@@ -57,8 +57,13 @@ namespace TheraEditor.Windows.Forms
         }
         public static GlobalFileRef<EditorSettings> GetSettingsRef() 
             => Instance.Project?.EditorSettingsOverrideRef ?? DefaultSettingsRef;
-        public static EditorSettings GetSettings() 
-            => Instance.Project?.EditorSettingsOverrideRef?.File ?? DefaultSettingsRef?.File;
+        public static EditorSettings GetSettings()
+        {
+            var settings = GetSettingsRef()?.File;
+            if (settings.Domain != AppDomain.CurrentDomain && !settings.IsSponsored)
+                AppDomainHelper.Sponsor(settings);
+            return settings;
+        }
         
         /// <summary>
         /// Promps the user to create an instance of T using user-chosen derived type, constructor and parameters.

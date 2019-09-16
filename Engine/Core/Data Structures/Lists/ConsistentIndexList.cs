@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Extensions;
 
 namespace TheraEngine.Core
 {
@@ -93,7 +94,8 @@ namespace TheraEngine.Core
             lock (_activeIndices)
             {
                 foreach (int i in _activeIndices)
-                    yield return _list[i];
+                    if (_list.IndexInRange(i))
+                        yield return _list[i];
             }
         }
         IEnumerator IEnumerable.GetEnumerator()
@@ -101,7 +103,8 @@ namespace TheraEngine.Core
             lock (_activeIndices)
             {
                 foreach (int i in _activeIndices)
-                yield return _list[i];
+                    if (_list.IndexInRange(i))
+                        yield return _list[i];
             }
         }
     }

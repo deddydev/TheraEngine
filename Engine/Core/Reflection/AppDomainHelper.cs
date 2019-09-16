@@ -1,5 +1,6 @@
 ﻿using mscoree;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -242,6 +243,7 @@ namespace TheraEngine.Core.Reflection
             GameDomainUnloaded?.Invoke();
         }
 
+        public static ConcurrentBag<ISponsorableMarshalByRefObject> SponsoredObjects { get; } = new ConcurrentBag<ISponsorableMarshalByRefObject>();
         public static void Sponsor(ISponsorableMarshalByRefObject sponsorableObject)
         {
             if (AppDomain.CurrentDomain == sponsorableObject.Domain)
@@ -249,6 +251,8 @@ namespace TheraEngine.Core.Reflection
 
             sponsorableObject.Sponsor = new MarshalSponsor(sponsorableObject);
             Engine.PrintLine($"Sponsored {sponsorableObject.ToString()} from AppDomain {sponsorableObject.Domain.FriendlyName}.");
+
+            SponsoredObjects.Add(sponsorableObject);
         }
 
         #endregion

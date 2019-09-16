@@ -208,6 +208,8 @@ namespace TheraEngine.Input.Devices
 
         float _lastValue = 0.0f;
 
+        public static float ScrollSpeed { get; set; } = 60.0f;
+
         internal void Tick(float value, float delta)
         {
             if (value.EqualTo(_lastValue))

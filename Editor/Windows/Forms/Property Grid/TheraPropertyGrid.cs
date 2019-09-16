@@ -78,7 +78,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     Engine.LogException(ex);
                     types = GetControlTypes(null);
                 }
-                Engine.PrintLine("Got control types for " + property.Name + ": " + types.ToArray().ToStringList(", ", ", ", t => t.GetFriendlyName()));
+                Engine.PrintLine(EOutputVerbosity.Verbose, "Got control types for " + property.Name + ": " + types.ToArray().ToStringList(", ", ", ", t => t.GetFriendlyName()));
                 ControlTypes = types;
                 Property = property;
                 Category = category;

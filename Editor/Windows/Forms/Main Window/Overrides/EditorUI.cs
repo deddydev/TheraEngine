@@ -449,36 +449,47 @@ namespace TheraEditor.Windows.Forms
         private void Tick(float delta)
         {
             UpdateFPS(delta);
-            MouseMove();
+            IntersectScene();
         }
 
+        public bool DisplayAverageFPS { get; set; } = false;
         private void UpdateFPS(float delta)
         {
             _elapsedSecSinceLastFPSUpdate += delta;
-            if (_elapsedSecSinceLastFPSUpdate >= FPSUpdateIntervalSeconds)
+            if (DisplayAverageFPS)
             {
-                FPSText.Text = "FPS: " + Math.Round(_averageFPS / _averageFPSCount, 0, MidpointRounding.AwayFromZero);
-                _averageFPSCount = 1;
-                _averageFPS = Engine.RenderFrequency;
-                _elapsedSecSinceLastFPSUpdate = 0.0f;
+                if (_elapsedSecSinceLastFPSUpdate >= FPSUpdateIntervalSeconds)
+                {
+                    FPSText.Text = "FPS: " + Math.Round(_averageFPS / _averageFPSCount, 0, MidpointRounding.AwayFromZero);
+                    _averageFPSCount = 1;
+                    _averageFPS = Engine.RenderFrequency;
+                    _elapsedSecSinceLastFPSUpdate = 0.0f;
+                }
+                else
+                {
+                    _averageFPS += Engine.RenderFrequency;
+                    ++_averageFPSCount;
+                }
             }
             else
             {
-                _averageFPS += Engine.RenderFrequency;
-                ++_averageFPSCount;
+                if (_elapsedSecSinceLastFPSUpdate >= FPSUpdateIntervalSeconds)
+                {
+                    FPSText.Text = "FPS: " + Math.Round(Engine.RenderFrequency, 0, MidpointRounding.AwayFromZero);
+                }
             }
         }
 
-        private void MouseMove()
+        private void IntersectScene()
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport;
             if (v != null)
             {
-                Vec2 viewportPoint = /*gamepad ? v.Center : */CursorPositionViewport(v);
-                MouseMove(v, viewportPoint);
+                Vec2 viewportPoint = /*gamepad ? v.Center : */Viewport.CursorPosition(v);
+                IntersectScene(v, viewportPoint);
             }
         }
-        public void MouseMove(Viewport v, Vec2 viewportPoint)
+        public void IntersectScene(Viewport v, Vec2 viewportPoint)
         {
             ISceneComponent dragComp = DragComponent;
 
@@ -540,7 +551,7 @@ namespace TheraEditor.Windows.Forms
                 HighlightScene(v, viewportPoint);
             }
         }
-        private void HighlightScene(Viewport viewport, Vec2 viewportPoint)
+        public void HighlightScene(Viewport viewport, Vec2 viewportPoint)
         {
             ICamera c = viewport.Camera;
             if (c.IsNull())
@@ -751,7 +762,7 @@ namespace TheraEditor.Windows.Forms
             public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
             public ISceneComponent HighlightedComponent { get; set; }
             public Matrix4 Transform { get; set; } = Matrix4.Identity;
-
+            
             private TMaterial _material;
             private readonly PrimitiveManager _circlePrimitive;
             private readonly PrimitiveManager _normalPrimitive;

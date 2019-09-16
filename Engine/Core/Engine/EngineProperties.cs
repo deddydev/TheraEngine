@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEngine.Actors;
@@ -556,11 +557,12 @@ namespace TheraEngine
 
                 DomainProxy.Stopped += DomainProxy_Stopped;
                 DomainProxy.Start(gamePath, isUIDomain);
+                PrintLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : DomainProxy.Domain.FriendlyName)}.");
             }
 
             private void DomainProxy_Stopped()
             {
-                PrintLine($"Stopped domain proxy callback occurred in AppDomain {AppDomain.CurrentDomain.FriendlyName}");
+                PrintLine($"DomainProxy stopped.");
             }
 
             //private Type TypeCreationFailed(string typeDeclaration)

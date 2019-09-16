@@ -218,7 +218,7 @@ namespace TheraEngine.GameModes
         public void BeginGameplay(IWorld world)
         {
             TargetWorld = world;
-            Engine.PrintLine("Game mode {0} has begun play.", this.GetType().GetFriendlyName());
+            Engine.PrintLine("Game mode {0} has begun play.", GetType().GetFriendlyName());
             CreateLocalPlayerControllers();
             OnBeginGameplay();
             IsPlaying = true;
@@ -229,7 +229,7 @@ namespace TheraEngine.GameModes
             IsPlaying = false;
             DestroyLocalPlayerControllers();
             OnEndGameplay();
-            Engine.PrintLine("Game mode {0} has ended play.", this.GetType().GetFriendlyName());
+            Engine.PrintLine("Game mode {0} has ended play.", GetType().GetFriendlyName());
             TargetWorld = null;
         }
         protected virtual void OnAbortGameplay() { }

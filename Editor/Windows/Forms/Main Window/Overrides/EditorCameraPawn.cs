@@ -8,6 +8,7 @@ using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
+using TheraEngine.Rendering;
 using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Actors.Types.Pawns
@@ -57,7 +58,10 @@ namespace TheraEditor.Actors.Types.Pawns
                 comp.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
 
             //if (!Moving)
-            //    EditorHud.UpdateHighlightPoint(LocalPlayerController?.Viewport?.Camera);
+            //{
+            //    Viewport v = LocalPlayerController?.Viewport;
+            //    EditorHud.ViewChanged(v, Viewport.CursorPosition(v));
+            //}
         }
 
         private bool _alt = false;

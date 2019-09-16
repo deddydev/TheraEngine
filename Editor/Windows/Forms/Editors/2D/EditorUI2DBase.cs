@@ -500,6 +500,9 @@ namespace TheraEditor.Windows.Forms
 
         protected override void MouseMove(float x, float y)
         {
+            if (Viewport is null)
+                return;
+
             Vec2 cursorPos = CursorPosition();
             if (!Bounds.Contains(cursorPos))
             {

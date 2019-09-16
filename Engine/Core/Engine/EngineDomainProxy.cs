@@ -187,7 +187,7 @@ namespace TheraEngine.Core
         {
             foreach (WorldManager m in WorldManagers)
             {
-                if (m.AssociatedContexts.Count == 0)
+                if (m is null || m.AssociatedContexts.Count == 0)
                     continue;
 
                 m.GlobalUpdate();
@@ -204,6 +204,9 @@ namespace TheraEngine.Core
         {
             foreach (WorldManager m in WorldManagers)
             {
+                if (m is null)
+                    continue;
+
                 m.SwapBuffers();
 
                 if (m.AssociatedContexts.Count == 0)
@@ -223,7 +226,7 @@ namespace TheraEngine.Core
         {
             foreach (WorldManager m in WorldManagers)
             {
-                if (m.AssociatedContexts.Count == 0)
+                if (m is null || m.AssociatedContexts.Count == 0)
                     continue;
 
                 m.AssociatedContexts[0].Capture(true);

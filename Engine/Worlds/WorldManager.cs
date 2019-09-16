@@ -40,9 +40,9 @@ namespace TheraEngine.Worlds
             World = null;
         }
 
-        public void GlobalUpdate() => World?.Scene?.GlobalUpdate();
-        public void GlobalPreRender() => World?.Scene?.GlobalPreRender();
-        public void GlobalSwap() => World?.Scene?.GlobalSwap();
+        public void GlobalUpdate() => World?.GlobalUpdate();
+        public void GlobalPreRender() => World?.GlobalPreRender();
+        public void GlobalSwap() => World?.GlobalSwap();
 
         public void AddContext(RenderContext ctx) => _contextAddQueue.Enqueue(ctx);
         public void RemoveContext(RenderContext ctx) => _contextRemoveQueue.Enqueue(ctx);

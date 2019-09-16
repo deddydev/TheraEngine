@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Pawns;
@@ -294,7 +295,7 @@ namespace TheraEngine.Rendering
             if (Owners.Contains(controller))
                 Owners.Remove(controller);
             if (Owners.Count == 0)
-                RenderHandler.Viewports.Remove(PlayerIndex);
+                RenderHandler.Viewports.TryRemove(PlayerIndex, out _);
         }
         
         /// <summary>
@@ -337,6 +338,27 @@ namespace TheraEngine.Rendering
             scene?.Update(_renderPasses, cullingVolume, camera);
         }
 
+        /// <summary>
+        /// Returns the cursor position relative to the the viewport.
+        /// </summary>
+        public static Vec2 CursorPosition(Viewport v)
+        {
+            Point absolute = Cursor.Position;
+            if (v is null)
+                return new Vec2(absolute.X, absolute.Y);
+            RenderContext ctx = v.RenderHandler.Context;
+            absolute = ctx.PointToClient(absolute);
+            Vec2 result = new Vec2(absolute.X, absolute.Y);
+            result = v.AbsoluteToRelative(result);
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the cursor position relative to the the viewport.
+        /// </summary>
+        public Vec2 CursorPosition() 
+            => CursorPosition(this);
+        
         #region Coordinate conversion
         public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth)
             => _camera?.ScreenToWorld(ToInternalResCoords(viewportPoint), depth) ?? new Vec3(viewportPoint, depth);

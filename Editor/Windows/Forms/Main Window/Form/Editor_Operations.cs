@@ -289,5 +289,16 @@ namespace TheraEditor.Windows.Forms
             else
                 t.TreeView.SelectedNode = t;
         }
+
+        public void ShowErrorForm(TProject.EngineBuildLogger logger)
+        {
+            if (Instance.InvokeRequired)
+            {
+                Instance.BeginInvoke((Action<TProject.EngineBuildLogger>)ShowErrorForm, logger);
+                return;
+            }
+            Instance.ErrorListForm.Show(Instance.DockPanel, WeifenLuo.WinFormsUI.Docking.DockState.DockBottom);
+            Instance.ErrorListForm.SetLog(logger);
+        }
     }
 }

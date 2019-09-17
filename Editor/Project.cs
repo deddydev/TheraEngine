@@ -27,12 +27,12 @@ namespace TheraEditor
     /// <summary>
     /// Extension of the game class for use with the editor.
     /// </summary>
-    [Serializable]
     [TFileExt("tproj", PreferredFormat = EProprietaryFileFormat.XML)]
     [TFileDef("Thera Engine Project")]
     public class TProject : TGame
     {
         public delegate void DelCompileBegun(TProject project);
+
         public delegate void DelCompileResult(TProject project, bool success);
 
         public EngineBuildLogger LastBuildLog { get; private set; }
@@ -534,6 +534,7 @@ namespace TheraEditor
                 ReferencedAssemblies.Add(new PathReference(engineLibPath, EPathType.FileRelative));
             File.Copy(enginePath, engineLibPath, true);
         }
+        public async void GenerateSolution() => await GenerateSolutionAsync();
         public async Task GenerateSolutionAsync()
         {
             if (!string.IsNullOrWhiteSpace(_name))
@@ -690,10 +691,8 @@ namespace TheraEditor
                 beforeBuild,
                 afterBuild);
 
-            op = Editor.Instance.BeginOperation($"Writing csproj... {csprojPath}", "Done writing csproj.", 
-                out Progress<float> progress, out CancellationTokenSource cancel);
-            await XMLSchemaDefinition<MSBuild.Project>.ExportAsync(csprojPath, exportProj, progress, cancel.Token);
-            Editor.Instance.EndOperation(op);
+            //await Editor.Instance.RunOperationAsync($"Writing csproj... {csprojPath}", "Done writing csproj.", async (p, c) =>
+            await XMLSchemaDefinition<MSBuild.Project>.ExportAsync(csprojPath, exportProj);
 
             #endregion
 
@@ -851,19 +850,15 @@ namespace TheraEditor
         public async Task<MSBuild.Project> ReadCSProj()
         {
             string csprojPath = ResolveCSProjPath();
-            int op = Editor.Instance.BeginOperation($"Reading csproj... {csprojPath}", "Done reading csproj.",
-                out Progress<float> progress, out CancellationTokenSource cancel);
-            MSBuild.Project csproj = await XMLSchemaDefinition<MSBuild.Project>.ImportAsync(csprojPath, 0, progress, cancel.Token);
-            Editor.Instance.EndOperation(op);
-            return csproj;
+            return 
+                //await Editor.Instance.RunOperationAsync($"Reading csproj... {csprojPath}", "Done reading csproj.", async (p, c) =>
+                await XMLSchemaDefinition<MSBuild.Project>.ImportAsync(csprojPath, 0)/*)*/;
         }
         public async Task WriteCSProj(MSBuild.Project project)
         {
             string csprojPath = ResolveCSProjPath();
-            int op = Editor.Instance.BeginOperation($"Writing csproj... {csprojPath}", "Done writing csproj.",
-                out Progress<float> progress, out CancellationTokenSource cancel);
-            await XMLSchemaDefinition<MSBuild.Project>.ExportAsync(csprojPath, project, progress, cancel.Token);
-            Editor.Instance.EndOperation(op);
+            //await Editor.Instance.RunOperationAsync($"Writing csproj... {csprojPath}", "Done writing csproj.", async (p, c) => 
+            await XMLSchemaDefinition<MSBuild.Project>.ExportAsync(csprojPath, project)/*)*/;
         }
         private async Task UpdateEngineLibReferenceAsync()
         {
@@ -1011,8 +1006,7 @@ namespace TheraEditor
             RecursiveCollect(SourceDirectory, ref codeFiles, ref contentFiles, ref references);
         }
 
-        [Serializable]
-        public class EngineBuildLogger : ILogger
+        public class EngineBuildLogger : TObjectSlim, ILogger
         {
             public List<BuildErrorEventArgs> Errors { get; private set; }
             public List<BuildWarningEventArgs> Warnings { get; private set; }
@@ -1113,13 +1107,7 @@ namespace TheraEditor
             }
             public void Display()
             {
-                if (Editor.Instance.InvokeRequired)
-                {
-                    Editor.Instance.BeginInvoke((Action)Display);
-                    return;
-                }
-                Editor.Instance.ErrorListForm.Show(Editor.Instance.DockPanel, DockState.DockBottom);
-                Editor.Instance.ErrorListForm.SetLog(this);
+                Editor.Instance.ShowErrorForm(this);
             }
         }
     }

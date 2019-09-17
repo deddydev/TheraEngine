@@ -21,16 +21,16 @@ namespace TheraEditor.Wrappers
             _menu.Closing += MenuClosing;
         }
 
-        private static async void RegenSolutionAction(object sender, EventArgs e)
-            => await GetInstance<ProjectWrapper>().GenerateSolution();
+        private static void RegenSolutionAction(object sender, EventArgs e)
+            => GetInstance<ProjectWrapper>().GenerateSolution();
 
-        private async Task GenerateSolution()
+        private async void GenerateSolution()
         {
             var res = await ResourceRef.GetInstanceAsync();
             if (res is null)
                 return;
-
-            await res.GenerateSolutionAsync();
+            
+            res.GenerateSolution();
         }
         
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)

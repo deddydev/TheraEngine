@@ -128,7 +128,6 @@ namespace TheraEngine.Core.Files
         public static ConcurrentDictionary<string, IFileObject> GlobalFileInstances { get; } = new ConcurrentDictionary<string, IFileObject>();
         public bool LoadInGameDomain { get; set; }
 
-        private object _loadLock = new object();
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
             if (_file != null)

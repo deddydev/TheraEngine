@@ -476,6 +476,7 @@ namespace TheraEditor.Windows.Forms
                 if (_elapsedSecSinceLastFPSUpdate >= FPSUpdateIntervalSeconds)
                 {
                     FPSText.Text = "FPS: " + Math.Round(Engine.RenderFrequency, 0, MidpointRounding.AwayFromZero);
+                    _elapsedSecSinceLastFPSUpdate = 0.0f;
                 }
             }
         }

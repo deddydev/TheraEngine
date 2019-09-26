@@ -112,6 +112,10 @@ namespace TheraEngine.Core.Files
                         case EPathType.FileRelative:
                             {
                                 string dir = System.IO.Path.GetDirectoryName(node.Parent.Owner.FilePath);
+                                if (dir.EndsWith(@"\"))
+                                    dir = dir.Remove(dir.Length - 1);
+                                if (!path.StartsWith(@"\"))
+                                    path = @"\" + path;
                                 path = dir + path;
                                 break;
                             }
@@ -119,6 +123,10 @@ namespace TheraEngine.Core.Files
                             {
                                 string relPath = Assembly.GetExecutingAssembly().Location;
                                 string dir = System.IO.Path.GetDirectoryName(relPath);
+                                if (dir.EndsWith(@"\"))
+                                    dir = dir.Remove(dir.Length - 1);
+                                if (!path.StartsWith(@"\"))
+                                    path = @"\" + path;
                                 path = dir + path;
                                 break;
                             }
@@ -126,7 +134,13 @@ namespace TheraEngine.Core.Files
                             {
                                 string dir = Engine.Game?.DirectoryPath;
                                 if (!string.IsNullOrWhiteSpace(dir))
+                                {
+                                    if (dir.EndsWith(@"\"))
+                                        dir = dir.Remove(dir.Length - 1);
+                                    if (!path.StartsWith(@"\"))
+                                        path = @"\" + path;
                                     path = dir + path;
+                                }
                                 break;
                             }
                     }

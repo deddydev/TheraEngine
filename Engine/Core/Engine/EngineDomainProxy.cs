@@ -548,7 +548,7 @@ namespace TheraEngine.Core
             return await fileRef.LoadNewInstanceAsync();
         }
 
-        public async virtual void SetWorld(string filePath)
+        public async virtual void LoadWorld(string filePath)
         {
             World world = await LoadAsync<World>(filePath);
             Engine.SetCurrentWorld(world);

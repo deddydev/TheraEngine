@@ -1,9 +1,10 @@
 ﻿using System.Collections.Specialized;
 using System.Linq;
+using TheraEngine;
 
 namespace System.Collections.Generic
 {
-    public interface IEventList<T> : IList<T>, IList, IReadOnlyList<T>
+    public interface IEventList<T> : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerable, IList, ICollection, IReadOnlyList<T>, IReadOnlyCollection<T>
     {
         new int Count { get; }
 
@@ -46,16 +47,16 @@ namespace System.Collections.Generic
         void RemoveRange(int index, int count);
 
         void RemoveAt(int index, bool reportRemoved, bool reportModified);
-        new void RemoveAt(int index);
+        void RemoveAt(int index);
 
         void Clear(bool reportRemovedRange, bool reportModified);
-        new void Clear();
+        void Clear();
 
         void RemoveAll(Predicate<T> match, bool reportRemovedRange, bool reportModified);
         void RemoveAll(Predicate<T> match);
 
         void Insert(int index, T item, bool reportInserted, bool reportModified);
-        new void Insert(int index, T item);
+        void Insert(int index, T item);
         
         void InsertRange(int index, IEnumerable<T> collection, bool reportInsertedRange, bool reportModified);
         void InsertRange(int index, IEnumerable<T> collection);
@@ -80,8 +81,10 @@ namespace System.Collections.Generic
     /// A derivation of <see cref="ThreadSafeList{T}"/> that monitors all operations and provides events for each kind of operation.
     /// </summary>
     [Serializable]
-    public class EventList<T> : List<T>, IEventList<T>
+    public class EventList<T> : TObjectSlim, IEventList<T>
     {
+        private List<T> _list;
+
         public delegate void SingleHandler(T item);
         public delegate bool SingleCancelableHandler(T item);
 
@@ -179,16 +182,28 @@ namespace System.Collections.Generic
         private readonly bool _allowDuplicates = true;
         private readonly bool _allowNull = true;
 
-        public EventList() { }
+        public EventList()
+        {
+            _list = new List<T>();
+        }
         public EventList(bool allowDuplicates, bool allowNull)
         {
+            _list = new List<T>();
             _allowDuplicates = allowDuplicates;
             _allowNull = allowNull;
         }
-        public EventList(IEnumerable<T> list) => AddRange(list);
-        public EventList(IEnumerable<T> list, bool allowDuplicates, bool allowNull) : this(allowDuplicates, allowNull) => AddRange(list);
-        public EventList(int capacity) : base(capacity) { }
-        
+        public EventList(IEnumerable<T> list)
+        {
+            _list = new List<T>();
+            AddRange(list);
+        }
+        public EventList(IEnumerable<T> list, bool allowDuplicates, bool allowNull)
+            : this(allowDuplicates, allowNull) => AddRange(list);
+        public EventList(int capacity)
+        {
+            _list = new List<T>(capacity);
+        }
+
         /// <summary>
         /// Completely replaces the list's items with the given items.
         /// </summary>
@@ -202,7 +217,7 @@ namespace System.Collections.Generic
             AddRange(items, reportAdded, reportModified);
         }
 
-        public new bool Add(T item) => Add(item, true, true);
+        public bool Add(T item) => Add(item, true, true);
         public bool Add(T item, bool reportAdded, bool reportModified)
         {
             if (!_allowNull && item == null)
@@ -228,7 +243,7 @@ namespace System.Collections.Generic
                 }
             }
 
-            base.Add(item);
+            _list.Add(item);
 
             if (!_updating)
             {
@@ -246,14 +261,16 @@ namespace System.Collections.Generic
 
             return true;
         }
-        public new void AddRange(IEnumerable<T> collection) => AddRange(collection, true, true);
+
+        public bool Contains(T item) => _list.Contains(item);
+        public void AddRange(IEnumerable<T> collection) => AddRange(collection, true, true);
         public void AddRange(IEnumerable<T> collection, bool reportAddedRange, bool reportModified)
         {
             if (collection is null)
                 return;
 
             if (!_allowDuplicates)
-               collection = collection.Where(x => !Contains(x));
+                collection = collection.Where(x => !Contains(x));
             if (!_allowNull)
                 collection = collection.Where(x => x != null);
 
@@ -276,7 +293,7 @@ namespace System.Collections.Generic
                 }
             }
 
-            base.AddRange(collection);
+            _list.AddRange(collection);
 
             if (!_updating)
             {
@@ -294,7 +311,7 @@ namespace System.Collections.Generic
                 }
             }
         }
-        public new bool Remove(T item) => Remove(item, true, true);
+        public bool Remove(T item) => Remove(item, true, true);
         public bool Remove(T item, bool reportRemoved, bool reportModified)
         {
             if (!_updating)
@@ -314,7 +331,7 @@ namespace System.Collections.Generic
                 }
             }
 
-            if (base.Remove(item))
+            if (_list.Remove(item))
             {
                 if (!_updating)
                 {
@@ -333,7 +350,7 @@ namespace System.Collections.Generic
             }
             return false;
         }
-        public new void RemoveRange(int index, int count) => RemoveRange(index, count, true, true);
+        public void RemoveRange(int index, int count) => RemoveRange(index, count, true, true);
         public void RemoveRange(int index, int count, bool reportRemovedRange, bool reportModified)
         {
             IEnumerable<T> range = null;
@@ -360,7 +377,7 @@ namespace System.Collections.Generic
                 }
             }
 
-            base.RemoveRange(index, count);
+            _list.RemoveRange(index, count);
 
             if (!_updating)
             {
@@ -379,7 +396,10 @@ namespace System.Collections.Generic
             }
 
         }
-        public new void RemoveAt(int index) => RemoveAt(index, true, true);
+
+        public IEnumerable<T> GetRange(int index, int count) => _list.GetRange(index, count);
+
+        public void RemoveAt(int index) => RemoveAt(index, true, true);
         public void RemoveAt(int index, bool reportRemoved, bool reportModified)
         {
             T item = this[index];
@@ -401,7 +421,7 @@ namespace System.Collections.Generic
                 }
             }
 
-            base.RemoveAt(index);
+            _list.RemoveAt(index);
 
             if (!_updating)
             {
@@ -417,7 +437,7 @@ namespace System.Collections.Generic
                 }
             }
         }
-        public new void Clear() => Clear(true, true);
+        public void Clear() => Clear(true, true);
         public void Clear(bool reportRemovedRange, bool reportModified)
         {
             IEnumerable<T> range = null;
@@ -444,7 +464,7 @@ namespace System.Collections.Generic
                 }
             }
 
-            base.Clear();
+            _list.Clear();
 
             if (!_updating)
             {
@@ -462,7 +482,7 @@ namespace System.Collections.Generic
                 }
             }
         }
-        public new void RemoveAll(Predicate<T> match) => RemoveAll(match, true, true);
+        public void RemoveAll(Predicate<T> match) => RemoveAll(match, true, true);
         public void RemoveAll(Predicate<T> match, bool reportRemovedRange, bool reportModified)
         {
             if (!_updating)
@@ -491,7 +511,7 @@ namespace System.Collections.Generic
                     }
                 }
 
-                base.RemoveAll(match);
+                _list.RemoveAll(match);
 
                 if (reportRemovedRange)
                 {
@@ -507,9 +527,12 @@ namespace System.Collections.Generic
                 }
             }
             else
-                base.RemoveAll(match);
+                _list.RemoveAll(match);
         }
-        public new void Insert(int index, T item) => Insert(index, item, true, true);
+
+        public IEnumerable<T> FindAll(Predicate<T> match) => _list.FindAll(match);
+
+        public void Insert(int index, T item) => Insert(index, item, true, true);
         public void Insert(int index, T item, bool reportInserted, bool reportModified)
         {
             if (!_allowNull && item == null)
@@ -535,7 +558,7 @@ namespace System.Collections.Generic
                 }
             }
 
-            base.Insert(index, item);
+            _list.Insert(index, item);
 
             if (!_updating)
             {
@@ -551,7 +574,7 @@ namespace System.Collections.Generic
                 }
             }
         }
-        public new void InsertRange(int index, IEnumerable<T> collection) => InsertRange(index, collection, true, true);
+        public void InsertRange(int index, IEnumerable<T> collection) => InsertRange(index, collection, true, true);
         public void InsertRange(int index, IEnumerable<T> collection, bool reportInsertedRange, bool reportModified)
         {
             if (collection is null)
@@ -581,7 +604,7 @@ namespace System.Collections.Generic
                 }
             }
 
-            base.InsertRange(index, collection);
+            _list.InsertRange(index, collection);
 
             if (!_updating)
             {
@@ -599,7 +622,7 @@ namespace System.Collections.Generic
                 }
             }
         }
-        public new void Reverse(int index, int count) => Reverse(index, count, true);
+        public void Reverse(int index, int count) => Reverse(index, count, true);
         public void Reverse(int index, int count, bool reportModified)
         {
             bool report = reportModified && !_updating;
@@ -608,14 +631,14 @@ namespace System.Collections.Generic
                 if (!(PreModified?.Invoke() ?? true))
                     return;
             }
-            base.Reverse(index, count);
+            _list.Reverse(index, count);
             if (report)
             {
                 PostModified?.Invoke();
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, this));
             }
         }
-        public new void Reverse() => Reverse(true);
+        public void Reverse() => Reverse(true);
         public void Reverse(bool reportModified)
         {
             bool report = reportModified && !_updating;
@@ -624,14 +647,14 @@ namespace System.Collections.Generic
                 if (!(PreModified?.Invoke() ?? true))
                     return;
             }
-            base.Reverse();
+            _list.Reverse();
             if (report)
             {
                 PostModified?.Invoke();
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, this));
             }
         }
-        public new void Sort(int index, int count, IComparer<T> comparer) => Sort(index, count, comparer, true);
+        public void Sort(int index, int count, IComparer<T> comparer) => Sort(index, count, comparer, true);
         public void Sort(int index, int count, IComparer<T> comparer, bool reportModified)
         {
             bool report = reportModified && !_updating;
@@ -640,14 +663,14 @@ namespace System.Collections.Generic
                 if (!(PreModified?.Invoke() ?? true))
                     return;
             }
-            base.Sort(index, count, comparer);
+            _list.Sort(index, count, comparer);
             if (report)
             {
                 PostModified?.Invoke();
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, this));
             }
         }
-        public new void Sort() => Sort(true);
+        public void Sort() => Sort(true);
         public void Sort(bool reportModified)
         {
             bool report = reportModified && !_updating;
@@ -656,14 +679,14 @@ namespace System.Collections.Generic
                 if (!(PreModified?.Invoke() ?? true))
                     return;
             }
-            base.Sort();
+            _list.Sort();
             if (report)
             {
                 PostModified?.Invoke();
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, this));
             }
         }
-        public new void Sort(IComparer<T> comparer) => Sort(comparer, true);
+        public void Sort(IComparer<T> comparer) => Sort(comparer, true);
         public void Sort(IComparer<T> comparer, bool reportModified)
         {
             bool report = reportModified && !_updating;
@@ -672,16 +695,16 @@ namespace System.Collections.Generic
                 if (!(PreModified?.Invoke() ?? true))
                     return;
             }
-            base.Sort(comparer);
+            _list.Sort(comparer);
             if (report)
             {
                 PostModified?.Invoke();
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, this));
             }
         }
-        public new T this[int index]
+        public T this[int index]
         {
-            get => base[index];
+            get => _list[index];
             set
             {
                 if (!_allowNull && value == null)
@@ -699,8 +722,8 @@ namespace System.Collections.Generic
                     if (!(PreIndexSet?.Invoke(index, value) ?? true))
                         return;
                 }
-                T prev = base[index];
-                base[index] = value;
+                T prev = _list[index];
+                _list[index] = value;
                 if (!_updating)
                 {
                     PostAdded?.Invoke(value);
@@ -716,18 +739,39 @@ namespace System.Collections.Generic
             get => this[index];
             set => this[index] = (T)value;
         }
-        bool IList.IsReadOnly => false;
-        bool IList.IsFixedSize => false;
+        bool IList.IsReadOnly => ((IList)_list).IsReadOnly;
+        bool IList.IsFixedSize => ((IList)_list).IsFixedSize;
+
+        int ICollection<T>.Count => ((ICollection)_list).Count;
+        bool ICollection<T>.IsReadOnly => ((ICollection<T>)_list).IsReadOnly;
+        int ICollection.Count => ((ICollection)_list).Count;
+        object ICollection.SyncRoot => ((ICollection)_list).SyncRoot;
+        bool ICollection.IsSynchronized => ((ICollection)_list).IsSynchronized;
+        int IReadOnlyCollection<T>.Count => ((IReadOnlyCollection<T>)_list).Count;
+
+        public int Count => _list.Count;
+
+        T IReadOnlyList<T>.this[int index] => this[index];
+        T IList<T>.this[int index] { get => this[index]; set => this[index] = value; }
+        T IEventList<T>.this[int index] { get => this[index]; set => this[index] = value; }
+
         int IList.Add(object value)
         {
             Add((T)value);
             return Count - 1;
         }
-        void IList.Clear() => Clear();
         bool IList.Contains(object value) => Contains((T)value);
         int IList.IndexOf(object value) => IndexOf((T)value);
+        public int IndexOf(T value) => _list.IndexOf(value);
+
         void IList.Insert(int index, object value) => Insert(index, (T)value);
         void IList.Remove(object value) => Remove((T)value);
-        void IList.RemoveAt(int index) => RemoveAt(index);
+
+        void ICollection<T>.Add(T item) => Add(item);
+        public void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
+        void ICollection.CopyTo(Array array, int index) => CopyTo((T[])array, index);
+
+        public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -1,10 +1,14 @@
-﻿using mscoree;
+﻿using Extensions;
+using mscoree;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting;
+using System.Runtime.Remoting.Lifetime;
+using System.Security.Permissions;
 using System.Threading;
 
 namespace TheraEngine.Core.Reflection
@@ -244,15 +248,74 @@ namespace TheraEngine.Core.Reflection
         }
 
         public static ConcurrentBag<ISponsorableMarshalByRefObject> SponsoredObjects { get; } = new ConcurrentBag<ISponsorableMarshalByRefObject>();
-        public static void Sponsor(ISponsorableMarshalByRefObject sponsorableObject)
+        public static ConcurrentDictionary<MarshalByRefObject, MarshalExternalSponsor> ExternalSponsoredObjects { get; } = new ConcurrentDictionary<MarshalByRefObject, MarshalExternalSponsor>();
+
+        public static void Sponsor(object obj)
         {
-            if (AppDomain.CurrentDomain == sponsorableObject.Domain)
+            if (obj is null || !RemotingServices.IsTransparentProxy(obj))
                 return;
 
-            sponsorableObject.Sponsor = new MarshalSponsor(sponsorableObject);
-            Engine.PrintLine($"Sponsored {sponsorableObject.ToString()} from AppDomain {sponsorableObject.Domain.FriendlyName}.");
+            if (obj is ISponsorableMarshalByRefObject sponsorableObject)
+            {
+                if (AppDomain.CurrentDomain == sponsorableObject.Domain || sponsorableObject.IsSponsored)
+                    return;
 
-            SponsoredObjects.Add(sponsorableObject);
+                sponsorableObject.Sponsor = new MarshalSponsor(sponsorableObject);
+                Engine.PrintLine($"Sponsored {sponsorableObject.ToString()} from AppDomain {sponsorableObject.Domain.FriendlyName}.");
+
+                SponsoredObjects.Add(sponsorableObject);
+            }
+            else if (obj is MarshalByRefObject marshalObject)
+            {
+                if (!ExternalSponsoredObjects.ContainsKey(marshalObject))
+                    ExternalSponsoredObjects.TryAdd(marshalObject, new MarshalExternalSponsor(marshalObject));
+            }
+        }
+        public class MarshalExternalSponsor : MarshalByRefObject, ISponsor, IDisposable
+        {
+            public static readonly TimeSpan RenewalTimeSpan = TimeSpan.FromSeconds(1.0);
+
+            public ILease Lease { get; private set; }
+            public bool WantsRelease { get; set; } = false;
+            public bool IsReleased { get; private set; } = false;
+            public MarshalByRefObject Object { get; private set; }
+            public DateTime LastRenewalTime { get; private set; }
+            
+            public TimeSpan Renewal(ILease lease)
+            {
+                // if any of these cases is true
+                IsReleased = lease is null || lease.CurrentState == LeaseState.Expired || WantsRelease;
+                string fn = Object.GetTypeProxy().GetFriendlyName();
+                if (IsReleased)
+                {
+                    Engine.PrintLine($"Released lease for {fn}.");
+                    return TimeSpan.Zero;
+                }
+                TimeSpan span = DateTime.Now - LastRenewalTime;
+                double sec = Math.Round(span.TotalSeconds, 1);
+                Engine.PrintLine($"Renewed lease for {fn}. {sec} seconds elapsed since last renewal.");
+                LastRenewalTime = DateTime.Now;
+                return RenewalTimeSpan;
+            }
+
+            public MarshalExternalSponsor(MarshalByRefObject mbro)
+            {
+                Object = mbro;
+                Lease = mbro.InitializeLifetimeService() as ILease;
+                Lease?.Register(this);
+                LastRenewalTime = DateTime.Now;
+            }
+
+            public void Dispose()
+            {
+                Lease?.Unregister(this);
+                Lease = null;
+            }
+
+            [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]
+            public override object InitializeLifetimeService() => null;
+
+            public void Release() => WantsRelease = true;
         }
 
         #endregion

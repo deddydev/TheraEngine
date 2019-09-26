@@ -691,7 +691,7 @@ namespace TheraEditor
                 beforeBuild,
                 afterBuild);
 
-            //await Editor.Instance.RunOperationAsync($"Writing csproj... {csprojPath}", "Done writing csproj.", async (p, c) =>
+            //await Editor.RunOperationAsync($"Writing csproj... {csprojPath}", "Done writing csproj.", async (p, c) =>
             await XMLSchemaDefinition<MSBuild.Project>.ExportAsync(csprojPath, exportProj);
 
             #endregion
@@ -851,13 +851,13 @@ namespace TheraEditor
         {
             string csprojPath = ResolveCSProjPath();
             return 
-                //await Editor.Instance.RunOperationAsync($"Reading csproj... {csprojPath}", "Done reading csproj.", async (p, c) =>
+                //await Editor.RunOperationAsync($"Reading csproj... {csprojPath}", "Done reading csproj.", async (p, c) =>
                 await XMLSchemaDefinition<MSBuild.Project>.ImportAsync(csprojPath, 0)/*)*/;
         }
         public async Task WriteCSProj(MSBuild.Project project)
         {
             string csprojPath = ResolveCSProjPath();
-            //await Editor.Instance.RunOperationAsync($"Writing csproj... {csprojPath}", "Done writing csproj.", async (p, c) => 
+            //await Editor.RunOperationAsync($"Writing csproj... {csprojPath}", "Done writing csproj.", async (p, c) => 
             await XMLSchemaDefinition<MSBuild.Project>.ExportAsync(csprojPath, project)/*)*/;
         }
         private async Task UpdateEngineLibReferenceAsync()

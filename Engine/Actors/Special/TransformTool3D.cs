@@ -903,7 +903,7 @@ namespace TheraEngine.Actors.Types
                 _hiAxis.X = _hiAxis.Y = _hiAxis.Z = false;
                 _hiCam = _hiSphere = false;
 
-                snapFound = _highlight(camera, localRay);
+                snapFound = _highlight?.Invoke(camera, localRay) ?? false;
 
                 _axisMat[0].Parameter<ShaderVec4>(0).Value = _hiAxis.X ? (ColorF4)Color.Yellow : Color.Red;
                 _axisMat[1].Parameter<ShaderVec4>(0).Value = _hiAxis.Y ? (ColorF4)Color.Yellow : Color.Green;

@@ -185,6 +185,11 @@ namespace TheraEditor.Wrappers
                 Remove();
                 ContextMenuStrip.Close();
             }
+            catch (DirectoryNotFoundException)
+            {
+                Engine.PrintLine($"Unable to find directory {FilePath}; removing from content tree.");
+                Remove();
+            }
             catch (OperationCanceledException) { }
             catch (UnauthorizedAccessException)
             {
@@ -283,63 +288,10 @@ namespace TheraEditor.Wrappers
         
         private static async void OnImportClickAsync(object sender, EventArgs e)
         {
-            if (!(sender is ToolStripMenuItem button))
+            if (!(sender is ToolStripMenuItem button) || !(button.Tag is TypeProxy fileType))
                 return;
 
-            TypeProxy fileType = button.Tag as TypeProxy;
-            if (fileType is null)
-                return;
-
-            if (fileType.ContainsGenericParameters)
-            {
-                using (GenericsSelector gs = new GenericsSelector(fileType))
-                {
-                    if (gs.ShowDialog(button.Owner) == DialogResult.OK)
-                        fileType = gs.FinalClassType;
-                    else
-                        return;
-                }
-            }
-            string filter = RemoteFunc.Invoke(AppDomainHelper.GetGameAppDomain(), fileType, (marshaledFileType) =>
-            {
-                return TFileObject.GetFilter((Type)marshaledFileType, true, true, true, false);
-            });
-            using (OpenFileDialog ofd = new OpenFileDialog()
-            {
-                Filter = filter,
-                Title = "Import File"
-            })
-            {
-                DialogResult r = ofd.ShowDialog(button.Owner);
-                if (r != DialogResult.OK)
-                    return;
-
-                RemoteAction.Invoke(AppDomainHelper.GetGameAppDomain(), fileType, async (marshaledFileType) =>
-                {
-                    string name = Path.GetFileNameWithoutExtension(ofd.FileName);
-                    //ResourceTree tree = Editor.Instance.ContentTree;
-                    string path = ofd.FileName;
-
-                    int op = Editor.Instance.BeginOperation($"Importing '{path}'...", "Import completed.",
-                        out Progress<float> progress, out CancellationTokenSource cancel);
-                    object file = await TFileObject.LoadAsync((Type)marshaledFileType, path, progress, cancel.Token);
-                    Editor.Instance.EndOperation(op);
-
-                    if (file is null)
-                        return;
-
-                    FolderWrapper folderNode = GetInstance<FolderWrapper>();
-                    string dir = folderNode.FilePath;
-
-                    if (!Serializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
-                        return;
-
-                    Serializer serializer = new Serializer();
-                    op = Editor.Instance.BeginOperation($"Saving to '{filePath}'...", "Saved successfully.", out progress, out cancel);
-                    await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, progress, cancel.Token);
-                    Editor.Instance.EndOperation(op);
-                });
-            }
+            Editor.DomainProxy.Import(fileType, GetInstance<FolderWrapper>()?.FilePath);
         }
         public static string GetFolderPath() => GetInstance<FolderWrapper>().FilePath;
         private static void OnNewClick(object sender, EventArgs e)
@@ -379,9 +331,9 @@ namespace TheraEditor.Wrappers
 
             string name = "NewCodeFile";
             string path = Path.Combine(dir, name + ".cs");
-            int op = Editor.Instance.BeginOperation($"Saving script to {path}...", $"Script saved to {path} successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
-            await code.Export3rdPartyAsync(dir, "NewCodeFile", "cs", progress, cancel.Token);
-            Editor.Instance.EndOperation(op);
+            await Editor.RunOperationAsync(
+                $"Saving script to {path}...", $"Script saved to {path} successfully.", async (p, c) =>
+                await code.Export3rdPartyAsync(dir, "NewCodeFile", "cs", p, c.Token));
         }
         #endregion
 

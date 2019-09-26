@@ -60,8 +60,7 @@ namespace TheraEditor.Windows.Forms
         public static EditorSettings GetSettings()
         {
             var settings = GetSettingsRef()?.File;
-            if (settings.Domain != AppDomain.CurrentDomain && !settings.IsSponsored)
-                AppDomainHelper.Sponsor(settings);
+            AppDomainHelper.Sponsor(settings);
             return settings;
         }
         

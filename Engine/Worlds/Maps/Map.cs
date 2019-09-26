@@ -13,8 +13,8 @@ namespace TheraEngine.Worlds
         IWorld OwningWorld { get; set; }
         bool VisibleByDefault { get; set; }
         Vec3 SpawnPosition { get; set; }
-        IEventList<IActor> Actors { get; set; }
-
+        IEventList<IActor> Actors { get; }
+        
         void BeginPlay(IWorld world);
         void EndPlay();
     }

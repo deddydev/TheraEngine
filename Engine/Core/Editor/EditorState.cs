@@ -14,7 +14,7 @@ namespace TheraEngine.Editor
     public delegate void DelPropertyChange(EditorState state, string propertyValue, object oldValue, object newValue);
     public delegate void DelHighlightingChange(bool isHighlighted);
     public delegate void DelSelectedChange(bool isSelected);
-    
+
     public class EditorState : TObject
     {
         public EditorState(IObject obj) => Object = obj;
@@ -28,6 +28,8 @@ namespace TheraEngine.Editor
         private bool _selected = false;
 
         private static EditorState _selectedState, _highlightedState;
+        private TreeNode _treeNode;
+
         public static EditorState SelectedState
         {
             get => _selectedState;
@@ -74,7 +76,15 @@ namespace TheraEngine.Editor
                 SelectedState = value ? this : null;
             }
         }
-        public TreeNode TreeNode { get; set; }
+        public TreeNode TreeNode
+        {
+            get => _treeNode;
+            set
+            {
+                _treeNode = value;
+                AppDomainHelper.Sponsor(_treeNode);
+            }
+        }
         public bool IsDirty { get; set; }
         public List<LocalValueChange> ChangedValues { get; } = new List<LocalValueChange>();
         public static List<EditorState> DirtyStates { get; } = new List<EditorState>();

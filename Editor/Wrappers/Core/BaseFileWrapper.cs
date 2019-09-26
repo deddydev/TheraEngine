@@ -145,8 +145,7 @@ namespace TheraEditor.Wrappers
             {
                 Engine.PrintLine($"Editing file at {FilePath}.");
 
-                if (file is ISponsorableMarshalByRefObject sm && sm.Domain != AppDomain.CurrentDomain && !sm.IsSponsored)
-                    AppDomainHelper.Sponsor(sm);
+                AppDomainHelper.Sponsor(file);
 
                 //TODO: pre-resolve editor type
                 TypeProxy editorType = ResolveEditorType(FileType);

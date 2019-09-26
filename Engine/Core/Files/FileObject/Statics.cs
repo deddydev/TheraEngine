@@ -310,26 +310,28 @@ namespace TheraEngine.Core.Files
 
         private static async Task<object> TryLoadAsync(Type expectedType, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
-            TFileExt extAttrib = GetFileExtension(expectedType);
-            TFile3rdPartyExt tpAttrib = GetFile3rdPartyExtensions(expectedType);
-            EFileFormat fmt = GetFormat(filePath, out string ext);
             object file = null;
-            if (extAttrib != null)
+            try
             {
-                if (fmt == EFileFormat.ThirdParty)
+                TFileExt extAttrib = GetFileExtension(expectedType);
+                TFile3rdPartyExt tpAttrib = GetFile3rdPartyExtensions(expectedType);
+                EFileFormat fmt = GetFormat(filePath, out string ext);
+                if (extAttrib != null)
                 {
-                    bool hasWildcard = extAttrib.HasImportableExtension("*");
-                    bool hasExt = extAttrib.HasImportableExtension(ext);
-                    if (hasWildcard || hasExt)
-                        file = await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
-                }
-                else
-                {
-                    //EProprietaryFileFormat pfmt = (EProprietaryFileFormat)(int)fmt;
+                    if (fmt == EFileFormat.ThirdParty)
+                    {
+                        bool hasWildcard = extAttrib.HasImportableExtension("*");
+                        bool hasExt = extAttrib.HasImportableExtension(ext);
+                        if (hasWildcard || hasExt)
+                            file = await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
+                    }
+                    else
+                    {
+                        //EProprietaryFileFormat pfmt = (EProprietaryFileFormat)(int)fmt;
 
-                    //string fileExt = extAttrib.GetFullExtension(pfmt);
-                    //if (string.Equals(ext, fileExt))
-                    //{
+                        //string fileExt = extAttrib.GetFullExtension(pfmt);
+                        //if (string.Equals(ext, fileExt))
+                        //{
                         file = fmt == EFileFormat.XML ?
                             await FromXMLAsync(filePath, progress, cancel) :
                             await FromBinaryAsync(filePath, progress, cancel);
@@ -343,36 +345,40 @@ namespace TheraEngine.Core.Files
                                 file = null;
                             }
                         }
-                    //}
-                }
-            }
-            else if (tpAttrib != null)
-            {
-                bool hasWildcard = tpAttrib.HasExtension("*");
-                bool hasExt = tpAttrib.HasExtension(ext);
-                if (hasWildcard || hasExt)
-                    file = await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
-            }
-
-            if (file is null)
-            {
-                var subClassTypes = AppDomainHelper.FindTypes(x => x.GetType().IsSubclassOf(expectedType));
-                foreach (var subClassType in subClassTypes)
-                {
-                    object result = await TryLoadAsync(expectedType, filePath, progress, cancel);
-                    if (result != null)
-                    {
-                        file = result;
-                        break;
+                        //}
                     }
                 }
-            }
+                else if (tpAttrib != null)
+                {
+                    bool hasWildcard = tpAttrib.HasExtension("*");
+                    bool hasExt = tpAttrib.HasExtension(ext);
+                    if (hasWildcard || hasExt)
+                        file = await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
+                }
 
-            if (file is IFileObject fileObj)
+                if (file is null)
+                {
+                    var subClassTypes = AppDomainHelper.FindTypes(x => x.GetType().IsSubclassOf(expectedType));
+                    foreach (var subClassType in subClassTypes)
+                    {
+                        object result = await TryLoadAsync(expectedType, filePath, progress, cancel);
+                        if (result != null)
+                        {
+                            file = result;
+                            break;
+                        }
+                    }
+                }
+
+                if (file is IFileObject fileObj)
+                {
+                    fileObj.FilePath = filePath;
+                }
+            }
+            catch (UnauthorizedAccessException e)
             {
-                fileObj.FilePath = filePath;
+                Engine.PrintLine(e.ToString());
             }
-
             return file;
         }
 

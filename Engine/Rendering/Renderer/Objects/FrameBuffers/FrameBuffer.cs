@@ -95,7 +95,7 @@ namespace TheraEngine.Rendering
         public void SetRenderTargets(TMaterial material)
         {
             SetRenderTargets(material.Textures.
-                Where(x => x.FrameBufferAttachment.HasValue).
+                Where(x => x?.FrameBufferAttachment != null).
                 Select(x => ((IFrameBufferAttachement)x, x.FrameBufferAttachment.Value, 0, -1)).ToArray());
 
             //if (IsActive)

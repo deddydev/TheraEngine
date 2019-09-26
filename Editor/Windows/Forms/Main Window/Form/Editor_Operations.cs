@@ -12,80 +12,13 @@ using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms
 {
+    public class MarshalProgress<T> : TObjectSlim, IProgress<T>
+    {
+        public event EventHandler<T> ProgressChanged;
+        public void Report(T value) => ProgressChanged?.Invoke(this, value);
+    }
     public partial class Editor : TheraForm, IMappableShortcutControl
     {
-        private List<OperationInfo> _operations = new List<OperationInfo>();
-
-        public async Task<T> RunOperationAsync<T>(
-            string statusBarMessage,
-            string finishedMessage,
-            Func<Progress<float>, CancellationTokenSource, Task<T>> task,
-            TimeSpan? maxOperationTime = null)
-        {
-            int index = BeginOperation(
-                statusBarMessage, finishedMessage,
-                out Progress<float> progress, out CancellationTokenSource cancel,
-                maxOperationTime);
-
-            T value = await task(progress, cancel);
-
-            EndOperation(index);
-
-            return value;
-        }
-        public async Task RunOperationAsync(
-            string statusBarMessage,
-            string finishedMessage,
-            Func<Progress<float>, CancellationTokenSource, Task> task,
-            TimeSpan? maxOperationTime = null)
-        {
-            int index = BeginOperation(
-                statusBarMessage, finishedMessage,
-                out Progress<float> progress, out CancellationTokenSource cancel,
-                maxOperationTime);
-
-            await task(progress, cancel);
-
-            EndOperation(index);
-        }
-
-        public int BeginOperation(
-            string statusBarMessage, string finishedMessage,
-            out Progress<float> progress, out CancellationTokenSource cancel,
-            TimeSpan? maxOperationTime = null)
-        {
-            Engine.PrintLine(statusBarMessage);
-
-            bool firstOperationAdded = _operations.Count == 0;
-            int index = _operations.Count;
-
-            progress = new Progress<float>();
-            cancel = maxOperationTime is null ? new CancellationTokenSource() : new CancellationTokenSource(maxOperationTime.Value);
-
-            _operations.Add(new OperationInfo(progress, cancel, OnOperationProgressUpdate, index, statusBarMessage, finishedMessage));
-
-            if (firstOperationAdded)
-                Engine.RegisterTick(null, TickOperationProgressBar, null);
-
-            UpdateUI(firstOperationAdded, statusBarMessage);
-
-            return index;
-        }
-        private void UpdateUI(bool noOps, string statusBarMessage)
-        {
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action<bool, string>)UpdateUI, noOps, statusBarMessage);
-                return;
-            }
-
-            if (noOps)
-                toolStripProgressBar1.Value = 0;
-            btnCancelOp.Visible = _operations.Any(x => x != null && x.CanCancel);
-            toolStripProgressBar1.Visible = true;
-            toolStripStatusLabel1.Text = statusBarMessage;
-        }
-
         public void AddChangeToUI(string undoStr, string redoStr)
         {
             if (InvokeRequired)
@@ -150,137 +83,7 @@ namespace TheraEditor.Windows.Forms
             undoColl.Insert(0, item);
         }
 
-        private void OnOperationProgressUpdate(int operationIndex)
-        {
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action<int>)OnOperationProgressUpdate, operationIndex);
-                return;
-            }
-
-            float avgProgress = 0.0f;
-            int valid = 0;
-            for (int i = 0; i < _operations.Count; ++i)
-            {
-                OperationInfo info = _operations[i];
-                if (info != null)
-                {
-                    avgProgress += info.ProgressValue;
-                    if (info.IsComplete)
-                        EndOperation(i--);
-                    else
-                        ++valid;
-                }
-            }
-            
-            if (valid == 0)
-                return;
-
-            avgProgress /= valid;
-
-            int maxValue = toolStripProgressBar1.Maximum;
-            int minValue = toolStripProgressBar1.Minimum;
-
-            int value = (int)Math.Round(Interp.Lerp(minValue, maxValue, avgProgress));
-            TargetOperationValue = value;
-            //toolStripProgressBar1.ProgressBar.Value = TargetOperationValue;
-        }
-        private int TargetOperationValue { get; set; }
         public static EngineDomainProxyEditor DomainProxy => Engine.DomainProxy as EngineDomainProxyEditor;
-
-        private void TickOperationProgressBar(object sender, FrameEventArgs args)
-        {
-            int progress = (int)Math.Round(Interp.Lerp(toolStripProgressBar1.ProgressBar.Value, TargetOperationValue, args.Time));
-            if (progress != toolStripProgressBar1.ProgressBar.Value)
-            {
-                BeginInvoke((Action)(() =>
-                {
-                    toolStripProgressBar1.ProgressBar.Value = progress;
-                }));
-            }
-        }
-        public void EndOperation(int index)
-        {
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action<int>)EndOperation, index);
-                return;
-            }
-
-            if (_operations.IndexInRange(index))
-            {
-                var info = _operations[index];
-                _operations[index] = null;
-
-                double sec = Math.Round(info.OperationDuration.TotalSeconds, 2, MidpointRounding.AwayFromZero);
-                string completeTime = " (Completed in ";
-                if (sec < 1.0)
-                    completeTime += (sec * 1000.0).ToString() + " ms)";
-                else
-                    completeTime += sec.ToString() + " sec)";
-
-                string message = info.FinishedMessage + completeTime;
-                toolStripStatusLabel1.Text = message;
-                Engine.PrintLine(message);
-            }
-
-            if (_operations.Count == 0 || _operations.All(x => x is null))
-            {
-                _operations.Clear();
-                btnCancelOp.Visible = false;
-                toolStripProgressBar1.Visible = false;
-                TargetOperationValue = 0;
-                Engine.UnregisterTick(null, TickOperationProgressBar, null);
-            }
-            else if (_operations.Count(x => x != null) > 1)
-            {
-                //toolStripStatusLabel1.Text = "Waiting for multiple operations to finish...";
-            }
-            else
-            {
-                var op = _operations.FirstOrDefault(x => x != null);
-            }
-        }
-        private class OperationInfo
-        {
-            private readonly Action<int> _updated;
-            private CancellationTokenSource _token;
-
-            public int Index { get; }
-            public DateTime StartTime { get; }
-            public TimeSpan OperationDuration => DateTime.Now - StartTime;
-            public Progress<float> Progress { get; }
-            public float ProgressValue { get; private set; } = 0.0f;
-            public bool IsComplete => ProgressValue >= 0.99f;
-            public bool CanCancel => _token != null && _token.Token.CanBeCanceled;
-            public string StatusBarMessage { get; set; }
-            public string FinishedMessage { get; set; }
-            
-            public OperationInfo(Progress<float> progress, CancellationTokenSource cancel, Action<int> updated, int index, string statusBarMessage, string finishedMessage)
-            {
-                _updated = updated;
-                Progress = progress;
-                if (Progress != null)
-                    Progress.ProgressChanged += Progress_ProgressChanged;
-                _token = cancel;
-                StartTime = DateTime.Now;
-                Index = index;
-                StatusBarMessage = statusBarMessage;
-                FinishedMessage = finishedMessage;
-            }
-            private void Progress_ProgressChanged(object sender, float progressValue)
-            {
-                ProgressValue = progressValue;
-                _updated(Index);
-            }
-            public void Cancel()
-            {
-                Instance._operations[Index] = null;
-                _token?.Cancel();
-                if (Progress != null)
-                    Progress.ProgressChanged -= Progress_ProgressChanged;
-            }
-        }
 
         public void SetSelectedTreeNode(TreeNode t)
         {
@@ -300,5 +103,73 @@ namespace TheraEditor.Windows.Forms
             Instance.ErrorListForm.Show(Instance.DockPanel, WeifenLuo.WinFormsUI.Docking.DockState.DockBottom);
             Instance.ErrorListForm.SetLog(logger);
         }
+
+        internal void UpdateUI(bool firstOperationAdded, string statusBarMessage, bool cancelVisible)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action<bool, string, bool>)UpdateUI, firstOperationAdded, statusBarMessage, cancelVisible);
+                return;
+            }
+
+            if (firstOperationAdded)
+            {
+                Engine.RegisterTick(null, TickOperationProgressBar, null);
+                toolStripProgressBar1.Value = 0;
+            }
+
+            btnCancelOp.Visible = cancelVisible;
+            toolStripProgressBar1.Visible = true;
+            toolStripStatusLabel1.Text = statusBarMessage;
+        }
+        private void TickOperationProgressBar(object sender, FrameEventArgs args)
+        {
+            int progress = (int)Math.Round(Interp.Lerp(toolStripProgressBar1.ProgressBar.Value, DomainProxy.TargetOperationValue, args.Time));
+            if (progress != toolStripProgressBar1.ProgressBar.Value)
+            {
+                BeginInvoke((Action)(() =>
+                {
+                    toolStripProgressBar1.ProgressBar.Value = progress;
+                }));
+            }
+        }
+        internal void OperationsEnded()
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action)OperationsEnded);
+                return;
+            }
+
+            btnCancelOp.Visible = false;
+            toolStripProgressBar1.Visible = false;
+            Engine.UnregisterTick(null, TickOperationProgressBar, null);
+        }
+
+        internal void SetOperationMessage(string message)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action<string>)SetOperationMessage, message);
+                return;
+            }
+
+            toolStripStatusLabel1.Text = message;
+            Engine.PrintLine(message);
+        }
+
+        public static async Task<T> RunOperationAsync<T>(
+           string statusBarMessage,
+           string finishedMessage,
+           Func<MarshalProgress<float>, CancellationTokenSource, Task<T>> task,
+           TimeSpan? maxOperationTime = null)
+            => await DomainProxy.RunOperationAsync(statusBarMessage, finishedMessage, task, maxOperationTime);
+
+        public static async Task RunOperationAsync(
+           string statusBarMessage,
+           string finishedMessage,
+           Func<MarshalProgress<float>, CancellationTokenSource, Task> task,
+           TimeSpan? maxOperationTime = null)
+            => await DomainProxy.RunOperationAsync(statusBarMessage, finishedMessage, task, maxOperationTime);
     }
 }

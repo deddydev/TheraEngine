@@ -17,6 +17,13 @@ using TheraEngine.Worlds;
 using TheraEngine.GameModes;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Input;
+using System.Threading;
+using System.Collections.Generic;
+using TheraEngine.Core.Maths;
+using TheraEngine.Timers;
+using System.Linq;
+using TheraEngine.Core.Files.Serialization;
+using System.IO;
 
 namespace TheraEditor
 {
@@ -49,6 +56,10 @@ namespace TheraEditor
             if (Contexts.ContainsKey(handle))
                 EditorGameMode.TargetRenderHandlers.Add(Contexts[handle].Handler);
         }
+
+        public void SaveWorld() => SaveFile(World);
+        public void SaveWorldAs() => SaveFileAs(World);
+
         public void RemoveRenderHandlerFromEditorGameMode(IntPtr handle)
         {
             if (Contexts.ContainsKey(handle))
@@ -199,9 +210,12 @@ namespace TheraEditor
             base.OnStarted();
         }
 
-        public async override void SetWorld(string filePath)
+        public async override void LoadWorld(string filePath)
         {
-            World world = await TFileObject.LoadAsync<World>(filePath);
+            World world = await RunOperationAsync(
+                "Loading world from " + filePath, "World loaded successfully.",
+                async (p, c) => await TFileObject.LoadAsync<World>(filePath, p, c.Token));
+
             SetWorld_Internal(world);
         }
         public void CreateNewWorld()
@@ -229,6 +243,271 @@ namespace TheraEditor
             {
                 CurrentGameMode = Engine.GetGameMode() ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
                 world.CurrentGameMode = CurrentGameMode;
+            }
+        }
+
+        public bool TryCloseWorld()
+        {
+            if (World?.EditorState?.HasChanges ?? false)
+            {
+                DialogResult result = MessageBox.Show(null,
+                    "Save changes to current world?", "Save changes?",
+                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+
+                switch (result)
+                {
+                    default:
+                    case DialogResult.Cancel:
+                        return false;
+                    case DialogResult.Yes:
+                        Task.Run(() => SaveFile(World)).ContinueWith(t => World.EditorState = null);
+                        return true;
+                }
+            }
+
+            World = null;
+            return true;
+        }
+
+        public void SaveFile(IFileObject file)
+        {
+            if (file is null)
+                return;
+
+            if (string.IsNullOrEmpty(file.FilePath))
+                SaveFileAs(file);
+            else
+                SaveFile(file, file.FilePath);
+        }
+        public void SaveFileAs(IFileObject file)
+        {
+            if (file is null)
+                return;
+
+            string filter =  TFileObject.GetFilter(file.GetType(), true, true, false, true);
+            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = filter })
+            {
+                if (sfd.ShowDialog(Editor.Instance) == DialogResult.OK)
+                    SaveFile(file, sfd.FileName);
+            }
+        }
+        private async void SaveFile(IFileObject file, string filePath, ESerializeFlags flags = ESerializeFlags.Default)
+        {
+            await RunOperationAsync("Saving file...", "File saved.",
+                async (p, c) => await file.ExportAsync(filePath, flags, p, c.Token));
+        }
+
+        private List<OperationInfo> Operations { get; } = new List<OperationInfo>();
+        public int OperationCount => Operations.Count;
+        public int ProgressMinValue { get; set; } = 0;
+        public int ProgressMaxValue { get; set; } = 100000;
+
+        public async void Import(TypeProxy fileType, string dir)
+        {
+            if (fileType.ContainsGenericParameters)
+            {
+                using (GenericsSelector gs = new GenericsSelector(fileType))
+                {
+                    if (gs.ShowDialog(Editor.Instance) == DialogResult.OK)
+                        fileType = gs.FinalClassType;
+                    else
+                        return;
+                }
+            }
+
+            string filter = TFileObject.GetFilter((Type)fileType, true, true, true, false);
+            using (OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Filter = filter,
+                Title = "Import File"
+            })
+            {
+                DialogResult r = ofd.ShowDialog(Editor.Instance);
+                if (r != DialogResult.OK)
+                    return;
+
+                string name = Path.GetFileNameWithoutExtension(ofd.FileName);
+                //ResourceTree tree = Editor.Instance.ContentTree;
+                string path = ofd.FileName;
+
+                object file = await Editor.RunOperationAsync(
+                    $"Importing '{path}'...", "Import completed.", async (p, c) =>
+                    await TFileObject.LoadAsync((Type)fileType, path, p, c.Token));
+
+                if (file is null || !Serializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
+                    return;
+
+                Serializer serializer = new Serializer();
+                await Editor.RunOperationAsync($"Saving to '{filePath}'...", "Saved successfully.", async (p, c) =>
+                await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, p, c.Token));
+            }
+        }
+
+        public int TargetOperationValue { get; private set; }
+
+        public async Task<T> RunOperationAsync<T>(
+            string statusBarMessage,
+            string finishedMessage,
+            Func<MarshalProgress<float>, CancellationTokenSource, Task<T>> task,
+            TimeSpan? maxOperationTime = null)
+        {
+            int index = BeginOperation(
+                statusBarMessage, finishedMessage,
+                out MarshalProgress<float> progress, out CancellationTokenSource cancel,
+                maxOperationTime);
+
+            T value = await task(progress, cancel);
+
+            EndOperation(index);
+
+            return value;
+        }
+        public async Task RunOperationAsync(
+            string statusBarMessage,
+            string finishedMessage,
+            Func<MarshalProgress<float>, CancellationTokenSource, Task> task,
+            TimeSpan? maxOperationTime = null)
+        {
+            int index = BeginOperation(
+                statusBarMessage, finishedMessage,
+                out MarshalProgress<float> progress, out CancellationTokenSource cancel,
+                maxOperationTime);
+
+            await task(progress, cancel);
+
+            EndOperation(index);
+        }
+
+        public int BeginOperation(
+            string statusBarMessage, string finishedMessage,
+            out MarshalProgress<float> progress, out CancellationTokenSource cancel,
+            TimeSpan? maxOperationTime = null)
+        {
+            Engine.PrintLine(statusBarMessage);
+
+            bool firstOperationAdded = Operations.Count == 0;
+            int index = Operations.Count;
+
+            progress = new MarshalProgress<float>();
+            cancel = maxOperationTime is null ? new CancellationTokenSource() : new CancellationTokenSource(maxOperationTime.Value);
+
+            Operations.Add(new OperationInfo(progress, cancel, OnOperationProgressUpdate, index, statusBarMessage, finishedMessage));
+
+            Editor.Instance.UpdateUI(firstOperationAdded, statusBarMessage, Operations.Any(x => x != null && x.CanCancel));
+
+            return index;
+        }
+
+        private void OnOperationProgressUpdate(int operationIndex)
+        {
+            float avgProgress = 0.0f;
+            int valid = 0;
+            for (int i = 0; i < Operations.Count; ++i)
+            {
+                OperationInfo info = Operations[i];
+                if (info != null)
+                {
+                    avgProgress += info.ProgressValue;
+                    if (info.IsComplete)
+                        EndOperation(i--);
+                    else
+                        ++valid;
+                }
+            }
+
+            if (valid == 0)
+                return;
+
+            avgProgress /= valid;
+
+            int maxValue = ProgressMaxValue;
+            int minValue = ProgressMinValue;
+
+            int value = (int)Math.Round(Interp.Lerp(minValue, maxValue, avgProgress));
+            TargetOperationValue = value;
+            //toolStripProgressBar1.ProgressBar.Value = TargetOperationValue;
+        }
+
+        public void EndOperation(int index)
+        {
+            if (Operations.IndexInRange(index))
+            {
+                var info = Operations[index];
+                Operations[index] = null;
+
+                double sec = Math.Round(info.OperationDuration.TotalSeconds, 2, MidpointRounding.AwayFromZero);
+                string completeTime = " (Completed in ";
+                if (sec < 1.0)
+                    completeTime += (sec * 1000.0).ToString() + " ms)";
+                else
+                    completeTime += sec.ToString() + " sec)";
+
+                string message = info.FinishedMessage + completeTime;
+                Editor.Instance.SetOperationMessage(message);
+            }
+
+            if (Operations.Count == 0 || Operations.All(x => x is null))
+            {
+                Operations.Clear();
+                Editor.Instance.OperationsEnded();
+                TargetOperationValue = 0;
+            }
+            else if (Operations.Count(x => x != null) > 1)
+            {
+                //toolStripStatusLabel1.Text = "Waiting for multiple operations to finish...";
+            }
+            else
+            {
+                var op = Operations.FirstOrDefault(x => x != null);
+            }
+        }
+
+        public void CancelOperations()
+        {
+            for (int i = 0; i < Operations.Count; ++i)
+                Operations[i]?.Cancel();
+
+            EndOperation(-1);
+        }
+
+        private class OperationInfo
+        {
+            private readonly Action<int> _updated;
+            private CancellationTokenSource _token;
+
+            public int Index { get; }
+            public DateTime StartTime { get; }
+            public TimeSpan OperationDuration => DateTime.Now - StartTime;
+            public MarshalProgress<float> Progress { get; }
+            public float ProgressValue { get; private set; } = 0.0f;
+            public bool IsComplete => ProgressValue >= 0.99f;
+            public bool CanCancel => _token != null && _token.Token.CanBeCanceled;
+            public string StatusBarMessage { get; set; }
+            public string FinishedMessage { get; set; }
+
+            public OperationInfo(MarshalProgress<float> progress, CancellationTokenSource cancel, Action<int> updated, int index, string statusBarMessage, string finishedMessage)
+            {
+                _updated = updated;
+                Progress = progress;
+                if (Progress != null)
+                    Progress.ProgressChanged += Progress_ProgressChanged;
+                _token = cancel;
+                StartTime = DateTime.Now;
+                Index = index;
+                StatusBarMessage = statusBarMessage;
+                FinishedMessage = finishedMessage;
+            }
+            private void Progress_ProgressChanged(object sender, float progressValue)
+            {
+                ProgressValue = progressValue;
+                _updated(Index);
+            }
+            public void Cancel()
+            {
+                Editor.DomainProxy.Operations[Index] = null;
+                _token?.Cancel();
+                if (Progress != null)
+                    Progress.ProgressChanged -= Progress_ProgressChanged;
             }
         }
     }

@@ -131,12 +131,10 @@ namespace TheraEditor
                 if (File.Exists(zipFilePath))
                     File.Delete(zipFilePath);
 
-                int op = Editor.Instance.BeginOperation("Creating update zip file...", "Update zip file created successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
-                {
-                    IProgress<float> iProg = progress;
-                    await Task.Run(() => ZipFileWithProgress.CreateFromDirectory(tempFolderPath, zipFilePath, iProg));
-                }
-                Editor.Instance.EndOperation(op);
+                await Editor.RunOperationAsync(
+                    "Creating update zip file...", "Update zip file created successfully.",
+                    async (p, c) => await Task.Run(() => 
+                    ZipFileWithProgress.CreateFromDirectory(tempFolderPath, zipFilePath, p)));
 
                 DeleteDirectory(tempFolderPath);
 
@@ -155,19 +153,16 @@ namespace TheraEditor
                     
                     Release release = await client.Repository.Release.Create(RepoOwner, RepoName, newRelease);
 
-                    op = Editor.Instance.BeginOperation("Uploading zip file...", "Zip file uploaded successfully.", out progress, out cancel);
+                    await Editor.RunOperationAsync("Uploading zip file...", "Zip file uploaded successfully.", async (p, c) =>
                     {
-                        IProgress<float> iProg = progress;
-
                         long currentBytes = 0L;
-                        using (ProgressStream archiveContents =
-                            new ProgressStream(File.OpenRead(zipFilePath), null, null))
+                        using (ProgressStream archiveContents = new ProgressStream(File.OpenRead(zipFilePath), null, null))
                         {
                             float length = archiveContents.Length;
                             archiveContents.SetReadProgress(new BasicProgress<int>(i =>
                             {
                                 currentBytes += i;
-                                iProg.Report(currentBytes / length);
+                                p.Report(currentBytes / length);
                             }));
 
                             ReleaseAssetUpload assetUpload = new ReleaseAssetUpload(
@@ -178,8 +173,7 @@ namespace TheraEditor
 
                             await client.Repository.Release.UploadAsset(release, assetUpload);
                         }
-                    }
-                    Editor.Instance.EndOperation(op);
+                    });
 
                     ReleaseUpdate updateRelease = release.ToUpdate();
                     updateRelease.Draft = false;
@@ -373,14 +367,17 @@ namespace TheraEditor
                             webClient.Headers.Add(HttpRequestHeader.Authorization, "Basic " + credentials);
                             webClient.Headers.Add(HttpRequestHeader.Accept, "application/octet-stream");
                             
-                            int op = Editor.Instance.BeginOperation("Downloading zip file...", "Zip file download completed.", out Progress<float> progress, out CancellationTokenSource cancel);
-                            IProgress<float> iProg = progress;
-                            void downloadFileProgressChanged(object sender, DownloadProgressChangedEventArgs args)
-                                => iProg.Report((float)args.BytesReceived / args.TotalBytesToReceive);
-                            webClient.DownloadProgressChanged += downloadFileProgressChanged;
-                            await webClient.DownloadFileTaskAsync(zipUrl, localUpdateZipPath);
-                            webClient.DownloadProgressChanged -= downloadFileProgressChanged;
-                            Editor.Instance.EndOperation(op);
+                            await Editor.RunOperationAsync(
+                                "Downloading zip file...", "Zip file download completed.",
+                                async (p, c) =>
+                                {
+                                    void downloadFileProgressChanged(object sender, DownloadProgressChangedEventArgs args)
+                                        => p.Report((float)args.BytesReceived / args.TotalBytesToReceive);
+
+                                    webClient.DownloadProgressChanged += downloadFileProgressChanged;
+                                    await webClient.DownloadFileTaskAsync(zipUrl, localUpdateZipPath);
+                                    webClient.DownloadProgressChanged -= downloadFileProgressChanged;
+                                });
                         }
 
                         Engine.PrintLine("Success! Starting install...");
@@ -408,9 +405,10 @@ namespace TheraEditor
             private static async Task ExtractZip(string zipFilePath, string destinationDirectoryPath)
             {
                 Directory.CreateDirectory(destinationDirectoryPath);
-                int op = Editor.Instance.BeginOperation("Extracting new update...", "Update extracted successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
-                await Task.Run(() => ZipFileWithProgress.ExtractToDirectory(zipFilePath, destinationDirectoryPath, progress));
-                Editor.Instance.EndOperation(op);
+                await Editor.RunOperationAsync(
+                    "Extracting new update...", "Update extracted successfully.", 
+                    async (p, c) => await Task.Run(() => 
+                    ZipFileWithProgress.ExtractToDirectory(zipFilePath, destinationDirectoryPath, p)));
             }
 
             private static void Overwrite(string localUpdateUnzipPath, string exeDir)

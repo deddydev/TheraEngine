@@ -83,7 +83,7 @@ namespace TheraEditor.Wrappers
                     Collada.EIgnoreFlags.Lights
             };
 
-            var data = await Editor.Instance.RunOperationAsync(
+            var data = await Editor.RunOperationAsync(
                 $"Importing {Path.GetFileName(FilePath)} as skeleton...", "Skeleton imported.",
                 async (p, c) => await Collada.ImportAsync(FilePath, o, p, c.Token));
 
@@ -97,7 +97,7 @@ namespace TheraEditor.Wrappers
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
 
-            await Editor.Instance.RunOperationAsync(
+            await Editor.RunOperationAsync(
                 "Saving skeleton...", "Skeleton saved.", 
                 async (p, c) => await skeleton.ExportAsync(dir, name, ESerializeFlags.Default, EFileFormat.XML, null, p, c.Token));
         }
@@ -112,7 +112,7 @@ namespace TheraEditor.Wrappers
                     Collada.EIgnoreFlags.Lights
             };
 
-            var data = await Editor.Instance.RunOperationAsync(
+            var data = await Editor.RunOperationAsync(
                 $"Importing {Path.GetFileName(FilePath)} as static model...", "Model imported.", 
                 async (p, c) => await Collada.ImportAsync(FilePath, o, p, c.Token));
 
@@ -126,7 +126,7 @@ namespace TheraEditor.Wrappers
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
 
-            await Editor.Instance.RunOperationAsync(
+            await Editor.RunOperationAsync(
                 "Saving model...", "Model saved.",
                 async (p, c) => await staticModel.ExportAsync(dir, name, ESerializeFlags.Default, EFileFormat.XML, null, p, c.Token));
 
@@ -141,7 +141,7 @@ namespace TheraEditor.Wrappers
                     Collada.EIgnoreFlags.Lights
             };
 
-            var data = await Editor.Instance.RunOperationAsync(
+            var data = await Editor.RunOperationAsync(
                  $"Importing {Path.GetFileName(FilePath)} as static model...", "Model imported.",
                  async (p, c) => await Collada.ImportAsync(FilePath, o, p, c.Token));
 
@@ -155,7 +155,7 @@ namespace TheraEditor.Wrappers
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
 
-            await Editor.Instance.RunOperationAsync(
+            await Editor.RunOperationAsync(
                 "Saving model...", "Model saved.",
                 async (p, c) => await skeletalModel.ExportAsync(dir, name, ESerializeFlags.Default, EFileFormat.XML, null, p, c.Token));
         }

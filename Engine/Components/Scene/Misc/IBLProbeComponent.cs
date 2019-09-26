@@ -32,7 +32,8 @@ namespace TheraEngine.Actors.Types
             set
             {
                 _showPrefilterTexture = value;
-                _irradianceSphere.Material.Textures[0] = _showPrefilterTexture ? PrefilterTex : IrradianceTex;
+                if (_irradianceSphere?.Material != null)
+                    _irradianceSphere.Material.Textures[0] = _showPrefilterTexture ? PrefilterTex : IrradianceTex;
             }
         }
 

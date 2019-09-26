@@ -1818,9 +1818,9 @@ namespace TheraEditor.Windows.Forms
         public async void SaveToPath(string path)
         {
             TextBox.CloseBindingFile();
-            int op = Editor.Instance.BeginOperation($"Saving text to {path}...", $"Text saved successfully to {path}", out Progress<float> progress, out CancellationTokenSource cancel);
-            await TargetFile.ExportAsync(path, progress, cancel.Token);
-            Editor.Instance.EndOperation(op);
+            await Editor.RunOperationAsync(
+                $"Saving text to {path}...", $"Text saved successfully to {path}", 
+                async (p, c) => await TargetFile.ExportAsync(path, p, c.Token));
             TextBox.OpenBindingFile(path, TargetFile.Encoding);
 
             TextBox.OnTextChanged();

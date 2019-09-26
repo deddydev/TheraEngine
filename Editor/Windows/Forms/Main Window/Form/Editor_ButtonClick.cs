@@ -21,13 +21,11 @@ namespace TheraEditor.Windows.Forms
         }
         private void btnCancelOp_ButtonClick(object sender, EventArgs e)
         {
-            for (int i = 0; i < _operations.Count; ++i)
-                _operations[i]?.Cancel();
-            
-            EndOperation(-1);
-            toolStripStatusLabel1.Text = _operations.Count == 1 ?
+            int num = DomainProxy.OperationCount;
+            DomainProxy.CancelOperations();
+            toolStripStatusLabel1.Text = num == 1 ?
                 "Operation was canceled." :
-                _operations.Count + " operations were canceled.";
+                num + " operations were canceled.";
         }
         private void BtnViewAnalytics_Click(object sender, EventArgs e)
             => GPUAnalyticsForm.Focus();
@@ -36,17 +34,17 @@ namespace TheraEditor.Windows.Forms
         private void BtnOpenProject_Click(object sender, EventArgs e) 
             => OpenProject();
         private void BtnSaveProject_Click(object sender, EventArgs e) 
-            => SaveFile(_project);
+            => DomainProxy.SaveFile(_project);
         private void BtnSaveProjectAs_Click(object sender, EventArgs e) 
-            => SaveFileAs(_project);
+            => DomainProxy.SaveFileAs(_project);
         private void BtnNewWorld_Click(object sender, EventArgs e)
             => CreateNewWorld();
         private void BtnOpenWorld_Click(object sender, EventArgs e)
             => OpenWorld();
         private void BtnSaveWorld_Click(object sender, EventArgs e)
-            => SaveFile(DomainProxy.World);
+            => DomainProxy.SaveWorld();
         private void saveAsToolStripMenuItem1_Click(object sender, EventArgs e)
-            => SaveFileAs(DomainProxy.World);
+            => DomainProxy.SaveWorldAs();
         private void extensionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
@@ -62,7 +60,7 @@ namespace TheraEditor.Windows.Forms
         private void btnCloseProject_Click(object sender, EventArgs e)
             => Project = null;
         private void btnCloseWorld_Click(object sender, EventArgs e)
-            => CloseWorld();
+            => TryCloseWorld();
         private void btnUndo_Click(object sender, EventArgs e)
             => DomainProxy.Undo();
         private void btnRedo_Click(object sender, EventArgs e)

@@ -254,27 +254,13 @@ namespace TheraEditor.Windows.Forms
 #region World Management
         internal void TrySetWorld(FileRef<World> worldRef)
         {
-            if (RenderContext.ThreadSafeBlockingInvoke(
-                (Action<FileRef<World>>)TrySetWorld, 
-                RenderContext.EPanelType.Rendering, 
-                worldRef))
-                return;
-
-            IWorld prevWorld = DomainProxy.World;
-            if (!CanCloseWorld(prevWorld))
-                return;
-
-            DomainProxy.SetWorld(worldRef.Path.Path);
+            if (DomainProxy.TryCloseWorld())
+                DomainProxy.LoadWorld(worldRef.Path.Path);
         }
         private void WorldPreChanged()
         {
             IWorld world = DomainProxy.World;
-            bool worldExists = world != null;
-            if (worldExists)
-            {
-                world.State.SpawnedActors.PostAnythingAdded -= SpawnedActors_PostAdded;
-                world.State.SpawnedActors.PostAnythingRemoved -= SpawnedActors_PostRemoved;
-            }
+            ActorTreeForm.UnlinkWorld(world);
         }
         private void WorldPostChanged()
         {
@@ -288,48 +274,18 @@ namespace TheraEditor.Windows.Forms
                 sref.RegisterUnloadEvent(WorldSettingsUnloaded);
             }
 
-            btnWorldSettings.Enabled = btnSaveWorld.Enabled = btnSaveWorldAs.Enabled = worldExists;
+            if (InvokeRequired)
+                Invoke((Action)(() => { btnWorldSettings.Enabled = btnSaveWorld.Enabled = btnSaveWorldAs.Enabled = worldExists; }));
+            else
+                btnWorldSettings.Enabled = btnSaveWorld.Enabled = btnSaveWorldAs.Enabled = worldExists;
+
             PropertyGridForm.PropertyGrid.TargetObject = world?.Settings;
 
-            GenerateInitialActorList(world);
-            if (worldExists)
-            {
-                world.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
-                world.State.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
-            }
+            ActorTreeForm.LinkWorld(world);
         }
-        public bool CloseWorld()
+        public bool TryCloseWorld()
         {
-            IWorld world = DomainProxy.World;
-            if (world is null)
-                return true;
-
-            if (!CanCloseWorld(world))
-                return false;
-
-            DomainProxy.World = null;
-
-            return true;
-        }
-        private bool CanCloseWorld(IWorld world)
-        {
-            if (world?.EditorState?.HasChanges ?? false)
-            {
-                DialogResult result = MessageBox.Show(this,
-                    "Save changes to current world?", "Save changes?",
-                    MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-
-                switch (result)
-                {
-                    default:
-                    case DialogResult.Cancel:
-                        return false;
-                    case DialogResult.Yes:
-                        Task.Run(() => SaveFile(world)).ContinueWith(t => world.EditorState = null);
-                        return true;
-                }
-            }
-            return true;
+            return DomainProxy.TryCloseWorld();
         }
         /// <summary>
         /// Creates and loads a new world for editing.
@@ -337,14 +293,14 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         public void CreateNewWorld()
         {
-            if (!CloseWorld())
+            if (!TryCloseWorld())
                 return;
 
             DomainProxy.CreateNewWorld();
         }
         public void OpenWorld()
         {
-            if (!CloseWorld())
+            if (!TryCloseWorld())
                 return;
 
             using (OpenFileDialog ofd = new OpenFileDialog()
@@ -354,7 +310,7 @@ namespace TheraEditor.Windows.Forms
             })
             {
                 if (ofd.ShowDialog(this) == DialogResult.OK)
-                    DomainProxy.SetWorld(ofd.FileName);
+                    DomainProxy.LoadWorld(ofd.FileName);
             }
         }
 #endregion
@@ -485,7 +441,7 @@ namespace TheraEditor.Windows.Forms
                     case DialogResult.Cancel:
                         return false;
                     case DialogResult.Yes:
-                        SaveFile(_project);
+                        DomainProxy.SaveFile(_project);
                         break;
                 }
             }
@@ -588,7 +544,7 @@ namespace TheraEditor.Windows.Forms
                 //SetRenderTicking(true);
                 //Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
-                DomainProxy.SetWorld(_project.OpeningWorldRef.Path.Path);
+                DomainProxy.LoadWorld(_project.OpeningWorldRef.Path.Path);
 
                 UpdateRecentProjectPaths();
             }
@@ -684,6 +640,7 @@ namespace TheraEditor.Windows.Forms
             btnPlay.Text = "Play";
             btnPlayDetached.Text = "Play Detached";
 
+            var world = DomainProxy.World;
             if (_gameState == EEditorGameplayState.Attached)
             {
                 //Attached -> Editing
@@ -693,18 +650,18 @@ namespace TheraEditor.Windows.Forms
             else //Detached
             {
                 //Detached -> Editing
-                
-                Engine.World.DespawnActor(FlyingCameraDetachedPawn);
+
+                world.DespawnActor(FlyingCameraDetachedPawn);
 
                 //Mouse is already released
             }
 
             //Both attached and detached use gameplay mode and are unpaused
-            Engine.World.EndPlay();
+            world.EndPlay();
             SetEditingMode();
             InputInterface.GlobalRegisters.Remove(RegisterInput);
             ActorTreeForm.ClearMaps();
-            Engine.World.BeginPlay();
+            world.BeginPlay();
             Engine.Pause(ELocalPlayerIndex.One, true);
             GameplayPawn = null;
         }
@@ -721,6 +678,7 @@ namespace TheraEditor.Windows.Forms
             btnPlay.Text = "Stop";
             btnPlayDetached.Text = "Play Attached";
 
+            var world = DomainProxy.World;
             if (_gameState == EEditorGameplayState.Attached)
             {
                 //Attached -> Detached
@@ -732,19 +690,19 @@ namespace TheraEditor.Windows.Forms
                 //Editing -> Detached
 
                 //Mouse already released in edit mode
-                Engine.World.EndPlay();
+                world.EndPlay();
                 SetGameplayMode();
                 InputInterface.GlobalRegisters.Add(RegisterInput);
                 ActorTreeForm.ClearMaps();
-                Engine.World.BeginPlay();
+                world.BeginPlay();
                 Engine.Unpause(ELocalPlayerIndex.One, true);
             }
 
-            if (Engine.World.CurrentGameMode.LocalPlayers.Count > 0)
-                GameplayPawn = Engine.World.CurrentGameMode.LocalPlayers[0].ControlledPawn;
+            if (world.CurrentGameMode.LocalPlayers.Count > 0)
+                GameplayPawn = world.CurrentGameMode.LocalPlayers[0].ControlledPawn;
 
             FlyingCameraDetachedPawn.EditorState.DisplayInActorTree = false;
-            Engine.World.SpawnActor(FlyingCameraDetachedPawn);
+            world.SpawnActor(FlyingCameraDetachedPawn);
             FlyingCameraDetachedPawn.ForcePossessionBy(ELocalPlayerIndex.One);
         }
         private void SetAttachedGameState()
@@ -767,21 +725,22 @@ namespace TheraEditor.Windows.Forms
             {
                 //Editing -> Attached
 
-                Engine.World.EndPlay();
+                var world = DomainProxy.World;
+                world.EndPlay();
                 SetGameplayMode();
                 InputInterface.GlobalRegisters.Add(RegisterInput);
                 ActorTreeForm.ClearMaps();
-                Engine.World.BeginPlay();
+                world.BeginPlay();
                 Engine.Unpause(ELocalPlayerIndex.One, true);
-                if (Engine.World.CurrentGameMode.LocalPlayers.Count > 0)
-                    GameplayPawn = Engine.World.CurrentGameMode.LocalPlayers[0].ControlledPawn;
+                if (world.CurrentGameMode.LocalPlayers.Count > 0)
+                    GameplayPawn = world.CurrentGameMode.LocalPlayers[0].ControlledPawn;
             }
             else //Detached
             {
                 //Detached -> Attached
                 
                 GameplayPawn?.ForcePossessionBy(ELocalPlayerIndex.One);
-                Engine.World.DespawnActor(FlyingCameraDetachedPawn);
+                DomainProxy.World.DespawnActor(FlyingCameraDetachedPawn);
             }
         }
         private void SetGameplayMode() => DomainProxy.SetGameplayMode();
@@ -800,10 +759,6 @@ namespace TheraEditor.Windows.Forms
             DomainProxy.Redo();
             return canRedo;
         }
-
-        private void GenerateInitialActorList(IWorld world) => ActorTreeForm.GenerateInitialActorList(world);
-        private void SpawnedActors_PostAdded(IActor item) => ActorTreeForm.ActorSpawned(item);
-        private void SpawnedActors_PostRemoved(IActor item) => ActorTreeForm.ActorDespawned(item);
 
         public void ClearDockPanel()
         {
@@ -935,40 +890,6 @@ namespace TheraEditor.Windows.Forms
             }
 
             return new IPAddress(ip);
-        }
-
-        public void SaveFile(IFileObject file)
-        {
-            if (file is null)
-                return;
-
-            if (string.IsNullOrEmpty(file.FilePath))
-            {
-                SaveFileAs(file);
-                return;
-            }
-
-            SaveFile(file, file.FilePath);
-        }
-        public void SaveFileAs(IFileObject file)
-        {
-            if (file is null)
-                return;
-
-            string filter = RemoteFunc.Invoke(AppDomainHelper.GetGameAppDomain(), file, (marshaledFile) =>
-            {
-                return TFileObject.GetFilter(marshaledFile.GetType(), true, true, false, true);
-            });
-            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = filter })
-            {
-                if (sfd.ShowDialog(this) == DialogResult.OK)
-                    SaveFile(file, sfd.FileName);
-            }
-        }
-        private async void SaveFile(IFileObject file, string filePath, ESerializeFlags flags = ESerializeFlags.Default)
-        {
-            await RunOperationAsync("Saving file...", "File saved.",
-                async (p, c) => await file.ExportAsync(filePath, flags, p, c.Token));
         }
 
         /// <summary>

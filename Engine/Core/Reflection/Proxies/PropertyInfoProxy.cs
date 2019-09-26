@@ -28,7 +28,12 @@ namespace TheraEngine.Core.Reflection
         public override bool IsGridWriteable => CanWrite && SetMethod.IsPublic;
 
         public object GetValue(object parentObject)
-            => Value.GetValue(parentObject);
+        {
+            if (!PropertyType.IsMarshalByRef && !PropertyType.IsSerializable)
+                return PropertyType.GetDefaultValue();
+
+            return Value.GetValue(parentObject);
+        }
         public void SetValue(object parentObject, object memberObject)
             => Value.SetValue(parentObject, memberObject);
         public ParameterInfoProxy[] GetIndexParameters()

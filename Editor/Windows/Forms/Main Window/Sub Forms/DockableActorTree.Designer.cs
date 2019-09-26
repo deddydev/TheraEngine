@@ -187,6 +187,7 @@
             this.ActorTree.Name = "ActorTree";
             this.ActorTree.Size = new System.Drawing.Size(728, 585);
             this.ActorTree.TabIndex = 2;
+            this.ActorTree.MouseClick += ActorTree_MouseClick;
             this.ActorTree.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.ActorTree_AfterLabelEdit);
             this.ActorTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ActorTree_AfterSelect);
             // 
@@ -195,14 +196,14 @@
             this.ClientSize = new System.Drawing.Size(728, 585);
             this.Controls.Add(this.ActorTree);
             this.Name = "DockableActorTree";
-            this.Text = "Scene Actors";
+            this.Text = "Scene Hierarchy";
             this.ctxActorTree.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-        
+
         public TreeViewEx ActorTree;
         private System.Windows.Forms.ContextMenuStrip ctxActorTree;
         private System.Windows.Forms.ToolStripMenuItem btnNewActor;

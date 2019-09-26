@@ -164,8 +164,8 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                 }
 
-                List<SerializeAttribute> attributes = node.Attributes;
-                List<SerializeElement> childElements = node.Children;
+                IList<SerializeAttribute> attributes = node.Attributes;
+                IList<SerializeElement> childElements = node.Children;
                 bool hasElementContent = node.Content.GetObject(null, out object elementContent);
 
                 foreach (SerializeAttribute attribute in attributes)

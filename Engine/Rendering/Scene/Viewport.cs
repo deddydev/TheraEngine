@@ -199,7 +199,6 @@ namespace TheraEngine.Rendering
 
         private void ClearFBOs()
         {
-            FBOsInitialized = false;
             BloomBlurFBO1?.Destroy();
             BloomBlurFBO1 = null;
             BloomBlurFBO2?.Destroy();
@@ -815,9 +814,10 @@ namespace TheraEngine.Rendering
         /// </summary>
         internal protected virtual unsafe void InitializeFBOs()
         {
+            //if (RenderContext.ThreadSafeBlockingInvoke((Action)InitializeFBOs, RenderContext.EPanelType.Rendering))
+            //    return;
+
             RegeneratingFBOs = true;
-            if (RenderContext.ThreadSafeBlockingInvoke((Action)InitializeFBOs, RenderContext.EPanelType.Rendering))
-                return;
 
             ClearFBOs();
 

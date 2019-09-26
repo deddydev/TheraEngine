@@ -82,21 +82,22 @@ namespace TheraEngine
                 Engine.PrintLine($"Released lease for {fn}.");
                 return TimeSpan.Zero;
             }
-            TimeSpan span = DateTime.Now - LastRenewalTime;
-            double sec = Math.Round(span.TotalSeconds, 1);
-            Engine.PrintLine($"Renewed lease for {fn}. {sec} seconds elapsed since last renewal.");
-            LastRenewalTime = DateTime.Now;
-            return RenewalTimeSpan;
+            //if (lease.CurrentState == LeaseState.Renewing)
+            {
+                TimeSpan span = DateTime.Now - LastRenewalTime;
+                double sec = Math.Round(span.TotalSeconds, 1);
+                Engine.PrintLine($"Renewed lease for {fn}. {sec} seconds elapsed since last renewal.");
+                LastRenewalTime = DateTime.Now;
+                return RenewalTimeSpan;
+            }
+            //return TimeSpan.Zero;
         }
         
         public MarshalSponsor(ISponsorableMarshalByRefObject mbro)
         {
             Object = mbro;
             Lease = mbro.InitializeLifetimeService() as ILease;
-            if (Lease != null)
-            {
-                Lease.Register(this);
-            }
+            Lease?.Register(this);
             LastRenewalTime = DateTime.Now;
         }
 

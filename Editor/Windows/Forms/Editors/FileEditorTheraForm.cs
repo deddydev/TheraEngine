@@ -37,7 +37,7 @@ namespace TheraEditor.Windows.Forms
                 SaveAs();
             else
             {
-                await Editor.Instance.RunOperationAsync(
+                await Editor.RunOperationAsync(
                     $"Saving {path}...", 
                     $"Successfully saved {path}.",
                     async (p, c) => await File.RootFile.ExportAsync(ESerializeFlags.Default, p, c.Token));

@@ -150,6 +150,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
 
             _targetObject = value;
+            AppDomainHelper.Sponsor(_targetObject);
+
             bool notNull = _targetObject != null;
 
             treeViewSceneComps.Nodes.Clear();
@@ -321,12 +323,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 btnRemoveLogicComp.Visible = false;
             }
         }
-        protected override async void OnHandleCreated(EventArgs e)
+        protected override void OnHandleCreated(EventArgs e)
         {
             if (!Engine.DesignMode)
             {
-                var sref = Editor.GetSettingsRef();
-                var inst = await sref.GetInstanceAsync();
+                var inst = Editor.GetSettings();
                 BeginUpdatingVisibleItems(inst?.PropertyGridRef.File.UpdateRateInSeconds ?? 0.2f);
             }
 
@@ -1288,11 +1289,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private async void Save(IFileObject file, string path)
         {
-            //TODO: doesn't work cross-domain
-            Editor editor = Editor.Instance;
-            int op = editor.BeginOperation($"Property Grid: saving {path}", $"Property Grid: done saving {path}", out Progress<float> progress, out CancellationTokenSource cancel);
-            await file.ExportAsync(path, ESerializeFlags.Default, progress, cancel.Token);
-            editor.EndOperation(op);
+            await Editor.RunOperationAsync(
+                $"Property Grid: saving {path}", $"Property Grid: done saving {path}", 
+                async (p, c) => await file.ExportAsync(path, ESerializeFlags.Default, p, c.Token));
 
             //if (TargetFileObject.References.Count == 1)
             //{

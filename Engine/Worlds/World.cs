@@ -178,11 +178,9 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void SpawnActor(IActor actor)
         {
-            if (State.SpawnedActors.Add(actor))
-            {
-                actor.Spawned(this);
-                //Engine.PrintLine("Spawned " + actor.Name);
-            }
+            actor.Spawned(this);
+            State.SpawnedActors.Add(actor);
+            //Engine.PrintLine("Spawned " + actor.Name);
         }
         /// <summary>
         /// Adds an actor to the scene.

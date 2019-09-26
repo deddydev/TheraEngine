@@ -31,3 +31,5 @@ GameProjectTemplateInstaller/bin/
 
 GameProjectTemplateInstaller/obj/
 packages/
+CSharpAnalyzer/obj/
+CSharpAnalyzer/bin/

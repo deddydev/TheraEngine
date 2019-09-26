@@ -101,7 +101,7 @@ namespace TheraEditor.Actors.Types.Pawns
             }
             else if (Translating)
             {
-                if (HasHit)
+                if (HasHit && Camera != null)
                 {
                     //This fixes stationary jitter caused by float imprecision
                     //when recalculating the same hit point every update

@@ -8,6 +8,7 @@ using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -22,51 +23,70 @@ namespace TheraEditor.Windows.Forms
             ctxActorTree.RenderMode = ToolStripRenderMode.Professional;
             ctxActorTree.Renderer = new TheraForm.TheraToolstripRenderer();
         }
-        
-        public EditorUI3D EditorHUD { get; set; }
+
+        public EditorUI3D EditorHUD
+        {
+            get => _editorHUD;
+            set
+            {
+                _editorHUD = value;
+                AppDomainHelper.Sponsor(_editorHUD);
+            }
+        }
 
         private readonly Dictionary<Guid, TreeNode> _mapTreeNodes = new Dictionary<Guid, TreeNode>();
         private TreeNode _dynamicActorsMapNode = null;
+        private EditorUI3D _editorHUD;
 
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (!Editor.Instance.PropertyGridFormActive)
                 return;
-            
+
             if (ActorTree.SelectedNode is null)
             {
                 EditorHUD?.SetSelectedComponent(false, null, true);
-                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = Editor.DomainProxy?.World?.Settings;
             }
-            else switch (e.Node.Tag)
+            else
+                switch (e.Node.Tag)
+                {
+                    case IActor actor:
+                        {
+                            actor.EditorState.Selected = true;
+                            EditorHUD?.SetSelectedComponent(false, actor.RootComponent, true);
+                            Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = actor;
+                            break;
+                        }
+                    case IComponent component:
+                        {
+                            component.EditorState.Selected = true;
+                            EditorHUD?.SetSelectedComponent(false, component as ISceneComponent, true);
+                            Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = component;
+                            break;
+                        }
+                    case IMap map:
+                        {
+                            EditorHUD?.SetSelectedComponent(false, null, true);
+                            Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = map;
+                            break;
+                        }
+                }
+        }
+        public void UnlinkWorld(IWorld world)
+        {
+            bool worldExists = world != null;
+            if (worldExists)
             {
-                case IActor actor:
-                {
-                    actor.EditorState.Selected = true;
-                    EditorHUD?.SetSelectedComponent(false, actor.RootComponent, true);
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = actor;
-                    break;
-                }
-                case IComponent component:
-                {
-                    component.EditorState.Selected = true;
-                    EditorHUD?.SetSelectedComponent(false, component as ISceneComponent, true);
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = component;
-                    break;
-                }
-                case IMap map:
-                {
-                    EditorHUD?.SetSelectedComponent(false, null, true);
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = map;
-                    break;
-                }
+                world.State.SpawnedActors.PostAnythingAdded -= ActorSpawned;
+                world.State.SpawnedActors.PostAnythingRemoved -= ActorDespawned;
             }
         }
-        internal void GenerateInitialActorList(IWorld world)
+        public void LinkWorld(IWorld world)
         {
             if (InvokeRequired)
             {
-                BeginInvoke((Action<IWorld>)GenerateInitialActorList, world);
+                BeginInvoke((Action<IWorld>)LinkWorld, world);
                 return;
             }
 
@@ -77,6 +97,10 @@ namespace TheraEditor.Windows.Forms
 
             world.Settings.Maps.ForEach(x => CacheMap(x.Value.File));
             world.State.SpawnedActors.ForEach(ActorSpawned);
+
+            var actors = world.State.SpawnedActors;
+            actors.PostAnythingAdded += ActorSpawned;
+            actors.PostAnythingRemoved += ActorDespawned;
         }
         internal TreeNode CacheMap(IMap map)
         {
@@ -92,6 +116,7 @@ namespace TheraEditor.Windows.Forms
             }
             else if (!_mapTreeNodes.ContainsKey(map.Guid))
             {
+                AppDomainHelper.Sponsor(map);
                 mapNode = new TreeNode(map.Name) { Tag = map };
                 ActorTree.Nodes.Add(mapNode);
                 _mapTreeNodes.Add(map.Guid, mapNode);
@@ -120,6 +145,7 @@ namespace TheraEditor.Windows.Forms
             IMap map = item.MapAttachment;
             TreeNode mapNode = CacheMap(map);
 
+            AppDomainHelper.Sponsor(item);
             TreeNode node = new TreeNode(item.ToString()) { Tag = item };
             node.Nodes.Add(new TreeNode());
 
@@ -144,9 +170,9 @@ namespace TheraEditor.Windows.Forms
             if (item is null || Engine.ShuttingDown)
                 return;
 
-            if (item.EditorState?.TreeNode != null)
+            if (item.HasEditorState)
             {
-                item.EditorState.TreeNode.Remove();
+                item.EditorState.TreeNode?.Remove();
                 item.EditorState.TreeNode = null;
             }
 
@@ -159,9 +185,10 @@ namespace TheraEditor.Windows.Forms
 
             for (int i = 1; i < node.Nodes.Count; ++i)
                 node.Nodes[i].Remove();
-            
+
             foreach (LogicComponent comp in actor.LogicComponents)
             {
+                AppDomainHelper.Sponsor(comp);
                 TreeNode childNode = new TreeNode(comp.ToString()) { Tag = comp };
                 node.Nodes.Add(childNode);
             }
@@ -175,6 +202,7 @@ namespace TheraEditor.Windows.Forms
         }
         private static void RecursiveAddSceneComp(TreeNode node, ISocket comp)
         {
+            AppDomainHelper.Sponsor(comp);
             node.Text = comp.ToString();
             node.Tag = comp;
             foreach (SceneComponent child in comp.ChildComponents)
@@ -197,6 +225,13 @@ namespace TheraEditor.Windows.Forms
             ActorTree.Nodes.Clear();
         }
 
+        private void ActorTree_MouseClick(object sender, MouseEventArgs e)
+        {
+            TreeNode node = ActorTree.GetNodeAt(e.Location);
+            if (node?.TreeView != null)
+                node.TreeView.SelectedNode = node;
+        }
+
         private void ctxActorTree_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             TreeNode node = ActorTree.SelectedNode;
@@ -208,7 +243,7 @@ namespace TheraEditor.Windows.Forms
 
             btnMoveAsSibToParent.Visible =
             btnMoveAsChildToSibNext.Visible =
-            btnMoveAsChildToSibPrev.Visible = 
+            btnMoveAsChildToSibPrev.Visible =
             btnNewSiblingSceneComp.Visible =
             btnNewChildSceneComp.Visible =
             node?.Tag is ISceneComponent;
@@ -281,7 +316,9 @@ namespace TheraEditor.Windows.Forms
 
         private void btnNewActor_Click(object sender, EventArgs e)
         {
-            if (Engine.World?.Settings is null)
+            var world = Editor.DomainProxy?.World;
+            var settings = world?.Settings;
+            if (settings is null)
                 return;
 
             TreeNode node = ActorTree.SelectedNode;
@@ -307,14 +344,14 @@ namespace TheraEditor.Windows.Forms
             }
 
             if (targetMap is null)
-                targetMap = Engine.World.Settings.FindOrCreateMap(Engine.World.Settings.NewActorTargetMapName);
+                targetMap = settings.FindOrCreateMap(settings.NewActorTargetMapName);
 
             IActor newActor = Editor.UserCreateInstanceOf<IActor>();
             if (newActor is null)
                 return;
 
             targetMap.Actors.Add(newActor);
-            Engine.World.SpawnActor(newActor);
+            world.SpawnActor(newActor);
         }
 
         private void btnRemove_Click(object sender, EventArgs e)
@@ -354,7 +391,14 @@ namespace TheraEditor.Windows.Forms
 
         private void btnNewMap_Click(object sender, EventArgs e)
         {
-            var map = Engine.World.Settings.FindOrCreateMap("Map" + Engine.World.Settings.Maps.Count);
+            var settings = Editor.DomainProxy?.World?.Settings;
+            if (settings is null)
+            {
+                Engine.LogWarning("Unable to create new map, world settings is null.");
+                return;
+            }
+
+            var map = settings.FindOrCreateMap("Map" + settings.Maps.Count);
             TreeNode node = CacheMap(map);
             ActorTree.LabelEdit = true;
             node.BeginEdit();

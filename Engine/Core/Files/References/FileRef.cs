@@ -110,7 +110,7 @@ namespace TheraEngine.Core.Files
 
                 UnloadReference();
                 if (value)
-                    GetInstance();
+                    LoadInstance();
             }
         }
         public async void Reload()
@@ -239,6 +239,7 @@ namespace TheraEngine.Core.Files
             GetInstanceAsync().ContinueWith(t => { });
             return _file;
         }
+        public async void LoadInstance() => await GetInstanceAsync();
 
         async Task<IFileObject> IFileRef.GetInstanceAsync() 
             => await GetInstanceAsync();

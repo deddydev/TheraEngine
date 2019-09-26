@@ -125,8 +125,8 @@ namespace TheraEngine.Core.Files.Serialization
                     if (node.ObjectType != node.MemberInfo.MemberType || root || isSharedObject)
                         node.InsertAttribute(0, SerializationCommon.TypeIdent, node.ObjectType.AssemblyQualifiedName);
 
-                    List<SerializeAttribute> attributes = node.Attributes;
-                    List<SerializeElement> childElements = node.Children;
+                    IList<SerializeAttribute> attributes = node.Attributes;
+                    IList<SerializeElement> childElements = node.Children;
                     bool hasChildStringData = node.Content.GetString(out string childStringData);
                     
                     foreach (SerializeAttribute attribute in attributes)

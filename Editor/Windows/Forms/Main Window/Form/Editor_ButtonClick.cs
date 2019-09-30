@@ -34,9 +34,9 @@ namespace TheraEditor.Windows.Forms
         private void BtnOpenProject_Click(object sender, EventArgs e) 
             => OpenProject();
         private void BtnSaveProject_Click(object sender, EventArgs e) 
-            => DomainProxy.SaveFile(_project);
+            => DomainProxy.SaveProject();
         private void BtnSaveProjectAs_Click(object sender, EventArgs e) 
-            => DomainProxy.SaveFileAs(_project);
+            => DomainProxy.SaveProjectAs();
         private void BtnNewWorld_Click(object sender, EventArgs e)
             => CreateNewWorld();
         private void BtnOpenWorld_Click(object sender, EventArgs e)
@@ -58,7 +58,7 @@ namespace TheraEditor.Windows.Forms
 
         }
         private void btnCloseProject_Click(object sender, EventArgs e)
-            => Project = null;
+            => DomainProxy.TryCloseProject();
         private void btnCloseWorld_Click(object sender, EventArgs e)
             => TryCloseWorld();
         private void btnUndo_Click(object sender, EventArgs e)
@@ -180,78 +180,65 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public async void CreateGameDomain(TProject project, string rootDir, string[] assemblyPaths)
+        public void CreateGameDomain(string projectPath, string rootDir, string[] assemblyPaths)
         {
             DestroyGameDomain();
 
-            if (project is null)
-            {
-                try
-                {
-                    Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null);
-                }
-                catch (Exception ex)
-                {
-                    Engine.LogException(ex);
-                }
-            }
-            else
-            {
-                Engine.PrintLine("Creating game domain.");
-                Engine.PrintLine("Active domains before load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
+            //if (project is null)
+            //    return;
 
-                try
-                {
-                    CopyEditorLibraries(assemblyPaths);
+            Engine.PrintLine("Creating game domain.");
+            Engine.PrintLine("Active domains before load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
 
-                    string name = project?.Name ?? "UnnamedGame";
-                    AppDomainSetup setupInfo = new AppDomainSetup()
+            try
+            {
+                CopyEditorLibraries(assemblyPaths);
+
+                string name = Path.GetFileNameWithoutExtension(projectPath);
+                AppDomainSetup setupInfo = new AppDomainSetup()
+                {
+                    ApplicationName = name,
+                    ApplicationBase = rootDir,
+                    PrivateBinPath = rootDir,
+                    ShadowCopyFiles = "true",
+                    ShadowCopyDirectories = assemblyPaths is null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x))),
+                    LoaderOptimization = LoaderOptimization.MultiDomain,
+                    //DisallowApplicationBaseProbing = true,
+                };
+
+                _gameDomain = AppDomainContext<TheraAssemblyTargetLoader, TheraAssemblyResolver>.
+                    Create<TheraAssemblyTargetLoader, TheraAssemblyResolver>(setupInfo);
+
+                if (assemblyPaths != null)
+                    foreach (string path in assemblyPaths)
                     {
-                        ApplicationName = name,
-                        ApplicationBase = rootDir,
-                        PrivateBinPath = rootDir,
-                        ShadowCopyFiles = "true",
-                        ShadowCopyDirectories = assemblyPaths is null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x))),
-                        LoaderOptimization = LoaderOptimization.MultiDomain,
-                        //DisallowApplicationBaseProbing = true,
-                    };
+                        FileInfo file = new FileInfo(path);
+                        if (!file.Exists)
+                            continue;
 
-                    _gameDomain = AppDomainContext<TheraAssemblyTargetLoader, TheraAssemblyResolver>.
-                        Create<TheraAssemblyTargetLoader, TheraAssemblyResolver>(setupInfo);
+                        _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
+                        _gameDomain.LoadAssembly(LoadMethod.LoadBits, path);
+                    }
 
-                    if (assemblyPaths != null)
-                        foreach (string path in assemblyPaths)
-                        {
-                            FileInfo file = new FileInfo(path);
-                            if (!file.Exists)
-                                continue;
-
-                            _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
-                            _gameDomain.LoadAssembly(LoadMethod.LoadBits, path);
-                        }
-
-                    if (project.FilePath.IsExistingDirectoryPath() != false)
-                        await project.ExportXMLAsync(rootDir, name, ESerializeFlags.Default, null, CancellationToken.None);
-
-                    Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, project.FilePath);
-                }
-                catch (Exception ex)
-                {
-                    Engine.LogException(ex);
-                }
-                finally
-                {
-                    Engine.PrintLine("Game domain created.");
-                    AppDomainHelper.ResetAppDomainCache();
-                    Engine.PrintLine("Active domains after load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
-                    AppDomainHelper.OnGameDomainLoaded();
-                }
+                Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, projectPath);
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
+            finally
+            {
+                Engine.PrintLine("Game domain created.");
+                AppDomainHelper.ResetAppDomainCache();
+                Engine.PrintLine("Active domains after load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
+                AppDomainHelper.OnGameDomainLoaded();
             }
         }
 
         private void DestroyGameDomain()
         {
             Engine.DomainProxy.Stop();
+            Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null);
             _gameDomain?.Dispose();
             _gameDomain = null;
             AppDomainHelper.OnGameDomainUnloaded();

@@ -13,13 +13,9 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
         }
         public TProject Project { get; private set; }
-        private async void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
-            Project = await TProject.CreateAsync(
-                txtProjectDir.Text, txtName.Text, 
-                new UserSettings(), 
-                new EngineSettings(),
-                new EditorSettings());
+            Project = Editor.DomainProxy.CreateNewProject(txtProjectDir.Text, txtName.Text);
             ProjectCreated?.Invoke();
         }
         private void button2_Click(object sender, EventArgs e)

@@ -24,6 +24,10 @@ using TheraEngine.Timers;
 using System.Linq;
 using TheraEngine.Core.Files.Serialization;
 using System.IO;
+using Microsoft.Build.Execution;
+using Microsoft.Build.Evaluation;
+using static TheraEditor.TProject;
+using Microsoft.Build.Framework;
 
 namespace TheraEditor
 {
@@ -59,6 +63,9 @@ namespace TheraEditor
 
         public void SaveWorld() => SaveFile(World);
         public void SaveWorldAs() => SaveFileAs(World);
+
+        public void SaveProject() => SaveFile(Project);
+        public void SaveProjectAs() => SaveFileAs(Project);
 
         public void RemoveRenderHandlerFromEditorGameMode(IntPtr handle)
         {
@@ -284,7 +291,7 @@ namespace TheraEditor
             if (file is null)
                 return;
 
-            string filter =  TFileObject.GetFilter(file.GetType(), true, true, false, true);
+            string filter = TFileObject.GetFilter(file.GetType(), true, true, false, true);
             using (SaveFileDialog sfd = new SaveFileDialog() { Filter = filter })
             {
                 if (sfd.ShowDialog(Editor.Instance) == DialogResult.OK)
@@ -344,6 +351,119 @@ namespace TheraEditor
         }
 
         public int TargetOperationValue { get; private set; }
+        public async Task CompileAsync(string solutionPath, string buildConfiguration)
+            => await CompileAsync(solutionPath, buildConfiguration, IntPtr.Size == 8 ? "x64" : "x86");
+        public async Task CompileAsync(string solutionPath, string buildConfiguration, string buildPlatform)
+        {
+            //if (IsCompiling)
+            //{
+            //    Engine.PrintLine("Project is already compiling.");
+            //    return;
+            //}
+
+            try
+            {
+                //IsCompiling = true;
+                //CompileStarted?.Invoke(this);
+                Engine.PrintLine($"Compiling {buildConfiguration} {buildPlatform} {solutionPath}");
+
+                DeleteIntermediateDirectory();
+                await UpdateEngineLibReferenceAsync();
+
+                EngineBuildLogger log = new EngineBuildLogger();
+
+                Dictionary<string, string> props = new Dictionary<string, string>
+                {
+                    { "Configuration",  buildConfiguration  },
+                    { "Platform",       buildPlatform       },
+                };
+                BuildRequestData request = new BuildRequestData(solutionPath, props, null, new[] { "Build" }, null);
+                ProjectCollection pc = new ProjectCollection();
+                BuildParameters buildParams = new BuildParameters(pc) { Loggers = new ILogger[] { log } };
+
+                await Task.Run(() =>
+                {
+                    return (BuildManager.DefaultBuildManager.Build(buildParams, request), solutionPath, log);
+                }).ContinueWith(OnBuildCompleted);
+            }
+            catch (Exception ex)
+            {
+                //IsCompiling = false;
+                Engine.LogException(ex);
+                DeleteIntermediateDirectory();
+                //CompileCompleted?.Invoke(this, false);
+            }
+        }
+        private void OnBuildCompleted(Task<(BuildResult, string solutionPath, EngineBuildLogger log)> buildTask)
+        {
+            (BuildResult result, string solutionPath, EngineBuildLogger log) = buildTask.Result;
+            bool success = result.OverallResult == BuildResultCode.Success;
+            try
+            {
+                if (success)
+                {
+                    ITaskItem[] buildItems = result.ResultsByTarget["Build"].Items;
+                    AssemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
+
+                    Editor.Instance.CopyEditorLibraries(AssemblyPaths);
+
+                    if (Editor.Instance.DockableErrorListFormActive)
+                    {
+                        if (Editor.Instance.InvokeRequired)
+                            Editor.Instance.BeginInvoke((Action)(() => Editor.Instance.ErrorListForm.SetLog(log)));
+                        else
+                            Editor.Instance.ErrorListForm.SetLog(log);
+                    }
+
+                    Engine.PrintLine(solutionPath + " : Build succeeded.");
+
+                    Export();
+                    CreateGameDomain(true);
+                }
+                else
+                {
+                    Engine.PrintLine(solutionPath + " : Build failed.");
+                    log.Display();
+                }
+            }
+            finally
+            {
+                //IsCompiling = false;
+                //DeleteIntermediateDirectory();
+                //CompileCompleted?.Invoke(this, success);
+            }
+        }
+        internal async void CreateGameDomain(bool compiling = false, Action onComplete = null)
+        {
+            //Task.Run(async () =>
+            //{
+            string buildPlatform = IntPtr.Size == 8 ? "x64" : "x86";
+            string buildConfiguration = "Debug";
+
+            string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
+            if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths is null))
+            {
+                await CompileAsync(buildConfiguration, buildPlatform);
+                return;
+            }
+
+            Editor.Instance.CreateGameDomain(this, rootDir, AssemblyPaths);
+            //}).ContinueWith(t =>
+            //{
+            onComplete?.Invoke();
+            //});
+        }
+
+        public async void LoadProject(string path)
+        {
+            Project = await TFileObject.LoadAsync<TProject>(path);
+        }
+        public TProject Project
+        {
+            get => _project;
+            set => _project = value;
+        }
+        private TProject _project;
 
         public async Task<T> RunOperationAsync<T>(
             string statusBarMessage,
@@ -398,6 +518,30 @@ namespace TheraEditor
             return index;
         }
 
+        public bool TryCloseProject()
+        {
+            if (_project?.EditorState is null || !_project.EditorState.HasChanges)
+            {
+                _project = null;
+                return true;
+            }
+            
+            DialogResult result = MessageBox.Show(
+                Editor.Instance,
+                "Save changes to current project?",
+                "Save changes?",
+                MessageBoxButtons.YesNoCancel,
+                MessageBoxIcon.Exclamation);
+
+            if (result == DialogResult.Cancel)
+                return false;
+
+            SaveFile(_project);
+
+            _project = null;
+            return true;
+        }
+
         private void OnOperationProgressUpdate(int operationIndex)
         {
             float avgProgress = 0.0f;
@@ -427,6 +571,8 @@ namespace TheraEditor
             TargetOperationValue = value;
             //toolStripProgressBar1.ProgressBar.Value = TargetOperationValue;
         }
+
+        public string GetDockingConfigPath() => Project?.EditorSettings?.GetFullDockConfigPath();
 
         public void EndOperation(int index)
         {
@@ -468,6 +614,18 @@ namespace TheraEditor
                 Operations[i]?.Cancel();
 
             EndOperation(-1);
+        }
+
+        public TProject CreateNewProject(string dir, string name)
+        {
+            TProject project = null;
+            Task task = TProject.CreateAsync(
+                  dir, name,
+                  new UserSettings(),
+                  new EngineSettings(),
+                  new EditorSettings()).ContinueWith(t => project = t.Result);
+            task.Wait();
+            return project;
         }
 
         private class OperationInfo

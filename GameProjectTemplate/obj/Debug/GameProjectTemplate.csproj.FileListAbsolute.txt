@@ -12,3 +12,17 @@ C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\
 C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.pdb
 C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplate\obj\Debug\_EmptyResource.resources
 C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.csproj.GenerateResource.cache
+X:\Repositories\TheraEngine\GameProjectTemplate\bin\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate.zip
+X:\Repositories\TheraEngine\GameProjectTemplate\bin\Debug\GameProjectTemplate.dll.config
+X:\Repositories\TheraEngine\GameProjectTemplate\bin\Debug\System.Diagnostics.DiagnosticSource.dll
+X:\Repositories\TheraEngine\GameProjectTemplate\bin\Debug\System.IO.Compression.dll
+X:\Repositories\TheraEngine\GameProjectTemplate\bin\Debug\System.Net.Http.dll
+X:\Repositories\TheraEngine\GameProjectTemplate\bin\Debug\System.Diagnostics.DiagnosticSource.xml
+X:\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.csprojAssemblyReference.cache
+X:\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\_EmptyResource.resources
+X:\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.csproj.GenerateResource.cache
+X:\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.csproj.CoreCompileInputs.cache
+X:\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\CSharp\1033\GameProjectTemplate.zip
+X:\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.csproj.CopyComplete
+X:\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.dll
+X:\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.pdb

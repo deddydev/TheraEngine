@@ -121,7 +121,6 @@ namespace TheraEditor.Windows.Forms
         public TreeView ActorTree => ActorTreeForm.ActorTree;
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 
-        private TProject _project;
         private DeserializeDockContent _deserializeDockContent;
 
         #region Instanced Dock Forms
@@ -226,9 +225,17 @@ namespace TheraEditor.Windows.Forms
 
         private void Instance_ProxyUnset(EngineDomainProxy obj)
         {
-            Engine.DomainProxy.UnregisterWorldManager(WorldManagerId);
-            DomainProxy.PreWorldChanged -= WorldPreChanged;
-            DomainProxy.PostWorldChanged -= WorldPostChanged;
+            try
+            {
+                var proxy = DomainProxy;
+                proxy.UnregisterWorldManager(WorldManagerId);
+                proxy.PreWorldChanged -= WorldPreChanged;
+                proxy.PostWorldChanged -= WorldPostChanged;
+            }
+            catch
+            {
+
+            }
         }
         private void Instance_ProxySet(EngineDomainProxy obj)
         {
@@ -335,9 +342,10 @@ namespace TheraEditor.Windows.Forms
             {
                 string lastOpened = recentFiles[recentFiles.Count - 1];
                 if (!string.IsNullOrEmpty(lastOpened))
-                    Project = await TFileObject.LoadAsync<TProject>(lastOpened);
+                    DomainProxy.LoadProject(lastOpened);
             }
             
+            //Run on UI side
             Engine.Run();
 
             CheckUpdates();
@@ -357,27 +365,31 @@ namespace TheraEditor.Windows.Forms
 
             base.OnFormClosing(e);
         }
-        public void UpdateRecentProjectPaths()
+        public async void UpdateRecentProjectPaths()
         {
-            string projectPath = Project?.FilePath;
-            if (string.IsNullOrWhiteSpace(projectPath))
-                return;
+            try
+            {
+                string projectPath = Project?.FilePath;
+                if (string.IsNullOrWhiteSpace(projectPath))
+                    return;
 
-            //RemoteAction.Invoke(AppDomainHelper.GetGameAppDomain(), DefaultSettingsRef, projectPath, async (dsr, pp) =>
-            //{
-            //    var defaultSettings = await dsr.GetInstanceAsync().ConfigureAwait(false);
-            //    var list = defaultSettings.RecentlyOpenedProjectPaths;
-            //    if (list != null)
-            //    {
-            //        if (list.Contains(pp))
-            //            list.Remove(pp);
-            //        list.Add(pp);
-            //    }
-            //    else
-            //        defaultSettings.RecentlyOpenedProjectPaths = new List<string>() { pp };
+                var defaultSettings = await DefaultSettingsRef.GetInstanceAsync();
+                var list = defaultSettings.RecentlyOpenedProjectPaths;
+                if (list != null)
+                {
+                    if (list.Contains(projectPath))
+                        list.Remove(projectPath);
+                    list.Add(projectPath);
+                }
+                else
+                    defaultSettings.RecentlyOpenedProjectPaths = new List<string>() { projectPath };
 
-            //    await defaultSettings.ExportAsync().ConfigureAwait(false);
-            //});
+                await defaultSettings.ExportAsync();
+            }
+            catch
+            {
+
+            }
         }
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -415,45 +427,38 @@ namespace TheraEditor.Windows.Forms
 #endregion
 
 #region Project Management
-        public TProject Project
-        {
-            get => _project;
-            set => SetProject(value);
-        }
+        public TProject Project => DomainProxy.Project;
+        
         public static List<IFileEditorControl> OpenEditors { get; } = new List<IFileEditorControl>(); 
         private bool CloseProject()
         {
-            if (_project is null)
-                return true;
+            try
+            {
+                if (DomainProxy.Project is null)
+                    return true;
 
-            var editors = OpenEditors.ToArray();
-            foreach (var form in editors)
-                if (form.AllowFileClose())
-                    ((Form)form).Close();
+                string configFile = DomainProxy.GetDockingConfigPath();
+                if (DomainProxy.TryCloseProject())
+                {
+                    var editors = OpenEditors.ToArray();
+                    foreach (var form in editors)
+                        if (form.AllowFileClose())
+                            ((Form)form).Close();
+                        else
+                            return false;
+
+                    if (configFile != null && configFile.IsExistingDirectoryPath() == false)
+                        DockPanel.SaveAsXml(configFile);
+
+                    ClearDockPanel();
+                }
                 else
                     return false;
-            
-            if (_project.EditorState != null && _project.EditorState.HasChanges)
-            {
-                DialogResult r = MessageBox.Show(this, "Save changes to current project?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-                switch (r)
-                {
-                    case DialogResult.Cancel:
-                        return false;
-                    case DialogResult.Yes:
-                        DomainProxy.SaveFile(_project);
-                        break;
-                }
             }
+            catch
+            {
 
-            string configFile = _project.EditorSettings?.GetFullDockConfigPath();
-            if (configFile != null && configFile.IsExistingDirectoryPath() == false)
-                DockPanel.SaveAsXml(configFile);
-
-            ClearDockPanel();
-
-            _project.EditorState = null;
-            _project = null;
+            }
             return true;
         }
         /// <summary>
@@ -470,18 +475,21 @@ namespace TheraEditor.Windows.Forms
         }
         private void ProjectCreatorForm_ProjectCreated()
         {
-            Project = ProjectCreatorForm.Project;
+            DomainProxy.Project = ProjectCreatorForm.Project;
             PropertyGridForm.PropertyGrid.TargetObject = Project;
         }
-        public async void OpenProject()
+        public void OpenProject()
         {
+            if (!CloseProject())
+                return;
+
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = TFileObject.GetFilter<TProject>(),
             })
             {
-                if (ofd.ShowDialog(this) == DialogResult.OK && CloseProject())
-                    Project = await TFileObject.LoadAsync<TProject>(ofd.FileName);
+                if (ofd.ShowDialog(this) == DialogResult.OK)
+                    DomainProxy.LoadProject(ofd.FileName);
             }
         }
         private void SetProject(TProject value)
@@ -500,7 +508,7 @@ namespace TheraEditor.Windows.Forms
             //Engine.ShutDown();
             //Engine.SetGame(_project);
 
-            bool projectOpened = _project != null;
+            bool projectOpened = Project != null;
             btnEngineSettings.Enabled =
             btnProjectSettings.Enabled =
             btnUserSettings.Enabled =
@@ -513,7 +521,9 @@ namespace TheraEditor.Windows.Forms
 
             if (projectOpened)
             {
-                _project.CreateGameDomain(false, OnCompiled);
+                //Problem: project needs to exist in its own game domain
+                //Create domain using project, load project AGAIN in domain, 
+                value.CreateGameDomain(false, OnCompiled);
 
                 string configFile = _project.EditorSettings?.GetFullDockConfigPath();
                 //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
@@ -563,9 +573,10 @@ namespace TheraEditor.Windows.Forms
 
         private void OnCompiled()
         {
-            var errors = _project?.LastBuildLog?.Errors;
+            var project = Project;
+            var errors = project?.LastBuildLog?.Errors;
             if (errors != null && errors.Count > 0)
-                _project.LastBuildLog.Display();
+                project.LastBuildLog.Display();
         }
 
 #endregion

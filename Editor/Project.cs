@@ -933,7 +933,7 @@ namespace TheraEditor
                     return;
                 }
 
-                Editor.Instance.CreateGameDomain(this, rootDir, AssemblyPaths);
+                Editor.Instance.CreateGameDomain(FilePath, rootDir, AssemblyPaths);
             //}).ContinueWith(t =>
             //{
                 onComplete?.Invoke();

@@ -489,26 +489,15 @@ namespace TheraEditor.Windows.Forms
             })
             {
                 if (ofd.ShowDialog(this) == DialogResult.OK)
-                    DomainProxy.LoadProject(ofd.FileName);
+                    LoadProject(ofd.FileName);
             }
         }
-        private void SetProject(TProject value)
+        public void SetProject(TProject project)
         {
-            if (value != null && _project == value)
-                return;
-
-            if (!CloseProject())
-                return;
-
-            GameState = EEditorGameplayState.Editing;
-
-            _project = value;
-            Engine.PrintLine($"Set project to {(value?.ToString() ?? "null")}.");
-
             //Engine.ShutDown();
             //Engine.SetGame(_project);
 
-            bool projectOpened = Project != null;
+            bool projectOpened = project != null;
             btnEngineSettings.Enabled =
             btnProjectSettings.Enabled =
             btnUserSettings.Enabled =
@@ -521,11 +510,20 @@ namespace TheraEditor.Windows.Forms
 
             if (projectOpened)
             {
+                if (string.IsNullOrEmpty(project.FilePath))
+                {
+                    var result = ProjectCreatorForm.ShowDialog();
+                    if (result == DialogResult.OK)
+                    {
+                        //ProjectCreatorForm.Project;
+                    }
+                }
+
                 //Problem: project needs to exist in its own game domain
                 //Create domain using project, load project AGAIN in domain, 
-                value.CreateGameDomain(false, OnCompiled);
+                project.CreateGameDomain(false, OnDomainCreated);
 
-                string configFile = _project.EditorSettings?.GetFullDockConfigPath();
+                string configFile = project.EditorSettings?.GetFullDockConfigPath();
                 //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
 
                 if (!string.IsNullOrWhiteSpace(configFile) && File.Exists(configFile))
@@ -541,20 +539,17 @@ namespace TheraEditor.Windows.Forms
                     DockPanel.ResumeLayout(true, true);
                 }
 
-                if (string.IsNullOrEmpty(_project.FilePath))
-                    Text = string.Empty;
-                else
-                {
-                    Text = _project.FilePath;
-                    ContentTree.OpenPath(_project.FilePath);
-                }
+                
+                Text = project.FilePath;
+                ContentTree.OpenPath(project.FilePath);
+                
 
                 //Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
                 //Engine.Initialize();
                 //SetRenderTicking(true);
                 //Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
-                DomainProxy.LoadWorld(_project.OpeningWorldRef.Path.Path);
+                DomainProxy.LoadWorld(project.OpeningWorldRef.Path.Path);
 
                 UpdateRecentProjectPaths();
             }
@@ -569,14 +564,32 @@ namespace TheraEditor.Windows.Forms
                 WelcomeForm.Show(DockPanel, DockState.Document);
                 DockPanel.ResumeLayout(true, true);
             }
+
+            Engine.PrintLine($"Set project to {(project?.ToString() ?? "null")}.");
+        }
+        public async void LoadProject(string projectPath)
+        {
+            if (!CloseProject())
+                return;
+
+            GameState = EEditorGameplayState.Editing;
+
+            TProject project = null;
+
+            if (projectPath != null && File.Exists(projectPath))
+                project = await TFileObject.LoadAsync<TProject>(projectPath);
+
+            SetProject(project);
         }
 
-        private void OnCompiled()
+        private void OnDomainCreated(TProject project)
         {
-            var project = Project;
             var errors = project?.LastBuildLog?.Errors;
             if (errors != null && errors.Count > 0)
                 project.LastBuildLog.Display();
+
+            //Load this project into the domain that the temporary one just made
+            DomainProxy.LoadProject(project.FilePath);
         }
 
 #endregion

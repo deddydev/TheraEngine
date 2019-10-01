@@ -13,12 +13,13 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
         }
         public TProject Project { get; private set; }
-        private void button1_Click(object sender, EventArgs e)
+        private async void btnCreate_Click(object sender, EventArgs e)
         {
-            Project = Editor.DomainProxy.CreateNewProject(txtProjectDir.Text, txtName.Text);
+            Project = await TProject.CreateAsync(txtProjectDir.Text, txtName.Text);
             ProjectCreated?.Invoke();
+            DialogResult = DialogResult.OK;
         }
-        private void button2_Click(object sender, EventArgs e)
+        private void btnCancel_Click(object sender, EventArgs e)
         {
             Close();
         }

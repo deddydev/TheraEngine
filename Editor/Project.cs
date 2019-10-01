@@ -345,7 +345,8 @@ namespace TheraEditor
             LocalTempDirectory = tmp;
             LocalLibrariesDirectory = lib;
         }
-
+        public static async Task<TProject> CreateAsync(string directory, string name)
+            => await CreateAsync(directory, name, new UserSettings(), new EngineSettings(), new EditorSettings());
         public static async Task<TProject> CreateAsync(
             string directory,
             string name,
@@ -919,7 +920,7 @@ namespace TheraEditor
         }
         
         //[TPostDeserialize(arguments: false)]
-        internal async void CreateGameDomain(bool compiling = false, Action onComplete = null)
+        internal async void CreateGameDomain(bool compiling = false, Action<TProject> onComplete = null)
         {
             //Task.Run(async () =>
             //{
@@ -927,7 +928,7 @@ namespace TheraEditor
                 string buildConfiguration = "Debug";
 
                 string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
-                if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths is null))
+                if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths is null || AssemblyPaths.Any(x => !File.Exists(x))))
                 {
                     await CompileAsync(buildConfiguration, buildPlatform);
                     return;
@@ -936,7 +937,7 @@ namespace TheraEditor
                 Editor.Instance.CreateGameDomain(FilePath, rootDir, AssemblyPaths);
             //}).ContinueWith(t =>
             //{
-                onComplete?.Invoke();
+                onComplete?.Invoke(this);
             //});
         }
 

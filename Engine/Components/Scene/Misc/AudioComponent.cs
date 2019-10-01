@@ -54,16 +54,14 @@ namespace TheraEngine.Components.Scene
         /// <summary>
         /// Plays the sound.
         /// </summary>
-        /// <returns>A unique identifier for the new instance of this audio.</returns>
-        public AudioInstance Play()
+        public async void Play()
         {
-            AudioFile file = AudioFileRef?.File;
+            AudioFile file = await AudioFileRef?.GetInstanceAsync();
             if (file is null)
-                return null;
+                return;
 
             AudioInstance instance = Engine.Audio.Play(this);
             _instances.Add(instance);
-            return instance;
         }
 
         protected override void OnWorldTransformChanged()

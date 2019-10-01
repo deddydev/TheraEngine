@@ -45,11 +45,9 @@ namespace TheraEditor.Wrappers
 
         public ProjectWrapper() : base(_menu) { ResourceRef.LoadInGameDomain = false; }
         
-        public override async void EditResource()
+        public override void EditResource()
         {
-            var res = await ResourceRef.GetInstanceAsync();
-
-            Editor.Instance.Project = res;
+            Editor.Instance.LoadProject(ResourceRef.Path.Path);
         }
     }
 }

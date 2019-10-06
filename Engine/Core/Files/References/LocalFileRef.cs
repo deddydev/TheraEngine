@@ -53,17 +53,23 @@ namespace TheraEngine.Core.Files
                 return _file;
 
             IsLoading = true;
+            T value = null;
+            try
+            {
 
-            bool allowLoad = !LoadAttempted;
-            var (instance, _, loadAttempted) = await LoadNewInstanceAsync(progress, cancel, allowLoad);
-            if (allowLoad)
-                LoadAttempted = loadAttempted;
+                bool allowLoad = !LoadAttempted;
+                var (instance, _, loadAttempted) = await LoadNewInstanceAsync(progress, cancel, allowLoad);
+                if (allowLoad)
+                    LoadAttempted = loadAttempted;
 
-            File = instance;
-
-            IsLoading = false;
-
-            return instance;
+                File = value = instance;
+            }
+            catch { }
+            finally
+            {
+                IsLoading = false;
+            }
+            return value;
         }
         
         public static implicit operator LocalFileRef<T>(T file) => file is null ? null : new LocalFileRef<T>(file);

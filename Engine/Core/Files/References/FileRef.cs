@@ -236,10 +236,14 @@ namespace TheraEngine.Core.Files
         {
             if (IsLoading || IsLoaded)
                 return _file;
-            GetInstanceAsync().ContinueWith(t => { });
-            return _file;
+
+            Task<T> task = Task.Run(async () => await GetInstanceAsync());
+
+            return task.Result;
         }
-        public async void LoadInstance() => await GetInstanceAsync();
+
+        public async void LoadInstance() 
+            => await GetInstanceAsync();
 
         async Task<IFileObject> IFileRef.GetInstanceAsync() 
             => await GetInstanceAsync();
@@ -248,6 +252,11 @@ namespace TheraEngine.Core.Files
 
         public async Task<T> GetInstanceAsync() 
             => await GetInstanceAsync(null, CancellationToken.None);
+
+        public async Task GetInstanceSync()
+        {
+            await GetInstanceAsync();
+        }
 
         public abstract Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
 

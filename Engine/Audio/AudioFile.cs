@@ -14,14 +14,14 @@ namespace TheraEngine.Audio
     public class AudioFile : TFileObject
     {
         [Browsable(false)]
-        [TSerialize(IsElementString = true)]
-        public byte[] Samples { get; private set; }
+        [TSerialize]
+        public byte[] Samples { get; set; }
         [TSerialize(IsAttribute = true)]
-        public int Channels { get; private set; }
+        public int Channels { get; set; }
         [TSerialize(IsAttribute = true)]
-        public int BitsPerSample { get; private set; }
+        public int BitsPerSample { get; set; }
         [TSerialize(IsAttribute = true)]
-        public int SampleRate { get; private set; }
+        public int SampleRate { get; set; }
 
         [Browsable(false)]
         public HashSet<AudioInstance> Instances { get; } = new HashSet<AudioInstance>();

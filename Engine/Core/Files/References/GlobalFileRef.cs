@@ -134,60 +134,67 @@ namespace TheraEngine.Core.Files
                 return _file;
 
             IsLoading = true;
-
-            string absolutePath = Path.Path;
-            if (absolutePath != null)
+            T value = null;
+            try
             {
-                if (Context is null)
+                string absolutePath = Path.Path;
+                if (absolutePath != null)
                 {
-                    if (GlobalFileInstances.TryGetValue(absolutePath, out IFileObject file))
+                    if (Context is null)
                     {
-                        if (file != null)
+                        if (GlobalFileInstances.TryGetValue(absolutePath, out IFileObject file))
                         {
-                            if (file is T casted)
+                            if (file != null)
                             {
-                                //casted.References.Add(this);
-                                File = casted;
-                                IsLoading = false;
-                                return casted;
+                                if (file is T casted)
+                                {
+                                    //casted.References.Add(this);
+                                    File = casted;
+                                    return casted;
+                                }
+                                else
+                                    Engine.LogWarning(file.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
                             }
-                            else
-                                Engine.LogWarning(file.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
+                        }
+                    }
+                    else
+                    {
+                        if (Context.GlobalFileInstances.TryGetValue(absolutePath, out T file))
+                        {
+                            File = file;
+                            return file;
                         }
                     }
                 }
-                else
+
+                bool allowLoad = !LoadAttempted;
+                var (instance, _, loadAttempted) = await LoadNewInstanceAsync(progress, cancel, allowLoad);
+                if (allowLoad)
+                    LoadAttempted = loadAttempted;
+
+                File = value = instance;
+
+                if (absolutePath != null)
                 {
-                    if (Context.GlobalFileInstances.TryGetValue(absolutePath, out T file))
+                    if (Context is null)
                     {
-                        File = file;
-                        IsLoading = false;
-                        return file;
+                        GlobalFileInstances.AddOrUpdate(absolutePath, instance, (key, oldValue) => instance);
+                    }
+                    else
+                    {
+                        Context.GlobalFileInstances.AddOrUpdate(absolutePath, instance, (key, oldValue) => instance);
                     }
                 }
             }
-
-            bool allowLoad = !LoadAttempted;
-            var (instance, _, loadAttempted) = await LoadNewInstanceAsync(progress, cancel, allowLoad);
-            if (allowLoad)
-                LoadAttempted = loadAttempted;
-
-            File = instance;
-
-            if (absolutePath != null)
+            catch
             {
-                if (Context is null)
-                {
-                    GlobalFileInstances.AddOrUpdate(absolutePath, instance, (key, oldValue) => instance);
-                }
-                else
-                {
-                    Context.GlobalFileInstances.AddOrUpdate(absolutePath, instance, (key, oldValue) => instance);
-                }
-            }
 
-            IsLoading = false;
-            return instance;
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+            return value;
         }
         
         public static implicit operator GlobalFileRef<T>(T file) => file is null ? null : new GlobalFileRef<T>(file);

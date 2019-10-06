@@ -46,6 +46,10 @@ namespace CSharpAnalyzer
                 Console.WriteLine($"Finished loading solution '{solutionPath}'");
 
                 // TODO: Do analysis on the projects in the loaded solution
+                foreach (var project in solution.Projects)
+                {
+                    
+                }
             }
         }
 

@@ -286,7 +286,7 @@ namespace TheraEditor.Wrappers
         private static bool Is3rdPartyImportable(TypeProxy t)
             => IsFileObject(t) && (t?.GetCustomAttribute<TFileExt>().HasAnyImportableExtensions ?? false);
         
-        private static async void OnImportClickAsync(object sender, EventArgs e)
+        private static void OnImportClickAsync(object sender, EventArgs e)
         {
             if (!(sender is ToolStripMenuItem button) || !(button.Tag is TypeProxy fileType))
                 return;

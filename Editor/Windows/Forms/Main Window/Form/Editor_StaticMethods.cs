@@ -59,7 +59,8 @@ namespace TheraEditor.Windows.Forms
             => Instance.Project?.EditorSettingsOverrideRef ?? DefaultSettingsRef;
         public static EditorSettings GetSettings()
         {
-            var settings = GetSettingsRef()?.File;
+            var fref = GetSettingsRef();
+            var settings = fref?.GetInstance();
             AppDomainHelper.Sponsor(settings);
             return settings;
         }

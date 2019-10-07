@@ -92,7 +92,7 @@ namespace TheraEditor
         public Intellisense Intellisense { get; } = new Intellisense();
 
         [TSerialize]
-        public string[] AssemblyPaths { get; private set; }
+        public PathReference[] AssemblyPaths { get; private set; }
 
         [TString(false, true, false, true)]
         [TSerialize]
@@ -818,7 +818,7 @@ namespace TheraEditor
                 if (success)
                 {
                     ITaskItem[] buildItems = result.ResultsByTarget["Build"].Items;
-                    AssemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
+                    AssemblyPaths = buildItems.Select(x => new PathReference(x.ItemSpec, EPathType.FileRelative)).ToArray();
 
                     Editor.Instance.CopyEditorLibraries(AssemblyPaths);
 
@@ -928,7 +928,7 @@ namespace TheraEditor
                 string buildConfiguration = "Debug";
 
                 string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
-                if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths is null || AssemblyPaths.Any(x => !File.Exists(x))))
+                if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths is null || AssemblyPaths.Any(x => !File.Exists(x.Path))))
                 {
                     await CompileAsync(buildConfiguration, buildPlatform);
                     return;

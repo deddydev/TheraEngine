@@ -150,7 +150,7 @@ namespace TheraEditor.Windows.Forms
 
         private AppDomainContext<TheraAssemblyTargetLoader, TheraAssemblyResolver> _gameDomain;
 
-        public void CopyEditorLibraries(string[] assemblyPaths)
+        public void CopyEditorLibraries(PathReference[] assemblyPaths)
         {
             if (assemblyPaths is null || assemblyPaths.Length == 0)
                 return;
@@ -163,14 +163,19 @@ namespace TheraEditor.Windows.Forms
 
             foreach (var compiledDLLPath in assemblyPaths)
             {
+                string compiledDLLDir = Path.GetDirectoryName(compiledDLLPath.Path);
+                if (!Directory.Exists(compiledDLLDir))
+                {
+                    Engine.LogWarning($"DLL directory does not exist at {compiledDLLDir}");
+                    continue;
+                }
+
                 foreach (var editorDLLPath in editorDLLPaths)
                 {
                     string editorDLLName = Path.GetFileName(editorDLLPath);
-                    string compiledDLLDir = Path.GetDirectoryName(compiledDLLPath);
                     string[] compiledDirDLLS = Directory.GetFiles(compiledDLLDir);
 
-                    //if (!compiledDirDLLS.Any(path => Path.GetFileName(path).
-                    //    EqualsInvariantIgnoreCase(editorDLLName)))
+                    //if (!compiledDirDLLS.Any(path => Path.GetFileName(path).EqualsInvariantIgnoreCase(editorDLLName)))
                     //{
                     //Copy the editor's dll to the compile path
                     string destPath = Path.Combine(compiledDLLDir, editorDLLName);
@@ -180,7 +185,7 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public void CreateGameDomain(string projectPath, string rootDir, string[] assemblyPaths)
+        public void CreateGameDomain(string projectPath, string rootDir, PathReference[] assemblyPaths)
         {
             DestroyGameDomain();
 
@@ -201,7 +206,7 @@ namespace TheraEditor.Windows.Forms
                     ApplicationBase = rootDir,
                     PrivateBinPath = rootDir,
                     ShadowCopyFiles = "true",
-                    ShadowCopyDirectories = assemblyPaths is null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x))),
+                    ShadowCopyDirectories = assemblyPaths is null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x.Path))),
                     LoaderOptimization = LoaderOptimization.MultiDomain,
                     //DisallowApplicationBaseProbing = true,
                 };
@@ -210,14 +215,14 @@ namespace TheraEditor.Windows.Forms
                     Create<TheraAssemblyTargetLoader, TheraAssemblyResolver>(setupInfo);
 
                 if (assemblyPaths != null)
-                    foreach (string path in assemblyPaths)
+                    foreach (PathReference path in assemblyPaths)
                     {
-                        FileInfo file = new FileInfo(path);
+                        FileInfo file = new FileInfo(path.Path);
                         if (!file.Exists)
                             continue;
 
+                        _gameDomain.LoadAssembly(LoadMethod.LoadBits, path.Path);
                         _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
-                        _gameDomain.LoadAssembly(LoadMethod.LoadBits, path);
                     }
 
                 Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, projectPath);
@@ -303,7 +308,7 @@ namespace TheraEditor.Windows.Forms
                         assembly = Assembly.ReflectionOnlyLoad(File.ReadAllBytes(assemblyPath));
                         break;
                     default:
-                        // In case we upadate the enum but forget to update this logic.
+                        // In case we update the enum but forget to update this logic.
                         throw new NotSupportedException("The target load method isn't supported!");
                 }
 

@@ -56,7 +56,7 @@ namespace TheraEditor.Wrappers
         {
             if (_menu.InvokeRequired)
             {
-                _menu.Invoke((Action<bool>)LoadFileTypes);
+                _menu.Invoke((Action<bool>)LoadFileTypes, now);
                 return;
             }
 

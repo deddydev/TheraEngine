@@ -16,7 +16,10 @@ namespace WindowsNativeInterop
     [StructLayout(LayoutKind.Sequential)]
     public struct APPBARDATA
     {
-        public int cbSize; // initialize this field using: Marshal.SizeOf(typeof(APPBARDATA));
+        /// <summary>
+        /// Initialize this field using Marshal.SizeOf(typeof(APPBARDATA));
+        /// </summary>
+        public int cbSize;
         public IntPtr hWnd;
         public uint uCallbackMessage;
         public uint uEdge;

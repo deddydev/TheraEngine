@@ -545,9 +545,7 @@
     <Compile Include="Windows\Forms\Main Window\AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Form\Editor_Operations.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Form\Editor_Operations.cs" />
     <Compile Include="Windows\Forms\Main Window\Form\Editor_StaticMembers.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -92,7 +92,7 @@ namespace TheraEngine.Core.Files.XML
     {
         public static async Task<T> ImportAsync(
             string path,
-            ulong ignoreFlags)
+            ulong ignoreFlags = 0ul)
             => await ImportAsync(path, ignoreFlags, null, CancellationToken.None);
         public static async Task<T> ImportAsync(
             string path,

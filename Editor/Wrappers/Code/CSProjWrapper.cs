@@ -53,7 +53,7 @@ namespace TheraEditor.Wrappers
         public override async void EditResource()
         {
             if (Project is null)
-                Project = await XMLSchemaDefinition<MSBuild.Project>.ImportAsync(FilePath, 0ul);
+                Project = await XMLSchemaDefinition<MSBuild.Project>.ImportAsync(FilePath);
             
             Editor.Instance.MSBuildTreeForm.SetProject(Project);
         }

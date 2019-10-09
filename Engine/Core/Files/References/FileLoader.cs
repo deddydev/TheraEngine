@@ -63,7 +63,8 @@ namespace TheraEngine.Core.Files
                 Path = filePath
             };
         }
-        public FileLoader(string dir, string name, EProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
+        public FileLoader(string dir, string name, EProprietaryFileFormat format) 
+            : this(GetFilePath(dir, name, format, typeof(T))) { }
         #endregion
         
         [Browsable(false)]

@@ -34,9 +34,9 @@ namespace TheraEditor.Windows.Forms
         private void BtnOpenProject_Click(object sender, EventArgs e) 
             => OpenProject();
         private void BtnSaveProject_Click(object sender, EventArgs e) 
-            => DomainProxy.SaveProject();
+            => SaveProject();
         private void BtnSaveProjectAs_Click(object sender, EventArgs e) 
-            => DomainProxy.SaveProjectAs();
+            => SaveProjectAs();
         private void BtnNewWorld_Click(object sender, EventArgs e)
             => CreateNewWorld();
         private void BtnOpenWorld_Click(object sender, EventArgs e)
@@ -58,7 +58,7 @@ namespace TheraEditor.Windows.Forms
 
         }
         private void btnCloseProject_Click(object sender, EventArgs e)
-            => DomainProxy.TryCloseProject();
+            => TryCloseProject();
         private void btnCloseWorld_Click(object sender, EventArgs e)
             => TryCloseWorld();
         private void btnUndo_Click(object sender, EventArgs e)
@@ -132,11 +132,11 @@ namespace TheraEditor.Windows.Forms
         private void BtnProjectSettings_Click(object sender, EventArgs e)
             => PropertyGridForm.PropertyGrid.TargetObject = Project;
         private void BtnEngineSettings_Click(object sender, EventArgs e) 
-            => PropertyGridForm.PropertyGrid.TargetObject = Project?.EngineSettingsOverrideRef;
+            => PropertyGridForm.PropertyGrid.TargetObject = Project?.Game?.EngineSettingsOverrideRef;
         private void BtnEditorSettings_Click(object sender, EventArgs e)
             => PropertyGridForm.PropertyGrid.TargetObject = DefaultSettingsRef;
         private void BtnUserSettings_Click(object sender, EventArgs e) 
-            => PropertyGridForm.PropertyGrid.TargetObject = Project?.UserSettingsRef;
+            => PropertyGridForm.PropertyGrid.TargetObject = Project?.Game?.UserSettingsRef;
         private void BtnWorldSettings_Click(object sender, EventArgs e) 
             => PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.SettingsRef;
         private void BtnNewMaterial_Click(object sender, EventArgs e) 
@@ -185,7 +185,7 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public void CreateGameDomain(string projectPath, string rootDir, PathReference[] assemblyPaths)
+        public void CreateGameDomain(string gamePath, string rootDir, PathReference[] assemblyPaths)
         {
             DestroyGameDomain();
 
@@ -199,7 +199,7 @@ namespace TheraEditor.Windows.Forms
             {
                 CopyEditorLibraries(assemblyPaths);
 
-                string name = Path.GetFileNameWithoutExtension(projectPath);
+                string name = Path.GetFileNameWithoutExtension(gamePath);
                 AppDomainSetup setupInfo = new AppDomainSetup()
                 {
                     ApplicationName = name,
@@ -225,7 +225,7 @@ namespace TheraEditor.Windows.Forms
                         _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
                     }
 
-                Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, projectPath);
+                Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, gamePath);
             }
             catch (Exception ex)
             {
@@ -296,24 +296,19 @@ namespace TheraEditor.Windows.Forms
             }
             public Assembly ReflectionOnlyLoadAssembly(LoadMethod loadMethod, string assemblyPath)
             {
-                Assembly assembly;
-                switch (loadMethod)
+                switch(loadMethod)
                 {
                     case LoadMethod.LoadFrom:
-                        assembly = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
-                        break;
+                        return Assembly.ReflectionOnlyLoadFrom(assemblyPath);
                     case LoadMethod.LoadFile:
                         throw new NotSupportedException("The target load method isn't supported!");
                     case LoadMethod.LoadBits:
-                        assembly = Assembly.ReflectionOnlyLoad(File.ReadAllBytes(assemblyPath));
-                        break;
+                        return Assembly.ReflectionOnlyLoad(File.ReadAllBytes(assemblyPath));
                     default:
-                        // In case we update the enum but forget to update this logic.
                         throw new NotSupportedException("The target load method isn't supported!");
-                }
-
-                return assembly;
+                };
             }
+
             /// <inheritdoc />
             /// <remarks>
             /// This implementation will perform a best-effort load of the target assembly and its required references

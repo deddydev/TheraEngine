@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -17,7 +16,6 @@ using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.XML;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.ThirdParty;
-using WeifenLuo.WinFormsUI.Docking;
 using static TheraEngine.ThirdParty.MSBuild;
 using static TheraEngine.ThirdParty.MSBuild.Item;
 using static TheraEngine.ThirdParty.MSBuild.Project;
@@ -29,7 +27,7 @@ namespace TheraEditor
     /// </summary>
     [TFileExt("tproj", PreferredFormat = EProprietaryFileFormat.XML)]
     [TFileDef("Thera Engine Project")]
-    public class TProject : TGame
+    public class TProject : TFileObject
     {
         public delegate void DelCompileBegun(TProject project);
 
@@ -43,7 +41,10 @@ namespace TheraEditor
 
         [TSerialize]
         public string IntermediateBuildDirectory { get; private set; } = "obj";
-
+        [TSerialize]
+        public LocalFileRef<TGame> GameRef { get; private set; } = new LocalFileRef<TGame>();
+        public TGame Game => GameRef.File;
+        
         /// <summary>
         /// This is the global GUID for a C# project.
         /// </summary>
@@ -292,6 +293,7 @@ namespace TheraEditor
         {
             MakePaths(directory);
             FilePath = GetFilePath<TProject>(directory, Name, EProprietaryFileFormat.XML);
+
             void Update<T>(ref GlobalFileRef<T> gref, string defaultName) where T : TFileObject, new()
             {
                 if (gref is null)
@@ -307,9 +309,29 @@ namespace TheraEditor
             }
 
             Update(ref _projectStateRef, nameof(ProjectState));
-            Update(ref _userSettingsRef, nameof(UserSettings));
-            Update(ref _engineSettingsRef, nameof(EngineSettings));
             Update(ref _editorSettingsRef, nameof(EditorSettings));
+
+            if (Game.UserSettingsRef is null)
+            {
+                Game.UserSettingsRef = new GlobalFileRef<UserSettings>(
+                    directory, nameof(UserSettings), EProprietaryFileFormat.XML, new UserSettings());
+            }
+            else
+            {
+                Game.UserSettingsRef.Path.Path = GetFilePath<UserSettings>(
+                    directory, Game.UserSettingsRef.File?.Name ?? nameof(UserSettings), EProprietaryFileFormat.XML);
+            }
+
+            if (Game.EngineSettingsOverrideRef is null)
+            {
+                Game.EngineSettingsOverrideRef = new GlobalFileRef<EngineSettings>(
+                    directory, nameof(EngineSettings), EProprietaryFileFormat.XML, new EngineSettings());
+            }
+            else
+            {
+                Game.EngineSettingsOverrideRef.Path.Path = GetFilePath<EngineSettings>(
+                    directory, Game.EngineSettingsOverrideRef.File?.Name ?? nameof(EngineSettings), EProprietaryFileFormat.XML);
+            }
         }
 
         private void MakePaths(string directory)
@@ -391,6 +413,17 @@ namespace TheraEditor
                 LocalTempDirectory = tmp,
                 LocalLibrariesDirectory = lib,
 
+                GameRef = new LocalFileRef<TGame>(cfgDir, name, EProprietaryFileFormat.XML, new TGame()
+                {
+                    UserSettingsRef
+                        = new GlobalFileRef<UserSettings>(cfgDir, nameof(UserSettings),
+                        EProprietaryFileFormat.XML, userSettings),
+
+                    EngineSettingsOverrideRef
+                        = new GlobalFileRef<EngineSettings>(cfgDir, nameof(EngineSettings),
+                        EProprietaryFileFormat.XML, engineSettings),
+                }),
+
                 FilePath
                     = GetFilePath<TProject>(directory, name,
                     EProprietaryFileFormat.XML),
@@ -398,14 +431,6 @@ namespace TheraEditor
                 ProjectStateRef
                     = new GlobalFileRef<ProjectState>(directory, nameof(ProjectState),
                     EProprietaryFileFormat.XML, state),
-
-                UserSettingsRef
-                    = new GlobalFileRef<UserSettings>(cfgDir, nameof(UserSettings),
-                    EProprietaryFileFormat.XML, userSettings),
-
-                EngineSettingsOverrideRef
-                    = new GlobalFileRef<EngineSettings>(cfgDir, nameof(EngineSettings),
-                    EProprietaryFileFormat.XML, engineSettings),
 
                 EditorSettingsOverrideRef
                     = new GlobalFileRef<EditorSettings>(cfgDir, nameof(EditorSettings),
@@ -934,7 +959,7 @@ namespace TheraEditor
                     return;
                 }
 
-                Editor.Instance.CreateGameDomain(FilePath, rootDir, AssemblyPaths);
+                Editor.Instance.CreateGameDomain(Game?.FilePath, rootDir, AssemblyPaths);
             //}).ContinueWith(t =>
             //{
                 onComplete?.Invoke(this);

@@ -68,9 +68,6 @@ namespace TheraEditor
         public void SaveWorld() => SaveFile(World);
         public void SaveWorldAs() => SaveFileAs(World);
 
-        public void SaveProject() => SaveFile(Project);
-        public void SaveProjectAs() => SaveFileAs(Project);
-
         public void RemoveRenderHandlerFromEditorGameMode(IntPtr handle)
         {
             if (Contexts.ContainsKey(handle))
@@ -223,6 +220,9 @@ namespace TheraEditor
 
         public async override void LoadWorld(string filePath)
         {
+            if (filePath.IsExistingDirectoryPath() != false)
+                return;
+
             World world = await RunOperationAsync(
                 "Loading world from " + filePath, "World loaded successfully.",
                 async (p, c) => await TFileObject.LoadAsync<World>(filePath, p, c.Token));
@@ -317,55 +317,41 @@ namespace TheraEditor
         {
             if (fileType.ContainsGenericParameters)
             {
-                using (GenericsSelector gs = new GenericsSelector(fileType))
-                {
-                    if (gs.ShowDialog(Editor.Instance) == DialogResult.OK)
-                        fileType = gs.FinalClassType;
-                    else
-                        return;
-                }
+                using GenericsSelector gs = new GenericsSelector(fileType);
+                if (gs.ShowDialog(Editor.Instance) == DialogResult.OK)
+                    fileType = gs.FinalClassType;
+                else
+                    return;
             }
 
             string filter = TFileObject.GetFilter((Type)fileType, true, true, true, false);
-            using (OpenFileDialog ofd = new OpenFileDialog()
+            using OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = filter,
                 Title = "Import File"
-            })
-            {
-                DialogResult r = ofd.ShowDialog(Editor.Instance);
-                if (r != DialogResult.OK)
-                    return;
+            };
 
-                string name = Path.GetFileNameWithoutExtension(ofd.FileName);
-                //ResourceTree tree = Editor.Instance.ContentTree;
-                string path = ofd.FileName;
+            DialogResult r = ofd.ShowDialog(Editor.Instance);
+            if (r != DialogResult.OK)
+                return;
 
-                object file = await Editor.RunOperationAsync(
-                    $"Importing '{path}'...", "Import completed.", async (p, c) =>
-                    await TFileObject.LoadAsync((Type)fileType, path, p, c.Token));
+            string name = Path.GetFileNameWithoutExtension(ofd.FileName);
+            //ResourceTree tree = Editor.Instance.ContentTree;
+            string path = ofd.FileName;
 
-                if (file is null || !Serializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
-                    return;
+            object file = await Editor.RunOperationAsync(
+                $"Importing '{path}'...", "Import completed.", async (p, c) =>
+                await TFileObject.LoadAsync((Type)fileType, path, p, c.Token));
 
-                Serializer serializer = new Serializer();
-                await Editor.RunOperationAsync($"Saving to '{filePath}'...", "Saved successfully.", async (p, c) =>
-                await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, p, c.Token));
-            }
+            if (file is null || !Serializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
+                return;
+
+            Serializer serializer = new Serializer();
+            await Editor.RunOperationAsync($"Saving to '{filePath}'...", "Saved successfully.", async (p, c) =>
+            await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, p, c.Token));
         }
 
         public int TargetOperationValue { get; private set; }
-
-        public async void LoadProject(string path)
-        {
-            Project = await TFileObject.LoadAsync<TProject>(path);
-        }
-        public TProject Project
-        {
-            get => _project;
-            set => _project = value;
-        }
-        private TProject _project;
 
         public async Task<T> RunOperationAsync<T>(
             string statusBarMessage,
@@ -420,30 +406,6 @@ namespace TheraEditor
             return index;
         }
 
-        public bool TryCloseProject()
-        {
-            if (_project?.EditorState is null || !_project.EditorState.HasChanges)
-            {
-                _project = null;
-                return true;
-            }
-            
-            DialogResult result = MessageBox.Show(
-                Editor.Instance,
-                "Save changes to current project?",
-                "Save changes?",
-                MessageBoxButtons.YesNoCancel,
-                MessageBoxIcon.Exclamation);
-
-            if (result == DialogResult.Cancel)
-                return false;
-
-            SaveFile(_project);
-
-            _project = null;
-            return true;
-        }
-
         private void OnOperationProgressUpdate(int operationIndex)
         {
             float avgProgress = 0.0f;
@@ -473,8 +435,6 @@ namespace TheraEditor
             TargetOperationValue = value;
             //toolStripProgressBar1.ProgressBar.Value = TargetOperationValue;
         }
-
-        public string GetDockingConfigPath() => Project?.EditorSettings?.GetFullDockConfigPath();
 
         public void EndOperation(int index)
         {

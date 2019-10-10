@@ -96,7 +96,7 @@ namespace AppDomainToolkit
             // Create the new domain and wrap it for disposal.
             this.wrappedDomain = new DisposableAppDomain(createDomain(setupInfo, setupInfo.ApplicationName));
 
-            AppDomain.CurrentDomain.AssemblyResolve += this.AssemblyImporter.Resolve;
+            //AppDomain.CurrentDomain.AssemblyResolve += this.AssemblyImporter.Resolve;
 
             // Create remotes
             this.loaderProxy = Remote<TAssemblyTargetLoader>.CreateProxy(this.wrappedDomain);
@@ -108,7 +108,7 @@ namespace AppDomainToolkit
                 this.resolverProxy.RemoteObject,
                 (resolver) =>
                 {
-                    AppDomain.CurrentDomain.AssemblyResolve += resolver.Resolve;
+                    //AppDomain.CurrentDomain.AssemblyResolve += resolver.Resolve;
                 });
 
             // Assign proper paths to the remote resolver
@@ -322,13 +322,13 @@ namespace AppDomainToolkit
         }
 
         /// <inheritdoc />
-        public IAssemblyTarget LoadTarget(LoadMethod loadMethod, IAssemblyTarget target)
+        public IAssemblyTarget LoadTarget(ELoadMethod loadMethod, IAssemblyTarget target)
         {
             return this.LoadAssembly(loadMethod, target.CodeBase.LocalPath);
         }
 
         /// <inheritdoc />
-        public IEnumerable<IAssemblyTarget> LoadTargetWithReferences(LoadMethod loadMethod, IAssemblyTarget target)
+        public IEnumerable<IAssemblyTarget> LoadTargetWithReferences(ELoadMethod loadMethod, IAssemblyTarget target)
         {
             return this.LoadAssemblyWithReferences(loadMethod, target.CodeBase.LocalPath);
         }
@@ -339,7 +339,7 @@ namespace AppDomainToolkit
         /// the remote domain assembly resolver will be temporarily set to the value of <paramref name="loadMethod"/>.
         /// It will be reset to the original value after the load is complete.
         /// </remarks>
-        public IAssemblyTarget LoadAssembly(LoadMethod loadMethod, string path, string pdbPath = null)
+        public IAssemblyTarget LoadAssembly(ELoadMethod loadMethod, string path, string pdbPath = null)
         {
             var previousLoadMethod = this.resolverProxy.RemoteObject.LoadMethod;
             this.resolverProxy.RemoteObject.LoadMethod = loadMethod;
@@ -354,7 +354,7 @@ namespace AppDomainToolkit
         /// the remote domain assembly resolver will be temporarily set to the value of <paramref name="loadMethod"/>.
         /// It will be reset to the original value after the load is complete.
         /// </remarks>
-        public IAssemblyTarget ReflectionOnlyLoadAssembly(LoadMethod loadMethod, string path)
+        public IAssemblyTarget ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string path)
         {
             var previousLoadMethod = this.resolverProxy.RemoteObject.LoadMethod;
             this.resolverProxy.RemoteObject.LoadMethod = loadMethod;
@@ -369,7 +369,7 @@ namespace AppDomainToolkit
         /// the remote domain assembly resolver will be temporarily set to the value of <paramref name="loadMethod"/>.
         /// It will be reset to the original value after the load is complete.
         /// </remarks>
-        public IEnumerable<IAssemblyTarget> LoadAssemblyWithReferences(LoadMethod loadMethod, string path)
+        public IEnumerable<IAssemblyTarget> LoadAssemblyWithReferences(ELoadMethod loadMethod, string path)
         {
             var previousLoadMethod = this.resolverProxy.RemoteObject.LoadMethod;
             this.resolverProxy.RemoteObject.LoadMethod = loadMethod;

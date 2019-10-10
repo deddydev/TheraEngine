@@ -788,14 +788,14 @@ namespace TheraEditor
             }
         }
 
-        public async Task CompileAsync()
-            => await CompileAsync(TargetBuildConfiguration, IntPtr.Size == 8 ? "x64" : "x86");
-        public async Task CompileAsync(string buildConfiguration, string buildPlatform)
+        public async Task<bool> CompileAsync(bool createGameDomain = true)
+            => await CompileAsync(TargetBuildConfiguration, IntPtr.Size == 8 ? "x64" : "x86", createGameDomain);
+        public async Task<bool> CompileAsync(string buildConfiguration, string buildPlatform, bool createGameDomain = true)
         {
             if (IsCompiling)
             {
                 Engine.PrintLine("Project is already compiling.");
-                return;
+                return false;
             }
 
             try
@@ -821,10 +821,11 @@ namespace TheraEditor
                     Loggers = new ILogger[] { LastBuildLog }
                 };
 
-                await Task.Run(() =>
-                {
-                    return BuildManager.DefaultBuildManager.Build(buildParams, request);
-                }).ContinueWith(OnBuildCompleted);
+                BuildResult result = await Task.Run(() => BuildManager.DefaultBuildManager.Build(buildParams, request));
+
+                await OnBuildCompleted(result, createGameDomain);
+
+                return result.OverallResult == BuildResultCode.Success;
             }
             catch (Exception ex)
             {
@@ -832,11 +833,11 @@ namespace TheraEditor
                 Engine.LogException(ex);
                 DeleteIntermediateDirectory();
                 CompileCompleted?.Invoke(this, false);
+                return false;
             }
         }
-        private void OnBuildCompleted(Task<BuildResult> buildTask)
+        private async Task OnBuildCompleted(BuildResult result, bool createGameDomain)
         {
-            BuildResult result = buildTask.Result;
             bool success = result.OverallResult == BuildResultCode.Success;
             try
             {
@@ -858,7 +859,9 @@ namespace TheraEditor
                     PrintLine(SolutionPath + " : Build succeeded.");
 
                     Export();
-                    CreateGameDomain(true);
+
+                    if (createGameDomain)
+                        await CreateGameDomainAsync(true);
                 }
                 else
                 {
@@ -945,25 +948,35 @@ namespace TheraEditor
         }
         
         //[TPostDeserialize(arguments: false)]
-        internal async void CreateGameDomain(bool compiling = false, Action<TProject> onComplete = null)
+        internal async Task CreateGameDomainAsync(bool callingAfterCompile)
         {
-            //Task.Run(async () =>
-            //{
-                string buildPlatform = IntPtr.Size == 8 ? "x64" : "x86";
-                string buildConfiguration = "Debug";
+            if (GameRef is null || !GameRef.FileExists)
+            {
+                TGame game = new TGame();
+                GameRef.File = game;
 
-                string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
-                if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths is null || AssemblyPaths.Any(x => !File.Exists(x.Path))))
-                {
-                    await CompileAsync(buildConfiguration, buildPlatform);
+                string path = Path.Combine(DirectoryPath, Name + "." + ExtensionFor<TGame>(EProprietaryFileFormat.XML));
+                GameRef.Path.Path = path;
+
+                await game.ExportAsync(path);
+            }
+
+            string buildPlatform = IntPtr.Size == 8 ? "x64" : "x86";
+            string buildConfiguration = "Debug";
+
+            string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
+            if (!callingAfterCompile && (!Directory.Exists(rootDir) || AssemblyPaths is null || AssemblyPaths.Any(x => !File.Exists(x.Path))))
+            {
+                bool success = await Editor.RunOperationAsync(
+                    "Compiling project...",
+                    "Finished compiling project.",
+                    async (p, c) => await CompileAsync(false));
+
+                if (!success)
                     return;
-                }
+            }
 
-                Editor.Instance.CreateGameDomain(Game?.FilePath, rootDir, AssemblyPaths);
-            //}).ContinueWith(t =>
-            //{
-                onComplete?.Invoke(this);
-            //});
+            Editor.Instance.CreateGameDomain(Game?.FilePath, rootDir, AssemblyPaths);
         }
 
         public void CollectFiles(

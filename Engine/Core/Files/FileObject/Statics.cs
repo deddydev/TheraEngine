@@ -42,6 +42,15 @@ namespace TheraEngine.Core.Files
         public static TFile3rdPartyExt GetFile3rdPartyExtensions<T>() 
             => GetFile3rdPartyExtensions(typeof(T));
 
+        public static string ExtensionFor<T>(EProprietaryFileFormat format)
+            => GetFileExtension<T>()?.GetFullExtension(format);
+        public static string[] ExtensionsForImporting<T>()
+            => GetFileExtension<T>()?.ImportableExtensions;
+        public static string[] ExtensionsForExporting<T>()
+            => GetFileExtension<T>()?.ExportableExtensions;
+        public static string[] ExtensionsForThirdParty<T>()
+            => GetFile3rdPartyExtensions<T>()?.Extensions;
+        
         public static TypeProxy DetermineType(string path)
             => DetermineType(path, out _);
         public static TypeProxy DetermineType(string path, out EFileFormat format)

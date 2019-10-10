@@ -119,7 +119,7 @@ namespace TheraEditor.Windows.Forms
         private async void btnCreate_Click(object sender, EventArgs e)
         {
             TProject project = await TProject.CreateAsync(txtProjectDir.Text, txtName.Text);
-            Editor.Instance.SetProject(project);
+            await Editor.Instance.SetProjectAsync(project);
             Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = project;
         }
         private void btnBrowseProjectDir_Click(object sender, EventArgs e)

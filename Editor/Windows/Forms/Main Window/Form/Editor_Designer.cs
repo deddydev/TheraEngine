@@ -459,12 +459,14 @@ namespace TheraEditor.Windows.Forms
             if (!TryCloseProject())
                 return;
 
-            using OpenFileDialog ofd = new OpenFileDialog()
+            using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = TFileObject.GetFilter<TProject>(),
-            };
-            if (ofd.ShowDialog(this) == DialogResult.OK)
-                LoadProject(ofd.FileName);
+            })
+            {
+                if (ofd.ShowDialog(this) == DialogResult.OK)
+                    LoadProject(ofd.FileName);
+            }
         }
         public void SaveProject() => DomainProxy.SaveFile(Project);
         public void SaveProjectAs() => DomainProxy.SaveFileAs(Project);
@@ -511,12 +513,14 @@ namespace TheraEditor.Windows.Forms
                 DockPanel.SaveAsXml(configFile);
         }
         public string GetDockingConfigPath() => Project?.EditorSettings?.GetFullDockConfigPath();
-        public void SetProject(TProject project)
+        public async Task SetProjectAsync(TProject project)
         {
             //Engine.ShutDown();
             //Engine.SetGame(_project);
 
-            bool projectOpened = project != null;
+            _project = project;
+
+            bool projectOpened = _project != null;
             btnEngineSettings.Enabled =
             btnProjectSettings.Enabled =
             btnUserSettings.Enabled =
@@ -529,7 +533,7 @@ namespace TheraEditor.Windows.Forms
 
             if (projectOpened)
             {
-                if (string.IsNullOrEmpty(project.FilePath))
+                if (string.IsNullOrEmpty(_project.FilePath))
                 {
                     var result = ProjectCreatorForm.ShowDialog();
                     if (result == DialogResult.OK)
@@ -540,9 +544,12 @@ namespace TheraEditor.Windows.Forms
 
                 //Problem: project needs to exist in its own game domain
                 //Create domain using project, load project AGAIN in domain, 
-                project.CreateGameDomain(false, OnDomainCreated);
+                await _project.CreateGameDomainAsync(false); 
+                var errors = _project?.LastBuildLog?.Errors;
+                if (errors != null && errors.Count > 0)
+                    _project.LastBuildLog.Display();
 
-                string configFile = project.EditorSettings?.GetFullDockConfigPath();
+                string configFile = _project.EditorSettings?.GetFullDockConfigPath();
                 //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
 
                 if (!string.IsNullOrWhiteSpace(configFile) && File.Exists(configFile))
@@ -558,15 +565,15 @@ namespace TheraEditor.Windows.Forms
                     DockPanel.ResumeLayout(true, true);
                 }
                 
-                Text = project.FilePath;
-                ContentTree.OpenPath(project.FilePath);
+                Text = _project.FilePath;
+                ContentTree.OpenPath(_project.FilePath);
                 
                 //Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
                 //Engine.Initialize();
                 //SetRenderTicking(true);
                 //Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
-                DomainProxy.LoadWorld(project?.Game?.OpeningWorldRef?.Path?.Path);
+                DomainProxy.LoadWorld(_project?.Game?.OpeningWorldRef?.Path?.Path);
 
                 UpdateRecentProjectPaths();
             }
@@ -582,7 +589,7 @@ namespace TheraEditor.Windows.Forms
                 DockPanel.ResumeLayout(true, true);
             }
 
-            Engine.PrintLine($"Set project to {(project?.ToString() ?? "null")}.");
+            Engine.PrintLine($"Set project to {_project?.ToString() ?? "null"}.");
         }
         public async void LoadProject(string projectPath)
         {
@@ -596,15 +603,7 @@ namespace TheraEditor.Windows.Forms
             if (projectPath != null && File.Exists(projectPath))
                 project = await TFileObject.LoadAsync<TProject>(projectPath);
 
-            SetProject(project);
-        }
-        private void OnDomainCreated(TProject project)
-        {
-            var errors = project?.LastBuildLog?.Errors;
-            if (errors != null && errors.Count > 0)
-                project.LastBuildLog.Display();
-
-            SetProject(project);
+            await SetProjectAsync(project);
         }
 
 #endregion

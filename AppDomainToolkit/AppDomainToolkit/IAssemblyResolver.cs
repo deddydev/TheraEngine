@@ -13,7 +13,7 @@
         /// <summary>
         /// Gets or sets the load method for the resolver.
         /// </summary>
-        LoadMethod LoadMethod { get; set; }
+        ELoadMethod LoadMethod { get; set; }
 
         /// <summary>
         /// Gets or sets the ApplicationBase (path) property.

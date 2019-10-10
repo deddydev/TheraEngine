@@ -317,27 +317,30 @@ namespace TheraEditor
         {
             if (fileType.ContainsGenericParameters)
             {
-                using GenericsSelector gs = new GenericsSelector(fileType);
-                if (gs.ShowDialog(Editor.Instance) == DialogResult.OK)
-                    fileType = gs.FinalClassType;
-                else
-                    return;
+                using (GenericsSelector gs = new GenericsSelector(fileType))
+                {
+                    if (gs.ShowDialog(Editor.Instance) == DialogResult.OK)
+                        fileType = gs.FinalClassType;
+                    else
+                        return;
+                }
             }
 
+            string path, name;
             string filter = TFileObject.GetFilter((Type)fileType, true, true, true, false);
-            using OpenFileDialog ofd = new OpenFileDialog()
+            using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = filter,
                 Title = "Import File"
-            };
+            })
+            {
+                DialogResult r = ofd.ShowDialog(Editor.Instance);
+                if (r != DialogResult.OK)
+                    return;
 
-            DialogResult r = ofd.ShowDialog(Editor.Instance);
-            if (r != DialogResult.OK)
-                return;
-
-            string name = Path.GetFileNameWithoutExtension(ofd.FileName);
-            //ResourceTree tree = Editor.Instance.ContentTree;
-            string path = ofd.FileName;
+                name = Path.GetFileNameWithoutExtension(ofd.FileName);
+                path = ofd.FileName;
+            }
 
             object file = await Editor.RunOperationAsync(
                 $"Importing '{path}'...", "Import completed.", async (p, c) =>

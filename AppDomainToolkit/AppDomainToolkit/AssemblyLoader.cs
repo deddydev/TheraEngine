@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Reflection;
 
     /// <summary>
     /// Used to determine which load context assemblies should be loaded into by the loader.
     /// </summary>
-    public enum LoadMethod
+    public enum ELoadMethod
     {
         /// <summary>
         /// Loads the assembly into the LoadFrom context, which enables the assembly and all it's references to be discovered
@@ -54,18 +55,20 @@
         /// by it's strong name. This can cause problems when loading multiple versions of the same assembly into a single
         /// application domain.
         /// </remarks>
-        public Assembly LoadAssembly(LoadMethod loadMethod, string assemblyPath, string pdbPath = null)
+        public Assembly LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null)
         {
-            Assembly assembly = null;
+            Trace.WriteLine($"Loading from {assemblyPath}");
+
+            Assembly assembly;
             switch (loadMethod)
             {
-                case LoadMethod.LoadFrom:
+                case ELoadMethod.LoadFrom:
                     assembly = Assembly.LoadFrom(assemblyPath);
                     break;
-                case LoadMethod.LoadFile:
+                case ELoadMethod.LoadFile:
                     assembly = Assembly.LoadFile(assemblyPath);
                     break;
-                case LoadMethod.LoadBits:
+                case ELoadMethod.LoadBits:
 
                     // Attempt to load the PDB bits along with the assembly to avoid image exceptions.
                     pdbPath = string.IsNullOrEmpty(pdbPath) ? Path.ChangeExtension(assemblyPath, "pdb") : pdbPath;
@@ -95,17 +98,19 @@
         /// <remarks>
         /// LoadMethod.LoadFile is not supported. See LoadAssembly for more details.
         /// </remarks>
-        public Assembly ReflectionOnlyLoadAssembly(LoadMethod loadMethod, string assemblyPath)
+        public Assembly ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string assemblyPath)
         {
-            Assembly assembly = null;
+            Trace.WriteLine($"Loading from {assemblyPath}");
+
+            Assembly assembly;
             switch (loadMethod)
             {
-                case LoadMethod.LoadFrom:
+                case ELoadMethod.LoadFrom:
                     assembly = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
                     break;
-                case LoadMethod.LoadFile:
+                case ELoadMethod.LoadFile:
                     throw new NotSupportedException("The target load method isn't supported!");
-                case LoadMethod.LoadBits:
+                case ELoadMethod.LoadBits:
                     assembly = Assembly.ReflectionOnlyLoad(File.ReadAllBytes(assemblyPath));
                     break;
                 default:
@@ -122,7 +127,7 @@
         /// when loading these assemblies, so we'll need to rely on the AssemblyResolver instance attached to the
         /// AppDomain in order to load the way we want.
         /// </remarks>
-        public IList<Assembly> LoadAssemblyWithReferences(LoadMethod loadMethod, string assemblyPath)
+        public IList<Assembly> LoadAssemblyWithReferences(ELoadMethod loadMethod, string assemblyPath)
         {
             var list = new List<Assembly>();
             var assembly = this.LoadAssembly(loadMethod, assemblyPath);
@@ -130,6 +135,7 @@
 
             foreach (var reference in assembly.GetReferencedAssemblies())
             {
+                Trace.WriteLine($"Loading from {reference}");
                 list.Add(Assembly.Load(reference));
             }
 

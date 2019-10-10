@@ -36,7 +36,6 @@ namespace TheraEngine.Core.Files.XML
     //{
         public class ChildInfo
         {
-            private static readonly TypeProxy[] ElementTypes;
             static ChildInfo()
             {
                 Type elemType = typeof(IElement);
@@ -57,7 +56,9 @@ namespace TheraEngine.Core.Files.XML
                         Engine.PrintLine(Data.ChildEntryType.GetFriendlyName() + " has no 'Name' attribute");
                 }
             }
-
+        
+            //TODO: uncache when domain is unloaded
+            private static readonly TypeProxy[] ElementTypes;
             public TypeProxy[] Types { get; private set; }
             public ElementName[] ElementNames { get; private set; }
             public ElementChild Data { get; private set; }

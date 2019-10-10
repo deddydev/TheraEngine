@@ -29,7 +29,7 @@
         /// <returns>
         /// The target assembly.
         /// </returns>
-        Assembly LoadAssembly(LoadMethod loadMethod, string assemblyPath, string pdbPath = null);
+        Assembly LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null);
 
         /// <summary>
         /// Loads the target assembly for reflection only with the indicated load method into the current application domain
@@ -44,7 +44,7 @@
         /// <returns>
         /// The target assembly.
         /// </returns>
-        Assembly ReflectionOnlyLoadAssembly(LoadMethod loadMethod, string assemblyPath);
+        Assembly ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string assemblyPath);
 
         /// <summary>
         /// Loads the target assembly along with all of it's references and corresponding PDB files if they exist.
@@ -61,7 +61,7 @@
         /// <returns>
         /// The target assembly.
         /// </returns>
-        IList<Assembly> LoadAssemblyWithReferences(LoadMethod loadMethod, string assemblyPath);
+        IList<Assembly> LoadAssemblyWithReferences(ELoadMethod loadMethod, string assemblyPath);
 
         /// <summary>
         /// Gets an array of all the assemblies currently loaded into the current application domain.

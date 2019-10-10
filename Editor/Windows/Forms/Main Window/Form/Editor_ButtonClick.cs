@@ -70,7 +70,12 @@ namespace TheraEditor.Windows.Forms
 
         }
         private async void btnCompile_Click(object sender, EventArgs e)
-            => await Project?.CompileAsync();
+        {
+            if (Project is null)
+                return;
+
+            await Project.CompileAsync();
+        }
         private void visualStudioToolStripMenuItem_Click(object sender, EventArgs e)
         {
             EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
@@ -221,8 +226,8 @@ namespace TheraEditor.Windows.Forms
                         if (!file.Exists)
                             continue;
 
-                        _gameDomain.LoadAssembly(LoadMethod.LoadBits, path.Path);
                         _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
+                        //_gameDomain.LoadAssembly(ELoadMethod.LoadBits, path.Path);
                     }
 
                 Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, gamePath);
@@ -251,8 +256,10 @@ namespace TheraEditor.Windows.Forms
 
         public class TheraAssemblyLoader : MarshalByRefObject, IAssemblyLoader
         {
-            public Assembly LoadAssembly(LoadMethod loadMethod, string assemblyPath, string pdbPath = null)
+            public Assembly LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null)
             {
+                Console.WriteLine($"Loading from {assemblyPath}");
+
                 Assembly assembly;
                 //switch (loadMethod)
                 //{
@@ -284,7 +291,7 @@ namespace TheraEditor.Windows.Forms
                 string domainName = AppDomain.CurrentDomain.FriendlyName;
                 if (domainName == AppDomainHelper.GetPrimaryAppDomain().FriendlyName)
                     throw new Exception();
-                Debug.Print($"[{domainName}] Loaded assembly {assemblyName} via {nameof(TheraAssemblyLoader)}");
+                Engine.PrintLine($"Loaded assembly {assemblyName} via {nameof(TheraAssemblyLoader)}");
 
                 //    break;
                 //default:
@@ -294,15 +301,17 @@ namespace TheraEditor.Windows.Forms
 
                 return assembly;
             }
-            public Assembly ReflectionOnlyLoadAssembly(LoadMethod loadMethod, string assemblyPath)
+            public Assembly ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string assemblyPath)
             {
-                switch(loadMethod)
+                Console.WriteLine($"Loading from {assemblyPath}");
+
+                switch (loadMethod)
                 {
-                    case LoadMethod.LoadFrom:
+                    case ELoadMethod.LoadFrom:
                         return Assembly.ReflectionOnlyLoadFrom(assemblyPath);
-                    case LoadMethod.LoadFile:
+                    case ELoadMethod.LoadFile:
                         throw new NotSupportedException("The target load method isn't supported!");
-                    case LoadMethod.LoadBits:
+                    case ELoadMethod.LoadBits:
                         return Assembly.ReflectionOnlyLoad(File.ReadAllBytes(assemblyPath));
                     default:
                         throw new NotSupportedException("The target load method isn't supported!");
@@ -316,14 +325,17 @@ namespace TheraEditor.Windows.Forms
             /// when loading these assemblies, so we'll need to rely on the AssemblyResolver instance attached to the
             /// AppDomain in order to load the way we want.
             /// </remarks>
-            public IList<Assembly> LoadAssemblyWithReferences(LoadMethod loadMethod, string assemblyPath)
+            public IList<Assembly> LoadAssemblyWithReferences(ELoadMethod loadMethod, string assemblyPath)
             {
                 var list = new List<Assembly>();
                 var assembly = LoadAssembly(loadMethod, assemblyPath);
                 list.Add(assembly);
 
                 foreach (var reference in assembly.GetReferencedAssemblies())
+                {
+                    Console.WriteLine($"Loading from {reference}");
                     list.Add(Assembly.Load(reference));
+                }
 
                 return list;
             }
@@ -343,11 +355,11 @@ namespace TheraEditor.Windows.Forms
 
             private readonly IAssemblyLoader _loader;
 
-            public IAssemblyTarget LoadAssembly(LoadMethod loadMethod, string assemblyPath, string pdbPath = null)
+            public IAssemblyTarget LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null)
             {
                 var assembly = _loader.LoadAssembly(loadMethod, assemblyPath, pdbPath);
                 IAssemblyTarget target;
-                if (loadMethod == LoadMethod.LoadBits)
+                if (loadMethod == ELoadMethod.LoadBits)
                 {
                     // Assemblies loaded by bits will have the codebase set to the assembly that loaded it. Set it to the correct path here.
                     var codebaseUri = new Uri(assemblyPath);
@@ -360,11 +372,11 @@ namespace TheraEditor.Windows.Forms
 
                 return target;
             }
-            public IAssemblyTarget ReflectionOnlyLoadAssembly(LoadMethod loadMethod, string assemblyPath)
+            public IAssemblyTarget ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string assemblyPath)
             {
                 IAssemblyTarget target;
                 var assembly = _loader.ReflectionOnlyLoadAssembly(loadMethod, assemblyPath);
-                if (loadMethod == LoadMethod.LoadBits)
+                if (loadMethod == ELoadMethod.LoadBits)
                 {
                     // Assemlies loaded by bits will have the codebase set to the assembly that loaded it. Set it to the correct path here.
                     var codebaseUri = new Uri(assemblyPath);
@@ -377,7 +389,7 @@ namespace TheraEditor.Windows.Forms
 
                 return target;
             }
-            public IList<IAssemblyTarget> LoadAssemblyWithReferences(LoadMethod loadMethod, string assemblyPath)
+            public IList<IAssemblyTarget> LoadAssemblyWithReferences(ELoadMethod loadMethod, string assemblyPath)
             {
                 return _loader.LoadAssemblyWithReferences(loadMethod, assemblyPath).Select(x => AssemblyTarget.FromAssembly(x)).ToList();
             }
@@ -395,11 +407,11 @@ namespace TheraEditor.Windows.Forms
         private class TheraAssemblyResolver : MarshalByRefObject, IAssemblyResolver
         {
             public TheraAssemblyResolver()
-                : this(null, LoadMethod.LoadFrom) { }
+                : this(null, ELoadMethod.LoadFrom) { }
 
             public TheraAssemblyResolver(
                 IAssemblyLoader loader = null,
-                LoadMethod loadMethod = LoadMethod.LoadFrom)
+                ELoadMethod loadMethod = ELoadMethod.LoadFrom)
             {
                 _probePaths = new HashSet<string>();
                 _loader = loader ?? new TheraAssemblyLoader();
@@ -412,7 +424,7 @@ namespace TheraEditor.Windows.Forms
             private string _applicationBase;
             private string _privateBinPath;
 
-            public LoadMethod LoadMethod { get; set; }
+            public ELoadMethod LoadMethod { get; set; }
 
             public string ApplicationBase
             {
@@ -493,11 +505,17 @@ namespace TheraEditor.Windows.Forms
                 {
                     var dllPath = Path.Combine(path, $"{name.Name}.dll");
                     if (File.Exists(dllPath))
+                    {
+                        Console.WriteLine(AppDomain.CurrentDomain.FriendlyName + ": Loading from " + dllPath);
                         return _loader.LoadAssembly(LoadMethod, dllPath);
+                    }
 
                     var exePath = Path.ChangeExtension(dllPath, "exe");
                     if (File.Exists(exePath))
+                    {
+                        Console.WriteLine(AppDomain.CurrentDomain.FriendlyName + ": Loading from " + exePath);
                         return _loader.LoadAssembly(LoadMethod, exePath);
+                    }
                 }
 
                 return null;

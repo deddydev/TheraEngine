@@ -83,7 +83,7 @@
         /// <returns>
         /// An assembly target pointing to the assembly to load.
         /// </returns>
-        IAssemblyTarget LoadTarget(LoadMethod loadMethod, IAssemblyTarget target);
+        IAssemblyTarget LoadTarget(ELoadMethod loadMethod, IAssemblyTarget target);
 
         /// <summary>
         /// Loads the assembly target into the application domain managed by the context along with any
@@ -98,7 +98,7 @@
         /// <returns>
         /// A list of assembly targets pointing to the assemblies that were loaded.
         /// </returns>
-        IEnumerable<IAssemblyTarget> LoadTargetWithReferences(LoadMethod loadMethod, IAssemblyTarget target);
+        IEnumerable<IAssemblyTarget> LoadTargetWithReferences(ELoadMethod loadMethod, IAssemblyTarget target);
 
         /// <summary>
         /// Loads the assembly at the specified path into the application domain managed by the 
@@ -116,7 +116,7 @@
         /// <returns>
         /// An assembly target pointing to the loaded assembly.
         /// </returns>
-        IAssemblyTarget LoadAssembly(LoadMethod loadMethod, string path, string pdbPath = null);
+        IAssemblyTarget LoadAssembly(ELoadMethod loadMethod, string path, string pdbPath = null);
 
         /// <summary>
         /// Loads the assembly target into the application domain managed by the context along with any
@@ -131,7 +131,7 @@
         /// <returns>
         /// A list of assembly targets pointing to the assemblies that were loaded.
         /// </returns>
-        IEnumerable<IAssemblyTarget> LoadAssemblyWithReferences(LoadMethod loadMethod, string path);
+        IEnumerable<IAssemblyTarget> LoadAssemblyWithReferences(ELoadMethod loadMethod, string path);
 
         #endregion
     }

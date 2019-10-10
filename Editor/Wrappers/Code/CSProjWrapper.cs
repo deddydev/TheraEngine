@@ -48,7 +48,14 @@ namespace TheraEditor.Wrappers
 
         public async void Compile()
         {
-            await Editor.Instance.Project.CompileAsync();
+            var project = Editor.Instance.Project;
+            if (project is null)
+                return;
+
+            await Editor.RunOperationAsync(
+                "Compiling project...",
+                "Finished compiling project.",
+                async (p, c) => await project.CompileAsync());
         }
         public override async void EditResource()
         {

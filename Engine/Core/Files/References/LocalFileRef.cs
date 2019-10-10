@@ -46,7 +46,6 @@ namespace TheraEngine.Core.Files
             return true;
         }
 
-        private object _loadLock = new object();
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
             if (_file != null)
@@ -56,7 +55,6 @@ namespace TheraEngine.Core.Files
             T value = null;
             try
             {
-
                 bool allowLoad = !LoadAttempted;
                 var (instance, _, loadAttempted) = await LoadNewInstanceAsync(progress, cancel, allowLoad);
                 if (allowLoad)

@@ -28,7 +28,7 @@ namespace AppDomainToolkit
         /// <returns>
         /// An assembly target pointing to the target assembly.
         /// </returns>
-        IAssemblyTarget LoadAssembly(LoadMethod loadMethod, string assemblyPath, string pdbPath = null);
+        IAssemblyTarget LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null);
 
         /// <summary>
         /// Loads the target assembly for reflection only with the indicated load method 
@@ -43,7 +43,7 @@ namespace AppDomainToolkit
         /// <returns>
         /// An assembly target pointing to the target assembly.
         /// </returns>
-        IAssemblyTarget ReflectionOnlyLoadAssembly(LoadMethod loadMethod, string assemblyPath);
+        IAssemblyTarget ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string assemblyPath);
 
         /// <summary>
         /// Lads the target assembly with all of it's referencings and corresponding PDB files if they exist. This
@@ -60,7 +60,7 @@ namespace AppDomainToolkit
         /// <returns>
         /// A list of loaded assemblies.
         /// </returns>
-        IList<IAssemblyTarget> LoadAssemblyWithReferences(LoadMethod loadMethod, string assemblyPath);
+        IList<IAssemblyTarget> LoadAssemblyWithReferences(ELoadMethod loadMethod, string assemblyPath);
 
         /// <summary>
         /// Gets a list of all the assemblies loaded into the current application domain.

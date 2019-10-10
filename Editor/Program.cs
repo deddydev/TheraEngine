@@ -167,7 +167,7 @@ namespace TheraEditor
             {
                 if (Editor.Instance.InvokeRequired)
                 {
-                    Editor.Instance.BeginInvoke((Action<bool>)CreateButton, treeView);
+                    Editor.Instance.Invoke((Action<bool>)CreateButton, treeView);
                     return;
                 }
 
@@ -185,7 +185,7 @@ namespace TheraEditor
             {
                 if (Editor.Instance.InvokeRequired)
                 {
-                    Editor.Instance.BeginInvoke((Action<NamespaceNode, bool>)AddChild, node, treeView);
+                    Editor.Instance.Invoke((Action<NamespaceNode, bool>)AddChild, node, treeView);
                     return;
                 }
 
@@ -198,7 +198,7 @@ namespace TheraEditor
             {
                 if (Editor.Instance.InvokeRequired)
                 {
-                    Editor.Instance.BeginInvoke((Action<TypeProxy, string, EventHandler, bool>)AddUIButton, type, displayText, onClick, treeView);
+                    Editor.Instance.Invoke((Action<TypeProxy, string, EventHandler, bool>)AddUIButton, type, displayText, onClick, treeView);
                     return;
                 }
 

@@ -36,11 +36,11 @@
         #region Public Methods
 
         /// <inheritdoc/>
-        public IAssemblyTarget LoadAssembly(LoadMethod loadMethod, string assemblyPath, string pdbPath = null)
+        public IAssemblyTarget LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null)
         {
             IAssemblyTarget target = null;
             var assembly = this.loader.LoadAssembly(loadMethod, assemblyPath, pdbPath);
-            if (loadMethod == LoadMethod.LoadBits)
+            if (loadMethod == ELoadMethod.LoadBits)
             {
                 // Assemlies loaded by bits will have the codebase set to the assembly that loaded it. Set it to the correct path here.
                 var codebaseUri = new Uri(assemblyPath);
@@ -55,11 +55,11 @@
         }
 
         /// <inheritdoc/>
-        public IAssemblyTarget ReflectionOnlyLoadAssembly(LoadMethod loadMethod, string assemblyPath)
+        public IAssemblyTarget ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string assemblyPath)
         {
             IAssemblyTarget target = null;
             var assembly = this.loader.ReflectionOnlyLoadAssembly(loadMethod, assemblyPath);
-            if (loadMethod == LoadMethod.LoadBits)
+            if (loadMethod == ELoadMethod.LoadBits)
             {
                 // Assemlies loaded by bits will have the codebase set to the assembly that loaded it. Set it to the correct path here.
                 var codebaseUri = new Uri(assemblyPath);
@@ -74,7 +74,7 @@
         }
 
         /// <inheritdoc/>
-        public IList<IAssemblyTarget> LoadAssemblyWithReferences(LoadMethod loadMethod, string assemblyPath)
+        public IList<IAssemblyTarget> LoadAssemblyWithReferences(ELoadMethod loadMethod, string assemblyPath)
         {
             return this.loader.LoadAssemblyWithReferences(loadMethod, assemblyPath).Select(x => AssemblyTarget.FromAssembly(x)).ToList();
         }

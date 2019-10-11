@@ -3,6 +3,7 @@ using OpenTK;
 using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 using System;
+using System.Collections.Generic;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths.Transforms;
 
@@ -13,21 +14,25 @@ namespace TheraEngine.Audio
         private const int MaxOpenALSources = 32;
 
         private AudioContext _context;
-        private readonly EffectsExtension _efx;
-        private readonly int[] _sourceBuffer = new int[MaxOpenALSources];
+        private EffectsExtension _efx;
+        private readonly int[] _sourceBuffers = new int[MaxOpenALSources];
+        
+        public enum EAudioPriorityType
+        {
+            /// <summary>
+            /// Lowest priority, played and stopped according to demand.
+            /// </summary>
+            SFX,
+            /// <summary>
+            /// Medium priority, unloaded only for incoming music but not for incoming sfx.
+            /// </summary>
+            Ambient,
+            /// <summary>
+            /// Highest priority, never unloaded for other types.
+            /// </summary>
+            Music,
+        }
 
-        public ALAudioManager()
-        {
-            //IList<string> devices = AudioContext.AvailableDevices;
-            _context = new AudioContext(AudioContext.DefaultDevice, 0, 0, true, true, AudioContext.MaxAuxiliarySends.UseDriverDefault);
-            _context.MakeCurrent();
-            _efx = new EffectsExtension();
-            AL.DistanceModel(ALDistanceModel.LinearDistanceClamped);
-        }
-        ~ALAudioManager()
-        {
-            _context.Dispose();
-        }
         private static ALFormat GetSoundFormat(int channels, int bits)
         {
             switch (channels)
@@ -39,36 +44,54 @@ namespace TheraEngine.Audio
         }
         private void UpdateAudioParam(int instanceID, bool param, ALSourceb dest, bool force = false)
         {
+            CheckError();
+
             if (!force)
             {
                 AL.GetSource(instanceID, dest, out bool currentValue);
+                CheckError();
                 force = param != currentValue;
             }
 
             if (force)
+            {
                 AL.Source(instanceID, dest, param);
+                CheckError();
+            }
         }
         private void UpdateAudioParam(int instanceID, float param, ALSourcef dest, bool force = false)
         {
+            CheckError();
+
             if (!force)
             {
                 AL.GetSource(instanceID, dest, out float currentValue);
+                CheckError();
                 force = !param.EqualTo(currentValue);
             }
 
             if (force)
+            {
                 AL.Source(instanceID, dest, param);
+                CheckError();
+            }
         }
         private void UpdateAudioParam(int instanceID, Vec3 param, ALSource3f dest, bool force = false)
         {
+            CheckError();
+
             if (!force)
             {
                 AL.GetSource(instanceID, dest, out Vector3 currentValue);
+                CheckError();
                 force = (param | currentValue) < 1.0f;
             }
 
             if (force)
+            {
                 AL.Source(instanceID, dest, param.X, param.Y, param.Z);
+                CheckError();
+            }
         }
 
         public override void UpdateSource(AudioInstance instance, bool force = false)
@@ -156,26 +179,33 @@ namespace TheraEngine.Audio
         
         public override AudioInstance Play(IAudioSource source)
         {
+            Engine.PrintLine("Playing audio...");
+
             var audio = source.Audio;
             var param = source.Parameters;
             
             byte[] data = audio?.Samples;
-            
+
+            CheckError();
             if (audio.Instances.Count == 0)
             {
                 audio.BufferId = AL.GenBuffer();
+                CheckError();
                 AL.BufferData(audio.BufferId,
                     GetSoundFormat(audio.Channels, audio.BitsPerSample),
                     data, data.Length, audio.SampleRate);
+                CheckError();
             }
 
             int instanceID = AL.GenSource();
+            CheckError();
 
             AudioInstance instance = new AudioInstance(instanceID, param);
             AL.Source(instance.ID, ALSourcei.Buffer, audio.BufferId);
+            CheckError();
 
             instance.UpdateAllParameters(true);
-            instance.Play();
+            Play(instance);
 
             audio.Instances.Add(instance);
 
@@ -188,24 +218,55 @@ namespace TheraEngine.Audio
             //}
             //while ((ALSourceState)state == ALSourceState.Playing);
         }
+
+        private void CheckError()
+        {
+            if (_context is null)
+                InitContext();
+
+            ALError error = AL.GetError();
+            if (error != ALError.NoError)
+                throw new InvalidOperationException("OpenAL error: " + error.ToString());
+        }
+
+        private void InitContext()
+        {
+            IList<string> devices = AudioContext.AvailableDevices;
+            Engine.PrintLine("Available audio devices: " + string.Join(", ", devices));
+
+            _context = new AudioContext(devices[0], 0, 0, true, true, AudioContext.MaxAuxiliarySends.UseDriverDefault);
+            _context.MakeCurrent();
+            _efx = new EffectsExtension();
+
+            AL.DistanceModel(ALDistanceModel.LinearDistanceClamped);
+        }
+
         public override bool Play(AudioInstance instance)
         {
+            CheckError();
             AL.SourcePlay(instance.ID);
+            CheckError();
             return GetState(instance) == EAudioState.Playing;
         }
         public override bool Pause(AudioInstance instance)
         {
+            CheckError();
             AL.SourcePause(instance.ID);
+            CheckError();
             return GetState(instance) == EAudioState.Paused;
         }
         public override bool Stop(AudioInstance instance)
         {
+            CheckError();
             AL.SourceStop(instance.ID);
+            CheckError();
             return GetState(instance) == EAudioState.Stopped;
         }
         public override void Destroy(AudioInstance instance)
         {
+            CheckError();
             AL.DeleteSource(instance.ID);
+            CheckError();
             instance.Valid = false;
         }
 
@@ -214,13 +275,24 @@ namespace TheraEngine.Audio
         
         public override void UpdateListenerPosition(Vec3 position, bool force = false)
         {
+            CheckError();
+
             AL.GetListener(ALListener3f.Position, out Vector3 currentPosition);
+            CheckError();
+
             if (force || (currentPosition | position) < 1.0f)
+            {
                 AL.Listener(ALListener3f.Position, position.X, position.Y, position.Z);
+                CheckError();
+            }
         }
         public override void UpdateListenerOrientation(Vec3 forward, Vec3 up, bool force = false)
         {
+            CheckError();
+
             AL.GetListener(ALListenerfv.Orientation, out Vector3 currentForward, out Vector3 currentUp);
+            CheckError();
+
             if (force || (forward | currentForward) < 1.0f || (up | currentUp) < 1.0f)
             {
                 float[] values = new float[]
@@ -229,25 +301,47 @@ namespace TheraEngine.Audio
                     up.X, up.Y, up.Z
                 };
                 AL.Listener(ALListenerfv.Orientation, ref values);
+                CheckError();
             }
         }
         public override void UpdateListenerVelocity(Vec3 velocity, bool force = false)
         {
+            CheckError();
+
             AL.GetListener(ALListener3f.Velocity, out Vector3 currentVelocity);
+            CheckError();
+
             if (force || (currentVelocity | velocity) < 1.0f)
+            {
                 AL.Listener(ALListener3f.Velocity, velocity.X, velocity.Y, velocity.Z);
+                CheckError();
+            }
         }
         public override void UpdateListenerGain(float gain, bool force = false)
         {
+            CheckError();
+
             AL.GetListener(ALListenerf.Gain, out float currentGain);
+            CheckError();
+
             if (force || !currentGain.EqualTo(gain))
+            {
                 AL.Listener(ALListenerf.Gain, gain);
+                CheckError();
+            }
         }
         public override void UpdateListenerEfxMetersPerUnit(float metersPerUnit, bool force = false)
         {
+            CheckError();
+
             AL.GetListener(ALListenerf.EfxMetersPerUnit, out float currentMetersPerUnit);
+            CheckError();
+
             if (force || !currentMetersPerUnit.EqualTo(metersPerUnit))
+            {
                 AL.Listener(ALListenerf.EfxMetersPerUnit, metersPerUnit);
+                CheckError();
+            }
         }
         public override void UpdateListener(
             Vec3 position,
@@ -258,6 +352,7 @@ namespace TheraEngine.Audio
             float efxMetersPerUnit = 1.0f,
             bool force = false)
         {
+            Engine.PrintLine("Updating audio listener.");
             UpdateListenerPosition(position, force);
             UpdateListenerOrientation(forward, up, force);
             UpdateListenerVelocity(velocity, force);

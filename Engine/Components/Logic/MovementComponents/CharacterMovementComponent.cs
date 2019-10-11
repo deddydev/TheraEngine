@@ -141,9 +141,9 @@ namespace TheraEngine.Components.Logic.Movement
         {
             //TODO: change to falling if ground accelerates down with gravity faster than the character
             ISceneComponent comp = (ISceneComponent)_currentWalkingSurface.Owner;
-            Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
+            Matrix4 transformDelta = comp.PreviousInverseWorldMatrix * comp.WorldMatrix;
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
-            Matrix4 moved = root.WorldMatrix * comp.PreviousInverseWorldTransform * comp.WorldMatrix;
+            Matrix4 moved = root.WorldMatrix * comp.PreviousInverseWorldMatrix * comp.WorldMatrix;
             Vec3 point = moved.Translation;
 
             root.Translation = point;

@@ -29,8 +29,8 @@ namespace TheraEngine.Components
     {
         Matrix4 LocalMatrix { get; }
         Matrix4 InverseLocalMatrix { get; }
-        Matrix4 PreviousWorldTransform { get; set; }
-        Matrix4 PreviousInverseWorldTransform { get; set; }
+        Matrix4 PreviousWorldMatrix { get; set; }
+        Matrix4 PreviousInverseWorldMatrix { get; set; }
 
         IScene OwningScene { get; }
         IScene3D OwningScene3D { get; }
@@ -67,6 +67,9 @@ namespace TheraEngine.Components
         void PhysicsSimulationStarted(ISceneComponent sceneComponent);
         void PhysicsSimulationEnded();
         void StopSimulatingPhysics(bool retainCurrentPosition);
+
+        void OnLostAudioListener();
+        void OnGotAudioListener();
     }
 
     /// <summary>
@@ -75,6 +78,22 @@ namespace TheraEngine.Components
     [TFileExt("scomp")]
     public abstract class SceneComponent : Component, ISceneComponent
     {
+        void ISceneComponent.OnLostAudioListener() => OnLostAudioListener();
+        internal void OnLostAudioListener() => WorldTransformChanged -= UpdateAudioListenerTransform;
+        
+        void ISceneComponent.OnGotAudioListener() => OnGotAudioListener();
+        internal void OnGotAudioListener()
+        {
+            WorldTransformChanged += UpdateAudioListenerTransform; 
+            UpdateAudioListenerTransform(this);
+        }
+        
+        private void UpdateAudioListenerTransform(ISceneComponent obj)
+        {
+            Matrix4 mtx = obj.WorldMatrix;
+            Engine.Audio.UpdateListener(mtx.Translation, mtx.ForwardVec, mtx.UpVec, Vec3.Zero, 1.0f, 1.0f, true);
+        }
+
         public const string RenderingCategoryName = "Rendering";
         public const string PhysicsCategoryName = "Physics";
 
@@ -460,13 +479,13 @@ namespace TheraEngine.Components
         }
 
         [Browsable(false)]
-        public Matrix4 PreviousWorldTransform
+        public Matrix4 PreviousWorldMatrix
         {
             get => _previousWorldTransform;
             set => _previousWorldTransform = value;
         }
         [Browsable(false)]
-        public Matrix4 PreviousInverseWorldTransform
+        public Matrix4 PreviousInverseWorldMatrix
         {
             get => _previousInverseWorldTransform;
             set => _previousInverseWorldTransform = value;

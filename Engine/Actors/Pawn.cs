@@ -226,11 +226,17 @@ namespace TheraEngine.Actors
                 OnUnPossessed();
 
             Controller = possessor;
+
+            if (Controller is LocalPlayerController lpc && lpc.Viewport != null)
+                RootComponent?.OnGotAudioListener();
         }
         public virtual void OnUnPossessed()
         {
             if (Controller is null)
                 return;
+
+            if (Controller is LocalPlayerController lpc && lpc.Viewport != null)
+                RootComponent?.OnLostAudioListener();
 
             Controller = null;
         }

@@ -227,25 +227,31 @@ namespace TheraEngine.Input.Devices
         }
         public void Register(DelMouseScroll func, EInputPauseType pauseType, bool unregister)
         {
-            if (unregister)
+            lock (_onUpdate)
             {
-                int index = _onUpdate.FindIndex(x => x.Method == func);
-                if (index >= 0 && index < _onUpdate.Count)
-                    _onUpdate.RemoveAt(index);
+                if (unregister)
+                {
+                    int index = _onUpdate.FindIndex(x => x.Method == func);
+                    if (index >= 0 && index < _onUpdate.Count)
+                        _onUpdate.RemoveAt(index);
+                }
+                else
+                    _onUpdate.Add((pauseType, func));
             }
-            else
-                _onUpdate.Add((pauseType, func));
         }
         private void OnUpdate(bool down)
         {
-            int i = _onUpdate.Count;
-            for (int x = 0; x < i; ++x)
+            lock (_onUpdate)
             {
-                var (PauseType, Method) = _onUpdate[x];
-                if (PauseType == EInputPauseType.TickAlways ||
-                    (PauseType == EInputPauseType.TickOnlyWhenUnpaused && !Engine.IsPaused) ||
-                    (PauseType == EInputPauseType.TickOnlyWhenPaused && Engine.IsPaused))
-                    Method(down);
+                int i = _onUpdate.Count;
+                for (int x = 0; x < i; ++x)
+                {
+                    var (PauseType, Method) = _onUpdate[x];
+                    if (PauseType == EInputPauseType.TickAlways ||
+                        (PauseType == EInputPauseType.TickOnlyWhenUnpaused && !Engine.IsPaused) ||
+                        (PauseType == EInputPauseType.TickOnlyWhenPaused && Engine.IsPaused))
+                        Method(down);
+                }
             }
         }
     }

@@ -96,7 +96,7 @@ namespace AppDomainToolkit
             // Create the new domain and wrap it for disposal.
             this.wrappedDomain = new DisposableAppDomain(createDomain(setupInfo, setupInfo.ApplicationName));
 
-            //AppDomain.CurrentDomain.AssemblyResolve += this.AssemblyImporter.Resolve;
+            AppDomain.CurrentDomain.AssemblyResolve += this.AssemblyImporter.Resolve;
 
             // Create remotes
             this.loaderProxy = Remote<TAssemblyTargetLoader>.CreateProxy(this.wrappedDomain);
@@ -108,7 +108,7 @@ namespace AppDomainToolkit
                 this.resolverProxy.RemoteObject,
                 (resolver) =>
                 {
-                    //AppDomain.CurrentDomain.AssemblyResolve += resolver.Resolve;
+                    AppDomain.CurrentDomain.AssemblyResolve += resolver.Resolve;
                 });
 
             // Assign proper paths to the remote resolver

@@ -843,6 +843,8 @@ namespace TheraEditor
             {
                 if (success)
                 {
+                    PrintLine(SolutionPath + " : Build succeeded.");
+
                     ITaskItem[] buildItems = result.ResultsByTarget["Build"].Items;
                     AssemblyPaths = buildItems.Select(x => new PathReference(x.ItemSpec, EPathType.FileRelative)).ToArray();
 
@@ -856,9 +858,7 @@ namespace TheraEditor
                             Editor.Instance.ErrorListForm.SetLog(LastBuildLog);
                     }
 
-                    PrintLine(SolutionPath + " : Build succeeded.");
-
-                    Export();
+                    await ExportAsync();
 
                     if (createGameDomain)
                         await CreateGameDomainAsync(true);

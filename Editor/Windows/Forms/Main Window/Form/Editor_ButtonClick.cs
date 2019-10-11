@@ -153,7 +153,7 @@ namespace TheraEditor.Windows.Forms
 #endif
         }
 
-        private AppDomainContext<TheraAssemblyTargetLoader, TheraAssemblyResolver> _gameDomain;
+        private AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> _gameDomain;
 
         public void CopyEditorLibraries(PathReference[] assemblyPaths)
         {
@@ -209,15 +209,14 @@ namespace TheraEditor.Windows.Forms
                 {
                     ApplicationName = name,
                     ApplicationBase = rootDir,
-                    PrivateBinPath = rootDir,
-                    ShadowCopyFiles = "true",
-                    ShadowCopyDirectories = assemblyPaths is null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x.Path))),
+                    PrivateBinPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    //ShadowCopyFiles = "true",
+                    //ShadowCopyDirectories = assemblyPaths is null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x.Path))),
                     LoaderOptimization = LoaderOptimization.MultiDomain,
-                    //DisallowApplicationBaseProbing = true,
+                    DisallowApplicationBaseProbing = false,
                 };
 
-                _gameDomain = AppDomainContext<TheraAssemblyTargetLoader, TheraAssemblyResolver>.
-                    Create<TheraAssemblyTargetLoader, TheraAssemblyResolver>(setupInfo);
+                _gameDomain = AppDomainContext.Create(setupInfo);
 
                 if (assemblyPaths != null)
                     foreach (PathReference path in assemblyPaths)
@@ -227,7 +226,7 @@ namespace TheraEditor.Windows.Forms
                             continue;
 
                         _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
-                        //_gameDomain.LoadAssembly(ELoadMethod.LoadBits, path.Path);
+                        _gameDomain.LoadAssembly(ELoadMethod.LoadBits, path.Path);
                     }
 
                 Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, gamePath);
@@ -252,274 +251,6 @@ namespace TheraEditor.Windows.Forms
             _gameDomain?.Dispose();
             _gameDomain = null;
             AppDomainHelper.OnGameDomainUnloaded();
-        }
-
-        public class TheraAssemblyLoader : MarshalByRefObject, IAssemblyLoader
-        {
-            public Assembly LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null)
-            {
-                Console.WriteLine($"Loading from {assemblyPath}");
-
-                Assembly assembly;
-                //switch (loadMethod)
-                //{
-                //    case LoadMethod.LoadFrom:
-                //        assembly = Assembly.LoadFrom(assemblyPath);
-                //        break;
-                //    case LoadMethod.LoadFile:
-                //        assembly = Assembly.LoadFile(assemblyPath);
-                //        break;
-                //    case LoadMethod.LoadBits:
-
-                // Attempt to load the PDB bits along with the assembly to avoid image exceptions.
-                if (string.IsNullOrEmpty(pdbPath))
-                    pdbPath = Path.ChangeExtension(assemblyPath, "pdb");
-
-                // Only load the PDB if it exists--we may be dealing with a release assembly.
-                if (File.Exists(pdbPath))
-                {
-                    assembly = Assembly.Load(
-                        File.ReadAllBytes(assemblyPath),
-                        File.ReadAllBytes(pdbPath));
-                }
-                else
-                {
-                    assembly = Assembly.Load(File.ReadAllBytes(assemblyPath));
-                }
-
-                string assemblyName = assembly.GetName().Name;
-                string domainName = AppDomain.CurrentDomain.FriendlyName;
-                if (domainName == AppDomainHelper.GetPrimaryAppDomain().FriendlyName)
-                    throw new Exception();
-                Engine.PrintLine($"Loaded assembly {assemblyName} via {nameof(TheraAssemblyLoader)}");
-
-                //    break;
-                //default:
-                //    // In case we update the enum but forget to update this logic.
-                //    throw new NotSupportedException("The target load method isn't supported!");
-                //}
-
-                return assembly;
-            }
-            public Assembly ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string assemblyPath)
-            {
-                Console.WriteLine($"Loading from {assemblyPath}");
-
-                switch (loadMethod)
-                {
-                    case ELoadMethod.LoadFrom:
-                        return Assembly.ReflectionOnlyLoadFrom(assemblyPath);
-                    case ELoadMethod.LoadFile:
-                        throw new NotSupportedException("The target load method isn't supported!");
-                    case ELoadMethod.LoadBits:
-                        return Assembly.ReflectionOnlyLoad(File.ReadAllBytes(assemblyPath));
-                    default:
-                        throw new NotSupportedException("The target load method isn't supported!");
-                };
-            }
-
-            /// <inheritdoc />
-            /// <remarks>
-            /// This implementation will perform a best-effort load of the target assembly and its required references
-            /// into the current application domain. The .NET framework pins us in on which call we're allowed to use
-            /// when loading these assemblies, so we'll need to rely on the AssemblyResolver instance attached to the
-            /// AppDomain in order to load the way we want.
-            /// </remarks>
-            public IList<Assembly> LoadAssemblyWithReferences(ELoadMethod loadMethod, string assemblyPath)
-            {
-                var list = new List<Assembly>();
-                var assembly = LoadAssembly(loadMethod, assemblyPath);
-                list.Add(assembly);
-
-                foreach (var reference in assembly.GetReferencedAssemblies())
-                {
-                    Console.WriteLine($"Loading from {reference}");
-                    list.Add(Assembly.Load(reference));
-                }
-
-                return list;
-            }
-
-            public Assembly[] GetAssemblies()
-                => AppDomain.CurrentDomain.GetAssemblies();
-
-            public Assembly[] ReflectionOnlyGetAssemblies()
-                => AppDomain.CurrentDomain.ReflectionOnlyGetAssemblies();
-        }
-        private class TheraAssemblyTargetLoader : MarshalByRefObject, IAssemblyTargetLoader
-        {
-            public TheraAssemblyTargetLoader()
-            {
-                _loader = new TheraAssemblyLoader();
-            }
-
-            private readonly IAssemblyLoader _loader;
-
-            public IAssemblyTarget LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null)
-            {
-                var assembly = _loader.LoadAssembly(loadMethod, assemblyPath, pdbPath);
-                IAssemblyTarget target;
-                if (loadMethod == ELoadMethod.LoadBits)
-                {
-                    // Assemblies loaded by bits will have the codebase set to the assembly that loaded it. Set it to the correct path here.
-                    var codebaseUri = new Uri(assemblyPath);
-                    target = AssemblyTarget.FromPath(codebaseUri, assembly.Location, assembly.FullName);
-                }
-                else
-                {
-                    target = AssemblyTarget.FromAssembly(assembly);
-                }
-
-                return target;
-            }
-            public IAssemblyTarget ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string assemblyPath)
-            {
-                IAssemblyTarget target;
-                var assembly = _loader.ReflectionOnlyLoadAssembly(loadMethod, assemblyPath);
-                if (loadMethod == ELoadMethod.LoadBits)
-                {
-                    // Assemlies loaded by bits will have the codebase set to the assembly that loaded it. Set it to the correct path here.
-                    var codebaseUri = new Uri(assemblyPath);
-                    target = AssemblyTarget.FromPath(codebaseUri, assembly.Location, assembly.FullName);
-                }
-                else
-                {
-                    target = AssemblyTarget.FromAssembly(assembly);
-                }
-
-                return target;
-            }
-            public IList<IAssemblyTarget> LoadAssemblyWithReferences(ELoadMethod loadMethod, string assemblyPath)
-            {
-                return _loader.LoadAssemblyWithReferences(loadMethod, assemblyPath).Select(x => AssemblyTarget.FromAssembly(x)).ToList();
-            }
-            public IAssemblyTarget[] GetAssemblies()
-            {
-                var assemblies = _loader.GetAssemblies();
-                return assemblies.Select(x => AssemblyTarget.FromAssembly(x)).ToArray();
-            }
-            public IAssemblyTarget[] ReflectionOnlyGetAssemblies()
-            {
-                var assemblies = _loader.ReflectionOnlyGetAssemblies();
-                return assemblies.Select(x => AssemblyTarget.FromAssembly(x)).ToArray();
-            }
-        }
-        private class TheraAssemblyResolver : MarshalByRefObject, IAssemblyResolver
-        {
-            public TheraAssemblyResolver()
-                : this(null, ELoadMethod.LoadFrom) { }
-
-            public TheraAssemblyResolver(
-                IAssemblyLoader loader = null,
-                ELoadMethod loadMethod = ELoadMethod.LoadFrom)
-            {
-                _probePaths = new HashSet<string>();
-                _loader = loader ?? new TheraAssemblyLoader();
-                LoadMethod = loadMethod;
-            }
-
-            private readonly HashSet<string> _probePaths;
-            private readonly IAssemblyLoader _loader;
-
-            private string _applicationBase;
-            private string _privateBinPath;
-
-            public ELoadMethod LoadMethod { get; set; }
-
-            public string ApplicationBase
-            {
-                get => _applicationBase;
-                set
-                {
-                    _applicationBase = value;
-                    AddProbePath(value);
-                }
-            }
-            public string PrivateBinPath
-            {
-                get => _privateBinPath;
-                set
-                {
-                    _privateBinPath = value;
-                    AddProbePath(value);
-                }
-            }
-
-            public void AddProbePath(string path)
-            {
-                if (string.IsNullOrEmpty(path))
-                    return;
-
-                if (path.Contains(";"))
-                {
-                    var paths = path.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-                    AddProbePaths(paths);
-                }
-                else
-                    AddProbePaths(path);
-            }
-            public void AddProbePaths(params string[] paths)
-            {
-                foreach (var path in paths)
-                {
-                    if (string.IsNullOrEmpty(path))
-                        continue;
-
-                    var dir = new DirectoryInfo(path);
-                    if (!_probePaths.Contains(dir.FullName))
-                        _probePaths.Add(dir.FullName);
-                }
-            }
-            /// <summary>
-            /// Removes the given probe path or semicolon separated list of probe paths from the assembly loader.
-            /// </summary>
-            /// <param name="path">The path to remove.</param>
-            public void RemoveProbePath(string path)
-            {
-                if (string.IsNullOrEmpty(path))
-                    return;
-
-                if (path.Contains(";"))
-                {
-                    var paths = path.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-                    RemoveProbePaths(paths);
-                }
-                else
-                    RemoveProbePaths(path);
-            }
-            /// <summary>
-            /// Removes the given probe paths from the assembly loader.
-            /// </summary>
-            /// <param name="paths">The paths to remove.</param>
-            public void RemoveProbePaths(params string[] paths)
-            {
-                foreach (var dir in from path in paths
-                                    where !string.IsNullOrEmpty(path)
-                                    select new DirectoryInfo(path))
-                    _probePaths.Remove(dir.FullName);
-            }
-            public Assembly Resolve(object sender, ResolveEventArgs args)
-            {
-                var name = new AssemblyName(args.Name);
-                foreach (var path in _probePaths)
-                {
-                    var dllPath = Path.Combine(path, $"{name.Name}.dll");
-                    if (File.Exists(dllPath))
-                    {
-                        Console.WriteLine(AppDomain.CurrentDomain.FriendlyName + ": Loading from " + dllPath);
-                        return _loader.LoadAssembly(LoadMethod, dllPath);
-                    }
-
-                    var exePath = Path.ChangeExtension(dllPath, "exe");
-                    if (File.Exists(exePath))
-                    {
-                        Console.WriteLine(AppDomain.CurrentDomain.FriendlyName + ": Loading from " + exePath);
-                        return _loader.LoadAssembly(LoadMethod, exePath);
-                    }
-                }
-
-                return null;
-            }
         }
     }
 }

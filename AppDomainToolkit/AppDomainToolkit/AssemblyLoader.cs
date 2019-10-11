@@ -57,7 +57,7 @@
         /// </remarks>
         public Assembly LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null)
         {
-            Trace.WriteLine($"Loading from {assemblyPath}");
+            Trace.WriteLine($"{loadMethod} {assemblyPath}");
 
             Assembly assembly;
             switch (loadMethod)
@@ -100,7 +100,7 @@
         /// </remarks>
         public Assembly ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string assemblyPath)
         {
-            Trace.WriteLine($"Loading from {assemblyPath}");
+            Trace.WriteLine($"[ReflectionOnly] {loadMethod} {assemblyPath}");
 
             Assembly assembly;
             switch (loadMethod)

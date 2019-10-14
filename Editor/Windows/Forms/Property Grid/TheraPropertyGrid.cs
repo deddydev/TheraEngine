@@ -1289,6 +1289,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private async void Save(IFileObject file, string path)
         {
+            if (!path.IsValidPath())
+                return;
+
             await Editor.RunOperationAsync(
                 $"Property Grid: saving {path}", $"Property Grid: done saving {path}", 
                 async (p, c) => await file.ExportAsync(path, ESerializeFlags.Default, p, c.Token));

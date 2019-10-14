@@ -46,7 +46,7 @@ namespace TheraEngine.Audio
             }
             else
             {
-                _listenerRelative = false;
+                _listenerRelative = true;
                 _loop = false;
 
                 _efxDirectFilterGainHighFrequencyAuto = false;
@@ -61,9 +61,9 @@ namespace TheraEngine.Audio
                 _coneOuterAngle = 0.0f;
                 _coneOuterGain = 0.0f;
                 _pitch = 0.0f;
-                _gain = 0.0f;
+                _gain = 1.0f;
                 _minGain = 0.0f;
-                _maxGain = 0.0f;
+                _maxGain = 1.0f;
 
                 _referenceDistance = 0.0f;
                 _rolloffFactor = 0.0f;
@@ -72,7 +72,7 @@ namespace TheraEngine.Audio
                 _playbackOffsetSeconds = 0.0f;
 
                 _position = Vec3.Zero;
-                _direction = Vec3.Zero;
+                _direction = Vec3.Forward;
                 _velocity = Vec3.Zero;
             }
         }

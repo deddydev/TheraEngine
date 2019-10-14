@@ -14,7 +14,15 @@ namespace TheraEditor.Windows.Forms
         /// <summary>
         /// Returns the one and only instance of the editor for this session.
         /// </summary>
-        public static Editor Instance => Singleton<Editor>.Instance;
+        public static Editor Instance
+        {
+            get
+            {
+                var inst = Singleton<Editor>.CachedInstance;
+                AppDomainHelper.Sponsor(inst);
+                return inst;
+            }
+        }
 
         public static IEditorRenderHandler ActiveRenderForm { get; private set; } = null;
 

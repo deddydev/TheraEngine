@@ -234,7 +234,7 @@ namespace TheraEngine.Audio
             IList<string> devices = AudioContext.AvailableDevices;
             Engine.PrintLine("Available audio devices: " + string.Join(", ", devices));
 
-            _context = new AudioContext(devices[0], 0, 0, true, true, AudioContext.MaxAuxiliarySends.UseDriverDefault);
+            _context = new AudioContext(AudioContext.DefaultDevice);
             _context.MakeCurrent();
             _efx = new EffectsExtension();
 

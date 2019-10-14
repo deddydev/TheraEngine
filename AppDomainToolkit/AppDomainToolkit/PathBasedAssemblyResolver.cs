@@ -20,8 +20,8 @@ namespace AppDomainToolkit
     {
         #region Fields & Constants
 
-        private readonly HashSet<string> probePaths;
-        private readonly IAssemblyLoader loader;
+        private readonly HashSet<string> _probePaths;
+        private readonly IAssemblyLoader _loader;
 
         #endregion
 
@@ -32,9 +32,7 @@ namespace AppDomainToolkit
         /// remoting into app domains.
         /// </summary>
         public PathBasedAssemblyResolver()
-            : this(null, ELoadMethod.LoadFrom)
-        {
-        }
+            : this(null, ELoadMethod.LoadBits) { }
 
         /// <summary>
         /// Initializes a new instance of the AssemblyResolver class. A default instance of this class will resolve
@@ -49,11 +47,11 @@ namespace AppDomainToolkit
         /// </param>
         public PathBasedAssemblyResolver(
             IAssemblyLoader loader = null,
-            ELoadMethod loadMethod = ELoadMethod.LoadFrom)
+            ELoadMethod loadMethod = ELoadMethod.LoadBits)
         {
-            this.probePaths = new HashSet<string>();
-            this.loader = loader is null ? new AssemblyLoader() : loader;
-            this.LoadMethod = loadMethod;
+            _probePaths = new HashSet<string>();
+            _loader = loader is null ? new AssemblyLoader() : loader;
+            LoadMethod = loadMethod;
         }
 
         #endregion
@@ -61,27 +59,29 @@ namespace AppDomainToolkit
         #region Properties
 
         /// <inheritdoc />
-        public ELoadMethod LoadMethod { get; set; }
+        public ELoadMethod LoadMethod { get; set; } = ELoadMethod.LoadBits;
 
         /// <inheritdoc />
         private string _applicationBase;
 
+        /// <inheritdoc />
         public string ApplicationBase
         {
-            get { return _applicationBase; }
+            get => _applicationBase;
             set
             {
                 _applicationBase = value;
-                this.AddProbePath(value);
+                AddProbePath(value);
             }
         }
 
         /// <inheritdoc />
         private string _privateBinPath;
 
+        /// <inheritdoc />
         public string PrivateBinPath
         {
-            get { return _privateBinPath; }
+            get => _privateBinPath;
             set
             {
                 _privateBinPath = value;
@@ -97,20 +97,15 @@ namespace AppDomainToolkit
         public void AddProbePath(string path)
         {
             if (string.IsNullOrEmpty(path))
-            {
                 return;
-            }
-
+            
             if (path.Contains(";"))
             {
                 var paths = path.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-
-                this.AddProbePaths(paths);
+                AddProbePaths(paths);
             }
             else
-            {
-                this.AddProbePaths(path);
-            }
+                AddProbePaths(path);
         }
 
         /// <inheritdoc />
@@ -119,15 +114,11 @@ namespace AppDomainToolkit
             foreach (var path in paths)
             {
                 if (string.IsNullOrEmpty(path))
-                {
                     continue;
-                }
-
+                
                 var dir = new DirectoryInfo(path);
-                if (!this.probePaths.Contains(dir.FullName))
-                {
-                    this.probePaths.Add(dir.FullName);
-                }
+                if (!_probePaths.Contains(dir.FullName))
+                    _probePaths.Add(dir.FullName);
             }
         }
 
@@ -137,15 +128,16 @@ namespace AppDomainToolkit
         /// <param name="path">The path to remove.</param>
         public void RemoveProbePath(string path)
         {
-            if (String.IsNullOrEmpty(path)) return;
+            if (String.IsNullOrEmpty(path))
+                return;
 
             if (path.Contains(";"))
             {
                 var paths = path.Split(new[] {";"}, StringSplitOptions.RemoveEmptyEntries);
-
                 RemoveProbePaths(paths);
             }
-            else RemoveProbePaths(path);
+            else
+                RemoveProbePaths(path);
         }
 
         /// <summary>
@@ -154,31 +146,27 @@ namespace AppDomainToolkit
         /// <param name="paths">The paths to remove.</param>
         public void RemoveProbePaths(params string[] paths)
         {
-            foreach (var dir in from path in paths
-                                where !String.IsNullOrEmpty(path)
-                                select new DirectoryInfo(path))
-            {
-                probePaths.Remove(dir.FullName);
-            }
+            var e = from path in paths
+                    where !string.IsNullOrEmpty(path)
+                    select new DirectoryInfo(path);
+
+            foreach (var dir in e)
+                _probePaths.Remove(dir.FullName);
         }
 
         /// <inheritdoc />
         public Assembly Resolve(object sender, ResolveEventArgs args)
         {
             var name = new AssemblyName(args.Name);
-            foreach (var path in this.probePaths)
+            foreach (var path in _probePaths)
             {
                 var dllPath = Path.Combine(path, string.Format("{0}.dll", name.Name));
                 if (File.Exists(dllPath))
-                {
-                    return this.loader.LoadAssembly(this.LoadMethod, dllPath);
-                }
-
+                    return _loader.LoadAssembly(LoadMethod, dllPath);
+                
                 var exePath = Path.ChangeExtension(dllPath, "exe");
                 if (File.Exists(exePath))
-                {
-                    return this.loader.LoadAssembly(this.LoadMethod, exePath);
-                }
+                    return _loader.LoadAssembly(LoadMethod, exePath);
             }
 
             // Not found.
@@ -186,7 +174,5 @@ namespace AppDomainToolkit
         }
 
         #endregion
-
-
     }
 }

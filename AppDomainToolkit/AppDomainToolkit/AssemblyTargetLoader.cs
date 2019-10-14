@@ -38,8 +38,8 @@
         /// <inheritdoc/>
         public IAssemblyTarget LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null)
         {
-            IAssemblyTarget target = null;
-            var assembly = this.loader.LoadAssembly(loadMethod, assemblyPath, pdbPath);
+            IAssemblyTarget target;
+            var assembly = loader.LoadAssembly(loadMethod, assemblyPath, pdbPath);
             if (loadMethod == ELoadMethod.LoadBits)
             {
                 // Assemlies loaded by bits will have the codebase set to the assembly that loaded it. Set it to the correct path here.

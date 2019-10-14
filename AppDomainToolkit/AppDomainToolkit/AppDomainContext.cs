@@ -19,7 +19,8 @@ namespace AppDomainToolkit
         /// <returns>
         /// A new AppDomainContext.
         /// </returns>
-        public static AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> Create() { return AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver>.Create<AssemblyTargetLoader, PathBasedAssemblyResolver>(); }
+        public static AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> Create()
+            => AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver>.Create<AssemblyTargetLoader, PathBasedAssemblyResolver>();
         /// <summary>
         /// Creates a new instance of the AppDomainContext class.
         /// </summary>
@@ -29,7 +30,8 @@ namespace AppDomainToolkit
         /// <returns>
         /// A new AppDomainContext.
         /// </returns>
-        public static AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> Create(AppDomainSetup setupInfo) { return AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver>.Create<AssemblyTargetLoader, PathBasedAssemblyResolver>(setupInfo); }
+        public static AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> Create(AppDomainSetup setupInfo)
+            => AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver>.Create<AssemblyTargetLoader, PathBasedAssemblyResolver>(setupInfo);
 
         /// <summary>
         /// Creates a new instance of the AppDomainContext class.
@@ -37,9 +39,7 @@ namespace AppDomainToolkit
         /// <param name="domain">The domain to wrap in the context</param>
         /// <returns></returns>
         public static AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> Wrap(AppDomain domain)
-        {
-            return AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver>.Wrap(domain);
-        }
+            => AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver>.Wrap(domain);
     }
 
     /// <summary>
@@ -51,9 +51,9 @@ namespace AppDomainToolkit
     {
         #region Fields & Constants
 
-        private readonly DisposableAppDomain wrappedDomain;
-        private readonly Remote<TAssemblyTargetLoader> loaderProxy;
-        private readonly Remote<TAssemblyResolver> resolverProxy;
+        private readonly DisposableAppDomain _wrappedDomain;
+        private readonly Remote<TAssemblyTargetLoader> _loaderProxy;
+        private readonly Remote<TAssemblyResolver> _resolverProxy;
 
         #endregion
 
@@ -70,9 +70,7 @@ namespace AppDomainToolkit
         /// The setup information.
         /// </param>
         private AppDomainContext(AppDomainSetup setupInfo)
-            : this(setupInfo, CreateDomain)
-        {
-        }
+            : this(setupInfo, CreateDomain) { }
 
         /// <summary>
         /// Initializes a new instance of the AppDomainContext class. The new AppDomainContext will wrap the given domain
@@ -85,8 +83,8 @@ namespace AppDomainToolkit
 
         private AppDomainContext(AppDomainSetup setupInfo, Func<AppDomainSetup, string, AppDomain> createDomain)
         {
-            this.UniqueId = Guid.NewGuid();
-            this.AssemblyImporter = new TAssemblyResolver 
+            UniqueId = Guid.NewGuid();
+            AssemblyImporter = new TAssemblyResolver 
             {
                 ApplicationBase = setupInfo.ApplicationBase,
                 PrivateBinPath = setupInfo.PrivateBinPath
@@ -94,28 +92,28 @@ namespace AppDomainToolkit
 
             // Add some root directories to resolve some required assemblies
             // Create the new domain and wrap it for disposal.
-            this.wrappedDomain = new DisposableAppDomain(createDomain(setupInfo, setupInfo.ApplicationName));
+            _wrappedDomain = new DisposableAppDomain(createDomain(setupInfo, setupInfo.ApplicationName));
 
-            AppDomain.CurrentDomain.AssemblyResolve += this.AssemblyImporter.Resolve;
+            AppDomain.CurrentDomain.AssemblyResolve += AssemblyImporter.Resolve;
 
             // Create remotes
-            this.loaderProxy = Remote<TAssemblyTargetLoader>.CreateProxy(this.wrappedDomain);
-            this.resolverProxy = Remote<TAssemblyResolver>.CreateProxy(this.wrappedDomain);
+            _loaderProxy = Remote<TAssemblyTargetLoader>.CreateProxy(_wrappedDomain);
+            _resolverProxy = Remote<TAssemblyResolver>.CreateProxy(_wrappedDomain);
 
             // Assign the resolver in the other domain (just to be safe)
             RemoteAction.Invoke(
-                this.wrappedDomain.Domain,
-                this.resolverProxy.RemoteObject,
+                _wrappedDomain.Domain,
+                _resolverProxy.RemoteObject,
                 (resolver) =>
                 {
                     AppDomain.CurrentDomain.AssemblyResolve += resolver.Resolve;
                 });
 
             // Assign proper paths to the remote resolver
-            this.resolverProxy.RemoteObject.ApplicationBase = setupInfo.ApplicationBase;
-            this.resolverProxy.RemoteObject.PrivateBinPath = setupInfo.PrivateBinPath;
+            _resolverProxy.RemoteObject.ApplicationBase = setupInfo.ApplicationBase;
+            _resolverProxy.RemoteObject.PrivateBinPath = setupInfo.PrivateBinPath;
 
-            this.IsDisposed = false;
+            IsDisposed = false;
         }
 
         private static AppDomain CreateDomain(AppDomainSetup setup, string name)
@@ -128,7 +126,7 @@ namespace AppDomainToolkit
         /// </summary>
         ~AppDomainContext()
         {
-            this.OnDispose(false);
+            OnDispose(false);
             GC.SuppressFinalize(this);
         }
 
@@ -141,12 +139,10 @@ namespace AppDomainToolkit
         {
             get
             {
-                if (this.IsDisposed)
-                {
+                if (IsDisposed)
                     throw new ObjectDisposedException("The AppDomain has been unloaded or disposed!");
-                }
 
-                return this.wrappedDomain.Domain;
+                return _wrappedDomain.Domain;
             }
         }
 
@@ -163,12 +159,10 @@ namespace AppDomainToolkit
         {
             get
             {
-                if (this.IsDisposed)
-                {
+                if (IsDisposed)
                     throw new ObjectDisposedException("The AppDomain has been unloaded or disposed!");
-                }
-
-                return this.resolverProxy.RemoteObject;
+                
+                return _resolverProxy.RemoteObject;
             }
         }
 
@@ -181,12 +175,10 @@ namespace AppDomainToolkit
         {
             get
             {
-                if (this.IsDisposed)
-                {
+                if (IsDisposed)
                     throw new ObjectDisposedException("The AppDomain has been unloaded or disposed!");
-                }
-
-                var rValue = this.loaderProxy.RemoteObject.GetAssemblies();
+                
+                var rValue = _loaderProxy.RemoteObject.GetAssemblies();
                 return rValue;
             }
         }
@@ -200,12 +192,10 @@ namespace AppDomainToolkit
         {
             get
             {
-                if (this.IsDisposed)
-                {
+                if (IsDisposed)
                     throw new ObjectDisposedException("The AppDomain has been unloaded or disposed!");
-                }
 
-                var rValue = this.loaderProxy.RemoteObject.ReflectionOnlyGetAssemblies();
+                var rValue = _loaderProxy.RemoteObject.ReflectionOnlyGetAssemblies();
                 return rValue;
             }
         }
@@ -255,10 +245,8 @@ namespace AppDomainToolkit
             where TNewAssemblyResolver : MarshalByRefObject, TAssemblyResolver, IAssemblyResolver, new()
         {
             if (setupInfo is null)
-            {
                 throw new ArgumentNullException("setupInfo");
-            }
-
+            
             var guid = Guid.NewGuid();
             setupInfo.ApplicationName = string.IsNullOrEmpty(setupInfo.ApplicationName) ?
                 "Temp-Domain-" + guid.ToString() :
@@ -276,62 +264,47 @@ namespace AppDomainToolkit
         public static AppDomainContext<TAssemblyTargetLoader, TAssemblyResolver> Wrap(AppDomain domain)
         {
             if (domain is null)
-            {
                 throw new ArgumentNullException("domain");
-            }
 
             return new AppDomainContext<TAssemblyTargetLoader, TAssemblyResolver>(domain);
         }
         /// <inheritdoc />
-        public void Dispose()
-        {
-            this.OnDispose(true);
-        }
+        public void Dispose() => OnDispose(true);
 
         /// <inheritdoc />
         public IAssemblyTarget FindByCodeBase(Uri codebaseUri)
         {
             if (codebaseUri is null)
-            {
                 throw new ArgumentNullException("codebaseUri");
-            }
-
-            return this.LoadedAssemblies.FirstOrDefault(x => x.CodeBase.Equals(codebaseUri));
+            
+            return LoadedAssemblies.FirstOrDefault(x => x.CodeBase.Equals(codebaseUri));
         }
 
         /// <inheritdoc />
         public IAssemblyTarget FindByLocation(string location)
         {
             if (string.IsNullOrEmpty(location))
-            {
                 throw new ArgumentException("Location cannot be null or empty");
-            }
-
-            return this.LoadedAssemblies.FirstOrDefault(x => x.Location.Equals(location));
+            
+            return LoadedAssemblies.FirstOrDefault(x => x.Location.Equals(location));
         }
 
         /// <inheritdoc />
         public IAssemblyTarget FindByFullName(string fullname)
         {
             if (string.IsNullOrEmpty(fullname))
-            {
                 throw new ArgumentException("Full name cannot be null or empty!");
-            }
-
-            return this.LoadedAssemblies.FirstOrDefault(x => x.FullName.Equals(fullname));
+            
+            return LoadedAssemblies.FirstOrDefault(x => x.FullName.Equals(fullname));
         }
 
         /// <inheritdoc />
         public IAssemblyTarget LoadTarget(ELoadMethod loadMethod, IAssemblyTarget target)
-        {
-            return this.LoadAssembly(loadMethod, target.CodeBase.LocalPath);
-        }
+            => LoadAssembly(loadMethod, target.CodeBase.LocalPath);
 
         /// <inheritdoc />
         public IEnumerable<IAssemblyTarget> LoadTargetWithReferences(ELoadMethod loadMethod, IAssemblyTarget target)
-        {
-            return this.LoadAssemblyWithReferences(loadMethod, target.CodeBase.LocalPath);
-        }
+            => LoadAssemblyWithReferences(loadMethod, target.CodeBase.LocalPath);
 
         /// <inheritdoc/>
         /// <remarks>
@@ -341,10 +314,10 @@ namespace AppDomainToolkit
         /// </remarks>
         public IAssemblyTarget LoadAssembly(ELoadMethod loadMethod, string path, string pdbPath = null)
         {
-            var previousLoadMethod = this.resolverProxy.RemoteObject.LoadMethod;
-            this.resolverProxy.RemoteObject.LoadMethod = loadMethod;
-            var target = this.loaderProxy.RemoteObject.LoadAssembly(loadMethod, path, pdbPath);
-            this.resolverProxy.RemoteObject.LoadMethod = previousLoadMethod;
+            var previousLoadMethod = _resolverProxy.RemoteObject.LoadMethod;
+            _resolverProxy.RemoteObject.LoadMethod = loadMethod;
+            var target = _loaderProxy.RemoteObject.LoadAssembly(loadMethod, path, pdbPath);
+            _resolverProxy.RemoteObject.LoadMethod = previousLoadMethod;
             return target;
         }
 
@@ -356,10 +329,10 @@ namespace AppDomainToolkit
         /// </remarks>
         public IAssemblyTarget ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string path)
         {
-            var previousLoadMethod = this.resolverProxy.RemoteObject.LoadMethod;
-            this.resolverProxy.RemoteObject.LoadMethod = loadMethod;
-            var target = this.loaderProxy.RemoteObject.ReflectionOnlyLoadAssembly(loadMethod, path);
-            this.resolverProxy.RemoteObject.LoadMethod = previousLoadMethod;
+            var previousLoadMethod = _resolverProxy.RemoteObject.LoadMethod;
+            _resolverProxy.RemoteObject.LoadMethod = loadMethod;
+            var target = _loaderProxy.RemoteObject.ReflectionOnlyLoadAssembly(loadMethod, path);
+            _resolverProxy.RemoteObject.LoadMethod = previousLoadMethod;
             return target;
         }
 
@@ -371,10 +344,10 @@ namespace AppDomainToolkit
         /// </remarks>
         public IEnumerable<IAssemblyTarget> LoadAssemblyWithReferences(ELoadMethod loadMethod, string path)
         {
-            var previousLoadMethod = this.resolverProxy.RemoteObject.LoadMethod;
-            this.resolverProxy.RemoteObject.LoadMethod = loadMethod;
-            var targets = this.loaderProxy.RemoteObject.LoadAssemblyWithReferences(loadMethod, path);
-            this.resolverProxy.RemoteObject.LoadMethod = previousLoadMethod;
+            var previousLoadMethod = _resolverProxy.RemoteObject.LoadMethod;
+            _resolverProxy.RemoteObject.LoadMethod = loadMethod;
+            var targets = _loaderProxy.RemoteObject.LoadAssemblyWithReferences(loadMethod, path);
+            _resolverProxy.RemoteObject.LoadMethod = previousLoadMethod;
             return targets;
         }
 
@@ -386,23 +359,23 @@ namespace AppDomainToolkit
         {
             if (disposing)
             {
-                if (!this.IsDisposed)
+                if (!IsDisposed)
                 {
-                    if (!this.wrappedDomain.IsDisposed)
+                    if (!_wrappedDomain.IsDisposed)
                     {
-                        this.wrappedDomain.Dispose();
+                        _wrappedDomain.Dispose();
                     }
 
-                    if (!this.loaderProxy.IsDisposed)
+                    if (!_loaderProxy.IsDisposed)
                     {
-                        this.loaderProxy.Dispose();
+                        _loaderProxy.Dispose();
                     }
 
-                    this.AssemblyImporter = null;
+                    AssemblyImporter = null;
                 }
             }
 
-            this.IsDisposed = true;
+            IsDisposed = true;
         }
 
         #endregion

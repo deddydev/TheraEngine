@@ -17,12 +17,12 @@ namespace TheraEngine.Components.Logic.Scripting
             {
                 if (_scriptRef != null)
                 {
-                    _scriptRef.UnregisterLoadEvent(OnLoaded);
-                    _scriptRef.UnregisterUnloadEvent(OnUnloaded);
+                    _scriptRef.Loaded -= (OnLoaded);
+                    _scriptRef.Unloaded -= (OnUnloaded);
                 }
                 _scriptRef = value ?? new GlobalFileRef<T>();
-                _scriptRef.RegisterLoadEvent(OnLoaded);
-                _scriptRef.RegisterUnloadEvent(OnUnloaded);
+                _scriptRef.Loaded += (OnLoaded);
+                _scriptRef.Unloaded += (OnUnloaded);
             }
         }
         [Browsable(false)]

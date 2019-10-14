@@ -89,7 +89,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
                 if (_modelRef != null)
                 {
-                    _modelRef.UnregisterLoadEvent(ModelLoaded);
+                    _modelRef.Loaded -= (ModelLoaded);
                 }
 
                 if (Meshes != null)
@@ -103,7 +103,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 }
 
                 _modelRef = value ?? new GlobalFileRef<SkeletalModel>();
-                _modelRef.RegisterLoadEvent(ModelLoaded);
+                _modelRef.Loaded += (ModelLoaded);
             }
         }
 
@@ -126,16 +126,16 @@ namespace TheraEngine.Components.Scene.Mesh
 
                 if (_skeletonRef != null)
                 {
-                    _skeletonRef.UnregisterLoadEvent(SkeletonLoaded);
-                    _skeletonRef.UnregisterUnloadEvent(SkeletonUnloaded);
+                    _skeletonRef.Loaded -= (SkeletonLoaded);
+                    _skeletonRef.Unloaded -= (SkeletonUnloaded);
 
                     if (_skeletonRef.IsLoaded)
                         _skeletonRef.File.OwningComponent = null;
                 }
 
                 _skeletonRef = value ?? new LocalFileRef<Skeleton>();
-                _skeletonRef.RegisterLoadEvent(SkeletonLoaded);
-                _skeletonRef.RegisterUnloadEvent(SkeletonUnloaded);
+                _skeletonRef.Loaded += (SkeletonLoaded);
+                _skeletonRef.Unloaded += (SkeletonUnloaded);
             }
         }
 

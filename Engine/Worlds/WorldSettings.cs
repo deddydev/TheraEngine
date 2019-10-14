@@ -228,15 +228,15 @@ namespace TheraEngine.Worlds
         {
             if (value is null)
                 return;
-            value.UnregisterLoadEvent(MapLoaded);
-            value.UnregisterUnloadEvent(MapUnloaded);
+            value.Loaded -= (MapLoaded);
+            value.Unloaded -= (MapUnloaded);
         }
         private void _maps_Added(string key, LocalFileRef<IMap> value)
         {
             if (value is null)
                 return;
-            value.RegisterLoadEvent(MapLoaded);
-            value.RegisterUnloadEvent(MapUnloaded);
+            value.Loaded += (MapLoaded);
+            value.Unloaded += (MapUnloaded);
         }
 
         public IMap FindOrCreateMap(string name)

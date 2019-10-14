@@ -4,16 +4,45 @@ using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Audio
 {
-    public class ALAudioManager : AbstractAudioManager
+    public class ALAudioManager : AbstractAudioManager, IDisposable
     {
         private const int MaxOpenALSources = 32;
 
-        private AudioContext _context;
+        public ALAudioManager() : base()
+        {
+            LazyContext = new Lazy<AudioContext>(GenerateContext, LazyThreadSafetyMode.ExecutionAndPublication);
+        }
+
+        private AudioContext GenerateContext()
+        {
+            IList<string> devices = AudioContext.AvailableDevices;
+            Engine.PrintLine("Available audio devices: " + string.Join(", ", devices));
+            Engine.PrintLine("Default audio device: " + AudioContext.DefaultDevice);
+
+            AudioContext ctx = new AudioContext(AudioContext.DefaultDevice);
+            ctx.MakeCurrent();
+
+            string version = AL.Get(ALGetString.Version);
+            string vendor = AL.Get(ALGetString.Vendor);
+            string renderer = AL.Get(ALGetString.Renderer);
+            string extensions = AL.Get(ALGetString.Extensions);
+            Engine.PrintLine($"OpenAL {version}, {vendor} [{renderer}]");
+            Engine.PrintLine($"OpenAL Extensions: {extensions}");
+
+            _efx = new EffectsExtension();
+
+            AL.DistanceModel(ALDistanceModel.LinearDistanceClamped);
+
+            return ctx;
+        }
+
         private EffectsExtension _efx;
         private readonly int[] _sourceBuffers = new int[MaxOpenALSources];
         
@@ -50,8 +79,12 @@ namespace TheraEngine.Audio
             {
                 AL.GetSource(instanceID, dest, out bool currentValue);
                 CheckError();
-                force = param != currentValue;
+                force = param != currentValue; 
+                if (force)
+                    Engine.PrintLine($"Audio: {dest} {currentValue} -> {param}");
             }
+            else
+                Engine.PrintLine($"Audio: {dest} = {param}");
 
             if (force)
             {
@@ -68,7 +101,11 @@ namespace TheraEngine.Audio
                 AL.GetSource(instanceID, dest, out float currentValue);
                 CheckError();
                 force = !param.EqualTo(currentValue);
+                if (force)
+                    Engine.PrintLine($"Audio: {dest} {currentValue} -> {param}");
             }
+            else
+                Engine.PrintLine($"Audio: {dest} = {param}");
 
             if (force)
             {
@@ -84,8 +121,13 @@ namespace TheraEngine.Audio
             {
                 AL.GetSource(instanceID, dest, out Vector3 currentValue);
                 CheckError();
-                force = (param | currentValue) < 1.0f;
+                Vec3 diff = param - (Vec3)currentValue;
+                force = diff.Length > float.Epsilon;
+                if (force)
+                    Engine.PrintLine($"Audio: {dest} {currentValue} -> {param}");
             }
+            else
+                Engine.PrintLine($"Audio: {dest} = {param}");
 
             if (force)
             {
@@ -179,12 +221,14 @@ namespace TheraEngine.Audio
         
         public override AudioInstance Play(IAudioSource source)
         {
-            Engine.PrintLine("Playing audio...");
-
-            var audio = source.Audio;
-            var param = source.Parameters;
-            
+            var audio = source?.Audio;
             byte[] data = audio?.Samples;
+            if (data is null || data.Length == 0)
+                return null;
+
+            var param = source.Parameters;
+
+            Engine.PrintLine($"Playing audio {audio?.Name}...");
 
             CheckError();
             if (audio.Instances.Count == 0)
@@ -201,52 +245,39 @@ namespace TheraEngine.Audio
             CheckError();
 
             AudioInstance instance = new AudioInstance(instanceID, param);
-            AL.Source(instance.ID, ALSourcei.Buffer, audio.BufferId);
+            AL.BindBufferToSource(instanceID, audio.BufferId);
             CheckError();
 
-            instance.UpdateAllParameters(true);
+            UpdateSource(instance, false);
             Play(instance);
 
             audio.Instances.Add(instance);
 
             return instance;
-
-            //do
-            //{
-            //    Thread.Sleep(250);
-            //    AL.GetSource(sound.SourceId, ALGetSourcei.SourceState, out state);
-            //}
-            //while ((ALSourceState)state == ALSourceState.Playing);
         }
 
         private void CheckError()
         {
-            if (_context is null)
-                InitContext();
+            Context?.MakeCurrent();
 
             ALError error = AL.GetError();
             if (error != ALError.NoError)
                 throw new InvalidOperationException("OpenAL error: " + error.ToString());
         }
 
-        private void InitContext()
-        {
-            IList<string> devices = AudioContext.AvailableDevices;
-            Engine.PrintLine("Available audio devices: " + string.Join(", ", devices));
+        public override IList<string> SoundDevices => AudioContext.AvailableDevices;
 
-            _context = new AudioContext(AudioContext.DefaultDevice);
-            _context.MakeCurrent();
-            _efx = new EffectsExtension();
-
-            AL.DistanceModel(ALDistanceModel.LinearDistanceClamped);
-        }
+        public AudioContext Context => LazyContext?.Value;
+        private Lazy<AudioContext> LazyContext { get; set; }
 
         public override bool Play(AudioInstance instance)
         {
             CheckError();
             AL.SourcePlay(instance.ID);
             CheckError();
-            return GetState(instance) == EAudioState.Playing;
+            
+            EAudioState state = GetState(instance);
+            return state == EAudioState.Playing;
         }
         public override bool Pause(AudioInstance instance)
         {
@@ -352,12 +383,21 @@ namespace TheraEngine.Audio
             float efxMetersPerUnit = 1.0f,
             bool force = false)
         {
-            Engine.PrintLine("Updating audio listener.");
+            //Engine.PrintLine("Updating audio listener.");
             UpdateListenerPosition(position, force);
             UpdateListenerOrientation(forward, up, force);
             UpdateListenerVelocity(velocity, force);
             UpdateListenerGain(gain, force);
             UpdateListenerEfxMetersPerUnit(efxMetersPerUnit, force);
+        }
+
+        public void Dispose()
+        {
+            if (LazyContext.IsValueCreated)
+            {
+                Context?.Dispose();
+                LazyContext = null;
+            }
         }
     }
 }

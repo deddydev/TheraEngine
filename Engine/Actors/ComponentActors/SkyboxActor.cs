@@ -80,14 +80,14 @@ namespace TheraEngine.Actors.Types
             {
                 if (_skyboxTextureRef != null)
                 {
-                    _skyboxTextureRef.UnregisterLoadEvent(TextureLoaded);
-                    _skyboxTextureRef.UnregisterUnloadEvent(TextureUnloaded);
+                    _skyboxTextureRef.Loaded -= TextureLoaded;
+                    _skyboxTextureRef.Unloaded -= TextureUnloaded;
                 }
                 _skyboxTextureRef = value;
                 if (_skyboxTextureRef != null)
                 {
-                    _skyboxTextureRef.RegisterLoadEvent(TextureLoaded);
-                    _skyboxTextureRef.RegisterUnloadEvent(TextureUnloaded);
+                    _skyboxTextureRef.Loaded += TextureLoaded;
+                    _skyboxTextureRef.Unloaded += TextureUnloaded;
                 }
             }
         }

@@ -162,25 +162,23 @@ namespace TheraEngine.Core.Files
 
         [Browsable(false)]
         public TypeProxy ReferencedType => SubType;
-        
-        private event Action<T> Loaded;
-        /// <summary>
-        /// Method to be called when a new instance is loaded.
-        /// </summary>
-        public virtual void RegisterLoadEvent(Action<T> onLoaded)
-        {
-            if (onLoaded is null)
-                return;
 
-            Loaded += onLoaded;
-        }
-        protected void OnLoaded(T file) => Loaded?.Invoke(file);
-        public virtual void UnregisterLoadEvent(Action<T> onLoaded)
+        private event Action<T> Loaded_Internal;
+        public virtual event Action<T> Loaded
         {
-            if (onLoaded is null)
-                return;
-            Loaded -= onLoaded;
+            add
+            {
+                if (value != null)
+                    Loaded_Internal += value;
+            }
+            remove
+            {
+                if (value != null)
+                    Loaded_Internal -= value;
+            }
         }
+
+        protected void OnLoaded(T file) => Loaded_Internal?.Invoke(file);
 
         protected virtual void OnAbsoluteRefPathChanged(string oldPath, string newPath)
         {
@@ -298,7 +296,7 @@ namespace TheraEngine.Core.Files
                 }
 
                 OnFileLoaded(file);
-                Loaded?.Invoke(file);
+                OnLoaded(file);
             }
 
             return (file, loadedFromFile, loadAttempted);
@@ -380,7 +378,7 @@ namespace TheraEngine.Core.Files
                 file = SubType.CreateInstance(args.Select(x => x.Value)) as T;
 
             if (callLoadedEvent)
-                Loaded?.Invoke(file);
+                OnLoaded(file);
 
             return file;
         }

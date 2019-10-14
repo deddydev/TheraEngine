@@ -45,8 +45,8 @@ namespace TheraEngine.Rendering.Models.Materials
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
             {
                 GlobalFileRef<TextureFile2D> tref = new TextureFile2D(width / scale, height / scale, bitmapFormat);
-                tref.RegisterLoadEvent(OnMipLoaded);
-                tref.RegisterUnloadEvent(OnMipUnloaded);
+                tref.Loaded += (OnMipLoaded);
+                tref.Unloaded += (OnMipUnloaded);
                 _mipmaps[i] = tref;
             }
 
@@ -66,8 +66,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             TextureFile2D tex = new TextureFile2D(width, height, bitmapFormat);
             GlobalFileRef<TextureFile2D> tref = tex;
-            tref.RegisterLoadEvent(OnMipLoaded);
-            tref.RegisterUnloadEvent(OnMipUnloaded);
+            tref.Loaded += (OnMipLoaded);
+            tref.Unloaded += (OnMipUnloaded);
             _mipmaps = new GlobalFileRef<TextureFile2D>[] { tref };
         }
         public TexRef2D(string name, params string[] mipMapPaths)
@@ -80,8 +80,8 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (path.StartsWith("file://"))
                     path = path.Substring(7);
                 GlobalFileRef<TextureFile2D> tref = new GlobalFileRef<TextureFile2D>(path);
-                tref.RegisterLoadEvent(OnMipLoaded);
-                tref.RegisterUnloadEvent(OnMipUnloaded);
+                tref.Loaded += (OnMipLoaded);
+                tref.Unloaded += (OnMipUnloaded);
                 _mipmaps[i] = tref;
             }
         }
@@ -93,8 +93,8 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 TextureFile2D mip = mipmaps[i];
                 GlobalFileRef<TextureFile2D> tref = new GlobalFileRef<TextureFile2D>(mip);
-                tref.RegisterLoadEvent(OnMipLoaded);
-                tref.RegisterUnloadEvent(OnMipUnloaded);
+                tref.Loaded += (OnMipLoaded);
+                tref.Unloaded += (OnMipUnloaded);
                 _mipmaps[i] = tref;
             }
             DetermineTextureFormat();
@@ -120,8 +120,8 @@ namespace TheraEngine.Rendering.Models.Materials
                         if (fileRef is null)
                             Mipmaps[i] = fileRef = new GlobalFileRef<TextureFile2D>();
 
-                        fileRef.UnregisterLoadEvent(OnMipLoaded);
-                        fileRef.UnregisterUnloadEvent(OnMipUnloaded);
+                        fileRef.Loaded -= (OnMipLoaded);
+                        fileRef.Unloaded -= (OnMipUnloaded);
                     }
                 }
                 _mipmaps = value;
@@ -131,8 +131,8 @@ namespace TheraEngine.Rendering.Models.Materials
                     {
                         if (fileRef != null)
                         {
-                            fileRef.RegisterLoadEvent(OnMipLoaded);
-                            fileRef.RegisterUnloadEvent(OnMipUnloaded);
+                            fileRef.Loaded += (OnMipLoaded);
+                            fileRef.Unloaded += (OnMipUnloaded);
                         }
                     }
                 }

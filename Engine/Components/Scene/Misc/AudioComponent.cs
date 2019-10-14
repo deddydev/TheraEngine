@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using TheraEngine.Audio;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 
@@ -16,10 +19,9 @@ namespace TheraEngine.Components.Scene
     }
     public class AudioComponent : TranslationComponent, IAudioSource, IEditorPreviewIconRenderable
     {
-        protected HashSet<AudioInstance> _instances = new HashSet<AudioInstance>();
+        private LocalFileRef<AudioParameters> _parametersRef;
 
-        //[Browsable(false)]
-        public IReadOnlyCollection<AudioInstance> Instances => _instances;
+        public AudioInstance Instance { get; private set; }
 
         [Category("Audio")]
         [TSerialize]
@@ -32,20 +34,33 @@ namespace TheraEngine.Components.Scene
         public GlobalFileRef<AudioFile> AudioFileRef { get; set; }
         [Category("Audio")]
         [TSerialize]
-        public LocalFileRef<AudioParameters> ParametersRef { get; set; }
+        public LocalFileRef<AudioParameters> ParametersRef
+        {
+            get => _parametersRef;
+            set
+            {
+                if (_parametersRef != null)
+                {
+                    _parametersRef.Loaded -= _parametersRef_Loaded;
+                }
+                _parametersRef = value;
+                if (_parametersRef != null)
+                {
+                    _parametersRef.Loaded += _parametersRef_Loaded;
+                }
+            }
+        }
 
-        public override void OnSpawned()
+        private void _parametersRef_Loaded(AudioParameters parameters)
+        {
+            UpdateTransform(parameters);
+        }
+
+        public override async void OnSpawned()
         {
             base.OnSpawned();
             if (PlayOnSpawn)
-                Play();
-        }
-
-        public void StopAllInstances()
-        {
-            foreach (AudioInstance instance in _instances)
-                Engine.Audio.Stop(instance);
-            _instances.Clear();
+                await PlayAsync();
         }
 
         AudioFile IAudioSource.Audio => AudioFileRef?.File;
@@ -54,22 +69,31 @@ namespace TheraEngine.Components.Scene
         /// <summary>
         /// Plays the sound.
         /// </summary>
-        public async void Play()
+        public async Task PlayAsync()
         {
             AudioFile file = await AudioFileRef?.GetInstanceAsync();
             if (file is null)
                 return;
 
-            AudioInstance instance = Engine.Audio.Play(this);
-            _instances.Add(instance);
+            Instance = Engine.Audio.Play(this);
         }
 
         protected override void OnWorldTransformChanged()
         {
             base.OnWorldTransformChanged();
-            var file = ParametersRef?.File;
-            if (file != null)
-                file.Position.OverrideValue = WorldPoint;
+            UpdateTransform(ParametersRef?.File);
+        }
+
+        private void UpdateTransform(AudioParameters parameters)
+        {
+            if (parameters?.Position != null)
+                parameters.Position.OverrideValue = WorldPoint;
+
+            if (parameters?.Direction != null)
+                parameters.Direction.OverrideValue = WorldForwardVec;
+
+            if (parameters?.Velocity != null)
+                parameters.Velocity.OverrideValue = Velocity;
         }
 
 #if EDITOR

@@ -46,33 +46,33 @@ namespace TheraEngine.Audio
             }
             else
             {
-                _listenerRelative = true;
+                _listenerRelative = false;
                 _loop = false;
 
-                _efxDirectFilterGainHighFrequencyAuto = false;
-                _efxAuxiliarySendFilterGainAuto = false;
-                _efxAuxiliarySendFilterGainHighFrequencyAuto = false;
+                _efxDirectFilterGainHighFrequencyAuto = true;
+                _efxAuxiliarySendFilterGainAuto = true;
+                _efxAuxiliarySendFilterGainHighFrequencyAuto = true;
 
                 _efxAirAbsorptionFactor = 0.0f;
                 _efxRoomRolloffFactor = 0.0f;
-                _efxConeOuterGainHighFrequency = 0.0f;
+                _efxConeOuterGainHighFrequency = 1.0f;
 
-                _coneInnerAngle = 0.0f;
-                _coneOuterAngle = 0.0f;
+                _coneInnerAngle = 360.0f;
+                _coneOuterAngle = 360.0f;
                 _coneOuterGain = 0.0f;
-                _pitch = 0.0f;
+                _pitch = 1.0f;
                 _gain = 1.0f;
                 _minGain = 0.0f;
                 _maxGain = 1.0f;
 
-                _referenceDistance = 0.0f;
-                _rolloffFactor = 0.0f;
-                _maxDistance = 0.0f;
+                _referenceDistance = 1.0f;
+                _rolloffFactor = 1.0f;
+                _maxDistance = float.MaxValue;
 
                 _playbackOffsetSeconds = 0.0f;
 
                 _position = Vec3.Zero;
-                _direction = Vec3.Forward;
+                _direction = Vec3.Zero;
                 _velocity = Vec3.Zero;
             }
         }
@@ -393,31 +393,31 @@ namespace TheraEngine.Audio
         #endregion
 
         #region Fields
-        public bool _listenerRelative;
-        public bool _loop;
+        private bool _listenerRelative = false;
+        private bool _loop = false;
 
-        public bool _efxDirectFilterGainHighFrequencyAuto;
-        public bool _efxAuxiliarySendFilterGainAuto;
-        public bool _efxAuxiliarySendFilterGainHighFrequencyAuto;
-        public float _efxAirAbsorptionFactor;
-        public float _efxRoomRolloffFactor;
-        public float _efxConeOuterGainHighFrequency;
+        private bool _efxDirectFilterGainHighFrequencyAuto = true;
+        private bool _efxAuxiliarySendFilterGainAuto = true;
+        private bool _efxAuxiliarySendFilterGainHighFrequencyAuto = true;
+        private float _efxAirAbsorptionFactor = 0.0f;
+        private float _efxRoomRolloffFactor = 0.0f;
+        private float _efxConeOuterGainHighFrequency = 1.0f;
 
-        public float _coneInnerAngle;
-        public float _coneOuterAngle;
-        public float _pitch;
-        public float _gain;
-        public float _minGain;
-        public float _maxGain;
-        public float _referenceDistance;
-        public float _rolloffFactor;
-        public float _coneOuterGain;
-        public float _maxDistance;
-        public float _playbackOffsetSeconds;
+        private float _coneInnerAngle = 360.0f;
+        private float _coneOuterAngle = 360.0f;
+        private float _pitch = 0.0f;
+        private float _gain = 1.0f;
+        private float _minGain = 0.0f;
+        private float _maxGain = 1.0f;
+        private float _referenceDistance = 1.0f;
+        private float _rolloffFactor = 1.0f;
+        private float _coneOuterGain = 0.0f;
+        private float _maxDistance = float.MaxValue;
+        private float _playbackOffsetSeconds = 0.0f;
 
-        public Vec3 _position;
-        public Vec3 _direction;
-        public Vec3 _velocity;
+        private Vec3 _position = Vec3.Zero;
+        private Vec3 _direction = Vec3.Zero;
+        private Vec3 _velocity = Vec3.Zero;
         #endregion
 
         public void Play()  => Engine.Audio.Play (this);

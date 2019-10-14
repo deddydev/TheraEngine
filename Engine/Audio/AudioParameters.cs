@@ -87,7 +87,7 @@ namespace TheraEngine.Audio
         /// Indicate distance above which Sources are not attenuated using the inverse clamped distance model.
         /// Default: float.PositiveInfinity Type: float Range: [0.0f - float.PositiveInfinity]
         /// </summary>
-        public UsableValue<float> MaxDistance { get; set; } = new UsableValue<float>(float.PositiveInfinity, float.PositiveInfinity, false);
+        public UsableValue<float> MaxDistance { get; set; } = new UsableValue<float>(float.MaxValue, float.MaxValue, false);
         /// <summary>
         /// The playback position, expressed in seconds.
         /// </summary>
@@ -115,15 +115,15 @@ namespace TheraEngine.Audio
         /// <summary>
         /// The position of the audio in world or listener relative space.
         /// </summary>
-        public UsableValue<Vec3> Position { get; set; } = new UsableValue<Vec3>(0.0f, 0.0f, false);
+        public UsableValue<Vec3> Position { get; set; } = new UsableValue<Vec3>(Vec3.Zero, Vec3.Zero, false);
         /// <summary>
         /// The direction the sound is facing.
         /// </summary>
-        public UsableValue<Vec3> Direction { get; set; } = new UsableValue<Vec3>(Vec3.Forward, Vec3.Forward, false);
+        public UsableValue<Vec3> Direction { get; set; } = new UsableValue<Vec3>(Vec3.Zero, Vec3.Zero, false);
         /// <summary>
         /// How fast the the sound is moving.
         /// </summary>
-        public UsableValue<Vec3> Velocity { get; set; } = new UsableValue<Vec3>(0.0f, 0.0f, false);
+        public UsableValue<Vec3> Velocity { get; set; } = new UsableValue<Vec3>(Vec3.Zero, Vec3.Zero, false);
     }
     [Serializable]
     public class UsableValue<T> where T : struct
@@ -146,7 +146,7 @@ namespace TheraEngine.Audio
             set
             {
                 _value = value;
-                UseOverrideValue = _value.Equals(DefaultValue);
+                UseOverrideValue = !_value.Equals(DefaultValue);
             }
         }
 

@@ -178,24 +178,22 @@ namespace TheraEngine.Core.Files
         protected abstract bool RegisterInstance();
 
         public event Action<T> Unloaded;
+
         /// <summary>
-        /// Method to be called when the file this reference points to becomes (or currently is) available.
+        /// Event called when the file this reference points to becomes (or currently is) available.
         /// </summary>
-        public override void RegisterLoadEvent(Action<T> onLoaded)
+        public override event Action<T> Loaded
         {
-            base.RegisterLoadEvent(onLoaded);
-            if (_file != null)
-                onLoaded?.Invoke(_file);
-        }
-        public void RegisterUnloadEvent(Action<T> unloaded)
-        {
-            if (unloaded != null)
-                Unloaded += unloaded;
-        }
-        public void UnregisterUnloadEvent(Action<T> unloaded)
-        {
-            if (unloaded != null)
-                Unloaded -= unloaded;
+            add
+            {
+                base.Loaded += value;
+                if (_file != null)
+                    value?.Invoke(_file);
+            }
+            remove
+            {
+                base.Loaded -= value;
+            }
         }
 
         //public async Task ExportReferenceAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)

@@ -57,7 +57,7 @@
         /// </remarks>
         public Assembly LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null)
         {
-            Trace.WriteLine($"{loadMethod} {assemblyPath}");
+            Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] {loadMethod} {assemblyPath}");
 
             Assembly assembly;
             switch (loadMethod)
@@ -100,7 +100,7 @@
         /// </remarks>
         public Assembly ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string assemblyPath)
         {
-            Trace.WriteLine($"[ReflectionOnly] {loadMethod} {assemblyPath}");
+            Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] [ReflectionOnly] {loadMethod} {assemblyPath}");
 
             Assembly assembly;
             switch (loadMethod)
@@ -130,13 +130,17 @@
         public IList<Assembly> LoadAssemblyWithReferences(ELoadMethod loadMethod, string assemblyPath)
         {
             var list = new List<Assembly>();
-            var assembly = this.LoadAssembly(loadMethod, assemblyPath);
+            var assembly = LoadAssembly(loadMethod, assemblyPath);
             list.Add(assembly);
 
-            foreach (var reference in assembly.GetReferencedAssemblies())
+            foreach (AssemblyName reference in assembly.GetReferencedAssemblies())
             {
-                Trace.WriteLine($"Loading from {reference}");
-                list.Add(Assembly.Load(reference));
+                Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Loading reference from {reference}");
+
+                if (File.Exists(reference.CodeBase))
+                    list.Add(LoadAssembly(loadMethod, reference.CodeBase));
+                else
+                    list.Add(Assembly.Load(reference));
             }
 
             return list;

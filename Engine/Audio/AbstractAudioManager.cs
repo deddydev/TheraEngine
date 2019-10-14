@@ -1,4 +1,5 @@
-﻿using TheraEngine.Components.Scene;
+﻿using System.Collections.Generic;
+using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Audio
@@ -11,6 +12,8 @@ namespace TheraEngine.Audio
         public abstract bool Stop(AudioInstance instance);
         public abstract void Destroy(AudioInstance instance);
         public abstract EAudioState GetState(AudioInstance instance);
+
+        public abstract IList<string> SoundDevices { get; }
 
         #region Source
 

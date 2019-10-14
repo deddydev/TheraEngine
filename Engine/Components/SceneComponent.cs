@@ -79,19 +79,23 @@ namespace TheraEngine.Components
     public abstract class SceneComponent : Component, ISceneComponent
     {
         void ISceneComponent.OnLostAudioListener() => OnLostAudioListener();
-        internal void OnLostAudioListener() => WorldTransformChanged -= UpdateAudioListenerTransform;
-        
+        internal void OnLostAudioListener()
+        {
+            WorldTransformChanged -= UpdateAudioListenerTransform;
+            MonitorAudioVelocity = false;
+        }
+
         void ISceneComponent.OnGotAudioListener() => OnGotAudioListener();
         internal void OnGotAudioListener()
         {
-            WorldTransformChanged += UpdateAudioListenerTransform; 
+            WorldTransformChanged += UpdateAudioListenerTransform;
+            MonitorAudioVelocity = true;
             UpdateAudioListenerTransform(this);
         }
-        
+
         private void UpdateAudioListenerTransform(ISceneComponent obj)
         {
-            Matrix4 mtx = obj.WorldMatrix;
-            Engine.Audio.UpdateListener(mtx.Translation, mtx.ForwardVec, mtx.UpVec, Vec3.Zero, 1.0f, 1.0f, true);
+            Engine.Audio.UpdateListener(WorldPoint, WorldForwardVec, WorldUpVec, Velocity, 1.0f, 1.0f, true);
         }
 
         public const string RenderingCategoryName = "Rendering";
@@ -157,6 +161,57 @@ namespace TheraEngine.Components
         internal ISocket _parent;
         protected IEventList<ISceneComponent> _children;
 
+        private bool _monitorAudioVelocity = false;
+        private bool _monitorVelocity = false;
+
+        public bool MonitorVelocity
+        {
+            get => _monitorVelocity;
+            set
+            {
+                if (_monitorVelocity == value)
+                    return;
+
+                _monitorVelocity = value;
+
+                if (!_monitorAudioVelocity)
+                {
+                    if (_monitorVelocity)
+                        RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, CalcVelocityTick);
+                    else
+                        UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, CalcVelocityTick);
+                }
+            }
+        }
+
+        private bool MonitorAudioVelocity
+        {
+            get => _monitorAudioVelocity;
+            set
+            {
+                if (_monitorAudioVelocity == value)
+                    return;
+
+                _monitorAudioVelocity = value;
+
+                if (!_monitorVelocity)
+                {
+                    if (_monitorAudioVelocity)
+                        RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, CalcVelocityTick);
+                    else
+                        UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, CalcVelocityTick);
+                }
+            }
+        }
+
+        private Vec3 _lastVelocityPos = Vec3.Zero;
+        private void CalcVelocityTick(float delta)
+        {
+            Vec3 diff = WorldPoint - _lastVelocityPos;
+            Velocity = delta < float.Epsilon ? Vec3.Zero : diff / delta;
+            _lastVelocityPos = WorldPoint;
+        }
+
         /// <summary>
         /// Use to set both matrices at the same time, so neither needs to be inverted to get the other.
         /// Highly recommended if you can compute both with the same initial parameters.
@@ -174,6 +229,9 @@ namespace TheraEngine.Components
 
             OnWorldTransformChanged();
         }
+
+        [Category("Transform")]
+        public Vec3 Velocity { get; private set; }
 
         [Browsable(false)]
         [Category("Transform")]
@@ -272,7 +330,7 @@ namespace TheraEngine.Components
         public int ActorSceneComponentCacheIndex { get; private set; }
         [Browsable(false)]
         protected bool SimulatingPhysics => _simulatingPhysics;
-        
+
         [Browsable(false)]
         public IScene OwningScene => OwningActor?.OwningScene;
         [Browsable(false)]
@@ -314,7 +372,7 @@ namespace TheraEngine.Components
         /// </summary>
         [Browsable(false)]
         public Vec3 LocalPoint => _localMatrix.Translation;
-        
+
         /// <summary>
         /// Right direction relative to the world.
         /// </summary>
@@ -334,13 +392,13 @@ namespace TheraEngine.Components
         /// The position of this component relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldPoint => _worldTransform.Translation;        
+        public Vec3 WorldPoint => _worldTransform.Translation;
         /// <summary>
         /// The scale of this component relative to the world.
         /// </summary>
         [Browsable(false)]
         public Vec3 WorldScale => _worldTransform.Scale;
-        
+
         /// <summary>
         /// All scene components that derive their transform from this one.
         /// </summary>
@@ -521,7 +579,7 @@ namespace TheraEngine.Components
 
             if (this is I2DRenderable r2D && OwningScene2D != null)
                 r2D.RenderInfo.LinkScene(r2D, OwningScene2D);
-            
+
             foreach (ISceneComponent c in _children)
                 c.OnSpawned();
         }
@@ -588,7 +646,7 @@ namespace TheraEngine.Components
         {
             foreach (ISceneComponent item in items)
                 HandleSingleChildRemoved(item);
-            
+
             OwningActor?.GenerateSceneComponentCache();
         }
         protected virtual void OnChildComponentRemoved(ISceneComponent item)
@@ -610,7 +668,7 @@ namespace TheraEngine.Components
         {
             foreach (ISceneComponent item in items)
                 HandleSingleChildAdded(item);
-            
+
             OwningActor?.GenerateSceneComponentCache();
         }
         /// <summary>
@@ -621,7 +679,7 @@ namespace TheraEngine.Components
         protected virtual void OnChildComponentAdded(ISceneComponent item)
         {
             HandleSingleChildAdded(item);
-            
+
             OwningActor?.GenerateSceneComponentCache();
         }
         protected virtual void HandleSingleChildRemoved(ISceneComponent item)
@@ -744,7 +802,7 @@ namespace TheraEngine.Components
         public virtual bool IsScalable => false;
         [Browsable(false)]
         public int ParentSocketChildIndex => ParentSocket?.ChildComponents?.IndexOf(this) ?? -1;
-        
+
         public virtual void HandleWorldTranslation(Vec3 delta)
         {
             //if (!IsTranslatable)
@@ -761,7 +819,7 @@ namespace TheraEngine.Components
             //    throw new InvalidOperationException();
         }
         #endregion
-        
+
 #if EDITOR
         protected void AddPreviewRenderCommand(RenderCommandMesh3D renderCommand, RenderPasses passes, ICamera camera, bool scaleByDistance, float scale)
         {

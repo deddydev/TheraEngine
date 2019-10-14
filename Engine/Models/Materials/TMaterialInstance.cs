@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public TMaterialInstance()
         {
             _material = new GlobalFileRef<TMaterial>();
-            _material.RegisterLoadEvent(MaterialLoaded);
+            _material.Loaded += MaterialLoaded;
         }
 
         [TSerialize]
@@ -19,9 +19,9 @@ namespace TheraEngine.Rendering.Models.Materials
             get => _material;
             set
             {
-                _material.UnregisterLoadEvent(MaterialLoaded);
+                _material.Loaded -= MaterialLoaded;
                 _material = value ?? new GlobalFileRef<TMaterial>();
-                _material.RegisterLoadEvent(MaterialLoaded);
+                _material.Loaded += MaterialLoaded;
             }
         }
         private void MaterialLoaded(TMaterial mat)

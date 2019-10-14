@@ -16,7 +16,7 @@
     {
         #region Fields & Constants
 
-        private readonly IAssemblyLoader loader;
+        private readonly IAssemblyLoader _loader;
 
         #endregion
 
@@ -28,7 +28,7 @@
         /// </summary>
         public AssemblyTargetLoader()
         {
-            this.loader = new AssemblyLoader();
+            _loader = new AssemblyLoader();
         }
 
         #endregion
@@ -39,7 +39,7 @@
         public IAssemblyTarget LoadAssembly(ELoadMethod loadMethod, string assemblyPath, string pdbPath = null)
         {
             IAssemblyTarget target;
-            var assembly = loader.LoadAssembly(loadMethod, assemblyPath, pdbPath);
+            var assembly = _loader.LoadAssembly(loadMethod, assemblyPath, pdbPath);
             if (loadMethod == ELoadMethod.LoadBits)
             {
                 // Assemlies loaded by bits will have the codebase set to the assembly that loaded it. Set it to the correct path here.
@@ -57,8 +57,8 @@
         /// <inheritdoc/>
         public IAssemblyTarget ReflectionOnlyLoadAssembly(ELoadMethod loadMethod, string assemblyPath)
         {
-            IAssemblyTarget target = null;
-            var assembly = this.loader.ReflectionOnlyLoadAssembly(loadMethod, assemblyPath);
+            IAssemblyTarget target;
+            var assembly = _loader.ReflectionOnlyLoadAssembly(loadMethod, assemblyPath);
             if (loadMethod == ELoadMethod.LoadBits)
             {
                 // Assemlies loaded by bits will have the codebase set to the assembly that loaded it. Set it to the correct path here.
@@ -76,20 +76,20 @@
         /// <inheritdoc/>
         public IList<IAssemblyTarget> LoadAssemblyWithReferences(ELoadMethod loadMethod, string assemblyPath)
         {
-            return this.loader.LoadAssemblyWithReferences(loadMethod, assemblyPath).Select(x => AssemblyTarget.FromAssembly(x)).ToList();
+            return _loader.LoadAssemblyWithReferences(loadMethod, assemblyPath).Select(x => AssemblyTarget.FromAssembly(x)).ToList();
         }
 
         /// <inheritdoc />
         public IAssemblyTarget[] GetAssemblies()
         {
-            var assemblies = this.loader.GetAssemblies();
+            var assemblies = _loader.GetAssemblies();
             return assemblies.Select(x => AssemblyTarget.FromAssembly(x)).ToArray();
         }
 
         /// <inheritdoc />
         public IAssemblyTarget[] ReflectionOnlyGetAssemblies()
         {
-            var assemblies = this.loader.ReflectionOnlyGetAssemblies();
+            var assemblies = _loader.ReflectionOnlyGetAssemblies();
             return assemblies.Select(x => AssemblyTarget.FromAssembly(x)).ToArray();
         }
 

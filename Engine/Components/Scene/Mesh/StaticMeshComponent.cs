@@ -24,7 +24,7 @@ namespace TheraEngine.Components.Scene.Mesh
             TRigidBodyConstructionInfo info) : base(translation, rotation, scale, true)
         {
             _modelRef = model ?? new GlobalFileRef<StaticModel>();
-            _modelRef.RegisterLoadEvent(OnModelLoaded);
+            _modelRef.Loaded += (OnModelLoaded);
 
             if (info is null)
                 RigidBodyCollision = null;
@@ -120,13 +120,13 @@ namespace TheraEngine.Components.Scene.Mesh
                     Meshes = null;
                 }
 
-                _modelRef.UnregisterLoadEvent(OnModelLoaded);
-                _modelRef.UnregisterUnloadEvent(OnModelUnloaded);
+                _modelRef.Loaded -= (OnModelLoaded);
+                _modelRef.Unloaded -= (OnModelUnloaded);
 
                 _modelRef = value ?? new GlobalFileRef<StaticModel>();
 
-                _modelRef.RegisterLoadEvent(OnModelLoaded);
-                _modelRef.RegisterUnloadEvent(OnModelUnloaded);
+                _modelRef.Loaded += (OnModelLoaded);
+                _modelRef.Unloaded += (OnModelUnloaded);
             }
         }
 

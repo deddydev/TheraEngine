@@ -226,7 +226,7 @@ namespace TheraEditor.Windows.Forms
                             continue;
 
                         _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
-                        _gameDomain.LoadAssembly(ELoadMethod.LoadBits, path.Path);
+                        _gameDomain.LoadAssemblyWithReferences(ELoadMethod.LoadBits, path.Path);
                     }
 
                 Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, gamePath);

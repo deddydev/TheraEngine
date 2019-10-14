@@ -277,8 +277,8 @@ namespace TheraEditor.Windows.Forms
             var sref = world?.SettingsRef;
             if (sref != null)
             {
-                sref.RegisterLoadEvent(WorldSettingsLoaded);
-                sref.RegisterUnloadEvent(WorldSettingsUnloaded);
+                sref.Loaded += (WorldSettingsLoaded);
+                sref.Unloaded += (WorldSettingsUnloaded);
             }
 
             if (InvokeRequired)
@@ -589,7 +589,7 @@ namespace TheraEditor.Windows.Forms
                 DockPanel.ResumeLayout(true, true);
             }
 
-            Engine.PrintLine($"Set project to {_project?.ToString() ?? "null"}.");
+            Engine.PrintLine($"Set project to {_project?.FilePath?.ToString() ?? "null"}.");
         }
         public async void LoadProject(string projectPath)
         {

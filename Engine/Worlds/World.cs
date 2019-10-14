@@ -99,12 +99,14 @@ namespace TheraEngine.Worlds
             {
                 if (_settingsRef != null)
                 {
-                    _settingsRef.UnregisterLoadEvent(SettingsLoaded);
-                    _settingsRef.UnregisterUnloadEvent(SettingsUnloaded);
+                    _settingsRef.Loaded -= SettingsLoaded;
+                    _settingsRef.Unloaded -= SettingsUnloaded;
                 }
+
                 _settingsRef = value ?? new GlobalFileRef<WorldSettings>();
-                _settingsRef.RegisterLoadEvent(SettingsLoaded);
-                _settingsRef.RegisterUnloadEvent(SettingsUnloaded);
+
+                _settingsRef.Loaded += SettingsLoaded;
+                _settingsRef.Unloaded += SettingsUnloaded;
             }
         }
 

@@ -43,7 +43,7 @@ namespace TheraEditor
 
         private static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
-            if (args.LoadedAssembly.GetName().FullName.Contains("Puyo"))
+            if (args.LoadedAssembly.FullName.Contains("Puyo"))
                 throw new Exception();
         }
 

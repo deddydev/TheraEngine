@@ -32,8 +32,8 @@ namespace TheraEngine.Rendering.Models.Materials
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
             {
                 GlobalFileRef<TBitmap3D> tref = new TBitmap3D(width / scale, height / scale, depth / scale, ETPixelType.Basic);
-                tref.RegisterLoadEvent(OnMipLoaded);
-                tref.RegisterUnloadEvent(OnMipUnloaded);
+                tref.Loaded += OnMipLoaded;
+                tref.Unloaded += OnMipUnloaded;
                 _mipmaps[i] = tref;
             }
 
@@ -92,8 +92,8 @@ namespace TheraEngine.Rendering.Models.Materials
                         if (fileRef is null)
                             Mipmaps[i] = new GlobalFileRef<TBitmap3D>();
                         {
-                            fileRef.UnregisterLoadEvent(OnMipLoaded);
-                            fileRef.UnregisterUnloadEvent(OnMipUnloaded);
+                            fileRef.Loaded -= OnMipLoaded;
+                            fileRef.Unloaded -= OnMipUnloaded;
                         }
                     }
                 }
@@ -104,8 +104,8 @@ namespace TheraEngine.Rendering.Models.Materials
                     {
                         if (fileRef != null)
                         {
-                            fileRef.RegisterLoadEvent(OnMipLoaded);
-                            fileRef.RegisterUnloadEvent(OnMipUnloaded);
+                            fileRef.Loaded += OnMipLoaded;
+                            fileRef.Unloaded += OnMipUnloaded;
                         }
                     }
                 }

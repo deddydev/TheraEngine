@@ -133,14 +133,14 @@ namespace TheraEngine.Actors
                 {
                     if (_hud.IsLoaded)
                         HudUnloaded(_hud.File);
-                    _hud.UnregisterLoadEvent(HudLoaded);
-                    _hud.UnregisterUnloadEvent(HudUnloaded);
+                    _hud.Loaded -= HudLoaded;
+                    _hud.Unloaded -= HudUnloaded;
                 }
                 _hud = value;
                 if (_hud != null)
                 {
-                    _hud.RegisterLoadEvent(HudLoaded);
-                    _hud.RegisterUnloadEvent(HudUnloaded);
+                    _hud.Loaded += HudLoaded;
+                    _hud.Unloaded += HudUnloaded;
                 }
             }
         }

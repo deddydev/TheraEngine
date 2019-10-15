@@ -71,189 +71,70 @@ namespace TheraEngine.Audio
                 default: throw new NotSupportedException("The specified sound format is not supported.");
             }
         }
-        private void UpdateAudioParam(int instanceID, bool param, ALSourceb dest, bool force = false)
-        {
-            CheckError();
-
-            if (!force)
-            {
-                AL.GetSource(instanceID, dest, out bool currentValue);
-                CheckError();
-                force = param != currentValue; 
-                if (force)
-                    Engine.PrintLine($"Audio: {dest} {currentValue} -> {param}");
-            }
-            else
-                Engine.PrintLine($"Audio: {dest} = {param}");
-
-            if (force)
-            {
-                AL.Source(instanceID, dest, param);
-                CheckError();
-            }
-        }
-        private void UpdateAudioParam(int instanceID, float param, ALSourcef dest, bool force = false)
-        {
-            CheckError();
-
-            if (!force)
-            {
-                AL.GetSource(instanceID, dest, out float currentValue);
-                CheckError();
-                force = !param.EqualTo(currentValue);
-                if (force)
-                    Engine.PrintLine($"Audio: {dest} {currentValue} -> {param}");
-            }
-            else
-                Engine.PrintLine($"Audio: {dest} = {param}");
-
-            if (force)
-            {
-                AL.Source(instanceID, dest, param);
-                CheckError();
-            }
-        }
-        private void UpdateAudioParam(int instanceID, Vec3 param, ALSource3f dest, bool force = false)
-        {
-            CheckError();
-
-            if (!force)
-            {
-                AL.GetSource(instanceID, dest, out Vector3 currentValue);
-                CheckError();
-                Vec3 diff = param - (Vec3)currentValue;
-                force = diff.Length > float.Epsilon;
-                if (force)
-                    Engine.PrintLine($"Audio: {dest} {currentValue} -> {param}");
-            }
-            else
-                Engine.PrintLine($"Audio: {dest} = {param}");
-
-            if (force)
-            {
-                AL.Source(instanceID, dest, param.X, param.Y, param.Z);
-                CheckError();
-            }
-        }
-
-        public override void UpdateSource(AudioInstance instance, bool force = false)
-        {
-            UpdateSourceListenerRelative(instance, force);
-            UpdateSourceLoop(instance, force);
-
-            UpdateSourceEfxDirectFilterGainHighFrequencyAuto(instance, force);
-            UpdateSourceEfxAuxiliarySendFilterGainAuto(instance, force);
-            UpdateSourceEfxAuxiliarySendFilterGainHighFrequencyAuto(instance, force);
-
-            UpdateSourceEfxAirAbsorptionFactor(instance, force);
-            UpdateSourceEfxRoomRolloffFactor(instance, force);
-            UpdateSourceEfxConeOuterGainHighFrequency(instance, force);
-
-            UpdateSourceConeInnerAngle(instance, force);
-            UpdateSourceConeOuterAngle(instance, force);
-            UpdateSourceConeOuterGain(instance, force);
-
-            UpdateSourcePitch(instance, force);
-            UpdateSourceGain(instance, force);
-            UpdateSourceMinGain(instance, force);
-            UpdateSourceMaxGain(instance, force);
-
-            UpdateSourceReferenceDistance(instance, force);
-            UpdateSourceRolloffFactor(instance, force);
-            UpdateSourceMaxDistance(instance, force);
-            UpdateSourcePlaybackOffsetSeconds(instance, force);
-
-            UpdateSourcePosition(instance, force);
-            UpdateSourceDirection(instance, force);
-            UpdateSourceVelocity(instance, force);
-        }
-        
-        public override void UpdateSourceListenerRelative(int instanceID, bool value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourceb.SourceRelative, force);
-        public override void UpdateSourceLoop(int instanceID, bool value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourceb.Looping, force);
-        
-        public override void UpdateSourceEfxDirectFilterGainHighFrequencyAuto(int instanceID, bool value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourceb.EfxDirectFilterGainHighFrequencyAuto, force);
-        public override void UpdateSourceEfxAuxiliarySendFilterGainAuto(int instanceID, bool value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourceb.EfxAuxiliarySendFilterGainAuto, force);
-        public override void UpdateSourceEfxAuxiliarySendFilterGainHighFrequencyAuto(int instanceID, bool value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourceb.EfxAuxiliarySendFilterGainHighFrequencyAuto, force);
-
-        public override void UpdateSourceEfxAirAbsorptionFactor(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.EfxAirAbsorptionFactor, force);
-        public override void UpdateSourceEfxRoomRolloffFactor(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.EfxRoomRolloffFactor, force);
-        public override void UpdateSourceEfxConeOuterGainHighFrequency(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.EfxConeOuterGainHighFrequency, force);
-
-        public override void UpdateSourceConeInnerAngle(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.ConeInnerAngle, force);
-        public override void UpdateSourceConeOuterAngle(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.ConeOuterAngle, force);
-        public override void UpdateSourceConeOuterGain(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.ConeOuterGain, force);
-
-        public override void UpdateSourcePitch(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.Pitch, force);
-        public override void UpdateSourceGain(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.Gain, force);
-        public override void UpdateSourceMinGain(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.MinGain, force);
-        public override void UpdateSourceMaxGain(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.MaxGain, force);
-        
-        public override void UpdateSourceReferenceDistance(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.ReferenceDistance, force);
-        public override void UpdateSourceRolloffFactor(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.RolloffFactor, force);
-        public override void UpdateSourceMaxDistance(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.MaxDistance, force);
-        public override void UpdateSourcePlaybackOffsetSeconds(int instanceID, float value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSourcef.SecOffset, force);
-
-        public override void UpdateSourcePosition(int instanceID, Vec3 value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSource3f.Position, force);
-        public override void UpdateSourceDirection(int instanceID, Vec3 value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSource3f.Direction, force);
-        public override void UpdateSourceVelocity(int instanceID, Vec3 value, bool force = false)
-            => UpdateAudioParam(instanceID, value, ALSource3f.Velocity, force);
-        
         public override AudioInstance Play(IAudioSource source)
         {
             var audio = source?.Audio;
-            byte[] data = audio?.Samples;
-            if (data is null || data.Length == 0)
-                return null;
 
             var param = source.Parameters;
 
             Engine.PrintLine($"Playing audio {audio?.Name}...");
 
+            int sourceID = AllocateNewSource();
+            int bufferID = AL.GenBuffer();
             CheckError();
-            if (audio.Instances.Count == 0)
+
+            if (audio.BufferId > 0)
             {
-                audio.BufferId = AL.GenBuffer();
-                CheckError();
-                AL.BufferData(audio.BufferId,
-                    GetSoundFormat(audio.Channels, audio.BitsPerSample),
-                    data, data.Length, audio.SampleRate);
+                AL.DeleteBuffer(audio.BufferId);
                 CheckError();
             }
 
-            int instanceID = AL.GenSource();
-            CheckError();
+            audio.BufferId = bufferID;
 
-            AudioInstance instance = new AudioInstance(instanceID, param);
-            AL.BindBufferToSource(instanceID, audio.BufferId);
+            AudioInstance instance = new AudioInstance(sourceID, param);
+
+            ALFormat format = GetSoundFormat(audio.Channels, audio.BitsPerSample);
+
+            //if (audio.UseStreaming)
+            //{
+            //    while (audio.GetNextStreamChunk(out byte[] buffer))
+            //    {
+            //        AL.BufferData(audio.BufferId, format, buffer, buffer.Length, audio.SampleRate);
+            //        CheckError();
+
+            //        AL.SourceQueueBuffer(sourceID, bufferID);
+
+            //        AL.GetSource(instance.ID)
+            //        AL.SourceUnqueueBuffers();
+            //    }
+            //}
+            //else
+            {
+                byte[] data = audio?.Samples;
+                if (data is null || data.Length == 0)
+                    return null;
+
+                AL.BufferData(audio.BufferId, format, data, data.Length, audio.SampleRate);
+                CheckError();
+                
+                AL.BindBufferToSource(sourceID, audio.BufferId);
+            }
+
             CheckError();
 
             UpdateSource(instance, false);
             Play(instance);
 
-            audio.Instances.Add(instance);
+            source.Instance = instance;
 
             return instance;
+        }
+
+        private int AllocateNewSource()
+        {
+            int id = AL.GenSource();
+            CheckError();
+            return id;
         }
 
         private void CheckError()
@@ -273,24 +154,37 @@ namespace TheraEngine.Audio
         public override bool Play(AudioInstance instance)
         {
             CheckError();
+            EAudioState state = GetState(instance);
+            if (state == EAudioState.Playing)
+                return true;
+
             AL.SourcePlay(instance.ID);
             CheckError();
             
-            EAudioState state = GetState(instance);
-            return state == EAudioState.Playing;
+            return GetState(instance) == EAudioState.Playing;
         }
         public override bool Pause(AudioInstance instance)
         {
             CheckError();
+            EAudioState state = GetState(instance);
+            if (state == EAudioState.Paused)
+                return true;
+
             AL.SourcePause(instance.ID);
             CheckError();
+
             return GetState(instance) == EAudioState.Paused;
         }
         public override bool Stop(AudioInstance instance)
         {
             CheckError();
+            EAudioState state = GetState(instance);
+            if (state == EAudioState.Stopped)
+                return true;
+
             AL.SourceStop(instance.ID);
             CheckError();
+
             return GetState(instance) == EAudioState.Stopped;
         }
         public override void Destroy(AudioInstance instance)
@@ -390,6 +284,151 @@ namespace TheraEngine.Audio
             UpdateListenerGain(gain, force);
             UpdateListenerEfxMetersPerUnit(efxMetersPerUnit, force);
         }
+        private void UpdateAudioParam(int instanceID, bool param, ALSourceb dest, bool force = false)
+        {
+            CheckError();
+
+            if (!force)
+            {
+                AL.GetSource(instanceID, dest, out bool currentValue);
+                CheckError();
+                force = param != currentValue;
+                if (force)
+                    Engine.PrintLine($"Audio {instanceID}: {dest} {currentValue} -> {param}");
+            }
+            else
+                Engine.PrintLine($"Audio {instanceID}: {dest} = {param}");
+
+            if (force)
+            {
+                AL.Source(instanceID, dest, param);
+                CheckError();
+            }
+        }
+        private void UpdateAudioParam(int instanceID, float param, ALSourcef dest, bool force = false)
+        {
+            CheckError();
+
+            if (!force)
+            {
+                AL.GetSource(instanceID, dest, out float currentValue);
+                CheckError();
+                force = !param.EqualTo(currentValue);
+                if (force)
+                    Engine.PrintLine($"Audio {instanceID}: {dest} {currentValue} -> {param}");
+            }
+            else
+                Engine.PrintLine($"Audio {instanceID}: {dest} = {param}");
+
+            if (force)
+            {
+                AL.Source(instanceID, dest, param);
+                CheckError();
+            }
+        }
+        private void UpdateAudioParam(int instanceID, Vec3 param, ALSource3f dest, bool force = false)
+        {
+            CheckError();
+
+            if (!force)
+            {
+                AL.GetSource(instanceID, dest, out Vector3 currentValue);
+                CheckError();
+                Vec3 diff = param - (Vec3)currentValue;
+                force = diff.Length > float.Epsilon;
+                if (force)
+                    Engine.PrintLine($"Audio {instanceID}: {dest} {currentValue} -> {param}");
+            }
+            else
+                Engine.PrintLine($"Audio {instanceID}: {dest} = {param}");
+
+            if (force)
+            {
+                AL.Source(instanceID, dest, param.X, param.Y, param.Z);
+                CheckError();
+            }
+        }
+        public override void UpdateSource(AudioInstance instance, bool force = false)
+        {
+            UpdateSourceListenerRelative(instance, force);
+            UpdateSourceLoop(instance, force);
+
+            UpdateSourceEfxDirectFilterGainHighFrequencyAuto(instance, force);
+            UpdateSourceEfxAuxiliarySendFilterGainAuto(instance, force);
+            UpdateSourceEfxAuxiliarySendFilterGainHighFrequencyAuto(instance, force);
+
+            UpdateSourceEfxAirAbsorptionFactor(instance, force);
+            UpdateSourceEfxRoomRolloffFactor(instance, force);
+            UpdateSourceEfxConeOuterGainHighFrequency(instance, force);
+
+            UpdateSourceConeInnerAngle(instance, force);
+            UpdateSourceConeOuterAngle(instance, force);
+            UpdateSourceConeOuterGain(instance, force);
+
+            UpdateSourcePitch(instance, force);
+            UpdateSourceGain(instance, force);
+            UpdateSourceMinGain(instance, force);
+            UpdateSourceMaxGain(instance, force);
+
+            UpdateSourceReferenceDistance(instance, force);
+            UpdateSourceRolloffFactor(instance, force);
+            UpdateSourceMaxDistance(instance, force);
+            UpdateSourcePlaybackOffsetSeconds(instance, force);
+
+            UpdateSourcePosition(instance, force);
+            UpdateSourceDirection(instance, force);
+            UpdateSourceVelocity(instance, force);
+        }
+        public override void UpdateSourceListenerRelative(int instanceID, bool value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourceb.SourceRelative, force);
+        public override void UpdateSourceLoop(int instanceID, bool value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourceb.Looping, force);
+
+        public override void UpdateSourceEfxDirectFilterGainHighFrequencyAuto(int instanceID, bool value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourceb.EfxDirectFilterGainHighFrequencyAuto, force);
+        public override void UpdateSourceEfxAuxiliarySendFilterGainAuto(int instanceID, bool value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourceb.EfxAuxiliarySendFilterGainAuto, force);
+        public override void UpdateSourceEfxAuxiliarySendFilterGainHighFrequencyAuto(int instanceID, bool value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourceb.EfxAuxiliarySendFilterGainHighFrequencyAuto, force);
+
+        public override void UpdateSourceEfxAirAbsorptionFactor(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.EfxAirAbsorptionFactor, force);
+        public override void UpdateSourceEfxRoomRolloffFactor(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.EfxRoomRolloffFactor, force);
+        public override void UpdateSourceEfxConeOuterGainHighFrequency(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.EfxConeOuterGainHighFrequency, force);
+
+        public override void UpdateSourceConeInnerAngle(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.ConeInnerAngle, force);
+        public override void UpdateSourceConeOuterAngle(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.ConeOuterAngle, force);
+        public override void UpdateSourceConeOuterGain(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.ConeOuterGain, force);
+
+        public override void UpdateSourcePitch(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.Pitch, force);
+        public override void UpdateSourceGain(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.Gain, force);
+        public override void UpdateSourceMinGain(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.MinGain, force);
+        public override void UpdateSourceMaxGain(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.MaxGain, force);
+
+        public override void UpdateSourceReferenceDistance(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.ReferenceDistance, force);
+        public override void UpdateSourceRolloffFactor(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.RolloffFactor, force);
+        public override void UpdateSourceMaxDistance(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.MaxDistance, force);
+        public override void UpdateSourcePlaybackOffsetSeconds(int instanceID, float value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSourcef.SecOffset, force);
+
+        public override void UpdateSourcePosition(int instanceID, Vec3 value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSource3f.Position, force);
+        public override void UpdateSourceDirection(int instanceID, Vec3 value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSource3f.Direction, force);
+        public override void UpdateSourceVelocity(int instanceID, Vec3 value, bool force = false)
+            => UpdateAudioParam(instanceID, value, ALSource3f.Velocity, force);
 
         public void Dispose()
         {

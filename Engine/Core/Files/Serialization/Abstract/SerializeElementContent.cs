@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -65,6 +66,15 @@ namespace TheraEngine.Core.Files.Serialization
             _valueType = type;
             
             return true;
+        }
+        public (bool, object) GetObject(TypeProxy expectedType)
+        {
+            if (expectedType is null)
+                return (_value != null && !IsUnparsedString, _value);
+            
+            bool success = IsNotNull && (IsUnparsedString ? ParseStringToObject(expectedType) : (_value is null || expectedType.IsInstanceOfType(_value)));
+
+            return (success, success ? _value : default);
         }
         public bool GetObject(TypeProxy expectedType, out object value)
         {

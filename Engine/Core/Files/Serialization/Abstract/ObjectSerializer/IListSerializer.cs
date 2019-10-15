@@ -14,23 +14,22 @@ namespace TheraEngine.Core.Files.Serialization
 
         public event Action DoneReadingElements;
         public IList List { get; private set; }
-        public bool DeserializeAsync { get; private set; } = false;
 
         public override void DeserializeTreeToObject()
         {
             TypeProxy listType = TreeNode.ObjectType;
-            DeserializeAsync = TreeNode.MemberInfo?.DeserializeAsync ?? false;
+            bool async = TreeNode.MemberInfo?.DeserializeAsync ?? false;
 
             if (!TreeNode.Content.GetObject(listType, out object list))
             {
                 int count = TreeNode.Children.Count;
-                
+
                 if (listType.IsArray)
                     List = listType.CreateInstance(count) as IList;
                 else
                     List = listType.CreateInstance() as IList;
-                
-                if (DeserializeAsync)
+
+                if (async)
                     Task.Run(() => ReadElements(listType, count)).ContinueWith(t => DoneReadingElements?.Invoke());
                 else
                 {
@@ -81,8 +80,8 @@ namespace TheraEngine.Core.Files.Serialization
                 //Even default members must be written so the actual array count and indices all match up
                 //if (ShouldWriteDefaultMembers || !element.IsObjectDefault())
                 //{
-                    TreeNode.Children.Add(element);
-                    element.SerializeTreeFromObject();
+                TreeNode.Children.Add(element);
+                element.SerializeTreeFromObject();
                 //}
             }
         }
@@ -117,6 +116,14 @@ namespace TheraEngine.Core.Files.Serialization
             else
                 list = type.CreateInstance() as IList;
 
+            Parse(list, values, elementType, ser);
+
+            result = list;
+            return true;
+        }
+
+        private void Parse(IList list, string[] values, TypeProxy elementType, BaseObjectSerializer ser)
+        {
             object o;
             if (list.IsFixedSize)
             {
@@ -130,10 +137,8 @@ namespace TheraEngine.Core.Files.Serialization
                     if (ser.ObjectFromString(elementType, t, out o))
                         list.Add(o);
             }
-
-            result = list;
-            return true;
         }
+
         public override bool ObjectToString(object obj, out string str)
         {
             str = null;
@@ -143,7 +148,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             Type arrayType = list.GetType();
             Type elementType = arrayType.DetermineElementType();
-            BaseObjectSerializer ser = BaseObjectSerializer.DetermineObjectSerializer(elementType, true);
+            BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
             if (ser is null || !ser.CanWriteAsString(elementType))
                 return false;
 

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Threading.Tasks;
 using TheraEngine.Audio;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 
@@ -13,22 +10,26 @@ namespace TheraEngine.Components.Scene
 {
     public interface IAudioSource
     {
+        AudioInstance Instance { get; set; }
         AudioFile Audio { get; }
         AudioParameters Parameters { get; }
-        int Priority { get; set; }
+
+        public int Priority { get; set; }
     }
     public class AudioComponent : TranslationComponent, IAudioSource, IEditorPreviewIconRenderable
     {
         private LocalFileRef<AudioParameters> _parametersRef;
 
-        public AudioInstance Instance { get; private set; }
+        [Category("State")]
+        public AudioInstance Instance { get; set; }
 
-        [Category("Audio")]
+        [Category("Playback")]
         [TSerialize]
         public bool PlayOnSpawn { get; set; }
-        [Category("Audio")]
+        [Category("Playback")]
         [TSerialize]
         public int Priority { get; set; } = 0;
+
         [Category("Audio")]
         [TSerialize]
         public GlobalFileRef<AudioFile> AudioFileRef { get; set; }
@@ -41,17 +42,17 @@ namespace TheraEngine.Components.Scene
             {
                 if (_parametersRef != null)
                 {
-                    _parametersRef.Loaded -= _parametersRef_Loaded;
+                    _parametersRef.Loaded -= ParametersRef_Loaded;
                 }
                 _parametersRef = value;
                 if (_parametersRef != null)
                 {
-                    _parametersRef.Loaded += _parametersRef_Loaded;
+                    _parametersRef.Loaded += ParametersRef_Loaded;
                 }
             }
         }
 
-        private void _parametersRef_Loaded(AudioParameters parameters)
+        private void ParametersRef_Loaded(AudioParameters parameters)
         {
             UpdateTransform(parameters);
         }
@@ -97,7 +98,7 @@ namespace TheraEngine.Components.Scene
         }
 
 #if EDITOR
-        [Category("Audio")]
+        [Category("Editor Traits")]
         [TSerialize]
         public IRenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(true, true);
         [Category("Editor Traits")]

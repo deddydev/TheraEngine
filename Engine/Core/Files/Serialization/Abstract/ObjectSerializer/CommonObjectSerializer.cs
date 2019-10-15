@@ -18,11 +18,10 @@ namespace TheraEngine.Core.Files.Serialization
         #region Reading
 
         public event Action DoneReadingChildMembers;
-        public bool DeserializeAsync { get; private set; } = false;
 
         public override void DeserializeTreeToObject()
         {
-            DeserializeAsync = TreeNode.MemberInfo?.DeserializeAsync ?? false;
+            bool async = TreeNode.MemberInfo?.DeserializeAsync ?? false;
 
             var (Count, Values) = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
             var values = Values.ToList();
@@ -30,8 +29,11 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 //Engine.PrintLine($"Deserializing {TreeNode.ObjectType.GetFriendlyName()} {TreeNode.Name} as {nameof(ENodeType.ElementContent)}.");
 
-                bool success = TreeNode.Content.GetObject(TreeNode.ObjectType, out object obj);
-                TreeNode.Object = success ? obj : null;
+                if (async)
+                    Task.Run(ReadContent);
+                else
+                    ReadContent();
+                
                 return;
             }
 
@@ -47,7 +49,7 @@ namespace TheraEngine.Core.Files.Serialization
                     fobj.FilePath = TreeNode.Owner.FilePath;
             }
             
-            if (DeserializeAsync)
+            if (async)
                 Task.Run(() => ReadChildren(values)).ContinueWith(t => DoneReadingChildMembers?.Invoke());
             else
             {
@@ -55,6 +57,13 @@ namespace TheraEngine.Core.Files.Serialization
                 DoneReadingChildMembers?.Invoke();
             }
         }
+
+        private void ReadContent()
+        {
+            bool success = TreeNode.Content.GetObject(TreeNode.ObjectType, out object obj);
+            TreeNode.Object = success ? obj : null;
+        }
+
         private async void ReadChildren(List<TSerializeMemberInfo> values)
         {
             foreach (MethodInfo m in TreeNode.PreDeserializeMethods.OrderBy(x => x.GetCustomAttribute<TPreDeserialize>().Order))
@@ -99,8 +108,19 @@ namespace TheraEngine.Core.Files.Serialization
                 if (attrib != null)
                 {
                     bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, attrib);
-                    if (!customInvoked && attrib.GetObject(member.MemberType, out object value))
-                        member.SetObject(o, value);
+                    if (!customInvoked)
+                    {
+                        if (member.DeserializeAsync)
+                        {
+                            Task.Run(() => 
+                            {
+                                if (attrib.GetObject(member.MemberType, out object value))
+                                    member.SetObject(o, value);
+                            });
+                        }
+                        else if (attrib.GetObject(member.MemberType, out object value))
+                            member.SetObject(o, value);
+                    }
                 }
                 else if (member.NodeType == ENodeType.ElementContent)
                 {

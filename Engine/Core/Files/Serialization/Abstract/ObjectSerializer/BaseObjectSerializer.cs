@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection;
-using Extensions;
 
 namespace TheraEngine.Core.Files.Serialization
 {

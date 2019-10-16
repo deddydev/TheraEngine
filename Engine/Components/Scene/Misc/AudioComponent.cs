@@ -14,7 +14,7 @@ namespace TheraEngine.Components.Scene
         AudioFile Audio { get; }
         AudioParameters Parameters { get; }
 
-        public int Priority { get; set; }
+        int Priority { get; set; }
     }
     public class AudioComponent : TranslationComponent, IAudioSource, IEditorPreviewIconRenderable
     {

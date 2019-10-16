@@ -934,14 +934,19 @@ namespace TheraEditor
         }
         private void UpdateEngineRefPathItem(Item item)
         {
-            //TODO: 
-            //1. Get path to debug game engine build. 
-            //2. Compile it if necessary.
-            //3. Copy TheraEngine.dll to ProjectDir/Lib
             var asm = typeof(Engine).Assembly;
             item.Include = asm.FullName;
             string absPath = asm.CodeBase;
-            string relPath = absPath.MakeAbsolutePathRelativeTo(DirectoryPath);
+            if (absPath.StartsWith("file:///"))
+                absPath = absPath.Remove(0, 8);
+            string name = Path.GetFileName(absPath);
+            string libPath = Path.Combine(LibrariesDirectory, name);
+            File.Copy(absPath, libPath, true);
+            string relPath = libPath.MakeAbsolutePathRelativeTo(DirectoryPath);
+            if (relPath.StartsWith("/"))
+                relPath = relPath.Remove(0, 1);
+            if (relPath.StartsWith("\\"))
+                relPath = relPath.Remove(0, 1);
             item.AddElements(
                 new ItemMetadata(0, "SpecificVersion", "True"),
                 new ItemMetadata(1, "HintPath", relPath));

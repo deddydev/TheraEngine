@@ -208,8 +208,8 @@ namespace TheraEditor.Windows.Forms
         public int WorldManagerId { get; private set; }
         protected override void OnShown(EventArgs e)
         {
-            Engine.Instance.ProxySet += Instance_ProxySet;
-            Engine.Instance.ProxyUnset += Instance_ProxyUnset;
+            Engine.Instance.DomainProxySet += Instance_ProxySet;
+            Engine.Instance.DomainProxyUnset += Instance_ProxyUnset;
             Instance_ProxySet(Engine.DomainProxy);
         }
         protected override void OnClosing(CancelEventArgs e)
@@ -218,8 +218,8 @@ namespace TheraEditor.Windows.Forms
             if (e.Cancel)
                 return;
             
-            Engine.Instance.ProxySet -= Instance_ProxySet;
-            Engine.Instance.ProxyUnset -= Instance_ProxyUnset;
+            Engine.Instance.DomainProxySet -= Instance_ProxySet;
+            Engine.Instance.DomainProxyUnset -= Instance_ProxyUnset;
             Instance_ProxyUnset(null);
         }
 
@@ -242,6 +242,9 @@ namespace TheraEditor.Windows.Forms
             WorldManagerId = obj.RegisterWorldManager<EditorWorldManager>();
             DomainProxy.PreWorldChanged += WorldPreChanged;
             DomainProxy.PostWorldChanged += WorldPostChanged;
+
+            DomainProxy.SponsorObject(this);
+            DomainProxy.SponsorObject(ActorTreeForm);
         }
         private void WorldSettingsUnloaded(WorldSettings settings)
         {

@@ -72,7 +72,14 @@ namespace TheraEngine.Core.Reflection
             => EnumAppDomains().ToArray();
         private static TypeProxy[] GetExportedTypes()
             => Engine.DomainProxy.GetExportedTypes().ToArray();
-        
+
+        public static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
+        {
+            string name = args.LoadedAssembly.GetName().Name;
+            string path = args.LoadedAssembly.Location;
+            Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] LOADED {name} FROM {path}");
+        }
+
         /// <summary>
         /// The default AppDomain.
         /// </summary>
@@ -171,9 +178,10 @@ namespace TheraEngine.Core.Reflection
 
         internal static void DomainAssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
-            string assemblyName = args.LoadedAssembly.GetName().Name;
-            string domainName = AppDomain.CurrentDomain.FriendlyName;
-            Debug.Print($"{nameof(AppDomain)} {domainName} loaded assembly {assemblyName}");
+            Trace.WriteLine($"LOADED {args.LoadedAssembly.Location}");
+            //string assemblyName = args.LoadedAssembly.GetName().Name;
+            //string domainName = AppDomain.CurrentDomain.FriendlyName;
+            //Debug.Print($"{nameof(AppDomain)} {domainName} loaded assembly {assemblyName}");
         }
 
         #region Method Execution
@@ -268,7 +276,10 @@ namespace TheraEngine.Core.Reflection
             else if (obj is MarshalByRefObject marshalObject)
             {
                 if (!ExternalSponsoredObjects.ContainsKey(marshalObject))
+                {
                     ExternalSponsoredObjects.TryAdd(marshalObject, new MarshalExternalSponsor(marshalObject));
+                    Engine.PrintLine($"Sponsored {marshalObject.ToString()}.");
+                }
             }
         }
         public class MarshalExternalSponsor : MarshalByRefObject, ISponsor, IDisposable

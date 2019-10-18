@@ -172,7 +172,10 @@ namespace TheraEngine.Rendering
                 if (viewport != null)
                 {
                     if (!viewport.FBOsInitialized)
+                    {
                         viewport.InitializeFBOs();
+                        IBLProbeActor?.InitAndCaptureAll(512);
+                    }
 
                     viewport.PushRenderingCamera(camera);
 

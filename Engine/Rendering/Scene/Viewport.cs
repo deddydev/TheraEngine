@@ -793,20 +793,23 @@ namespace TheraEngine.Rendering
                     new Vec3(1.0f, 1.0f, -0.5f),
                     new Vec3(-1.0f, 1.0f, -0.5f),
                     false, false).ToTriangles());
-            PrimitiveManager quad = new PrimitiveManager(data, mat);
-            //quad.GenerateSafe();
 
-            BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
-            
-            //Now render the texture to the FBO using the quad
-            fbo.Bind(EFramebufferTarget.DrawFramebuffer);
-            Engine.Renderer.PushRenderArea(region);
+            using (PrimitiveManager quad = new PrimitiveManager(data, mat))
             {
-                Engine.Renderer.Clear(EFBOTextureType.Color);
-                quad.Render();
+                //quad.GenerateSafe();
+
+                BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
+
+                //Now render the texture to the FBO using the quad
+                fbo.Bind(EFramebufferTarget.DrawFramebuffer);
+                Engine.Renderer.PushRenderArea(region);
+                {
+                    Engine.Renderer.Clear(EFBOTextureType.Color);
+                    quad.Render();
+                }
+                Engine.Renderer.PopRenderArea();
+                fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
             }
-            Engine.Renderer.PopRenderArea();
-            fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
         
         /// <summary>

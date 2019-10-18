@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -88,6 +89,9 @@ namespace TheraEngine.Core
             return new ProxyList<TypeProxy>(assemblies.Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes().Select(r => TypeProxy.Get(r))).Distinct());
         }
 
+        public void SponsorObject(object obj) 
+            => AppDomainHelper.Sponsor(obj);
+
         //public Type CreateType(string typeDeclaration)
         //{
         //    try
@@ -110,6 +114,8 @@ namespace TheraEngine.Core
         //}
         public async virtual void Start(string gamePath, bool isUIDomain)
         {
+            AppDomain.CurrentDomain.AssemblyLoad += AppDomainHelper.CurrentDomain_AssemblyLoad;
+
             Engine.InputAwaiter = null;
             Engine.InputLibrary = EInputLibrary.OpenTK;
 
@@ -131,6 +137,7 @@ namespace TheraEngine.Core
             SetRenderTicking(true);
             OnStarted();
         }
+        
         protected virtual void OnStarted() => Started?.Invoke();
         public virtual void Stop()
         {

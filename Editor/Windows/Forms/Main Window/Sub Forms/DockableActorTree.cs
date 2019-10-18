@@ -8,6 +8,7 @@ using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;

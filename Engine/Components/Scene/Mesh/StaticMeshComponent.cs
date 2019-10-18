@@ -162,7 +162,8 @@ namespace TheraEngine.Components.Scene.Mesh
 
         [Category("Static Mesh Component")]
         public List<StaticRenderableMesh> Meshes { get; private set; } = null;
-        TRigidBody IRigidBodyCollidable.RigidBodyCollision { get; }
+
+        TRigidBody IRigidBodyCollidable.RigidBodyCollision => RigidBodyCollision;
         Matrix4 ICollidable.CollidableWorldMatrix
         {
             get => WorldMatrix;

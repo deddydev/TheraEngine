@@ -385,11 +385,7 @@ namespace TheraEngine
 
         public static bool IsSingleThreaded => Timer.IsSingleThreaded;
 
-        public static EngineDomainProxy DomainProxy
-        {
-            get => Instance.DomainProxy;
-            internal set => Instance.DomainProxy = value;
-        }
+        public static EngineDomainProxy DomainProxy => Instance.DomainProxy;
 
         #endregion
 
@@ -540,24 +536,30 @@ namespace TheraEngine
         {
             public void SetDomainProxy<T>(AppDomain domain, string gamePath) where T : EngineDomainProxy, new()
             {
+                if (DomainProxy != null)
+                    DomainProxyUnset?.Invoke(DomainProxy);
+
                 string domainName = domain.FriendlyName;
                 //PrintLine($"Generating engine proxy of type {typeof(T).GetFriendlyName()} for domain {domainName}");
 
                 bool isUIDomain = domain == AppDomain.CurrentDomain;
+                EngineDomainProxy domainProxy;
                 if (isUIDomain)
-                {
-                    DomainProxy = new T();
-                }
+                    domainProxy = new T();
                 else
                 {
                     var proxy = domain.CreateInstanceAndUnwrap<T>();
                     AppDomainHelper.Sponsor(proxy);
-                    DomainProxy = proxy;
+                    domainProxy = proxy;
                 }
 
-                DomainProxy.Stopped += DomainProxy_Stopped;
+                domainProxy.Stopped += DomainProxy_Stopped;
+
+                DomainProxy = domainProxy;
                 DomainProxy.Start(gamePath, isUIDomain);
-                PrintLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : DomainProxy.Domain.FriendlyName)}.");
+                DomainProxySet?.Invoke(DomainProxy);
+
+                PrintLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : domainProxy.Domain.FriendlyName)}.");
             }
 
             private void DomainProxy_Stopped()
@@ -568,21 +570,11 @@ namespace TheraEngine
             //private Type TypeCreationFailed(string typeDeclaration)
             //    => DomainProxy.CreateType(typeDeclaration);
 
-            public event Action<EngineDomainProxy> ProxySet;
-            public event Action<EngineDomainProxy> ProxyUnset;
-            
-            private EngineDomainProxy _domainProxy = null;
+            public event Action<EngineDomainProxy> DomainProxySet;
+            public event Action<EngineDomainProxy> DomainProxyUnset;
+
             [Browsable(false)]
-            public EngineDomainProxy DomainProxy
-            {
-                get => _domainProxy;
-                set
-                {
-                    ProxyUnset?.Invoke(_domainProxy);
-                    _domainProxy = value;
-                    ProxySet?.Invoke(_domainProxy);
-                }
-            }
+            public EngineDomainProxy DomainProxy { get; private set; } = null;
         }
     }
 }

@@ -247,6 +247,7 @@ namespace TheraEditor.Windows.Forms
             btnMoveAsChildToSibPrev.Visible =
             btnNewSiblingSceneComp.Visible =
             btnNewChildSceneComp.Visible =
+            btnInsertNewParentSceneComp.Visible = 
             node?.Tag is ISceneComponent;
 
             splt1.Visible = btnMoveUp.Visible || btnMoveDown.Visible || btnMoveAsSibToParent.Visible || btnMoveAsChildToSibNext.Visible || btnMoveAsChildToSibPrev.Visible || btnNewSiblingSceneComp.Visible;
@@ -272,13 +273,18 @@ namespace TheraEditor.Windows.Forms
                     btnNewLogicComp.Visible = true;
                     break;
                 case ISceneComponent sceneComp:
+
                     ISceneComponent sceneCompParent = sceneComp.ParentSocket as ISceneComponent;
                     bool parentIsSceneComp = sceneCompParent != null;
+
+                    btnInsertNewParentSceneComp.Enabled = parentIsSceneComp;
                     btnNewSiblingSceneComp.Enabled = parentIsSceneComp;
                     btnMoveAsSibToParent.Enabled = parentIsSceneComp && sceneCompParent.ParentSocket is ISceneComponent;
+
                     btnNewMap.Visible = false;
                     btnNewActor.Visible = true;
                     btnNewLogicComp.Visible = false;
+
                     break;
                 case ILogicComponent logicComp:
                     btnNewMap.Visible = false;
@@ -297,8 +303,8 @@ namespace TheraEditor.Windows.Forms
             btnMoveAsChildToSibPrev.Visible =
             btnNewSiblingSceneComp.Visible =
             btnNewChildSceneComp.Visible =
+            btnInsertNewParentSceneComp.Visible =
             splt1.Visible =
-            true;
 
             btnNewSiblingSceneComp.Enabled =
             btnMoveAsChildToSibNext.Enabled =
@@ -403,6 +409,21 @@ namespace TheraEditor.Windows.Forms
             TreeNode node = CacheMap(map);
             ActorTree.LabelEdit = true;
             node.BeginEdit();
+        }
+        private void btnInsertNewParentSceneComp_Click(object sender, EventArgs e)
+        {
+            var node = ActorTree.SelectedNode;
+            if (node.Tag is ISceneComponent comp && comp.ParentSocket != null)
+            {
+                ISceneComponent newComp = Editor.UserCreateInstanceOf<ISceneComponent>();
+                if (newComp != null)
+                {
+                    var parent = comp.ParentSocket;
+                    comp.DetachFromParent();
+                    parent.ChildComponents.Add(newComp);
+                    newComp.ChildComponents.Add(comp);
+                }
+            }
         }
         private void btnNewChildSceneComp_Click(object sender, EventArgs e)
         {

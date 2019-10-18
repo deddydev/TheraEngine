@@ -5,11 +5,12 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
-namespace TheraEngine.Rendering.Particles
+namespace TheraEngine.Components.Scene
 {
     public interface IParticle
     {
@@ -109,15 +110,33 @@ namespace TheraEngine.Rendering.Particles
 
         protected virtual int FindUnusedParticleIndex()
         {
+            int minLifeIndex = -1;
+            float minLife = float.MaxValue;
             for (int i = _lastUsedParticle; i < MaxParticles; i++)
-                if (this[i].Life <= 0.0f)
+            {
+                var ptcl = this[i];
+                if (ptcl.Life <= 0.0f)
                     return _lastUsedParticle = i;
+                else if (ptcl.Life < minLife)
+                {
+                    minLife = ptcl.Life;
+                    minLifeIndex = i;
+                }
+            }
 
             for (int i = 0; i < _lastUsedParticle; i++)
-                if (this[i].Life <= 0.0f)
+            {
+                var ptcl = this[i];
+                if (ptcl.Life <= 0.0f)
                     return _lastUsedParticle = i;
+                else if (ptcl.Life < minLife)
+                {
+                    minLife = ptcl.Life;
+                    minLifeIndex = i;
+                }
+            }
 
-            return _lastUsedParticle = 0; // All particles are taken, override the first one
+            return _lastUsedParticle = minLifeIndex; // All particles are taken, override the first one
         }
         private unsafe void Update(float delta)
         {

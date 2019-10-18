@@ -43,6 +43,7 @@
             this.btnNewLogicComp = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewSiblingSceneComp = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewChildSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnInsertNewParentSceneComp = new System.Windows.Forms.ToolStripMenuItem();
             this.splt3 = new System.Windows.Forms.ToolStripSeparator();
             this.btnRemove = new System.Windows.Forms.ToolStripMenuItem();
             this.ActorTree = new TheraEditor.Windows.Forms.TreeViewEx();
@@ -63,6 +64,7 @@
             this.splt2,
             this.btnNewActor,
             this.btnNewMap,
+            this.btnInsertNewParentSceneComp,
             this.btnNewSiblingSceneComp,
             this.btnNewChildSceneComp,
             this.btnNewLogicComp,
@@ -153,6 +155,13 @@
             this.btnNewSiblingSceneComp.Size = new System.Drawing.Size(243, 22);
             this.btnNewSiblingSceneComp.Text = "New Sibling";
             // 
+            // btnInsertNewParent
+            // 
+            this.btnInsertNewParentSceneComp.Name = "btnInsertNewParentSceneComp";
+            this.btnInsertNewParentSceneComp.Size = new System.Drawing.Size(243, 22);
+            this.btnInsertNewParentSceneComp.Text = "Insert New Parent";
+            this.btnInsertNewParentSceneComp.Click += new System.EventHandler(this.btnInsertNewParentSceneComp_Click);
+            // 
             // btnNewChildSceneComp
             // 
             this.btnNewChildSceneComp.Name = "btnNewChildSceneComp";
@@ -217,6 +226,7 @@
         private System.Windows.Forms.ToolStripMenuItem btnMoveDown;
         private System.Windows.Forms.ToolStripMenuItem btnNewSiblingSceneComp;
         private System.Windows.Forms.ToolStripSeparator splt1;
+        private System.Windows.Forms.ToolStripMenuItem btnInsertNewParentSceneComp;
         private System.Windows.Forms.ToolStripMenuItem btnMoveAsSibToParent;
         private System.Windows.Forms.ToolStripMenuItem btnMoveAsChildToSibPrev;
         private System.Windows.Forms.ToolStripMenuItem btnMoveAsChildToSibNext;

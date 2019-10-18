@@ -12,7 +12,7 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
-namespace TheraEngine.Actors.Types
+namespace TheraEngine.Components.Scene
 {
     [TFileDef("Landscape Component")]
     public class LandscapeComponent : CollidableShape3DComponent

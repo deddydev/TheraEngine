@@ -4,7 +4,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models.Materials.Textures;
 
-namespace TheraEngine.Actors.Types
+namespace TheraEngine.Components.Scene
 {
     public class SceneCaptureComponent : TranslationComponent
     {

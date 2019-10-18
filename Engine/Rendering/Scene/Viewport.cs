@@ -10,6 +10,7 @@ using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
+using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
@@ -306,7 +307,7 @@ namespace TheraEngine.Rendering
         /// <param name="target"></param>
         public void Render(IScene scene, ICamera camera, FrameBuffer target)
         {
-            if (scene is null || camera is null || RegeneratingFBOs)
+            if (scene is null || camera is null || RegeneratingFBOs || Engine.CurrentlyRenderingViewport == this)
                 return;
 
             Engine.PushRenderingViewport(this);
@@ -318,9 +319,12 @@ namespace TheraEngine.Rendering
         {
             if (!FBOsInitialized)
                 InitializeFBOs();
-
+            
             HUD?.ScreenSpaceUIScene?.Render(HUD.RenderPasses, HUD.ScreenOverlayCamera, this, HUDFBO);
             scene.Render(_renderPasses, camera, this, target);
+
+            if (scene is Scene3D s3d)
+                s3d.IBLProbeActor?.InitAndCaptureAll(512);
         }
         internal protected virtual void SwapBuffers()
         {

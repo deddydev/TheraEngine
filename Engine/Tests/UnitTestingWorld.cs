@@ -385,7 +385,7 @@ namespace TheraEngine.Tests
             //}
             //iblProbes.AddProbe(new Vec3(50.0f, 0.0f, 0.0f));
             //iblProbes.AddProbe(new Vec3(-51.0f, 0.0f, 0.0f));
-            iblProbes.AddProbe(new Vec3(0.0f, 0.0f, 0.0f));
+            iblProbes.AddProbe(new Vec3(0.0f, 100.0f, 0.0f));
             //iblProbes.AddProbe(new Vec3(0.0f, -53.0f, 0.0f));
             //iblProbes.AddProbe(new Vec3(10.0f, 0.0f, 54.0f));
             //iblProbes.AddProbe(new Vec3(0.0f, 0.0f, -55.0f));

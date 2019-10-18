@@ -9,7 +9,7 @@ using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models.Materials.Textures;
 
-namespace TheraEngine.Actors.Types
+namespace TheraEngine.Components.Scene
 {
     public class IBLProbeComponent : SceneCaptureComponent, I3DRenderable
     {
@@ -98,13 +98,23 @@ namespace TheraEngine.Actors.Types
             _irradianceFBO = new CubeFrameBuffer(irrMat, 0.0f, 1.0f, false);
             _prefilterFBO = new CubeFrameBuffer(prefMat, 0.0f, 1.0f, false);
         }
+        private bool _initialized = false;
+        private DateTime _lastUpdateTime = DateTime.Now;
         public void FullCapture(int colorResolution, bool captureDepth, int depthResolution)
         {
-            SetCaptureResolution(colorResolution, captureDepth, depthResolution);
-            Capture();
-            GenerateIrradianceMap();
-            GeneratePrefilterMap();
-            CreatePreviewSphere();
+            if (!_initialized)
+            {
+                _initialized = true;
+                SetCaptureResolution(colorResolution, captureDepth, depthResolution);
+                CreatePreviewSphere();
+            //}
+            //if (DateTime.Now - _lastUpdateTime > TimeSpan.FromSeconds(1.0))
+            //{
+                _lastUpdateTime = DateTime.Now;
+                Capture();
+                GenerateIrradianceMap();
+                GeneratePrefilterMap();
+            }
         }
         public void GenerateIrradianceMap()
         {

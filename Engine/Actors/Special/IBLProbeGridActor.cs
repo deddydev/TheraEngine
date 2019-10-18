@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TheraEngine.Actors.Types;
 using TheraEngine.Components;
+using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -227,11 +228,11 @@ namespace TheraEngine.Actors
         }
         public void InitAndCaptureAll(int colorResolution, bool captureDepth = false, int depthResolution = 1)
         {
-            if (ThreadSafeBlockingInvoke(
-                (Action<int, bool, int>)InitAndCaptureAll, 
-                EPanelType.Rendering, 
-                colorResolution, captureDepth, depthResolution))
-                return;
+            //if (ThreadSafeBlockingInvoke(
+            //    (Action<int, bool, int>)InitAndCaptureAll, 
+            //    EPanelType.Rendering, 
+            //    colorResolution, captureDepth, depthResolution))
+            //    return;
 
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
                 comp.FullCapture(colorResolution, captureDepth, depthResolution);

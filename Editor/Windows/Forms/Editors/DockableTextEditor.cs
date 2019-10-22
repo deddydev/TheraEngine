@@ -353,7 +353,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _glslShader = Editor.DomainProxy.CreateInstance<RenderShader>(script);
                 AppDomainHelper.Sponsor(_glslShader);
-                _glslShader.GenerateSafe();
+                _glslShader.Generate();
             }
 
             dgvObjectExplorer.Visible = false;

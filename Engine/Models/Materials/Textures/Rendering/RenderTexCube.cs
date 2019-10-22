@@ -59,12 +59,9 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
         public static RenderTexCube[] GenTextures(int count)
             => Engine.Renderer.CreateObjects<RenderTexCube>(EObjectType.Texture, count);
-        
-        public override void PushData()
-        {
-            if (RenderContext.ThreadSafeBlockingInvoke((Action)PushData, RenderContext.EPanelType.Rendering))
-                return;
 
+        internal override void PushData()
+        {
             OnPrePushData(out bool shouldPush, out bool allowPostPushCallback);
             if (!shouldPush)
             {

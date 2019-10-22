@@ -164,6 +164,7 @@ namespace TheraEngine.Components
         private bool _monitorAudioVelocity = false;
         private bool _monitorVelocity = false;
 
+        [Category("Transform")]
         public bool MonitorVelocity
         {
             get => _monitorVelocity;

@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering.Models.Materials
             get
             {
                 if (_program != null && !_program.IsActive)
-                    _program.GenerateSafe();
+                    _program.Generate();
                 return _program;
             }
             protected set

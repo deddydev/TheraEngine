@@ -371,12 +371,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
             _updatingVisibleItems = true;
 
-            double sleepTime = updateRateInSeconds * 1000.0;
-            _updateTimer.Interval = sleepTime;
-            _updateTimer.Elapsed += UpdateTimer_Tick;
-            _updateTimer.Start();
+            //double sleepTime = updateRateInSeconds * 1000.0;
+            //_updateTimer.Interval = sleepTime;
+            //_updateTimer.Elapsed += UpdateTimer_Tick;
+            //_updateTimer.Start();
 
-            //Task.Run(() => UpdateItemsContinuous(updateRateInSeconds));
+            Task.Run(() => UpdateItemsTask(updateRateInSeconds));
         }
 
         private void UpdateTimer_Tick(object sender, ElapsedEventArgs e)
@@ -386,15 +386,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             UpdateItems();
         }
-        //private void UpdateItemsTask(float updateRateInSeconds)
-        //{
-        //    int sleepTime = (int)(updateRateInSeconds * 1000.0f);
-        //    while (_updatingVisibleItems)
-        //    {
-        //        UpdateItems();
-        //        Thread.Sleep(sleepTime);
-        //    }
-        //}
+        private void UpdateItemsTask(float updateRateInSeconds)
+        {
+            int sleepTime = (int)(updateRateInSeconds * 1000.0f);
+            while (_updatingVisibleItems)
+            {
+                UpdateItems();
+                Thread.Sleep(sleepTime);
+            }
+        }
         private void UpdateItems()
         {
             Parallel.For(0, VisibleItems.Count, UpdateItem);
@@ -417,7 +417,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (item.IsDisposed || item.Disposing)
                     RemoveVisibleItem(item);
                 else if (item.AllowUpdate())
-                    Invoke((Action)item.UpdateDisplay);
+                    BeginInvoke((Action)item.UpdateDisplay);
             }
             catch (Exception ex)
             {
@@ -1293,7 +1293,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
 
             await Editor.RunOperationAsync(
-                $"Property Grid: saving {path}", $"Property Grid: done saving {path}", 
+                $"Property Grid: Now saving {path}", $"Property Grid: Finished saving {path}", 
                 async (p, c) => await file.ExportAsync(path, ESerializeFlags.Default, p, c.Token));
 
             //if (TargetFileObject.References.Count == 1)

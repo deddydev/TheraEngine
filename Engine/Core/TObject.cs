@@ -79,14 +79,14 @@ namespace TheraEngine
             string fn = Object.GetTypeProxy().GetFriendlyName();
             if (IsReleased)
             {
-                Engine.PrintLine($"Released lease for {fn}.");
+                //Engine.PrintLine($"Released lease for {fn}.");
                 return TimeSpan.Zero;
             }
             //if (lease.CurrentState == LeaseState.Renewing)
             {
                 TimeSpan span = DateTime.Now - LastRenewalTime;
                 double sec = Math.Round(span.TotalSeconds, 1);
-                Engine.PrintLine($"Renewed lease for {fn}. {sec} seconds elapsed since last renewal.");
+                //Engine.PrintLine($"Renewed lease for {fn}. {sec} seconds elapsed since last renewal.");
                 LastRenewalTime = DateTime.Now;
                 return TimeSpan.FromMinutes(10.0);
             }

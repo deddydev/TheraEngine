@@ -105,6 +105,8 @@ namespace TheraEngine.Input
                     _input.InputRegistration -= _controlledPawn.RegisterInput;
                     if (_controlledPawn.HUD != null && _controlledPawn != _controlledPawn.HUD)
                         _input.InputRegistration -= _controlledPawn.HUD.File.RegisterInput;
+
+                    Engine.PrintLine($"Player {((int)LocalPlayerIndex + 1).ToString()} released control of {_controlledPawn}");
                 }
 
                 _controlledPawn = value;
@@ -124,6 +126,8 @@ namespace TheraEngine.Input
 
                     _controlledPawn.OnPossessed(this);
                     _input.TryRegisterInput();
+
+                    Engine.PrintLine($"Player {((int)LocalPlayerIndex + 1).ToString()} gained control of {_controlledPawn}");
                 }
             }
         }

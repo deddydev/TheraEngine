@@ -429,7 +429,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnSpawnedPostComponentSpawn();
 
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
             _highlightPoint.RenderInfo.LinkScene(_highlightPoint, OwningScene3D);
             SubViewport.IsVisible = false;
 
@@ -439,7 +439,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnDespawned();
 
-            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
             _highlightPoint.RenderInfo.UnlinkScene();
 
             Editor.Instance.ActorTreeForm.EditorHUD = null;

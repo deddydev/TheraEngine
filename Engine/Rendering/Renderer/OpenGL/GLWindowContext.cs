@@ -26,8 +26,6 @@ namespace TheraEngine.Rendering.OpenGL
 
         public GLWindowContext(IntPtr handle) : base(handle) { }
 
-        private static Lazy<GLRenderer> _renderer = new Lazy<GLRenderer>(() => new GLRenderer());
-
         protected override ThreadSubContext CreateSubContext(IntPtr handle, Thread thread)
             => new GLThreadSubContext(handle, thread);
         

@@ -140,17 +140,18 @@ namespace TheraEngine.Actors
             public int Index => _probe?.ParentSocketChildIndex ?? -1;
             public double[] Position { get; set; }
 
-            public DelaunayTriVertex(Vec3 point) { }
-            public DelaunayTriVertex(ISceneComponent probe)
+            public DelaunayTriVertex(Vec3 point)
             {
-                _probe = probe;
-                Vec3 point = probe.WorldPoint;
                 Position = new double[]
                 {
                     point.X,
                     point.Y,
                     point.Z,
                 };
+            }
+            public DelaunayTriVertex(ISceneComponent probe) : this(probe?.WorldPoint ?? Vec3.Zero)
+            {
+                _probe = probe;
                 //_probe.WorldTransformChanged += _probe_WorldTransformChanged;
             }
 
@@ -171,15 +172,11 @@ namespace TheraEngine.Actors
             if (RootComponent.ChildComponents.Count < 5)
                 return;
 
-            ThreadSafeBlockingInvoke((Action)(() => 
-            {
-                IBLProbeComponent probe = (IBLProbeComponent)comp;
-                probe.Capture();
-                probe.GenerateIrradianceMap();
-                probe.GeneratePrefilterMap();
-            }),
-            EPanelType.Rendering);
-
+            IBLProbeComponent probe = (IBLProbeComponent)comp;
+            probe.Capture();
+            probe.GenerateIrradianceMap();
+            probe.GeneratePrefilterMap();
+        
             List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
             _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
         }
@@ -188,17 +185,13 @@ namespace TheraEngine.Actors
             if (RootComponent.ChildComponents.Count < 5)
                 return;
 
-            ThreadSafeBlockingInvoke((Action)(() =>
+            foreach (ISceneComponent comp in comps)
             {
-                foreach (ISceneComponent comp in comps)
-                {
-                    IBLProbeComponent probe = (IBLProbeComponent)comp;
-                    probe.Capture();
-                    probe.GenerateIrradianceMap();
-                    probe.GeneratePrefilterMap();
-                }
-            }),
-            EPanelType.Rendering);
+                IBLProbeComponent probe = (IBLProbeComponent)comp;
+                probe.Capture();
+                probe.GenerateIrradianceMap();
+                probe.GeneratePrefilterMap();
+            }
 
             List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
             _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);

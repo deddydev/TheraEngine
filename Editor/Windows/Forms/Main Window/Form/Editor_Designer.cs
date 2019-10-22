@@ -347,7 +347,7 @@ namespace TheraEditor.Windows.Forms
                 if (!string.IsNullOrEmpty(lastOpened))
                     LoadProject(lastOpened);
             }
-            
+
             //Run on UI side
             Engine.Run();
 

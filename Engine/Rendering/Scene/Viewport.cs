@@ -230,19 +230,19 @@ namespace TheraEngine.Rendering
         internal void GenerateFBOs()
         {
             DateTime start = DateTime.Now;
-            BloomBlurFBO1?.GenerateSafe();
-            BloomBlurFBO2?.GenerateSafe();
-            BloomBlurFBO4?.GenerateSafe();
-            BloomBlurFBO8?.GenerateSafe();
-            BloomBlurFBO16?.GenerateSafe();
-            ForwardPassFBO?.GenerateSafe();
+            BloomBlurFBO1?.Generate();
+            BloomBlurFBO2?.Generate();
+            BloomBlurFBO4?.Generate();
+            BloomBlurFBO8?.Generate();
+            BloomBlurFBO16?.Generate();
+            ForwardPassFBO?.Generate();
             //DirLightFBO?.Generate();
-            GBufferFBO?.GenerateSafe();
-            HUDFBO?.GenerateSafe();
-            LightCombineFBO?.GenerateSafe();
-            PostProcessFBO?.GenerateSafe();
-            SSAOBlurFBO?.GenerateSafe();
-            SSAOFBO?.GenerateSafe();
+            GBufferFBO?.Generate();
+            HUDFBO?.Generate();
+            LightCombineFBO?.Generate();
+            PostProcessFBO?.Generate();
+            SSAOBlurFBO?.Generate();
+            SSAOFBO?.Generate();
             TimeSpan span = DateTime.Now - start;
             Engine.PrintLine($"FBO regeneration took {span.Seconds} seconds.");
         }
@@ -768,9 +768,6 @@ namespace TheraEngine.Rendering
 
         protected void PrecomputeBRDF(int width = 512, int height = 512)
         {
-            if (RenderContext.ThreadSafeBlockingInvoke((Action<int, int>)PrecomputeBRDF, RenderContext.EPanelType.Rendering, width, height))
-                return;
-
             RenderingParameters renderParams = new RenderingParameters();
             renderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
             renderParams.DepthTest.Function = EComparison.Always;
@@ -787,32 +784,34 @@ namespace TheraEngine.Rendering
 
             GLSLScript shader = Engine.Files.Shader(Path.Combine("Scene3D", "BRDF.fs"), EGLSLType.Fragment);
             TMaterial mat = new TMaterial("BRDFMat", renderParams, texRefs, shader);
-            MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat);
-            fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
-            PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), 
-                VertexQuad.MakeQuad( //ndc space quad, so we don't have to load any camera matrices
+            //ndc space quad, so we don't have to load any camera matrices
+            VertexTriangle[] tris = VertexQuad.MakeQuad(
                     new Vec3(-1.0f, -1.0f, -0.5f),
                     new Vec3(1.0f, -1.0f, -0.5f),
                     new Vec3(1.0f, 1.0f, -0.5f),
                     new Vec3(-1.0f, 1.0f, -0.5f),
-                    false, false).ToTriangles());
+                    false, false).ToTriangles();
 
-            using (PrimitiveManager quad = new PrimitiveManager(data, mat))
+            using (MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat))
             {
-                //quad.GenerateSafe();
+                fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
-                BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
-
-                //Now render the texture to the FBO using the quad
-                fbo.Bind(EFramebufferTarget.DrawFramebuffer);
-                Engine.Renderer.PushRenderArea(region);
+                using (PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), tris))
+                using (PrimitiveManager quad = new PrimitiveManager(data, mat))
                 {
-                    Engine.Renderer.Clear(EFBOTextureType.Color);
-                    quad.Render();
+                    BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
+
+                    //Now render the texture to the FBO using the quad
+                    fbo.Bind(EFramebufferTarget.DrawFramebuffer);
+                    Engine.Renderer.PushRenderArea(region);
+                    {
+                        Engine.Renderer.Clear(EFBOTextureType.Color);
+                        quad.Render();
+                    }
+                    Engine.Renderer.PopRenderArea();
+                    fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }
-                Engine.Renderer.PopRenderArea();
-                fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
             }
         }
         
@@ -821,16 +820,10 @@ namespace TheraEngine.Rendering
         /// </summary>
         internal protected virtual unsafe void InitializeFBOs()
         {
-            //if (RenderContext.ThreadSafeBlockingInvoke((Action)InitializeFBOs, RenderContext.EPanelType.Rendering))
-            //    return;
-
             RegeneratingFBOs = true;
 
             ClearFBOs();
 
-            if (_brdfTex is null)
-                PrecomputeBRDF();
-            
             int width = InternalResolution.Width;
             int height = InternalResolution.Height;
 

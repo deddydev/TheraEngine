@@ -147,7 +147,6 @@ namespace TheraEngine.Actors.Types
                 tref.Mipmaps[0] = new GlobalFileRef<TextureFile2D>(tex);
 
             tref.OnMipLoaded(tex);
-            tref.GetRenderTextureGeneric(true).PushData();
 
             BoundingBox.ECubemapTextureUVs uvType = tex is null || tex.Bitmaps.Length == 0 || tex.Bitmaps[0] is null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
                 BoundingBox.ECubemapTextureUVs.WidthLarger :

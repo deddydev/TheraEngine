@@ -87,8 +87,8 @@ namespace TheraEngine.Components.Scene
                 new ShaderInt(_colorRes, "CubemapDim"),
             };
 
-            GLSLScript irrShader = Engine.Files.LoadEngineShader(Path.Combine(Viewport.SceneShaderPath, "IrradianceConvolution.fs"), EGLSLType.Fragment);
-            GLSLScript prefShader = Engine.Files.LoadEngineShader(Path.Combine(Viewport.SceneShaderPath, "Prefilter.fs"), EGLSLType.Fragment);
+            GLSLScript irrShader = Engine.Files.Shader(Path.Combine(Viewport.SceneShaderPath, "IrradianceConvolution.fs"), EGLSLType.Fragment);
+            GLSLScript prefShader = Engine.Files.Shader(Path.Combine(Viewport.SceneShaderPath, "Prefilter.fs"), EGLSLType.Fragment);
 
             RenderingParameters r = new RenderingParameters();
             r.DepthTest.Enabled = ERenderParamUsage.Disabled;
@@ -173,7 +173,7 @@ namespace TheraEngine.Components.Scene
 
         internal void CreatePreviewSphere()
         {
-            var shader = Engine.Files.LoadEngineShader("CubeMapSphereMesh.fs", EGLSLType.Fragment);
+            var shader = Engine.Files.Shader("CubeMapSphereMesh.fs", EGLSLType.Fragment);
             TMaterial mat = new TMaterial("IrradianceMat",
                 new ShaderVar[] { new ShaderVec3(Vec3.Zero, "SphereCenter") }, new BaseTexRef[] { _showPrefilterTexture ? PrefilterTex : IrradianceTex }, shader);
             _irradianceSphere = new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u), mat);

@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering.UI
                         EPixelFormat.Rgba, EPixelType.HalfFloat,
                         EFramebufferAttachment.ColorAttachment0),
                 },
-                Engine.Files.LoadEngineShader(Path.Combine("Common", "UnlitTexturedForward.fs"), EGLSLType.Fragment));
+                Engine.Files.Shader(Path.Combine("Common", "UnlitTexturedForward.fs"), EGLSLType.Fragment));
         }
 
         private void SetUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)

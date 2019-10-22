@@ -6,7 +6,7 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds
 {
-    public class WorldManager
+    public class WorldManager : TObjectSlim
     {
         protected IWorld _targetWorld;
         public virtual IWorld World

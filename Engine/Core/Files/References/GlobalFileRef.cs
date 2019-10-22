@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files
 {
@@ -38,13 +39,13 @@ namespace TheraEngine.Core.Files
     {
         public GlobalFileRef()
             : base() { }
-        public GlobalFileRef(Type type) 
+        public GlobalFileRef(TypeProxy type) 
             : base(type) { }
         public GlobalFileRef(T file)
             : base(file) { }
         public GlobalFileRef(string filePath)
             : base(filePath) { }
-        public GlobalFileRef(string filePath, Type type) 
+        public GlobalFileRef(string filePath, TypeProxy type) 
             : base(filePath, type) { }
         public GlobalFileRef(string filePath, T file) 
             : base(filePath, file) { }

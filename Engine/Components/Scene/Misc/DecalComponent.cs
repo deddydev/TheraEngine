@@ -107,7 +107,7 @@ namespace TheraEngine.Components.Scene
                 null, //Viewport's Depth texture
                 new TexRef2D("DecalTexture", texture)
             };
-            GLSLScript decalShader = Engine.Files.LoadEngineShader(Path.Combine(Viewport.SceneShaderPath, "DeferredDecal.fs"), EGLSLType.Fragment);
+            GLSLScript decalShader = Engine.Files.Shader(Path.Combine(Viewport.SceneShaderPath, "DeferredDecal.fs"), EGLSLType.Fragment);
             ShaderVar[] decalVars = new ShaderVar[] { };
             RenderingParameters decalRenderParams = new RenderingParameters
             {

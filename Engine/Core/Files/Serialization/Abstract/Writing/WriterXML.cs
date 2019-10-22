@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Extensions;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -80,6 +81,9 @@ namespace TheraEngine.Core.Files.Serialization
             }
             protected override async Task WriteTreeAsync()
             {
+                //TODO: verify that the file path can be written to (not in use, not readonly)
+                //If not, write to a temp path and add to "saved but not where you want it" section
+                //So the user can situate the area for the file and move it there properly
                 long currentBytes = 0L;
                 using (_stream = new ProgressStream(new FileStream(FilePath, FileMode.Create, FileAccess.Write, FileShare.None), null, null))
                 using (_writer = XmlWriter.Create(_stream, _settings))
@@ -141,7 +145,8 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                     }
 
-                    if (root && !isSharedObject)
+                    bool hasSharedObjects = root && !isSharedObject && WritingSharedObjects.Count > 0;
+                    if (hasSharedObjects)
                     {
                         await _writer.WriteStartElementAsync(null, "SharedObjects", null);
                         {
@@ -169,15 +174,26 @@ namespace TheraEngine.Core.Files.Serialization
                     }
 
                     if (hasChildStringData)
-                        await _writer.WriteStringAsync(childStringData);
-                    else
                     {
-                        foreach (SerializeElement childNode in childElements)
-                        {
-                            await WriteElementAsync(childNode, false, false);
-                            if (CancelRequested)
-                                break;
-                        }
+                        bool needsSeparateElement = hasSharedObjects || childElements.Count > 0;
+
+                        if (needsSeparateElement)
+                            await _writer.WriteStartElementAsync(null, "StringData", null);
+
+                        await _writer.WriteStringAsync(childStringData);
+
+                        if (needsSeparateElement)
+                            await _writer.WriteEndElementAsync();
+
+                        if (CancelRequested)
+                            return;
+                    }
+                
+                    foreach (SerializeElement childNode in childElements)
+                    {
+                        await WriteElementAsync(childNode, false, false);
+                        if (CancelRequested)
+                            break;
                     }
                 }
                 await _writer.WriteEndElementAsync();

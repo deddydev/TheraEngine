@@ -21,15 +21,15 @@ namespace TheraEngine.Rendering.Models.Materials
             if (!File.Exists(path))
                 return new Bitmap[0];
 
-            FIBITMAP dib = FreeImage.LoadEx(path);
-            if (dib.IsNull)
-                return new Bitmap[0];
+            //FIBITMAP dib = FreeImage.LoadEx(path);
+            //if (dib.IsNull)
+            //    return new Bitmap[0];
 
             try
             {
-                Bitmap bitmap = FreeImage.GetBitmap(dib);
-                FreeImage.UnloadEx(ref dib);
-
+                //Bitmap bitmap = FreeImage.GetBitmap(dib);
+                //FreeImage.UnloadEx(ref dib);
+                Bitmap bitmap = new Bitmap(path);
                 return new Bitmap[] { bitmap };
             }
             catch

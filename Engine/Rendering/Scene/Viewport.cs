@@ -785,7 +785,7 @@ namespace TheraEngine.Rendering
             _brdfTex.SamplerName = "BRDF";
             TexRef2D[] texRefs = new TexRef2D[] { _brdfTex };
 
-            GLSLScript shader = Engine.Files.LoadEngineShader(Path.Combine("Scene3D", "BRDF.fs"), EGLSLType.Fragment);
+            GLSLScript shader = Engine.Files.Shader(Path.Combine("Scene3D", "BRDF.fs"), EGLSLType.Fragment);
             TMaterial mat = new TMaterial("BRDFMat", renderParams, texRefs, shader);
             MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat);
             fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
@@ -907,8 +907,8 @@ namespace TheraEngine.Rendering
                 SSAOTexture.MinFilter = ETexMinFilter.Nearest;
                 SSAOTexture.MagFilter = ETexMagFilter.Nearest;
                 
-                GLSLScript ssaoShader = Engine.Files.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOGen.fs"), EGLSLType.Fragment);
-                GLSLScript ssaoBlurShader = Engine.Files.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOBlur.fs"), EGLSLType.Fragment);
+                GLSLScript ssaoShader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "SSAOGen.fs"), EGLSLType.Fragment);
+                GLSLScript ssaoBlurShader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "SSAOBlur.fs"), EGLSLType.Fragment);
                 
                 TexRef2D[] ssaoRefs = new TexRef2D[]
                 {
@@ -969,7 +969,7 @@ namespace TheraEngine.Rendering
                 
                 LightingTexture = TexRef2D.CreateFrameBufferTexture("Diffuse", width, height,
                     EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat);
-                GLSLScript lightCombineShader = Engine.Files.LoadEngineShader(
+                GLSLScript lightCombineShader = Engine.Files.Shader(
                     Path.Combine(SceneShaderPath, "DeferredLightCombine.fs"), EGLSLType.Fragment);
                 BaseTexRef[] combineRefs = new BaseTexRef[]
                 {
@@ -997,9 +997,9 @@ namespace TheraEngine.Rendering
                     //shadow map texture
                 };
 
-                GLSLScript pointLightShader = Engine.Files.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingPoint.fs"), EGLSLType.Fragment);
-                GLSLScript spotLightShader = Engine.Files.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingSpot.fs"), EGLSLType.Fragment);
-                GLSLScript dirLightShader = Engine.Files.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingDir.fs"), EGLSLType.Fragment);
+                GLSLScript pointLightShader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "DeferredLightingPoint.fs"), EGLSLType.Fragment);
+                GLSLScript spotLightShader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "DeferredLightingSpot.fs"), EGLSLType.Fragment);
+                GLSLScript dirLightShader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "DeferredLightingDir.fs"), EGLSLType.Fragment);
 
                 TMaterial pointLightMat = new TMaterial("PointLightMat", additiveRenderParams, lightRefs, pointLightShader);
                 TMaterial spotLightMat = new TMaterial("SpotLightMat", additiveRenderParams, lightRefs, spotLightShader);
@@ -1042,10 +1042,10 @@ namespace TheraEngine.Rendering
             HDRSceneTexture.VWrap = ETexWrapMode.ClampToEdge;
             HDRSceneTexture.SamplerName = "HDRSceneTex";
 
-            GLSLScript brightShader = Engine.Files.LoadEngineShader(Path.Combine(SceneShaderPath, "BrightPass.fs"), EGLSLType.Fragment);
-            GLSLScript bloomBlurShader = Engine.Files.LoadEngineShader(Path.Combine(SceneShaderPath, "BloomBlur.fs"), EGLSLType.Fragment);
-            GLSLScript postProcessShader = Engine.Files.LoadEngineShader(Path.Combine(SceneShaderPath, "PostProcess.fs"), EGLSLType.Fragment);
-            GLSLScript hudShader = Engine.Files.LoadEngineShader(Path.Combine(SceneShaderPath, "HudFBO.fs"), EGLSLType.Fragment);
+            GLSLScript brightShader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "BrightPass.fs"), EGLSLType.Fragment);
+            GLSLScript bloomBlurShader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "BloomBlur.fs"), EGLSLType.Fragment);
+            GLSLScript postProcessShader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "PostProcess.fs"), EGLSLType.Fragment);
+            GLSLScript hudShader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "HudFBO.fs"), EGLSLType.Fragment);
 
             TexRef2D hudTexture = TexRef2D.CreateFrameBufferTexture("Hud", width, height,
                 EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat);

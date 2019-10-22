@@ -194,7 +194,7 @@ namespace TheraEngine.Components.Scene
 
         [Browsable(false)]
         public bool PreRenderEnabled => IsSimulating;
-        public void PreRenderUpdate(ICamera camera) => CameraPosition = camera.WorldPoint;
+        public void PreRenderUpdate(ICamera camera) => CameraPosition = camera?.WorldPoint ?? Vec3.Zero;
         public void PreRenderSwap() { }
         public void PreRender(Viewport viewport, ICamera camera) { }
     }
@@ -293,8 +293,8 @@ namespace TheraEngine.Components.Scene
             posBuf.Location = 1;
             colBuf.Location = 2;
 
-            GLSLScript vert = Engine.Files.LoadEngineShader("ParticleInstance.vs", EGLSLType.Vertex);
-            GLSLScript frag = Engine.Files.LoadEngineShader("ParticleInstance.fs", EGLSLType.Fragment);
+            GLSLScript vert = Engine.Files.Shader("ParticleInstance.vs", EGLSLType.Vertex);
+            GLSLScript frag = Engine.Files.Shader("ParticleInstance.fs", EGLSLType.Fragment);
             RenderingParameters rp = new RenderingParameters(true);
             TMaterial mat = new TMaterial("ParticleMaterial", rp, vert, frag);
             mesh = new PrimitiveManager(data, mat);

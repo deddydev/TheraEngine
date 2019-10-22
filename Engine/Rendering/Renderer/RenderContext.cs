@@ -33,6 +33,7 @@ namespace TheraEngine.Rendering
 
         public abstract AbstractRenderer Renderer { get; }
 
+        private long _resizeWidthHeight = 0L;
         private BaseRenderHandler _renderHandler;
         public BaseRenderHandler Handler
         {
@@ -115,7 +116,7 @@ namespace TheraEngine.Rendering
 
         protected IntPtr _handle;
         protected bool _resetting = false;
-        
+
         protected ConcurrentDictionary<int, ThreadSubContext> _subContexts = new ConcurrentDictionary<int, ThreadSubContext>();
         protected ThreadSubContext _currentSubContext;
 
@@ -149,7 +150,7 @@ namespace TheraEngine.Rendering
 
             if (thread is null || _handle == IntPtr.Zero)
                 return -1;
-            
+
             if (!_subContexts.ContainsKey(thread.ManagedThreadId))
             {
                 IntPtr handle = IntPtr.Zero;
@@ -162,8 +163,8 @@ namespace TheraEngine.Rendering
                 //    }));
                 //else
                 //{
-                    handle = _handle;
-                    //size = _handle.ClientSize;
+                handle = _handle;
+                //size = _handle.ClientSize;
                 //}
                 ThreadSubContext c = CreateSubContext(handle, thread);
                 c.OnResized(size);
@@ -185,17 +186,32 @@ namespace TheraEngine.Rendering
                 value?.Dispose();
             }
         }
-
         public void Update() => Handler.Update();
         public void SwapBuffers() => Handler.SwapBuffers();
         public void Render()
         {
             Capture();
+            GetCurrentSubContext();
+            CheckSize();
             PreRender();
             Handler.Render();
             PostRender();
             Swap();
             ErrorCheck();
+        }
+
+        private void CheckSize()
+        {
+            long value = Interlocked.Read(ref _resizeWidthHeight);
+            if (value == 0L)
+                return;
+
+            int width  = (int)((value >> 32) & 0xFFFFFFFF);
+            int height = (int)( value        & 0xFFFFFFFF);
+            Interlocked.Exchange(ref _resizeWidthHeight, 0L);
+
+            _currentSubContext.OnResized(new IVec2(width, height));
+            Handler?.Resize(width, height);
         }
 
         public bool IsCurrent()
@@ -220,11 +236,6 @@ namespace TheraEngine.Rendering
             {
                 Engine.LogException(ex);
             }
-        }
-        protected void OnResized(IVec2 size)
-        {
-            GetCurrentSubContext();
-            _currentSubContext.OnResized(size);
         }
         public void SetCurrent(bool current)
         {
@@ -302,10 +313,8 @@ namespace TheraEngine.Rendering
 
         public void Resize(int width, int height)
         {
-            GetCurrentSubContext();
-            _currentSubContext.OnResized(new IVec2(width, height));
-
-            Handler?.Resize(width, height);
+            long newValue = ((long)width << 32) | (long)height;
+            Interlocked.Exchange(ref _resizeWidthHeight, newValue);
         }
 
         public virtual void LostFocus() => Handler?.LostFocus();

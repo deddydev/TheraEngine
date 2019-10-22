@@ -137,7 +137,7 @@ namespace TheraEditor.Windows.Forms
               out (float Time, float Value)[] max);
             return TMath.Max(Math.Abs(min[0].Value), Math.Abs(max[0].Value));
         }
-        protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
+        protected override bool GetWorkArea(out Vec2 min, out Vec2 max)
         {
             if (_targetAnimation is null)
             {

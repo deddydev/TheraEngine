@@ -79,8 +79,6 @@ namespace TheraEngine.Audio
 
         #region Properties
 
-        public EAudioState State => Engine.Audio.GetState(this);
-
         /// <summary>
         /// Determines if Position, Direction and Velocity are relative to the listener or the world.
         /// </summary>
@@ -424,6 +422,12 @@ namespace TheraEngine.Audio
         public void Pause() => Engine.Audio.Pause(this);
         public void Stop()  => Engine.Audio.Stop (this);
 
+        public bool IsPlaying => State == EAudioState.Playing;
+        public bool IsPaused  => State == EAudioState.Paused;
+        public bool IsStopped => State == EAudioState.Stopped;
+        public bool IsInInitialState => State == EAudioState.Initial;
+        public EAudioState State => Engine.Audio.GetState(this);
+        
         public void UpdateAllParameters(bool force = false) 
             => Engine.Audio.UpdateSource(this, force);
     }

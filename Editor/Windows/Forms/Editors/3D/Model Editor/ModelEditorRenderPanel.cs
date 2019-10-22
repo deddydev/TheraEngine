@@ -18,20 +18,26 @@ namespace TheraEngine.Windows.Forms
             EditorPawn.GamepadTranslateSpeed = 15.0f;
 
             WindowGameMode?.TargetRenderHandlers?.Add(this);
-
-            if (!ModelEditorWorld.IsPlaying)
-                ModelEditorWorld.BeginPlay();
         }
 
         public Func<Viewport, IVolume> GetCullingVolumeOverride { get; set; }
         public bool IsEditView { get; set; }
         public EditorGameMode WindowGameMode { get; set; } = new EditorGameMode();
 
-        //TODO: Cache new world per target model.
-        public static World ModelEditorWorld { get; } = new World();
+        public override IWorld World => WorldManager?.World;
+        public override IGameMode GameMode => WindowGameMode;
+        protected override void OnWorldManagerPreChanged()
+        {
+            PreWorldChanged();
+            base.OnWorldManagerPreChanged();
+        }
+        protected override void OnWorldManagerPostChanged()
+        {
+            PostWorldChanged();
+            base.OnWorldManagerPostChanged();
+        }
 
-        public override IWorld World => ModelEditorWorld;
-        protected override void LinkWorldChangeEvents() { } //World will not change
+        protected override void LinkEngineWorldChangeEvents() { } //World will not change
 
         protected override IVolume GetCullingVolume(Viewport v)
             => GetCullingVolumeOverride?.Invoke(v) ?? base.GetCullingVolume(v);

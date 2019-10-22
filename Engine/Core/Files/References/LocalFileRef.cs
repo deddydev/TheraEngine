@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files
 {
@@ -21,13 +22,13 @@ namespace TheraEngine.Core.Files
     {
         public LocalFileRef()
             : base() { }
-        public LocalFileRef(Type type)
+        public LocalFileRef(TypeProxy type)
             : base(type) { }
         public LocalFileRef(T file)
             : base(file) { }
         public LocalFileRef(string filePath)
             : base(filePath) { }
-        public LocalFileRef(string filePath, Type type)
+        public LocalFileRef(string filePath, TypeProxy type)
             : base(filePath, type) { }
         public LocalFileRef(string filePath, T file)
             : base(filePath, file) { }

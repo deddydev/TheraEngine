@@ -1,23 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
-using TheraEngine.Actors.Types;
-using TheraEngine.Actors.Types.Lights;
 using TheraEngine.Animation;
-using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Components.Scene;
-using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Core.Files;
-using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Textures;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -46,8 +37,18 @@ namespace TheraEditor.Windows.Forms
         public ModelEditorForm(BaseActor actor) : this() => SetActor(actor);
         public ModelEditorForm(PropAnimVec3 vec3Anim) : this() => SetAnim(vec3Anim);
 
-        public int WorldManagerId { get; private set; }
+        public int WorldManagerId => WorldManager?.ID ?? -1;
         public event Action WorldManagerChanged;
+        public ModelEditorWorldManager WorldManager
+        {
+            get => _worldManager;
+            private set
+            {
+                _worldManager = value;
+                WorldManagerChanged?.Invoke();
+            }
+        }
+        private ModelEditorWorldManager _worldManager;
 
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances
@@ -75,7 +76,7 @@ namespace TheraEditor.Windows.Forms
 
         //public static GlobalFileRef<ModelEditorSettings> GetSettingsRef() => Instance.Project?.EditorSettingsRef ?? DefaultSettingsRef;
         //public static ModelEditorSettings GetSettings() => GetSettingsRef()?.File;
-        
+
         public T GetForm<T>(ref T value, DockPane pane, DockAlignment align, double prop) where T : DockContent, new()
         {
             if (value is null || value.IsDisposed)
@@ -102,12 +103,12 @@ namespace TheraEditor.Windows.Forms
         public bool MatPreviewFormActive => _matPreviewForm != null;
         public DockableMaterialPreview MatPreviewForm => GetForm(
             ref _matPreviewForm, DockState.DockRight);
-        
+
         private DockableTexRefControl _texRefForm;
         public bool TexRefFormActive => _texRefForm != null;
         public DockableTexRefControl TexRefForm => GetForm(
             ref _texRefForm, DockState.DockLeft);
-        
+
         private DockableBoneTree _boneTreeForm;
         public bool BoneTreeFormActive => _boneTreeForm != null;
         public DockableBoneTree BoneTreeForm => GetForm(
@@ -132,12 +133,12 @@ namespace TheraEditor.Windows.Forms
         public bool MeshListActive => _meshList != null;
         public DockableMeshList MeshList => GetForm(
             ref _meshList, DockState.DockLeft);
-        
+
         private DockableMaterialList _materialList;
         public bool MaterialListActive => _materialList != null;
         public DockableMaterialList MaterialList => GetForm(
             ref _materialList, DockState.DockLeft);
-        
+
         private DockablePropertyGrid _propGrid;
         public bool PropGridActive => _propGrid != null;
         public DockablePropertyGrid PropGrid => GetForm(
@@ -145,201 +146,85 @@ namespace TheraEditor.Windows.Forms
 
         #endregion
 
-        private LocalFileRef<World> ModelEditorWorldRef
-            = new LocalFileRef<World>(/*Engine.Files.WorldPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
-
-        public async Task InitWorldAsync()
+        public void SetActor(BaseActor actor)
         {
-            //bool fileDoesNotExist = !ModelEditorWorld.FileExists;
-            World world;// = await ModelEditorWorld.GetInstanceAsync();
-            //if (world is null)
-            //{
-                List<BaseActor> actors = new List<BaseActor>();
-
-                DirectionalLightActor light = new DirectionalLightActor();
-                DirectionalLightComponent comp = light.RootComponent;
-                comp.DiffuseIntensity = 1.0f;
-                comp.LightColor = new EventColorF3(1.0f);
-                comp.Rotation.Yaw = 45.0f;
-                comp.Rotation.Pitch = -45.0f;
-                comp.Scale = new Vec3(2000.0f);
-                actors.Add(light);
-                
-                TextureFile2D skyTex = await Engine.Files.LoadEngineTexture2DAsync("modelviewerbg1.png");
-                SkyboxActor skyboxActor = new SkyboxActor(skyTex, 1000.0f);
-                actors.Add(skyboxActor);
-
-                IBLProbeGridActor iblProbes = new IBLProbeGridActor();
-                iblProbes.AddProbe(Vec3.Zero);
-                actors.Add(iblProbes);
-
-                ModelEditorWorldRef.File = world = new World()
-                {
-                    Settings = new WorldSettings("ModelEditorWorld", new Map(actors)),
-                };
-            //}
-            world.BeginPlay();
-            
-            //if (fileDoesNotExist)
-            //    await ModelEditorWorld.File.ExportAsync(Engine.Files.WorldPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
-        }
-
-        public World World => ModelEditorWorldRef.File;        
-        public BaseActor TargetActor { get; private set; }
-        public IModelFile Model { get; private set; }
-
-        public async void SetActor(BaseActor actor)
-        {
-            if (World is null)
-            {
-                await InitWorldAsync();
-            }
-
-            FormTitle2.Text = actor?.FilePath ?? actor?.Name ?? string.Empty;
-
-            if (TargetActor != null && TargetActor.IsSpawned)
-                World.DespawnActor(TargetActor);
-            
-            TargetActor = actor;
-            World.SpawnActor(TargetActor);
-
+            WorldManager?.SetActor(actor);
             PropGrid.PropertyGrid.TargetObject = actor;
+            RenderForm1.Focus();
         }
-        public async void SetModel(StaticModel stm)
+        public void SetModel(StaticModel stm)
         {
-            if (World is null)
-                await InitWorldAsync();
-
-            FormTitle2.Text = stm?.FilePath ?? stm?.Name ?? string.Empty;
-
-            if (TargetActor != null && TargetActor.IsSpawned)
-                World.DespawnActor(TargetActor);
-
-            Model = stm;
-            StaticMeshComponent comp = new StaticMeshComponent(stm);
-            TargetActor = new Actor<StaticMeshComponent>(comp);
-            World.SpawnActor(TargetActor);
-            
-            MeshList.DisplayMeshes(comp);
+            WorldManager?.SetModel(stm);
             MaterialList.DisplayMaterials(stm);
-
-            //BoundingBox aabb = stm?.CalculateCullingAABB() ?? new BoundingBox();
-            //RenderForm1.AlignView(aabb);
-
             PropGrid.PropertyGrid.TargetObject = stm;
+            RenderForm1.Focus();
         }
-        public async void SetModel(SkeletalModel skm)
+        public void SetModel(SkeletalModel skm)
         {
-            if (World is null)
-                await InitWorldAsync();
-
-            Skeleton skel = skm.SkeletonRef?.File;
-
-            FormTitle2.Text = $"{skm?.FilePath ?? skm?.Name ?? string.Empty} [{skel?.FilePath ?? skel?.Name ?? string.Empty}]";
-
-            if (TargetActor != null && TargetActor.IsSpawned)
-                World.DespawnActor(TargetActor);
-
-            Model = skm;
-            SkeletalMeshComponent comp = new SkeletalMeshComponent(skm, skel);
-            TargetActor = new Actor<SkeletalMeshComponent>(comp);
-            AnimStateMachineComponent machine = new AnimStateMachineComponent(skm.SkeletonRef?.File);
-            TargetActor.LogicComponents.Add(machine);
-            World.SpawnActor(TargetActor);
-
-            MeshList.DisplayMeshes(comp);
+            WorldManager?.SetModel(skm);
             MaterialList.DisplayMaterials(skm);
-            BoneTreeForm.SetSkeleton(skel);
+            BoneTreeForm.SetSkeleton(skm.SkeletonRef?.File);
             AnimList.Show();
-
-            //BoundingBox aabb = skm.CalculateBindPoseCullingAABB();
-            //RenderForm1.AlignView(aabb);
-
             PropGrid.PropertyGrid.TargetObject = skm;
+            RenderForm1.Focus();
         }
-        public async void SetAnim(PropAnimVec3 vec3anim)
+        public void SetAnim(PropAnimVec3 vec3anim)
         {
-            if (World is null)
-                await InitWorldAsync();
-
-            FormTitle2.Text = vec3anim?.FilePath ?? vec3anim?.Name ?? string.Empty;
-
-            if (TargetActor != null && TargetActor.IsSpawned)
-                World.DespawnActor(TargetActor);
-
-            Spline3DComponent comp = new Spline3DComponent(vec3anim);
-            TargetActor = new Actor<Spline3DComponent>(comp);
-            World.SpawnActor(TargetActor);
-
+            WorldManager?.SetAnim(vec3anim);
             PropGrid.PropertyGrid.TargetObject = vec3anim;
+            RenderForm1.Focus();
         }
-
-        protected override async void OnShown(EventArgs e)
+        protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-            //Editor.Instance.SetRenderTicking(false);
-            if (World is null)
-                await InitWorldAsync();
-            //RenderForm1.RenderPanel.CaptureContext();
-            SetRenderTicking(true);
+
+            WorldManager = Engine.DomainProxy.RegisterAndGetWorldManager<ModelEditorWorldManager>();
+            AppDomainHelper.Sponsor(WorldManager);
+            WorldManager.OnShown();
+            WorldManager.TargetActorLoaded += WorldManager_TargetActorLoaded;
         }
         protected override void OnClosed(EventArgs e)
         {
-            SetRenderTicking(false);
-            //Editor.Instance.SetRenderTicking(true);
-            World.DespawnActor(TargetActor);
+            WorldManager.OnClosed();
+            WorldManager.TargetActorLoaded -= WorldManager_TargetActorLoaded;
+            Engine.DomainProxy.UnregisterWorldManager(WorldManagerId);
+            AppDomainHelper.ReleaseSponsor(WorldManager);
+            WorldManager = null;
+
             //if (Model is SkeletalModel skm && skm.SkeletonRef?.IsLoaded == true)
             //    World.Scene3D?.Renderables.Remove(skm.SkeletonRef.File);
+
             base.OnClosed(e);
         }
 
-        public bool IsRenderTicking { get; private set; }
-
-        public void SetRenderTicking(bool isRendering)
+        private void WorldManager_TargetActorLoaded(IActor obj)
         {
-            if (isRendering && !IsRenderTicking)
+            switch (obj)
             {
-                IsRenderTicking = true;
-                //Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
+                case Actor<StaticMeshComponent> staticActor:
+                    MeshList.DisplayMeshes(staticActor.RootComponent);
+                    break;
+                case Actor<SkeletalMeshComponent> skelActor:
+                    MeshList.DisplayMeshes(skelActor.RootComponent);
+                    break;
+                case Actor<Spline3DComponent> _:
+
+                    break;
+                case BaseActor _:
+
+                    break;
             }
-            else if (!isRendering && IsRenderTicking)
-            {
-                IsRenderTicking = false;
-                //Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
-            }
+            FormTitle2.Text = WorldManager?.FormTitleText;
+            RenderForm1.Focus();
         }
 
-        //private void UpdateTick(object sender, FrameEventArgs e)
-        //{
-        //    World.Scene?.GlobalUpdate();
-        //    for (int i = 0; i < 4; ++i)
-        //        if (RenderFormActive(i))
-        //            GetRenderForm(i).RenderPanel.UpdateTick(sender, e);
-        //}
-        //private void SwapBuffers()
-        //{
-        //    World.Scene?.GlobalSwap();
-        //    for (int i = 0; i < 4; ++i)
-        //        if (RenderFormActive(i))
-        //            GetRenderForm(i).RenderPanel.SwapBuffers();
-        //}
-        //private void RenderTick(object sender, FrameEventArgs e)
-        //{
-        //    //RenderForm1.RenderPanel.CaptureContext();
-
-        //    World.Scene?.GlobalPreRender();
-        //    for (int i = 0; i < 4; ++i)
-        //        if (RenderFormActive(i))
-        //            GetRenderForm(i).RenderPanel.Invalidate();
-        //}
-
-        private void btnViewport1_Click     (object sender, EventArgs e) => RenderForm1.Focus();
-        private void btnViewport2_Click     (object sender, EventArgs e) => RenderForm2.Focus();
-        private void btnViewport3_Click     (object sender, EventArgs e) => RenderForm3.Focus();
-        private void btnViewport4_Click     (object sender, EventArgs e) => RenderForm4.Focus();
-        private void btnMeshList_Click      (object sender, EventArgs e) => MeshList.Focus();
-        private void btnMaterialList_Click  (object sender, EventArgs e) => MaterialList.Focus();
-        private void btnSkeleton_Click      (object sender, EventArgs e) => BoneTreeForm.Focus();
+        private void btnViewport1_Click(object sender, EventArgs e) => RenderForm1.Focus();
+        private void btnViewport2_Click(object sender, EventArgs e) => RenderForm2.Focus();
+        private void btnViewport3_Click(object sender, EventArgs e) => RenderForm3.Focus();
+        private void btnViewport4_Click(object sender, EventArgs e) => RenderForm4.Focus();
+        private void btnMeshList_Click(object sender, EventArgs e) => MeshList.Focus();
+        private void btnMaterialList_Click(object sender, EventArgs e) => MaterialList.Focus();
+        private void btnSkeleton_Click(object sender, EventArgs e) => BoneTreeForm.Focus();
 
         private void chkViewNormals_Click(object sender, EventArgs e)
         {
@@ -360,46 +245,26 @@ namespace TheraEditor.Windows.Forms
         private void chkViewCollisions_Click(object sender, EventArgs e)
         {
             chkViewCollisions.Checked = !chkViewCollisions.Checked;
-            if (TargetActor?.RootComponentGeneric is SkeletalMeshComponent skel && skel.TargetSkeleton != null)
-                foreach (Bone bone in skel.TargetSkeleton.BoneIndexCache.Values)
-                    if (bone?.RigidBodyCollision?.CollisionShape != null)
-                        bone.RigidBodyCollision.CollisionShape.DebugRender = true;
+            if (WorldManager != null)
+                WorldManager.ViewCollisions = chkViewCollisions.Checked;
         }
         private void chkViewConstraints_Click(object sender, EventArgs e)
         {
             chkViewConstraints.Checked = !chkViewConstraints.Checked;
-            World.PhysicsWorld3D.DrawConstraints = chkViewConstraints.Checked;
-            World.PhysicsWorld3D.DrawConstraintLimits = chkViewConstraints.Checked;
-            //if (TargetActor?.RootComponentGeneric is SkeletalMeshComponent skel && skel.TargetSkeleton != null)
-            //    foreach (Bone bone in skel.TargetSkeleton.BoneIndexCache.Values)
-            //        bone.ParentPhysicsConstraint
+            if (WorldManager != null)
+                WorldManager.ViewConstraints = chkViewConstraints.Checked;
         }
         private void chkViewCullingVolumes_Click(object sender, EventArgs e)
         {
             chkViewCullingVolumes.Checked = !chkViewCullingVolumes.Checked;
-            var comp = TargetActor?.RootComponentGeneric;
-            IRenderInfo3D r3D;
-            switch (comp)
-            {
-                case SkeletalMeshComponent skelComp:
-                    if (skelComp.Meshes != null)
-                        foreach (var mesh in skelComp.Meshes)
-                            if ((r3D = mesh?.RenderInfo?.CullingVolume?.RenderInfo) != null)
-                                r3D.Visible = chkViewCullingVolumes.Checked;
-                    break;
-                case StaticMeshComponent staticComp:
-                    if (staticComp.Meshes != null)
-                        foreach (var mesh in staticComp.Meshes)
-                            if ((r3D = mesh?.RenderInfo?.CullingVolume?.RenderInfo) != null)
-                                r3D.Visible = chkViewCullingVolumes.Checked;
-                    break;
-            }
+            if (WorldManager != null)
+                WorldManager.ViewCullingVolumes = chkViewCullingVolumes.Checked;
         }
         private void chkViewBones_Click(object sender, EventArgs e)
         {
             chkViewBones.Checked = !chkViewBones.Checked;
-            if (TargetActor?.RootComponentGeneric is SkeletalMeshComponent skel)
-                skel.TargetSkeleton.RenderInfo.Visible = chkViewBones.Checked;
+            if (WorldManager != null)
+                WorldManager.ViewBones = chkViewBones.Checked;
         }
     }
 }

@@ -843,7 +843,7 @@ namespace TheraEngine.Components
             PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), quad.ToTriangles());
             string texPath = Engine.Files.TexturePath(textureName);
             TexRef2D tex = new TexRef2D("PreviewIcon", texPath) { SamplerName = "Texture0" };
-            GLSLScript shader = Engine.Files.LoadEngineShader("EditorPreviewIcon.fs", EGLSLType.Fragment);
+            GLSLScript shader = Engine.Files.Shader("EditorPreviewIcon.fs", EGLSLType.Fragment);
             TMaterial mat = new TMaterial("EditorPreviewIconMaterial", new BaseTexRef[] { tex }, shader)
             {
                 RenderParams = new RenderingParameters()

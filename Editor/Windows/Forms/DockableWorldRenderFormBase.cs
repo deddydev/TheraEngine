@@ -52,19 +52,12 @@ namespace TheraEditor.Windows.Forms
             Viewport vp = GetOrAddViewport(PlayerIndex);
             vp.Camera = EditorPawn.Camera;
 
-            if (World != null)
-            {
-                World.PostBeginPlay += World_PostBeginPlay;
-                World.PreEndPlay += World_PreEndPlay;
-
-                if (World.IsPlaying)
-                    World.SpawnActor(EditorPawn);
-            }
-            LinkWorldChangeEvents();
+            PostWorldChanged();
+            LinkEngineWorldChangeEvents();
         }
         public override IWorld World => Engine.World;
         public override IGameMode GameMode => Editor.DomainProxy.CurrentGameMode;
-        protected virtual void LinkWorldChangeEvents()
+        protected virtual void LinkEngineWorldChangeEvents()
         {
             Engine.PreWorldChanged += PreWorldChanged;
             Engine.PostWorldChanged += PostWorldChanged;
@@ -74,7 +67,7 @@ namespace TheraEditor.Windows.Forms
             base.Resize(width, height);
             EditorPawn?.HUD?.File?.Resize(new Vec2(width, height));
         }
-        private void PreWorldChanged()
+        protected virtual void PreWorldChanged()
         {
             if (World is null)
                 return;
@@ -85,7 +78,7 @@ namespace TheraEditor.Windows.Forms
             if (World.IsPlaying)
                 World.DespawnActor(EditorPawn);
         }
-        private void PostWorldChanged()
+        protected virtual void PostWorldChanged()
         {
             if (World is null)
                 return;

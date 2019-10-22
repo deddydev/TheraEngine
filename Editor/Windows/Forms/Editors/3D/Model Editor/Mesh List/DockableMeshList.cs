@@ -25,19 +25,25 @@ namespace TheraEditor.Windows.Forms
             Tuple<StaticSoftSubMesh, StaticRenderableMesh> softMeshTag;
 
             var rigidMeshes = comp.Model.RigidChildren;
-            if (!(splitContainer1.Panel1Collapsed = rigidMeshes.Count == 0))
+            int rMeshCount = rigidMeshes.Count;
+            if (!(splitContainer1.Panel1Collapsed = rMeshCount == 0))
                 for (int i = 0; i < rigidMeshes.Count; ++i)
                 {
-                    rigidMeshTag = new Tuple<StaticRigidSubMesh, StaticRenderableMesh>(rigidMeshes[i], comp.Meshes[i]);
-                    lstRigid.Items.Add(new ListViewItem(rigidMeshes[i].Name) { Tag = rigidMeshTag });
+                    var mesh = rigidMeshes[i];
+                    var rmesh = comp.Meshes[i];
+                    rigidMeshTag = new Tuple<StaticRigidSubMesh, StaticRenderableMesh>(mesh, rmesh);
+                    lstRigid.Items.Add(new ListViewItem(mesh.Name) { Tag = rigidMeshTag });
                 }
 
             var softMeshes = comp.Model.SoftChildren;
-            if (!(splitContainer1.Panel2Collapsed = softMeshes.Count == 0))
+            int sMeshCount = softMeshes.Count;
+            if (!(splitContainer1.Panel2Collapsed = sMeshCount == 0))
                 for (int i = 0; i < softMeshes.Count; ++i)
                 {
-                    softMeshTag = new Tuple<StaticSoftSubMesh, StaticRenderableMesh>(softMeshes[i], comp.Meshes[i + rigidMeshes.Count]);
-                    lstSoft.Items.Add(new ListViewItem(softMeshes[i].Name) { Tag = softMeshTag });
+                    var mesh = softMeshes[i];
+                    var rmesh = comp.Meshes[i + rMeshCount];
+                    softMeshTag = new Tuple<StaticSoftSubMesh, StaticRenderableMesh>(mesh, rmesh);
+                    lstSoft.Items.Add(new ListViewItem(mesh.Name) { Tag = softMeshTag });
                 }
         }
         public void DisplayMeshes(SkeletalMeshComponent comp)

@@ -269,7 +269,7 @@ namespace TheraEngine.Core.Reflection
                     return;
 
                 sponsorableObject.Sponsor = new MarshalSponsor(sponsorableObject);
-                Engine.PrintLine($"Sponsored {sponsorableObject.ToString()} from AppDomain {sponsorableObject.Domain.FriendlyName}.");
+                //Engine.PrintLine($"Sponsored {sponsorableObject.ToString()} from AppDomain {sponsorableObject.Domain.FriendlyName}.");
 
                 SponsoredObjects.Add(sponsorableObject);
             }
@@ -278,10 +278,16 @@ namespace TheraEngine.Core.Reflection
                 if (!ExternalSponsoredObjects.ContainsKey(marshalObject))
                 {
                     ExternalSponsoredObjects.TryAdd(marshalObject, new MarshalExternalSponsor(marshalObject));
-                    Engine.PrintLine($"Sponsored {marshalObject.ToString()}.");
+                    //Engine.PrintLine($"Sponsored {marshalObject.ToString()}.");
                 }
             }
         }
+
+        public static void ReleaseSponsor(object obj)
+        {
+
+        }
+
         public class MarshalExternalSponsor : MarshalByRefObject, ISponsor, IDisposable
         {
             public static readonly TimeSpan RenewalTimeSpan = TimeSpan.FromSeconds(1.0);
@@ -306,7 +312,7 @@ namespace TheraEngine.Core.Reflection
                 double sec = Math.Round(span.TotalSeconds, 1);
                 Engine.PrintLine($"Renewed lease for {fn}. {sec} seconds elapsed since last renewal.");
                 LastRenewalTime = DateTime.Now;
-                return RenewalTimeSpan;
+                return TimeSpan.FromMinutes(10.0);
             }
 
             public MarshalExternalSponsor(MarshalByRefObject mbro)

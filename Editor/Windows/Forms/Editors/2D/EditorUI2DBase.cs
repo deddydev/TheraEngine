@@ -20,7 +20,7 @@ using Extensions;
 namespace TheraEditor.Windows.Forms
 {
     /// <summary>
-    /// UI editor to create shaders in a user-friendly visual graph format.
+    /// Base class for 2D editor UIs.
     /// </summary>
     public abstract class EditorUI2DBase : UserInterface, I2DRenderable
     {
@@ -117,7 +117,7 @@ namespace TheraEditor.Windows.Forms
         }
         protected virtual TMaterial GetBackgroundMaterial()
         {
-            GLSLScript frag = Engine.Files.LoadEngineShader("MaterialEditorGraphBG.fs", EGLSLType.Fragment);
+            GLSLScript frag = Engine.Files.Shader("MaterialEditorGraphBG.fs", EGLSLType.Fragment);
             return new TMaterial("MatEditorGraphBG", new ShaderVar[]
             {
                 new ShaderVec3(new Vec3(0.15f, 0.15f, 0.15f), "LineColor"),
@@ -158,10 +158,10 @@ namespace TheraEditor.Windows.Forms
 
             return comp;
         }
-        protected abstract bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max);
+        protected abstract bool GetWorkArea(out Vec2 min, out Vec2 max);
         public virtual void ZoomExtents(bool adjustScale = true)
         {
-            if (GetFocusAreaMinMax(out Vec2 min, out Vec2 max))
+            if (GetWorkArea(out Vec2 min, out Vec2 max))
             {
                 float xBound = max.X - min.X;
                 float yBound = max.Y - min.Y;

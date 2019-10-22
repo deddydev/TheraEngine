@@ -165,8 +165,8 @@ namespace TheraEngine.Components.Scene.Lights
             };
 
             //This material is used for rendering to the framebuffer.
-            GLSLScript fragShader = Engine.Files.LoadEngineShader("PointLightShadowDepth.fs", EGLSLType.Fragment);
-            GLSLScript geomShader = Engine.Files.LoadEngineShader("PointLightShadowDepth.gs", EGLSLType.Geometry);
+            GLSLScript fragShader = Engine.Files.Shader("PointLightShadowDepth.fs", EGLSLType.Fragment);
+            GLSLScript geomShader = Engine.Files.Shader("PointLightShadowDepth.gs", EGLSLType.Geometry);
             TMaterial mat = new TMaterial("PointLightShadowMat", new ShaderVar[0], refs, fragShader, geomShader);
 
             //No culling so if a light exists inside of a mesh it will shadow everything.

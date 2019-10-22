@@ -94,8 +94,8 @@ namespace TheraEditor.Windows.Forms
                         tblUniforms.Controls.Add(valueCtrl, 1, tblUniforms.RowCount - 1);
                     }
 
-                    ImageList images = new ImageList();
-                    lstTextures.LargeImageList = lstTextures.SmallImageList = lstTextures.StateImageList = images;
+                    //ImageList images = new ImageList();
+                    //lstTextures.LargeImageList = lstTextures.SmallImageList = lstTextures.StateImageList = images;
                     for (int i = 0; i < _material.Textures.Length; ++i)
                     {
                         BaseTexRef tref = _material.Textures[i];
@@ -112,8 +112,8 @@ namespace TheraEditor.Windows.Forms
                                         if (file.Bitmaps.Length > 0 && file.Bitmaps[0] != null)
                                         {
                                             string samplerName = tref.ResolveSamplerName(i);
-                                            images.Images.Add(samplerName, file.Bitmaps[0].GetThumbnailImage(128, 128, null, IntPtr.Zero));
-                                            item.ImageKey = samplerName;
+                                            //images.Images.Add(samplerName, file.Bitmaps[0].GetThumbnailImage(128, 128, null, IntPtr.Zero));
+                                            //item.ImageKey = samplerName;
                                         }
                                     }
                                 }

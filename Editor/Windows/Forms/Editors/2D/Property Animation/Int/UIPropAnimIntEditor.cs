@@ -180,7 +180,7 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             float displayFPS;
-            GetFocusAreaMinMax(out Vec2 animMin, out Vec2 animMax);
+            GetWorkArea(out Vec2 animMin, out Vec2 animMax);
             Vec2 bounds = Bounds;
             Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
             Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, BaseTransformComponent.InverseWorldMatrix).Xy;
@@ -279,7 +279,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            GetFocusAreaMinMax(out Vec2 animMin, out Vec2 animMax);
+            GetWorkArea(out Vec2 animMin, out Vec2 animMax);
             Vec2 bounds = Bounds;
             Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
             Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, BaseTransformComponent.InverseWorldMatrix).Xy;
@@ -424,7 +424,7 @@ void main()
             _xCoord.Scale = scale;
             _yCoord.Scale = scale;
         }
-        protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
+        protected override bool GetWorkArea(out Vec2 min, out Vec2 max)
         {
             //if (_targetAnimation is null)
             {

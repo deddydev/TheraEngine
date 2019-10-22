@@ -108,15 +108,15 @@ void main()
             return new GLSLScript(EGLSLType.Fragment, source);
         }
         public static GLSLScript TextureFragDeferred()
-            => Engine.Files.LoadEngineShader(Path.Combine("Common", "TexturedDeferred.fs"), EGLSLType.Fragment);
+            => Engine.Files.Shader(Path.Combine("Common", "TexturedDeferred.fs"), EGLSLType.Fragment);
         public static GLSLScript LitColorFragDeferred()
-            => Engine.Files.LoadEngineShader(Path.Combine("Common", "ColoredDeferred.fs"), EGLSLType.Fragment);
+            => Engine.Files.Shader(Path.Combine("Common", "ColoredDeferred.fs"), EGLSLType.Fragment);
         public static GLSLScript UnlitTextureFragForward()
-             => Engine.Files.LoadEngineShader(Path.Combine("Common", "UnlitTexturedForward.fs"), EGLSLType.Fragment);
+             => Engine.Files.Shader(Path.Combine("Common", "UnlitTexturedForward.fs"), EGLSLType.Fragment);
         public static GLSLScript UnlitAlphaTextureFragForward()
-            => Engine.Files.LoadEngineShader(Path.Combine("Common", "UnlitAlphaTexturedForward.fs"), EGLSLType.Fragment);
+            => Engine.Files.Shader(Path.Combine("Common", "UnlitAlphaTexturedForward.fs"), EGLSLType.Fragment);
         public static GLSLScript UnlitColorFragForward()
-             => Engine.Files.LoadEngineShader(Path.Combine("Common", "UnlitColoredForward.fs"), EGLSLType.Fragment);
+             => Engine.Files.Shader(Path.Combine("Common", "UnlitColoredForward.fs"), EGLSLType.Fragment);
         public static GLSLScript LitColorFragForward()
         {
             string source = @"

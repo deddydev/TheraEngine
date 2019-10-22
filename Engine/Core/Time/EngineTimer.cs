@@ -64,6 +64,7 @@ namespace TheraEngine.Timers
             if (IsRunning)
                 return;
 
+            singleThreaded = true;
             Engine.PrintLine($"Started {(singleThreaded ? "single" : "multi")}-threaded game loop.");
 
             IsSingleThreaded = singleThreaded;

@@ -856,7 +856,7 @@ namespace TheraEngine
 
             public static string ShaderPath(string fileName)
                 => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);
-            public static GLSLScript LoadEngineShader(string fileName, EGLSLType mode)
+            public static GLSLScript Shader(string fileName, EGLSLType mode)
                 => new GLSLScript(ShaderPath(fileName), mode);
 
             public static string FontPath(string fileName)
@@ -864,9 +864,9 @@ namespace TheraEngine
 
             public static string ScriptPath(string fileName)
                 => Path.Combine(Settings.ScriptsFolder ?? string.Empty, fileName);
-            public static TextFile LoadEngineScript(string fileName)
-                => LoadEngineScript<TextFile>(fileName);
-            public static T LoadEngineScript<T>(string fileName) where T : TextFile, new()
+            public static TextFile Script(string fileName)
+                => Script<TextFile>(fileName);
+            public static T Script<T>(string fileName) where T : TextFile, new()
             {
                 T value = new T { FilePath = ScriptPath(fileName) };
                 return value;

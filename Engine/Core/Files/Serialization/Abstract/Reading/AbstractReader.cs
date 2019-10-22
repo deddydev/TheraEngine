@@ -27,10 +27,6 @@ namespace TheraEngine.Core.Files.Serialization
             public async Task<object> CreateObjectAsync()
             {
                 Engine.PrintLine("Deserializing object...");
-                //if (!isGame)
-                //{
-                    
-                //}
 
                 await ReadTreeAsync();
 

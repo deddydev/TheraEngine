@@ -37,7 +37,9 @@ namespace TheraEditor.Windows.Forms
                 return;
             if (!(listBox1.SelectedItem is SkeletalAnimation anim))
                 return;
-            AnimStateMachineComponent machine = form.TargetActor.FindFirstLogicComponentOfType<AnimStateMachineComponent>();
+            AnimStateMachineComponent machine = form.WorldManager?.TargetActor?.FindFirstLogicComponentOfType<AnimStateMachineComponent>();
+            if (machine is null)
+                return;
             machine.InitialState = new AnimState(new GlobalFileRef<SkelAnimPoseGenBase>(new SkelAnimDirectPose(anim)));
             theraPropertyGrid1.TargetObject = anim;
         }

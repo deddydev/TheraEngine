@@ -458,6 +458,14 @@ namespace TheraEngine.Core
         public ConsistentIndexList<WorldManager> WorldManagers { get; } = new ConsistentIndexList<WorldManager>();
         public ConcurrentDictionary<IntPtr, RenderContext> Contexts { get; } = new ConcurrentDictionary<IntPtr, RenderContext>();
 
+        public WorldManager GetWorldManager(int id) => WorldManagers[id];
+        public T RegisterAndGetWorldManager<T>(params object[] args) where T : WorldManager
+        {
+            T manager = (T)Activator.CreateInstance(typeof(T), args);
+            int index = WorldManagers.Add(manager);
+            manager.ID = index;
+            return manager;
+        }
         public int RegisterWorldManager<T>(params object[] args) where T : WorldManager
         {
             WorldManager manager = (WorldManager)Activator.CreateInstance(typeof(T), args);

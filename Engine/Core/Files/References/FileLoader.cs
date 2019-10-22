@@ -31,9 +31,9 @@ namespace TheraEngine.Core.Files
 
         #region Constructors
         public FileLoader() : this(typeof(T)) { }
-        public FileLoader(Type type)
+        public FileLoader(TypeProxy type)
         {
-            if (typeof(T).IsAssignableFrom(type))
+            if (type.IsAssignableTo(typeof(T)))
                 SubType = type;
             else
                 throw new Exception(type.GetFriendlyName() + " is not assignable to " + typeof(T).GetFriendlyName());
@@ -50,9 +50,9 @@ namespace TheraEngine.Core.Files
                 Path = filePath
             };
         }
-        public FileLoader(string filePath, Type type)
+        public FileLoader(string filePath, TypeProxy type)
         {
-            if (typeof(T).IsAssignableFrom(type))
+            if (type.IsAssignableTo(typeof(T)))
                 SubType = type;
             else
                 throw new Exception(type.GetFriendlyName() + " is not assignable to " + typeof(T).GetFriendlyName());

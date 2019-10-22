@@ -270,7 +270,7 @@ namespace TheraEditor.Windows.Forms
             else if (_draggedFunc != null)
                 HandleDragFunc();
         }
-        protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
+        protected override bool GetWorkArea(out Vec2 min, out Vec2 max)
         {
             if (EndFunc is null)
             {

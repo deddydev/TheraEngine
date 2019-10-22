@@ -3,12 +3,13 @@ using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files
 {
     public interface IFileRef : IFileLoader
     {
-        IFileObject File { get; }
+        IFileObject File { get; set; }
         bool IsLoaded { get; set; }
         bool StoredInternally { get; }
         void UnloadReference();
@@ -21,20 +22,28 @@ namespace TheraEngine.Core.Files
         //Task ExportReferenceAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
         //Task ExportReferenceAsync(string dir, string name, EFileFormat format, string thirdPartyExt, bool setPath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
     }
+    public interface IFileRef<T> : IFileRef where T : class, IFileObject
+    {
+        new T File { get; set; }
+
+        new T GetInstance();
+        new Task<T> GetInstanceAsync();
+        new Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
+    }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
     /// </summary>
     [Serializable]
     [TFileExt("ref")]
-    public abstract class FileRef<T> : FileLoader<T>, IFileRef where T : class, IFileObject
+    public abstract class FileRef<T> : FileLoader<T>, IFileRef<T> where T : class, IFileObject
     {
         //TODO: monitor when file's FilePath is changed, update reference path here accordingly
 
         #region Constructors
         public FileRef() : base() { }
-        public FileRef(Type type) : base(type) { }
+        public FileRef(TypeProxy type) : base(type) { }
         public FileRef(string filePath) : base(filePath) { }
-        public FileRef(string filePath, Type type) : base(filePath, type) { }
+        public FileRef(string filePath, TypeProxy type) : base(filePath, type) { }
         public FileRef(string filePath, T file) : this(filePath)
         {
             if (file != null)
@@ -131,8 +140,9 @@ namespace TheraEngine.Core.Files
         [Browsable(false)]
         public override bool FileExists => IsLoaded || base.FileExists;
 
-        IFileObject IFileRef.File => File;
-        
+        IFileObject IFileRef.File { get => File; set => File = value as T; }
+        T IFileRef<T>.File { get => File; set => File = value; }
+
         [Category("File Reference")]
         //[BrowsableIf("_file != null")]
         public T File

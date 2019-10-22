@@ -12,6 +12,7 @@ using System.Threading;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Scripting;
@@ -350,7 +351,8 @@ namespace TheraEditor.Windows.Forms
         {
             if (_targetFile is GLSLScript script)
             {
-                _glslShader = new RenderShader(script);
+                _glslShader = Editor.DomainProxy.CreateInstance<RenderShader>(script);
+                AppDomainHelper.Sponsor(_glslShader);
                 _glslShader.GenerateSafe();
             }
 

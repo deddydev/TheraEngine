@@ -60,7 +60,12 @@ namespace TheraEngine.Components.Scene
         public override async void OnSpawned()
         {
             base.OnSpawned();
-            if (PlayOnSpawn)
+            bool play = PlayOnSpawn;
+#if EDITOR
+            if (Engine.EditorState.InEditMode)
+                play = false;
+#endif
+            if (play)
                 await PlayAsync();
         }
 

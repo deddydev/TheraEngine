@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
-    public class VertexShaderDesc
+    public class VertexShaderDesc : TObjectSlim
     {
         public static readonly int MaxMorphs = 0;
         public static readonly int MaxColors = 2;

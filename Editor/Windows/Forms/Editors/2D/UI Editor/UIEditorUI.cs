@@ -13,6 +13,9 @@ using TheraEngine.Rendering.UI;
 namespace TheraEditor.Windows.Forms
 {
     public delegate void DelUIComponentSelect(IUIComponent comp);
+    /// <summary>
+    /// UI for editing UIs. How meta.
+    /// </summary>
     public class UIEditorUI : EditorUI2DBase, I2DRenderable
     {
         public UIEditorUI() : base()
@@ -24,9 +27,9 @@ namespace TheraEditor.Windows.Forms
             PrimitiveData data2 = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), lines);
             PrimitiveData data3 = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), lines);
             
-            GLSLScript script1 = Engine.Files.LoadEngineShader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
-            GLSLScript script2 = Engine.Files.LoadEngineShader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
-            GLSLScript script3 = Engine.Files.LoadEngineShader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
+            GLSLScript script1 = Engine.Files.Shader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
+            GLSLScript script2 = Engine.Files.Shader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
+            GLSLScript script3 = Engine.Files.Shader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
 
             TMaterial highlightMat = new TMaterial("OutlineMaterial", new ShaderVar[] 
             {
@@ -157,7 +160,7 @@ namespace TheraEditor.Windows.Forms
         private RenderCommandMesh2D _highlightRC = new RenderCommandMesh2D(ERenderPass.TransparentForward);
         private RenderCommandMesh2D _uiBoundsRC = new RenderCommandMesh2D(ERenderPass.TransparentForward);
 
-        protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
+        protected override bool GetWorkArea(out Vec2 min, out Vec2 max)
         {
             if (_selectedComp != null)
             {

@@ -417,7 +417,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (item.IsDisposed || item.Disposing)
                     RemoveVisibleItem(item);
                 else if (item.AllowUpdate())
-                    BeginInvoke((Action)item.UpdateDisplay);
+                    Invoke((Action)item.UpdateDisplay);
             }
             catch (Exception ex)
             {

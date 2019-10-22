@@ -323,7 +323,7 @@ namespace TheraEditor.Wrappers
             string ns = Editor.Instance.Project.RootNamespace;
             string ClassName = "NewClass";
 
-            TextFile file = Engine.Files.LoadEngineScript(type.ToString() + "_Template.cs");
+            TextFile file = Engine.Files.Script(type.ToString() + "_Template.cs");
             string text = string.Format(file.Text, ns, ClassName, ": " + nameof(TObject));
             text = text.Replace("@", "{").Replace("#", "}");
             CSharpScript code = CSharpScript.FromText(text);

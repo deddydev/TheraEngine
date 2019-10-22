@@ -88,7 +88,7 @@ namespace TheraEngine
                 double sec = Math.Round(span.TotalSeconds, 1);
                 Engine.PrintLine($"Renewed lease for {fn}. {sec} seconds elapsed since last renewal.");
                 LastRenewalTime = DateTime.Now;
-                return RenewalTimeSpan;
+                return TimeSpan.FromMinutes(10.0);
             }
             //return TimeSpan.Zero;
         }

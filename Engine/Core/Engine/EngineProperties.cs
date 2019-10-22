@@ -166,7 +166,15 @@ namespace TheraEngine
 
 
 #if EDITOR
-        public static EngineEditorState EditorState { get; } = new EngineEditorState();
+        public static EngineEditorState EditorState
+        {
+            get
+            {
+                var state = Instance.EditorState;
+                AppDomainHelper.Sponsor(state);
+                return state;
+            }
+        }
 #endif
 
         #region Timing
@@ -575,6 +583,8 @@ namespace TheraEngine
 
             [Browsable(false)]
             public EngineDomainProxy DomainProxy { get; private set; } = null;
+
+            public EngineEditorState EditorState { get; } = new EngineEditorState();
         }
     }
 }

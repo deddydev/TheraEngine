@@ -231,15 +231,8 @@ namespace TheraEngine.Core
             }
         }
 
-        //public ConcurrentQueue<(Delegate del, object[] args)> AsyncInvoke { get; } = new ConcurrentQueue<(Delegate del, object[] args)>();
-        //public ConcurrentQueue<(Delegate del, object[] args)> SyncInvoke { get; } = new ConcurrentQueue<(Delegate del, object[] args)>();
-        public Control TempControl;
-
         private void RenderTick(object sender, FrameEventArgs e)
         {
-            if (TempControl is null)
-                TempControl = new Control();
-
             foreach (WorldManager m in WorldManagers)
             {
                 if (m is null || m.AssociatedContexts.Count == 0)

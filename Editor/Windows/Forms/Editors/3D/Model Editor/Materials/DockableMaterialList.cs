@@ -19,7 +19,7 @@ namespace TheraEditor.Windows.Forms
             if (staticModel is null)
                 return;
 
-            HashSet<int> ids = new HashSet<int>();
+            HashSet<TMaterial> ids = new HashSet<TMaterial>();
 
             var rigidMeshes = staticModel.RigidChildren;
             for (int i = 0; i < rigidMeshes.Count; ++i)
@@ -28,9 +28,9 @@ namespace TheraEditor.Windows.Forms
                 {
                     ILOD lod = rigidMeshes[i].LODs[x];
 
-                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
+                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File))
                     {
-                        ids.Add(lod.MaterialRef.File.UniqueID);
+                        ids.Add(lod.MaterialRef.File);
                         listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
                     }
                 }
@@ -42,9 +42,9 @@ namespace TheraEditor.Windows.Forms
                 {
                     ILOD lod = softMeshes[i].LODs[x];
 
-                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
+                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File))
                     {
-                        ids.Add(lod.MaterialRef.File.UniqueID);
+                        ids.Add(lod.MaterialRef.File);
                         listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
                     }
                 }
@@ -55,7 +55,7 @@ namespace TheraEditor.Windows.Forms
             if (skelModel is null)
                 return;
 
-            HashSet<int> ids = new HashSet<int>();
+            HashSet<TMaterial> ids = new HashSet<TMaterial>();
             
             var rigidMeshes = skelModel.RigidChildren;
             for (int i = 0; i < rigidMeshes.Count; ++i)
@@ -64,9 +64,9 @@ namespace TheraEditor.Windows.Forms
                 {
                     ILOD lod = rigidMeshes[i].LODs[x];
 
-                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
+                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File))
                     {
-                        ids.Add(lod.MaterialRef.File.UniqueID);
+                        ids.Add(lod.MaterialRef.File);
                         listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
                     }
                 }
@@ -78,9 +78,9 @@ namespace TheraEditor.Windows.Forms
                 {
                     ILOD lod = softMeshes[i].LODs[x];
 
-                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
+                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File))
                     {
-                        ids.Add(lod.MaterialRef.File.UniqueID);
+                        ids.Add(lod.MaterialRef.File);
                         listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
                     }
                 }

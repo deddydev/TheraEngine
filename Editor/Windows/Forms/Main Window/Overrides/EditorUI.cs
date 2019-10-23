@@ -165,26 +165,26 @@ namespace TheraEditor.Windows.Forms
 
             if (highlighted)
             {
-                if (_highlightedMaterials.ContainsKey(m.UniqueID))
-                {
-                    //m.RenderParams.StencilTest.BackFace.Ref |= 1;
-                    //m.RenderParams.StencilTest.FrontFace.Ref |= 1;
-                    return;
-                }
-                _highlightedMaterials.TryAdd(m.UniqueID, m.RenderParams.StencilTest);
+                //if (_highlightedMaterials.ContainsKey(m.UniqueID))
+                //{
+                //    //m.RenderParams.StencilTest.BackFace.Ref |= 1;
+                //    //m.RenderParams.StencilTest.FrontFace.Ref |= 1;
+                //    return;
+                //}
+                //_highlightedMaterials.TryAdd(m.UniqueID, m.RenderParams.StencilTest);
                 m.RenderParams.StencilTest = OutlinePassStencil;
             }
             else
             {
-                if (!_highlightedMaterials.ContainsKey(m.UniqueID))
-                {
-                    //m.RenderParams.StencilTest.BackFace.Ref &= ~1;
-                    //m.RenderParams.StencilTest.FrontFace.Ref &= ~1;
-                    return;
-                }
-                StencilTest t = _highlightedMaterials[m.UniqueID];
-                _highlightedMaterials.TryRemove(m.UniqueID, out StencilTest value);
-                m.RenderParams.StencilTest = _selectedMaterials.ContainsKey(m.UniqueID) ? _selectedMaterials[m.UniqueID] : t;
+                //if (!_highlightedMaterials.ContainsKey(m.UniqueID))
+                //{
+                //    //m.RenderParams.StencilTest.BackFace.Ref &= ~1;
+                //    //m.RenderParams.StencilTest.FrontFace.Ref &= ~1;
+                //    return;
+                //}
+                //StencilTest t = _highlightedMaterials[m.UniqueID];
+                //_highlightedMaterials.TryRemove(m.UniqueID, out StencilTest value);
+                //m.RenderParams.StencilTest = _selectedMaterials.ContainsKey(m.UniqueID) ? _selectedMaterials[m.UniqueID] : t;
             }
         }
         public static StencilTest OutlinePassStencil = new StencilTest()

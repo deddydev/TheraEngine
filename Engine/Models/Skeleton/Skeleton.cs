@@ -132,7 +132,7 @@ namespace TheraEngine.Rendering.Models
             _cameraBones.Clear();
             if (RootBones != null)
                 foreach (IBone b in RootBones)
-                    b.CollectChildBones(this);
+                    b?.CollectChildBones(this);
         }
         internal void WorldMatrixChanged()
         {

@@ -17,7 +17,11 @@ namespace TheraEditor.Windows.Forms
         public static void SetActiveEditorControl(IEditorRenderHandler control)
         {
             if (ActiveRenderForm == control)
+            {
+                if (ActiveRenderForm?.World != null && ActiveRenderForm.World.CurrentGameMode != ActiveRenderForm.GameMode)
+                    ActiveRenderForm.World.CurrentGameMode = ActiveRenderForm.GameMode;
                 return;
+            }
 
             //bool sameGameMode = ReferenceEquals(ActiveRenderForm?.GameMode, control?.GameMode);
 

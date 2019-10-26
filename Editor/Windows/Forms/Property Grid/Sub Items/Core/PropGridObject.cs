@@ -250,7 +250,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Engine.PrintLine("Unable to set this property to null.");
             }
             
-            object o = Editor.UserCreateInstanceOf(DataType, true, this);
+            object o = Editor.DomainProxy.UserCreateInstanceOf(DataType, true);
 
             UpdateValue(o, true);
         }

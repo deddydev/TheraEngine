@@ -77,7 +77,10 @@ namespace TheraEditor.Windows.Forms
                 if (creator.Initialize(type, allowDerivedTypes))
                     creator.ShowDialog(window ?? Instance);
 
-                return creator.ConstructedObject;
+                object o = creator.ConstructedObject;
+                if (o is IObject iobj)
+                    iobj.ConstructedProgrammatically = false;
+                return o;
             }
         }
         public static void SetPropertyGridObject(IFileObject obj)

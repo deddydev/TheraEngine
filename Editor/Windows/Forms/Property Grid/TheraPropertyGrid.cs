@@ -970,7 +970,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (!(TargetObject is IActor a))
                 return;
-            ILogicComponent comp = Editor.UserCreateInstanceOf<ILogicComponent>();
+            ILogicComponent comp = Editor.DomainProxy.UserCreateInstanceOf<ILogicComponent>();
             if (comp is null)
                 return;
             int i = (lstLogicComps.SelectedIndex + 1).Clamp(0, a.LogicComponents.Count);
@@ -1072,7 +1072,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
-            ISceneComponent comp = Editor.UserCreateInstanceOf<ISceneComponent>();
+            ISceneComponent comp = Editor.DomainProxy.UserCreateInstanceOf<ISceneComponent>();
             if (comp is null)
                 return;
 
@@ -1108,7 +1108,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnAddChildSceneComp_Click(object sender, EventArgs e)
         {
-            ISceneComponent comp = Editor.UserCreateInstanceOf<ISceneComponent>();
+            ISceneComponent comp = Editor.DomainProxy.UserCreateInstanceOf<ISceneComponent>();
             if (comp is null)
                 return;
 

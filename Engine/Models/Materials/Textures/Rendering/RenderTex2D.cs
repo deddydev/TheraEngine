@@ -69,11 +69,8 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         }
 
         //TODO: use PBO per texture for quick data updates
-        public override void PushData()
+        internal override void PushData()
         {
-            if (RenderContext.ThreadSafeBlockingInvoke((Action)PushData, RenderContext.EPanelType.Rendering))
-                return;
-
             Bitmap bmp = null;
             BitmapData data = null;
             try
@@ -179,7 +176,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
             //Destroy();
             //Generate();
-            PushData();
+            InvalidateData();
         }
         public override void Destroy()
         {

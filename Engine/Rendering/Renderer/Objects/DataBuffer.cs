@@ -421,11 +421,8 @@ namespace TheraEngine.Rendering.Models
             if (IsMapped)
                 return;
 
-            if (RenderContext.ThreadSafeBlockingInvoke((Action)PushData, RenderContext.EPanelType.Rendering))
-                return;
-
             if (!IsActive)
-                GenerateSafe();
+                Generate();
             else
                 Engine.Renderer.PushBufferData(this);
         }
@@ -441,11 +438,8 @@ namespace TheraEngine.Rendering.Models
             if (IsMapped)
                 return;
 
-            if (RenderContext.ThreadSafeBlockingInvoke((Action<int, int>)PushSubData, RenderContext.EPanelType.Rendering, offset, length))
-                return;
-
             if (!IsActive)
-                GenerateSafe();
+                Generate();
             else
                 Engine.Renderer.PushBufferSubData(this, offset, length);
         }

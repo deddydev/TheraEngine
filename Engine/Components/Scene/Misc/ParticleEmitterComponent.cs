@@ -29,19 +29,20 @@ namespace TheraEngine.Components.Scene
         private float _elapsed = 0.0f;
         private int _lastUsedParticle = 0;
 
+        [Category("Rendering")]
         public int ActiveInstances => ParticleMesh.Instances;
+        [Category("Rendering")]
         public PrimitiveManager ParticleMesh
         {
             get => _rc.Mesh;
             set => _rc.Mesh = value;
         }
-        public Vec3 CameraPosition { get; set; }
+        [Browsable(false)]
+        public Vec3 CameraPosition { get; private set; }
+        [Category("Rendering")]
         public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D();
 
-        public int NumPerSpawn { get; set; } = 2;
-        public float SecPerSpawn { get; set; } = 0.1f;
-        public float NewParticleLifeSeconds { get; set; } = 2.0f;
-
+        [Category("Emitter")]
         public bool IsSimulating
         {
             get => _isSimulating;
@@ -61,6 +62,7 @@ namespace TheraEngine.Components.Scene
                 }
             }
         }
+        [Category("Emitter")]
         public bool IsEmitting
         {
             get => _isEmitting;
@@ -75,6 +77,14 @@ namespace TheraEngine.Components.Scene
                     IsSimulating = true;
             }
         }
+
+        [Category("Emitter")]
+        public int NumPerSpawn { get; set; } = 2;
+        [Category("Emitter")]
+        public float SecPerSpawn { get; set; } = 0.1f;
+        [Category("Emitter")]
+        public float NewParticleLifeSeconds { get; set; } = 2.0f;
+        [Category("Emitter")]
         public virtual int MaxParticles
         {
             get => _maxParticles;
@@ -90,6 +100,7 @@ namespace TheraEngine.Components.Scene
                 //}
             }
         }
+
         public override void OnSpawned()
         {
             base.OnSpawned();

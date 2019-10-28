@@ -19,41 +19,17 @@ namespace TheraEditor.Windows.Forms
             if (ActiveRenderForm == control)
                 return;
 
-            //bool sameGameMode = ReferenceEquals(ActiveRenderForm?.GameMode, control?.GameMode);
-
-            if (ActiveRenderForm?.GameMode != null)
-            {
-                //int index = (int)ActiveRenderForm.PlayerIndex;
-                //if (index < ActiveRenderForm.GameMode.LocalPlayers.Count)
-                //{
-                //    LocalPlayerController c = ActiveRenderForm.GameMode.LocalPlayers[index];
-                //    ActiveRenderForm.RenderPanel.UnregisterController(c);
-                //    c.ControlledPawn = null;
-                //}
-
-                //if (!sameGameMode)
-                //ActiveRenderForm.GameMode.EndGameplay();
-                if (ActiveRenderForm.World != null)
-                    ActiveRenderForm.World.CurrentGameMode = null;
-            }
+            var world = ActiveRenderForm?.World;
+            if (world != null)
+                world.CurrentGameMode = null;
+            
             ActiveRenderForm = control;
-            if (ActiveRenderForm?.GameMode != null)
-            {
-                //if (!sameGameMode)
-                if (ActiveRenderForm.World != null)
-                    ActiveRenderForm.World.CurrentGameMode = ActiveRenderForm.GameMode;
-                //ActiveRenderForm.GameMode.BeginGameplay();
 
-                //int index = (int)control.PlayerIndex;
-                //if (index < ActiveRenderForm.GameMode.LocalPlayers.Count)
-                //{
-                //    LocalPlayerController c = ActiveRenderForm.GameMode.LocalPlayers[index];
-                //    ActiveRenderForm.RenderPanel.GetOrAddViewport(control.PlayerIndex).RegisterController(c);
-                //    c.ControlledPawn = ActiveRenderForm.EditorPawn;
-                //}
-
-                Engine.PrintLine("Set active render form: " + ActiveRenderForm.ToString());
-            }
+            world = ActiveRenderForm?.World;
+            if (world != null)
+                world.CurrentGameMode = ActiveRenderForm.GameMode;
+            
+            Engine.PrintLine("Set active render form: " + ActiveRenderForm?.ToString() ?? "null");
         }
         public static GlobalFileRef<EditorSettings> GetSettingsRef() 
             => Instance.Project?.EditorSettingsOverrideRef ?? DefaultSettingsRef;
@@ -101,7 +77,10 @@ namespace TheraEditor.Windows.Forms
                 if (creator.Initialize(type, allowDerivedTypes))
                     creator.ShowDialog(window ?? Instance);
 
-                return creator.ConstructedObject;
+                object o = creator.ConstructedObject;
+                if (o is IObject iobj)
+                    iobj.ConstructedProgrammatically = false;
+                return o;
             }
         }
         public static void SetPropertyGridObject(IFileObject obj)

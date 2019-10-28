@@ -206,7 +206,7 @@ namespace TheraEngine.Rendering.Text
             }
 
             _modified.Clear();
-            tex.PushData();
+            tex.InvalidateData();
         }
         internal void TextChanged(UIString2D textData)
         {

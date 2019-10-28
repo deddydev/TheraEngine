@@ -118,9 +118,6 @@ namespace TheraEngine.Rendering
 
         protected override int CreateObject()
         {
-            if (RenderContext.ThreadSafeBlockingInvoke((Func<int>)CreateObject, RenderContext.EPanelType.Rendering))
-                return CurrentBind.BindingId;
-
             //Reset caches in case the attached shaders have since the program was last active.
             _attribCache.Clear();
             _uniformCache.Clear();
@@ -141,7 +138,7 @@ namespace TheraEngine.Rendering
                 shader = _shaders[i];
 
                 if (!shader.IsActive)
-                    shader.GenerateSafe();
+                    shader.Generate();
 
                 if (IsValid = (IsValid && shader.IsCompiled))
                     Engine.Renderer.AttachShader(shader.BindingId, id);

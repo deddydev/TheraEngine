@@ -63,9 +63,11 @@ namespace TheraEngine.Rendering
         {
             get
             {
+                GetCurrentBind();
+
                 //Generate if not active already
                 if (!IsActive)
-                    GenerateSafe();
+                    Generate();
 
                 return CurrentBind.BindingId;
             }
@@ -104,7 +106,7 @@ namespace TheraEngine.Rendering
             }
         }
 
-        private bool GetCurrentBind()
+        protected bool GetCurrentBind()
         {
             if (RenderContext.Captured is null)
             {
@@ -124,28 +126,11 @@ namespace TheraEngine.Rendering
             return true;
         }
         /// <summary>
-        /// Generates the render object but does not return the binding id.
-        /// This is to prevent deadlock waiting for the result if the method must be invoked on the render thread.
-        /// </summary>
-        public void GenerateSafe()
-        {
-            if (RenderContext.ThreadSafeBlockingInvoke((Action)GenerateSafe, RenderContext.EPanelType.Rendering))
-                return;
-
-            Generate();
-        }
-        /// <summary>
         /// Performs all checks needed and creates this render object on the current render context if need be.
         /// Call after capturing a context.
         /// </summary>
         public int Generate()
         {
-            //if (!Engine.IsInRenderThread())
-            //    throw new InvalidOperationException("Render objects must be created on the rendering thread. Try calling GenerateSafe().");
-
-            if (RenderContext.ThreadSafeBlockingInvoke((Action)GenerateSafe, RenderContext.EPanelType.Rendering))
-                return IsActive ? BindingId : NullBindingId;
-
             //Make sure current bind is up to date
             bool hasBind = GetCurrentBind();
             if (!hasBind)
@@ -182,9 +167,6 @@ namespace TheraEngine.Rendering
         protected void Delete()
         {
             if (RenderContext.Captured is null)
-                return;
-
-            if (RenderContext.ThreadSafeBlockingInvoke((Action)Delete, RenderContext.EPanelType.Rendering))
                 return;
 
             //Remove current bind from owners list

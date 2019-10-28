@@ -22,9 +22,6 @@ namespace TheraEngine.Rendering
         
         public void UpdateRenderTarget(int i, (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex) target)
         {
-            if (RenderContext.ThreadSafeBlockingInvoke((Action)(() => UpdateRenderTarget(i, target)), RenderContext.EPanelType.Rendering))
-                return;
-
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
             if (IsActive)
             {
@@ -131,8 +128,6 @@ namespace TheraEngine.Rendering
         }
         public void AttachAll()
         {
-            if (RenderContext.ThreadSafeBlockingInvoke((Action)AttachAll, RenderContext.EPanelType.Rendering))
-                return;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
             for (int i = 0; i < Targets.Length; ++i)
                 Attach(i);
@@ -143,8 +138,6 @@ namespace TheraEngine.Rendering
         }
         public void DetachAll()
         {
-            if (RenderContext.ThreadSafeBlockingInvoke((Action)DetachAll, RenderContext.EPanelType.Rendering))
-                return;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
             if (Targets != null)
                 for (int i = 0; i < Targets.Length; ++i)

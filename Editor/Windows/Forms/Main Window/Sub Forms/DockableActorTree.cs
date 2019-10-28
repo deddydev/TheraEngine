@@ -353,7 +353,7 @@ namespace TheraEditor.Windows.Forms
             if (targetMap is null)
                 targetMap = settings.FindOrCreateMap(settings.NewActorTargetMapName);
 
-            IActor newActor = Editor.UserCreateInstanceOf<IActor>();
+            IActor newActor = Editor.DomainProxy.UserCreateInstanceOf<IActor>();
             if (newActor is null)
                 return;
 
@@ -415,7 +415,7 @@ namespace TheraEditor.Windows.Forms
             var node = ActorTree.SelectedNode;
             if (node.Tag is ISceneComponent comp && comp.ParentSocket != null)
             {
-                ISceneComponent newComp = Editor.UserCreateInstanceOf<ISceneComponent>();
+                ISceneComponent newComp = Editor.DomainProxy.UserCreateInstanceOf<ISceneComponent>();
                 if (newComp != null)
                 {
                     var parent = comp.ParentSocket;
@@ -430,7 +430,7 @@ namespace TheraEditor.Windows.Forms
             var node = ActorTree.SelectedNode;
             if (node.Tag is ISceneComponent comp)
             {
-                ISceneComponent newComp = Editor.UserCreateInstanceOf<ISceneComponent>();
+                ISceneComponent newComp = Editor.DomainProxy.UserCreateInstanceOf<ISceneComponent>();
                 if (newComp != null)
                     comp.ChildComponents.Add(newComp);
             }
@@ -442,14 +442,14 @@ namespace TheraEditor.Windows.Forms
             {
                 case IActor actor:
                     {
-                        ILogicComponent newComp = Editor.UserCreateInstanceOf<ILogicComponent>();
+                        ILogicComponent newComp = Editor.DomainProxy.UserCreateInstanceOf<ILogicComponent>();
                         if (newComp != null)
                             actor.LogicComponents.Add(newComp);
                     }
                     break;
                 case ILogicComponent logicComp:
                     {
-                        ILogicComponent newComp = Editor.UserCreateInstanceOf<ILogicComponent>();
+                        ILogicComponent newComp = Editor.DomainProxy.UserCreateInstanceOf<ILogicComponent>();
                         if (newComp != null)
                             logicComp.OwningActor.LogicComponents.Add(newComp);
                     }

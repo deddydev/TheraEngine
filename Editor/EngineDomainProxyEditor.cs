@@ -208,6 +208,12 @@ namespace TheraEditor
 
             base.Stop();
         }
+
+        public T UserCreateInstanceOf<T>(bool allowDerivedTypes = true)
+            => Editor.UserCreateInstanceOf<T>(allowDerivedTypes, Editor.Instance);
+        public object UserCreateInstanceOf(TypeProxy dataType, bool allowDerivedTypes = true)
+            => Editor.UserCreateInstanceOf(dataType, allowDerivedTypes, Editor.Instance);
+
         protected override void OnStarted()
         {
             Engine.SetPaused(true, ELocalPlayerIndex.One, true);

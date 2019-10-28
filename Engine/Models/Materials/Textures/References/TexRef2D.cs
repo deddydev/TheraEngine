@@ -176,7 +176,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (_texture != null)
                 {
                     _texture.PixelFormat = _pixelFormat;
-                    _texture.PushData();
+                    _texture.InvalidateData();
                 }
             }
         }
@@ -190,7 +190,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (_texture != null)
                 {
                     _texture.PixelType = _pixelType;
-                    _texture.PushData();
+                    _texture.InvalidateData();
                 }
             }
         }
@@ -204,7 +204,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (_texture != null)
                 {
                     _texture.InternalFormat = _internalFormat;
-                    _texture.PushData();
+                    _texture.InvalidateData();
                 }
             }
         }
@@ -301,8 +301,6 @@ namespace TheraEngine.Rendering.Models.Materials
                 return _fillerRenderTex;
             }
         }
-
-        public void UpdateRenderTexture() => _texture?.PushData();
 
         /// <summary>
         /// Converts this texture reference into a texture made for rendering.

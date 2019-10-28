@@ -72,11 +72,14 @@ namespace TheraEditor.Windows.Forms
             if (World is null)
                 return;
 
-            World.PostBeginPlay -= World_PostBeginPlay;
-            World.PreEndPlay -= World_PreEndPlay;
-
             if (World.IsPlaying)
                 World.DespawnActor(EditorPawn);
+
+            if (Editor.ActiveRenderForm == this)
+                World.CurrentGameMode = null;
+
+            World.PostBeginPlay -= World_PostBeginPlay;
+            World.PreEndPlay -= World_PreEndPlay;
         }
         protected virtual void PostWorldChanged()
         {
@@ -85,6 +88,9 @@ namespace TheraEditor.Windows.Forms
 
             World.PostBeginPlay += World_PostBeginPlay;
             World.PreEndPlay += World_PreEndPlay;
+
+            if (Editor.ActiveRenderForm == this)
+                World.CurrentGameMode = Editor.ActiveRenderForm.GameMode;
 
             if (World.IsPlaying)
                 World.SpawnActor(EditorPawn);

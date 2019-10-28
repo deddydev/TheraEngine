@@ -371,12 +371,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
             _updatingVisibleItems = true;
 
-            double sleepTime = updateRateInSeconds * 1000.0;
-            _updateTimer.Interval = sleepTime;
-            _updateTimer.Elapsed += UpdateTimer_Tick;
-            _updateTimer.Start();
+            //double sleepTime = updateRateInSeconds * 1000.0;
+            //_updateTimer.Interval = sleepTime;
+            //_updateTimer.Elapsed += UpdateTimer_Tick;
+            //_updateTimer.Start();
 
-            //Task.Run(() => UpdateItemsContinuous(updateRateInSeconds));
+            Task.Run(() => UpdateItemsTask(updateRateInSeconds));
         }
 
         private void UpdateTimer_Tick(object sender, ElapsedEventArgs e)
@@ -386,15 +386,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             UpdateItems();
         }
-        //private void UpdateItemsTask(float updateRateInSeconds)
-        //{
-        //    int sleepTime = (int)(updateRateInSeconds * 1000.0f);
-        //    while (_updatingVisibleItems)
-        //    {
-        //        UpdateItems();
-        //        Thread.Sleep(sleepTime);
-        //    }
-        //}
+        private void UpdateItemsTask(float updateRateInSeconds)
+        {
+            int sleepTime = (int)(updateRateInSeconds * 1000.0f);
+            while (_updatingVisibleItems)
+            {
+                UpdateItems();
+                Thread.Sleep(sleepTime);
+            }
+        }
         private void UpdateItems()
         {
             Parallel.For(0, VisibleItems.Count, UpdateItem);
@@ -973,7 +973,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (!(TargetObject is IActor a))
                 return;
-            ILogicComponent comp = Editor.UserCreateInstanceOf<ILogicComponent>();
+            ILogicComponent comp = Editor.DomainProxy.UserCreateInstanceOf<ILogicComponent>();
             if (comp is null)
                 return;
             int i = (lstLogicComps.SelectedIndex + 1).Clamp(0, a.LogicComponents.Count);
@@ -1075,7 +1075,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
-            ISceneComponent comp = Editor.UserCreateInstanceOf<ISceneComponent>();
+            ISceneComponent comp = Editor.DomainProxy.UserCreateInstanceOf<ISceneComponent>();
             if (comp is null)
                 return;
 
@@ -1111,7 +1111,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnAddChildSceneComp_Click(object sender, EventArgs e)
         {
-            ISceneComponent comp = Editor.UserCreateInstanceOf<ISceneComponent>();
+            ISceneComponent comp = Editor.DomainProxy.UserCreateInstanceOf<ISceneComponent>();
             if (comp is null)
                 return;
 
@@ -1296,7 +1296,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
 
             await Editor.RunOperationAsync(
-                $"Property Grid: saving {path}", $"Property Grid: done saving {path}", 
+                $"Property Grid: Now saving {path}", $"Property Grid: Finished saving {path}", 
                 async (p, c) => await file.ExportAsync(path, ESerializeFlags.Default, p, c.Token));
 
             //if (TargetFileObject.References.Count == 1)

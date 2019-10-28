@@ -2,7 +2,7 @@
 
 namespace TheraEngine.Rendering.Models.Materials.Textures
 {
-    public enum TextureType
+    public enum ETextureType
     {
         Texture2D,
         Texture3D,
@@ -50,8 +50,11 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
         public abstract ETexTarget TextureTarget { get; }
 
-        public static T[] GenTextures<T>(int count) where T : BaseRenderTexture
+        internal static T[] GenTextures<T>(int count) where T : BaseRenderTexture
             => Engine.Renderer.CreateObjects<T>(EObjectType.Texture, count);
+
+        public bool Invalidated { get; private set; } = true;
+        public bool InvalidateData() => Invalidated = true;
 
         public virtual void Bind()
         {
@@ -59,10 +62,17 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             {
                 int id = BindingId;
                 if (id != NullBindingId)
+                {
                     Engine.Renderer.BindTexture(TextureTarget, id);
+                    if (Invalidated)
+                    {
+                        Invalidated = false;
+                        PushData();
+                    }
+                }
             }
         }
-        public void Clear(ColorF4 clearColor, int level = 0)
+        internal void Clear(ColorF4 clearColor, int level = 0)
             => Engine.Renderer.ClearTexImage(BindingId, level, clearColor);
 
         public abstract int MaxDimension { get; }
@@ -79,14 +89,14 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         public int SmallestAllowedMipmapLevel { get; set; } = 1000;
         public bool AutoGenerateMipmaps { get; set; } = false;
 
-        public void SetMipmapGenParams() => Engine.Renderer.SetMipmapParams(BindingId, MinLOD, MaxLOD, LargestMipmapLevel, SmallestAllowedMipmapLevel);
-        public void GenerateMipmaps() => Engine.Renderer.GenerateMipmap(TextureTarget);
+        internal void SetMipmapGenParams() => Engine.Renderer.SetMipmapParams(BindingId, MinLOD, MaxLOD, LargestMipmapLevel, SmallestAllowedMipmapLevel);
+        internal void GenerateMipmaps() => Engine.Renderer.GenerateMipmap(TextureTarget);
         
         protected override int CreateObject()
             => Engine.Renderer.CreateTexture(TextureTarget);
         protected override void PostGenerated()
             => PushData();
 
-        public abstract void PushData();
+        internal abstract void PushData();
     }
 }

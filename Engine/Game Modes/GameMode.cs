@@ -71,7 +71,18 @@ namespace TheraEngine.GameModes
             return value._value;
         }
     }
-    public class ClassCreator<T> where T : class
+    public interface IClassCreator
+    {
+        object New(params object[] args);
+    }
+    public interface IClassCreator<T> where T : class
+    {
+        T New(params object[] args);
+        T2 New<T2>() where T2 : T, new();
+        T2 New<T2>(params object[] args) where T2 : T;
+    }
+    [Serializable]
+    public class ClassCreator<T> : IClassCreator, IClassCreator<T> where T : class
     {
         public T New(params object[] args)
         {
@@ -109,6 +120,8 @@ namespace TheraEngine.GameModes
             }
             return default;
         }
+
+        object IClassCreator.New(params object[] args) => New(args);
     }
     public interface IGameMode : IFileObject
     {

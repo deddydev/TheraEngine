@@ -35,15 +35,15 @@ namespace TheraEngine.Rendering.Models.Materials
             set => _renderParamsRef = value ?? new LocalFileRef<RenderingParameters>();
         }
 
-        [Browsable(false)]
-        public int UniqueID => Program.BindingId;
+        //[Browsable(false)]
+        //public int UniqueID => Program.BindingId;
         [Browsable(false)]
         public RenderProgram Program
         {
             get
             {
                 if (_program != null && !_program.IsActive)
-                    _program.GenerateSafe();
+                    _program.Generate();
                 return _program;
             }
             protected set

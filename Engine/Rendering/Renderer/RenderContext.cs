@@ -322,41 +322,6 @@ namespace TheraEngine.Rendering
         public virtual void MouseLeave() => Handler?.MouseLeave();
         public virtual void MouseEnter() => Handler?.MouseEnter();
         
-        /// <summary>
-        /// Returns true if the render panel needs to be invoked from the calling thread.
-        /// If it does, then it calls the method. You should return from the currently executing method if calling this on the currently executing method.
-        /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
-        /// </summary>
-        public static bool ThreadSafeBlockingInvoke<T>(Delegate method, EPanelType type, out T result, params object[] args)
-        {
-            RenderContext ctx = Engine.DomainProxy.GetContext(type);
-            if (ctx is null)
-            {
-                result = default;
-                return false;
-            }
-            Control ctrl = Control.FromHandle(ctx.Handle);
-            if (ctrl is null)
-            {
-                result = default;
-                return false;
-            }
-            return ctrl.ThreadSafeBlockingInvoke(method, out result, args);
-        }
-        /// <summary>
-        /// Returns true if the render panel needs to be invoked from the calling thread.
-        /// If it does, then it calls the method. You should return from the currently executing method if calling this on the currently executing method.
-        /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
-        /// </summary>
-        public static bool ThreadSafeBlockingInvoke(Delegate method, EPanelType type, params object[] args)
-        {
-            RenderContext ctx = Engine.DomainProxy.GetContext(type);
-            if (ctx is null)
-                return false;
-            Control ctrl = Control.FromHandle(ctx.Handle);
-            return ctrl?.ThreadSafeBlockingInvoke(method, args) ?? false;
-        }
-
         #region IDisposable Support
         protected bool _disposedValue = false; // To detect redundant calls
         public event Action Disposing;

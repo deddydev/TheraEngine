@@ -165,26 +165,26 @@ namespace TheraEditor.Windows.Forms
 
             if (highlighted)
             {
-                if (_highlightedMaterials.ContainsKey(m.UniqueID))
-                {
-                    //m.RenderParams.StencilTest.BackFace.Ref |= 1;
-                    //m.RenderParams.StencilTest.FrontFace.Ref |= 1;
-                    return;
-                }
-                _highlightedMaterials.TryAdd(m.UniqueID, m.RenderParams.StencilTest);
+                //if (_highlightedMaterials.ContainsKey(m.UniqueID))
+                //{
+                //    //m.RenderParams.StencilTest.BackFace.Ref |= 1;
+                //    //m.RenderParams.StencilTest.FrontFace.Ref |= 1;
+                //    return;
+                //}
+                //_highlightedMaterials.TryAdd(m.UniqueID, m.RenderParams.StencilTest);
                 m.RenderParams.StencilTest = OutlinePassStencil;
             }
             else
             {
-                if (!_highlightedMaterials.ContainsKey(m.UniqueID))
-                {
-                    //m.RenderParams.StencilTest.BackFace.Ref &= ~1;
-                    //m.RenderParams.StencilTest.FrontFace.Ref &= ~1;
-                    return;
-                }
-                StencilTest t = _highlightedMaterials[m.UniqueID];
-                _highlightedMaterials.TryRemove(m.UniqueID, out StencilTest value);
-                m.RenderParams.StencilTest = _selectedMaterials.ContainsKey(m.UniqueID) ? _selectedMaterials[m.UniqueID] : t;
+                //if (!_highlightedMaterials.ContainsKey(m.UniqueID))
+                //{
+                //    //m.RenderParams.StencilTest.BackFace.Ref &= ~1;
+                //    //m.RenderParams.StencilTest.FrontFace.Ref &= ~1;
+                //    return;
+                //}
+                //StencilTest t = _highlightedMaterials[m.UniqueID];
+                //_highlightedMaterials.TryRemove(m.UniqueID, out StencilTest value);
+                //m.RenderParams.StencilTest = _selectedMaterials.ContainsKey(m.UniqueID) ? _selectedMaterials[m.UniqueID] : t;
             }
         }
         public static StencilTest OutlinePassStencil = new StencilTest()
@@ -429,7 +429,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnSpawnedPostComponentSpawn();
 
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
             _highlightPoint.RenderInfo.LinkScene(_highlightPoint, OwningScene3D);
             SubViewport.IsVisible = false;
 
@@ -439,7 +439,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnDespawned();
 
-            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
             _highlightPoint.RenderInfo.UnlinkScene();
 
             Editor.Instance.ActorTreeForm.EditorHUD = null;

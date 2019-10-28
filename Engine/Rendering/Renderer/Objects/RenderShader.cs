@@ -70,7 +70,7 @@ namespace TheraEngine.Rendering
             if (OwningProgram != null && OwningProgram.IsActive)
             {
                 OwningProgram.Destroy();
-                OwningProgram.GenerateSafe();
+                OwningProgram.Generate();
             }
         }
         private void File_SourceChanged()

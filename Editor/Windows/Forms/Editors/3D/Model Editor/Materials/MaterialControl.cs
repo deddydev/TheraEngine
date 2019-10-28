@@ -136,7 +136,7 @@ namespace TheraEditor.Windows.Forms
                         else if (!string.IsNullOrWhiteSpace(shaderRef.File?.Name))
                             text = Path.GetFileNameWithoutExtension(shaderRef.File.Name) + " ";
 
-                        text += "[" + shaderRef.File.Type.ToString() + "]";
+                        text += "[" + (shaderRef.File?.Type.ToString() ?? "null") + "]";
 
                         ListViewItem item = new ListViewItem(text) { Tag = shaderRef };
 

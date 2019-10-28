@@ -109,11 +109,15 @@
             }
 
             var type = typeof(T);
+            AssemblyName asmName = type.Assembly.GetName();
+            string name = asmName.Name;
+            AppDomain domain = wrappedDomain.Domain;
+            string typeName = type.FullName;
 
             var proxyHandle = Activator.CreateInstance(
-                wrappedDomain.Domain,
-                type.Assembly.GetName().Name,
-                type.FullName,
+                domain,
+                name,
+                typeName,
                 false,
                 BindingFlags.CreateInstance, 
                 null,

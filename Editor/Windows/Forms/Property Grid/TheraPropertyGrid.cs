@@ -414,10 +414,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             try
             {
                 PropGridItem item = VisibleItems[i];
-                if (item.IsDisposed || item.Disposing)
-                    RemoveVisibleItem(item);
-                else if (item.AllowUpdate())
-                    Invoke((Action)item.UpdateDisplay);
+                if (item != null)
+                {
+                    if (item.IsDisposed || item.Disposing)
+                        RemoveVisibleItem(item);
+                    else if (item.AllowUpdate())
+                        Invoke((Action)item.UpdateDisplay);
+                }
             }
             catch (Exception ex)
             {

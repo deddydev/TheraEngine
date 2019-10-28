@@ -16,15 +16,19 @@ namespace TheraEditor
 {
     public static class Program
     {
+        public static AppDomain MainDomain { get; private set; }
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+        [LoaderOptimization(LoaderOptimization.MultiDomainHost)]
         [STAThread]
         static void Main()
         {
             //LifetimeServices.LeaseTime = TimeSpan.FromSeconds(1);
             //LifetimeServices.RenewOnCallTime = TimeSpan.FromSeconds(1);
             //LifetimeServices.LeaseManagerPollTime = TimeSpan.FromSeconds(1);
+
             ServicePointManager.SecurityProtocol |=
                 SecurityProtocolType.Tls |
                 SecurityProtocolType.Tls11 |

@@ -210,10 +210,10 @@ namespace TheraEditor.Windows.Forms
                     ApplicationName = name,
                     ApplicationBase = rootDir,
                     PrivateBinPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                    //ShadowCopyFiles = "true",
+                    ShadowCopyFiles = "true",
                     //ShadowCopyDirectories = assemblyPaths is null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x.Path))),
-                    LoaderOptimization = LoaderOptimization.MultiDomain,
-                    DisallowApplicationBaseProbing = false,
+                    LoaderOptimization = LoaderOptimization.MultiDomainHost,
+                    DisallowApplicationBaseProbing = true,
                 };
 
                 _gameDomain = AppDomainContext.Create(setupInfo);
@@ -226,7 +226,7 @@ namespace TheraEditor.Windows.Forms
                             continue;
 
                         _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
-                        _gameDomain.LoadAssemblyWithReferences(ELoadMethod.LoadBits, path.Path);
+                        _gameDomain.LoadAssemblyWithReferences(ELoadMethod.LoadFrom, path.Path);
                     }
 
                 Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, gamePath);

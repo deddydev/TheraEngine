@@ -32,7 +32,7 @@ namespace AppDomainToolkit
         /// remoting into app domains.
         /// </summary>
         public PathBasedAssemblyResolver()
-            : this(null, ELoadMethod.LoadBits) { }
+            : this(null, ELoadMethod.LoadFrom) { }
 
         /// <summary>
         /// Initializes a new instance of the AssemblyResolver class. A default instance of this class will resolve
@@ -47,7 +47,7 @@ namespace AppDomainToolkit
         /// </param>
         public PathBasedAssemblyResolver(
             IAssemblyLoader loader = null,
-            ELoadMethod loadMethod = ELoadMethod.LoadBits)
+            ELoadMethod loadMethod = ELoadMethod.LoadFrom)
         {
             _probePaths = new HashSet<string>();
             _loader = loader is null ? new AssemblyLoader() : loader;
@@ -59,7 +59,7 @@ namespace AppDomainToolkit
         #region Properties
 
         /// <inheritdoc />
-        public ELoadMethod LoadMethod { get; set; } = ELoadMethod.LoadBits;
+        public ELoadMethod LoadMethod { get; set; } = ELoadMethod.LoadFrom;
 
         /// <inheritdoc />
         private string _applicationBase;

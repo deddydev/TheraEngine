@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
@@ -544,6 +545,8 @@ namespace TheraEngine
         {
             public void SetDomainProxy<T>(AppDomain domain, string gamePath) where T : EngineDomainProxy, new()
             {
+                Trace.WriteLine($"DOMAIN PROXY: {domain.FriendlyName} {gamePath}");
+
                 if (DomainProxy != null)
                     DomainProxyUnset?.Invoke(DomainProxy);
 

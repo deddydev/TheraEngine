@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -85,7 +86,7 @@ namespace TheraEditor
         {
             TypeProxy[] fileObjecTypes = AppDomainHelper.FindTypes(match).ToArray();
             
-            Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
+            ConcurrentDictionary<string, NamespaceNode> nodeCache = new ConcurrentDictionary<string, NamespaceNode>();
             foreach (TypeProxy type in fileObjecTypes)
             {
                 string path = type.Namespace;
@@ -97,11 +98,11 @@ namespace TheraEditor
                 else
                 {
                     node = new NamespaceNode(name);
-                    node.CreateButton(true);
-                    nodeCache.Add(name, node);
-                    tree.Nodes.Add(node.TreeNode);
+                    //node.CreateButton(true);
+                    //nodeCache.Add(name, node);
+                    //tree.Nodes.Add(node.TreeNode);
                 }
-                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, null, true);
+                //node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, null, true);
             }
             tree.AfterSelect += (s, e) => onClick(e.Node, e);
 
@@ -115,40 +116,21 @@ namespace TheraEditor
         /// <param name="onClick">The method to trigger when a leaf button is pressed.
         /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
         /// <param name="match">The predicate method used to find specific types.</param>
-        public static List<TypeProxy> PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<TypeProxy> match)
+        public static List<NamespaceNode> GenerateTypeTree(Predicate<TypeProxy> match)
         {
-            List<TypeProxy> results = AppDomainHelper.FindTypes(match).ToList();
-            //ProxyList<NamespaceNode> nodes2 = RemoteFunc.Invoke(AppDomainHelper.GetPrimaryAppDomain(), results, onClick, button, (types, onClick2, button2) =>
-            //{
-                Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-                foreach (TypeProxy type in results)
-                {
-                    string path = type.Namespace;
-                    int dotIndex = path.IndexOf(".");
-                    string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
-                    NamespaceNode node;
-                    if (nodeCache.ContainsKey(name))
-                        node = nodeCache[name];
-                    else
-                    {
-                        node = new NamespaceNode(name);
-                        node.CreateButton(false);
-                        nodeCache.Add(name, node);
-                    }
-                    node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, onClick, false);
-                }
-                foreach (NamespaceNode node in nodeCache.Values)
-                {
-                    if (Editor.Instance.InvokeRequired)
-                        Editor.Instance.BeginInvoke((Action)(() => button.DropDownItems.Add(node.Button)));
-                    else
-                        button.DropDownItems.Add(node.Button);
-                }
-                //return new ProxyList<NamespaceNode>(nodeCache.Values);
-            //});
-            return results;
+            var results = AppDomainHelper.FindTypes(match);
+            ConcurrentDictionary<string, NamespaceNode> rootNodes = new ConcurrentDictionary<string, NamespaceNode>();
+            foreach (TypeProxy type in results)
+            {
+                string path = type.Namespace;
+                int dotIndex = path.IndexOf(".");
+                string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
+                NamespaceNode node = rootNodes.AddOrUpdate(name, k => new NamespaceNode(k), (t, v) => v);
+                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type);
+            }
+            return rootNodes.Values.ToList();
         }
-        private class NamespaceNode : MarshalByRefObject
+        public class NamespaceNode : MarshalByRefObject
         {
             public override object InitializeLifetimeService() => null;
             public NamespaceNode(string name)
@@ -158,90 +140,68 @@ namespace TheraEditor
             }
 
             public string Name { get; set; }
-            private Dictionary<string, NamespaceNode> Children { get; set; }
-            public ToolStripMenuItem Button { get; set; }
-            public TreeNode TreeNode { get; set; }
+            public NamespaceNode Parent { get; set; }
+            public Dictionary<string, NamespaceNode> Children { get; set; }
+            public TypeProxy Type { get; set; }
+            public bool IsLeaf => Type != null;
 
-            public void CreateButton(bool treeView)
+            //public void CreateButton(bool treeView)
+            //{
+            //    if (treeView)
+            //        TreeNode = new TreeNode(Name);
+            //    else
+            //        Button = new ToolStripMenuItem(Name)
+            //        {
+            //            AutoSize = true,
+            //            //ShowDropDownArrow = true,
+            //            TextAlign = ContentAlignment.MiddleLeft,
+            //        };
+            //}
+            //public void AddChild(NamespaceNode node, bool treeView)
+            //{
+            //    if (treeView)
+            //        TreeNode.Nodes.Add(node.TreeNode);
+            //    else
+            //        Button.DropDownItems.Add(node.Button);
+            //}
+            //public void PopulateTreeNode(TreeNode node, EventHandler onClick)
+            //{
+            //    if (TreeNode is null)
+            //        CreateButton(true);
+
+            //    TreeNode treeNode = new TreeNode(displayText)
+            //    {
+            //        Tag = type,
+            //    };
+
+            //    TreeNode.Nodes.Add(treeNode);
+            //}
+            public void PopulateMenuNode(ToolStripMenuItem node, EventHandler onClick)
             {
-                if (Editor.Instance.InvokeRequired)
-                {
-                    Editor.Instance.Invoke((Action<bool>)CreateButton, treeView);
-                    return;
-                }
+                //if (Button is null)
+                //    CreateButton(false);
 
-                if (treeView)
-                    TreeNode = new TreeNode(Name);
-                else
-                    Button = new ToolStripMenuItem(Name)
-                    {
-                        AutoSize = true,
-                        //ShowDropDownArrow = true,
-                        TextAlign = ContentAlignment.MiddleLeft,
-                    };
+                //ToolStripMenuItem btn = new ToolStripMenuItem(displayText)
+                //{
+                //    AutoSize = true,
+                //    //ShowDropDownArrow = false,
+                //    TextAlign = ContentAlignment.MiddleLeft,
+                //    Tag = type,
+                //};
+                ////Size s = TextRenderer.MeasureText(displayText, btn.Font);
+                ////btn.Width = s.Width;
+                ////btn.Height = s.Height + 10;
+                //btn.Click += onClick;
+                //Button.DropDownItems.Add(btn);
             }
-            public void AddChild(NamespaceNode node, bool treeView)
-            {
-                if (Editor.Instance.InvokeRequired)
-                {
-                    Editor.Instance.Invoke((Action<NamespaceNode, bool>)AddChild, node, treeView);
-                    return;
-                }
-
-                if (treeView)
-                    TreeNode.Nodes.Add(node.TreeNode);
-                else
-                    Button.DropDownItems.Add(node.Button);
-            }
-            private void AddUIButton(TypeProxy type, string displayText, EventHandler onClick, bool treeView)
-            {
-                if (Editor.Instance.InvokeRequired)
-                {
-                    Editor.Instance.Invoke((Action<TypeProxy, string, EventHandler, bool>)AddUIButton, type, displayText, onClick, treeView);
-                    return;
-                }
-
-                if (treeView)
-                {
-                    if (TreeNode is null)
-                        CreateButton(true);
-
-                    TreeNode treeNode = new TreeNode(displayText)
-                    {
-                        Tag = type,
-                    };
-
-                    TreeNode.Nodes.Add(treeNode);
-                }
-                else
-                {
-                    if (Button is null)
-                        CreateButton(false);
-
-                    ToolStripMenuItem btn = new ToolStripMenuItem(displayText)
-                    {
-                        AutoSize = true,
-                        //ShowDropDownArrow = false,
-                        TextAlign = ContentAlignment.MiddleLeft,
-                        Tag = type,
-                    };
-                    //Size s = TextRenderer.MeasureText(displayText, btn.Font);
-                    //btn.Width = s.Width;
-                    //btn.Height = s.Height + 10;
-                    btn.Click += onClick;
-                    Button.DropDownItems.Add(btn);
-                }
-            }
-            public void Add(string path, TypeProxy type, EventHandler onClick, bool treeView)
+            public void Add(string path, TypeProxy type)
             {
                 if (string.IsNullOrEmpty(path))
                 {
-                    string typeName = type.GetFriendlyName();
-                    //FileDef def = t.GetCustomAttributeExt<FileDef>();
-                    string displayText = /*def?.UserFriendlyName ?? */typeName;
-                    AddUIButton(type, displayText, onClick, treeView);
+                    Type = type;
                     return;
                 }
+
                 int dotIndex = path.IndexOf(".");
                 string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
                 NamespaceNode node;
@@ -250,11 +210,9 @@ namespace TheraEditor
                 else
                 {
                     node = new NamespaceNode(name);
-                    node.CreateButton(treeView);
                     Children.Add(name, node);
-                    AddChild(node, treeView);
                 }
-                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, onClick, treeView);
+                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type);
             }
         }
         

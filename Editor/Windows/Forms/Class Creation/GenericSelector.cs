@@ -183,7 +183,7 @@ namespace TheraEditor.Windows.Forms
                     }
                 }
 
-                Program.PopulateMenuDropDown(root, onClick, test);
+                Program.GenerateTypeTree(test);
 
                 menu.Items.Add(root);
                 box.Controls.Add(menu);

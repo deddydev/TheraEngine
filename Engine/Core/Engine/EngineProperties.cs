@@ -123,6 +123,8 @@ namespace TheraEngine
         /// </summary>
         private static void CreateCallback() { var _ = LazyInstance.Value; }
 
+        //TODO: Use cached instance, maintain lifetime, destory on app domain destory, remake before reloading caches
+
         /// <summary>
         /// Gets the process-wide instance. 
         /// If the current domain is not the default AppDomain, this property returns a new proxy to the actual instance.
@@ -543,12 +545,19 @@ namespace TheraEngine
         /// </summary>
         public partial class InternalEnginePersistentSingleton: MarshalByRefObject
         {
+            public void DestroyDomainProxy()
+            {
+                if (DomainProxy != null)
+                {
+                    DomainProxy.Stop();
+                    DomainProxy.Stopped -= DomainProxy_Stopped;
+                    DomainProxyUnset?.Invoke(DomainProxy);
+                    DomainProxy = null;
+                }
+            }
             public void SetDomainProxy<T>(AppDomain domain, string gamePath) where T : EngineDomainProxy, new()
             {
-                Trace.WriteLine($"DOMAIN PROXY: {domain.FriendlyName} {gamePath}");
-
-                if (DomainProxy != null)
-                    DomainProxyUnset?.Invoke(DomainProxy);
+                Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] DOMAIN PROXY: {domain.FriendlyName} {gamePath}");
 
                 string domainName = domain.FriendlyName;
                 //PrintLine($"Generating engine proxy of type {typeof(T).GetFriendlyName()} for domain {domainName}");

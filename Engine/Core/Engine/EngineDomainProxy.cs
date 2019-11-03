@@ -145,8 +145,8 @@ namespace TheraEngine.Core
             Engine.PrintLine($"Stopping domain proxy.");
             SetRenderTicking(false);
             Engine.Stop();
-            Engine.ShutDown();
             ResetTypeCaches(false);
+            Engine.ShutDown();
             Sponsor?.Release();
             Stopped?.Invoke();
         }
@@ -251,7 +251,7 @@ namespace TheraEngine.Core
         }
         public virtual void ResetTypeCaches(bool reloadNow = true)
         {
-            Engine.PrintLine($"{(reloadNow ? "Regenerating" : "Clearing")} type caches.");
+            //Trace.WriteLine($"{(reloadNow ? "Regenerating" : "Clearing")} type caches.");
 
             BaseObjectSerializer.ClearObjectSerializerCache();
             if (reloadNow)

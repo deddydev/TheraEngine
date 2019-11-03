@@ -31,6 +31,8 @@ namespace TheraEngine.Core.Reflection
         public static AppDomain[] AppDomains => _appDomainCache.Value;
         public static TypeProxy[] ExportedTypes => _exportedTypesCache.Value;
 
+        public static string AppDomainStringList => string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName));
+
         /// <summary>
         /// Determines whether this is the primary domain.
         /// </summary>
@@ -55,7 +57,19 @@ namespace TheraEngine.Core.Reflection
         /// </summary>
         /// <returns>The primary application domain.</returns>
         public static AppDomain GetPrimaryAppDomain()
-            => AppDomains.FirstOrDefault(x => x.FriendlyName == Process.GetCurrentProcess().MainModule.ModuleName);
+        {
+            return AppDomains.FirstOrDefault(x => Test(x));
+        }
+
+        private static bool Test(AppDomain x)
+        {
+            Process p = Process.GetCurrentProcess();
+            ProcessModule m = p.MainModule;
+            string n = m.ModuleName;
+            string fn = x.FriendlyName;
+            return string.Equals(fn, n, StringComparison.InvariantCulture);
+        }
+
         public static AppDomain GetGameAppDomain()
         {
             //There will only ever be two AppDomains loaded
@@ -246,13 +260,40 @@ namespace TheraEngine.Core.Reflection
         {
             ResetAppDomainCache();
             ResetTypeCache();
+            ResetProxyCache();
             GameDomainLoaded?.Invoke(GetGameAppDomain());
         }
         public static void OnGameDomainUnloaded()
         {
             ResetAppDomainCache();
             ResetTypeCache();
+            ResetProxyCache();
             GameDomainUnloaded?.Invoke();
+        }
+
+        private static void ResetProxyCache()
+        {
+            TypeProxy.Proxies.Clear();
+            FieldInfoProxy.Proxies.Clear();
+            PropertyInfoProxy.Proxies.Clear();
+            //MemberInfoProxy.Proxies.Clear();
+            MethodInfoProxy.Proxies.Clear();
+            ParameterInfoProxy.Proxies.Clear();
+            //MethodBaseProxy.Proxies.Clear();
+            EventInfoProxy.Proxies.Clear();
+            ConstructorInfoProxy.Proxies.Clear();
+            AssemblyProxy.Proxies.Clear();
+            MethodBodyProxy.Proxies.Clear();
+            //ReflectionProxy.Proxies.Clear();
+        }
+
+        public static void ReleaseSponsors()
+        {
+            while (SponsoredObjects.TryTake(out ISponsorableMarshalByRefObject sobj))
+                sobj.Sponsor.Release();
+            foreach (var sponsor in ExternalSponsoredObjects.Values)
+                sponsor.Release();
+            ExternalSponsoredObjects.Clear();
         }
 
         public static ConcurrentBag<ISponsorableMarshalByRefObject> SponsoredObjects { get; } = new ConcurrentBag<ISponsorableMarshalByRefObject>();

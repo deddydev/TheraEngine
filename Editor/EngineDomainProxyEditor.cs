@@ -193,6 +193,8 @@ namespace TheraEditor
         }
         public override void ResetTypeCaches(bool reloadNow = true)
         {
+            Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] {(reloadNow ? "Regenerating" : "Clearing")} type caches");
+
             ReloadNodeWrapperTypes();
             ReloadEditorTypes();
             base.ResetTypeCaches(reloadNow);

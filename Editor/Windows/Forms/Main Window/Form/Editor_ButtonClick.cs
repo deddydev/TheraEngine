@@ -198,7 +198,7 @@ namespace TheraEditor.Windows.Forms
             //    return;
 
             Engine.PrintLine("Creating game domain.");
-            Engine.PrintLine("Active domains before load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
+            Engine.PrintLine("Active domains before load: " + AppDomainHelper.AppDomainStringList);
 
             try
             {
@@ -239,18 +239,23 @@ namespace TheraEditor.Windows.Forms
             {
                 Engine.PrintLine("Game domain created.");
                 AppDomainHelper.ResetAppDomainCache();
-                Engine.PrintLine("Active domains after load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
+                Engine.PrintLine("Active domains after load: " + AppDomainHelper.AppDomainStringList);
                 AppDomainHelper.OnGameDomainLoaded();
             }
         }
 
         private void DestroyGameDomain()
         {
-            Engine.DomainProxy.Stop();
-            Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null);
+            Engine.PrintLine("Destroying game domain.");
+            Engine.PrintLine("Active domains before destroy: " + AppDomainHelper.AppDomainStringList);
+
+            Engine.Instance.DestroyDomainProxy();
+            AppDomainHelper.ReleaseSponsors();
+            AppDomainHelper.OnGameDomainUnloaded();
             _gameDomain?.Dispose();
             _gameDomain = null;
-            AppDomainHelper.OnGameDomainUnloaded();
+
+            Engine.PrintLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
         }
     }
 }

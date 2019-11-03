@@ -88,18 +88,21 @@ namespace TheraEditor
         public void Undo(int count = 1) => UndoManager.Undo(count);
         public void Redo(int count = 1) => UndoManager.Redo(count);
 
-        public async void ReloadNodeWrapperTypes()
+        public async void ReloadNodeWrapperTypes(bool reloadNow = true)
         {
             Wrappers = new ConcurrentDictionary<TypeProxy, TypeProxy>(new TypeProxy.EqualityComparer());
             ThirdPartyWrappers = new ConcurrentDictionary<string, TypeProxy>();
 
-            Stopwatch watch = Stopwatch.StartNew();
-            Engine.PrintLine(EOutputVerbosity.Verbose, "Loading file wrappers.");
-            await Task.Run(() => Parallel.ForEach(AppDomainHelper.ExportedTypes, EvaluateType)).ContinueWith(t =>
+            if (reloadNow)
             {
-                watch.Stop();
-                Engine.PrintLine(EOutputVerbosity.Verbose, $"File wrappers loaded in {Math.Round((watch.ElapsedMilliseconds / 1000.0), 2).ToString()} seconds.");
-            });
+                Stopwatch watch = Stopwatch.StartNew();
+                Engine.PrintLine(EOutputVerbosity.Verbose, "Loading file wrappers.");
+                await Task.Run(() => Parallel.ForEach(AppDomainHelper.ExportedTypes, EvaluateType)).ContinueWith(t =>
+                {
+                    watch.Stop();
+                    Engine.PrintLine(EOutputVerbosity.Verbose, $"File wrappers loaded in {Math.Round((watch.ElapsedMilliseconds / 1000.0), 2).ToString()} seconds.");
+                });
+            }
         }
         private void EvaluateType(TypeProxy asmType)
         {
@@ -130,7 +133,7 @@ namespace TheraEditor
         private static bool IsValidWrapperClassBase(TypeProxy type)
             => (type == typeof(ThirdPartyFileWrapper)) || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(FileWrapper<>));
 
-        public void ReloadEditorTypes()
+        public void ReloadEditorTypes(bool reloadNow = true)
         {
             if (Engine.DesignMode)
                 return;
@@ -138,12 +141,15 @@ namespace TheraEditor
             InPlaceEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>(new TypeProxy.EqualityComparer());
             FullEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>(new TypeProxy.EqualityComparer());
 
-            Engine.PrintLine(EOutputVerbosity.Verbose, "Loading all editor types for property grid.");
-            Stopwatch watch = Stopwatch.StartNew();
-            Task propEditorsTask = Task.Run(AddPropControlEditorTypes);
-            Task fullEditorsTask = Task.Run(AddFullEditorTypes);
-            Task.WhenAll(propEditorsTask, fullEditorsTask).ContinueWith(t =>
-                Engine.PrintLine(EOutputVerbosity.Verbose, $"Finished loading all editor types for property grid in {Math.Round(watch.ElapsedMilliseconds / 1000.0, 2).ToString()} seconds."));
+            if (reloadNow)
+            {
+                Engine.PrintLine(EOutputVerbosity.Verbose, "Loading all editor types for property grid.");
+                Stopwatch watch = Stopwatch.StartNew();
+                Task propEditorsTask = Task.Run(AddPropControlEditorTypes);
+                Task fullEditorsTask = Task.Run(AddFullEditorTypes);
+                Task.WhenAll(propEditorsTask, fullEditorsTask).ContinueWith(t =>
+                    Engine.PrintLine(EOutputVerbosity.Verbose, $"Finished loading all editor types for property grid in {Math.Round(watch.ElapsedMilliseconds / 1000.0, 2).ToString()} seconds."));
+            }
         }
         private void AddPropControlEditorTypes()
         {
@@ -195,8 +201,8 @@ namespace TheraEditor
         {
             Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] {(reloadNow ? "Regenerating" : "Clearing")} type caches");
 
-            ReloadNodeWrapperTypes();
-            ReloadEditorTypes();
+            ReloadNodeWrapperTypes(reloadNow);
+            ReloadEditorTypes(reloadNow);
             base.ResetTypeCaches(reloadNow);
         }
         //public override void Start(string gamePath, bool isUIDomain)

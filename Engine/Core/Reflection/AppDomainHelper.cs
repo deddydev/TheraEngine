@@ -19,19 +19,13 @@ namespace TheraEngine.Core.Reflection
     /// </summary>
     public class AppDomainHelper : AppDomainManager
     {
-        static AppDomainHelper()
-        {
-            ResetAppDomainCache();
-            ResetTypeCache();
-        }
-
-        private static Lazy<AppDomain[]> _appDomainCache;
-        private static Lazy<TypeProxy[]> _exportedTypesCache;
+        private static Lazy<AppDomain[]> _appDomainCache = new Lazy<AppDomain[]>(GetAppDomains, LazyThreadSafetyMode.PublicationOnly);
+        private static TypeProxy[] _exportedTypesCache;
 
         public static AppDomain[] AppDomains => _appDomainCache.Value;
-        public static TypeProxy[] ExportedTypes => _exportedTypesCache.Value;
+        public static TypeProxy[] ExportedTypes => _exportedTypesCache;
 
-        public static string AppDomainStringList => string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName));
+        public static string AppDomainStringList => string.Join(", ", AppDomains.Select(x => x.FriendlyName));
 
         /// <summary>
         /// Determines whether this is the primary domain.
@@ -79,13 +73,13 @@ namespace TheraEngine.Core.Reflection
 
         public static void ResetAppDomainCache()
             => _appDomainCache = new Lazy<AppDomain[]>(GetAppDomains, LazyThreadSafetyMode.PublicationOnly);
-        public static void ResetTypeCache()
-            => _exportedTypesCache = new Lazy<TypeProxy[]>(GetExportedTypes, LazyThreadSafetyMode.PublicationOnly);
+        public static void ResetTypeCache(EngineDomainProxy proxy)
+            => _exportedTypesCache = GetExportedTypes(proxy);
 
         private static AppDomain[] GetAppDomains()
             => EnumAppDomains().ToArray();
-        private static TypeProxy[] GetExportedTypes()
-            => Engine.DomainProxy.GetExportedTypes().ToArray();
+        private static TypeProxy[] GetExportedTypes(EngineDomainProxy proxy)
+            => proxy?.GetExportedTypes()?.ToArray() ?? new TypeProxy[0];
 
         public static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
@@ -126,9 +120,6 @@ namespace TheraEngine.Core.Reflection
         /// Gets the default AppDomain. This property caches the resulting value.
         /// </summary>
         public static AppDomain DefaultAppDomain => _defaultAppDomain.Value;
-
-        public static event Action<AppDomain> GameDomainLoaded;
-        public static event Action GameDomainUnloaded;
 
         /// <summary>
         /// Enumerates all AppDomains in the process.
@@ -256,19 +247,12 @@ namespace TheraEngine.Core.Reflection
             }
         }
 
-        public static void OnGameDomainLoaded()
+        public static void ResetCaches(EngineDomainProxy proxy)
         {
             ResetAppDomainCache();
-            ResetTypeCache();
+            ResetTypeCache(proxy);
             ResetProxyCache();
-            GameDomainLoaded?.Invoke(GetGameAppDomain());
-        }
-        public static void OnGameDomainUnloaded()
-        {
-            ResetAppDomainCache();
-            ResetTypeCache();
-            ResetProxyCache();
-            GameDomainUnloaded?.Invoke();
+            ReleaseSponsors();
         }
 
         private static void ResetProxyCache()

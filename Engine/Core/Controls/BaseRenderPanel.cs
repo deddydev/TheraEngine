@@ -135,13 +135,40 @@ namespace TheraEngine
     }
     public class RenderPanel<T> : BaseRenderPanel where T : class, IRenderHandler
     {
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            Engine.Instance.DomainProxySet += Instance_DomainProxySet;
+            Engine.Instance.DomainProxyUnset += Instance_DomainProxyUnset;
+            Instance_DomainProxySet(Engine.DomainProxy);
+        }
+        protected override void DestroyHandle()
+        {
+            Engine.Instance.DomainProxySet -= Instance_DomainProxySet;
+            Engine.Instance.DomainProxyUnset -= Instance_DomainProxyUnset;
+
+            base.DestroyHandle();
+        }
+
         /// <summary>
         /// Arguments to pass into the constructor of the render handler.
         /// All arguments must be serializable.
         /// </summary>
         public object[] HandlerArgs { get; set; } = new object[0];
         public override void CreateContext()
-            => Engine.DomainProxy.RegisterRenderPanel<T>(Handle, HandlerArgs);
+        {
+            Instance_DomainProxySet(Engine.DomainProxy);
+        }
+
+        private void Instance_DomainProxyUnset(Core.EngineDomainProxy proxy)
+        {
+            proxy?.UnregisterRenderPanel(Handle);
+        }
+        private void Instance_DomainProxySet(Core.EngineDomainProxy proxy)
+        {
+            proxy?.RegisterRenderPanel<T>(Handle, HandlerArgs);
+        }
 
         private T _renderHandlerCache = null;
         public T RenderHandler  => _renderHandlerCache ?? MarshalRenderHandler(true);

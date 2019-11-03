@@ -93,6 +93,9 @@ namespace TheraEngine.Core
         public void SponsorObject(object obj) 
             => AppDomainHelper.Sponsor(obj);
 
+        public void ReleaseSponsor(object obj)
+            => AppDomainHelper.ReleaseSponsor(obj);
+
         //public Type CreateType(string typeDeclaration)
         //{
         //    try
@@ -115,13 +118,13 @@ namespace TheraEngine.Core
         //}
         public async virtual void Start(string gamePath, bool isUIDomain)
         {
+            Trace.WriteLine($"Starting self.");
             AppDomain.CurrentDomain.AssemblyLoad += AppDomainHelper.CurrentDomain_AssemblyLoad;
 
             Engine.InputAwaiter = null;
             Engine.InputLibrary = EInputLibrary.OpenTK;
 
-            Engine.PrintLine($"Starting domain proxy.");
-            AppDomainHelper.OnGameDomainLoaded();
+            AppDomainHelper.ResetCaches(this);
 
             Engine.Initialize();
             ResetTypeCaches();
@@ -142,7 +145,9 @@ namespace TheraEngine.Core
         protected virtual void OnStarted() => Started?.Invoke();
         public virtual void Stop()
         {
-            Engine.PrintLine($"Stopping domain proxy.");
+            Engine.PrintLine($"Stopping self.");
+            AppDomain.CurrentDomain.AssemblyLoad -= AppDomainHelper.CurrentDomain_AssemblyLoad;
+
             SetRenderTicking(false);
             Engine.Stop();
             ResetTypeCaches(false);
@@ -262,7 +267,7 @@ namespace TheraEngine.Core
 
             ReloadTypeCaches?.Invoke(reloadNow);
 
-            Engine.PrintLine($"Done {(reloadNow ? "regenerating" : "clearing")} type caches.");
+            Trace.WriteLine($"Done {(reloadNow ? "regenerating" : "clearing")} type caches.");
         }
 
         public Delegate Get3rdPartyLoader(Type fileType, string extension)

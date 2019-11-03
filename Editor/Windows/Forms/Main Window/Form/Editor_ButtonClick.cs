@@ -192,8 +192,6 @@ namespace TheraEditor.Windows.Forms
 
         public void CreateGameDomain(string gamePath, string rootDir, PathReference[] assemblyPaths)
         {
-            DestroyGameDomain();
-
             //if (project is null)
             //    return;
 
@@ -216,7 +214,7 @@ namespace TheraEditor.Windows.Forms
                     DisallowApplicationBaseProbing = false,
                 };
 
-                _gameDomain = AppDomainContext.Create(setupInfo);
+                var domain = AppDomainContext.Create(setupInfo);
 
                 if (assemblyPaths != null)
                     foreach (PathReference path in assemblyPaths)
@@ -225,11 +223,19 @@ namespace TheraEditor.Windows.Forms
                         if (!file.Exists)
                             continue;
 
-                        //_gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
-                        _gameDomain.LoadAssemblyWithReferences(ELoadMethod.LoadFrom, path.Path);
+                        //domain.RemoteResolver.AddProbePath(file.Directory.FullName);
+                        domain.LoadAssemblyWithReferences(ELoadMethod.LoadFrom, path.Path);
                     }
 
-                Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(_gameDomain.Domain, gamePath);
+                Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(domain.Domain, gamePath);
+
+                Engine.PrintLine($"Destroying game domain {_gameDomain.Domain.FriendlyName}");
+                Engine.PrintLine("Active domains before destroy: " + AppDomainHelper.AppDomainStringList);
+
+                _gameDomain?.Dispose();
+                _gameDomain = domain;
+
+                Engine.PrintLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
             }
             catch (Exception ex)
             {
@@ -238,24 +244,8 @@ namespace TheraEditor.Windows.Forms
             finally
             {
                 Engine.PrintLine("Game domain created.");
-                AppDomainHelper.ResetAppDomainCache();
                 Engine.PrintLine("Active domains after load: " + AppDomainHelper.AppDomainStringList);
-                AppDomainHelper.OnGameDomainLoaded();
             }
-        }
-
-        private void DestroyGameDomain()
-        {
-            Engine.PrintLine("Destroying game domain.");
-            Engine.PrintLine("Active domains before destroy: " + AppDomainHelper.AppDomainStringList);
-
-            Engine.Instance.DestroyDomainProxy();
-            AppDomainHelper.ReleaseSponsors();
-            AppDomainHelper.OnGameDomainUnloaded();
-            _gameDomain?.Dispose();
-            _gameDomain = null;
-
-            Engine.PrintLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
         }
     }
 }

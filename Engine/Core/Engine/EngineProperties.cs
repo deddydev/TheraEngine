@@ -123,7 +123,7 @@ namespace TheraEngine
         /// </summary>
         private static void CreateCallback() { var _ = LazyInstance.Value; }
 
-        //TODO: Use cached instance, maintain lifetime, destory on app domain destory, remake before reloading caches
+        //TODO: Use cached instance, maintain lifetime, destory on app domain destroy, remake before reloading caches
 
         /// <summary>
         /// Gets the process-wide instance. 
@@ -545,20 +545,8 @@ namespace TheraEngine
         /// </summary>
         public partial class InternalEnginePersistentSingleton: MarshalByRefObject
         {
-            public void DestroyDomainProxy()
-            {
-                if (DomainProxy != null)
-                {
-                    DomainProxy.Stop();
-                    DomainProxy.Stopped -= DomainProxy_Stopped;
-                    DomainProxyUnset?.Invoke(DomainProxy);
-                    DomainProxy = null;
-                }
-            }
             public void SetDomainProxy<T>(AppDomain domain, string gamePath) where T : EngineDomainProxy, new()
             {
-                Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] DOMAIN PROXY: {domain.FriendlyName} {gamePath}");
-
                 string domainName = domain.FriendlyName;
                 //PrintLine($"Generating engine proxy of type {typeof(T).GetFriendlyName()} for domain {domainName}");
 
@@ -573,13 +561,25 @@ namespace TheraEngine
                     domainProxy = proxy;
                 }
 
+                //Initialize new domain before swapping it with the current one
+                domainProxy.Start(gamePath, isUIDomain);
+                AppDomainHelper.ResetCaches(domainProxy);
+
+                EngineDomainProxy prevDomain = DomainProxy;
+
+                if (prevDomain != null)
+                    prevDomain.Stopped -= DomainProxy_Stopped;
                 domainProxy.Stopped += DomainProxy_Stopped;
 
                 DomainProxy = domainProxy;
-                DomainProxy.Start(gamePath, isUIDomain);
+
+                if (prevDomain != null)
+                    DomainProxyUnset?.Invoke(prevDomain);
                 DomainProxySet?.Invoke(DomainProxy);
 
                 PrintLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : domainProxy.Domain.FriendlyName)}.");
+                
+                prevDomain?.Stop();
             }
 
             private void DomainProxy_Stopped()

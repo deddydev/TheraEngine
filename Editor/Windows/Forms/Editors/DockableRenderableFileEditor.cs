@@ -1,6 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Core;
 using TheraEngine.Core.Files;
 using TheraEngine.Worlds;
 
@@ -19,24 +21,15 @@ namespace TheraEditor.Windows.Forms
     {
         public RenderPanel<TRenderHandler> RenderPanel { get; private set; }
         public abstract bool ShouldHideCursor { get; }
-        private int _worldManagerId;
+        public int WorldManagerId { get; private set; }
         
         public DockableRenderableFileEditor()
         {
             InitializeComponent();
         }
 
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-
-            _worldManagerId = Editor.DomainProxy.RegisterWorldManager<UIWorldManager>();
-            RenderPanel.LinkToWorldManager(_worldManagerId);
-        }
         protected override void DestroyHandle()
         {
-            RenderPanel.UnlinkFromWorldManager();
-
             base.DestroyHandle();
         }
 
@@ -48,12 +41,34 @@ namespace TheraEditor.Windows.Forms
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
+
+            Engine.Instance.DomainProxySet += Instance_ProxySet;
+            Engine.Instance.DomainProxyUnset += Instance_ProxyUnset;
+            Instance_ProxySet(Engine.DomainProxy);
+
+            RenderPanel.LinkToWorldManager(WorldManagerId);
             RenderPanel.RenderHandler.FormShown();
         }
-        protected override void OnClosed(EventArgs e)
+        protected override void OnFormClosed(FormClosedEventArgs e)
         {
             RenderPanel.RenderHandler.FormClosed();
-            base.OnClosed(e);
+            RenderPanel.UnlinkFromWorldManager();
+
+            Engine.Instance.DomainProxySet -= Instance_ProxySet;
+            Engine.Instance.DomainProxyUnset -= Instance_ProxyUnset;
+            Instance_ProxyUnset(null);
+
+            base.OnFormClosed(e);
+        }
+        private void Instance_ProxyUnset(EngineDomainProxy proxy)
+        {
+            proxy.UnregisterWorldManager(WorldManagerId);
+            proxy.ReleaseSponsor(this);
+        }
+        private void Instance_ProxySet(EngineDomainProxy proxy)
+        {
+            WorldManagerId = proxy.RegisterWorldManager<UIWorldManager>();
+            proxy.SponsorObject(this);
         }
         private void RenderPanel_MouseEnter(object sender, EventArgs e)
         {

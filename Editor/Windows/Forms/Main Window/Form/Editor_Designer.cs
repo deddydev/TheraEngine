@@ -208,43 +208,50 @@ namespace TheraEditor.Windows.Forms
         public int WorldManagerId { get; private set; }
         protected override void OnShown(EventArgs e)
         {
+            base.OnShown(e);
+
             Engine.Instance.DomainProxySet += Instance_ProxySet;
             Engine.Instance.DomainProxyUnset += Instance_ProxyUnset;
             Instance_ProxySet(Engine.DomainProxy);
         }
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            base.OnClosing(e);
-            if (e.Cancel)
-                return;
-            
+            base.OnFormClosed(e);
+
             Engine.Instance.DomainProxySet -= Instance_ProxySet;
             Engine.Instance.DomainProxyUnset -= Instance_ProxyUnset;
             Instance_ProxyUnset(null);
         }
-
-        private void Instance_ProxyUnset(EngineDomainProxy obj)
+        private void Instance_ProxyUnset(EngineDomainProxy proxy)
         {
             try
             {
-                var proxy = DomainProxy;
                 proxy.UnregisterWorldManager(WorldManagerId);
-                proxy.PreWorldChanged -= WorldPreChanged;
-                proxy.PostWorldChanged -= WorldPostChanged;
+
+                if (proxy is EngineDomainProxyEditor editorProxy)
+                {
+                    editorProxy.PreWorldChanged -= WorldPreChanged;
+                    editorProxy.PostWorldChanged -= WorldPostChanged;
+                }
             }
             catch
             {
 
             }
         }
-        private void Instance_ProxySet(EngineDomainProxy obj)
+        private void Instance_ProxySet(EngineDomainProxy proxy)
         {
-            WorldManagerId = obj.RegisterWorldManager<EditorWorldManager>();
-            DomainProxy.PreWorldChanged += WorldPreChanged;
-            DomainProxy.PostWorldChanged += WorldPostChanged;
+            WorldManagerId = proxy.RegisterWorldManager<EditorWorldManager>();
 
-            DomainProxy.SponsorObject(this);
-            DomainProxy.SponsorObject(ActorTreeForm);
+            proxy.SponsorObject(this);
+            proxy.SponsorObject(ActorTreeForm);
+
+            if (proxy is EngineDomainProxyEditor editorProxy)
+            {
+                editorProxy.PreWorldChanged += WorldPreChanged;
+                editorProxy.PostWorldChanged += WorldPostChanged;
+
+            }
         }
         private void WorldSettingsUnloaded(WorldSettings settings)
         {

@@ -20,10 +20,10 @@ namespace TheraEngine.Core.Reflection
     public class AppDomainHelper : AppDomainManager
     {
         private static Lazy<AppDomain[]> _appDomainCache = new Lazy<AppDomain[]>(GetAppDomains, LazyThreadSafetyMode.PublicationOnly);
-        private static TypeProxy[] _exportedTypesCache;
+        private static Lazy<TypeProxy[]> _exportedTypesCache = new Lazy<TypeProxy[]>(GetExportedTypes, LazyThreadSafetyMode.PublicationOnly);
 
         public static AppDomain[] AppDomains => _appDomainCache.Value;
-        public static TypeProxy[] ExportedTypes => _exportedTypesCache;
+        public static TypeProxy[] ExportedTypes => _exportedTypesCache.Value;
 
         public static string AppDomainStringList => string.Join(", ", AppDomains.Select(x => x.FriendlyName));
 
@@ -73,13 +73,13 @@ namespace TheraEngine.Core.Reflection
 
         public static void ResetAppDomainCache()
             => _appDomainCache = new Lazy<AppDomain[]>(GetAppDomains, LazyThreadSafetyMode.PublicationOnly);
-        public static void ResetTypeCache(EngineDomainProxy proxy)
-            => _exportedTypesCache = GetExportedTypes(proxy);
+        public static void ResetTypeCache()
+            => _exportedTypesCache = new Lazy<TypeProxy[]>(GetExportedTypes, LazyThreadSafetyMode.PublicationOnly);
 
         private static AppDomain[] GetAppDomains()
             => EnumAppDomains().ToArray();
-        private static TypeProxy[] GetExportedTypes(EngineDomainProxy proxy)
-            => proxy?.GetExportedTypes()?.ToArray() ?? new TypeProxy[0];
+        private static TypeProxy[] GetExportedTypes()
+            => Engine.DomainProxy.GetExportedTypes()?.ToArray() ?? new TypeProxy[0];
 
         public static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
@@ -247,10 +247,10 @@ namespace TheraEngine.Core.Reflection
             }
         }
 
-        public static void ResetCaches(EngineDomainProxy proxy)
+        public static void ResetCaches()
         {
             ResetAppDomainCache();
-            ResetTypeCache(proxy);
+            ResetTypeCache();
             ResetProxyCache();
             ReleaseSponsors();
         }
@@ -285,26 +285,33 @@ namespace TheraEngine.Core.Reflection
 
         public static void Sponsor(object obj)
         {
-            if (obj is null || !RemotingServices.IsTransparentProxy(obj))
-                return;
-
-            if (obj is ISponsorableMarshalByRefObject sponsorableObject)
+            try
             {
-                if (AppDomain.CurrentDomain == sponsorableObject.Domain || sponsorableObject.IsSponsored)
+                if (obj is null || !RemotingServices.IsTransparentProxy(obj))
                     return;
 
-                sponsorableObject.Sponsor = new MarshalSponsor(sponsorableObject);
-                //Engine.PrintLine($"Sponsored {sponsorableObject.ToString()} from AppDomain {sponsorableObject.Domain.FriendlyName}.");
-
-                SponsoredObjects.Add(sponsorableObject);
-            }
-            else if (obj is MarshalByRefObject marshalObject)
-            {
-                if (!ExternalSponsoredObjects.ContainsKey(marshalObject))
+                if (obj is ISponsorableMarshalByRefObject sponsorableObject)
                 {
-                    ExternalSponsoredObjects.TryAdd(marshalObject, new MarshalExternalSponsor(marshalObject));
-                    //Engine.PrintLine($"Sponsored {marshalObject.ToString()}.");
+                    if (AppDomain.CurrentDomain == sponsorableObject.Domain || sponsorableObject.IsSponsored)
+                        return;
+
+                    sponsorableObject.Sponsor = new MarshalSponsor(sponsorableObject);
+                    //Engine.PrintLine($"Sponsored {sponsorableObject.ToString()} from AppDomain {sponsorableObject.Domain.FriendlyName}.");
+
+                    SponsoredObjects.Add(sponsorableObject);
                 }
+                else if (obj is MarshalByRefObject marshalObject)
+                {
+                    if (!ExternalSponsoredObjects.ContainsKey(marshalObject))
+                    {
+                        ExternalSponsoredObjects.TryAdd(marshalObject, new MarshalExternalSponsor(marshalObject));
+                        //Engine.PrintLine($"Sponsored {marshalObject.ToString()}.");
+                    }
+                }
+            }
+            catch (AppDomainUnloadedException)
+            {
+
             }
         }
 

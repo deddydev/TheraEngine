@@ -40,7 +40,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (TreeNode.ObjectType.IsAbstract || TreeNode.ObjectType.IsInterface)
                 TreeNode.Object = null;
             else
-                TreeNode.Object = TreeNode.ObjectType.CreateInstance();
+                TreeNode.Object = Activator.CreateInstance((Type)TreeNode.ObjectType);
             
             if (TreeNode.Object is IFileObject fobj && fobj.RootFile != TreeNode.Owner.RootFileObject)
             {
@@ -412,7 +412,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (type.GetInterface(nameof(ISerializableString)) != null)
             {
-                ISerializableString o = (ISerializableString)type.CreateInstance();
+                ISerializableString o = (ISerializableString)Activator.CreateInstance((Type)type);
                 o.ReadFromString(value);
                 result = o;
                 return true;

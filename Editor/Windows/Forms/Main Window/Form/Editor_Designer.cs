@@ -220,7 +220,7 @@ namespace TheraEditor.Windows.Forms
 
             Engine.Instance.DomainProxySet -= Instance_ProxySet;
             Engine.Instance.DomainProxyUnset -= Instance_ProxyUnset;
-            Instance_ProxyUnset(null);
+            Instance_ProxyUnset(Engine.DomainProxy);
         }
         private void Instance_ProxyUnset(EngineDomainProxy proxy)
         {
@@ -344,7 +344,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
-            Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null);
+            Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null, null);
 
             EditorSettings defaultSettings = await DefaultSettingsRef.GetInstanceAsync();
             List<string> recentFiles = defaultSettings?.RecentlyOpenedProjectPaths;

@@ -93,7 +93,7 @@ namespace TheraEngine.Core.Files.Serialization
                         float invLength = 1.0f / _stream.Length;
                         _stream.SetWriteProgress(new BasicProgress<int>(i =>
                         {
-                            currentBytes += i;
+                            Interlocked.Add(ref currentBytes, i);
                             Progress.Report(currentBytes * invLength);
                         }));
                     }

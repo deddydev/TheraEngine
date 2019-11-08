@@ -80,6 +80,9 @@ namespace TheraEngine.Timers
             _commandsSwappedForRender = new ManualResetEvent(false);
             _renderDone = new ManualResetEvent(true);
         }
+        private Task UpdateTask = null;
+        private Task RenderTask = null;
+        private Task SingleTask = null;
         private void InitiateLoop(bool singleThreaded)
         {
             if (AppDomainHelper.IsPrimaryDomain)
@@ -90,7 +93,7 @@ namespace TheraEngine.Timers
                 {
                     MakeManualResetEvents();
 
-                    Task.Run(RunUpdateMultiThreadInternal);
+                    UpdateTask = Task.Run(RunUpdateMultiThreadInternal);
 
                     Application.Idle += Application_Idle_MultiThread;
                 }
@@ -99,14 +102,14 @@ namespace TheraEngine.Timers
             {
                 if (singleThreaded)
                 {
-                    Task.Run(GameDomainSingleThreadLoop);
+                    SingleTask = Task.Run(GameDomainSingleThreadLoop);
                 }
                 else
                 {
                     MakeManualResetEvents();
 
-                    Task.Run(RunUpdateMultiThreadInternal);
-                    Task.Run(RunRenderMultiThreadInternal);
+                    UpdateTask = Task.Run(RunUpdateMultiThreadInternal);
+                    RenderTask = Task.Run(RunRenderMultiThreadInternal);
                 }
             }
         }
@@ -189,15 +192,24 @@ namespace TheraEngine.Timers
                 _commandsSwappedForRender.WaitOne();
                 _commandsSwappedForRender.Reset();
             }
-
-            _commandsSwappedForRender = null;
-            _commandsReady = null;
-            _renderDone = null;
         }
 
         public void Stop()
         {
             IsRunning = false;
+
+            _renderDone?.Set();
+            _commandsSwappedForRender?.Set();
+            _commandsReady?.Set();
+
+            UpdateTask?.Wait();
+            UpdateTask = null;
+
+            RenderTask?.Wait();
+            RenderTask = null;
+
+            SingleTask?.Wait();
+            SingleTask = null;
 
             if (AppDomainHelper.IsPrimaryDomain)
             {
@@ -208,6 +220,11 @@ namespace TheraEngine.Timers
             }
 
             _watch.Stop();
+
+            _commandsSwappedForRender = null;
+            _commandsReady = null;
+            _renderDone = null;
+
             Engine.PrintLine("Game loop ended.");
         }
         private void DispatchRender()

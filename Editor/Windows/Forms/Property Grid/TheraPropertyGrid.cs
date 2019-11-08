@@ -57,7 +57,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _lblObjectName_EndColor = Color.FromArgb(_lblObjectName_StartColor.R + 10, _lblObjectName_StartColor.G + 10, _lblObjectName_StartColor.B + 10);
 
             _changeHandler = new ValueChangeHandler() { Grid = this };
+
+            Engine.Instance.DomainProxyUnset += Instance_DomainProxyUnset;
         }
+
+        private void Instance_DomainProxyUnset(TheraEngine.Core.EngineDomainProxy obj)
+        {
+            TargetObject = null;
+            TargetObjects.Clear();
+        }
+
         private class PropGridData
         {
             public string Category { get; set; }
@@ -626,36 +635,39 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Deque<TypeProxy> controlTypes = new Deque<TypeProxy>();
             EngineDomainProxyEditor proxy = Engine.DomainProxy as EngineDomainProxyEditor;
             var inPlace = proxy.InPlaceEditorTypes;
-            while (subType != null)
+            if (inPlace != null)
             {
-                if (mainControlType is null)
+                while (subType != null)
                 {
-                    TypeProxy modifiedSubType;
-
-                    if (subType.IsGenericType && !inPlace.ContainsKey(subType))
-                        modifiedSubType = subType.GetGenericTypeDefinition();
-                    else
-                        modifiedSubType = subType;
-
-                    if (inPlace.ContainsKey(modifiedSubType))
+                    if (mainControlType is null)
                     {
-                        mainControlType = inPlace[modifiedSubType];
-                        //Engine.PrintLine($"{subType2.GetFriendlyName()} -> {mainControlType.GetFriendlyName()}");
-                        if (!controlTypes.Contains(mainControlType))
-                            controlTypes.PushFront(mainControlType);
+                        TypeProxy modifiedSubType;
+
+                        if (subType.IsGenericType && !inPlace.ContainsKey(subType))
+                            modifiedSubType = subType.GetGenericTypeDefinition();
+                        else
+                            modifiedSubType = subType;
+
+                        if (inPlace.ContainsKey(modifiedSubType))
+                        {
+                            mainControlType = inPlace[modifiedSubType];
+                            //Engine.PrintLine($"{subType2.GetFriendlyName()} -> {mainControlType.GetFriendlyName()}");
+                            if (!controlTypes.Contains(mainControlType))
+                                controlTypes.PushFront(mainControlType);
+                        }
                     }
+                    TypeProxy[] interfaces = subType.GetInterfaces();
+                    foreach (TypeProxy interfaceType in interfaces)
+                        if (inPlace.ContainsKey(interfaceType))
+                        {
+                            TypeProxy controlType = inPlace[interfaceType];
+                            //Engine.PrintLine($"{interfaceType.GetFriendlyName()} -> {controlType.GetFriendlyName()}");
+                            if (!controlTypes.Contains(controlType))
+                                controlTypes.PushBack(controlType);
+                        }
+
+                    subType = subType.BaseType;
                 }
-                TypeProxy[] interfaces = subType.GetInterfaces();
-                foreach (TypeProxy interfaceType in interfaces)
-                    if (inPlace.ContainsKey(interfaceType))
-                    {
-                        TypeProxy controlType = inPlace[interfaceType];
-                        //Engine.PrintLine($"{interfaceType.GetFriendlyName()} -> {controlType.GetFriendlyName()}");
-                        if (!controlTypes.Contains(controlType))
-                            controlTypes.PushBack(controlType);
-                    }
-
-                subType = subType.BaseType;
             }
             if (controlTypes.Count == 0)
             {

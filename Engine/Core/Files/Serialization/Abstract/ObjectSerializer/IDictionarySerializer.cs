@@ -22,7 +22,7 @@ namespace TheraEngine.Core.Files.Serialization
             int keyValCount = TreeNode.Children.Count;
             TypeProxy dicType = TreeNode.ObjectType;
 
-            Dictionary = dicType.CreateInstance() as IDictionary;
+            Dictionary = Activator.CreateInstance((Type)dicType) as IDictionary;
             TreeNode.Object = Dictionary;
 
             if (keyValCount <= 0)

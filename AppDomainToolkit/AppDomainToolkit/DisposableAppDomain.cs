@@ -1,6 +1,8 @@
 ﻿namespace AppDomainToolkit
 {
     using System;
+    using System.Diagnostics;
+    using System.Threading;
 
     /// <summary>
     /// This is a thin wrapper around the .NET AppDomain class that enables safe disposal. Use
@@ -96,7 +98,21 @@
                     // Do *not* unload the current app domain.
                     if (!(this.Domain is null || this.Domain.Equals(AppDomain.CurrentDomain)))
                     {
-                        AppDomain.Unload(this.Domain);
+                        bool success = false;
+                        while (!success)
+                        {
+                            try
+                            {
+                                AppDomain.Unload(Domain);
+                                success = true;
+                            }
+                            catch (CannotUnloadAppDomainException)
+                            {
+                                Trace.WriteLine("Couldn't unload AppDomain. Retrying in 1 sec");
+                                GC.Collect();
+                                Thread.Sleep(1);
+                            }
+                        }
                     }
 
                     this.domain = null;

@@ -346,7 +346,7 @@ namespace TheraEngine.Core.Files.Serialization
                 if (serConfig || serState)
                 {
                     //Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {Name} manually via self.");
-                    Object = ObjectType.CreateInstance();
+                    Object = Activator.CreateInstance((Type)ObjectType);
                     ((IFileObject)Object).ManualRead(this);
                     ApplyObjectToParent();
                     return true;
@@ -555,7 +555,7 @@ namespace TheraEngine.Core.Files.Serialization
             //if (IsRoot)
             //{
                 if (ObjectType != null && !(ObjectType.IsAbstract || ObjectType.IsInterface) && ObjectType.GetConstructors().Any(x => x.GetParameters().Length == 0))
-                    DefaultObject = ObjectType.CreateInstance();
+                    DefaultObject = Activator.CreateInstance((Type)ObjectType);
                 else
                     DefaultObject = null;
             //    return;

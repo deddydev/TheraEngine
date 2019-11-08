@@ -124,11 +124,10 @@ namespace TheraEngine.Core
             Engine.InputAwaiter = null;
             Engine.InputLibrary = EInputLibrary.OpenTK;
 
-            AppDomainHelper.ResetCaches(this);
-
-            Engine.Initialize();
+            AppDomainHelper.ResetCaches();
             ResetTypeCaches();
 
+            Engine.Initialize();
             Engine.Run();
             if (gamePath.IsExistingDirectoryPath() == false)
             {
@@ -150,11 +149,14 @@ namespace TheraEngine.Core
 
             SetRenderTicking(false);
             Engine.Stop();
+
             ResetTypeCaches(false);
             Engine.ShutDown();
             Sponsor?.Release();
-            Stopped?.Invoke();
+
+            OnStopped();
         }
+        protected virtual void OnStopped() => Stopped?.Invoke();
 
         public bool IsRenderTicking { get; private set; }
         public void SetRenderTicking(bool isRendering)

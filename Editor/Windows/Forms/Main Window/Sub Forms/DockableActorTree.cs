@@ -23,6 +23,14 @@ namespace TheraEditor.Windows.Forms
 
             ctxActorTree.RenderMode = ToolStripRenderMode.Professional;
             ctxActorTree.Renderer = new TheraForm.TheraToolstripRenderer();
+
+            Engine.Instance.DomainProxyUnset += Instance_DomainProxyUnset;
+        }
+
+        private void Instance_DomainProxyUnset(EngineDomainProxy obj)
+        {
+            ActorTree.Nodes.Clear();
+            EditorHUD = null;
         }
 
         public EditorUI3D EditorHUD
@@ -87,7 +95,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (InvokeRequired)
             {
-                BeginInvoke((Action<IWorld>)LinkWorld, world);
+                Invoke((Action<IWorld>)LinkWorld, world);
                 return;
             }
 
@@ -136,7 +144,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (InvokeRequired)
             {
-                BeginInvoke(new Action<IActor>(ActorSpawned), item);
+                Invoke(new Action<IActor>(ActorSpawned), item);
                 return;
             }
 
@@ -164,7 +172,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (InvokeRequired)
             {
-                BeginInvoke(new Action<IActor>(ActorDespawned), item);
+                Invoke(new Action<IActor>(ActorDespawned), item);
                 return;
             }
 

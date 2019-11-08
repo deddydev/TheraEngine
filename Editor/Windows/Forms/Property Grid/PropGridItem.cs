@@ -313,11 +313,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (ParentCategory != null && !ParentCategory.Visible)
                     ParentCategory.Visible = true;
 
-                object value = GetValue();
-                //if (value is Exception ex)
-                //    Engine.LogWarning(ex.ToString());
-                //else
-                displayChanged = UpdateDisplayInternal(value);
+                try
+                {
+                    object value = GetValue();
+                    if (value is Exception ex)
+                        Engine.LogWarning(ex.ToString());
+                    else
+                        displayChanged = UpdateDisplayInternal(value);
+                }
+                catch (AppDomainUnloadedException e)
+                {
+                    //Engine.LogWarning(e.ToString());
+                }
             }
             else
             {

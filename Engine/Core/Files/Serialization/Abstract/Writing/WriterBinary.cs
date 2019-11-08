@@ -144,7 +144,7 @@ namespace TheraEngine.Core.Files.Serialization
             private unsafe void WriteElement(SerializeElement node, ref VoidPtr address)
             {
                 WriteStartElement(SerializationCommon.FixElementName(node.Name), ref address);
-                int* attributeCount = (int*)address;
+                bint* attributeCount = (bint*)address;
                 *attributeCount = 0;
                 address += 4;
                 
@@ -204,10 +204,22 @@ namespace TheraEngine.Core.Files.Serialization
                 WriteEndElement();
             }
 
-            private void WriteObject(object elementContent) => throw new NotImplementedException();
-            private void WriteStartElement(string v, ref VoidPtr address) => throw new NotImplementedException();
-            private unsafe void WriteAttribute(string name, object value, int* attributeCount) => throw new NotImplementedException();
-            private void WriteEndElement() => throw new NotImplementedException();
+            private void WriteObject(object elementContent)
+            {
+
+            }
+            private void WriteStartElement(string v, ref VoidPtr address)
+            {
+
+            }
+            private unsafe void WriteAttribute(string name, object value, bint* attributeCount)
+            {
+
+            }
+            private void WriteEndElement()
+            {
+
+            }
 
             protected override async Task WriteTreeAsync()
             {

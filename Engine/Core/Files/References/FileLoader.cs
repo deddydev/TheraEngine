@@ -257,7 +257,7 @@ namespace TheraEngine.Core.Files
                     string ext = System.IO.Path.GetExtension(absolutePath);
                     if (IsThirdPartyImportableExt(ext?.Substring(1)))
                     {
-                        file = SubType.CreateInstance() as T;
+                        file = Activator.CreateInstance((Type)SubType) as T;
                         file.FilePath = absolutePath;
                         file.ManualRead3rdParty(absolutePath);
                         loadedFromFile = true;
@@ -373,9 +373,9 @@ namespace TheraEngine.Core.Files
 
             T file;
             if (args.Length == 0)
-                file = SubType.CreateInstance() as T;
+                file = Activator.CreateInstance((Type)SubType) as T;
             else
-                file = SubType.CreateInstance(args.Select(x => x.Value)) as T;
+                file = Activator.CreateInstance((Type)SubType, args.Select(x => x.Value)) as T;
 
             if (callLoadedEvent)
                 OnLoaded(file);

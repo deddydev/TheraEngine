@@ -659,8 +659,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             
             TreeNode t = SelectedComponent?.OwningActor?.EditorState?.TreeNode;
-            if (!(t?.TreeView is null))
-                Editor.Instance.SetSelectedTreeNode(t);
+            Editor.Instance.SetSelectedTreeNode(t);
         }
         private void PreSelectedComponentChanged(bool selectedByViewport)
         {

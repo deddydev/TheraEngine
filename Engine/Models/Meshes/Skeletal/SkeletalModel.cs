@@ -18,11 +18,11 @@ namespace TheraEngine.Rendering.Models
         public SkeletalModel(string name) : this() { _name = name; }
         
         [TSerialize("Skeleton")]
-        protected GlobalFileRef<Skeleton> _skeleton = new GlobalFileRef<Skeleton>();
+        public GlobalFileRef<Skeleton> _skeleton = new GlobalFileRef<Skeleton>();
         [TSerialize("RigidChildren")]
-        protected List<SkeletalRigidSubMesh> _rigidChildren = new List<SkeletalRigidSubMesh>();
+        public List<SkeletalRigidSubMesh> _rigidChildren = new List<SkeletalRigidSubMesh>();
         [TSerialize("SoftChildren")]
-        protected List<SkeletalSoftSubMesh> _softChildren = new List<SkeletalSoftSubMesh>();
+        public List<SkeletalSoftSubMesh> _softChildren = new List<SkeletalSoftSubMesh>();
 
         public GlobalFileRef<Skeleton> SkeletonRef => _skeleton;
         public List<SkeletalRigidSubMesh> RigidChildren => _rigidChildren;

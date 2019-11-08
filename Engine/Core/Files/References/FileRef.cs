@@ -100,7 +100,7 @@ namespace TheraEngine.Core.Files
 
         //TODO: export map actors externally, relative to map / world file location
         [TSerialize(nameof(File), Condition = nameof(StoredInternally))]
-        protected T _file;
+        public T _file;
         
         /// <summary>
         /// Returns true if the file object is not null, even if it was set using code rather than from a file.
@@ -161,8 +161,11 @@ namespace TheraEngine.Core.Files
                 }
 
                 _file = value;
+
                 if (_file != null)
                 {
+                    AppDomainHelper.Sponsor(_file);
+
                     string path = _file.FilePath;
                     if (!string.IsNullOrEmpty(path) && path.IsExistingDirectoryPath() == false)
                     {

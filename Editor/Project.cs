@@ -30,7 +30,6 @@ namespace TheraEditor
     public class TProject : TFileObject
     {
         public delegate void DelCompileBegun(TProject project);
-
         public delegate void DelCompileResult(TProject project, bool success);
 
         public EngineBuildLogger LastBuildLog { get; private set; }

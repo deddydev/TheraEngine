@@ -264,7 +264,7 @@ namespace TheraEngine
         #region Animation
 
         [TSerialize(nameof(Animations))]
-        private IEventList<AnimationTree> _animations = null;
+        public IEventList<AnimationTree> _animations = null;
 
         [Category("Object")]
         [BrowsableIf("_animations != null")] // && _animations.Count > 0

@@ -156,12 +156,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void UpdateMouseDown()
         {
             _mouseDown = MouseDownProperties;
+
             TypeProxy type = CurrentType;
             if (type != null && !type.IsValueType)
             {
                 TypeProxy compareType;
                 TypeProxy bestType = null;
                 EngineDomainProxyEditor proxy = Engine.DomainProxy as EngineDomainProxyEditor;
+                if (proxy.FullEditorTypes is null)
+                    return;
+
                 while (type != null && type != typeof(object))
                 {
                     string name = type.GetFriendlyName();
@@ -198,7 +202,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void MouseDownEditor()
         {
             object value = GetValue();
-            Form form = _editorType.CreateInstance(value) as Form;
+            Form form = Activator.CreateInstance((Type)_editorType, value) as Form;
             if (form is DockContent newFormDockable && !(form is TheraForm))
             {
                 DockContent propGridForm = ParentCategory.PropertyGrid.FindForm() as DockContent;

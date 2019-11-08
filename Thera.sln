@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Extensions", "Extensions\Ex
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsNativeInterop", "WindowsNativeInterop\WindowsNativeInterop.csproj", "{B6E55049-2DE4-426F-BF4F-1923DAD79C2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpAnalyzer", "CSharpAnalyzer\CSharpAnalyzer.csproj", "{CC66D195-C329-4C48-A767-01A04BD2D91E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpAnalyzer", "CSharpAnalyzer\CSharpAnalyzer.csproj", "{CC66D195-C329-4C48-A767-01A04BD2D91E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

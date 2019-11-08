@@ -1,4 +1,5 @@
-﻿using Extensions;
+﻿using AppDomainToolkit;
+using Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -545,41 +546,49 @@ namespace TheraEngine
         /// </summary>
         public partial class InternalEnginePersistentSingleton: MarshalByRefObject
         {
-            public void SetDomainProxy<T>(AppDomain domain, string gamePath) where T : EngineDomainProxy, new()
+            public void SetDomainProxy<T>(AppDomain domain, AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> prevDomain, string gamePath) where T : EngineDomainProxy, new()
             {
+                EngineDomainProxy oldProxy = DomainProxy;
+
                 string domainName = domain.FriendlyName;
                 //PrintLine($"Generating engine proxy of type {typeof(T).GetFriendlyName()} for domain {domainName}");
 
                 bool isUIDomain = domain == AppDomain.CurrentDomain;
-                EngineDomainProxy domainProxy;
+                EngineDomainProxy newProxy;
                 if (isUIDomain)
-                    domainProxy = new T();
+                    newProxy = new T();
                 else
                 {
                     var proxy = domain.CreateInstanceAndUnwrap<T>();
                     AppDomainHelper.Sponsor(proxy);
-                    domainProxy = proxy;
+                    newProxy = proxy;
+                }
+
+                DomainProxy = newProxy;
+
+                oldProxy?.Stop();
+
+                if (oldProxy != null)
+                {
+                    oldProxy.Stopped -= DomainProxy_Stopped;
+                    DomainProxyUnset?.Invoke(oldProxy);
+                }
+
+                if (prevDomain != null)
+                {
+                    Engine.PrintLine($"Destroying game domain {prevDomain.Domain.FriendlyName}");
+                    Engine.PrintLine("Active domains before destroy: " + AppDomainHelper.AppDomainStringList);
+                    prevDomain.Dispose();
+                    Engine.PrintLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
                 }
 
                 //Initialize new domain before swapping it with the current one
-                domainProxy.Start(gamePath, isUIDomain);
-                AppDomainHelper.ResetCaches(domainProxy);
+                newProxy.Start(gamePath, isUIDomain);
 
-                EngineDomainProxy prevDomain = DomainProxy;
+                newProxy.Stopped += DomainProxy_Stopped;
+                DomainProxySet?.Invoke(newProxy);
 
-                if (prevDomain != null)
-                    prevDomain.Stopped -= DomainProxy_Stopped;
-                domainProxy.Stopped += DomainProxy_Stopped;
-
-                DomainProxy = domainProxy;
-
-                if (prevDomain != null)
-                    DomainProxyUnset?.Invoke(prevDomain);
-                DomainProxySet?.Invoke(DomainProxy);
-
-                PrintLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : domainProxy.Domain.FriendlyName)}.");
-                
-                prevDomain?.Stop();
+                PrintLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : newProxy.Domain.FriendlyName)}.");
             }
 
             private void DomainProxy_Stopped()

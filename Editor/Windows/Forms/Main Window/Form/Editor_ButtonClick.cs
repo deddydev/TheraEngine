@@ -227,15 +227,9 @@ namespace TheraEditor.Windows.Forms
                         domain.LoadAssemblyWithReferences(ELoadMethod.LoadFrom, path.Path);
                     }
 
-                Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(domain.Domain, gamePath);
+                Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(domain.Domain, _gameDomain, gamePath);
 
-                Engine.PrintLine($"Destroying game domain {_gameDomain.Domain.FriendlyName}");
-                Engine.PrintLine("Active domains before destroy: " + AppDomainHelper.AppDomainStringList);
-
-                _gameDomain?.Dispose();
                 _gameDomain = domain;
-
-                Engine.PrintLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
             }
             catch (Exception ex)
             {

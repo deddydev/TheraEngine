@@ -9,7 +9,7 @@ namespace TheraEngine
     {
         public RenderForm(TGame game)
         {
-            Engine.Instance.SetDomainProxy<EngineDomainProxy>(AppDomain.CurrentDomain, game.FilePath);
+            Engine.Instance.SetDomainProxy<EngineDomainProxy>(AppDomain.CurrentDomain, null, game.FilePath);
 
             InitializeComponent();
             //Engine.SetWorldPanel(renderPanel);

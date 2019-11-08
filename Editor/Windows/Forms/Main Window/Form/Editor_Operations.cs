@@ -87,8 +87,11 @@ namespace TheraEditor.Windows.Forms
 
         public void SetSelectedTreeNode(TreeNode t)
         {
+            if (t?.TreeView is null)
+                return;
+
             if (t.TreeView.InvokeRequired)
-                t.TreeView.BeginInvoke((Action)(() => t.TreeView.SelectedNode = t));
+                t.TreeView.Invoke((Action)(() => t.TreeView.SelectedNode = t));
             else
                 t.TreeView.SelectedNode = t;
         }

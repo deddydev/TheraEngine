@@ -31,17 +31,31 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnShown(e);
 
-            Editor.DomainProxy.AddRenderHandlerToEditorGameMode(RenderPanel.Handle);
+            Engine.Instance.DomainProxySet += Instance_DomainProxySet;
+            Engine.Instance.DomainProxyUnset += Instance_DomainProxyUnset;
+            Instance_DomainProxySet(Engine.DomainProxy);
+        }
+
+        private void Instance_DomainProxyUnset(TheraEngine.Core.EngineDomainProxy obj)
+        {
+            RenderPanel.UnlinkFromWorldManager();
+            ((EngineDomainProxyEditor)obj).RemoveRenderHandlerFromEditorGameMode(RenderPanel.Handle);
+        }
+        private void Instance_DomainProxySet(TheraEngine.Core.EngineDomainProxy obj)
+        {
+            ((EngineDomainProxyEditor)obj).AddRenderHandlerToEditorGameMode(RenderPanel.Handle);
             RenderPanel.LinkToWorldManager(Editor.Instance.WorldManagerId);
         }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
             if (e.Cancel)
                 return;
 
-            RenderPanel.UnlinkFromWorldManager();
-            Editor.DomainProxy.RemoveRenderHandlerFromEditorGameMode(RenderPanel.Handle);
+            Engine.Instance.DomainProxySet -= Instance_DomainProxySet;
+            Engine.Instance.DomainProxyUnset -= Instance_DomainProxyUnset;
+            Instance_DomainProxyUnset(Engine.DomainProxy);
         }
         //#region Drag / Drop Actors
 

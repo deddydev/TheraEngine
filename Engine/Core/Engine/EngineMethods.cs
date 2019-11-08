@@ -293,7 +293,7 @@ namespace TheraEngine
             var contexts = new List<RenderContext>(RenderContext.BoundContexts);
             foreach (RenderContext c in contexts)
                 c?.Dispose();
-
+            
             ShuttingDown = false;
         }
         #endregion

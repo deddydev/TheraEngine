@@ -193,7 +193,7 @@ namespace TheraEngine.Rendering.OpenGL
                     Engine.ComputerInfo.MaxTextureUnits = MaxTextureUnits = units;
                 }
 
-                public void Print(EOutputVerbosity verbosity)
+                public void Print()
                 {
                     string output = string.Empty;
                     output += "VENDOR: " + Vendor + Environment.NewLine;
@@ -201,8 +201,9 @@ namespace TheraEngine.Rendering.OpenGL
                     output += "RENDERER: " + Renderer + Environment.NewLine;
                     output += "GLSL: " + ShaderLanguageVersion + Environment.NewLine;
                     output += "TEXTURE UNITS: " + MaxTextureUnits + Environment.NewLine;
-                    output += "EXTENSIONS:" + Environment.NewLine + string.Join(Environment.NewLine, Extensions) + Environment.NewLine;
-                    Engine.PrintLine(verbosity, output);
+                    string ext = string.Join(Environment.NewLine, Extensions);
+                    Engine.PrintLine(EOutputVerbosity.Normal, output);
+                    Engine.PrintLine(EOutputVerbosity.Verbose, ext);
                 }
             }
 
@@ -212,7 +213,7 @@ namespace TheraEngine.Rendering.OpenGL
             {
                 Engine.RenderThreadId = Thread.CurrentThread.ManagedThreadId;
                 WindowInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
-                GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 8, new ColorFormat(0), 2, false);
+                GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 4, new ColorFormat(0), 2, false);
 
                 _context = new GraphicsContext(mode, WindowInfo, 4, 6, 
                     DebugMode ? GraphicsContextFlags.Debug : GraphicsContextFlags.Default)
@@ -228,11 +229,11 @@ namespace TheraEngine.Rendering.OpenGL
                 if (readSpec)
                     Specification = new GLSpecs();
 
-                Engine.PrintLine(EOutputVerbosity.Verbose, $"Generated OpenGL context on thread {_thread.ManagedThreadId}.");
+                Engine.PrintLine(EOutputVerbosity.Normal, $"Generated OpenGL context on thread {_thread.ManagedThreadId}.");
 
 #if DEBUG
                 if (readSpec)
-                    Specification.Print(EOutputVerbosity.Verbose);
+                    Specification.Print();
 #endif
             }
 

@@ -96,13 +96,6 @@ namespace TheraEngine
             base.OnMove(e);
             UpdateScreenLocation(this, e);
         }
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-
-            //Create context RIGHT AWAY so render objects can bind to it as they are created
-            CreateContext();
-        }
         protected override void DestroyHandle()
         {
             Engine.DomainProxy.UnregisterRenderPanel(Handle);
@@ -158,6 +151,7 @@ namespace TheraEngine
         public object[] HandlerArgs { get; set; } = new object[0];
         public override void CreateContext()
         {
+            Instance_DomainProxyUnset(Engine.DomainProxy);
             Instance_DomainProxySet(Engine.DomainProxy);
         }
 

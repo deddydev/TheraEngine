@@ -196,6 +196,8 @@ namespace TheraEditor.Windows.Forms
             //    return;
 
             Engine.PrintLine("Creating game domain.");
+
+            AppDomainHelper.ResetAppDomainCache();
             Engine.PrintLine("Active domains before load: " + AppDomainHelper.AppDomainStringList);
 
             try
@@ -238,6 +240,8 @@ namespace TheraEditor.Windows.Forms
             finally
             {
                 Engine.PrintLine("Game domain created.");
+
+                AppDomainHelper.ResetAppDomainCache();
                 Engine.PrintLine("Active domains after load: " + AppDomainHelper.AppDomainStringList);
             }
         }

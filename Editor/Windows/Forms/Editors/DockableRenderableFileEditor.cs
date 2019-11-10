@@ -42,8 +42,8 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnShown(e);
 
-            Engine.Instance.DomainProxySet += Instance_ProxySet;
-            Engine.Instance.DomainProxyUnset += Instance_ProxyUnset;
+            Engine.Instance.DomainProxyPostSet += Instance_ProxySet;
+            Engine.Instance.DomainProxyPostUnset += Instance_ProxyUnset;
             Instance_ProxySet(Engine.DomainProxy);
 
             RenderPanel.LinkToWorldManager(WorldManagerId);
@@ -54,8 +54,8 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.RenderHandler.FormClosed();
             RenderPanel.UnlinkFromWorldManager();
 
-            Engine.Instance.DomainProxySet -= Instance_ProxySet;
-            Engine.Instance.DomainProxyUnset -= Instance_ProxyUnset;
+            Engine.Instance.DomainProxyPostSet -= Instance_ProxySet;
+            Engine.Instance.DomainProxyPostUnset -= Instance_ProxyUnset;
             Instance_ProxyUnset(null);
 
             base.OnFormClosed(e);

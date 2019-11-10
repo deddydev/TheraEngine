@@ -37,14 +37,27 @@ namespace TheraEngine.Core.Files
     [TFileExt("ref")]
     public abstract class FileRef<T> : FileLoader<T>, IFileRef<T> where T : class, IFileObject
     {
-        //TODO: monitor when file's FilePath is changed, update reference path here accordingly
-
         #region Constructors
-        public FileRef() : base() { }
-        public FileRef(TypeProxy type) : base(type) { }
-        public FileRef(string filePath) : base(filePath) { }
-        public FileRef(string filePath, TypeProxy type) : base(filePath, type) { }
-        public FileRef(string filePath, T file) : this(filePath)
+        public FileRef() : this(string.Empty) { }
+        public FileRef(TypeProxy type) : this(null, type) { }
+        public FileRef(string filePath) : this(filePath, null) { }
+        public FileRef(string filePath, TypeProxy type) : base(filePath, type)
+        {
+            Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
+            Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
+        }
+
+        private void Instance_DomainProxyPostSet(EngineDomainProxy obj)
+        {
+            SubType = Engine.DomainProxy.GetTypeFor<T>();
+        }
+
+        private void Instance_DomainProxyPreUnset(EngineDomainProxy obj)
+        {
+            _file = null;
+        }
+
+        public FileRef(T file, string filePath) : this(filePath)
         {
             if (file != null)
                 file.FilePath = Path.Path;
@@ -57,7 +70,7 @@ namespace TheraEngine.Core.Files
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="createIfNotFound"></param>
-        public FileRef(string filePath, Func<T> createIfNotFound) : this(filePath)
+        public FileRef(Func<T> createIfNotFound, string filePath) : this(filePath)
         {
             string absPath = Path.Path;
             if (!System.IO.File.Exists(absPath) || DetermineType(Path.Path, out EFileFormat format) != typeof(T))

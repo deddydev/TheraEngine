@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms
             ctxActorTree.RenderMode = ToolStripRenderMode.Professional;
             ctxActorTree.Renderer = new TheraForm.TheraToolstripRenderer();
 
-            Engine.Instance.DomainProxyUnset += Instance_DomainProxyUnset;
+            Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
         }
 
         private void Instance_DomainProxyUnset(EngineDomainProxy obj)

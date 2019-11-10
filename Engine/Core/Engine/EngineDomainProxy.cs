@@ -215,6 +215,9 @@ namespace TheraEngine.Core
                 catch { }
             }
         }
+
+        public IFileObject LoadRef(IFileRef fref) => fref.GetInstance();
+
         private void SwapBuffers()
         {
             foreach (WorldManager m in WorldManagers)
@@ -409,6 +412,11 @@ namespace TheraEngine.Core
             }
         }
 
+        public TypeProxy GetTypeFor<T>()
+        {
+            TypeProxy proxy = typeof(T);
+            return proxy;
+        }
         public TypeProxy GetTypeFor(string typeName)
         {
             //Engine.PrintLine("Getting type proxy for " + typeName);

@@ -160,14 +160,14 @@ namespace TheraEngine.Rendering.Models
         List<CPUSkinInfo.LiveInfluence> IBone.InfluencedInfluences => _influencedInfluences;
 
         [TSerialize("Transform")]
-        private ITransform _bindState;
+        public ITransform _bindState;
         [TSerialize("ChildBones")]
-        private IEventList<IBone> _childBones = new EventList<IBone>();
+        public IEventList<IBone> _childBones = new EventList<IBone>();
         [TSerialize("ConstraintToParent")]
-        private TConstraint _parentConstraint;
-        private TRigidBody _rigidBodyCollision;
+        public TConstraint _parentConstraint;
+        public TRigidBody _rigidBodyCollision;
         [TSerialize(nameof(RigidBodyLocalTransform))]
-        private ITransform _rigidBodyLocalTransform = Transform.GetIdentity();
+        public ITransform _rigidBodyLocalTransform = Transform.GetIdentity();
 
         [Category("Bone")]
         public ITransform RigidBodyLocalTransform
@@ -192,19 +192,19 @@ namespace TheraEngine.Rendering.Models
             TriggerFrameMatrixUpdate();
         }
 
-        private IBone _parent;
-        private Matrix4
+        public IBone _parent;
+        public Matrix4
             //Animated transformation matrix relative to the skeleton's root bone, aka model space
             _frameMatrix = Matrix4.Identity, _inverseFrameMatrix = Matrix4.Identity,
             //Non-animated default bone position transforms, in model space
             _bindMatrix = Matrix4.Identity, _inverseBindMatrix = Matrix4.Identity;
 
         //Used for calculating vertex influences matrices quickly
-        private Matrix4 _vtxPosMtx = Matrix4.Identity;
-        private Matrix4 _vtxNrmMtx = Matrix4.Identity;
+        public Matrix4 _vtxPosMtx = Matrix4.Identity;
+        public Matrix4 _vtxNrmMtx = Matrix4.Identity;
 
 #if EDITOR
-        private bool _selected;
+        public bool _selected;
         [Browsable(false)]
         public bool Selected
         {
@@ -276,7 +276,7 @@ namespace TheraEngine.Rendering.Models
         public Matrix4 VertexMatrix => _vtxPosMtx;
         //[Browsable(false)]
         //public Matrix4 NormalMatrix => _vtxNrmMtx;
-        private bool _frameMatrixChanged = true;
+        public bool _frameMatrixChanged = true;
         [Browsable(false)]
         public bool FrameMatrixChanged
         {
@@ -291,7 +291,7 @@ namespace TheraEngine.Rendering.Models
         //[Browsable(false)]
         //public bool ChildFrameMatrixChanged => _childFrameMatrixChanged;
 
-        private IEventList<ISceneComponent> _childComponents = new EventList<ISceneComponent>();
+        public IEventList<ISceneComponent> _childComponents = new EventList<ISceneComponent>();
         [TSerialize]
         [Category("Bone")]
         [Browsable(false)]

@@ -5,7 +5,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace Thera.Worlds.Actors.Components.Scene
 {
-    public enum RequestedHand
+    public enum ERequestedHand
     {
         LeftOnly,
 	    LeftPreferred,
@@ -33,8 +33,8 @@ namespace Thera.Worlds.Actors.Components.Scene
         protected bool _interactOnBeginOverlap;
         protected bool _interactOnEndOverlap;
         protected bool _requiresAvailableHand;
-        protected RequestedHand _beginOverlapHand;
-        protected RequestedHand _endOverlapHand;
+        protected ERequestedHand _beginOverlapHand;
+        protected ERequestedHand _endOverlapHand;
         protected string _interactionMessage;
 
         public bool PendingAnyInteraction { get { return _pendingInteraction.Count > 0; } }

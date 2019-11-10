@@ -49,8 +49,8 @@ namespace TheraEditor.Wrappers
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
 
-            Engine.Instance.DomainProxySet += Instance_DomainProxySet;
-            Engine.Instance.DomainProxyUnset += Instance_DomainProxyUnset;
+            Engine.Instance.DomainProxyPostSet += Instance_DomainProxySet;
+            Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
             Instance_DomainProxySet(Engine.DomainProxy);
         }
 

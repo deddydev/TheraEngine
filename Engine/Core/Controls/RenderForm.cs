@@ -2,23 +2,28 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine.Core;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine
 {
     public partial class RenderForm : Form
     {
-        public RenderForm(TGame game)
+        public RenderForm(string gamePath)
         {
-            Engine.Instance.SetDomainProxy<EngineDomainProxy>(AppDomain.CurrentDomain, null, game.FilePath);
-
+            Engine.Instance.SetDomainProxy<EngineDomainProxy>(AppDomain.CurrentDomain, null, gamePath);
             InitializeComponent();
-            //Engine.SetWorldPanel(renderPanel);
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            TGame game = Engine.Game;
 
             Text = game.Name;
             Icon icon = game.GetIcon();
             if (icon != null)
                 Icon = icon;
-            
+
             switch (game.UserSettingsRef.File.WindowBorderStyle)
             {
                 case WindowBorderStyle.None:
@@ -42,6 +47,7 @@ namespace TheraEngine
 
             Application.ApplicationExit += Application_ApplicationExit;
         }
+
         private void Application_ApplicationExit(object sender, EventArgs e)
         {
             Engine.Stop();

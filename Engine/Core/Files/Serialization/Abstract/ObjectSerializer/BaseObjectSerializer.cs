@@ -141,7 +141,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             //Engine.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Determined object serializer for {objectType.GetFriendlyName()}: {serType.GetFriendlyName()}");
 
-            return Activator.CreateInstance((Type)serType) as BaseObjectSerializer;
+            return serType.CreateInstance() as BaseObjectSerializer;
         }
         private static Dictionary<ObjectSerializerFor, TypeProxy> GetObjectSerializers()
         {

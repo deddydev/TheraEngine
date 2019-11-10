@@ -48,9 +48,9 @@ namespace TheraEngine.Core.Files
         public GlobalFileRef(string filePath, TypeProxy type) 
             : base(filePath, type) { }
         public GlobalFileRef(string filePath, T file) 
-            : base(filePath, file) { }
+            : base(file, filePath) { }
         public GlobalFileRef(string filePath, Func<T> createIfNotFound)
-            : base(filePath, createIfNotFound) { }
+            : base(createIfNotFound, filePath) { }
         public GlobalFileRef(string dir, string name, EProprietaryFileFormat format) 
             : base(dir, name, format) { }
         public GlobalFileRef(string dir, string name, EProprietaryFileFormat format, T file) 
@@ -126,7 +126,9 @@ namespace TheraEngine.Core.Files
         /// <summary>
         /// Instances of files that are loaded only once and are accessable by all global references to that file.
         /// </summary>
-        public static ConcurrentDictionary<string, IFileObject> GlobalFileInstances { get; } = new ConcurrentDictionary<string, IFileObject>();
+        public static ConcurrentDictionary<string, IFileObject> GlobalFileInstances { get; } 
+            = new ConcurrentDictionary<string, IFileObject>();
+
         public bool LoadInGameDomain { get; set; }
 
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
@@ -156,14 +158,27 @@ namespace TheraEngine.Core.Files
                                 else
                                     Engine.LogWarning(file.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
                             }
+                            else
+                                GlobalFileInstances.TryRemove(absolutePath, out _);
                         }
                     }
                     else
                     {
                         if (Context.GlobalFileInstances.TryGetValue(absolutePath, out T file))
                         {
-                            File = file;
-                            return file;
+                            if (file != null)
+                            {
+                                if (file is T casted)
+                                {
+                                    //casted.References.Add(this);
+                                    File = casted;
+                                    return casted;
+                                }
+                                else
+                                    Engine.LogWarning(file.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
+                            }
+                            else
+                                Context.GlobalFileInstances.TryRemove(absolutePath, out _);
                         }
                     }
                 }
@@ -175,7 +190,7 @@ namespace TheraEngine.Core.Files
 
                 File = value = instance;
 
-                if (absolutePath != null)
+                if (absolutePath != null && instance != null)
                 {
                     if (Context is null)
                     {

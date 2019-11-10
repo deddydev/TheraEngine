@@ -88,7 +88,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
-            EditorSettings settings = await Editor.DefaultSettingsRef.GetInstanceAsync();
+            EditorSettings settings = await Editor.Instance.DefaultSettingsRef.GetInstanceAsync();
             var recentFiles = settings?.RecentlyOpenedProjectPaths;
             //var recentFiles = Properties.Settings.Default.RecentFiles;
             if (recentFiles != null)

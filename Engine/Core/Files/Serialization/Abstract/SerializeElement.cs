@@ -547,8 +547,9 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public void ApplyObjectToParent()
         {
-            if (Parent?.Object != null)
-                MemberInfo.SetObject(Parent.Object, _object);
+            object parent = Parent?.Object;
+            if (parent != null)
+                MemberInfo.SetObject(parent, _object);
         }
         public void DetermineDefaultObject()
         {

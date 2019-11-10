@@ -176,7 +176,7 @@ namespace TheraEngine.Core.Files.XML
             string parentTree,
             int elementIndex,
             CancellationToken cancel)
-            => await ParseElementAsync(Activator.CreateInstance((Type)elementType) as IElement, 
+            => await ParseElementAsync(elementType.CreateInstance() as IElement, 
                 parent, reader, version, ignoreFlags, parentTree, elementIndex, cancel);
         private static async Task<IElement> ParseElementAsync(
             IElement entry,

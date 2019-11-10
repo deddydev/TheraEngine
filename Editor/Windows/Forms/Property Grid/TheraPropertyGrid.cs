@@ -58,7 +58,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             _changeHandler = new ValueChangeHandler() { Grid = this };
 
-            Engine.Instance.DomainProxyUnset += Instance_DomainProxyUnset;
+            Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
         }
 
         private void Instance_DomainProxyUnset(TheraEngine.Core.EngineDomainProxy obj)

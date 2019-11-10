@@ -210,16 +210,16 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnShown(e);
 
-            Engine.Instance.DomainProxySet += Instance_ProxySet;
-            Engine.Instance.DomainProxyUnset += Instance_ProxyUnset;
+            Engine.Instance.DomainProxyPostSet += Instance_ProxySet;
+            Engine.Instance.DomainProxyPostUnset += Instance_ProxyUnset;
             Instance_ProxySet(Engine.DomainProxy);
         }
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             base.OnFormClosed(e);
 
-            Engine.Instance.DomainProxySet -= Instance_ProxySet;
-            Engine.Instance.DomainProxyUnset -= Instance_ProxyUnset;
+            Engine.Instance.DomainProxyPostSet -= Instance_ProxySet;
+            Engine.Instance.DomainProxyPostUnset -= Instance_ProxyUnset;
             Instance_ProxyUnset(Engine.DomainProxy);
         }
         private void Instance_ProxyUnset(EngineDomainProxy proxy)

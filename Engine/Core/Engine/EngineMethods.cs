@@ -82,11 +82,11 @@ namespace TheraEngine
         /// Will create a render form, initialize the engine, and start the game, so no other methods are needed.
         /// </summary>
         /// <param name="game">The game to play.</param>
-        public static void RunSingleInstanceOf(TGame game)
+        public static void RunSingleInstanceOf(string gamePath)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new RenderForm(game));
+            Application.Run(new RenderForm(gamePath));
         }
 
         /// <summary>

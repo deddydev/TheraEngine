@@ -566,27 +566,31 @@ namespace TheraEngine
 
                 DomainProxy = newProxy;
 
-                oldProxy?.Stop();
-
                 if (oldProxy != null)
                 {
+                    DomainProxyPreUnset?.Invoke(oldProxy);
+                    oldProxy.Stop();
                     oldProxy.Stopped -= DomainProxy_Stopped;
-                    DomainProxyUnset?.Invoke(oldProxy);
+                    DomainProxyPostUnset?.Invoke(oldProxy);
                 }
 
                 if (prevDomain != null)
                 {
-                    Engine.PrintLine($"Destroying game domain {prevDomain.Domain.FriendlyName}");
-                    Engine.PrintLine("Active domains before destroy: " + AppDomainHelper.AppDomainStringList);
+                    PrintLine($"Destroying game domain {prevDomain.Domain.FriendlyName}");
+
+                    AppDomainHelper.ResetAppDomainCache();
+                    PrintLine("Active domains before destroy: " + AppDomainHelper.AppDomainStringList);
+
                     prevDomain.Dispose();
-                    Engine.PrintLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
+
+                    AppDomainHelper.ResetAppDomainCache();
+                    PrintLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
                 }
 
-                //Initialize new domain before swapping it with the current one
+                DomainProxyPreSet?.Invoke(newProxy);
                 newProxy.Start(gamePath, isUIDomain);
-
                 newProxy.Stopped += DomainProxy_Stopped;
-                DomainProxySet?.Invoke(newProxy);
+                DomainProxyPostSet?.Invoke(newProxy);
 
                 PrintLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : newProxy.Domain.FriendlyName)}.");
             }
@@ -599,13 +603,17 @@ namespace TheraEngine
             //private Type TypeCreationFailed(string typeDeclaration)
             //    => DomainProxy.CreateType(typeDeclaration);
 
-            public event Action<EngineDomainProxy> DomainProxySet;
-            public event Action<EngineDomainProxy> DomainProxyUnset;
+            public event Action<EngineDomainProxy> DomainProxyPreSet;
+            public event Action<EngineDomainProxy> DomainProxyPostSet;
+            public event Action<EngineDomainProxy> DomainProxyPreUnset;
+            public event Action<EngineDomainProxy> DomainProxyPostUnset;
 
             [Browsable(false)]
             public EngineDomainProxy DomainProxy { get; private set; } = null;
 
+#if EDITOR
             public EngineEditorState EditorState { get; } = new EngineEditorState();
+#endif
         }
     }
 }

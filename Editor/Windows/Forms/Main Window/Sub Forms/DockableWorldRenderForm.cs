@@ -31,8 +31,8 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnShown(e);
 
-            Engine.Instance.DomainProxySet += Instance_DomainProxySet;
-            Engine.Instance.DomainProxyUnset += Instance_DomainProxyUnset;
+            Engine.Instance.DomainProxyPostSet += Instance_DomainProxySet;
+            Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
             Instance_DomainProxySet(Engine.DomainProxy);
         }
 
@@ -53,8 +53,8 @@ namespace TheraEditor.Windows.Forms
             if (e.Cancel)
                 return;
 
-            Engine.Instance.DomainProxySet -= Instance_DomainProxySet;
-            Engine.Instance.DomainProxyUnset -= Instance_DomainProxyUnset;
+            Engine.Instance.DomainProxyPostSet -= Instance_DomainProxySet;
+            Engine.Instance.DomainProxyPostUnset -= Instance_DomainProxyUnset;
             Instance_DomainProxyUnset(Engine.DomainProxy);
         }
         //#region Drag / Drop Actors

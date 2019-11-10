@@ -21,7 +21,7 @@ namespace TheraEditor.Wrappers
         public override IFileObject SingleInstance { get => null; set { } }
         public override bool IsLoaded => false;
         public override TypeProxy FileType => null;
-        public override IGlobalFileRef SingleInstanceRef => throw new NotImplementedException();
+        public override IFileRef SingleInstanceRef => throw new NotImplementedException();
         public override IFileObject GetNewInstance() => null;
         public override Task<IFileObject> GetNewInstanceAsync() => null;
         protected internal override void FixPath(string parentFolderPath) { }

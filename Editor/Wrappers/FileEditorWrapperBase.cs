@@ -11,23 +11,23 @@ namespace TheraEditor.Wrappers
     {
         public FileEditorWrapperBase() : base() { }
         
-        public TEditor Editor { get; private set; }
+        public TEditor FileEditor { get; private set; }
         public override async void EditResource()
         {
-            if (Editor is null)
+            if (FileEditor is null)
             {
-                Editor = new TEditor();
-                Editor.FormClosed += Editor_FormClosed;
-                Editor.Show(Windows.Forms.Editor.Instance.DockPanel, DockState.Document);
+                FileEditor = new TEditor();
+                FileEditor.FormClosed += Editor_FormClosed;
+                FileEditor.Show(Editor.Instance.DockPanel, DockState.Document);
             }
             TFile file = await ResourceRef.GetInstanceAsync();
-            Editor.File = file;
-            Editor.Focus();
+            FileEditor.File = file;
+            FileEditor.Focus();
         }
         private void Editor_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Editor.FormClosed -= Editor_FormClosed;
-            Editor = null;
+            FileEditor.FormClosed -= Editor_FormClosed;
+            FileEditor = null;
         }
     }
 }

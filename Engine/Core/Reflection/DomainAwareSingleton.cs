@@ -73,6 +73,8 @@ namespace TheraEngine.Core.Reflection
         /// </summary>
         public static T CachedInstance => CachedLazyInstance.Value;
 
+        public static bool IsConstructed = CachedLazyInstance.IsValueCreated;
+
         private sealed class Wrapper : MarshalByRefObject
         {
             public override object InitializeLifetimeService() => null;

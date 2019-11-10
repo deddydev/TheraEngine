@@ -79,7 +79,7 @@ namespace TheraEngine.Core.Reflection
         private static AppDomain[] GetAppDomains()
             => EnumAppDomains().ToArray();
         private static TypeProxy[] GetExportedTypes()
-            => Engine.DomainProxy.GetExportedTypes()?.ToArray() ?? new TypeProxy[0];
+            => Engine.DomainProxy?.GetExportedTypes()?.ToArray() ?? new TypeProxy[0];
 
         public static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {

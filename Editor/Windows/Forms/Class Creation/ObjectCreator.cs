@@ -192,7 +192,7 @@ namespace TheraEditor.Windows.Forms
                             {
                                 if (type.IsGenericTypeDefinition)
                                     type = type.MakeGenericType(_genericTypeArgs);
-                                ConstructedObject = Activator.CreateInstance((Type)type);
+                                ConstructedObject = type.CreateInstance();
                                 return false;
                             }
                         }
@@ -455,7 +455,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             bool hasParameterlessConstructor = ClassType.GetConstructors().FirstOrDefault(x => x.GetParameters().Length == 0) != null;
                             if (hasParameterlessConstructor)
-                                ConstructedObject = Activator.CreateInstance((Type)ClassType);
+                                ConstructedObject = ClassType.CreateInstance();
                             else
                             {
                                 ConstructedObject = null;
@@ -480,7 +480,7 @@ namespace TheraEditor.Windows.Forms
             if (IsNullable)
             {
                 ClassType = TypeProxy.Get(typeof(Nullable<>)).MakeGenericType(ClassType);
-                ConstructedObject = Activator.CreateInstance((Type)ClassType, ConstructedObject);
+                ConstructedObject = ClassType.CreateInstance(ConstructedObject);
             }
 
             DialogResult = DialogResult.OK;

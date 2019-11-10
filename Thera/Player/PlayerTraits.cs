@@ -30,13 +30,13 @@ namespace Thera.GameModes
     }
     public struct InheritablePlayerTraits
     {
-        InheritableBool _allowCrouching;
-        InheritableBool _allowFlying;
-        InheritableBool _allowSwimming;
-        InheritableBool _allowSprinting;
-        InheritableBool _allowSprintingWhileCrouched;
-        InheritableBool _allowSprintingWhileFlying;
-        InheritableBool _allowSprintingWhileSwimming;
+        EInheritableBool _allowCrouching;
+        EInheritableBool _allowFlying;
+        EInheritableBool _allowSwimming;
+        EInheritableBool _allowSprinting;
+        EInheritableBool _allowSprintingWhileCrouched;
+        EInheritableBool _allowSprintingWhileFlying;
+        EInheritableBool _allowSprintingWhileSwimming;
 
         InheritableFloat _walkingMultiplier;
         InheritableFloat _crouchedMovementMultiplier;
@@ -47,43 +47,43 @@ namespace Thera.GameModes
         InheritableFloat _flyingSprintMultiplier;
         InheritableFloat _swimmingSprintMultiplier;
 
-        InheritableBool _allowVehicleUse;
-        InheritableBool _allowGunPickup;
-        InheritableBool _allowMeleeWeaponPickup;
-        InheritableBool _allowUpgradePickup;
-        InheritableBool _allowHealthPickup;
-        InheritableBool _allowToolPickup;
-        InheritableBool _allowMagicPickup;
-        InheritableBool _allowStageInteraction;
+        EInheritableBool _allowVehicleUse;
+        EInheritableBool _allowGunPickup;
+        EInheritableBool _allowMeleeWeaponPickup;
+        EInheritableBool _allowUpgradePickup;
+        EInheritableBool _allowHealthPickup;
+        EInheritableBool _allowToolPickup;
+        EInheritableBool _allowMagicPickup;
+        EInheritableBool _allowStageInteraction;
 
-        InheritableBool _shieldsEnabled;
+        EInheritableBool _shieldsEnabled;
         InheritableFloat _shieldStrengthMultiplier;
-        InheritableBool _shieldRecoveryEnabled;
-        InheritableBool _shieldsFixable;
+        EInheritableBool _shieldRecoveryEnabled;
+        EInheritableBool _shieldsFixable;
         InheritableFloat _shieldFixWaitSeconds;
         InheritableFloat _shieldRecoveryWaitSeconds;
         InheritableFloat _shieldRecoverySeconds;
         InheritableFloat _shieldBarDecaySeconds;
         InheritableInt _overshieldCount;
-        InheritableBool _overshieldsRegenerate;
+        EInheritableBool _overshieldsRegenerate;
 
         InheritableFloat _deathWaitSeconds;
         InheritableFloat _waitAmountPerBetrayal;
 
-        InheritableBool _radarsEnabled;
+        EInheritableBool _radarsEnabled;
         InheritableFloat _radarDistance;
-        InheritableBool _enemyWaypoints;
-        InheritableBool _allyWaypoints;
+        EInheritableBool _enemyWaypoints;
+        EInheritableBool _allyWaypoints;
 
         public void InitDefaultInherited()
         {
-            _allowCrouching = InheritableBool.Inherited;
-            _allowFlying = InheritableBool.Inherited;
-            _allowSwimming = InheritableBool.Inherited;
-            _allowSprinting = InheritableBool.Inherited;
-            _allowSprintingWhileCrouched = InheritableBool.Inherited;
-            _allowSprintingWhileFlying = InheritableBool.Inherited;
-            _allowSprintingWhileSwimming = InheritableBool.Inherited;
+            _allowCrouching = EInheritableBool.Inherited;
+            _allowFlying = EInheritableBool.Inherited;
+            _allowSwimming = EInheritableBool.Inherited;
+            _allowSprinting = EInheritableBool.Inherited;
+            _allowSprintingWhileCrouched = EInheritableBool.Inherited;
+            _allowSprintingWhileFlying = EInheritableBool.Inherited;
+            _allowSprintingWhileSwimming = EInheritableBool.Inherited;
 
             _walkingMultiplier = true;
             _crouchedMovementMultiplier = true;
@@ -94,43 +94,43 @@ namespace Thera.GameModes
             _flyingSprintMultiplier = true;
             _swimmingSprintMultiplier = true;
 
-            _allowVehicleUse = InheritableBool.Inherited;
-            _allowGunPickup = InheritableBool.Inherited;
-            _allowMeleeWeaponPickup = InheritableBool.Inherited;
-            _allowUpgradePickup = InheritableBool.Inherited;
-            _allowHealthPickup = InheritableBool.Inherited;
-            _allowToolPickup = InheritableBool.Inherited;
-            _allowMagicPickup = InheritableBool.Inherited;
-            _allowStageInteraction = InheritableBool.Inherited;
+            _allowVehicleUse = EInheritableBool.Inherited;
+            _allowGunPickup = EInheritableBool.Inherited;
+            _allowMeleeWeaponPickup = EInheritableBool.Inherited;
+            _allowUpgradePickup = EInheritableBool.Inherited;
+            _allowHealthPickup = EInheritableBool.Inherited;
+            _allowToolPickup = EInheritableBool.Inherited;
+            _allowMagicPickup = EInheritableBool.Inherited;
+            _allowStageInteraction = EInheritableBool.Inherited;
 
-            _shieldsEnabled = InheritableBool.Inherited;
+            _shieldsEnabled = EInheritableBool.Inherited;
             _shieldStrengthMultiplier = true;
-            _shieldRecoveryEnabled = InheritableBool.Inherited;
-            _shieldsFixable = InheritableBool.Inherited;
+            _shieldRecoveryEnabled = EInheritableBool.Inherited;
+            _shieldsFixable = EInheritableBool.Inherited;
             _shieldFixWaitSeconds = true;
             _shieldRecoveryWaitSeconds = true;
             _shieldRecoverySeconds = true;
             _shieldBarDecaySeconds = true;
             _overshieldCount = true;
-            _overshieldsRegenerate = InheritableBool.Inherited;
+            _overshieldsRegenerate = EInheritableBool.Inherited;
 
             _deathWaitSeconds = true;
             _waitAmountPerBetrayal = true;
 
-            _radarsEnabled = InheritableBool.Inherited;
+            _radarsEnabled = EInheritableBool.Inherited;
             _radarDistance = true;
-            _enemyWaypoints = InheritableBool.Inherited;
-            _allyWaypoints = InheritableBool.Inherited;
+            _enemyWaypoints = EInheritableBool.Inherited;
+            _allyWaypoints = EInheritableBool.Inherited;
         }
         public void InitDefaultNonInherited()
         {
-            _allowCrouching = InheritableBool.True;
-            _allowFlying = InheritableBool.True;
-            _allowSwimming = InheritableBool.True;
-            _allowSprinting = InheritableBool.True;
-            _allowSprintingWhileCrouched = InheritableBool.True;
-            _allowSprintingWhileFlying = InheritableBool.True;
-            _allowSprintingWhileSwimming = InheritableBool.True;
+            _allowCrouching = EInheritableBool.True;
+            _allowFlying = EInheritableBool.True;
+            _allowSwimming = EInheritableBool.True;
+            _allowSprinting = EInheritableBool.True;
+            _allowSprintingWhileCrouched = EInheritableBool.True;
+            _allowSprintingWhileFlying = EInheritableBool.True;
+            _allowSprintingWhileSwimming = EInheritableBool.True;
 
             _walkingMultiplier = 1.0f;
             _crouchedMovementMultiplier = 1.0f;
@@ -141,33 +141,33 @@ namespace Thera.GameModes
             _flyingSprintMultiplier = 1.0f;
             _swimmingSprintMultiplier = 1.0f;
 
-            _allowVehicleUse = InheritableBool.True;
-            _allowGunPickup = InheritableBool.True;
-            _allowMeleeWeaponPickup = InheritableBool.True;
-            _allowUpgradePickup = InheritableBool.True;
-            _allowHealthPickup = InheritableBool.True;
-            _allowToolPickup = InheritableBool.True;
-            _allowMagicPickup = InheritableBool.True;
-            _allowStageInteraction = InheritableBool.True;
+            _allowVehicleUse = EInheritableBool.True;
+            _allowGunPickup = EInheritableBool.True;
+            _allowMeleeWeaponPickup = EInheritableBool.True;
+            _allowUpgradePickup = EInheritableBool.True;
+            _allowHealthPickup = EInheritableBool.True;
+            _allowToolPickup = EInheritableBool.True;
+            _allowMagicPickup = EInheritableBool.True;
+            _allowStageInteraction = EInheritableBool.True;
 
-            _shieldsEnabled = InheritableBool.True;
+            _shieldsEnabled = EInheritableBool.True;
             _shieldStrengthMultiplier = 1.0f;
-            _shieldRecoveryEnabled = InheritableBool.True;
-            _shieldsFixable = InheritableBool.True;
+            _shieldRecoveryEnabled = EInheritableBool.True;
+            _shieldsFixable = EInheritableBool.True;
             _shieldFixWaitSeconds = 6.0f;
             _shieldRecoveryWaitSeconds = 6.0f;
             _shieldRecoverySeconds = 3.0f;
             _shieldBarDecaySeconds = 0.0f;
             _overshieldCount = 0;
-            _overshieldsRegenerate = InheritableBool.False;
+            _overshieldsRegenerate = EInheritableBool.False;
 
             _deathWaitSeconds = 3.0f;
             _waitAmountPerBetrayal = 3.0f;
 
-            _radarsEnabled = InheritableBool.True;
+            _radarsEnabled = EInheritableBool.True;
             _radarDistance = 100.0f;
-            _enemyWaypoints = InheritableBool.False;
-            _allyWaypoints = InheritableBool.True;
+            _enemyWaypoints = EInheritableBool.False;
+            _allyWaypoints = EInheritableBool.True;
         }
         /// <summary>
         /// child first, parent last order
@@ -187,8 +187,8 @@ namespace Thera.GameModes
             {
                 object fieldValueParent = field.GetValue(parent);
                 object fieldValueChild = field.GetValue(this);
-                if (fieldValueChild is InheritableBool b)
-                    field.SetValue(newTraits, b == InheritableBool.Inherited ? fieldValueParent : fieldValueChild);
+                if (fieldValueChild is EInheritableBool b)
+                    field.SetValue(newTraits, b == EInheritableBool.Inherited ? fieldValueParent : fieldValueChild);
             }
             return newTraits;
         }

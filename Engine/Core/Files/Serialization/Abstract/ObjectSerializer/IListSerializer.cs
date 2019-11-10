@@ -25,9 +25,9 @@ namespace TheraEngine.Core.Files.Serialization
                 int count = TreeNode.Children.Count;
 
                 if (listType.IsArray)
-                    List = Activator.CreateInstance((Type)listType, count) as IList;
+                    List = listType.CreateInstance(count) as IList;
                 else
-                    List = Activator.CreateInstance((Type)listType) as IList;
+                    List = listType.CreateInstance() as IList;
 
                 if (async)
                     Task.Run(() => ReadElements(listType, count)).ContinueWith(t => DoneReadingElements?.Invoke());
@@ -112,9 +112,9 @@ namespace TheraEngine.Core.Files.Serialization
 
             IList list;
             if (type.IsArray)
-                list = Activator.CreateInstance((Type)type, values.Length) as IList;
+                list = type.CreateInstance(values.Length) as IList;
             else
-                list = Activator.CreateInstance((Type)type) as IList;
+                list = type.CreateInstance() as IList;
 
             Parse(list, values, elementType, ser);
 

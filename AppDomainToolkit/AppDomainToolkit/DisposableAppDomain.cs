@@ -103,13 +103,14 @@
                         {
                             try
                             {
+                                GC.Collect();
+                                GC.WaitForPendingFinalizers();
                                 AppDomain.Unload(Domain);
                                 success = true;
                             }
                             catch (CannotUnloadAppDomainException)
                             {
                                 Trace.WriteLine("Couldn't unload AppDomain. Retrying in 1 sec");
-                                GC.Collect();
                                 Thread.Sleep(1);
                             }
                         }

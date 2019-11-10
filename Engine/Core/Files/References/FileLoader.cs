@@ -52,15 +52,16 @@ namespace TheraEngine.Core.Files
         }
         public FileLoader(string filePath, TypeProxy type)
         {
-            if (type.IsAssignableTo(typeof(T)))
-                SubType = type;
-            else
+            if (type != null && !type.IsAssignableTo(typeof(T)))
                 throw new Exception(type.GetFriendlyName() + " is not assignable to " + typeof(T).GetFriendlyName());
+
+            SubType = type;
+
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
             Path = new PathReference
             {
-                Path = filePath
+                Path = string.IsNullOrWhiteSpace(filePath) ? null : filePath
             };
         }
         public FileLoader(string dir, string name, EProprietaryFileFormat format) 
@@ -70,7 +71,7 @@ namespace TheraEngine.Core.Files
         [Browsable(false)]
         public TypeProxy SubType
         {
-            get => _subType;
+            get => _subType ?? (_subType = Engine.DomainProxy.GetTypeFor<T>());
             set
             {
                 if (!(value is null) && value.IsAssignableTo(typeof(T)))
@@ -257,7 +258,7 @@ namespace TheraEngine.Core.Files
                     string ext = System.IO.Path.GetExtension(absolutePath);
                     if (IsThirdPartyImportableExt(ext?.Substring(1)))
                     {
-                        file = Activator.CreateInstance((Type)SubType) as T;
+                        file = SubType.CreateInstance() as T;
                         file.FilePath = absolutePath;
                         file.ManualRead3rdParty(absolutePath);
                         loadedFromFile = true;
@@ -373,9 +374,9 @@ namespace TheraEngine.Core.Files
 
             T file;
             if (args.Length == 0)
-                file = Activator.CreateInstance((Type)SubType) as T;
+                file = SubType.CreateInstance() as T;
             else
-                file = Activator.CreateInstance((Type)SubType, args.Select(x => x.Value)) as T;
+                file = SubType.CreateInstance(args.Select(x => x.Value)) as T;
 
             if (callLoadedEvent)
                 OnLoaded(file);

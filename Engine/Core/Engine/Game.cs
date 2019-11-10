@@ -20,24 +20,24 @@ namespace TheraEngine
     {
         public TGame() { }
 
-        protected LocalizedStringTable _localizedStringTable;
+        public LocalizedStringTable _localizedStringTable;
 
         [TSerialize(nameof(TransitionWorldRef))]
-        protected GlobalFileRef<World> _transitionWorldRef
+        public GlobalFileRef<World> _transitionWorldRef
             = new GlobalFileRef<World>("TransitionWorld.xworld");
 
         [TSerialize(nameof(OpeningWorldRef))]
-        protected GlobalFileRef<World> _openingWorldRef
+        public GlobalFileRef<World> _openingWorldRef
             = new GlobalFileRef<World>("OpeningWorld.xworld");
 
         [TSerialize(nameof(UserSettingsRef))]
-        protected GlobalFileRef<UserSettings> _userSettingsRef;
+        public GlobalFileRef<UserSettings> _userSettingsRef;
 
         [TSerialize(nameof(EngineSettingsOverrideRef))]
-        protected GlobalFileRef<EngineSettings> _engineSettingsRef;
+        public GlobalFileRef<EngineSettings> _engineSettingsRef;
 
         [TSerialize(nameof(DefaultGameModeRef))]
-        protected GlobalFileRef<BaseGameMode> _gameModeRef;
+        public GlobalFileRef<BaseGameMode> _gameModeRef;
 
         private List<GlobalFileRef<World>> _worldCollection;
         public List<GlobalFileRef<World>> WorldCollection

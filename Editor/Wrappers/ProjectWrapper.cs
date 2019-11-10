@@ -43,7 +43,7 @@ namespace TheraEditor.Wrappers
         }
         #endregion
 
-        public ProjectWrapper() : base(_menu) { ResourceRef.LoadInGameDomain = false; }
+        public ProjectWrapper() : base(_menu) { }
         
         public override void EditResource()
         {

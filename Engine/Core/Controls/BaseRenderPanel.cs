@@ -132,14 +132,14 @@ namespace TheraEngine
         {
             base.OnHandleCreated(e);
 
-            Engine.Instance.DomainProxySet += Instance_DomainProxySet;
-            Engine.Instance.DomainProxyUnset += Instance_DomainProxyUnset;
+            Engine.Instance.DomainProxyPostSet += Instance_DomainProxySet;
+            Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
             Instance_DomainProxySet(Engine.DomainProxy);
         }
         protected override void DestroyHandle()
         {
-            Engine.Instance.DomainProxySet -= Instance_DomainProxySet;
-            Engine.Instance.DomainProxyUnset -= Instance_DomainProxyUnset;
+            Engine.Instance.DomainProxyPostSet -= Instance_DomainProxySet;
+            Engine.Instance.DomainProxyPostUnset -= Instance_DomainProxyUnset;
 
             base.DestroyHandle();
         }

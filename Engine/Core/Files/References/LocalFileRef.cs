@@ -31,9 +31,9 @@ namespace TheraEngine.Core.Files
         public LocalFileRef(string filePath, TypeProxy type)
             : base(filePath, type) { }
         public LocalFileRef(string filePath, T file)
-            : base(filePath, file) { }
+            : base(file, filePath) { }
         public LocalFileRef(string filePath, Func<T> createIfNotFound)
-            : base(filePath, createIfNotFound) { }
+            : base(createIfNotFound, filePath) { }
         public LocalFileRef(string dir, string name, EProprietaryFileFormat format)
             : base(dir, name, format) { }
         public LocalFileRef(string dir, string name, EProprietaryFileFormat format, T file)

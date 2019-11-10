@@ -32,7 +32,7 @@ namespace TheraEditor.Windows.Forms
             Engine.PrintLine("Set active render form: " + ActiveRenderForm?.ToString() ?? "null");
         }
         public static GlobalFileRef<EditorSettings> GetSettingsRef() 
-            => Instance.Project?.EditorSettingsOverrideRef ?? DefaultSettingsRef;
+            => Instance.Project?.EditorSettingsOverrideRef ?? Instance.DefaultSettingsRef;
         public static EditorSettings GetSettings()
         {
             var fref = GetSettingsRef();

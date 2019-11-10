@@ -126,7 +126,7 @@ namespace TheraEditor.Wrappers
         public abstract IFileObject SingleInstance { get; set; }
         public abstract IFileObject GetNewInstance();
         public abstract Task<IFileObject> GetNewInstanceAsync();
-        public abstract IGlobalFileRef SingleInstanceRef { get; }
+        public abstract IFileRef SingleInstanceRef { get; }
         
         public void Reload()
         {

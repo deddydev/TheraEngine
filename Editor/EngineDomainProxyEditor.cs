@@ -113,12 +113,12 @@ namespace TheraEditor
             {
                 if (match == typeof(ThirdPartyFileWrapper))
                 {
-                    NodeWrapperAttribute wrapper = asmType.GetCustomAttribute<NodeWrapperAttribute>();
+                    TreeFileTypeAttribute wrapper = asmType.GetCustomAttribute<TreeFileTypeAttribute>();
                     string ext = wrapper?.ThirdPartyExtension;
                     if (!string.IsNullOrWhiteSpace(ext))
                         ThirdPartyWrappers[ext] = asmType;
                     else
-                        Engine.LogWarning($"{asmType.GetFriendlyName()} is derived from '{nameof(ThirdPartyFileWrapper)}' and needs to specify a '{nameof(NodeWrapperAttribute)}' attribute with {nameof(NodeWrapperAttribute.ThirdPartyExtension)} set to a valid extension.");
+                        Engine.LogWarning($"{asmType.GetFriendlyName()} is derived from '{nameof(ThirdPartyFileWrapper)}' and needs to specify a '{nameof(TreeFileTypeAttribute)}' attribute with {nameof(TreeFileTypeAttribute.ThirdPartyExtension)} set to a valid extension.");
                 }
                 else
                 {

@@ -5,7 +5,11 @@ using System.Collections.ObjectModel;
 
 namespace TheraEngine.Core.Reflection
 {
-    public class ProxyList<T> : ReflectionProxy, IList<T>
+    public interface IListProxy<T> : IList<T>
+    {
+
+    }
+    public class ListProxy<T> : ReflectionProxy, IListProxy<T>
     {
         private readonly List<T> _list;
 
@@ -14,7 +18,7 @@ namespace TheraEngine.Core.Reflection
         //     Initializes a new instance of the System.Collections.Generic.List`1 class that
         //     is empty and has the default initial capacity.
         //[TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries")]
-        public ProxyList()
+        public ListProxy()
             => _list = new List<T>();
         //
         // Summary:
@@ -29,7 +33,7 @@ namespace TheraEngine.Core.Reflection
         //   T:System.ArgumentOutOfRangeException:
         //     capacity is less than 0.
         //[TargetedPatchingOptOut("Performance critical to inline across NGen image boundaries")]
-        public ProxyList(int capacity)
+        public ListProxy(int capacity)
             => _list = new List<T>(capacity);
         //
         // Summary:
@@ -44,7 +48,7 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentNullException:
         //     collection is null.
-        public ProxyList(IEnumerable<T> collection)
+        public ListProxy(IEnumerable<T> collection)
             => _list = new List<T>(collection);
 
         //
@@ -674,7 +678,7 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentException:
         //     index and count do not denote a valid range of elements in the System.Collections.Generic.List`1.
-        public ProxyList<T> GetRange(int index, int count)
+        public ListProxy<T> GetRange(int index, int count)
             => _list.GetRange(index, count);
         //
         // Summary:
@@ -1057,7 +1061,7 @@ namespace TheraEngine.Core.Reflection
         public bool TrueForAll(Predicate<T> match) 
             => _list.TrueForAll(match);
 
-        public static implicit operator ProxyList<T>(List<T> list) => new ProxyList<T>(list);
-        public static explicit operator List<T>(ProxyList<T> proxy) => proxy?._list;
+        public static implicit operator ListProxy<T>(List<T> list) => new ListProxy<T>(list);
+        public static explicit operator List<T>(ListProxy<T> proxy) => proxy?._list;
     }
 }

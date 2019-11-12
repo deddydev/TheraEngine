@@ -40,12 +40,12 @@ namespace TheraEditor.Windows.Forms
     /// <summary>
     /// Extended TreeView made specifically for synchronization with file directories.
     /// </summary>
-    public class ResourceTree : TreeViewEx<BaseWrapper>, IMappableShortcutControl
+    public class ResourceTree : TreeViewEx<ContentTreeNode>, IMappableShortcutControl
     {
         private ToolTip _labelToolTip;
         private FileSystemWatcher _contentWatcher;
         private bool _allowIcons = true;
-        private Dictionary<string, BaseFileWrapper> _externallyModifiedNodes = new Dictionary<string, BaseFileWrapper>();
+        private Dictionary<string, FileTreeNode> _externallyModifiedNodes = new Dictionary<string, FileTreeNode>();
 
         public event EventHandler SelectionChanged;
 
@@ -61,16 +61,16 @@ namespace TheraEditor.Windows.Forms
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Browsable(false)]
-        public new BaseWrapper SelectedNode
+        public new ContentTreeNode SelectedNode
         {
-            get => base.SelectedNode as BaseWrapper;
+            get => base.SelectedNode as ContentTreeNode;
             set
             {
                 if (base.SelectedNode == value)
                     return;
 
                 base.SelectedNode = value;
-                SelectedNodes = new List<BaseWrapper>() { value };
+                SelectedNodes = new List<ContentTreeNode>() { value };
             }
         }
         private static ImageList _imgList;
@@ -91,11 +91,11 @@ namespace TheraEditor.Windows.Forms
                     _imgList.Images.Add(nameof(Resources.OpenFolder), Resources.OpenFolder);
                     _imgList.Images.Add(nameof(Resources.LockedFolder), Resources.GenericFile);
                     
-                    Type baseFileWrapperType = typeof(BaseFileWrapper);
+                    Type baseFileWrapperType = typeof(FileTreeNode);
                     var types = AppDomainHelper.ExportedTypes.Where(type => type.IsAssignableTo(baseFileWrapperType));
                     foreach (TypeProxy type in types)
                     {
-                        NodeWrapperAttribute wrapper = type.GetCustomAttribute<NodeWrapperAttribute>();
+                        TreeFileTypeAttribute wrapper = type.GetCustomAttribute<TreeFileTypeAttribute>();
                         if (wrapper is null)
                             continue;
 
@@ -187,8 +187,8 @@ namespace TheraEditor.Windows.Forms
                 }
                 else if (yNull)
                     return -1;
-                bool xFile = x is BaseFileWrapper;
-                bool yFile = y is BaseFileWrapper;
+                bool xFile = x is FileTreeNode;
+                bool yFile = y is FileTreeNode;
                 if (xFile == yFile)
                     return x.Text.CompareTo(y.Text);
                 else if (xFile)
@@ -213,7 +213,7 @@ namespace TheraEditor.Windows.Forms
             {
                 string dir = isDir.Value ? path : Path.GetDirectoryName(path);
 
-                BaseWrapper b = BaseWrapper.Wrap(dir);
+                ContentTreeNode b = ContentTreeNode.Wrap(dir);
                 if (b != null)
                 {
                     Nodes.Add(b);
@@ -330,7 +330,7 @@ namespace TheraEditor.Windows.Forms
             if (SelectedNodes.Count > 0)
             {
                 BeginUpdate();
-                foreach (BaseWrapper b in new List<BaseWrapper>(SelectedNodes))
+                foreach (ContentTreeNode b in new List<ContentTreeNode>(SelectedNodes))
                     b.Delete();
                 EndUpdate();
                 return true;
@@ -340,11 +340,11 @@ namespace TheraEditor.Windows.Forms
         [Description("Selects all nodes that are currently visible.")]
         public bool SelectAllVisibleNodes()
         {
-            List<BaseWrapper> nodes = new List<BaseWrapper>();
+            List<ContentTreeNode> nodes = new List<ContentTreeNode>();
             TreeNode node = Nodes[0];
             while (node != null)
             {
-                nodes.Add(node as BaseWrapper);
+                nodes.Add(node as ContentTreeNode);
                 node = node.NextVisibleNode;
             }
             SelectedNodes = nodes;
@@ -490,21 +490,21 @@ namespace TheraEditor.Windows.Forms
             get => _contentWatcher.EnableRaisingEvents;
             set => _contentWatcher.EnableRaisingEvents = value;
         }
-        public BaseWrapper GetNode(string path)
+        public ContentTreeNode GetNode(string path)
         {
             TreeNode[] changedNodes = Nodes.Find(path, true);
             if (changedNodes.Length == 0)
                 return null;
             if (changedNodes.Length > 1)
                 Engine.PrintLine("More than one node with the path " + path);
-            return changedNodes[0] as BaseWrapper;
+            return changedNodes[0] as ContentTreeNode;
         }
-        public BaseWrapper FindOrCreatePath(string path)
+        public ContentTreeNode FindOrCreatePath(string path)
         {
-            BaseWrapper current;
+            ContentTreeNode current;
             try
             {
-                current = Nodes[0] as BaseWrapper;
+                current = Nodes[0] as ContentTreeNode;
                 string projectFilePath = current.FilePath;
                 string currentPath = projectFilePath;
                 string relativePath = path.MakeAbsolutePathRelativeTo(projectFilePath);
@@ -528,12 +528,12 @@ namespace TheraEditor.Windows.Forms
                             //Just end now instead of expanding and continuing
                             //current.Expand();
                             //bool? isDir = currentPath.IsDirectory();
-                            if (current is FolderWrapper && current.Nodes.Count == 0 && Directory.GetFileSystemEntries(current.FilePath).Length > 0)
+                            if (current is FolderTreeNode && current.Nodes.Count == 0 && Directory.GetFileSystemEntries(current.FilePath).Length > 0)
                                 current.Nodes.Add("...");
                             break;
                         }
 
-                        foreach (BaseWrapper searchNode in current.Nodes)
+                        foreach (ContentTreeNode searchNode in current.Nodes)
                             if (searchNode.Text == name)
                             {
                                 current = searchNode;
@@ -545,13 +545,13 @@ namespace TheraEditor.Windows.Forms
                             continue;
 
                         //Folder or file not found. Add it.
-                        BaseWrapper node = BaseWrapper.Wrap(currentPath);
+                        ContentTreeNode node = ContentTreeNode.Wrap(currentPath);
                         if (node is null)
                         {
                             Engine.LogWarning($"Could not wrap path {currentPath}");
                             return null;
                         }
-                        if (!(node is FolderWrapper))
+                        if (!(node is FolderTreeNode))
                         {
                             string key = GetOrAddIconFromPath(currentPath);
                             node.ImageKey = node.SelectedImageKey = node.StateImageKey = key;
@@ -578,14 +578,14 @@ namespace TheraEditor.Windows.Forms
 
             //Engine.PrintLine("Renamed '{0}' to '{1}'", e.OldFullPath, e.FullPath);
 
-            BaseWrapper node = GetNode(e.OldFullPath);
+            ContentTreeNode node = GetNode(e.OldFullPath);
             if (node != null)
             {
                 node.Text = Path.GetFileName(e.FullPath);
                 node.FilePath = e.FullPath;
-                if (node is FolderWrapper f && f.IsPopulated)
-                    foreach (BaseWrapper b in f.Nodes)
-                        b.FixPath(f.FilePath);
+                if (node is FolderTreeNode f && f.IsPopulated)
+                    foreach (ContentTreeNode b in f.Nodes)
+                        b.SetPath(f.FilePath);
             }
         }
         private async void ContentWatcherUpdate(object sender, FileSystemEventArgs e)
@@ -607,7 +607,7 @@ namespace TheraEditor.Windows.Forms
                     GetNode(e.FullPath)?.Remove();
                     break;
                 case WatcherChangeTypes.Created:
-                    BaseWrapper bw = FindOrCreatePath(e.FullPath);
+                    ContentTreeNode bw = FindOrCreatePath(e.FullPath);
                     if (bw != null)
                     {
                         bw.EnsureVisible();
@@ -618,8 +618,8 @@ namespace TheraEditor.Windows.Forms
 
                     //The change of a file or folder. The types of changes include: 
                     //changes to size, attributes, security settings, last write, and last access time.
-                    BaseWrapper changedNode = GetNode(e.FullPath);
-                    if (changedNode is BaseFileWrapper wrapper && wrapper.IsLoaded)
+                    ContentTreeNode changedNode = GetNode(e.FullPath);
+                    if (changedNode is FileTreeNode wrapper && wrapper.IsLoaded)
                     {
                         if (wrapper.AlwaysReload || !wrapper.SingleInstance.EditorState.HasChanges)
                             wrapper.Reload();
@@ -660,7 +660,7 @@ namespace TheraEditor.Windows.Forms
                     break;
             }
         }
-        private void AddExternallyModifiedNode(BaseFileWrapper n)
+        private void AddExternallyModifiedNode(FileTreeNode n)
         {
             n.ExternallyModified = true;
             if (!_externallyModifiedNodes.ContainsKey(n.FullPath))
@@ -671,12 +671,12 @@ namespace TheraEditor.Windows.Forms
         #region Label Edit
         protected override void OnRequestDisplayText(NodeRequestTextEventArgs e)
         {
-            if (e.Node is BaseFileWrapper b)
+            if (e.Node is FileTreeNode b)
                 e.Label = e.Label + Path.GetExtension(b.FilePath);
         }
         protected override void OnRequestEditText(NodeRequestTextEventArgs e)
         {
-            if (e.Node is BaseFileWrapper && !string.IsNullOrEmpty(e.Node.Text))
+            if (e.Node is FileTreeNode && !string.IsNullOrEmpty(e.Node.Text))
             {
                 int i = e.Node.Text.LastIndexOf('.');
                 if (i >= 0)
@@ -704,9 +704,9 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnAfterLabelEdit(e);
 
-            if (e.Node is BaseWrapper b)
+            if (e.Node is ContentTreeNode b)
             {
-                bool isFile = b is BaseFileWrapper;
+                bool isFile = b is FileTreeNode;
                 string dir = Path.GetDirectoryName(b.FilePath);
                 string newName = b.Text;
                 string newPath = dir + "\\" + b.Text;
@@ -770,10 +770,10 @@ namespace TheraEditor.Windows.Forms
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public BaseWrapper[] DraggedNodes { get; private set; }
+        public ContentTreeNode[] DraggedNodes { get; private set; }
 
-        private BaseWrapper _dropNode = null;
-        private BaseWrapper _previousDropNode = null;
+        private ContentTreeNode _dropNode = null;
+        private ContentTreeNode _previousDropNode = null;
         private Timer _dragTimer = new Timer();
         private ImageList _draggingImageList = new ImageList();
         
@@ -782,7 +782,7 @@ namespace TheraEditor.Windows.Forms
             if (SelectedNodes.Count == 0)
                 return;
             
-            DraggedNodes = new BaseWrapper[SelectedNodes.Count];
+            DraggedNodes = new ContentTreeNode[SelectedNodes.Count];
             SelectedNodes.CopyTo(DraggedNodes);
             SelectedNodes.Clear();
 
@@ -847,7 +847,7 @@ namespace TheraEditor.Windows.Forms
             Point clientPoint = PointToClient(screenPoint);
             DragHelper.ImageList_DragMove(clientPoint.X - Left, clientPoint.Y - Top);
             
-            _dropNode = GetNodeAt(PointToClient(screenPoint)) as BaseWrapper;
+            _dropNode = GetNodeAt(PointToClient(screenPoint)) as ContentTreeNode;
 
             string[] paths = e.Data.GetData(DataFormats.FileDrop) as string[];
             if (_dropNode is null && (paths is null || paths.Length == 0))
@@ -897,7 +897,7 @@ namespace TheraEditor.Windows.Forms
                 else
                 {
                     BeginUpdate();
-                    foreach (BaseWrapper draggedNode in DraggedNodes)
+                    foreach (ContentTreeNode draggedNode in DraggedNodes)
                         if (draggedNode != _dropNode)
                             _dropNode.HandleNodeDrop(draggedNode, copy);
                     EndUpdate();
@@ -1067,8 +1067,8 @@ namespace TheraEditor.Windows.Forms
         #endregion
 
         #region Multiselect
-        protected List<BaseWrapper> _selectedNodes = new List<BaseWrapper>();
-        protected BaseWrapper _lastNode, _firstNode;
+        protected List<ContentTreeNode> _selectedNodes = new List<ContentTreeNode>();
+        protected ContentTreeNode _lastNode, _firstNode;
         //protected override void OnPaint(PaintEventArgs e)
         //{
         //    using (SolidBrush BackGroundBrush = new SolidBrush(BackColor))
@@ -1124,7 +1124,7 @@ namespace TheraEditor.Windows.Forms
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Browsable(false)]
-        public List<BaseWrapper> SelectedNodes
+        public List<ContentTreeNode> SelectedNodes
         {
             get => _selectedNodes;
             set
@@ -1143,7 +1143,7 @@ namespace TheraEditor.Windows.Forms
             
             bool bControl = (ModifierKeys == Keys.Control && DraggedNodes is null);
             bool bShift = (ModifierKeys == Keys.Shift && DraggedNodes is null);
-            BaseWrapper node = e.Node as BaseWrapper;
+            ContentTreeNode node = e.Node as ContentTreeNode;
 
             // selecting twice the node while pressing CTRL ?
             if (bControl && _selectedNodes.Contains(node))
@@ -1166,7 +1166,7 @@ namespace TheraEditor.Windows.Forms
         {
             bool bControl = (ModifierKeys == Keys.Control && DraggedNodes is null);
             bool bShift = (ModifierKeys == Keys.Shift && DraggedNodes is null);
-            BaseWrapper node = (BaseWrapper)e.Node;
+            ContentTreeNode node = (ContentTreeNode)e.Node;
 
             BeginUpdate();
             if (bControl)
@@ -1187,10 +1187,10 @@ namespace TheraEditor.Windows.Forms
                 // SHIFT is pressed
                 if (bShift)
                 {
-                    Queue<BaseWrapper> myQueue = new Queue<BaseWrapper>();
+                    Queue<ContentTreeNode> myQueue = new Queue<ContentTreeNode>();
 
-                    BaseWrapper uppernode = _firstNode;
-                    BaseWrapper bottomnode = node;
+                    ContentTreeNode uppernode = _firstNode;
+                    ContentTreeNode bottomnode = node;
                     // case 1 : begin and end nodes are parent
                     bool bParent = IsAncestor(_firstNode, e.Node); // is m_firstNode parent (direct or not) of e.Node
                     if (!bParent)
@@ -1198,7 +1198,7 @@ namespace TheraEditor.Windows.Forms
                         bParent = IsAncestor(bottomnode, uppernode);
                         if (bParent) // swap nodes
                         {
-                            BaseWrapper t = uppernode;
+                            ContentTreeNode t = uppernode;
                             uppernode = bottomnode;
                             bottomnode = t;
                         }
@@ -1207,7 +1207,7 @@ namespace TheraEditor.Windows.Forms
                     //bParent may have been modifed under !bParent
                     if (bParent)
                     {
-                        BaseWrapper n = bottomnode;
+                        ContentTreeNode n = bottomnode;
                         while (n != uppernode.Parent)
                         {
                             if (!_selectedNodes.Contains(n)) // new node ?
@@ -1225,20 +1225,20 @@ namespace TheraEditor.Windows.Forms
                             int nIndexBottom = bottomnode.Index;
                             if (nIndexBottom < nIndexUpper) // reversed?
                             {
-                                BaseWrapper t = uppernode;
+                                ContentTreeNode t = uppernode;
                                 uppernode = bottomnode;
                                 bottomnode = t;
                                 nIndexUpper = uppernode.Index;
                                 nIndexBottom = bottomnode.Index;
                             }
 
-                            BaseWrapper n = uppernode;
+                            ContentTreeNode n = uppernode;
                             while (nIndexUpper <= nIndexBottom)
                             {
                                 if (!_selectedNodes.Contains(n)) // new node ?
                                     myQueue.Enqueue(n);
 
-                                n = (BaseWrapper)n.NextNode;
+                                n = (ContentTreeNode)n.NextNode;
 
                                 nIndexUpper++;
                             } // end while
@@ -1316,7 +1316,7 @@ namespace TheraEditor.Windows.Forms
             Color back = e.Node.BackColor;
             if (back == Color.Empty)
                 back = BackColor;
-            if (SelectedNodes.Contains(e.Node as BaseWrapper))
+            if (SelectedNodes.Contains(e.Node as ContentTreeNode))
             {
                 e.Graphics.FillRectangle(new SolidBrush(HighlightBackColor), e.Bounds);
                 ControlPaint.DrawFocusRectangle(e.Graphics, e.Bounds, HighlightTextColor, HighlightBackColor);
@@ -1350,17 +1350,17 @@ namespace TheraEditor.Windows.Forms
         
         protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
         {
-            ((BaseWrapper)e.Node).OnExpand();
+            ((ContentTreeNode)e.Node).OnExpand();
             base.OnBeforeExpand(e);
         }
         protected override void OnBeforeCollapse(TreeViewCancelEventArgs e)
         {
-            ((BaseWrapper)e.Node).OnCollapse();
+            ((ContentTreeNode)e.Node).OnCollapse();
             base.OnBeforeCollapse(e);
         }
         protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node is BaseFileWrapper f)
+            if (e.Node is FileTreeNode f)
                 f.EditResource();
         }
         protected override void WndProc(ref Message m)
@@ -1369,7 +1369,7 @@ namespace TheraEditor.Windows.Forms
             {
                 int x = (int)m.LParam & 0xFFFF, y = (int)m.LParam >> 16;
 
-                if (GetNodeAt(x, y) is BaseWrapper n)
+                if (GetNodeAt(x, y) is ContentTreeNode n)
                 {
                     Rectangle r = n.Bounds;
                     r.X -= 25; r.Width += 25;
@@ -1385,7 +1385,7 @@ namespace TheraEditor.Windows.Forms
             {
                 int x = (int)m.LParam & 0xFFFF, y = (int)m.LParam >> 16;
 
-                BaseWrapper selected = SelectedNode;
+                ContentTreeNode selected = SelectedNode;
                 if (AllowContextMenus && selected != null && selected.ContextMenuStrip != null)
                 {
                     Rectangle r = selected.Bounds;

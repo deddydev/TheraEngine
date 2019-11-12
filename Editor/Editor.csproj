@@ -1,8 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\build\Microsoft.CodeAnalysis.Analyzers.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\build\Microsoft.CodeAnalysis.Analyzers.props')" />
-  <Import Project="..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props')" />
-  <Import Project="..\packages\Microsoft.Build.Locator.1.2.6\build\Microsoft.Build.Locator.props" Condition="Exists('..\packages\Microsoft.Build.Locator.1.2.6\build\Microsoft.Build.Locator.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -107,7 +104,8 @@
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>LogoIcon.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>TheraEditor.Program</StartupObject>
@@ -490,6 +488,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContentTree\Core\TheraMenuOption.cs" />
+    <Compile Include="ContentTree\Wrappers\BaseFileWrapper.cs" />
     <Compile Include="Core\ZipFileWithProgress.cs" />
     <Compile Include="Core\Thumbnails.cs" />
     <Compile Include="EditorWorldManager.cs" />
@@ -1270,30 +1270,30 @@
     <Compile Include="Windows\Controls\TransparentPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Wrappers\Animation\PropAnimVec2Wrapper.cs" />
-    <Compile Include="Wrappers\FileEditorWrapperBase.cs" />
-    <Compile Include="Wrappers\Core\NonGenericFileWrapper.cs" />
-    <Compile Include="Wrappers\GenericTextFileWrapper.cs" />
-    <Compile Include="Wrappers\UserInterfaceWrapper.cs" />
-    <Compile Include="Wrappers\Code\CSProjWrapper.cs" />
-    <Compile Include="Wrappers\Code\SolutionWrapper.cs" />
-    <Compile Include="Wrappers\Core\BaseWrappers.cs" />
-    <Compile Include="Wrappers\Core\BaseFileWrapper.cs" />
-    <Compile Include="Wrappers\ActorWrapper.cs" />
-    <Compile Include="Wrappers\Core\ThirdPartyFileWrapper.cs" />
-    <Compile Include="Wrappers\Core\GenericFileWrapper.cs" />
-    <Compile Include="Wrappers\Models\ColladaWrapper.cs" />
-    <Compile Include="Wrappers\Scripting\CSharpWrapper.cs" />
-    <Compile Include="Wrappers\Scripting\GLSLWrapper.cs" />
-    <Compile Include="Wrappers\Models\SkeletalModelWrapper.cs" />
-    <Compile Include="Wrappers\Models\StaticModelWrapper.cs" />
-    <Compile Include="Wrappers\Scripting\PythonWrapper.cs" />
-    <Compile Include="Wrappers\Animation\PropAnimFloatWrapper.cs" />
-    <Compile Include="Wrappers\Models\MaterialWrapper.cs" />
-    <Compile Include="Wrappers\ProjectWrapper.cs" />
-    <Compile Include="Wrappers\WorldWrapper.cs" />
-    <Compile Include="Wrappers\Core\FolderWrapper.cs" />
-    <Compile Include="Wrappers\Core\FileWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Animation\PropAnimVec2Wrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\FileEditorWrapperBase.cs" />
+    <Compile Include="ContentTree\Wrappers\FileWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\GenericTextFileWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Misc\UserInterfaceWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Code\CSProjWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Code\SolutionWrapper.cs" />
+    <Compile Include="ContentTree\Core\ContentTreeNode.cs" />
+    <Compile Include="ContentTree\Core\FileTreeNode.cs" />
+    <Compile Include="ContentTree\Wrappers\Misc\ActorWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\ThirdPartyFileWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\DefaultFileWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Models\ColladaWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Scripting\CSharpWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Scripting\GLSLWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Models\SkeletalModelWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Models\StaticModelWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Scripting\PythonWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Animation\PropAnimFloatWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Models\MaterialWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Misc\ProjectWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\Misc\WorldWrapper.cs" />
+    <Compile Include="ContentTree\Core\FolderTreeNode.cs" />
+    <Compile Include="ContentTree\Wrappers\FileWrapper{T}.cs" />
     <EmbeddedResource Include="ThirdParty\Graphing\PlotterGraphEx.resx">
       <DependentUpon>PlotterGraphEx.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -1568,7 +1568,6 @@
     <None Include="Resources\ProjectFile.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LogoIcon.ico" />
     <Content Include="Resources\TheraLogo.png" />
   </ItemGroup>
   <ItemGroup>
@@ -1603,27 +1602,11 @@
   <ItemGroup>
     <None Include="Resources\PythonIcon.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.2.6\build\Microsoft.Build.Locator.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.2.6\build\Microsoft.Build.Locator.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.2.6\build\Microsoft.Build.Locator.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.2.6\build\Microsoft.Build.Locator.targets'))" />
-    <Error Condition="!Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.3.3.1\build\Microsoft.Net.Compilers.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\build\Microsoft.CodeAnalysis.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.7\build\Microsoft.CodeAnalysis.Analyzers.props'))" />
-  </Target>
-  <Import Project="..\packages\Microsoft.Build.Locator.1.2.6\build\Microsoft.Build.Locator.targets" Condition="Exists('..\packages\Microsoft.Build.Locator.1.2.6\build\Microsoft.Build.Locator.targets')" />
-  <Import Project="..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

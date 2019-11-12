@@ -40,12 +40,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
                 else
                 {
-                    BaseWrapper[] nodes = Editor.Instance.ContentTree.DraggedNodes;
+                    ContentTreeNode[] nodes = Editor.Instance.ContentTree.DraggedNodes;
                     if (nodes.Length > 0)
                     {
-                        BaseWrapper node = nodes[0];
+                        ContentTreeNode node = nodes[0];
                         if (node != null &&
-                            node is BaseFileWrapper file && 
+                            node is FileTreeNode file && 
                             !string.IsNullOrWhiteSpace(node.FilePath))
                         {
                             if (file.FileType is null || file.FileType.IsAssignableFrom(r.ReferencedType))

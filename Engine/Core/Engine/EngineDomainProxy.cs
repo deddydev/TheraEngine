@@ -83,11 +83,11 @@ namespace TheraEngine.Core
             "AppDomain: "           + AppDomain.CurrentDomain.FriendlyName
             + Environment.NewLine;
 
-        public ProxyList<TypeProxy> GetExportedTypes()
+        public ListProxy<TypeProxy> GetExportedTypes()
         {
             AppDomain domain = AppDomain.CurrentDomain;
             Assembly[] assemblies = domain.GetAssemblies();
-            return new ProxyList<TypeProxy>(assemblies.Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes().Select(r => TypeProxy.Get(r))).Distinct());
+            return new ListProxy<TypeProxy>(assemblies.Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes().Select(r => TypeProxy.Get(r))).Distinct());
         }
 
         public void SponsorObject(object obj) 

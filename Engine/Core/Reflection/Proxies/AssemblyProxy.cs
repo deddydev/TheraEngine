@@ -25,8 +25,8 @@ namespace TheraEngine.Core.Reflection
         private AssemblyProxy(Assembly value) : base() => Value = value;
 
         public bool IsDynamic => Value.IsDynamic;
-        public ProxyList<TypeProxy> GetExportedTypes()
-            => new ProxyList<TypeProxy>(Value.GetExportedTypes().Select(x => TypeProxy.Get(x)));
+        public ListProxy<TypeProxy> GetExportedTypes()
+            => new ListProxy<TypeProxy>(Value.GetExportedTypes().Select(x => TypeProxy.Get(x)));
 
         //
         // Summary:

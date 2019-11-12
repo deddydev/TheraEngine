@@ -543,8 +543,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.TypeLoadException:
         //     A custom attribute type cannot be loaded.
-        public virtual ProxyList<T> GetCustomAttributes<T>() where T : Attribute
-            => new ProxyList<T>(Value.GetCustomAttributes<T>());
+        public virtual ListProxy<T> GetCustomAttributes<T>() where T : Attribute
+            => new ListProxy<T>(Value.GetCustomAttributes<T>());
         //
         // Summary:
         //     Retrieves a collection of custom attributes that are applied to a specified member.

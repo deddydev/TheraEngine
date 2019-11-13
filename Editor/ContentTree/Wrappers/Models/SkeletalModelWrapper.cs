@@ -31,7 +31,7 @@ namespace TheraEditor.Wrappers
 
         private ModelEditorForm _form;
 
-        public override async void EditResource()
+        public override async void Edit()
         {
             if (_form is null || _form.Disposing || _form.IsDisposed)
             {

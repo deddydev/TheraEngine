@@ -28,7 +28,7 @@ namespace TheraEditor.Wrappers
 
         public GenericTextFileWrapper() : base() { }
 
-        public override void EditResource()
+        public override void Edit()
             => DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, Resource);
     }
 }

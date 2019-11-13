@@ -11,26 +11,19 @@ namespace TheraEditor.Wrappers
 {
     public class DefaultFileWrapper : BaseFileWrapper
     {
-        public DefaultFileWrapper() : base() { }
-        public DefaultFileWrapper(ContextMenuStrip menu) : base(menu) { }
-        public DefaultFileWrapper(string path) : base()
-        {
-            Text = Path.GetFileName(path);
-            FilePath = Name = path;
-        }
-        public override IFileObject SingleInstance { get => null; set { } }
         public override bool IsLoaded => false;
         public override TypeProxy FileType => null;
-        public override IFileRef SingleInstanceRef => throw new NotImplementedException();
-        public override IFileObject GetNewInstance() => null;
-        public override Task<IFileObject> GetNewInstanceAsync() => null;
-        protected internal override void SetPath(string parentFolderPath) { }
+        public IFileObject SingleInstance { get => SingleInstanceRef.File; set => SingleInstanceRef.File = value; }
+        public IFileRef SingleInstanceRef { get; } = new LocalFileRef<IFileObject>();
+        public IFileObject GetNewInstance() => null;
+        public Task<IFileObject> GetNewInstanceAsync() => null;
+        public override IFileObject GetFile() => SingleInstance;
 
         //private Process _runningProcess;
         //private string _processName;
 
         //Let Windows decide how the file should be edited
-        public override void EditResource()
+        public override void Edit()
         {
             try
             {

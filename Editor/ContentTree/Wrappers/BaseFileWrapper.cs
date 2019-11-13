@@ -17,15 +17,23 @@ namespace TheraEditor.Wrappers
         bool IsLoaded { get; }
         IFileObject File { get; }
 
-        void EditResource();
+        void Edit();
     }
     public abstract class BaseFileWrapper : TObjectSlim, IBaseFileWrapper
     {
+        public event Action FilePathChanged;
+        protected void OnFilePathChanged() => FilePathChanged?.Invoke();
+
+        public TheraMenu Menu { get; set; }
         public abstract TypeProxy FileType { get; }
         public virtual string FilePath { get; set; }
         public IListProxy<ITheraMenuItem> MenuItems { get; set; }
         public abstract bool IsLoaded { get; }
+        public bool AlwaysReload { get; set; } = false;
+        public bool ExternallyModified { get; set; } = false;
+        IFileObject IBaseFileWrapper.File => GetFile();
 
-        public abstract void EditResource();
+        public abstract IFileObject GetFile();
+        public abstract void Edit();
     }
 }

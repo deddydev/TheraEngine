@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheraEditor.Windows.Forms;
+using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 
@@ -50,7 +52,7 @@ namespace TheraEditor.Wrappers
             }
         }
 
-        public override async void EditResource()
+        public override async void Edit()
         {
             var file = await SingleInstanceRef.GetInstanceAsync();
             if (file is null)

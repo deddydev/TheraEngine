@@ -12,7 +12,7 @@ namespace TheraEditor.Wrappers
         public FileEditorWrapperBase() : base() { }
         
         public TEditor FileEditor { get; private set; }
-        public override async void EditResource()
+        public override async void Edit()
         {
             if (FileEditor is null)
             {

@@ -45,7 +45,7 @@ namespace TheraEditor.Wrappers
 
         public ProjectWrapper() : base(_menu) { }
         
-        public override void EditResource()
+        public override void Edit()
         {
             Editor.Instance.LoadProject(ResourceRef.Path.Path);
         }

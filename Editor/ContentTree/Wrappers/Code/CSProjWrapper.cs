@@ -57,7 +57,7 @@ namespace TheraEditor.Wrappers
                 "Finished compiling project.",
                 async (p, c) => await project.CompileAsync());
         }
-        public override async void EditResource()
+        public override async void Edit()
         {
             if (Project is null)
                 Project = await XMLSchemaDefinition<MSBuild.Project>.ImportAsync(FilePath);

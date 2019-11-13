@@ -119,6 +119,9 @@ namespace TheraEditor.Wrappers
             //}
             //else
             //    ImageIndex = SelectedImageIndex = 0;
+
+            Text = Path.GetFileName(path);
+            FilePath = Name = path;
         }
 
         public abstract TypeProxy FileType { get; }

@@ -30,7 +30,7 @@ namespace TheraEditor.Wrappers
 
         public WorldWrapper() : base() { }
 
-        public override void EditResource()
+        public override void Edit()
         {
             Editor.Instance.TrySetWorld(ResourceRef);
 

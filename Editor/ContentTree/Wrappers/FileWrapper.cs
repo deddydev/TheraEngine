@@ -9,7 +9,6 @@ namespace TheraEditor.Wrappers
     public class FileWrapper : BaseFileWrapper
     {
         public FileWrapper() : base() { }
-        public FileWrapper(ContextMenuStrip menu) : base(menu) { }
         public FileWrapper(TypeProxy t) => SetFileType(t);
 
         private TypeProxy _fileType;

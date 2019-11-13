@@ -26,7 +26,7 @@ namespace TheraEditor.Wrappers
         }
         #endregion
 
-        public override async void EditResource()
+        public override async void Edit()
         {
             ModelEditorForm d = new ModelEditorForm();
             d.Show();

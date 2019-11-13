@@ -14,6 +14,7 @@ namespace TheraEngine.Core.Files
         bool StoredInternally { get; }
         void UnloadReference();
         bool LoadAttempted { get; }
+        TypeProxy SubType { get; set; }
 
         IFileObject GetInstance();
         Task<IFileObject> GetInstanceAsync();

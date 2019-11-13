@@ -42,14 +42,20 @@ namespace TheraEditor.Wrappers
 
         public new ResourceTree TreeView => (ResourceTree)base.TreeView;
         public new ContentTreeNode Parent => base.Parent as ContentTreeNode; //Parent may be null
+
         /// <summary>
         /// The path of this node.
         /// </summary>
         public virtual string FilePath
         {
             get => Name;
-            set => Name = value;
+            set
+            {
+                Name = value;
+                Text = Path.GetFileName(value);
+            }
         }
+
         public bool IsPopulated => _isPopulated;
 
         public ContentTreeNode(ContextMenuStrip menu)
@@ -58,7 +64,11 @@ namespace TheraEditor.Wrappers
             ContextMenuStrip.RenderMode = ToolStripRenderMode.Professional;
             ContextMenuStrip.Renderer = new TheraForm.TheraToolstripRenderer();
         }
-        
+
+        protected ContentTreeNode(ITheraMenu menu)
+        {
+        }
+
         protected static ResourceTree Tree
             => Editor.Instance.ContentTree;
 
@@ -86,7 +96,7 @@ namespace TheraEditor.Wrappers
         
         public static ContentTreeNode Wrap(string path)
         {
-            ContentTreeNode wrapper = null;
+            ContentTreeNode treeNode = null;
             bool? isDir = path.IsExistingDirectoryPath();
             if (isDir is null)
                 return null;
@@ -94,14 +104,17 @@ namespace TheraEditor.Wrappers
             {
                 try
                 {
-                    wrapper = new FolderTreeNode(path);
+                    treeNode = new FolderTreeNode(path);
                     if (Directory.GetFileSystemEntries(path).Length > 0)
-                        wrapper.Nodes.Add("...");
+                        treeNode.Nodes.Add("...");
                 }
                 catch { }
             }
             else
             {
+                FileTreeNode fileTreeNode = new FileTreeNode(path);
+                treeNode = fileTreeNode;
+
                 string ext = Path.GetExtension(path);
                 if (!string.IsNullOrWhiteSpace(ext))
                 {
@@ -109,27 +122,24 @@ namespace TheraEditor.Wrappers
                     if (Editor.DomainProxy.ThirdPartyWrappers.TryGetValue(ext, out TypeProxy value))
                     {
                         Type type = (Type)value;
-                        wrapper = Activator.CreateInstance(type) as ContentTreeNode;
+                        fileTreeNode.Wrapper = Activator.CreateInstance(type) as BaseFileWrapper;
 
-                        wrapper.Text = Path.GetFileName(path);
-                        wrapper.FilePath = wrapper.Name = path;
-
-                        return wrapper;
+                        return treeNode;
                     }
                 }
 
                 TypeProxy t = TFileObject.DetermineType(path, out _);
                 //Engine.PrintLine(t.Domain.FriendlyName);
-                wrapper = TryWrapType(t);
-                if (wrapper != null)
+                treeNode = TryWrapType(t);
+                if (treeNode != null)
                 {
-                    wrapper.Text = Path.GetFileName(path);
-                    wrapper.FilePath = wrapper.Name = path;
+                    treeNode.Text = Path.GetFileName(path);
+                    treeNode.FilePath = path;
                 }
                 else
-                    wrapper = new DefaultFileWrapper(path);
+                    treeNode = new UnknownFileWrapper() { FilePath = path };
             }
-            return wrapper;
+            return treeNode;
         }
         //public static BaseFileWrapper Wrap(TFileObject file)
         //{
@@ -148,17 +158,17 @@ namespace TheraEditor.Wrappers
             if (type is null)
                 return null;
 
-            FileTreeNode wrapper = null;
+            FileTreeNode treeNode = null;
 
             //Try to find wrapper for type or any inherited type, in order
             var wrappers = Editor.DomainProxy.Wrappers;
             TypeProxy currentType = type;
-            while (!(currentType is null) && wrapper is null)
+            while (!(currentType is null) && treeNode is null)
             {
                 if (wrappers.TryGetValue(currentType, out TypeProxy matchType))
                 {
                     Type wrapperType = (Type)wrappers[currentType];
-                    wrapper = Activator.CreateInstance(wrapperType) as FileTreeNode;
+                    treeNode = Activator.CreateInstance(wrapperType) as FileTreeNode;
                 }
                 else
                 {
@@ -185,7 +195,7 @@ namespace TheraEditor.Wrappers
                         if (wrappers.TryGetValue(interfaceType, out matchType))
                         {
                             Type wrapperType = (Type)matchType;
-                            wrapper = Activator.CreateInstance(wrapperType) as FileTreeNode;
+                            treeNode = Activator.CreateInstance(wrapperType) as FileTreeNode;
                         }
                     }
                 }
@@ -193,15 +203,15 @@ namespace TheraEditor.Wrappers
                 currentType = currentType.BaseType;
             }
 
-            if (wrapper is null)
+            if (treeNode is null)
             {
                 //Make wrapper for whatever file type this is
-                wrapper = new FileWrapper(type);
+                treeNode = new FileTreeNode(new FileWrapper(type));
                 //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
                 //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
             }
             
-            return wrapper;
+            return treeNode;
         }
         internal protected abstract void OnExpand();
         internal protected abstract void OnCollapse();

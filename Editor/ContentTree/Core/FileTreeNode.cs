@@ -51,7 +51,7 @@ namespace TheraEditor.Wrappers
         }
         private static void AlwaysReload_CheckedChanged(object sender, EventArgs e)
         {
-            GetInstance<FileTreeNode>().AlwaysReload = ((ToolStripMenuItem)sender).Checked;
+            //GetInstance<FileTreeNode>().AlwaysReload = ((ToolStripMenuItem)sender).Checked;
         }
 
         protected static void DeleteAction(object sender, EventArgs e) => GetInstance<ContentTreeNode>().Delete();
@@ -65,12 +65,14 @@ namespace TheraEditor.Wrappers
         protected static void RestoreAction(object sender, EventArgs e) { GetInstance<FileTreeNode>().Restore(); }
         protected static void EditExternalAction(object sender, EventArgs e) { GetInstance<FileTreeNode>().OpenInExplorer(true); }
         protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<FileTreeNode>().OpenInExplorer(false);
-        protected static void EditAction(object sender, EventArgs e) => GetInstance<FileTreeNode>().EditResource();
-        protected static void EditRawAction(object sender, EventArgs e) => GetInstance<FileTreeNode>().EditResourceRaw();
+        protected static void EditAction(object sender, EventArgs e) => GetInstance<FileTreeNode>().Edit();
+        protected static void EditRawAction(object sender, EventArgs e) => GetInstance<FileTreeNode>().EditRaw();
         
         public void Export() { }
         public void Replace() { }
         public void Restore() { }
+        public void Edit() { }
+        public void EditRaw() { }
 
         public void OpenInExplorer(bool editFileExternally)
         {
@@ -98,8 +100,10 @@ namespace TheraEditor.Wrappers
             //_menu.Items[0].Enabled = w.TreeView.LabelEdit;
             _defaultMenu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && File.Exists(w.FilePath);
             _defaultMenu.Items[5].Enabled = _defaultMenu.Items[8].Enabled = w.Parent != null;
-            _defaultMenu.Items[6].Enabled = w.IsLoaded && w.SingleInstance.EditorState.HasChanges;
-            ((ToolStripMenuItem)_defaultMenu.Items[7]).Checked = w.AlwaysReload;
+
+            //_defaultMenu.Items[6].Enabled = w.IsLoaded && w.SingleInstance.EditorState.HasChanges;
+            //((ToolStripMenuItem)_defaultMenu.Items[7]).Checked = w.AlwaysReload;
+
             //_menu.Items[2].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             //_menu.Items[4].Enabled = w.PrevNode != null;
             //_menu.Items[5].Enabled = w.NextNode != null;
@@ -109,8 +113,6 @@ namespace TheraEditor.Wrappers
         public FileTreeNode() : this(_defaultMenu) { }
         public FileTreeNode(ContextMenuStrip menu) : base(menu)
         {
-            //return;
-
             //var nodeWrappers = GetType().GetCustomAttributesExt<NodeWrapperAttribute>();
             //if (nodeWrappers.Length > 0)
             //{
@@ -120,106 +122,33 @@ namespace TheraEditor.Wrappers
             //else
             //    ImageIndex = SelectedImageIndex = 0;
 
-            Text = Path.GetFileName(path);
-            FilePath = Name = path;
+            Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
+            Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
         }
-
-        public abstract TypeProxy FileType { get; }
-        public abstract bool IsLoaded { get; }
-        public bool AlwaysReload { get; set; } = false;
-        public bool ExternallyModified { get; set; } = false;
-        
-        public void Reload()
+        public FileTreeNode(IBaseFileWrapper wrapper) : base(wrapper.Menu)
         {
-            bool wasLoaded = SingleInstanceRef.IsLoaded;
-            SingleInstanceRef.IsLoaded = false;
-            if (wasLoaded)
-                SingleInstanceRef.IsLoaded = true;
-        }
+            Wrapper = wrapper;
 
-        public virtual void EditResource()
+            Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
+            Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
+        }
+        public FileTreeNode(string path) : base(_defaultMenu)
         {
-            var file = Wrapper.File;
-            if (file is null)
-                Engine.PrintLine($"Can't open file at {FilePath}.");
-            else
-            {
-                Engine.PrintLine($"Editing file at {FilePath}.");
+            FilePath = path;
 
-                AppDomainHelper.Sponsor(file);
-
-                //TODO: pre-resolve editor type
-                TypeProxy editorType = ResolveEditorType(FileType);
-                if (editorType != null)
-                    ShowEditor(editorType, file);
-                else
-                    Editor.SetPropertyGridObject(file);
-            }
-        }
-        
-        //private void EditResource(Task<IFileObject> task)
-        //{
-        //    if (!task.IsCompleted)
-        //        return;
-
-        //    IFileObject file = task.Result;
-        //    if (file is null)
-        //        Engine.PrintLine($"Can't open file at {FilePath}.");
-        //    else
-        //    {
-        //        Engine.PrintLine($"Editing file at {FilePath}.");
-
-        //        //TODO: pre-resolve editor type
-        //        TypeProxy editorType = ResolveEditorType(FileType);
-        //        if (editorType != null)
-        //            ShowEditor(editorType, file);
-        //        else
-        //            Editor.SetPropertyGridObject(file);
-        //    }
-        //}
-
-        private static void ShowEditor(TypeProxy editorType, IFileObject file)
-        {
-            //TODO: Casting TypeProxy to Type: type cannot be for a user-created form.
-            //Try to fix this? Probably need to create the form in the game domain,
-            //but I'm not sure if that form can be hosted in the DockPanel on the UI domain
-            Type type = (Type)editorType;
-            Form form = Activator.CreateInstance(type, file) as Form;
-
-            if (form is DockContent dc && !(form is TheraForm))
-                dc.Show(Editor.Instance.DockPanel, DockState.Document);
-            else
-                form?.ShowDialog(Editor.Instance);
+            Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
+            Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
         }
 
-        public static TypeProxy ResolveEditorType(TypeProxy fileType)
-        {
-            if (fileType is null)
-                return null;
-
-            EngineDomainProxyEditor proxy = Engine.DomainProxy as EngineDomainProxyEditor;
-            var editorTypes = proxy.FullEditorTypes;
-
-            if (TypeProxy.AnyBaseTypeMatches(fileType, type => editorTypes.ContainsKey(type), out TypeProxy match, true))
-                return editorTypes[match];
-            
-            return null;
-        }
-        public virtual async void EditResourceRaw()
-        {
-            var file = await TFileObject.LoadAsync<TextFile>(FilePath);
-            if (file != null)
-                DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, file);
-        }
-        
-        internal protected override void OnExpand()
+        private void Instance_DomainProxyPreUnset(EngineDomainProxy obj)
         {
 
         }
-        internal protected override void OnCollapse()
+        private void Instance_DomainProxyPostSet(EngineDomainProxy obj)
         {
 
         }
+
         public override void Delete()
         {
             if (Parent is null)
@@ -252,5 +181,8 @@ namespace TheraEditor.Wrappers
                 parentFolderPath += Path.DirectorySeparatorChar;
             FilePath = parentFolderPath + fileName;
         }
+
+        internal protected override void OnExpand() { }
+        internal protected override void OnCollapse() { }
     }
 }

@@ -49,7 +49,7 @@ namespace TheraEngine.Audio
             {
                 case "wav":
                     {
-                        Samples = WaveFile.ReadSamples(filePath,
+                        Samples = WaveFile.ReadAllSamples(filePath,
                             out int channels, out int bps, out int sampleRate);
 
                         Channels = channels;

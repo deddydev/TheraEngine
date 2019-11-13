@@ -9,15 +9,9 @@ using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Wrappers
 {
-    public class DefaultFileWrapper : BaseFileWrapper
+    public class UnknownFileWrapper : BaseFileWrapper
     {
-        public override bool IsLoaded => false;
-        public override TypeProxy FileType => null;
-        public IFileObject SingleInstance { get => SingleInstanceRef.File; set => SingleInstanceRef.File = value; }
-        public IFileRef SingleInstanceRef { get; } = new LocalFileRef<IFileObject>();
-        public IFileObject GetNewInstance() => null;
-        public Task<IFileObject> GetNewInstanceAsync() => null;
-        public override IFileObject GetFile() => SingleInstance;
+        public UnknownFileWrapper() : base() { }
 
         //private Process _runningProcess;
         //private string _processName;

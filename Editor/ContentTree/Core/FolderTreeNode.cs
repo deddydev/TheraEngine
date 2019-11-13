@@ -25,8 +25,7 @@ namespace TheraEditor.Wrappers
         private static ContextMenuStrip _menu;
         public FolderTreeNode(string path) : base(_menu)
         {
-            Text = Path.GetFileName(path);
-            FilePath = Name = path;
+            FilePath = path;
             ImageIndex = 1;
             SelectedImageIndex = 1;
         }
@@ -154,12 +153,6 @@ namespace TheraEditor.Wrappers
             _menu.Items[9].Enabled = _menu.Items[12].Enabled = w.Parent != null;
         }
         #endregion
-
-        public override string FilePath
-        {
-            get => Name;
-            set => Name = value;
-        }
 
         public async Task ToArchive(
             ESerializeFlags flags = ESerializeFlags.Default,

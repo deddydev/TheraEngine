@@ -490,6 +490,7 @@
   <ItemGroup>
     <Compile Include="ContentTree\Core\TheraMenuOption.cs" />
     <Compile Include="ContentTree\Wrappers\BaseFileWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\BaseProprietaryFileWrapper.cs" />
     <Compile Include="Core\ZipFileWithProgress.cs" />
     <Compile Include="Core\Thumbnails.cs" />
     <Compile Include="EditorWorldManager.cs" />
@@ -1281,7 +1282,7 @@
     <Compile Include="ContentTree\Core\FileTreeNode.cs" />
     <Compile Include="ContentTree\Wrappers\Misc\ActorWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\ThirdPartyFileWrapper.cs" />
-    <Compile Include="ContentTree\Wrappers\DefaultFileWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\UnknownFileWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\Models\ColladaWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\Scripting\CSharpWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\Scripting\GLSLWrapper.cs" />

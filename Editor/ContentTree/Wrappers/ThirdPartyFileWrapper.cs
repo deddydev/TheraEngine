@@ -2,7 +2,7 @@
 
 namespace TheraEditor.Wrappers
 {
-    public class ThirdPartyFileWrapper : DefaultFileWrapper
+    public class ThirdPartyFileWrapper : UnknownFileWrapper
     {
         public ThirdPartyFileWrapper() : base() { }
         public ThirdPartyFileWrapper(ContextMenuStrip menu) : base(menu) { }

@@ -3,20 +3,32 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core;
-using TheraEngine.Core.Files;
-using TheraEngine.Core.Reflection;
-using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers
 {
     public class FileTreeNode : ContentTreeNode
     {
-        public IBaseFileWrapper Wrapper { get; set; }
+        private IBaseFileWrapper _wrapper;
+        public IBaseFileWrapper Wrapper 
+        {
+            get => _wrapper;
+            set
+            {
+                _wrapper = value;
+                _wrapper.FilePath = FilePath;
+                GenerateMenu(_wrapper.Menu);
+            }
+        }
+
+        public override string FilePath 
+        {
+            get => base.FilePath; 
+            set => _wrapper.FilePath = base.FilePath = value;
+        }
 
         #region Menu
 
@@ -27,6 +39,9 @@ namespace TheraEditor.Wrappers
         }
 
         private static ContextMenuStrip _defaultMenu;
+
+        private void GenerateMenu(ITheraMenu menu) => throw new NotImplementedException();
+
         public static int FillContextMenuDefaults(ContextMenuStrip strip)
         {
             strip.Items.Add(new ToolStripMenuItem("Rename", null, RenameAction, Keys.F2));                              //0
@@ -67,7 +82,7 @@ namespace TheraEditor.Wrappers
         protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<FileTreeNode>().OpenInExplorer(false);
         protected static void EditAction(object sender, EventArgs e) => GetInstance<FileTreeNode>().Edit();
         protected static void EditRawAction(object sender, EventArgs e) => GetInstance<FileTreeNode>().EditRaw();
-        
+
         public void Export() { }
         public void Replace() { }
         public void Restore() { }
@@ -135,6 +150,7 @@ namespace TheraEditor.Wrappers
         public FileTreeNode(string path) : base(_defaultMenu)
         {
             FilePath = path;
+            Text = Path.GetFileName(path);
 
             Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
             Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;

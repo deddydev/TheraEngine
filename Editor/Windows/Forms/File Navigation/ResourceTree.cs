@@ -1361,7 +1361,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs e)
         {
             if (e.Node is FileTreeNode f)
-                f.EditResource();
+                f.Edit();
         }
         protected override void WndProc(ref Message m)
         {

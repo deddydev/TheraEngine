@@ -67,6 +67,24 @@ namespace TheraEditor.Wrappers
 
         protected ContentTreeNode(ITheraMenu menu)
         {
+            CreateMenu(menu);
+        }
+
+        private void CreateMenu(ITheraMenu menu)
+        {
+            ContextMenuStrip = new ContextMenuStrip();
+            foreach (ITheraMenuItem item in menu)
+            {
+                switch (item)
+                {
+                    case ITheraMenuDivider divider:
+                        ContextMenuStrip.Items.Add(new ToolStripMenuItem());
+                        break;
+                    case ITheraMenuOption option:
+                        ContextMenuStrip.Items.Add(new ToolStripMenuItem());
+                        break;
+                }
+            }
         }
 
         protected static ResourceTree Tree

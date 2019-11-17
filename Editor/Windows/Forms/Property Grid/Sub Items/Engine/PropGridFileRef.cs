@@ -18,10 +18,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void OnDragDrop(DragEventArgs e)
         {
             DragHelper.ImageList_DragLeave(Handle);
-            bool copy = (e.KeyState & (int)EKeyStateFlags.Ctrl) != 0;
             if (e.Effect != DragDropEffects.None)
             {
-                IFileRef r = _object as IFileRef;
+                bool copy = (e.KeyState & (int)EKeyStateFlags.Ctrl) != 0;
+                IFileRef gridRef = _object as IFileRef;
+                ContentTreeNode[] nodes = Editor.Instance.ContentTree.DraggedNodes;
                 if (e.Data.GetData(DataFormats.FileDrop) is string[] paths)
                 {
                     if (paths.Length > 0)
@@ -29,8 +30,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         string path = paths[0];
                         if (path.IsExistingDirectoryPath() == false && !string.IsNullOrWhiteSpace(path))
                         {
-                            r.Path.Path = path;
-                            r.IsLoaded = false;
+                            gridRef.Path.Path = path;
+                            gridRef.IsLoaded = false;
                             if (_wasNull)
                                 UpdateValue(_object, false);
                             UpdateDisplay();
@@ -40,23 +41,26 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
                 else
                 {
-                    ContentTreeNode[] nodes = Editor.Instance.ContentTree.DraggedNodes;
                     if (nodes.Length > 0)
                     {
                         ContentTreeNode node = nodes[0];
                         if (node != null &&
                             node is FileTreeNode file && 
+                            file.Wrapper is IBaseProprietaryFileWrapper pw &&
                             !string.IsNullOrWhiteSpace(node.FilePath))
                         {
-                            if (file.FileType is null || file.FileType.IsAssignableFrom(r.ReferencedType))
+                            if (pw.FileType is null || pw.FileType.IsAssignableFrom(gridRef.ReferencedType))
                             {
-                                r.Path.Path = file.FilePath;
-                                if (r is IGlobalFileRef)
-                                    r.IsLoaded = file.IsLoaded;
-                                else
-                                    r.IsLoaded = false;
+                                gridRef.Path.Path = file.FilePath;
+
+                                //if (gridRef is IGlobalFileRef)
+                                //    gridRef.IsLoaded = file.IsLoaded;
+                                //else
+                                //    gridRef.IsLoaded = false;
+
                                 if (_wasNull)
                                     UpdateValue(_object, false);
+
                                 UpdateDisplay();
                                 return;
                             }
@@ -64,8 +68,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     }
                 }
             }
+
             if (_wasNull)
                 _object = null;
+
             UpdateDisplay();
         }
 

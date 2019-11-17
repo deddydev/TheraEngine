@@ -13,7 +13,6 @@ namespace TheraEditor.Wrappers
     {
         public BaseProprietaryFileWrapper() : base() { }
         public BaseProprietaryFileWrapper(TheraMenu menu) : base(menu) { }
-        public BaseProprietaryFileWrapper(TypeProxy type) => FileType = type;
 
         public void Reload()
         {

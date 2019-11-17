@@ -9,7 +9,7 @@ namespace TheraEditor.Wrappers
     public class FileWrapper : BaseProprietaryFileWrapper
     {
         public FileWrapper() : base() { }
-        public FileWrapper(TypeProxy t) : base(t) { }
+        public FileWrapper(TheraMenu menu) : base(menu) { }
 
         protected LocalFileRef<IFileObject> _fileRef = new LocalFileRef<IFileObject>();
 

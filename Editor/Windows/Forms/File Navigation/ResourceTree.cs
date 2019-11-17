@@ -618,53 +618,53 @@ namespace TheraEditor.Windows.Forms
 
                     //The change of a file or folder. The types of changes include: 
                     //changes to size, attributes, security settings, last write, and last access time.
-                    ContentTreeNode changedNode = GetNode(e.FullPath);
-                    if (changedNode is FileTreeNode wrapper && wrapper.IsLoaded)
-                    {
-                        if (wrapper.AlwaysReload || !wrapper.SingleInstance.EditorState.HasChanges)
-                            wrapper.Reload();
-                        else
-                        {
-                            string message = "The file " + e.FullPath + " has been externally modified.\nDo you want to reload it?";
-                            message += "\nYou will have the option to save your current work elsewhere if so.";
+                    //ContentTreeNode changedNode = GetNode(e.FullPath);
+                    //if (changedNode is FileTreeNode wrapper && wrapper.IsLoaded)
+                    //{
+                    //    if (wrapper.AlwaysReload || !wrapper.SingleInstance.EditorState.HasChanges)
+                    //        wrapper.Reload();
+                    //    else
+                    //    {
+                    //        string message = "The file " + e.FullPath + " has been externally modified.\nDo you want to reload it?";
+                    //        message += "\nYou will have the option to save your current work elsewhere if so.";
 
-                            Form form = Parent.FindForm();
-                            if (MessageBox.Show(form, message, "Externally modified file", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
-                            {
-                                message = "Save your changes elsewhere before reloading?";
-                                DialogResult result = MessageBox.Show(form, message, "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                                if (result == DialogResult.Cancel)
-                                    AddExternallyModifiedNode(wrapper);
-                                else
-                                {
-                                    if (result == DialogResult.Yes)
-                                    {
-                                        using (SaveFileDialog sfd = new SaveFileDialog()
-                                        {
-                                            Filter = wrapper.SingleInstance.GetFilter()
-                                        })
-                                        {
-                                            if (sfd.ShowDialog(form) == DialogResult.OK)
-                                            {
-                                                await wrapper.SingleInstance.ExportAsync(sfd.FileName, ESerializeFlags.Default);
-                                            }
-                                        }
-                                    }
-                                    wrapper.Reload();
-                                }
-                            }
-                            else
-                                AddExternallyModifiedNode(wrapper);
-                        }
-                    }
+                    //        Form form = Parent.FindForm();
+                    //        if (MessageBox.Show(form, message, "Externally modified file", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
+                    //        {
+                    //            message = "Save your changes elsewhere before reloading?";
+                    //            DialogResult result = MessageBox.Show(form, message, "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                    //            if (result == DialogResult.Cancel)
+                    //                AddExternallyModifiedNode(wrapper);
+                    //            else
+                    //            {
+                    //                if (result == DialogResult.Yes)
+                    //                {
+                    //                    using (SaveFileDialog sfd = new SaveFileDialog()
+                    //                    {
+                    //                        Filter = wrapper.SingleInstance.GetFilter()
+                    //                    })
+                    //                    {
+                    //                        if (sfd.ShowDialog(form) == DialogResult.OK)
+                    //                        {
+                    //                            await wrapper.SingleInstance.ExportAsync(sfd.FileName, ESerializeFlags.Default);
+                    //                        }
+                    //                    }
+                    //                }
+                    //                wrapper.Reload();
+                    //            }
+                    //        }
+                    //        else
+                    //            AddExternallyModifiedNode(wrapper);
+                    //    }
+                    //}
                     break;
             }
         }
         private void AddExternallyModifiedNode(FileTreeNode n)
         {
-            n.ExternallyModified = true;
-            if (!_externallyModifiedNodes.ContainsKey(n.FullPath))
-                _externallyModifiedNodes.Add(n.FullPath, n);
+            //n.ExternallyModified = true;
+            //if (!_externallyModifiedNodes.ContainsKey(n.FullPath))
+            //    _externallyModifiedNodes.Add(n.FullPath, n);
         }
         #endregion
 
@@ -1361,7 +1361,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs e)
         {
             if (e.Node is FileTreeNode f)
-                f.EditResource();
+                f.Edit();
         }
         protected override void WndProc(ref Message m)
         {

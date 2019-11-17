@@ -140,6 +140,17 @@ namespace TheraEditor.Wrappers
             Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
         }
 
+        public override string FilePath
+        {
+            get => base.FilePath;
+            set
+            {
+                base.FilePath = value;
+                if (Wrapper != null)
+                    Wrapper.FilePath = value;
+            }
+        }
+
         private void Instance_DomainProxyPreUnset(EngineDomainProxy obj)
         {
 

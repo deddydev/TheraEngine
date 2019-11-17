@@ -1281,7 +1281,6 @@
     <Compile Include="ContentTree\Core\ContentTreeNode.cs" />
     <Compile Include="ContentTree\Core\FileTreeNode.cs" />
     <Compile Include="ContentTree\Wrappers\Misc\ActorWrapper.cs" />
-    <Compile Include="ContentTree\Wrappers\ThirdPartyFileWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\UnknownFileWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\Models\ColladaWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\Scripting\CSharpWrapper.cs" />

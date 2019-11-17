@@ -8,27 +8,24 @@ using TheraEngine.ThirdParty;
 namespace TheraEditor.Wrappers
 {
     [TreeFileType("csproj")]
-    public class CSProjWrapper : ThirdPartyFileWrapper
+    public class CSProjWrapper : FileWrapper
     {
         #region Menu
         private static TheraMenu _menu;
         static CSProjWrapper()
         {
             _menu = new TheraMenu();
-            _menu.Add(new TheraMenuOption("Rename", RenameAction, Keys.F2));                              //0
-            _menu.Add(new ToolStripMenuItem("&Open In Explorer", null, ExplorerAction, Keys.Control | Keys.O));   //1
-            _menu.Add(new ToolStripMenuItem("Co&mpile", null, CompileAction, Keys.Control | Keys.M));             //2
-            _menu.Add(new ToolStripMenuItem("Edit", null, EditAction, Keys.F4));                                  //3
-            _menu.Add(new ToolStripMenuItem("Edit Raw", null, EditRawAction, Keys.F3));                           //4
-            _menu.Add(new ToolStripSeparator());                                                                  //5
-            _menu.Add(new ToolStripMenuItem("&Cut", null, CutAction, Keys.Control | Keys.X));                     //6
-            _menu.Add(new ToolStripMenuItem("&Copy", null, CopyAction, Keys.Control | Keys.C));                   //7
-            _menu.Add(new ToolStripMenuItem("&Paste", null, PasteAction, Keys.Control | Keys.V));                 //8
-            _menu.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));          //9
+            _menu.Add(RenameOption()); //0
+            _menu.Add(ExplorerOption()); //1
+            _menu.Add(new TheraMenuOption("Co&mpile", nameof(Compile), Keys.Control | Keys.M)); //2
+            _menu.Add(EditOption()); //3
+            _menu.Add(EditRawOption()); //4
+            _menu.Add(new TheraMenuDivider()); //5
+            _menu.Add(CutOption()); //6
+            _menu.Add(CopyOption()); //7
+            _menu.Add(PasteOption()); //8
+            _menu.Add(DeleteOption()); //9
         }
-
-        protected static void CompileAction(object sender, EventArgs e)
-            => GetInstance<CSProjWrapper>().Compile();
 
         #endregion
 

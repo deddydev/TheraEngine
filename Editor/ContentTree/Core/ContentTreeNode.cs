@@ -132,30 +132,7 @@ namespace TheraEditor.Wrappers
             {
                 FileTreeNode fileTreeNode = new FileTreeNode(path);
                 treeNode = fileTreeNode;
-
-                string ext = Path.GetExtension(path);
-                if (!string.IsNullOrWhiteSpace(ext))
-                {
-                    ext = ext.Substring(1).ToLowerInvariant();
-                    if (Editor.DomainProxy.ThirdPartyWrappers.TryGetValue(ext, out TypeProxy value))
-                    {
-                        Type type = (Type)value;
-                        fileTreeNode.Wrapper = Activator.CreateInstance(type) as BaseFileWrapper;
-
-                        return treeNode;
-                    }
-                }
-
-                TypeProxy t = TFileObject.DetermineType(path, out _);
-                //Engine.PrintLine(t.Domain.FriendlyName);
-                treeNode = TryWrapType(t);
-                if (treeNode != null)
-                {
-                    treeNode.Text = Path.GetFileName(path);
-                    treeNode.FilePath = path;
-                }
-                else
-                    treeNode = new UnknownFileWrapper() { FilePath = path };
+                fileTreeNode.Wrapper = TryWrapPath(path);
             }
             return treeNode;
         }
@@ -171,22 +148,27 @@ namespace TheraEditor.Wrappers
         //    }
         //    return w;
         //}
-        public static FileTreeNode TryWrapType(TypeProxy type)
+        public static IBaseFileWrapper TryWrapPath(string path)
+        {
+            TypeProxy t = TFileObject.DetermineType(path, out _);
+            return TryWrapType(t) ?? new UnknownFileWrapper(path);
+        }
+        public static IBaseFileWrapper TryWrapType(TypeProxy type)
         {
             if (type is null)
                 return null;
 
-            FileTreeNode treeNode = null;
+            IBaseFileWrapper wrapper = null;
 
             //Try to find wrapper for type or any inherited type, in order
             var wrappers = Editor.DomainProxy.Wrappers;
             TypeProxy currentType = type;
-            while (!(currentType is null) && treeNode is null)
+            while (!(currentType is null) && wrapper is null)
             {
                 if (wrappers.TryGetValue(currentType, out TypeProxy matchType))
                 {
-                    Type wrapperType = (Type)wrappers[currentType];
-                    treeNode = Activator.CreateInstance(wrapperType) as FileTreeNode;
+                    TypeProxy wrapperType = wrappers[currentType];
+                    wrapper = wrapperType.CreateInstance() as IBaseFileWrapper;
                 }
                 else
                 {
@@ -211,25 +193,22 @@ namespace TheraEditor.Wrappers
                             interfaceType = validInterfaces[0];
 
                         if (wrappers.TryGetValue(interfaceType, out matchType))
-                        {
-                            Type wrapperType = (Type)matchType;
-                            treeNode = Activator.CreateInstance(wrapperType) as FileTreeNode;
-                        }
+                            wrapper = matchType.CreateInstance() as IBaseFileWrapper;
                     }
                 }
 
                 currentType = currentType.BaseType;
             }
 
-            if (treeNode is null)
+            if (wrapper is null)
             {
                 //Make wrapper for whatever file type this is
-                treeNode = new FileTreeNode(new FileWrapper(type));
+                wrapper = new FileWrapper(type);
                 //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
                 //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
             }
             
-            return treeNode;
+            return wrapper;
         }
         internal protected abstract void OnExpand();
         internal protected abstract void OnCollapse();

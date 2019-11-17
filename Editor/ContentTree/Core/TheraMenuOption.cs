@@ -64,7 +64,7 @@ namespace TheraEditor.Wrappers
     }
     public class TheraMenuOption : TheraMenuItem, ITheraMenuOption
     {
-        public TheraMenuOption(string text, Keys hotKeys, string actionName)
+        public TheraMenuOption(string text, string actionName, Keys hotKeys)
         {
             Text = text;
             HotKeys = hotKeys;

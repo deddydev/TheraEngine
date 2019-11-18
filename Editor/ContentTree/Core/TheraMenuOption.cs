@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using TheraEngine;
@@ -18,7 +19,7 @@ namespace TheraEditor.Wrappers
     {
         string Text { get; set; }
         Keys HotKeys { get; set; }
-        string ActionName { get; set; }
+        Action Action { get; set; }
     }
     public interface ITheraMenu : IListProxy<ITheraMenuItem>
     {
@@ -64,15 +65,15 @@ namespace TheraEditor.Wrappers
     }
     public class TheraMenuOption : TheraMenuItem, ITheraMenuOption
     {
-        public TheraMenuOption(string text, string actionName, Keys hotKeys)
+        public TheraMenuOption(string text, Action action, Keys hotKeys)
         {
             Text = text;
             HotKeys = hotKeys;
-            ActionName = actionName;
+            Action = action;
         }
 
         public string Text { get; set; }
         public Keys HotKeys { get; set; }
-        public string ActionName { get; set; } 
+        public Action Action { get; set; } 
     }
 }

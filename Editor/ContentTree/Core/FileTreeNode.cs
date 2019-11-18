@@ -24,10 +24,15 @@ namespace TheraEditor.Wrappers
             }
         }
 
-        public override string FilePath 
+        public override string FilePath
         {
-            get => base.FilePath; 
-            set => _wrapper.FilePath = base.FilePath = value;
+            get => base.FilePath;
+            set
+            {
+                base.FilePath = value;
+                if (Wrapper != null)
+                    Wrapper.FilePath = value;
+            }
         }
 
         #region Menu
@@ -154,17 +159,6 @@ namespace TheraEditor.Wrappers
 
             Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
             Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
-        }
-
-        public override string FilePath
-        {
-            get => base.FilePath;
-            set
-            {
-                base.FilePath = value;
-                if (Wrapper != null)
-                    Wrapper.FilePath = value;
-            }
         }
 
         private void Instance_DomainProxyPreUnset(EngineDomainProxy obj)

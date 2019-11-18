@@ -6,7 +6,7 @@ using TheraEditor.Windows.Forms;
 namespace TheraEditor.Wrappers
 {
     [TreeFileType("sln")]
-    public class SolutionWrapper : ThirdPartyFileWrapper
+    public class SolutionWrapper : FileWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;

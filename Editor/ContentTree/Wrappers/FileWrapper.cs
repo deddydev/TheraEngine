@@ -1,29 +1,26 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Wrappers
 {
     public class FileWrapper : BaseProprietaryFileWrapper
     {
         public static TheraMenuOption RenameOption()
-            => new TheraMenuOption("Rename", RenameAction, Keys.F2);
+            => new TheraMenuOption("Rename", Rename, Keys.F2);
         public static TheraMenuOption ExplorerOption()
-            => new TheraMenuOption("&Open In Explorer", ExplorerAction, Keys.Control | Keys.O);
+            => new TheraMenuOption("&Open In Explorer", Explorer, Keys.Control | Keys.O);
         public static TheraMenuOption EditOption()
-            => new TheraMenuOption("Edit", EditAction, Keys.F4);
+            => new TheraMenuOption("Edit", Edit, Keys.F4);
         public static TheraMenuOption EditRawOption()
-            => new TheraMenuOption("Edit Raw", EditRawAction, Keys.F3);
+            => new TheraMenuOption("Edit Raw", EditRaw, Keys.F3);
         public static TheraMenuOption CutOption()
-            => new TheraMenuOption("&Cut", CutAction, Keys.Control | Keys.X);
+            => new TheraMenuOption("&Cut", Cut, Keys.Control | Keys.X);
         public static TheraMenuOption CopyOption()
-            => new TheraMenuOption("&Copy", CopyAction, Keys.Control | Keys.C);
+            => new TheraMenuOption("&Copy", Copy, Keys.Control | Keys.C);
         public static TheraMenuOption PasteOption()
-            => new TheraMenuOption("&Paste", PasteAction, Keys.Control | Keys.V);
+            => new TheraMenuOption("&Paste", Paste, Keys.Control | Keys.V);
         public static TheraMenuOption DeleteOption()
-            => new TheraMenuOption("&Delete", DeleteAction, Keys.Control | Keys.Delete);
+            => new TheraMenuOption("&Delete", Delete, Keys.Control | Keys.Delete);
 
         public FileWrapper() : base() { }
         public FileWrapper(TheraMenu menu) : base(menu) { }
@@ -42,5 +39,12 @@ namespace TheraEditor.Wrappers
         }
 
         public override IFileRef FileRefGeneric => _fileRef;
+
+        public void Rename() { }
+        public void Explorer() { }
+        public void Cut() { }
+        public void Copy() { }
+        public void Paste() { }
+        public void Delete() { }
     }
 }

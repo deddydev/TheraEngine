@@ -24,15 +24,6 @@ namespace TheraEditor.Wrappers
         private static void RegenSolutionAction(object sender, EventArgs e)
             => GetInstance<ProjectWrapper>().GenerateSolution();
 
-        private async void GenerateSolution()
-        {
-            var res = await ResourceRef.GetInstanceAsync();
-            if (res is null)
-                return;
-            
-            res.GenerateSolution();
-        }
-        
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             
@@ -42,12 +33,35 @@ namespace TheraEditor.Wrappers
             ProjectWrapper w = GetInstance<ProjectWrapper>();
         }
         #endregion
-
-        public ProjectWrapper() : base(_menu) { }
         
+        public ProjectWrapper()
+        {
+            Menu = new TMenu()
+            {
+                TMenuOption.Rename,
+                TMenuOption.Explorer,
+                new TMenuOption("Generate Solution", GenerateSolution, Keys.Control | Keys.B),
+                TMenuOption.Edit,
+                TMenuOption.EditRaw,
+                TMenuDivider.Instance,
+                TMenuOption.Cut,
+                TMenuOption.Copy,
+                TMenuOption.Paste,
+                TMenuOption.Delete,
+            };
+        }
         public override void Edit()
         {
-            Editor.Instance.LoadProject(ResourceRef.Path.Path);
+            Editor.Instance.LoadProject(FileRef.Path.Path);
         }
+        private async void GenerateSolution()
+        {
+            var res = await FileRef.GetInstanceAsync();
+            if (res is null)
+                return;
+
+            res.GenerateSolution();
+        }
+
     }
 }

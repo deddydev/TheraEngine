@@ -12,9 +12,6 @@ namespace TheraEditor.Wrappers
 {
     public class FileWrapper<T> : BaseProprietaryFileWrapper where T : class, IFileObject
     {
-        public FileWrapper() : base() { }
-        public FileWrapper(TheraMenu menu) : base(menu) { }
-
         protected LocalFileRef<T> _fileRef = new LocalFileRef<T>();
 
         public T File

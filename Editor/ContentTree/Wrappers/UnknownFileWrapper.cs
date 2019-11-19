@@ -12,7 +12,7 @@ namespace TheraEditor.Wrappers
     public class UnknownFileWrapper : BaseFileWrapper
     {
         public UnknownFileWrapper() : base() { }
-        public UnknownFileWrapper(TheraMenu menu) : base(menu) { }
+        public UnknownFileWrapper(TMenu menu) : base(menu) { }
         public UnknownFileWrapper(string path) : base(path) { }
         
         //private Process _runningProcess;

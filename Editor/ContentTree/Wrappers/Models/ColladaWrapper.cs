@@ -9,7 +9,7 @@ using TheraEngine.Rendering.Models;
 namespace TheraEditor.Wrappers
 {
     [TreeFileType("dae")]
-    public class ColladaWrapper : ThirdPartyFileWrapper
+    public class ColladaWrapper : FileWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -57,7 +57,7 @@ namespace TheraEditor.Wrappers
         }
         #endregion
 
-        public ColladaWrapper() : base(_menu) { }
+        public ColladaWrapper() { }
 
         private void ImportAsActor()
         {

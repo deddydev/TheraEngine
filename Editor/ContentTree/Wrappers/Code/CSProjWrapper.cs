@@ -10,26 +10,22 @@ namespace TheraEditor.Wrappers
     [TreeFileType("csproj")]
     public class CSProjWrapper : FileWrapper
     {
-        #region Menu
-        private static TheraMenu _menu;
-        static CSProjWrapper()
+        public CSProjWrapper()
         {
-            _menu = new TheraMenu();
-            _menu.Add(RenameOption()); //0
-            _menu.Add(ExplorerOption()); //1
-            _menu.Add(new TheraMenuOption("Co&mpile", nameof(Compile), Keys.Control | Keys.M)); //2
-            _menu.Add(EditOption()); //3
-            _menu.Add(EditRawOption()); //4
-            _menu.Add(new TheraMenuDivider()); //5
-            _menu.Add(CutOption()); //6
-            _menu.Add(CopyOption()); //7
-            _menu.Add(PasteOption()); //8
-            _menu.Add(DeleteOption()); //9
+            Menu = new TMenu()
+            {
+                TMenuOption.Rename,
+                TMenuOption.Explorer,
+                new TMenuOption("Co&mpile", Compile, Keys.Control | Keys.B),
+                TMenuOption.Edit,
+                TMenuOption.EditRaw,
+                TMenuDivider.Instance,
+                TMenuOption.Cut,
+                TMenuOption.Copy,
+                TMenuOption.Paste,
+                TMenuOption.Delete,
+            };
         }
-
-        #endregion
-
-        public CSProjWrapper() : base(_menu) { }
 
         public MSBuild.Project Project { get; set; }
 

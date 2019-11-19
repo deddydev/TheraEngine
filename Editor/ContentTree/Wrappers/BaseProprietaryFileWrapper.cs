@@ -11,9 +11,6 @@ namespace TheraEditor.Wrappers
 {
     public abstract class BaseProprietaryFileWrapper : BaseFileWrapper
     {
-        public BaseProprietaryFileWrapper() : base() { }
-        public BaseProprietaryFileWrapper(TheraMenu menu) : base(menu) { }
-
         public void Reload()
         {
             bool wasLoaded = FileRefGeneric.IsLoaded;
@@ -56,13 +53,14 @@ namespace TheraEditor.Wrappers
         public override void Edit()
         {
             var file = GetFileGeneric();
+
+            _fileType = file.GetTypeProxy();
+
             if (file is null)
                 Engine.PrintLine($"Can't open file at {FilePath}.");
             else
             {
                 Engine.PrintLine($"Editing file at {FilePath}.");
-
-                AppDomainHelper.Sponsor(file);
 
                 //TODO: pre-resolve editor type
                 TypeProxy editorType = ResolveEditorType(FileType);

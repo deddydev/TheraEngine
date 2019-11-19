@@ -23,20 +23,17 @@ namespace TheraEditor.Wrappers
     public interface IBaseFileWrapper : IObjectSlim
     {
         string FilePath { get; set; }
-        ITheraMenu Menu { get; set; }
+        ITheraMenu Menu { get; }
 
         void Edit();
         void EditRaw();
     }
     public abstract class BaseFileWrapper : TObjectSlim, IBaseFileWrapper
     {
-        protected BaseFileWrapper() : this(null) { }
-        protected BaseFileWrapper(TheraMenu menu) => Menu = menu;
-
         public event Action FilePathChanged;
         protected void OnFilePathChanged() => FilePathChanged?.Invoke();
 
-        public ITheraMenu Menu { get; set; }
+        public ITheraMenu Menu { get; protected set; }
         public virtual string FilePath { get; set; }
 
         public abstract void Edit();

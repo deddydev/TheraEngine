@@ -488,7 +488,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ContentTree\Core\TheraMenuOption.cs" />
+    <Compile Include="ContentTree\Core\TheraMenu.cs" />
     <Compile Include="ContentTree\Wrappers\BaseFileWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\BaseProprietaryFileWrapper.cs" />
     <Compile Include="Core\ZipFileWithProgress.cs" />

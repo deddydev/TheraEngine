@@ -9,12 +9,12 @@ using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Wrappers
 {
+    /// <summary>
+    /// File wrapper for files not recognized by the editor.
+    /// Launches an external editor (if any) associated with the file's extension when edited.
+    /// </summary>
     public class UnknownFileWrapper : BaseFileWrapper
     {
-        public UnknownFileWrapper() : base() { }
-        public UnknownFileWrapper(TMenu menu) : base(menu) { }
-        public UnknownFileWrapper(string path) : base(path) { }
-        
         //private Process _runningProcess;
         //private string _processName;
 

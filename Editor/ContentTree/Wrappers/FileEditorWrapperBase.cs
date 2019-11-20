@@ -20,7 +20,7 @@ namespace TheraEditor.Wrappers
                 FileEditor.FormClosed += Editor_FormClosed;
                 FileEditor.Show(Editor.Instance.DockPanel, DockState.Document);
             }
-            TFile file = await ResourceRef.GetInstanceAsync();
+            TFile file = await FileRef.GetInstanceAsync();
             FileEditor.File = file;
             FileEditor.Focus();
         }

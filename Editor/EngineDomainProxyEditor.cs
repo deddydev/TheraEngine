@@ -111,14 +111,15 @@ namespace TheraEditor
 
             if (asmType.AnyBaseTypeMatches(IsValidWrapperClassBase, out TypeProxy match))
             {
-                if (match == typeof(ThirdPartyFileWrapper))
+                //TODO: Third party wrapper?
+                if (match == typeof(FileWrapper))
                 {
                     TreeFileTypeAttribute wrapper = asmType.GetCustomAttribute<TreeFileTypeAttribute>();
                     string ext = wrapper?.ThirdPartyExtension;
                     if (!string.IsNullOrWhiteSpace(ext))
                         ThirdPartyWrappers[ext] = asmType;
                     else
-                        Engine.LogWarning($"{asmType.GetFriendlyName()} is derived from '{nameof(ThirdPartyFileWrapper)}' and needs to specify a '{nameof(TreeFileTypeAttribute)}' attribute with {nameof(TreeFileTypeAttribute.ThirdPartyExtension)} set to a valid extension.");
+                        Engine.LogWarning($"{asmType.GetFriendlyName()} is derived from '{nameof(FileWrapper)}' and needs to specify a '{nameof(TreeFileTypeAttribute)}' attribute with {nameof(TreeFileTypeAttribute.ThirdPartyExtension)} set to a valid extension.");
                 }
                 else
                 {
@@ -131,7 +132,7 @@ namespace TheraEditor
         }
 
         private static bool IsValidWrapperClassBase(TypeProxy type)
-            => (type == typeof(ThirdPartyFileWrapper)) || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(FileWrapper<>));
+            => (type == typeof(FileWrapper)) || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(FileWrapper<>));
 
         public void ReloadEditorTypes(bool reloadNow = true)
         {

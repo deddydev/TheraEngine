@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -13,7 +14,7 @@ namespace TheraEditor.Wrappers
         void OnClosing();
     }
     public interface ITheraMenuDivider : ITheraMenuItem { }
-    public interface ITheraMenuOption : ITheraMenuItem
+    public interface ITheraMenuOption : ITheraMenuItem, ITheraMenu
     {
         string Text { get; set; }
         Keys HotKeys { get; set; }
@@ -24,38 +25,64 @@ namespace TheraEditor.Wrappers
         void OnOpening();
         void OnClosing();
     }
-    public class TMenu : ListProxy<TheraMenuItem>, ITheraMenu
+    public class TMenu : TheraMenuItem, IListProxy<ITheraMenuItem>, ITheraMenu
     {
+        private ListProxy<ITheraMenuItem> _items = new ListProxy<ITheraMenuItem>();
+
         ITheraMenuItem IList<ITheraMenuItem>.this[int index] 
         {
-            get => this[index];
-            set => this[index] = (TheraMenuItem)value;
+            get => _items[index];
+            set => _items[index] = (TheraMenuItem)value;
         }
 
-        int ICollection<ITheraMenuItem>.Count => Count;
-        bool ICollection<ITheraMenuItem>.IsReadOnly => IsReadOnly;
+        int ICollection<ITheraMenuItem>.Count => _items.Count;
+        bool ICollection<ITheraMenuItem>.IsReadOnly => _items.IsReadOnly;
+
+        public void Add(ITheraMenuItem item)
+            => _items.Add(item);
 
         void ICollection<ITheraMenuItem>.Add(ITheraMenuItem item)
-            => Add((TheraMenuItem)item);
+            => _items.Add((TheraMenuItem)item);
         void ICollection<ITheraMenuItem>.Clear() 
-            => Clear();
+            => _items.Clear();
         bool ICollection<ITheraMenuItem>.Contains(ITheraMenuItem item)
-            => Contains((TheraMenuItem)item);
+            => _items.Contains((TheraMenuItem)item);
         void ICollection<ITheraMenuItem>.CopyTo(ITheraMenuItem[] array, int arrayIndex)
-            => CopyTo(array.Select(x => (TheraMenuItem)x).ToArray(), arrayIndex);
+            => _items.CopyTo(array.Select(x => (TheraMenuItem)x).ToArray(), arrayIndex);
         IEnumerator<ITheraMenuItem> IEnumerable<ITheraMenuItem>.GetEnumerator()
-            => GetEnumerator();
+            => _items.GetEnumerator();
         int IList<ITheraMenuItem>.IndexOf(ITheraMenuItem item)
-            => IndexOf((TheraMenuItem)item);
+            => _items.IndexOf((TheraMenuItem)item);
         void IList<ITheraMenuItem>.Insert(int index, ITheraMenuItem item)
-            => Insert(index, (TheraMenuItem)item);
+            => _items.Insert(index, (TheraMenuItem)item);
         bool ICollection<ITheraMenuItem>.Remove(ITheraMenuItem item)
-            => Remove((TheraMenuItem)item);
+            => _items.Remove((TheraMenuItem)item);
         void IList<ITheraMenuItem>.RemoveAt(int index)
-            => RemoveAt(index);
+            => _items.RemoveAt(index);
 
-        public void OnOpening() => ForEach(x => x.OnOpening());
-        public void OnClosing() => ForEach(x => x.OnClosing());
+        public IEnumerator GetEnumerator()
+            => _items.GetEnumerator();
+
+        public override void OnOpening() => _items.ForEach(x => x.OnOpening());
+        public override void OnClosing() => _items.ForEach(x => x.OnClosing());
+
+        /// <summary>
+        /// Returns a new menu with default menu options.
+        /// 0:Rename, 1:Explorer, 2:Edit, 3:Edit Raw, 4:Divider, 5:Cut, 6:Copy, 7:Paste, 8:Delete
+        /// </summary>
+        public static TMenu Default() =>
+            new TMenu()
+            {
+                TMenuOption.Rename,
+                TMenuOption.Explorer,
+                TMenuOption.Edit,
+                TMenuOption.EditRaw,
+                TMenuDivider.Instance,
+                TMenuOption.Cut,
+                TMenuOption.Copy,
+                TMenuOption.Paste,
+                TMenuOption.Delete,
+            };
     }
     public class TheraMenuItem : TObjectSlim, ITheraMenuItem
     {
@@ -64,15 +91,15 @@ namespace TheraEditor.Wrappers
         public event Action<TheraMenuItem> Opening;
         public event Action<TheraMenuItem> Closing;
 
-        public void OnClosing() => Closing?.Invoke(this);
-        public void OnOpening() => Opening?.Invoke(this);
+        public virtual void OnClosing() => Closing?.Invoke(this);
+        public virtual void OnOpening() => Opening?.Invoke(this);
     }
     public sealed class TMenuDivider : TheraMenuItem, ITheraMenuDivider
     {
         public static TMenuDivider Instance { get; } = new TMenuDivider();
         private TMenuDivider() : base() { }
     }
-    public class TMenuOption : TheraMenuItem, ITheraMenuOption
+    public class TMenuOption : TMenu, ITheraMenuOption
     {
         public TMenuOption(string text, Action action, Keys hotKeys)
         {

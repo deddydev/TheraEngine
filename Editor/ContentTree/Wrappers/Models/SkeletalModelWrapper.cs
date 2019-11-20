@@ -9,24 +9,6 @@ namespace TheraEditor.Wrappers
     [TreeFileType(nameof(Resources.GenericFile), nameof(Resources.GenericFile))]
     public class SkeletalModelWrapper : FileWrapper<SkeletalModel>
     {
-        #region Menu
-        private static ContextMenuStrip _menu;
-        static SkeletalModelWrapper()
-        {
-            _menu = new ContextMenuStrip();
-            _menu.Opening += MenuOpening;
-            _menu.Closing += MenuClosing;
-        }
-        private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
-        {
-            
-        }
-        private static void MenuOpening(object sender, CancelEventArgs e)
-        {
-            SkeletalModelWrapper w = GetInstance<SkeletalModelWrapper>();
-        }
-        #endregion
-        
         public SkeletalModelWrapper() : base() { }
 
         private ModelEditorForm _form;
@@ -35,7 +17,7 @@ namespace TheraEditor.Wrappers
         {
             if (_form is null || _form.Disposing || _form.IsDisposed)
             {
-                var modelTask = ResourceRef.GetInstanceAsync();
+                var modelTask = FileRef.GetInstanceAsync();
 
                 _form = new ModelEditorForm();
                 _form.FormClosed += _form_FormClosed;

@@ -11,53 +11,18 @@ namespace TheraEditor.Wrappers
     [TreeFileType("dae")]
     public class ColladaWrapper : FileWrapper
     {
-        #region Menu
-        private static ContextMenuStrip _menu;
-        static ColladaWrapper()
+        public ColladaWrapper() 
         {
-            _menu = new ContextMenuStrip();
-            _menu.Items.Add(new ToolStripMenuItem("Rename", null, RenameAction, Keys.F2));                              //0
-            _menu.Items.Add(new ToolStripMenuItem("&Open In Explorer", null, ExplorerAction, Keys.Control | Keys.O));   //1
-            ToolStripMenuItem importItem = new ToolStripMenuItem("Import As...", null);
-            ToolStripMenuItem skeletalMeshImportItem = new ToolStripMenuItem("Skeletal Model", null, ImportAsSkeletalMeshAction);
-            ToolStripMenuItem staticMeshImportItem = new ToolStripMenuItem("Static Model", null, ImportAsStaticMeshAction);
-            ToolStripMenuItem skeletonImportItem = new ToolStripMenuItem("Skeleton", null, ImportAsSkeletonAction);
-            ToolStripMenuItem actorImportItem = new ToolStripMenuItem("Actor", null, ImportAsActorAction);
-            importItem.DropDownItems.Add(skeletalMeshImportItem);
-            importItem.DropDownItems.Add(staticMeshImportItem);
-            importItem.DropDownItems.Add(skeletonImportItem);
-            importItem.DropDownItems.Add(actorImportItem);
-            _menu.Items.Add(importItem);                                                                                //2
-            _menu.Items.Add(new ToolStripMenuItem("Edit Raw", null, EditRawAction, Keys.F3));                           //3
-            _menu.Items.Add(new ToolStripSeparator());                                                                  //4
-            _menu.Items.Add(new ToolStripMenuItem("&Cut", null, CutAction, Keys.Control | Keys.X));                     //5
-            _menu.Items.Add(new ToolStripMenuItem("&Copy", null, CopyAction, Keys.Control | Keys.C));                   //6
-            _menu.Items.Add(new ToolStripMenuItem("&Paste", null, PasteAction, Keys.Control | Keys.V));                 //7
-            _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));          //8
-            _menu.Opening += MenuOpening;
-            _menu.Closing += MenuClosing;
+            Menu = TMenu.Default();
+            Menu.RemoveAt(2); //Remove edit option
+            Menu.Insert(2, new TMenuOption("Import As...", null, Keys.None)
+            {
+                new TMenuOption("Skeletal Mesh", ImportAsSkeletalMesh, Keys.None),
+                new TMenuOption("Static Mesh", ImportAsStaticMesh, Keys.None),
+                new TMenuOption("Skeleton", ImportAsSkeleton, Keys.None),
+                new TMenuOption("Actor", ImportAsActor, Keys.None),
+            });
         }
-
-        private static void ImportAsActorAction(object sender, EventArgs e)
-            => GetInstance<ColladaWrapper>().ImportAsActor();
-        private static void ImportAsSkeletonAction(object sender, EventArgs e)
-            => GetInstance<ColladaWrapper>().ImportAsSkeleton();
-        private static void ImportAsStaticMeshAction(object sender, EventArgs e)
-            => GetInstance<ColladaWrapper>().ImportAsStaticMesh();
-        private static void ImportAsSkeletalMeshAction(object sender, EventArgs e)
-            => GetInstance<ColladaWrapper>().ImportAsSkeletalMesh();
-
-        private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
-        {
-
-        }
-        private static void MenuOpening(object sender, CancelEventArgs e)
-        {
-            ColladaWrapper w = GetInstance<ColladaWrapper>();
-        }
-        #endregion
-
-        public ColladaWrapper() { }
 
         private void ImportAsActor()
         {

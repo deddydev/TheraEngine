@@ -151,7 +151,7 @@ namespace TheraEditor.Wrappers
         public static IBaseFileWrapper TryWrapPath(string path)
         {
             TypeProxy t = TFileObject.DetermineType(path, out _);
-            return TryWrapType(t) ?? new UnknownFileWrapper(path);
+            return TryWrapType(t) ?? new UnknownFileWrapper() { FilePath = path };
         }
         public static IBaseFileWrapper TryWrapType(TypeProxy type)
         {
@@ -172,7 +172,7 @@ namespace TheraEditor.Wrappers
                 }
                 else
                 {
-                    TypeProxy[] interfaces = type.GetInterfaces();
+                    TypeProxy[] interfaces = currentType.GetInterfaces();
                     var validInterfaces = interfaces.Where(interfaceType => wrappers.Keys.Any(wrapperKeyType => wrapperKeyType == interfaceType)).ToArray();
                     if (validInterfaces.Length > 0)
                     {
@@ -181,9 +181,9 @@ namespace TheraEditor.Wrappers
                         //TODO: find best interface to use if multiple matches?
                         if (validInterfaces.Length > 1)
                         {
-                            var counts = validInterfaces.Select(inf => validInterfaces.Count(v => inf.IsAssignableFrom(v))).ToArray();
-                            int min = counts.Min();
-                            int[] mins = counts.FindAllMatchIndices(x => x == min);
+                            int[] numAssignableTo = validInterfaces.Select(match => validInterfaces.Count(other => other != match && other.IsAssignableTo(match))).ToArray();
+                            int min = numAssignableTo.Min();
+                            int[] mins = numAssignableTo.FindAllMatchIndices(x => x == min);
                             string msg = "File of type " + type.GetFriendlyName() + " has multiple valid interface wrappers: " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName());
                             msg += ". Narrowed down wrappers to " + mins.Select(x => validInterfaces[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
                             Engine.PrintLine(msg);
@@ -203,11 +203,13 @@ namespace TheraEditor.Wrappers
             if (wrapper is null)
             {
                 //Make wrapper for whatever file type this is
-                wrapper = new FileWrapper(type);
+                wrapper = new FileWrapper();
                 //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
                 //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
             }
             
+
+
             return wrapper;
         }
         internal protected abstract void OnExpand();

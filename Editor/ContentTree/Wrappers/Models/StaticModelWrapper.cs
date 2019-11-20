@@ -9,24 +9,6 @@ namespace TheraEditor.Wrappers
     [TreeFileType(nameof(Resources.GenericFile), nameof(Resources.GenericFile))]
     public class StaticModelWrapper : FileWrapper<StaticModel>
     {
-        #region Menu
-        private static ContextMenuStrip _menu;
-        static StaticModelWrapper()
-        {
-            _menu = new ContextMenuStrip();
-            _menu.Opening += MenuOpening;
-            _menu.Closing += MenuClosing;
-        }
-        private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
-        {
-            
-        }
-        private static void MenuOpening(object sender, CancelEventArgs e)
-        {
-            StaticModelWrapper w = GetInstance<StaticModelWrapper>();
-        }
-        #endregion
-        
         public StaticModelWrapper() : base() { }
 
         private ModelEditorForm _form;
@@ -35,7 +17,7 @@ namespace TheraEditor.Wrappers
         {
             if (_form is null || _form.Disposing || _form.IsDisposed)
             {
-                var modelTask = ResourceRef.GetInstanceAsync();
+                var modelTask = FileRef.GetInstanceAsync();
 
                 _form = new ModelEditorForm();
                 _form.FormClosed += _form_FormClosed;

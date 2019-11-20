@@ -22,7 +22,7 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
 
             ctxActorTree.RenderMode = ToolStripRenderMode.Professional;
-            ctxActorTree.Renderer = new TheraForm.TheraToolstripRenderer();
+            ctxActorTree.Renderer = new TheraForm.TheraToolStripRenderer();
 
             Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
         }

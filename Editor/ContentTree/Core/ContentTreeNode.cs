@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using Microsoft.VisualBasic.FileIO;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -38,14 +39,27 @@ namespace TheraEditor.Wrappers
     //Determine what wrapper to use by extension after game domain load
     public abstract class ContentTreeNode : TreeNode
     {
-        protected bool _isPopulated = false;
+        public ContentTreeNode()
+        {
+            Engine.Instance.DomainProxyPostSet += Instance_DomainProxySet;
+            Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
+            Instance_DomainProxySet(Engine.DomainProxy);
+        }
+        protected virtual void Instance_DomainProxySet(TheraEngine.Core.EngineDomainProxy proxy) { }
+        protected virtual void Instance_DomainProxyUnset(TheraEngine.Core.EngineDomainProxy proxy) { }
 
-        public new ResourceTree TreeView => (ResourceTree)base.TreeView;
-        public new ContentTreeNode Parent => base.Parent as ContentTreeNode; //Parent may be null
+        private IBasePathWrapper _wrapper;
+        public IBasePathWrapper Wrapper
+        {
+            get => _wrapper;
+            set
+            {
+                _wrapper = value;
+                _wrapper.FilePath = FilePath;
+                Menu = _wrapper.Menu;
+            }
+        }
 
-        /// <summary>
-        /// The path of this node.
-        /// </summary>
         public virtual string FilePath
         {
             get => Name;
@@ -53,38 +67,65 @@ namespace TheraEditor.Wrappers
             {
                 Name = value;
                 Text = Path.GetFileName(value);
+                if (Wrapper != null)
+                    Wrapper.FilePath = value;
             }
         }
+
+        protected bool _isPopulated = false;
+        private ITheraMenu _menu;
+
+        public new ResourceTree TreeView => (ResourceTree)base.TreeView;
+        public new ContentTreeNode Parent => base.Parent as ContentTreeNode; //Parent may be null
 
         public bool IsPopulated => _isPopulated;
 
-        public ContentTreeNode(ContextMenuStrip menu)
+        public ITheraMenu Menu 
         {
-            ContextMenuStrip = menu;
-            ContextMenuStrip.RenderMode = ToolStripRenderMode.Professional;
-            ContextMenuStrip.Renderer = new TheraForm.TheraToolstripRenderer();
+            get => _menu;
+            set
+            {
+                ContextMenuStrip?.Dispose();
+                ContextMenuStrip = null;
+
+                _menu = value;
+
+                GenerateMenu(_menu);
+            }
         }
 
-        protected ContentTreeNode(ITheraMenu menu)
+        private void GenerateMenu(ITheraMenu menu)
         {
-            CreateMenu(menu);
-        }
+            ContextMenuStrip strip = new ContextMenuStrip
+            {
+                RenderMode = ToolStripRenderMode.Professional,
+                Renderer = new TheraForm.TheraToolStripRenderer()
+            };
 
-        private void CreateMenu(ITheraMenu menu)
+            GenerateMenu(menu, strip.Items);
+
+            ContextMenuStrip = strip;
+        }
+        private static void GenerateMenu(ITheraMenu menu, ToolStripItemCollection coll)
         {
-            ContextMenuStrip = new ContextMenuStrip();
             foreach (ITheraMenuItem item in menu)
             {
-                switch (item)
+                if (item is ITheraMenuDivider)
+                    coll.Add(new ToolStripSeparator());
+                else if (item is ITheraMenuOption op)
                 {
-                    case ITheraMenuDivider divider:
-                        ContextMenuStrip.Items.Add(new ToolStripMenuItem());
-                        break;
-                    case ITheraMenuOption option:
-                        ContextMenuStrip.Items.Add(new ToolStripMenuItem());
-                        break;
+                    ToolStripMenuItem menuItem = new ToolStripMenuItem(op.Text, null, MenuItemClicked, op.HotKeys) { Tag = op };
+                    GenerateMenu(op, menuItem.DropDownItems);
+                    coll.Add(menuItem);
                 }
             }
+        }
+
+        private static void MenuItemClicked(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = sender as ToolStripMenuItem;
+            ITheraMenuOption op = item?.Tag as ITheraMenuOption;
+            op?.ExecuteAction();
         }
 
         protected static ResourceTree Tree
@@ -92,6 +133,26 @@ namespace TheraEditor.Wrappers
 
         protected static T GetInstance<T>() where T : ContentTreeNode
             => Tree.SelectedNode as T;
+
+        public void OpenInExplorer(bool openDirect)
+        {
+            string path = FilePath;
+
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            if (openDirect)
+                Process.Start(path);
+            else
+            {
+                string dir = Path.GetDirectoryName(path);
+
+                if (string.IsNullOrEmpty(dir))
+                    return;
+
+                Process.Start("explorer.exe", dir);
+            }
+        }
 
         public abstract void Delete();
         public void Rename()
@@ -111,14 +172,17 @@ namespace TheraEditor.Wrappers
             string[] paths = new string[] { FilePath };//Directory.GetFileSystemEntries(path, "*.*", System.IO.SearchOption.TopDirectoryOnly);
             ResourceTree.SetClipboard(paths, cut);
         }
-        
+
         public static ContentTreeNode Wrap(string path)
         {
             ContentTreeNode treeNode = null;
             bool? isDir = path.IsExistingDirectoryPath();
             if (isDir is null)
                 return null;
-            if (isDir.Value)
+            TypeProxy type = TFileObject.DetermineType(path, out _);
+            IBasePathWrapper wrapper = TryWrapType(type) ?? new UnknownFileWrapper() { FilePath = path };
+            bool dir = isDir.Value;
+            if (dir)
             {
                 try
                 {
@@ -130,10 +194,9 @@ namespace TheraEditor.Wrappers
             }
             else
             {
-                FileTreeNode fileTreeNode = new FileTreeNode(path);
-                treeNode = fileTreeNode;
-                fileTreeNode.Wrapper = TryWrapPath(path);
+                treeNode = new FileTreeNode(path);
             }
+            treeNode.Wrapper = wrapper;
             return treeNode;
         }
         //public static BaseFileWrapper Wrap(TFileObject file)
@@ -148,17 +211,17 @@ namespace TheraEditor.Wrappers
         //    }
         //    return w;
         //}
-        public static IBaseFileWrapper TryWrapPath(string path)
+        public static IBasePathWrapper TryWrapPath(string path)
         {
             TypeProxy t = TFileObject.DetermineType(path, out _);
             return TryWrapType(t) ?? new UnknownFileWrapper() { FilePath = path };
         }
-        public static IBaseFileWrapper TryWrapType(TypeProxy type)
+        public static IBasePathWrapper TryWrapType(TypeProxy type)
         {
             if (type is null)
                 return null;
 
-            IBaseFileWrapper wrapper = null;
+            IBasePathWrapper wrapper = null;
 
             //Try to find wrapper for type or any inherited type, in order
             var wrappers = Editor.DomainProxy.Wrappers;
@@ -168,7 +231,7 @@ namespace TheraEditor.Wrappers
                 if (wrappers.TryGetValue(currentType, out TypeProxy matchType))
                 {
                     TypeProxy wrapperType = wrappers[currentType];
-                    wrapper = wrapperType.CreateInstance() as IBaseFileWrapper;
+                    wrapper = wrapperType.CreateInstance() as IBasePathWrapper;
                 }
                 else
                 {
@@ -193,7 +256,7 @@ namespace TheraEditor.Wrappers
                             interfaceType = validInterfaces[0];
 
                         if (wrappers.TryGetValue(interfaceType, out matchType))
-                            wrapper = matchType.CreateInstance() as IBaseFileWrapper;
+                            wrapper = matchType.CreateInstance() as IBasePathWrapper;
                     }
                 }
 
@@ -207,7 +270,7 @@ namespace TheraEditor.Wrappers
                 //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
                 //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
             }
-            
+
 
 
             return wrapper;

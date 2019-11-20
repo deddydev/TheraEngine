@@ -70,7 +70,7 @@ namespace TheraEditor.Windows.Forms
             stripMain.Renderer =
             stripSearch.Renderer =
             stripTextEdit.Renderer =
-            ctxRightClick.Renderer = new TheraForm.TheraToolstripRenderer();
+            ctxRightClick.Renderer = new TheraForm.TheraToolStripRenderer();
 
             dgvObjectExplorer.RowPrePaint += DgvObjectExplorer_RowPrePaint;
         }

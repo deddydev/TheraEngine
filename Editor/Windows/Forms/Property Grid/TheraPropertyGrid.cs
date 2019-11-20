@@ -51,7 +51,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             InitializeComponent();
 
             ctxSceneComps.RenderMode = ToolStripRenderMode.Professional;
-            ctxSceneComps.Renderer = new TheraForm.TheraToolstripRenderer();
+            ctxSceneComps.Renderer = new TheraForm.TheraToolStripRenderer();
 
             _lblObjectName_StartColor = lblObjectName.BackColor;
             _lblObjectName_EndColor = Color.FromArgb(_lblObjectName_StartColor.R + 10, _lblObjectName_StartColor.G + 10, _lblObjectName_StartColor.B + 10);

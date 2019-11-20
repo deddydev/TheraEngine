@@ -18,7 +18,7 @@ namespace TheraEditor.Wrappers
     {
         string Text { get; set; }
         Keys HotKeys { get; set; }
-        Action Action { get; set; }
+        void ExecuteAction();
     }
     public interface ITheraMenu : IListProxy<ITheraMenuItem>
     {
@@ -68,19 +68,21 @@ namespace TheraEditor.Wrappers
 
         /// <summary>
         /// Returns a new menu with default menu options.
-        /// 0:Rename, 1:Explorer, 2:Edit, 3:Edit Raw, 4:Divider, 5:Cut, 6:Copy, 7:Paste, 8:Delete
+        /// 0:Rename, 1:Explorer, 2:Divider, 3:Edit, 4:Edit Raw, 5:Divider, 6:Cut, 7:Copy, 8:Paste, 9:Divider, 10:Delete
         /// </summary>
         public static TMenu Default() =>
             new TMenu()
             {
                 TMenuOption.Rename,
                 TMenuOption.Explorer,
+                TMenuDivider.Instance,
                 TMenuOption.Edit,
                 TMenuOption.EditRaw,
                 TMenuDivider.Instance,
                 TMenuOption.Cut,
                 TMenuOption.Copy,
                 TMenuOption.Paste,
+                TMenuDivider.Instance,
                 TMenuOption.Delete,
             };
     }
@@ -111,7 +113,9 @@ namespace TheraEditor.Wrappers
         public string Text { get; set; }
         public Keys HotKeys { get; set; }
         public Action Action { get; set; }
-        
+
+        public void ExecuteAction() => Action?.Invoke();
+
         public static TMenuOption Edit { get; } = new TMenuOptionEdit();
         public static TMenuOption EditRaw { get; } = new TMenuOptionEditRaw();
         public static TMenuOption Rename { get; } = new TMenuOptionRename();

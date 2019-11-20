@@ -1,5 +1,4 @@
-﻿using AppDomainToolkit;
-using Extensions;
+﻿using Extensions;
 using Microsoft.VisualBasic.FileIO;
 using System;
 using System.ComponentModel;
@@ -7,13 +6,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Scripting;
 
@@ -21,44 +18,36 @@ namespace TheraEditor.Wrappers
 {
     public class FolderTreeNode : ContentTreeNode
     {
-        #region Menu
-        private static ContextMenuStrip _menu;
-        public FolderTreeNode(string path) : base(_menu)
+        private TMenuOption ImportFileOption { get; set; }
+        private TMenuOption NewFileOption { get; set; }
+
+        public FolderTreeNode(string path) : base()
         {
             FilePath = path;
             ImageIndex = 1;
             SelectedImageIndex = 1;
-        }
-        static FolderTreeNode()
-        {
-            _menu = new ContextMenuStrip();
-            _menu.Items.Add(new ToolStripMenuItem("Rename", null, RenameAction, Keys.F2));                              //0
-            _menu.Items.Add(new ToolStripMenuItem("&Open In Explorer", null, ExplorerAction, Keys.Control | Keys.E));   //1
-            _menu.Items.Add(new ToolStripSeparator());                                                                  //2
-            _menu.Items.Add(new ToolStripMenuItem("&Import File", null, null, Keys.Control | Keys.I));                  //3
-            _menu.Items.Add(new ToolStripMenuItem("&New File", null, null, Keys.Control | Keys.N));                     //4
-            _menu.Items.Add(new ToolStripMenuItem("New &Folder", null, FolderAction, Keys.Control | Keys.F));           //5
-            _menu.Items.Add(new ToolStripSeparator());                                                                  //6
-            _menu.Items.Add(new ToolStripMenuItem("Compile To &Archive", null, ArchiveAction, Keys.Control | Keys.A));  //7
-            _menu.Items.Add(new ToolStripSeparator());                                                                  //8
-            _menu.Items.Add(new ToolStripMenuItem("&Cut", null, CutAction, Keys.Control | Keys.X));                     //9
-            _menu.Items.Add(new ToolStripMenuItem("&Copy", null, CopyAction, Keys.Control | Keys.C));                   //10
-            _menu.Items.Add(new ToolStripMenuItem("&Paste", null, PasteAction, Keys.Control | Keys.V));                 //11
-            _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));          //12
-            _menu.Opening += MenuOpening;
-            _menu.Closing += MenuClosing;
 
-            Engine.Instance.DomainProxyPostSet += Instance_DomainProxySet;
-            Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
-            Instance_DomainProxySet(Engine.DomainProxy);
+            //Generate menu in main domain for folders
+            //Populate new and import child items from game domain
+
+            Menu = TMenu.Default();
+
+            Menu.RemoveAt(3);
+            Menu.RemoveAt(3);
+
+            Menu.Insert(3, new TMenuOption("Compile To Archive", ToArchive, Keys.Control | Keys.A));
+            Menu.Insert(3, TMenuDivider.Instance);
+            Menu.Insert(3, new TMenuOption("New Folder", null, Keys.Control | Keys.F));
+            Menu.Insert(3, NewFileOption = new TMenuOption("New File", null, Keys.Control | Keys.N));
+            Menu.Insert(3, ImportFileOption = new TMenuOption("Import File", null, Keys.Control | Keys.I));
         }
 
-        private static void Instance_DomainProxySet(TheraEngine.Core.EngineDomainProxy proxy)
+        protected override void Instance_DomainProxySet(TheraEngine.Core.EngineDomainProxy proxy)
         {
             proxy.ReloadTypeCaches += LoadFileTypes;
             LoadFileTypes(true);
         }
-        private static void Instance_DomainProxyUnset(TheraEngine.Core.EngineDomainProxy proxy)
+        protected override void Instance_DomainProxyUnset(TheraEngine.Core.EngineDomainProxy proxy)
         {
             proxy.ReloadTypeCaches -= LoadFileTypes;
             LoadFileTypes(false);
@@ -66,41 +55,41 @@ namespace TheraEditor.Wrappers
 
         public static void LoadFileTypes(bool now)
         {
-            if (_menu.InvokeRequired)
-            {
-                _menu.Invoke((Action<bool>)LoadFileTypes, now);
-                return;
-            }
+            //if (_menu.InvokeRequired)
+            //{
+            //    _menu.Invoke((Action<bool>)LoadFileTypes, now);
+            //    return;
+            //}
 
-            ToolStripDropDownItem importDropdown = (ToolStripDropDownItem)_menu.Items[3];
-            ToolStripDropDownItem newDropdown = (ToolStripDropDownItem)_menu.Items[4];
+            //ToolStripDropDownItem importDropdown = (ToolStripDropDownItem)_menu.Items[3];
+            //ToolStripDropDownItem newDropdown = (ToolStripDropDownItem)_menu.Items[4];
 
-            importDropdown.DropDownItems.Clear();
-            newDropdown.DropDownItems.Clear();
+            //importDropdown.DropDownItems.Clear();
+            //newDropdown.DropDownItems.Clear();
 
-            ToolStripMenuItem newCodeItem = new ToolStripMenuItem("C#");
-            newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Class", null, NewClassAction));
-            newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Struct", null, NewStructAction));
-            newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Interface", null, NewInterfaceAction));
-            newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Enum", null, NewEnumAction));
-            newDropdown.DropDownItems.Add(newCodeItem);
+            //ToolStripMenuItem newCodeItem = new ToolStripMenuItem("C#");
+            //newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Class", null, NewClassAction));
+            //newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Struct", null, NewStructAction));
+            //newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Interface", null, NewInterfaceAction));
+            //newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Enum", null, NewEnumAction));
+            //newDropdown.DropDownItems.Add(newCodeItem);
 
-            if (now)
-            {
-                Engine.PrintLine("Loading importable and creatable file types to folder menu.");
-                //Task import = Task.Run(() =>
-                //{
-                Program.GenerateTypeTree(Is3rdPartyImportable);
-                //});
-                //Task create = Task.Run(() =>
-                //{
-                Program.GenerateTypeTree(IsFileObject);
-                //});
-                //Task.WhenAll(import, create).ContinueWith(t =>
-                //{
-                //    Engine.PrintLine("Finished loading importable and creatable file types to folder menu.");
-                //});
-            }
+            //if (now)
+            //{
+            //    Engine.PrintLine("Loading importable and creatable file types to folder menu.");
+            //    //Task import = Task.Run(() =>
+            //    //{
+            //    Program.GenerateTypeTree(Is3rdPartyImportable);
+            //    //});
+            //    //Task create = Task.Run(() =>
+            //    //{
+            //    Program.GenerateTypeTree(IsFileObject);
+            //    //});
+            //    //Task.WhenAll(import, create).ContinueWith(t =>
+            //    //{
+            //    //    Engine.PrintLine("Finished loading importable and creatable file types to folder menu.");
+            //    //});
+            //}
         }
 
         private enum ECodeFileType
@@ -110,31 +99,9 @@ namespace TheraEditor.Wrappers
             Interface,
             Enum,
         }
-        protected static void NewClassAction(object sender, EventArgs e) => GetInstance<FolderTreeNode>().NewCodeFile(ECodeFileType.Class);
-        protected static void NewStructAction(object sender, EventArgs e) => GetInstance<FolderTreeNode>().NewCodeFile(ECodeFileType.Struct);
-        protected static void NewInterfaceAction(object sender, EventArgs e) => GetInstance<FolderTreeNode>().NewCodeFile(ECodeFileType.Interface);
-        protected static void NewEnumAction(object sender, EventArgs e) => GetInstance<FolderTreeNode>().NewCodeFile(ECodeFileType.Enum);
 
-        protected static void RenameAction(object sender, EventArgs e) => GetInstance<ContentTreeNode>().Rename();
-        protected static void DeleteAction(object sender, EventArgs e) => GetInstance<ContentTreeNode>().Delete();
-        protected static void CutAction(object sender, EventArgs e) => GetInstance<ContentTreeNode>().Cut();
-        protected static void CopyAction(object sender, EventArgs e) => GetInstance<ContentTreeNode>().Copy();
-        protected static void PasteAction(object sender, EventArgs e) => GetInstance<ContentTreeNode>().Paste();
-
-        protected static void FolderAction(object sender, EventArgs e) => GetInstance<FolderTreeNode>().NewFolder();
-        protected static async void ArchiveAction(object sender, EventArgs e) => await GetInstance<FolderTreeNode>().ToArchive();
-        protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<FolderTreeNode>().OpenInExplorer();
-
-        private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
+        public static bool IsClipboardPasteReady()
         {
-            //_menu.Items[7].Enabled = _menu.Items[12].Enabled = true;
-        }
-        private static void MenuOpening(object sender, CancelEventArgs e)
-        {
-            FolderTreeNode w = GetInstance<FolderTreeNode>();
-            //_menu.Items[0].Enabled = w.TreeView.LabelEdit;
-            _menu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && Directory.Exists(w.FilePath);
-
             bool paste = false;
 
             try
@@ -149,12 +116,13 @@ namespace TheraEditor.Wrappers
             }
             catch { }
 
-            _menu.Items[11].Enabled = paste;
-            _menu.Items[9].Enabled = _menu.Items[12].Enabled = w.Parent != null;
+            return paste;
         }
-        #endregion
 
-        public async Task ToArchive(
+        public async void ToArchive()
+            => await ToArchiveAsync();
+
+        public async Task ToArchiveAsync(
             ESerializeFlags flags = ESerializeFlags.Default,
             EProprietaryFileFormat format = EProprietaryFileFormat.Binary)
         {

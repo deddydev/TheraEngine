@@ -10,7 +10,7 @@ using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Wrappers
 {
-    public class FileWrapper<T> : BaseProprietaryFileWrapper where T : class, IFileObject
+    public class FileWrapper<T> : BaseFileWrapper where T : class, IFileObject
     {
         protected LocalFileRef<T> _fileRef = new LocalFileRef<T>();
 

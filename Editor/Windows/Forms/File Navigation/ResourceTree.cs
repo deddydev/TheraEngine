@@ -1360,8 +1360,8 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node is FileTreeNode f)
-                f.Edit();
+            if (e.Node is FileTreeNode f && f.Wrapper is IBaseFileWrapper bfw)
+                bfw.Edit();
         }
         protected override void WndProc(ref Message m)
         {

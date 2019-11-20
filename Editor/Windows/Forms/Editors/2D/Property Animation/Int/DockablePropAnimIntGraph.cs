@@ -17,7 +17,7 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
             
             tsPropAnimInt.RenderMode = ToolStripRenderMode.Professional;
-            tsPropAnimInt.Renderer = new TheraToolstripRenderer();
+            tsPropAnimInt.Renderer = new TheraToolStripRenderer();
         }
         public DockablePropAnimIntGraph(PropAnimInt anim) : this() => File = anim;
 

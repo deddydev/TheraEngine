@@ -138,7 +138,7 @@ namespace TheraEditor.Windows.Forms
                     ForeColor = Color.FromArgb(224, 224, 224),
                     Dock = DockStyle.Top,
                     RenderMode = ToolStripRenderMode.Professional,
-                    Renderer = new TheraToolstripRenderer()
+                    Renderer = new TheraToolStripRenderer()
                 };
 
                 ToolStripMenuItem root = new ToolStripMenuItem("Select a type...") { Tag = i };

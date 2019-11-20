@@ -15,6 +15,8 @@ namespace TheraEditor.Wrappers
     /// </summary>
     public class UnknownFileWrapper : BaseFileWrapper
     {
+        public override IFileRef FileRefGeneric { get; } = null;
+
         //private Process _runningProcess;
         //private string _processName;
 

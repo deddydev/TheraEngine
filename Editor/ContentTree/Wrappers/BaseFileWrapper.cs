@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
@@ -12,31 +10,82 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers
 {
-    public interface IBaseProprietaryFileWrapper : IBaseFileWrapper
+    public interface IBaseFileWrapper : IBasePathWrapper
     {
         TypeProxy FileType { get; }
         bool IsLoaded { get; }
+        bool AlwaysReload { get; set; }
+        bool ExternallyModified { get; set; }
 
-        IFileObject GetFile();
-        Task<IFileObject> GetFileAsync();
-    }
-    public interface IBaseFileWrapper : IObjectSlim
-    {
-        string FilePath { get; set; }
-        ITheraMenu Menu { get; }
+        IFileObject GetFileGeneric();
+        Task<IFileObject> GetFileGenericAsync();
+        Task<IFileObject> GetFileGenericAsync(IProgress<float> progress, CancellationToken cancel);
 
+        void Reload();
         void Edit();
         void EditRaw();
     }
-    public abstract class BaseFileWrapper : TObjectSlim, IBaseFileWrapper
+    public abstract class BaseFileWrapper : BasePathWrapper, IBaseFileWrapper
     {
-        public event Action FilePathChanged;
-        protected void OnFilePathChanged() => FilePathChanged?.Invoke();
+        public void Reload()
+        {
+            bool wasLoaded = FileRefGeneric.IsLoaded;
+            if (wasLoaded)
+                FileRefGeneric.Unload();
+            FileRefGeneric.IsLoaded = wasLoaded;
+        }
 
-        public ITheraMenu Menu { get; protected set; }
-        public virtual string FilePath { get; set; }
+        public bool IsLoaded => FileRefGeneric.IsLoaded;
+        public bool AlwaysReload { get; set; } = false;
+        public bool ExternallyModified { get; set; } = false;
 
-        public abstract void Edit();
+        public IFileObject GetFileGeneric() 
+            => FileRefGeneric.GetInstance();
+        public async Task<IFileObject> GetFileGenericAsync() 
+            => await FileRefGeneric.GetInstanceAsync();
+        public async Task<IFileObject> GetFileGenericAsync(IProgress<float> progress, CancellationToken cancel)
+            => await FileRefGeneric.GetInstanceAsync(progress, cancel);
+
+        private TypeProxy _fileType;
+        public TypeProxy FileType 
+        {
+            get => _fileType;
+            set
+            {
+                _fileType = value;
+                FileRefGeneric.SubType = _fileType;
+            }
+        }
+
+        public override string FilePath
+        {
+            get => FileRefGeneric.Path.Path;
+            set => FileRefGeneric.Path.Path = value;
+        }
+
+        public abstract IFileRef FileRefGeneric { get; }
+
+        public virtual void Edit()
+        {
+            var file = GetFileGeneric();
+
+            _fileType = file.GetTypeProxy();
+
+            if (file is null)
+                Engine.PrintLine($"Can't open file at {FilePath}.");
+            else
+            {
+                Engine.PrintLine($"Editing file at {FilePath}.");
+
+                //TODO: pre-resolve editor type
+                TypeProxy editorType = ResolveEditorType(FileType);
+                if (editorType != null)
+                    ShowEditor(editorType, file);
+                else
+                    Editor.SetPropertyGridObject(file);
+            }
+        }
+
         public virtual async void EditRaw()
         {
             var file = await TFileObject.LoadAsync<TextFile>(FilePath);
@@ -71,5 +120,19 @@ namespace TheraEditor.Wrappers
 
             return null;
         }
+
+        //protected async void DefaultSaveText(DockableTextEditor obj)
+        //{
+        //    if (!(Resource is ITextSource source))
+        //        return;
+
+        //    source.Text = obj.GetText();
+
+        //    string path = ResourceRef.Path.Absolute;
+
+        //    Editor.Instance.ContentTree.BeginFileSaveWithProgress(path, "Saving text...", out Progress<float> progress, out CancellationTokenSource cancel);
+        //    await ResourceRef.File.ExportAsync(path, ESerializeFlags.Default, progress, cancel.Token);
+        //    Editor.Instance.ContentTree.EndFileSave(path);
+        //}
     }
 }

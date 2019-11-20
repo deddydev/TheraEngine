@@ -3,7 +3,7 @@ using TheraEngine.Core.Files;
 
 namespace TheraEditor.Wrappers
 {
-    public class FileWrapper : BaseProprietaryFileWrapper
+    public class FileWrapper : BaseFileWrapper
     {
         protected LocalFileRef<IFileObject> _fileRef = new LocalFileRef<IFileObject>();
 

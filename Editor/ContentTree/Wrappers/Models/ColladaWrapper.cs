@@ -14,8 +14,8 @@ namespace TheraEditor.Wrappers
         public ColladaWrapper() 
         {
             Menu = TMenu.Default();
-            Menu.RemoveAt(2); //Remove edit option
-            Menu.Insert(2, new TMenuOption("Import As...", null, Keys.None)
+            Menu.RemoveAt(3); //Remove edit option
+            Menu.Insert(3, new TMenuOption("Import As...", null, Keys.None)
             {
                 new TMenuOption("Skeletal Mesh", ImportAsSkeletalMesh, Keys.None),
                 new TMenuOption("Static Mesh", ImportAsStaticMesh, Keys.None),

@@ -42,7 +42,7 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
             numArrayLength.MinimumValue = 0;
-            toolStripTypeSelection.Renderer = new TheraToolstripRenderer();
+            toolStripTypeSelection.Renderer = new TheraToolStripRenderer();
         }
 
         private bool _updating = false;

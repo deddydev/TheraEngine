@@ -401,7 +401,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
 
             strip.RenderMode = ToolStripRenderMode.Professional;
-            strip.Renderer = new TheraToolstripRenderer();
+            strip.Renderer = new TheraToolStripRenderer();
 
             Label.ContextMenuStrip = strip;
             Label.Name += "*";

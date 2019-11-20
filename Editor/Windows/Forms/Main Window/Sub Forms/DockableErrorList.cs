@@ -20,7 +20,7 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
 
             toolStrip1.RenderMode = ToolStripRenderMode.Professional;
-            toolStrip1.Renderer = new TheraForm.TheraToolstripRenderer();
+            toolStrip1.Renderer = new TheraForm.TheraToolStripRenderer();
             _listViewSorter = new ListViewColumnSorter();
             listView1.ListViewItemSorter = _listViewSorter;
 

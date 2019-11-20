@@ -241,9 +241,9 @@ namespace TheraEditor.Windows.Forms
             }
         }
         
-        public class TheraToolstripRenderer : ToolStripProfessionalRenderer
+        public class TheraToolStripRenderer : ToolStripProfessionalRenderer
         {
-            public TheraToolstripRenderer() : base(new TheraColorTable())
+            public TheraToolStripRenderer() : base(new TheraColorTable())
             {
                 RoundedEdges = false;
             }

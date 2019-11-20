@@ -12,7 +12,7 @@ namespace TheraEditor.Wrappers
         public ProjectWrapper()
         {
             Menu = TMenu.Default();
-            Menu.Insert(2, new TMenuOption("Generate Solution", GenerateSolution, Keys.F5));
+            Menu.Insert(3, new TMenuOption("Generate Solution", GenerateSolution, Keys.F5));
         }
         public override void Edit()
         {

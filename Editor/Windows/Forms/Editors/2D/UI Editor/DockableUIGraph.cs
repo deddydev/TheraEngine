@@ -20,7 +20,7 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
 
             tearOffToolStrip1.RenderMode = ToolStripRenderMode.Professional;
-            tearOffToolStrip1.Renderer = new TheraToolstripRenderer();
+            tearOffToolStrip1.Renderer = new TheraToolStripRenderer();
         }
         public override bool ShouldHideCursor => false;
         public DockableUIGraph(IUserInterface ui) : this()

@@ -79,7 +79,7 @@ namespace TheraEditor.Windows.Forms
 
             FormTitle2.Text = Text;
 
-            menuStrip1.Renderer = new TheraToolstripRenderer();
+            menuStrip1.Renderer = new TheraToolStripRenderer();
             _deserializeDockContent = GetContentFromPersistString;
 
             AutoScaleMode = AutoScaleMode.None;

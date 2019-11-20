@@ -46,7 +46,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         ContentTreeNode node = nodes[0];
                         if (node != null &&
                             node is FileTreeNode file && 
-                            file.Wrapper is IBaseProprietaryFileWrapper pw &&
+                            file.Wrapper is IBaseFileWrapper pw &&
                             !string.IsNullOrWhiteSpace(node.FilePath))
                         {
                             if (pw.FileType is null || pw.FileType.IsAssignableFrom(gridRef.ReferencedType))

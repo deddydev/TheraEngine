@@ -27,7 +27,7 @@ namespace TheraEditor.Windows.Forms
             DockPanel1.Theme = new TheraEditorTheme();
             AutoScaleMode = AutoScaleMode.Font;
             DoubleBuffered = false;
-            formMenu.Renderer = new TheraToolstripRenderer();
+            formMenu.Renderer = new TheraToolStripRenderer();
             FormTitle2.MouseDown += TitleBar_MouseDown;
             ModelEditorText.MouseDown += TitleBar_MouseDown;
         }

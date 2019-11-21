@@ -556,7 +556,7 @@ namespace TheraEngine.Core.Files.Serialization
             //if (IsRoot)
             //{
                 if (ObjectType != null && !(ObjectType.IsAbstract || ObjectType.IsInterface) && ObjectType.GetConstructors().Any(x => x.GetParameters().Length == 0))
-                    DefaultObject = Activator.CreateInstance((Type)ObjectType);
+                    DefaultObject = ObjectType.CreateInstance();
                 else
                     DefaultObject = null;
             //    return;

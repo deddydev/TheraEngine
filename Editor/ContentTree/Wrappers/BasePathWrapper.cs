@@ -33,7 +33,7 @@ namespace TheraEditor.Wrappers
         protected void OnPaste() => Paste?.Invoke();
         protected void OnDelete() => Delete?.Invoke();
 
-        public ITheraMenu Menu { get; protected set; }
+        public ITheraMenu Menu { get; protected set; } = TMenu.Default();
         public virtual string FilePath { get; set; }
     }
 }

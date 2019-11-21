@@ -56,7 +56,7 @@ namespace TheraEditor.Windows.Forms
 
             Engine.Instance.DomainProxyPostSet -= Instance_ProxySet;
             Engine.Instance.DomainProxyPostUnset -= Instance_ProxyUnset;
-            Instance_ProxyUnset(null);
+            Instance_ProxyUnset(Engine.DomainProxy);
 
             base.OnFormClosed(e);
         }

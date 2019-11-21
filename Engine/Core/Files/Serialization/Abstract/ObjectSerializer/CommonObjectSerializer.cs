@@ -40,7 +40,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (TreeNode.ObjectType.IsAbstract || TreeNode.ObjectType.IsInterface)
                 TreeNode.Object = null;
             else
-                TreeNode.Object = Activator.CreateInstance((Type)TreeNode.ObjectType);
+                TreeNode.Object = TreeNode.ObjectType.CreateInstance();
             
             if (TreeNode.Object is IFileObject fobj && fobj.RootFile != TreeNode.Owner.RootFileObject)
             {

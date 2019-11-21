@@ -7,7 +7,7 @@ namespace TheraEditor.Wrappers
 {
     public class FileEditorWrapperBase<TFile, TEditor> : FileWrapper<TFile> 
         where TFile : class, IFileObject 
-        where TEditor : DockableFileEditor<TFile>, new()
+        where TEditor : class, IDockableFileEditorControl<TFile>, new()
     {
         public FileEditorWrapperBase() : base() { }
         
@@ -16,17 +16,16 @@ namespace TheraEditor.Wrappers
         {
             if (FileEditor is null)
             {
-                FileEditor = new TEditor();
+                FileEditor = Editor.Instance.DockEditor<TEditor, TFile>(DockState.Document);
                 FileEditor.FormClosed += Editor_FormClosed;
-                FileEditor.Show(Editor.Instance.DockPanel, DockState.Document);
             }
             TFile file = await FileRef.GetInstanceAsync();
             FileEditor.File = file;
-            FileEditor.Focus();
+            //FileEditor.Focus();
         }
         private void Editor_FormClosed(object sender, FormClosedEventArgs e)
         {
-            FileEditor.FormClosed -= Editor_FormClosed;
+            //FileEditor.FormClosed -= Editor_FormClosed;
             FileEditor = null;
         }
     }

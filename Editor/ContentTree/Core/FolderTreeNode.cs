@@ -30,8 +30,6 @@ namespace TheraEditor.Wrappers
             //Generate menu in main domain for folders
             //Populate new and import child items from game domain
 
-            Menu = TMenu.Default();
-
             Menu.RemoveAt(3);
             Menu.RemoveAt(3);
 

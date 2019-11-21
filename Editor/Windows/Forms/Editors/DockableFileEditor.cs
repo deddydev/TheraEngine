@@ -1,13 +1,58 @@
 ﻿using Extensions;
 using System;
-using System.Threading;
+using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine.Core.Files;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class DockableFileEditor<T> : DockContent, IFileEditorControl where T : class, IFileObject
+    //public interface IDockableFileEditorControl<T> : IFileEditorControl<T> where T : class, IFileObject
+    //{
+    //    event FormClosedEventHandler FormClosed;
+
+    //    bool Focus();
+
+    //    bool CloseButton { get; set; }
+    //    bool CloseButtonVisible { get; set; }
+    //    //DockPanel DockPanel { get; set; }
+    //    DockState DockState { get; set; }
+    //    //DockPane Pane { get; set; }
+    //    bool IsHidden { get; set; }
+    //    DockState VisibleState { get; set; }
+    //    bool IsFloat { get; set; }
+    //    //DockPane PanelPane { get; set; }
+    //    //DockPane FloatPane { get; set; }
+    //    bool HideOnClose { get; set; }
+    //    DockState ShowHint { get; set; }
+    //    bool IsActivated { get; }
+    //    //ContextMenu TabPageContextMenu { get; set; }
+    //    //ContextMenuStrip TabPageContextMenuStrip { get; set; }
+    //    string TabText { get; set; }
+    //    double AutoHidePortion { get; set; }
+    //    DockAreas DockAreas { get; set; }
+    //    bool AllowEndUserDocking { get; set; }
+    //    //DockContentHandler DockHandler { get; }
+    //    string ToolTipText { get; set; }
+
+    //    event EventHandler DockStateChanged;
+
+    //    void Activate();
+    //    void DockTo(DockPanel panel, DockStyle dockStyle);
+    //    void DockTo(DockPane paneTo, DockStyle dockStyle, int contentIndex);
+    //    void FloatAt(Rectangle floatWindowBounds);
+    //    void Hide();
+    //    bool IsDockStateValid(DockState dockState);
+    //    void Show(DockPane previousPane, DockAlignment alignment, double proportion);
+    //    void Show(DockPane pane, IDockContent beforeContent);
+    //    void Show(DockPanel dockPanel, DockState dockState);
+    //    void Show(DockPanel dockPanel);
+    //    void Show();
+    //    void Show(DockPanel dockPanel, Rectangle floatWindowBounds);
+    //}
+    public abstract class DockableFileEditor<T> : 
+        DockContent, IDockableFileEditorControl<T>, IFileEditorControl
+        where T : class, IFileObject
     {
         private T _file;
         public T File

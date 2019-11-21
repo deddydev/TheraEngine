@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Windows.Forms;
-using TheraEditor.Windows.Forms;
+﻿using TheraEditor.Windows.Forms;
 using TheraEngine.Actors;
 
 namespace TheraEditor.Wrappers
@@ -10,11 +8,8 @@ namespace TheraEditor.Wrappers
     {
         public override async void Edit()
         {
-            ModelEditorForm d = new ModelEditorForm();
-            d.Show();
-
             BaseActor actor = await FileRef.GetInstanceAsync();
-            d.SetActor(actor);
+            Editor.Instance.DisplayForm<ModelEditorForm>(actor);
         }
     }
 }

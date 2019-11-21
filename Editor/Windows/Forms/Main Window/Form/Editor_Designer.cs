@@ -27,37 +27,6 @@ using WindowsNativeInterop;
 
 namespace TheraEditor.Windows.Forms
 {
-    public interface IFileEditorControl
-    {
-        IFileObject File { get; }
-
-        void Save();
-        void SaveAs();
-        bool AllowFileClose();
-    }
-    public interface IEditorRenderHandler
-    {
-        /// <summary>
-        /// The player index this control allows input from.
-        /// </summary>
-        ELocalPlayerIndex PlayerIndex { get; }
-        /// <summary>
-        /// The render panel with the viewport that will be possessed by the desired player.
-        /// </summary>
-        RenderContext RenderPanel { get; }
-        /// <summary>
-        /// The pawn the player will possess for editing purposes.
-        /// </summary>
-        IPawn EditorPawn { get; }
-        /// <summary>
-        /// The game mode used for this render form.
-        /// </summary>
-        IGameMode GameMode { get; }
-        /// <summary>
-        /// The world this render form is rendering.
-        /// </summary>
-        IWorld World { get; }
-    }
     public partial class Editor : TheraForm, IMappableShortcutControl, IDockPanelOwner
     {
         DockPanel IDockPanelOwner.DockPanelRef => DockPanel;

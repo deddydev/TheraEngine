@@ -12,19 +12,7 @@ namespace TheraEditor.Wrappers
     {
         public CSProjWrapper()
         {
-            Menu = new TMenu()
-            {
-                TMenuOption.Rename,
-                TMenuOption.Explorer,
-                new TMenuOption("Co&mpile", Compile, Keys.Control | Keys.B),
-                TMenuOption.Edit,
-                TMenuOption.EditRaw,
-                TMenuDivider.Instance,
-                TMenuOption.Cut,
-                TMenuOption.Copy,
-                TMenuOption.Paste,
-                TMenuOption.Delete,
-            };
+            Menu.Insert(3, new TMenuOption("Co&mpile", Compile, Keys.Control | Keys.B));
         }
 
         public MSBuild.Project Project { get; set; }

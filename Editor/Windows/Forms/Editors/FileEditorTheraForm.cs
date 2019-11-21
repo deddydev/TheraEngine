@@ -5,7 +5,9 @@ using TheraEngine.Core.Files;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class FileEditorTheraForm<T> : TheraForm, IFileEditorControl where T : class, IFileObject
+    public abstract class FileEditorTheraForm<T> : 
+        TheraForm, IFileEditorControl, IFileEditorControl<T>
+        where T : class, IFileObject
     {
         private T _file;
         public T File

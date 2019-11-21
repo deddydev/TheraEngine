@@ -13,7 +13,6 @@ namespace TheraEditor.Wrappers
     {
         public ColladaWrapper() 
         {
-            Menu = TMenu.Default();
             Menu.RemoveAt(3); //Remove edit option
             Menu.Insert(3, new TMenuOption("Import As...", null, Keys.None)
             {

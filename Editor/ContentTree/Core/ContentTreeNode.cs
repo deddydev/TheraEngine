@@ -73,7 +73,7 @@ namespace TheraEditor.Wrappers
         }
 
         protected bool _isPopulated = false;
-        private ITheraMenu _menu;
+        private ITheraMenu _menu = TMenu.Default();
 
         public new ResourceTree TreeView => (ResourceTree)base.TreeView;
         public new ContentTreeNode Parent => base.Parent as ContentTreeNode; //Parent may be null
@@ -108,6 +108,9 @@ namespace TheraEditor.Wrappers
         }
         private static void GenerateMenu(ITheraMenu menu, ToolStripItemCollection coll)
         {
+            if (menu is null)
+                return;
+
             foreach (ITheraMenuItem item in menu)
             {
                 if (item is ITheraMenuDivider)

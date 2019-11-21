@@ -29,22 +29,36 @@ namespace TheraEditor.Wrappers
     {
         public void Reload()
         {
-            bool wasLoaded = FileRefGeneric.IsLoaded;
+            var fref = FileRefGeneric;
+            if (fref is null)
+                return;
+
+            bool wasLoaded = fref.IsLoaded;
             if (wasLoaded)
-                FileRefGeneric.Unload();
-            FileRefGeneric.IsLoaded = wasLoaded;
+                fref.Unload();
+            fref.IsLoaded = wasLoaded;
         }
 
-        public bool IsLoaded => FileRefGeneric.IsLoaded;
+        public bool IsLoaded => FileRefGeneric?.IsLoaded ?? false;
         public bool AlwaysReload { get; set; } = false;
         public bool ExternallyModified { get; set; } = false;
 
         public IFileObject GetFileGeneric() 
-            => FileRefGeneric.GetInstance();
-        public async Task<IFileObject> GetFileGenericAsync() 
-            => await FileRefGeneric.GetInstanceAsync();
+            => FileRefGeneric?.GetInstance();
+        public async Task<IFileObject> GetFileGenericAsync()
+        {
+            if (FileRefGeneric is null)
+                return null;
+
+            return await FileRefGeneric.GetInstanceAsync();
+        }
         public async Task<IFileObject> GetFileGenericAsync(IProgress<float> progress, CancellationToken cancel)
-            => await FileRefGeneric.GetInstanceAsync(progress, cancel);
+        {
+            if (FileRefGeneric is null)
+                return null;
+
+            return await FileRefGeneric.GetInstanceAsync(progress, cancel);
+        }
 
         private TypeProxy _fileType;
         public TypeProxy FileType 
@@ -53,14 +67,23 @@ namespace TheraEditor.Wrappers
             set
             {
                 _fileType = value;
-                FileRefGeneric.SubType = _fileType;
+
+                if (FileRefGeneric != null)
+                    FileRefGeneric.SubType = _fileType;
             }
         }
 
+        private string _filePath;
         public override string FilePath
         {
-            get => FileRefGeneric.Path.Path;
-            set => FileRefGeneric.Path.Path = value;
+            get => FileRefGeneric?.Path?.Path ?? _filePath;
+            set
+            {
+                _filePath = value;
+
+                if (FileRefGeneric?.Path != null)
+                    FileRefGeneric.Path.Path = value;
+            }
         }
 
         public abstract IFileRef FileRefGeneric { get; }

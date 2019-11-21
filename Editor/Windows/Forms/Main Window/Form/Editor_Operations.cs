@@ -1,14 +1,12 @@
-﻿using Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths;
-using TheraEngine.Editor;
 using TheraEngine.Timers;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -36,6 +34,16 @@ namespace TheraEditor.Windows.Forms
             ToolStripButton item = new ToolStripButton(undoStr, null, UndoStateClicked) { Tag = redoStr };
             btnUndo.DropDownItems.Insert(0, item);
         }
+
+        public T DockEditor<T, T2>(DockState state) 
+            where T : IDockableFileEditorControl<T2>, new()
+            where T2 : class, IFileObject
+        {
+            T editor = new T();
+            editor.Show(DockPanel, state);
+            return editor;
+        }
+
         private void UndoStateClicked(object sender, EventArgs e)
         {
             ToolStripButton item = sender as ToolStripButton;
@@ -174,5 +182,12 @@ namespace TheraEditor.Windows.Forms
            Func<MarshalProgress<float>, CancellationTokenSource, Task> task,
            TimeSpan? maxOperationTime = null)
             => await DomainProxy.RunOperationAsync(statusBarMessage, finishedMessage, task, maxOperationTime);
+        
+        public object DisplayForm<T>(params object[] args) where T : Form
+        {
+            Form form = Activator.CreateInstance(typeof(T), args) as Form;
+            form.Show();
+            return form;
+        }
     }
 }

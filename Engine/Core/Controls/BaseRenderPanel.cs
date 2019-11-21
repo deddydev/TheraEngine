@@ -174,12 +174,16 @@ namespace TheraEngine
         }
         public T MarshalRenderHandler(bool cache)
         {
+            if (InvokeRequired)
+                return (T)Invoke((Func<bool, T>)MarshalRenderHandler, cache);
+            
             T handler = (T)Engine.DomainProxy.MarshalRenderHandler(Handle);
             if (cache)
             {
                 AppDomainHelper.Sponsor(handler);
                 _renderHandlerCache = handler;
             }
+
             return handler;
         }
     }

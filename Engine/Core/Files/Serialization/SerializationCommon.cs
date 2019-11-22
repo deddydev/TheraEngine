@@ -740,11 +740,11 @@ namespace TheraEngine.Core.Files.Serialization
                     default:
                     case EFileFormat.ThirdParty:
 
-                        List<Type> types = TFileObject.DetermineThirdPartyTypes(ext).ToList();
+                        List<Type> types = TFileObject.DetermineThirdPartyTypes(ext, false).ToList();
 
                         if (types.Count > 1)
                         {
-                            AppDomain primaryDomain = AppDomainHelper.GetPrimaryAppDomain();
+                            //AppDomain primaryDomain = AppDomainHelper.GetPrimaryAppDomain();
                             types.Sort((x, y) =>
                             {
                                 //if (x.Domain != y.Domain)

@@ -183,8 +183,8 @@ namespace TheraEngine.Core.Files
             }
             else if ((tpAttrib = GetFile3rdPartyExtensions(type)) != null)
             {
-                bool hasWildcard = tpAttrib.HasExtension("*");
-                bool hasExt = tpAttrib.HasExtension(ext);
+                bool hasWildcard = tpAttrib.HasExtension("*", true);
+                bool hasExt = tpAttrib.HasExtension(ext, false);
                 if (!hasWildcard && !hasExt)
                 {
                     //if (tpAttrib.Extensions.Length > 0)
@@ -338,7 +338,7 @@ namespace TheraEngine.Core.Files
                 Engine.LogWarning($"No {nameof(TFile3rdPartyExt)} attribute specified for {GetType().GetFriendlyName()}.");
                 return;
             }
-            if (!ext.HasExtension(thirdPartyExt))
+            if (!ext.HasExtension(thirdPartyExt, false))
             {
                 Engine.LogWarning($"{GetType().GetFriendlyName()} cannot be exported as {thirdPartyExt}.");
                 return;

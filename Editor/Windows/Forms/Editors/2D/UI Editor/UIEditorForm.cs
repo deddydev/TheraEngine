@@ -21,7 +21,7 @@ namespace TheraEditor.Windows.Forms
                     FormTitle.ClientRectangle.Contains(e.Location))
                     ShowSystemMenu(MouseButtons);
             };
-            UIGraph = new DockableFormInstance<DockableUIGraph>(x => x.Show(dockPanel1, DockState.Document));
+            UIGraph = new DockableFormInstance<DockableUserInterfaceEditor>(x => x.Show(dockPanel1, DockState.Document));
             UIProps = new DockableFormInstance<DockablePropertyGrid>(x => x.Show(dockPanel1, DockState.DockRight));
         }
 
@@ -34,7 +34,7 @@ namespace TheraEditor.Windows.Forms
             UIGraph.Form.Focus();
             //UIGraph.Form.RenderPanel.UI.UIComponentSelected += UI_SelectedComponentChanged;
         }
-        public DockableFormInstance<DockableUIGraph> UIGraph { get; }
+        public DockableFormInstance<DockableUserInterfaceEditor> UIGraph { get; }
         public DockableFormInstance<DockablePropertyGrid> UIProps { get; }
         public IUserInterface TargetUI
         {

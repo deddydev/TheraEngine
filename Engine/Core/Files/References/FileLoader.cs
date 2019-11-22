@@ -329,7 +329,7 @@ namespace TheraEngine.Core.Files
                     case 'b': return EFileFormat.Binary;
                 }
             }
-            return EFileFormat.Binary;
+            return EFileFormat.XML;
         }
 
         private T DynamicConstruct(
@@ -391,7 +391,7 @@ namespace TheraEngine.Core.Files
         private bool IsThirdPartyImportableExt(string ext)
         {
             var header = GetFile3rdPartyExtensions(SubType);
-            return header?.HasExtension(ext) ?? false;
+            return header?.HasExtension(ext, false) ?? false;
         }
         //private bool IsThirdPartyExportableExt(string ext)
         //{

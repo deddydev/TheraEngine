@@ -491,6 +491,7 @@
     <Compile Include="ContentTree\Core\TheraMenu.cs" />
     <Compile Include="ContentTree\Wrappers\BasePathWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\BaseFileWrapper.cs" />
+    <Compile Include="ContentTree\Wrappers\FolderWrapper.cs" />
     <Compile Include="Core\ZipFileWithProgress.cs" />
     <Compile Include="Core\Thumbnails.cs" />
     <Compile Include="EditorWorldManager.cs" />

@@ -683,8 +683,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public static PropGridItem InstantiatePropertyEditor(TypeProxy controlType, PropGridMemberInfo info, PropGridCategory category, PropertyGrid.ValueChangeHandler dataChangeHandler)
         {
             //Engine.PrintLine("Creating property editor.");
-            PropGridItem control = (PropGridItem)Editor.Instance.Invoke((Func<PropGridItem>)(() => 
-            {
+            //PropGridItem control = (PropGridItem)Editor.Instance.Invoke((Func<PropGridItem>)(() => 
+            //{
                 Type type = (Type)controlType;
                 PropGridItem item = Activator.CreateInstance(type) as PropGridItem;
                 if (item != null)
@@ -696,8 +696,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
                 return item;
 
-            }));
-            return control;
+            //}));
+            //return control;
         }
 
         /// <summary>
@@ -804,8 +804,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             string category,
             PropertyGrid.ValueChangeHandler dataChangeHandler)
         {
-            if (!AppDomainHelper.IsPrimaryDomain)
-                throw new Exception();
+            //if (!AppDomainHelper.IsPrimaryDomain)
+            //    throw new Exception();
 
             string catName = category ?? GetDefaultCatName(info);
             PropGridCategory targetCategory;

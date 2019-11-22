@@ -122,7 +122,7 @@ namespace TheraEditor
             ConcurrentDictionary<string, NamespaceNode> rootNodes = new ConcurrentDictionary<string, NamespaceNode>();
             foreach (TypeProxy type in results)
             {
-                string path = type.Namespace;
+                string path = type.FullName;
                 int dotIndex = path.IndexOf(".");
                 string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
                 NamespaceNode node = rootNodes.AddOrUpdate(name, k => new NamespaceNode(k), (t, v) => v);
@@ -199,6 +199,7 @@ namespace TheraEditor
                 if (string.IsNullOrEmpty(path))
                 {
                     Type = type;
+                    Name = Type.GetFriendlyName();
                     return;
                 }
 

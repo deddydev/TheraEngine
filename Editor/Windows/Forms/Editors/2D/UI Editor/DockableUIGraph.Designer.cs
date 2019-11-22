@@ -2,7 +2,7 @@
 
 namespace TheraEditor.Windows.Forms
 {
-    partial class DockableUIGraph
+    partial class DockableUserInterfaceEditor
     {
         /// <summary>
         /// Required designer variable.
@@ -31,7 +31,7 @@ namespace TheraEditor.Windows.Forms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DockableUIGraph));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DockableUserInterfaceEditor));
             this.RenderPanel = new RenderPanel<UIGraphRenderHandler>();
             this.dockingHostToolStripPanel2 = new TheraEditor.Windows.Forms.DockingHostToolStripPanel();
             this.tearOffToolStrip1 = new TheraEditor.Windows.Forms.TearOffToolStrip();

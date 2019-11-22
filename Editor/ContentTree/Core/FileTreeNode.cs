@@ -12,23 +12,7 @@ namespace TheraEditor.Wrappers
 {
     public class FileTreeNode : ContentTreeNode
     {
-        public FileTreeNode(string path) : base()
-        {
-            FilePath = path;
-            Text = Path.GetFileName(path);
-
-            Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
-            Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
-        }
-
-        private void Instance_DomainProxyPreUnset(EngineDomainProxy obj)
-        {
-
-        }
-        private void Instance_DomainProxyPostSet(EngineDomainProxy obj)
-        {
-
-        }
+        public FileTreeNode(string path) : base(path) { }
 
         public override void Delete()
         {

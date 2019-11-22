@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -27,6 +29,11 @@ namespace TheraEditor.Wrappers
     }
     public abstract class BaseFileWrapper : BasePathWrapper, IBaseFileWrapper
     {
+        public BaseFileWrapper()
+        {
+            Menu = TMenu.Default(this);
+        }
+
         public void Reload()
         {
             var fref = FileRefGeneric;
@@ -88,11 +95,11 @@ namespace TheraEditor.Wrappers
 
         public abstract IFileRef FileRefGeneric { get; }
 
-        public virtual void Edit()
+        public virtual async void Edit()
         {
-            var file = GetFileGeneric();
+            var file = await GetFileGenericAsync();
 
-            _fileType = file.GetTypeProxy();
+            _fileType = file?.GetTypeProxy();
 
             if (file is null)
                 Engine.PrintLine($"Can't open file at {FilePath}.");
@@ -157,5 +164,27 @@ namespace TheraEditor.Wrappers
         //    await ResourceRef.File.ExportAsync(path, ESerializeFlags.Default, progress, cancel.Token);
         //    Editor.Instance.ContentTree.EndFileSave(path);
         //}
+        
+        public override void Explorer() => Explorer(false);
+        public void Explorer(bool openDirect)
+        {
+            string path = FilePath;
+
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            if (openDirect)
+                Process.Start(path);
+            else
+            {
+                string dir = Path.GetDirectoryName(path);
+
+                if (string.IsNullOrEmpty(dir))
+                    return;
+
+                Process.Start("explorer.exe", dir);
+            }
+        }
+
     }
 }

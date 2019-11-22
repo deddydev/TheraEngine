@@ -70,11 +70,11 @@ namespace TheraEngine.Core.Files
             else
                 _thirdPartyCache = null;
         }
-        public static Type[] DetermineThirdPartyTypes(string ext)
+        public static Type[] DetermineThirdPartyTypes(string ext, bool allowWildcard)
         {
             if (_thirdPartyCache is null)
                 ClearThirdPartyTypeCache(true);
-            return _thirdPartyCache.Where(t => t.GetCustomAttribute<TFile3rdPartyExt>()?.HasExtension(ext) ?? false).ToArray();
+            return _thirdPartyCache.Where(t => t.GetCustomAttribute<TFile3rdPartyExt>()?.HasExtension(ext, allowWildcard) ?? false).ToArray();
         }
         public static EFileFormat GetFormat(string path, out string ext)
         {
@@ -359,8 +359,8 @@ namespace TheraEngine.Core.Files
                 }
                 else if (tpAttrib != null)
                 {
-                    bool hasWildcard = tpAttrib.HasExtension("*");
-                    bool hasExt = tpAttrib.HasExtension(ext);
+                    bool hasWildcard = tpAttrib.HasExtension("*", true);
+                    bool hasExt = tpAttrib.HasExtension(ext, false);
                     if (hasWildcard || hasExt)
                         file = await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
                 }

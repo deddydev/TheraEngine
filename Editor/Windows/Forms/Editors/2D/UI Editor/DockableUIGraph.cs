@@ -13,9 +13,9 @@ using static TheraEditor.Windows.Forms.TheraForm;
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(IUserInterface))]
-    public partial class DockableUIGraph : DockableRenderableFileEditor<IUserInterface, UIGraphRenderHandler>
+    public partial class DockableUserInterfaceEditor : DockableRenderableFileEditor<UserInterface, UIGraphRenderHandler>
     {
-        public DockableUIGraph()
+        public DockableUserInterfaceEditor()
         {
             InitializeComponent();
 
@@ -23,11 +23,11 @@ namespace TheraEditor.Windows.Forms
             tearOffToolStrip1.Renderer = new TheraToolStripRenderer();
         }
         public override bool ShouldHideCursor => false;
-        public DockableUIGraph(IUserInterface ui) : this()
+        public DockableUserInterfaceEditor(UserInterface ui) : this()
         {
             File = ui;
         }
-        protected override bool TrySetFile(IUserInterface file)
+        protected override bool TrySetFile(UserInterface file)
         {
             if (!base.TrySetFile(file))
                 return false;

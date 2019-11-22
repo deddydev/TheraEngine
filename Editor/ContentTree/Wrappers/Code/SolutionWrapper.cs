@@ -14,19 +14,7 @@ namespace TheraEditor.Wrappers
             compOp.Opening += CompOp_Opening;
             compOp.Closing += CompOp_Closing;
 
-            Menu = new TMenu()
-            {
-                TMenuOption.Rename,
-                TMenuOption.Explorer,
-                compOp,
-                TMenuOption.Edit,
-                TMenuOption.EditRaw,
-                TMenuDivider.Instance,
-                TMenuOption.Cut,
-                TMenuOption.Copy,
-                TMenuOption.Paste,
-                TMenuOption.Delete,
-            };
+            Menu.Insert(3, compOp);
         }
 
         private void CompOp_Opening(TheraMenuItem obj)
@@ -37,16 +25,9 @@ namespace TheraEditor.Wrappers
         private void CompOp_Closing(TheraMenuItem obj)
             => obj.Visible = false;
 
-        private async void Compile()
+        private void Compile()
         {
-            var project = Editor.Instance.Project;
-            if (project is null)
-                return;
-
-            await Editor.RunOperationAsync(
-                "Compiling project...",
-                "Finished compiling project.",
-                async (p, c) => await project.CompileAsync());
+            Editor.Instance.Compile();
         }
     }
 }

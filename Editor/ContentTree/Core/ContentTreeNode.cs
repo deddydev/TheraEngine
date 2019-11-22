@@ -39,26 +39,63 @@ namespace TheraEditor.Wrappers
     //Determine what wrapper to use by extension after game domain load
     public abstract class ContentTreeNode : TreeNode
     {
-        public ContentTreeNode()
+        public ContentTreeNode(string path)
         {
-            Engine.Instance.DomainProxyPostSet += Instance_DomainProxySet;
-            Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
-            Instance_DomainProxySet(Engine.DomainProxy);
-        }
-        protected virtual void Instance_DomainProxySet(TheraEngine.Core.EngineDomainProxy proxy) { }
-        protected virtual void Instance_DomainProxyUnset(TheraEngine.Core.EngineDomainProxy proxy) { }
+            FilePath = path;
+            Text = Path.GetFileName(path);
 
-        private IBasePathWrapper _wrapper;
-        public IBasePathWrapper Wrapper
+            Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
+            Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
+            Instance_DomainProxyPostSet(Engine.DomainProxy);
+        }
+
+        protected virtual void Instance_DomainProxyPostSet(TheraEngine.Core.EngineDomainProxy proxy)
         {
-            get => _wrapper;
-            set
+            DetermineWrapper();
+        }
+        protected virtual void Instance_DomainProxyPreUnset(TheraEngine.Core.EngineDomainProxy proxy)
+        {
+            DestroyWrapper();
+        }
+
+        protected virtual void DestroyWrapper()
+        {
+            if (Wrapper != null)
             {
-                _wrapper = value;
-                _wrapper.FilePath = FilePath;
-                Menu = _wrapper.Menu;
+                Wrapper.RenameEvent -= Rename;
+                Wrapper.CopyEvent -= Copy;
+                Wrapper.CutEvent -= Cut;
+                Wrapper.PasteEvent -= Paste;
+                Wrapper.DeleteEvent -= Delete;
+
+                Menu = null;
+
+                AppDomainHelper.ReleaseSponsor(Wrapper);
+
+                Wrapper = null;
             }
         }
+        protected virtual void DetermineWrapper()
+        {
+            IBasePathWrapper wrapper = TryWrapPath(FilePath);
+
+            if (wrapper != null)
+            {
+                wrapper.RenameEvent += Rename;
+                wrapper.CopyEvent += Copy;
+                wrapper.CutEvent += Cut;
+                wrapper.PasteEvent += Paste;
+                wrapper.DeleteEvent += Delete;
+
+                Menu = wrapper.Menu;
+
+                AppDomainHelper.Sponsor(wrapper);
+            }
+
+            Wrapper = wrapper;
+        }
+
+        public IBasePathWrapper Wrapper { get; protected set; }
 
         public virtual string FilePath
         {
@@ -67,13 +104,14 @@ namespace TheraEditor.Wrappers
             {
                 Name = value;
                 Text = Path.GetFileName(value);
+
                 if (Wrapper != null)
                     Wrapper.FilePath = value;
             }
         }
 
         protected bool _isPopulated = false;
-        private ITheraMenu _menu = TMenu.Default();
+        private ITheraMenu _menu;
 
         public new ResourceTree TreeView => (ResourceTree)base.TreeView;
         public new ContentTreeNode Parent => base.Parent as ContentTreeNode; //Parent may be null
@@ -85,16 +123,22 @@ namespace TheraEditor.Wrappers
             get => _menu;
             set
             {
-                ContextMenuStrip?.Dispose();
-                ContextMenuStrip = null;
+                if (ContextMenuStrip != null)
+                {
+                    ContextMenuStrip.Opening -= Strip_Opening;
+                    ContextMenuStrip.Closing -= Strip_Closing;
+                    ContextMenuStrip.Dispose();
+                    ContextMenuStrip = null;
+                }
 
                 _menu = value;
 
-                GenerateMenu(_menu);
+                GenerateMenu();
             }
         }
 
-        private void GenerateMenu(ITheraMenu menu)
+        protected void GenerateMenu() => GenerateMenu(_menu);
+        protected void GenerateMenu(ITheraMenu menu)
         {
             ContextMenuStrip strip = new ContextMenuStrip
             {
@@ -104,8 +148,18 @@ namespace TheraEditor.Wrappers
 
             GenerateMenu(menu, strip.Items);
 
+            strip.Tag = menu;
+
             ContextMenuStrip = strip;
+            ContextMenuStrip.Opening += Strip_Opening;
+            ContextMenuStrip.Closing += Strip_Closing;
         }
+
+        protected virtual void Strip_Closing(object sender, ToolStripDropDownClosingEventArgs e) 
+            => ((ITheraMenu)ContextMenuStrip.Tag).OnOpening();
+        protected virtual void Strip_Opening(object sender, System.ComponentModel.CancelEventArgs e) 
+            => ((ITheraMenu)ContextMenuStrip.Tag).OnClosing();
+
         private static void GenerateMenu(ITheraMenu menu, ToolStripItemCollection coll)
         {
             if (menu is null)
@@ -137,26 +191,6 @@ namespace TheraEditor.Wrappers
         protected static T GetInstance<T>() where T : ContentTreeNode
             => Tree.SelectedNode as T;
 
-        public void OpenInExplorer(bool openDirect)
-        {
-            string path = FilePath;
-
-            if (string.IsNullOrEmpty(path))
-                return;
-
-            if (openDirect)
-                Process.Start(path);
-            else
-            {
-                string dir = Path.GetDirectoryName(path);
-
-                if (string.IsNullOrEmpty(dir))
-                    return;
-
-                Process.Start("explorer.exe", dir);
-            }
-        }
-
         public abstract void Delete();
         public void Rename()
         {
@@ -179,27 +213,27 @@ namespace TheraEditor.Wrappers
         public static ContentTreeNode Wrap(string path)
         {
             ContentTreeNode treeNode = null;
+
             bool? isDir = path.IsExistingDirectoryPath();
-            if (isDir is null)
-                return null;
-            TypeProxy type = TFileObject.DetermineType(path, out _);
-            IBasePathWrapper wrapper = TryWrapType(type) ?? new UnknownFileWrapper() { FilePath = path };
-            bool dir = isDir.Value;
-            if (dir)
+            if (isDir != null)
             {
-                try
+                bool dir = isDir.Value;
+                if (dir)
                 {
-                    treeNode = new FolderTreeNode(path);
-                    if (Directory.GetFileSystemEntries(path).Length > 0)
-                        treeNode.Nodes.Add("...");
+                    //try
+                    //{
+                        treeNode = new FolderTreeNode(path);
+                        if (Directory.GetFileSystemEntries(path).Length > 0)
+                            treeNode.Nodes.Add("...");
+                    //}
+                    //catch { }
                 }
-                catch { }
+                else
+                {
+                    treeNode = new FileTreeNode(path);
+                }
             }
-            else
-            {
-                treeNode = new FileTreeNode(path);
-            }
-            treeNode.Wrapper = wrapper;
+
             return treeNode;
         }
         //public static BaseFileWrapper Wrap(TFileObject file)
@@ -216,10 +250,38 @@ namespace TheraEditor.Wrappers
         //}
         public static IBasePathWrapper TryWrapPath(string path)
         {
-            TypeProxy t = TFileObject.DetermineType(path, out _);
-            return TryWrapType(t) ?? new UnknownFileWrapper() { FilePath = path };
+            IBasePathWrapper typeWrapper;
+            if (path.IsExistingDirectoryPath() == true)
+                typeWrapper = new FolderWrapper();
+            else
+            {
+                string ext = Path.GetExtension(path);
+
+                if (ext.Length > 0)
+                    ext = ext.Substring(1).ToLowerInvariant();
+
+                typeWrapper = TryWrap3rdPartyExt(ext);
+                if (typeWrapper is null)
+                {
+                    TypeProxy type = !string.IsNullOrWhiteSpace(path) && File.Exists(path) ? TFileObject.DetermineType(path, out _) : null;
+                    typeWrapper = TryWrapProprietaryType(type);
+                    if (typeWrapper is null)
+                        typeWrapper = new UnknownFileWrapper();
+                }
+            }
+            typeWrapper.FilePath = path;
+            return typeWrapper;
         }
-        public static IBasePathWrapper TryWrapType(TypeProxy type)
+        public static IBasePathWrapper TryWrap3rdPartyExt(string ext)
+        {
+            var wrappers = Editor.DomainProxy.ThirdPartyWrappers;
+
+            if (wrappers.TryGetValue(ext, out TypeProxy wrapperType))
+                return wrapperType.CreateInstance() as IBasePathWrapper;
+            
+            return null;
+        }
+        public static IBasePathWrapper TryWrapProprietaryType(TypeProxy type)
         {
             if (type is null)
                 return null;
@@ -231,11 +293,8 @@ namespace TheraEditor.Wrappers
             TypeProxy currentType = type;
             while (!(currentType is null) && wrapper is null)
             {
-                if (wrappers.TryGetValue(currentType, out TypeProxy matchType))
-                {
-                    TypeProxy wrapperType = wrappers[currentType];
+                if (wrappers.TryGetValue(currentType, out TypeProxy wrapperType))
                     wrapper = wrapperType.CreateInstance() as IBasePathWrapper;
-                }
                 else
                 {
                     TypeProxy[] interfaces = currentType.GetInterfaces();
@@ -258,23 +317,21 @@ namespace TheraEditor.Wrappers
                         else
                             interfaceType = validInterfaces[0];
 
-                        if (wrappers.TryGetValue(interfaceType, out matchType))
-                            wrapper = matchType.CreateInstance() as IBasePathWrapper;
+                        if (wrappers.TryGetValue(interfaceType, out wrapperType))
+                            wrapper = wrapperType.CreateInstance() as IBasePathWrapper;
                     }
                 }
 
                 currentType = currentType.BaseType;
             }
 
-            if (wrapper is null)
-            {
-                //Make wrapper for whatever file type this is
-                wrapper = new FileWrapper();
-                //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
-                //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
-            }
-
-
+            //if (wrapper is null)
+            //{
+            //    //Make wrapper for whatever file type this is
+            //    wrapper = new FileWrapper();
+            //    //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
+            //    //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
+            //}
 
             return wrapper;
         }

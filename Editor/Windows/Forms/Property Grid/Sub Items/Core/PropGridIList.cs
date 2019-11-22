@@ -90,22 +90,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.DestroyHandle();
         }
 
-        private async void LoadList(IList list)
+        private void LoadList(IList list)
         {
             if (propGridListItems.InvokeRequired)
             {
-                propGridListItems.BeginInvoke((Action<IList>)LoadList, list);
+                propGridListItems.Invoke((Action<IList>)LoadList, list);
                 return;
             }
 
-            propGridListItems.PropertyTable.SuspendLayout();
+            //propGridListItems.PropertyTable.SuspendLayout();
             propGridListItems.DestroyProperties();
 
             if (list != null)
             {
                 _displayedCount = list.Count;
-                await Task.Run(() =>
-                {
+                //await Task.Run(() =>
+                //{
                     ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
                     ConcurrentDictionary<Type, Deque<Type>> editorTypeCaches = new ConcurrentDictionary<Type, Deque<Type>>();
 
@@ -143,12 +143,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         label.MouseDown += Label_MouseDown;
                         label.MouseUp += Label_MouseUp;
                     }
-                });
+                //});
             }
             else
                 _displayedCount = 0;
 
-            propGridListItems.PropertyTable.ResumeLayout(true);
+            //propGridListItems.PropertyTable.ResumeLayout(true);
         }
 
         private void Label_HandleDestroyed(object sender, EventArgs e)

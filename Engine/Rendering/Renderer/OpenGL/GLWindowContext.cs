@@ -157,7 +157,7 @@ namespace TheraEngine.Rendering.OpenGL
         protected class GLThreadSubContext : ThreadSubContext
         {
             private IGraphicsContext _context;
-            private EVSyncMode _vsyncMode = EVSyncMode.Adaptive;
+            private EVSyncMode _vsyncMode = EVSyncMode.Disabled;
 
             public IWindowInfo WindowInfo { get; private set; }
 

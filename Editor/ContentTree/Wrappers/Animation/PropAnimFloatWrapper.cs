@@ -5,5 +5,5 @@ using TheraEngine.Animation;
 namespace TheraEditor.Wrappers
 {
     [TreeFileType(nameof(Resources.GenericFile), nameof(Resources.GenericFile))]
-    public class PropAnimFloatWrapper : FileEditorWrapperBase<PropAnimFloat, DockablePropAnimFloatGraph> { }
+    public class PropAnimFloatWrapper : DockableFileEditorWrapperBase<PropAnimFloat, DockablePropAnimFloatGraph> { }
 }

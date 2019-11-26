@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheraEditor.Wrappers;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -80,7 +81,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             _wasVisible = pnlProps.Visible;
             if (_wasNull = _object is null)
+            {
                 _object = DataType.CreateInstance();
+                AppDomainHelper.Sponsor(_object);
+            }
             if (!pnlProps.Visible)
                 pnlProps.Visible = true;
             UpdateDisplay();

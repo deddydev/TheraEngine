@@ -96,12 +96,14 @@ namespace TheraEditor
             if (reloadNow)
             {
                 Stopwatch watch = Stopwatch.StartNew();
-                Engine.PrintLine(EOutputVerbosity.Verbose, "Loading file wrappers.");
-                await Task.Run(() => Parallel.ForEach(AppDomainHelper.ExportedTypes, EvaluateType)).ContinueWith(t =>
-                {
-                    watch.Stop();
-                    Engine.PrintLine(EOutputVerbosity.Verbose, $"File wrappers loaded in {Math.Round((watch.ElapsedMilliseconds / 1000.0), 2).ToString()} seconds.");
-                });
+
+                Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Loading file wrappers.");
+
+                await Task.Run(() => Parallel.ForEach(AppDomainHelper.ExportedTypes, EvaluateType));
+                
+                watch.Stop();
+
+                Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] File wrappers loaded in {Math.Round((watch.ElapsedMilliseconds / 1000.0), 2).ToString()} seconds.");
             }
         }
         private void EvaluateType(TypeProxy asmType)
@@ -156,8 +158,7 @@ namespace TheraEditor
         {
             var propControls = AppDomainHelper.FindTypes(x =>
                 !x.IsAbstract &&
-                x.IsSubclassOf(typeof(PropGridItem)),
-                Assembly.GetExecutingAssembly());
+                x.IsSubclassOf(typeof(PropGridItem)));
 
             propControls.ForEachParallel(AddPropControlEditorType);
         }
@@ -182,8 +183,7 @@ namespace TheraEditor
             var fullEditors = AppDomainHelper.FindTypes(x =>
                 !x.IsAbstract &&
                 x.IsSubclassOf(typeof(Form)) &&
-                x.HasCustomAttribute<EditorForAttribute>(),
-                Assembly.GetExecutingAssembly());
+                x.HasCustomAttribute<EditorForAttribute>());
 
             fullEditors.ForEachParallel(AddFullEditorType);
         }
@@ -239,8 +239,10 @@ namespace TheraEditor
                 return;
 
             World world = await RunOperationAsync(
-                "Loading world from " + filePath, "World loaded successfully.",
-                async (p, c) => await TFileObject.LoadAsync<World>(filePath, p, c.Token));
+                "Loading world from " + filePath, 
+                "World loaded successfully.",
+                async (p, c, a) => await TFileObject.LoadAsync<World>(filePath, p, c.Token),
+                null);
 
             SetWorld_Internal(world);
         }
@@ -319,8 +321,11 @@ namespace TheraEditor
         }
         private async void SaveFile(IFileObject file, string filePath, ESerializeFlags flags = ESerializeFlags.Default)
         {
-            await RunOperationAsync("Saving file...", "File saved.",
-                async (p, c) => await file.ExportAsync(filePath, flags, p, c.Token));
+            await RunOperationAsync(
+                "Saving file...",
+                "File saved.",
+                async (p, c, a) => await file.ExportAsync(filePath, flags, p, c.Token),
+                null);
         }
 
         private List<OperationInfo> Operations { get; } = new List<OperationInfo>();
@@ -328,7 +333,7 @@ namespace TheraEditor
         public int ProgressMinValue { get; set; } = 0;
         public int ProgressMaxValue { get; set; } = 100000;
 
-        public async void Import(TypeProxy fileType, string dir)
+        public async void ImportFile(TypeProxy fileType, string dir)
         {
             if (fileType.ContainsGenericParameters)
             {
@@ -357,30 +362,65 @@ namespace TheraEditor
                 path = ofd.FileName;
             }
 
-            object file = await Editor.RunOperationAsync(
-                $"Importing '{path}'...", "Import completed.", async (p, c) =>
-                await TFileObject.LoadAsync((Type)fileType, path, p, c.Token));
+            object file = await RunOperationAsync(
+                $"Importing '{path}'...",
+                $"Import from '{path}' completed.", 
+                async (p, c) => await TFileObject.LoadAsync((Type)fileType, path, p, c.Token));
 
             if (file is null || !Serializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
                 return;
 
-            Serializer serializer = new Serializer();
-            await Editor.RunOperationAsync($"Saving to '{filePath}'...", "Saved successfully.", async (p, c) =>
-            await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, p, c.Token));
+            await RunOperationAsync(
+                $"Saving to '{filePath}'...", 
+                $"Saved file to '{filePath}' successfully.", 
+                async (p, c) => await new Serializer().SerializeXMLAsync(file, filePath, ESerializeFlags.Default, p, c.Token));
         }
 
         public int TargetOperationValue { get; private set; }
 
-        public async Task<T> RunOperationAsync<T>(
+        public async void RunOperationAsync2<T>(
             string statusBarMessage,
             string finishedMessage,
-            Func<MarshalProgress<float>, CancellationTokenSource, Task<T>> task,
-            TimeSpan? maxOperationTime = null)
+            Func<MarshalProgress<float>, CancellationTokenSource, object[], Task<T>> task,
+            TimeSpan? maxOperationTime,
+            params object[] args)
         {
             int index = BeginOperation(
                 statusBarMessage, finishedMessage,
                 out MarshalProgress<float> progress, out CancellationTokenSource cancel,
                 maxOperationTime);
+
+            await task(progress, cancel, args);
+
+            EndOperation(index);
+        }
+
+        public async Task<T> RunOperationAsync<T>(
+            string statusBarMessage,
+            string finishedMessage,
+            Func<MarshalProgress<float>, CancellationTokenSource, object[], Task<T>> task,
+            TimeSpan? maxOperationTime,
+            params object[] args)
+        {
+            int index = BeginOperation(
+                statusBarMessage, finishedMessage,
+                out MarshalProgress<float> progress, out CancellationTokenSource cancel,
+                maxOperationTime);
+
+            T value = await task(progress, cancel, args);
+
+            EndOperation(index);
+
+            return value;
+        }
+        public async Task<T> RunOperationAsync<T>(
+            string statusBarMessage,
+            string finishedMessage,
+            Func<MarshalProgress<float>, CancellationTokenSource, Task<T>> task)
+        {
+            int index = BeginOperation(
+                statusBarMessage, finishedMessage,
+                out MarshalProgress<float> progress, out CancellationTokenSource cancel);
 
             T value = await task(progress, cancel);
 
@@ -391,13 +431,27 @@ namespace TheraEditor
         public async Task RunOperationAsync(
             string statusBarMessage,
             string finishedMessage,
-            Func<MarshalProgress<float>, CancellationTokenSource, Task> task,
-            TimeSpan? maxOperationTime = null)
+            Func<MarshalProgress<float>, CancellationTokenSource, object[], Task> task,
+            TimeSpan? maxOperationTime,
+            params object[] args)
         {
             int index = BeginOperation(
                 statusBarMessage, finishedMessage,
                 out MarshalProgress<float> progress, out CancellationTokenSource cancel,
                 maxOperationTime);
+
+            await task(progress, cancel, args);
+
+            EndOperation(index);
+        }
+        public async Task RunOperationAsync(
+            string statusBarMessage,
+            string finishedMessage,
+            Func<MarshalProgress<float>, CancellationTokenSource, Task> task)
+        {
+            int index = BeginOperation(
+                statusBarMessage, finishedMessage,
+                out MarshalProgress<float> progress, out CancellationTokenSource cancel);
 
             await task(progress, cancel);
 

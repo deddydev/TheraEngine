@@ -892,7 +892,6 @@
     <Compile Include="Models\Materials\Functions\MaterialFunction.cs" />
     <Compile Include="Models\Materials\Functions\MatFuncExecInput.cs" />
     <Compile Include="Models\Materials\Functions\MatFuncExecOutput.cs" />
-    <None Include="OpenTK.dll.config" />
     <None Include="TheraDevKey.pfx" />
     <None Include="ThirdParty\Collada\Parser\Core\Animation.cs" />
     <Compile Include="ThirdParty\Collada\ColladaAssetDecoder.cs" />
@@ -1181,7 +1180,7 @@
     <Compile Include="Actors\ComponentActors\AudioActor.cs" />
     <Compile Include="Actors\Special\TransformTool2D.cs" />
     <Compile Include="Actors\Pawns\CharacterPawn.cs" />
-    <Compile Include="Actors\Pawns\UserInterface.cs" />
+    <Compile Include="Actors\Pawns\UserInterfacePawn.cs" />
     <Compile Include="Actors\Pawns\FlyingCameraPawnLagged.cs" />
     <Compile Include="Components\Scene\Misc\LandscapeComponent.cs" />
     <Compile Include="Actors\Pawn.cs" />

@@ -1,18 +1,10 @@
 ﻿using Extensions;
 using Microsoft.VisualBasic.FileIO;
 using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Core.Files;
-using TheraEngine.Core.Reflection;
-using TheraEngine.Scripting;
 
 namespace TheraEditor.Wrappers
 {
@@ -26,31 +18,41 @@ namespace TheraEditor.Wrappers
 
         protected override void DestroyWrapper()
         {
-            ((IFolderWrapper)Wrapper).NewFolderEvent -= NewFolder;
+            if (Wrapper is IFolderWrapper wrapper)
+                wrapper.NewFolderEvent -= NewFolder;
+
             base.DestroyWrapper();
         }
         protected override void DetermineWrapper()
         {
             base.DetermineWrapper();
-            ((IFolderWrapper)Wrapper).NewFolderEvent += NewFolder;
+
+            if (Wrapper is IFolderWrapper wrapper)
+                wrapper.NewFolderEvent += NewFolder;
         }
 
         protected override void Instance_DomainProxyPostSet(TheraEngine.Core.EngineDomainProxy proxy)
         {
             base.Instance_DomainProxyPostSet(proxy);
-            proxy.ReloadTypeCaches += LoadFileTypes;
+
+            if (proxy != null)
+                proxy.ReloadTypeCaches += LoadFileTypes;
+
             LoadFileTypes(true);
         }
         protected override void Instance_DomainProxyPreUnset(TheraEngine.Core.EngineDomainProxy proxy)
         {
             base.Instance_DomainProxyPreUnset(proxy);
-            proxy.ReloadTypeCaches -= LoadFileTypes;
+
+            if (proxy != null)
+                proxy.ReloadTypeCaches -= LoadFileTypes;
+
             LoadFileTypes(false);
         }
 
         public void LoadFileTypes(bool now)
         {
-            ((IFolderWrapper)Wrapper).LoadFileTypes(now);
+            (Wrapper as IFolderWrapper)?.LoadFileTypes(now);
             GenerateMenu();
         }
 

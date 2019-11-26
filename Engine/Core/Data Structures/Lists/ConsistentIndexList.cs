@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Extensions;
 
 namespace TheraEngine.Core
@@ -12,6 +13,7 @@ namespace TheraEngine.Core
         private readonly List<T> _list = new List<T>();
         private readonly List<int> _nullIndices = new List<int>();
         private readonly List<int> _activeIndices = new List<int>();
+        private readonly ReaderWriterLockSlim _rwl = new ReaderWriterLockSlim();
 
         public int Count => _activeIndices.Count;
         public T this[int index]
@@ -19,13 +21,14 @@ namespace TheraEngine.Core
             get => _list[index];
             set
             {
-                lock (_activeIndices)
-                {
-                    if (_list[index] == default && value != default)
-                        _activeIndices.Add(index);
-                    else if (_list[index] != default && value == default)
-                        _activeIndices.Remove(index);
-                }
+                _rwl.EnterWriteLock();
+                
+                if (_list[index] == default && value != default)
+                    _activeIndices.Add(index);
+                else if (_list[index] != default && value == default)
+                    _activeIndices.Remove(index);
+                
+                _rwl.ExitWriteLock();
 
                 _list[index] = value;
             }
@@ -51,10 +54,9 @@ namespace TheraEngine.Core
                 index = _list.Count;
                 _list.Add(item);
             }
-            lock (_activeIndices)
-            {
-                _activeIndices.Add(index);
-            }
+            _rwl.EnterWriteLock();
+            _activeIndices.Add(index);
+            _rwl.ExitWriteLock();
             return index;
         }
         public void Remove(T item)
@@ -63,7 +65,7 @@ namespace TheraEngine.Core
         }
         public void RemoveAt(int index)
         {
-            if (index < 0)
+            if (!_list.IndexInRange(index))
                 return;
 
             if (index == _list.Count - 1)
@@ -80,10 +82,9 @@ namespace TheraEngine.Core
                     addIndex = ~addIndex;
                 _nullIndices.Insert(addIndex, index);
             }
-            lock (_activeIndices)
-            {
-                _activeIndices.Remove(index);
-            }
+            _rwl.EnterWriteLock();
+            _activeIndices.Remove(index);
+            _rwl.ExitWriteLock();
         }
 
         public bool HasValueAtIndex(int index)
@@ -91,20 +92,30 @@ namespace TheraEngine.Core
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            lock (_activeIndices)
+            try
             {
+                _rwl.EnterReadLock();
                 foreach (int i in _activeIndices)
                     if (_list.IndexInRange(i))
                         yield return _list[i];
             }
+            finally 
+            {
+                _rwl.ExitReadLock();
+            }
         }
         IEnumerator IEnumerable.GetEnumerator()
         {
-            lock (_activeIndices)
+            try
             {
+                _rwl.EnterReadLock();
                 foreach (int i in _activeIndices)
                     if (_list.IndexInRange(i))
                         yield return _list[i];
+            }
+            finally
+            {
+                _rwl.ExitReadLock();
             }
         }
     }

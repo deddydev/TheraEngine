@@ -42,22 +42,7 @@ namespace TheraEngine.Core.Files
         public FileRef() : this(string.Empty) { }
         public FileRef(TypeProxy type) : this(null, type) { }
         public FileRef(string filePath) : this(filePath, null) { }
-        public FileRef(string filePath, TypeProxy type) : base(filePath, type)
-        {
-            Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
-            Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
-        }
-
-        private void Instance_DomainProxyPostSet(EngineDomainProxy obj)
-        {
-            SubType = Engine.DomainProxy.GetTypeFor<T>();
-        }
-
-        private void Instance_DomainProxyPreUnset(EngineDomainProxy obj)
-        {
-            _file = null;
-        }
-
+        public FileRef(string filePath, TypeProxy type) : base(filePath, type) { }
         public FileRef(T file, string filePath) : this(filePath)
         {
             if (file != null)
@@ -111,6 +96,12 @@ namespace TheraEngine.Core.Files
             File = file;
         }
         #endregion
+
+        protected override void Instance_DomainProxyPreUnset(EngineDomainProxy obj)
+        {
+            base.Instance_DomainProxyPreUnset(obj);
+            _file = null;
+        }
 
         //TODO: export map actors externally, relative to map / world file location
         [TSerialize(nameof(File), Condition = nameof(StoredInternally))]

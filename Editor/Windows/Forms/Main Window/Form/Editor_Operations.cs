@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Timers;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -93,6 +94,21 @@ namespace TheraEditor.Windows.Forms
 
         public static EngineDomainProxyEditor DomainProxy => Engine.DomainProxy as EngineDomainProxyEditor;
 
+
+        public void ShowEditor(TypeProxy editorType, IFileObject file)
+        {
+            //TODO: Casting TypeProxy to Type: type cannot be for a user-created form.
+            //Try to fix this? Probably need to create the form in the game domain,
+            //but I'm not sure if that form can be hosted in the DockPanel on the UI domain
+            Type type = (Type)editorType;
+            Form form = Activator.CreateInstance(type, file) as Form;
+
+            if (form is DockContent dc && !(form is TheraForm))
+                dc.Show(DockPanel, DockState.Document);
+            else
+                form?.ShowDialog(this);
+        }
+
         public void SetSelectedTreeNode(TreeNode t)
         {
             if (t?.TreeView is null)
@@ -169,19 +185,33 @@ namespace TheraEditor.Windows.Forms
             Engine.PrintLine(message);
         }
 
+        public static void RunOperationAsync2<T>(
+            TimeSpan? maxOperationTime,
+            string statusBarMessage,
+            string finishedMessage,
+            Func<MarshalProgress<float>, CancellationTokenSource, object[], Task<T>> task,
+            params object[] args)
+            => DomainProxy.RunOperationAsync2(statusBarMessage, finishedMessage, task, maxOperationTime, args);
+
         public static async Task<T> RunOperationAsync<T>(
-           string statusBarMessage,
-           string finishedMessage,
-           Func<MarshalProgress<float>, CancellationTokenSource, Task<T>> task,
-           TimeSpan? maxOperationTime = null)
-            => await DomainProxy.RunOperationAsync(statusBarMessage, finishedMessage, task, maxOperationTime);
+            TimeSpan? maxOperationTime,
+            string statusBarMessage,
+            string finishedMessage,
+            Func<MarshalProgress<float>, CancellationTokenSource, object[], Task<T>> task,
+            params object[] args)
+            => await DomainProxy.RunOperationAsync(statusBarMessage, finishedMessage, task, maxOperationTime, args);
+
+        public static async Task<T> RunOperationAsync<T>(
+            string statusBarMessage,
+            string finishedMessage,
+            Func<MarshalProgress<float>, CancellationTokenSource, Task<T>> task)
+            => await DomainProxy.RunOperationAsync(statusBarMessage, finishedMessage, task);
 
         public static async Task RunOperationAsync(
            string statusBarMessage,
            string finishedMessage,
-           Func<MarshalProgress<float>, CancellationTokenSource, Task> task,
-           TimeSpan? maxOperationTime = null)
-            => await DomainProxy.RunOperationAsync(statusBarMessage, finishedMessage, task, maxOperationTime);
+           Func<MarshalProgress<float>, CancellationTokenSource, Task> task)
+            => await DomainProxy.RunOperationAsync(statusBarMessage, finishedMessage, task);
         
         public object DisplayForm<T>(params object[] args) where T : Form
         {
@@ -189,5 +219,8 @@ namespace TheraEditor.Windows.Forms
             form.Show();
             return form;
         }
+
+        public void EditText<T>(T file, DockState dockState = DockState.Document) where T : TextFile
+            => DockableTextEditor.ShowNew(DockPanel, dockState, file);
     }
 }

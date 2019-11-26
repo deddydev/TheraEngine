@@ -26,7 +26,7 @@ namespace TheraEngine.Core.Files.Serialization
             protected abstract Task ReadTreeAsync();
             public async Task<object> CreateObjectAsync()
             {
-                Engine.PrintLine("Deserializing object...");
+                Engine.PrintLine("Deserializing object from " + FilePath);
 
                 await ReadTreeAsync();
 

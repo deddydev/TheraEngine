@@ -88,14 +88,20 @@ namespace TheraEditor.Wrappers
                 wrapper.DeleteEvent += Delete;
 
                 Menu = wrapper.Menu;
-
-                AppDomainHelper.Sponsor(wrapper);
             }
 
             Wrapper = wrapper;
         }
 
-        public IBasePathWrapper Wrapper { get; protected set; }
+        public IBasePathWrapper Wrapper 
+        {
+            get => _wrapper;
+            protected set
+            {
+                _wrapper = value;
+                AppDomainHelper.Sponsor(_wrapper);
+            }
+        }
 
         public virtual string FilePath
         {
@@ -112,13 +118,14 @@ namespace TheraEditor.Wrappers
 
         protected bool _isPopulated = false;
         private ITheraMenu _menu;
+        private IBasePathWrapper _wrapper;
 
         public new ResourceTree TreeView => (ResourceTree)base.TreeView;
         public new ContentTreeNode Parent => base.Parent as ContentTreeNode; //Parent may be null
 
         public bool IsPopulated => _isPopulated;
 
-        public ITheraMenu Menu 
+        public ITheraMenu Menu
         {
             get => _menu;
             set
@@ -133,6 +140,8 @@ namespace TheraEditor.Wrappers
 
                 _menu = value;
 
+                AppDomainHelper.Sponsor(_menu);
+
                 GenerateMenu();
             }
         }
@@ -146,43 +155,67 @@ namespace TheraEditor.Wrappers
                 Renderer = new TheraForm.TheraToolStripRenderer()
             };
 
-            GenerateMenu(menu, strip.Items);
+            AddMenuToCollection(menu, strip.Items);
 
             strip.Tag = menu;
+            AppDomainHelper.Sponsor(menu);
 
             ContextMenuStrip = strip;
             ContextMenuStrip.Opening += Strip_Opening;
             ContextMenuStrip.Closing += Strip_Closing;
         }
 
-        protected virtual void Strip_Closing(object sender, ToolStripDropDownClosingEventArgs e) 
+        protected virtual void Strip_Closing(object sender, ToolStripDropDownClosingEventArgs e)
             => ((ITheraMenu)ContextMenuStrip.Tag).OnOpening();
-        protected virtual void Strip_Opening(object sender, System.ComponentModel.CancelEventArgs e) 
+        protected virtual void Strip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
             => ((ITheraMenu)ContextMenuStrip.Tag).OnClosing();
 
-        private static void GenerateMenu(ITheraMenu menu, ToolStripItemCollection coll)
+        private static void AddMenuToCollection(ITheraMenu menu, ToolStripItemCollection coll)
         {
             if (menu is null)
                 return;
 
             foreach (ITheraMenuItem item in menu)
+                AddItemToCollection(item, coll);
+        }
+
+        private static void AddItemToCollection(ITheraMenuItem item, ToolStripItemCollection coll)
+        {
+            if (item is ITheraMenuDivider)
+                coll.Add(new ToolStripSeparator());
+            else if (item is ITheraMenuOption op)
             {
-                if (item is ITheraMenuDivider)
-                    coll.Add(new ToolStripSeparator());
-                else if (item is ITheraMenuOption op)
-                {
-                    ToolStripMenuItem menuItem = new ToolStripMenuItem(op.Text, null, MenuItemClicked, op.HotKeys) { Tag = op };
-                    GenerateMenu(op, menuItem.DropDownItems);
-                    coll.Add(menuItem);
-                }
+                ToolStripMenuItem menuItem = new ToolStripMenuItem(op.Text, null, MenuItemClicked, op.HotKeys);
+                menuItem.Tag = new ItemWrapper(menuItem, op);
+                AppDomainHelper.Sponsor(op);
+                AddMenuToCollection(op, menuItem.DropDownItems);
+                coll.Add(menuItem);
             }
+        }
+
+        private class ItemWrapper : TObjectSlim
+        {
+            public ITheraMenuOption Option { get; set; }
+            public ToolStripMenuItem Item { get; set; }
+
+            public ItemWrapper(ToolStripMenuItem item, ITheraMenuOption option)
+            {
+                Item = item;
+                Option = option;
+
+                option.ChildAdded += Option_ChildAdded;
+                option.ChildrenCleared += Option_ChildrenCleared;
+            }
+
+            private void Option_ChildrenCleared() => Item.DropDownItems.Clear();
+            private void Option_ChildAdded(ITheraMenuItem item) => AddItemToCollection(item, Item.DropDownItems);
         }
 
         private static void MenuItemClicked(object sender, EventArgs e)
         {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
-            ITheraMenuOption op = item?.Tag as ITheraMenuOption;
-            op?.ExecuteAction();
+            ItemWrapper op = item?.Tag as ItemWrapper;
+            op?.Option?.ExecuteAction();
         }
 
         protected static ResourceTree Tree
@@ -222,9 +255,9 @@ namespace TheraEditor.Wrappers
                 {
                     //try
                     //{
-                        treeNode = new FolderTreeNode(path);
-                        if (Directory.GetFileSystemEntries(path).Length > 0)
-                            treeNode.Nodes.Add("...");
+                    treeNode = new FolderTreeNode(path);
+                    if (Directory.GetFileSystemEntries(path).Length > 0)
+                        treeNode.Nodes.Add("...");
                     //}
                     //catch { }
                 }
@@ -278,7 +311,7 @@ namespace TheraEditor.Wrappers
 
             if (wrappers.TryGetValue(ext, out TypeProxy wrapperType))
                 return wrapperType.CreateInstance() as IBasePathWrapper;
-            
+
             return null;
         }
         public static IBasePathWrapper TryWrapProprietaryType(TypeProxy type)
@@ -325,13 +358,13 @@ namespace TheraEditor.Wrappers
                 currentType = currentType.BaseType;
             }
 
-            //if (wrapper is null)
-            //{
-            //    //Make wrapper for whatever file type this is
-            //    wrapper = new FileWrapper();
-            //    //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
-            //    //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
-            //}
+            if (wrapper is null)
+            {
+                //Make wrapper for whatever file type this is
+                wrapper = new FileWrapper() { FileType = type };
+                //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
+                //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
+            }
 
             return wrapper;
         }

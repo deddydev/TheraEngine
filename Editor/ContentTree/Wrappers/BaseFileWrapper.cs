@@ -70,7 +70,7 @@ namespace TheraEditor.Wrappers
         private TypeProxy _fileType;
         public TypeProxy FileType 
         {
-            get => _fileType;
+            get => _fileType ?? (_fileType = TFileObject.DetermineType(FilePath, out _));
             set
             {
                 _fileType = value;
@@ -110,7 +110,7 @@ namespace TheraEditor.Wrappers
                 //TODO: pre-resolve editor type
                 TypeProxy editorType = ResolveEditorType(FileType);
                 if (editorType != null)
-                    ShowEditor(editorType, file);
+                    Editor.Instance.ShowEditor(editorType, file);
                 else
                     Editor.SetPropertyGridObject(file);
             }
@@ -121,20 +121,6 @@ namespace TheraEditor.Wrappers
             var file = await TFileObject.LoadAsync<TextFile>(FilePath);
             if (file != null)
                 DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, file);
-        }
-
-        protected static void ShowEditor(TypeProxy editorType, IFileObject file)
-        {
-            //TODO: Casting TypeProxy to Type: type cannot be for a user-created form.
-            //Try to fix this? Probably need to create the form in the game domain,
-            //but I'm not sure if that form can be hosted in the DockPanel on the UI domain
-            Type type = (Type)editorType;
-            Form form = Activator.CreateInstance(type, file) as Form;
-
-            if (form is DockContent dc && !(form is TheraForm))
-                dc.Show(Editor.Instance.DockPanel, DockState.Document);
-            else
-                form?.ShowDialog(Editor.Instance);
         }
 
         public static TypeProxy ResolveEditorType(TypeProxy fileType)

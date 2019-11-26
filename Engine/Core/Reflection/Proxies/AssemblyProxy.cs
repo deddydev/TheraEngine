@@ -66,10 +66,10 @@ namespace TheraEngine.Core.Reflection
             if (other is null)
                 return false;
 
-#if EDITOR
-            if (other.Domain.IsGameDomain() && !Domain.IsGameDomain())
-                return other.EqualTo(this);
-#endif
+//#if EDITOR
+//            if (other.Domain.IsGameDomain() && !Domain.IsGameDomain())
+//                return other.EqualTo(this);
+//#endif
 
             return Value == other.Value;
         }

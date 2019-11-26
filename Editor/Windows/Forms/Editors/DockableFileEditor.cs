@@ -54,6 +54,8 @@ namespace TheraEditor.Windows.Forms
         DockContent, IDockableFileEditorControl<T>, IFileEditorControl
         where T : class, IFileObject
     {
+        public event Action FormClosedEvent;
+
         private T _file;
         public T File
         {
@@ -120,6 +122,11 @@ namespace TheraEditor.Windows.Forms
             if (isAllowed)
                 Editor.OpenEditors.Remove(this);
         }
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            FormClosedEvent?.Invoke();
+        }
         public bool AllowFileClose()
         {
             if (_file is null || !_file.HasEditorState || !_file.EditorState.IsDirty)
@@ -138,6 +145,10 @@ namespace TheraEditor.Windows.Forms
                 Save();
 
             return true;
+        }
+        public void InvokeFocus()
+        {
+            Invoke((Func<bool>)Focus);
         }
     }
 }

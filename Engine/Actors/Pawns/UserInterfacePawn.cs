@@ -55,7 +55,7 @@ namespace TheraEngine.Actors.Types.Pawns
         //[Browsable(false)]
         //public WorldFileRef<Camera> CanvasCamera { get; }
     }
-    public class UserInterface : UserInterface<UICanvasComponent>
+    public class UserInterface : UserInterfacePawn<UICanvasComponent>
     {
         public UserInterface() : base() { }
         public UserInterface(Vec2 bounds) : base(bounds) { }
@@ -65,9 +65,9 @@ namespace TheraEngine.Actors.Types.Pawns
     /// </summary>
     [TFileExt("ui")]
     [TFileDef("User Interface")]
-    public class UserInterface<T> : Pawn<T>, IUserInterface where T : UICanvasComponent, new()
+    public class UserInterfacePawn<T> : Pawn<T>, IUserInterface where T : UICanvasComponent, new()
     {
-        public UserInterface() : base()
+        public UserInterfacePawn() : base()
         {
             ScreenOverlayCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
             ScreenOverlayCamera.SetOriginBottomLeft();
@@ -75,7 +75,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
             _screenSpaceUIScene = new Scene2D();
         }
-        public UserInterface(Vec2 bounds) : this()
+        public UserInterfacePawn(Vec2 bounds) : this()
         {
             Resize(bounds);
         }

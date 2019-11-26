@@ -69,16 +69,17 @@ namespace TheraEditor.Windows.Forms
         {
 
         }
-        public async void Compile()
+        public void Compile()
         {
-            var project = Project;
-            if (project is null)
+            if (Project is null)
                 return;
 
-            await RunOperationAsync(
-                "Compiling project...",
-                "Finished compiling project.",
-                async (p, c) => await project.CompileAsync());
+            Project.CompileAsync();
+            //RunOperationAsync2(null,
+            //    "Compiling project...",
+            //    "Finished compiling project.",
+            //    async (p, c, a) => await ((TProject)a[0]).CompileAsync(),
+            //    Project);
         }
         private void btnCompile_Click(object sender, EventArgs e) => Compile();
         private void visualStudioToolStripMenuItem_Click(object sender, EventArgs e)

@@ -548,6 +548,8 @@ namespace TheraEngine
         {
             public void SetDomainProxy<T>(AppDomain domain, AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> prevDomain, string gamePath) where T : EngineDomainProxy, new()
             {
+                Trace.WriteLine($"Setting new domain proxy.");
+
                 EngineDomainProxy oldProxy = DomainProxy;
 
                 string domainName = domain.FriendlyName;
@@ -576,15 +578,15 @@ namespace TheraEngine
 
                 if (prevDomain != null)
                 {
-                    PrintLine($"Destroying game domain {prevDomain.Domain.FriendlyName}");
+                    Trace.WriteLine($"Destroying game domain {prevDomain.Domain.FriendlyName}");
 
                     AppDomainHelper.ResetAppDomainCache();
-                    PrintLine("Active domains before destroy: " + AppDomainHelper.AppDomainStringList);
+                    Trace.WriteLine("Active domains before destroy: " + AppDomainHelper.AppDomainStringList);
 
                     prevDomain.Dispose();
 
                     AppDomainHelper.ResetAppDomainCache();
-                    PrintLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
+                    Trace.WriteLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
                 }
 
                 DomainProxyPreSet?.Invoke(newProxy);
@@ -592,7 +594,7 @@ namespace TheraEngine
                 newProxy.Stopped += DomainProxy_Stopped;
                 DomainProxyPostSet?.Invoke(newProxy);
 
-                PrintLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : newProxy.Domain.FriendlyName)}.");
+                Trace.WriteLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : newProxy.Domain.FriendlyName)}.");
             }
 
             private void DomainProxy_Stopped()

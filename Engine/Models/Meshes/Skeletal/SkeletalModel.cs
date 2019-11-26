@@ -19,9 +19,9 @@ namespace TheraEngine.Rendering.Models
         
         [TSerialize("Skeleton")]
         public GlobalFileRef<Skeleton> _skeleton = new GlobalFileRef<Skeleton>();
-        [TSerialize("RigidChildren")]
+        [TSerialize("RigidChildren", DeserializeAsync = true)]
         public List<SkeletalRigidSubMesh> _rigidChildren = new List<SkeletalRigidSubMesh>();
-        [TSerialize("SoftChildren")]
+        [TSerialize("SoftChildren", DeserializeAsync = true)]
         public List<SkeletalSoftSubMesh> _softChildren = new List<SkeletalSoftSubMesh>();
 
         public GlobalFileRef<Skeleton> SkeletonRef => _skeleton;

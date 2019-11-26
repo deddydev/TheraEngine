@@ -654,10 +654,13 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
+            var world = DomainProxy.World;
+            if (world is null)
+                return;
+
             btnPlay.Text = "Play";
             btnPlayDetached.Text = "Play Detached";
 
-            var world = DomainProxy.World;
             if (_gameState == EEditorGameplayState.Attached)
             {
                 //Attached -> Editing
@@ -692,10 +695,13 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
+            var world = DomainProxy.World;
+            if (world is null)
+                return;
+
             btnPlay.Text = "Stop";
             btnPlayDetached.Text = "Play Attached";
 
-            var world = DomainProxy.World;
             if (_gameState == EEditorGameplayState.Attached)
             {
                 //Attached -> Detached
@@ -730,6 +736,10 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
+            var world = DomainProxy.World;
+            if (world is null)
+                return;
+
             btnPlay.Text = "Stop";
             btnPlayDetached.Text = "Play Detached";
 
@@ -742,7 +752,6 @@ namespace TheraEditor.Windows.Forms
             {
                 //Editing -> Attached
 
-                var world = DomainProxy.World;
                 world.EndPlay();
                 SetGameplayMode();
                 InputInterface.GlobalRegisters.Add(RegisterInput);

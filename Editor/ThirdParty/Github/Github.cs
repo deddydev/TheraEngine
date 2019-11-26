@@ -153,7 +153,10 @@ namespace TheraEditor
                     
                     Release release = await client.Repository.Release.Create(RepoOwner, RepoName, newRelease);
 
-                    await Editor.RunOperationAsync("Uploading zip file...", "Zip file uploaded successfully.", async (p, c) =>
+                    await Editor.RunOperationAsync(
+                        "Uploading zip file...", 
+                        "Zip file uploaded successfully.",
+                        async (p, c) =>
                     {
                         long currentBytes = 0L;
                         using (ProgressStream archiveContents = new ProgressStream(File.OpenRead(zipFilePath), null, null))

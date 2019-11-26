@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Core.Files;
 using TheraEngine.GameModes;
@@ -11,10 +10,10 @@ namespace TheraEditor.Windows.Forms
 {
     public interface IDockableFileEditorControl<T> : IFileEditorControl<T> where T : class, IFileObject
     {
-        event FormClosedEventHandler FormClosed;
+        event Action FormClosedEvent;
 
         void Show(DockPanel dockPanel, DockState document);
-        bool Focus();
+        void InvokeFocus();
     }
     public interface IFileEditorControl<T> where T : class, IFileObject
     {

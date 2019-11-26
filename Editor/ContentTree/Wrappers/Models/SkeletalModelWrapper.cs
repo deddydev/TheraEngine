@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Rendering.Models;
@@ -17,21 +16,22 @@ namespace TheraEditor.Wrappers
         {
             if (_form is null || _form.Disposing || _form.IsDisposed)
             {
-                var modelTask = FileRef.GetInstanceAsync();
+                var loadTask = FileRef.GetInstanceAsync();
 
                 _form = new ModelEditorForm();
-                _form.FormClosed += _form_FormClosed;
+                _form.CloseInvoked += _form_CloseInvoked;
                 _form.Show();
 
-                var model = await modelTask;
-                _form.SetModel(model);
+                var file = await loadTask;
+                _form.SetModel(file);
             }
             else
                 _form.Focus();
         }
-        private void _form_FormClosed(object sender, FormClosedEventArgs e)
+
+        private void _form_CloseInvoked()
         {
-            _form.FormClosed -= _form_FormClosed;
+            _form.CloseInvoked -= _form_CloseInvoked;
             _form = null;
         }
     }

@@ -5,11 +5,11 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers
 {
-    public class FileEditorWrapperBase<TFile, TEditor> : FileWrapper<TFile> 
+    public class DockableFileEditorWrapperBase<TFile, TEditor> : FileWrapper<TFile> 
         where TFile : class, IFileObject 
         where TEditor : class, IDockableFileEditorControl<TFile>, new()
     {
-        public FileEditorWrapperBase() : base() { }
+        public DockableFileEditorWrapperBase() : base() { }
         
         public TEditor FileEditor { get; private set; }
         public override async void Edit()
@@ -17,15 +17,15 @@ namespace TheraEditor.Wrappers
             if (FileEditor is null)
             {
                 FileEditor = Editor.Instance.DockEditor<TEditor, TFile>(DockState.Document);
-                FileEditor.FormClosed += Editor_FormClosed;
+                FileEditor.FormClosedEvent += Editor_FormClosed;
             }
             TFile file = await FileRef.GetInstanceAsync();
             FileEditor.File = file;
-            //FileEditor.Focus();
+            FileEditor.InvokeFocus();
         }
-        private void Editor_FormClosed(object sender, FormClosedEventArgs e)
+        private void Editor_FormClosed()
         {
-            //FileEditor.FormClosed -= Editor_FormClosed;
+            FileEditor.FormClosedEvent -= Editor_FormClosed;
             FileEditor = null;
         }
     }

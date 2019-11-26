@@ -790,7 +790,7 @@ namespace TheraEngine.Core.Files.Serialization
                             if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(TypeIdent, true))
                             {
                                 var proxy = Engine.DomainProxy;
-                                fileType = proxy.GetTypeFor(reader.Value); //Type.GetType(reader.Value);
+                                fileType = proxy?.GetTypeFor(reader.Value); //Type.GetType(reader.Value);
                             }
                         }
                         break;

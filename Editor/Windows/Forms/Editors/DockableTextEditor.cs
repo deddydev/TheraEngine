@@ -160,6 +160,7 @@ namespace TheraEditor.Windows.Forms
                 }
 
                 _targetFile = value;
+                AppDomainHelper.Sponsor(_targetFile);
 
                 path = _targetFile is null || _targetFile.RootFile != _targetFile ? string.Empty : _targetFile.FilePath ?? string.Empty;
                 if (_isStreaming = !string.IsNullOrWhiteSpace(path))
@@ -185,34 +186,40 @@ namespace TheraEditor.Windows.Forms
                     TextBox.Text = _targetFile.Text;
                 }
 
-                if (_targetFile is CSharpScript || path.EndsWith("cs", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Mode = ETextEditorMode.CSharp;
-                }
-                else if (_targetFile is PythonScript || path.EndsWith("py", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Mode = ETextEditorMode.Python;
-                }
-                else if (_targetFile is LuaScript || path.EndsWith("lua", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Mode = ETextEditorMode.Lua;
-                }
-                else if (_targetFile is GLSLScript || path.EndsWithAny(
-                    TFileObject.GetFile3rdPartyExtensions<GLSLScript>().Extensions, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    Mode = ETextEditorMode.GLSL;
-                }
-                else if (TextBox.Text.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
-                {
-                    Mode = ETextEditorMode.XML;
-                }
-                else
-                {
-                    Mode = ETextEditorMode.Text;
-                }
-                
+                DetermineMode();
+
                 TextBox.IsChanged = false;
                 TextBox.ClearUndo();
+            }
+        }
+
+        private void DetermineMode()
+        {
+            string path = _targetFile?.FilePath ?? string.Empty;
+            if (_targetFile is CSharpScript || path.EndsWith("cs", StringComparison.InvariantCultureIgnoreCase))
+            {
+                Mode = ETextEditorMode.CSharp;
+            }
+            else if (_targetFile is PythonScript || path.EndsWith("py", StringComparison.InvariantCultureIgnoreCase))
+            {
+                Mode = ETextEditorMode.Python;
+            }
+            else if (_targetFile is LuaScript || path.EndsWith("lua", StringComparison.InvariantCultureIgnoreCase))
+            {
+                Mode = ETextEditorMode.Lua;
+            }
+            else if (_targetFile is GLSLScript || path.EndsWithAny(
+                TFileObject.GetFile3rdPartyExtensions<GLSLScript>().Extensions, StringComparison.InvariantCultureIgnoreCase))
+            {
+                Mode = ETextEditorMode.GLSL;
+            }
+            else if (TextBox.Text.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
+            {
+                Mode = ETextEditorMode.XML;
+            }
+            else
+            {
+                Mode = ETextEditorMode.Text;
             }
         }
 

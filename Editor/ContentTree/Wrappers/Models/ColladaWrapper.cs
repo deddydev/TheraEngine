@@ -38,18 +38,19 @@ namespace TheraEditor.Wrappers
         }
         private async void ImportAsSkeleton()
         {
-            ColladaImportOptions o = new ColladaImportOptions()
-            {
-                IgnoreFlags =
+            var data = await Editor.RunOperationAsync(null,
+                $"Importing {Path.GetFileName(FilePath)} as skeleton...",
+                "Skeleton imported.",
+                async (p, c, a) => await Collada.ImportAsync(
+                    (string)a[0], new ColladaImportOptions()
+                {
+                    IgnoreFlags =
                     Collada.EIgnoreFlags.Extra |
                     Collada.EIgnoreFlags.Controllers |
                     Collada.EIgnoreFlags.Cameras |
                     Collada.EIgnoreFlags.Lights
-            };
-
-            var data = await Editor.RunOperationAsync(
-                $"Importing {Path.GetFileName(FilePath)} as skeleton...", "Skeleton imported.",
-                async (p, c) => await Collada.ImportAsync(FilePath, o, p, c.Token));
+                }, p, c.Token),
+                FilePath);
 
             if (data?.Models is null || data.Models.Count == 0)
                 return;
@@ -62,7 +63,8 @@ namespace TheraEditor.Wrappers
             string name = Path.GetFileNameWithoutExtension(FilePath);
 
             await Editor.RunOperationAsync(
-                "Saving skeleton...", "Skeleton saved.", 
+                "Saving skeleton...",
+                "Skeleton saved.", 
                 async (p, c) => await skeleton.ExportAsync(dir, name, ESerializeFlags.Default, EFileFormat.XML, null, p, c.Token));
         }
         private async void ImportAsStaticMesh()
@@ -76,8 +78,9 @@ namespace TheraEditor.Wrappers
                     Collada.EIgnoreFlags.Lights
             };
 
-            var data = await Editor.RunOperationAsync(
-                $"Importing {Path.GetFileName(FilePath)} as static model...", "Model imported.", 
+            Collada.ImportResult data = await Editor.RunOperationAsync(
+                $"Importing {Path.GetFileName(FilePath)} as static model...",
+                "Model imported.", 
                 async (p, c) => await Collada.ImportAsync(FilePath, o, p, c.Token));
 
             if (data is null || data.Models.Count == 0)

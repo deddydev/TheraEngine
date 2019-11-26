@@ -24,10 +24,10 @@ namespace Extensions
             => RemoteFunc.Invoke(domain, () => new List<Assembly>(
                 AppDomain.CurrentDomain.GetAssemblies()));
         public static bool IsPrimaryDomain(this AppDomain domain)
-            => AppDomainHelper.GetPrimaryAppDomain() == domain;
+            => AppDomainHelper.PrimaryAppDomain == domain;
 #if EDITOR
         public static bool IsGameDomain(this AppDomain domain)
-            => AppDomainHelper.GetGameAppDomain() == domain;
+            => AppDomainHelper.GameAppDomain == domain;
 #endif
     }
 }

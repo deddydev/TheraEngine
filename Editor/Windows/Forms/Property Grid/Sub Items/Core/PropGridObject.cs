@@ -228,7 +228,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void pnlProps_VisibleChanged(object sender, EventArgs e)
         {
             //TODO: execute on game domain
-            RemoteAction.Invoke(AppDomainHelper.GetGameAppDomain(), () =>
+            RemoteAction.Invoke(AppDomainHelper.GameAppDomain, () =>
             {
                 if (pnlProps.Visible)
                 {

@@ -10,6 +10,7 @@ using System.Runtime.Remoting;
 using System.Runtime.Remoting.Lifetime;
 using System.Security.Permissions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Core.Reflection
 {
@@ -50,11 +51,9 @@ namespace TheraEngine.Core.Reflection
         /// Returns the primary application domain.
         /// </summary>
         /// <returns>The primary application domain.</returns>
-        public static AppDomain GetPrimaryAppDomain()
-        {
-            return AppDomains.FirstOrDefault(x => Test(x));
-        }
-
+        private static AppDomain GetPrimaryAppDomain() => AppDomains.FirstOrDefault(x => Test(x));
+        public static AppDomain PrimaryAppDomain => PrimaryAppDomainLazy.Value;
+        private static Lazy<AppDomain> PrimaryAppDomainLazy = new Lazy<AppDomain>(GetPrimaryAppDomain, LazyThreadSafetyMode.PublicationOnly);
         private static bool Test(AppDomain x)
         {
             Process p = Process.GetCurrentProcess();
@@ -64,7 +63,9 @@ namespace TheraEngine.Core.Reflection
             return string.Equals(fn, n, StringComparison.InvariantCulture);
         }
 
-        public static AppDomain GetGameAppDomain()
+        public static AppDomain GameAppDomain => GameAppDomainLazy.Value;
+        private static Lazy<AppDomain> GameAppDomainLazy = new Lazy<AppDomain>(GetGameAppDomain, LazyThreadSafetyMode.PublicationOnly);
+        private static AppDomain GetGameAppDomain()
         {
             //There will only ever be two AppDomains loaded
             AppDomain primary = GetPrimaryAppDomain();
@@ -161,22 +162,14 @@ namespace TheraEngine.Core.Reflection
         /// <returns>All types that match the predicate.</returns>
         public static IEnumerable<TypeProxy> FindTypes(Predicate<TypeProxy> matchPredicate, params AssemblyProxy[] assemblies)
         {
-            //TODO: search all appdomains, return marshalbyrefobject list containing typeproxies
-            TypeProxy[] types;
-
-            if (assemblies != null && assemblies.Length > 0)
-                types = ExportedTypes.Where(x => assemblies.Contains(x.Assembly)).ToArray();
-            else
-                types = ExportedTypes;
-
-            Dictionary<int, TypeProxy> matches = new Dictionary<int, TypeProxy>();
-            //Parallel.For(0, types.Length, i =>
-            for (int i = 0; i < types.Length; ++i)
+            ConcurrentDictionary<int, TypeProxy> matches = new ConcurrentDictionary<int, TypeProxy>();
+            Parallel.For(0, ExportedTypes.Length, i =>
+            //for (int i = 0; i < types.Length; ++i)
             {
-                TypeProxy type = types[i];
-                if (matchPredicate(type))
-                    matches.Add(i, type);
-            }//);
+                TypeProxy type = ExportedTypes[i];
+                if ((assemblies.Length == 0 || assemblies.Contains(type.Assembly)) && matchPredicate(type))
+                    matches.TryAdd(i, type);
+            });
 
             return matches.Values.OrderBy(x => x.Name);
         }

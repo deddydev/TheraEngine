@@ -327,13 +327,13 @@ namespace System
                         for (int i = 0; i < _items.Count; ++i)
                         {
                             I3DRenderable r = _items[i] as I3DRenderable;
-#if EDITOR
-                            if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is ICamera cam && cam == camera))
-                                continue;
-                            bool editMode = Engine.EditorState.InEditMode;
-                            if (!editMode && r.RenderInfo.VisibleInEditorOnly)
-                                continue;
-#endif
+//#if EDITOR
+//                            if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is ICamera cam && cam == camera))
+//                                continue;
+//                            bool editMode = Engine.EditorState.InEditMode;
+//                            if (!editMode && r.RenderInfo.VisibleInEditorOnly)
+//                                continue;
+//#endif
                             bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
                             if (allowRender && (r.RenderInfo.CullingVolume is null || (c = cullingVolume.Contains(r.RenderInfo.CullingVolume)) != EContainment.Disjoint))
                             {

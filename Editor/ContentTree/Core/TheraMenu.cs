@@ -23,11 +23,17 @@ namespace TheraEditor.Wrappers
     }
     public interface ITheraMenu : IListProxy<ITheraMenuItem>
     {
+        event Action ChildrenCleared;
+        event Action<ITheraMenuItem> ChildAdded;
+
         void OnOpening();
         void OnClosing();
     }
     public class TMenu : TheraMenuItem, IListProxy<ITheraMenuItem>, ITheraMenu
     {
+        public event Action ChildrenCleared;
+        public event Action<ITheraMenuItem> ChildAdded;
+
         private ListProxy<ITheraMenuItem> _items = new ListProxy<ITheraMenuItem>();
 
         ITheraMenuItem IList<ITheraMenuItem>.this[int index] 
@@ -40,12 +46,18 @@ namespace TheraEditor.Wrappers
         bool ICollection<ITheraMenuItem>.IsReadOnly => _items.IsReadOnly;
 
         public void Add(ITheraMenuItem item)
-            => _items.Add(item);
+        {
+            _items.Add(item);
+            ChildAdded?.Invoke(item);
+        }
+        public void Clear()
+        {
+            _items.Clear();
+            ChildrenCleared?.Invoke();
+        }
 
         void ICollection<ITheraMenuItem>.Add(ITheraMenuItem item)
             => _items.Add((TheraMenuItem)item);
-        public void Clear() 
-            => _items.Clear();
         bool ICollection<ITheraMenuItem>.Contains(ITheraMenuItem item)
             => _items.Contains((TheraMenuItem)item);
         void ICollection<ITheraMenuItem>.CopyTo(ITheraMenuItem[] array, int arrayIndex)

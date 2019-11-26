@@ -30,26 +30,9 @@ namespace TheraEngine.Core.Files
         public delegate void DelPathChange(string oldPath, string newPath);
 
         #region Constructors
-        public FileLoader() : this(typeof(T)) { }
-        public FileLoader(TypeProxy type)
-        {
-            if (type.IsAssignableTo(typeof(T)))
-                SubType = type;
-            else
-                throw new Exception(type.GetFriendlyName() + " is not assignable to " + typeof(T).GetFriendlyName());
-
-            Path = new PathReference();
-        }
-        public FileLoader(string filePath)
-        {
-            SubType = typeof(T);
-            //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
-            //    throw new InvalidOperationException("Extension does not match type");
-            Path = new PathReference
-            {
-                Path = filePath
-            };
-        }
+        public FileLoader() : this(string.Empty) { }
+        public FileLoader(TypeProxy type) : this(null, type) { }
+        public FileLoader(string filePath) : this(filePath, null) { }
         public FileLoader(string filePath, TypeProxy type)
         {
             if (type != null && !type.IsAssignableTo(typeof(T)))
@@ -63,7 +46,24 @@ namespace TheraEngine.Core.Files
             {
                 Path = string.IsNullOrWhiteSpace(filePath) ? null : filePath
             };
+
+            if (AppDomainHelper.IsPrimaryDomain)
+            {
+                Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
+                Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
+            }
         }
+
+        protected virtual void Instance_DomainProxyPostSet(EngineDomainProxy obj)
+        {
+            SubType = obj?.GetTypeFor<T>() ?? typeof(T);
+        }
+
+        protected virtual void Instance_DomainProxyPreUnset(EngineDomainProxy obj)
+        {
+
+        }
+
         public FileLoader(string dir, string name, EProprietaryFileFormat format) 
             : this(GetFilePath(dir, name, format, typeof(T))) { }
         #endregion
@@ -71,7 +71,7 @@ namespace TheraEngine.Core.Files
         [Browsable(false)]
         public TypeProxy SubType
         {
-            get => _subType ?? (_subType = Engine.DomainProxy.GetTypeFor<T>());
+            get => _subType ?? (_subType = (Engine.DomainProxy?.GetTypeFor<T>() ?? typeof(T)));
             set
             {
                 if (!(value is null) && value.IsAssignableTo(typeof(T)))

@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering.Models
         
         [DisplayName("Levels Of Detail")]
         [Browsable(false)]
-        [TSerialize(Order = 2)]
+        [TSerialize(Order = 2, DeserializeAsync = true)]
         public IEventList<ILOD> LODs { get; set; }
 
         public BaseSubMesh() { }

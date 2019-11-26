@@ -1,14 +1,15 @@
-﻿using System.Windows.Forms;
-using TheraEditor.Properties;
+﻿using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
+using TheraEditor.Wrappers;
+using TheraEngine.Animation;
 using TheraEngine.Rendering.Models;
 
-namespace TheraEditor.Wrappers
+namespace TheraEditor.ContentTree.Wrappers.Animation
 {
     [TreeFileType(nameof(Resources.GenericFile), nameof(Resources.GenericFile))]
-    public class StaticModelWrapper : FileWrapper<StaticModel>
+    public class PropAnimVec3Wrapper : FileWrapper<PropAnimVec3>
     {
-        public StaticModelWrapper() : base() { }
+        public PropAnimVec3Wrapper() : base() { }
 
         private ModelEditorForm _form;
 
@@ -23,7 +24,7 @@ namespace TheraEditor.Wrappers
                 _form.Show();
 
                 var file = await loadTask;
-                _form.SetModel(file);
+                _form.SetAnim(file);
             }
             else
                 _form.Focus();

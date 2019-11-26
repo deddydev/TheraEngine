@@ -57,6 +57,23 @@ namespace TheraEditor.Wrappers
         public event Action NewFolderEvent;
         public void NewFolder() => NewFolderEvent?.Invoke();
 
+        private static bool IsFileObject(TypeProxy t) =>
+            !t.Assembly.EqualTo(Assembly.GetExecutingAssembly()) &&
+            !t.IsAbstract && !t.IsInterface && t.GetConstructors().Any(x => x.IsPublic) &&
+            t.IsSubclassOf(typeof(TFileObject)) &&
+            t.HasCustomAttribute<TFileExt>();
+
+        private static bool Is3rdPartyImportable(TypeProxy t)
+            => IsFileObject(t) && (t?.GetCustomAttribute<TFileExt>().HasAnyImportableExtensions ?? false);
+
+        private Lazy<List<Program.NamespaceNode>> ImportableTree { get; set; } 
+            = new Lazy<List<Program.NamespaceNode>>(() => Program.GenerateTypeTree(Is3rdPartyImportable),
+                System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
+
+        private Lazy<List<Program.NamespaceNode>> NewTree { get; set; }
+            = new Lazy<List<Program.NamespaceNode>>(() => Program.GenerateTypeTree(IsFileObject),
+                System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
+
         public void LoadFileTypes(bool now)
         {
             ImportFileOption.Clear();
@@ -69,25 +86,53 @@ namespace TheraEditor.Wrappers
             //newCodeItem.Add(new TMenuOption("Enum", null, NewEnumAction));
             //NewFileOption.Add(newCodeItem);
 
-            if (now)
+            if (!now)
+            {
+                ImportableTree = new Lazy<List<Program.NamespaceNode>>(() => 
+                    Program.GenerateTypeTree(Is3rdPartyImportable),
+                    System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
+
+                NewTree = new Lazy<List<Program.NamespaceNode>>(() => 
+                    Program.GenerateTypeTree(IsFileObject),
+                    System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
+            }
+            else
             {
                 Engine.PrintLine("Loading importable and creatable file types to folder menu.");
-                //Task import = Task.Run(() =>
-                //{
-                var importList = Program.GenerateTypeTree(Is3rdPartyImportable);
-                RecursiveAdd(ImportFileOption, importList, OnImportClick);
-                //});
-                //Task create = Task.Run(() =>
-                //{
-                var newList = Program.GenerateTypeTree(IsFileObject);
-                RecursiveAdd(NewFileOption, newList, OnNewClick);
-                //});
-                //Task.WhenAll(import, create).ContinueWith(t =>
-                //{
-                //    Engine.PrintLine("Finished loading importable and creatable file types to folder menu.");
-                //});
+
+                Task import = Task.Run(() => 
+                    RecursiveAdd(ImportFileOption, ImportableTree.Value, OnImportClick));
+
+                Task create = Task.Run(() => 
+                    RecursiveAdd(NewFileOption, NewTree.Value, OnNewClick));
+
+                Task.WhenAll(import, create).ContinueWith(t => 
+                    Engine.PrintLine("Finished loading importable and creatable file types to folder menu."));
             }
         }
+
+        private void OnImportClick(TypeProxy type)
+            => Editor.DomainProxy.ImportFile(type, FilePath);
+
+        private void OnNewClick(TypeProxy type)
+        {
+            object o = Editor.UserCreateInstanceOf(type, true);
+            if (!(o is IFileObject file))
+                return;
+
+            Engine.DomainProxy.ExportFile(file, FilePath, EProprietaryFileFormat.XML);
+
+            //if (Serializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
+            //{
+            //    int op = Editor.Instance.BeginOperation($"Exporting {path}...", $"Export to {path} completed.", out Progress<float> progress, out CancellationTokenSource cancel);
+            //    string name = file.Name;
+            //    name = name.Replace("<", "[");
+            //    name = name.Replace(">", "]");
+            //    await Serializer.ExportXMLAsync(file, dir, name, ESerializeFlags.Default, progress, cancel.Token);
+            //    Editor.Instance.EndOperation(op);
+            //}
+        }
+
         private class TMenuNamespaceOption : TMenuOption
         {
             public TMenuNamespaceOption(Program.NamespaceNode node) : base(node.Name, null, Keys.None)
@@ -116,37 +161,6 @@ namespace TheraEditor.Wrappers
             }
         }
 
-        private static bool IsFileObject(TypeProxy t) =>
-            !t.Assembly.EqualTo(Assembly.GetExecutingAssembly()) &&
-            !t.IsAbstract && !t.IsInterface && t.GetConstructors().Any(x => x.IsPublic) &&
-            t.IsSubclassOf(typeof(TFileObject)) &&
-            t.HasCustomAttribute<TFileExt>();
-
-        private static bool Is3rdPartyImportable(TypeProxy t)
-            => IsFileObject(t) && (t?.GetCustomAttribute<TFileExt>().HasAnyImportableExtensions ?? false);
-
-        private void OnImportClick(TypeProxy type)
-        {
-            Editor.DomainProxy.Import(type, FilePath);
-        }
-        private void OnNewClick(TypeProxy type)
-        {
-            object o = Editor.UserCreateInstanceOf(type, true);
-            if (!(o is IFileObject file))
-                return;
-
-            Engine.DomainProxy.ExportFile(file, FilePath, EProprietaryFileFormat.XML);
-
-            //if (Serializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
-            //{
-            //    int op = Editor.Instance.BeginOperation($"Exporting {path}...", $"Export to {path} completed.", out Progress<float> progress, out CancellationTokenSource cancel);
-            //    string name = file.Name;
-            //    name = name.Replace("<", "[");
-            //    name = name.Replace(">", "]");
-            //    await Serializer.ExportXMLAsync(file, dir, name, ESerializeFlags.Default, progress, cancel.Token);
-            //    Editor.Instance.EndOperation(op);
-            //}
-        }
         private enum ECodeFileType
         {
             Class,
@@ -168,8 +182,9 @@ namespace TheraEditor.Wrappers
             string name = "NewCodeFile";
             string path = Path.Combine(dir, name + ".cs");
             await Editor.RunOperationAsync(
-                $"Saving script to {path}...", $"Script saved to {path} successfully.", async (p, c) =>
-                await code.Export3rdPartyAsync(dir, "NewCodeFile", "cs", p, c.Token));
+                $"Saving script to {path}...", 
+                $"Script saved to {path} successfully.",
+                async (p, c) => await code.Export3rdPartyAsync(dir, "NewCodeFile", "cs", p, c.Token));
         }
 
         public async void ToArchive()

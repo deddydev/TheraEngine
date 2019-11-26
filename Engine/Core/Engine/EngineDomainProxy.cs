@@ -272,7 +272,7 @@ namespace TheraEngine.Core
 
             ReloadTypeCaches?.Invoke(reloadNow);
 
-            Trace.WriteLine($"Done {(reloadNow ? "regenerating" : "clearing")} type caches.");
+            Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Done {(reloadNow ? "regenerating" : "clearing")} type caches.");
         }
 
         public Delegate Get3rdPartyLoader(Type fileType, string extension)
@@ -424,9 +424,9 @@ namespace TheraEngine.Core
             return proxy;
         }
 
-        public async void ExportFile(IFileObject file, string dir, EProprietaryFileFormat format)
+        public void ExportFile(IFileObject file, string dir, EProprietaryFileFormat format)
         {
-            await file.ExportAsync(dir, file.Name, ESerializeFlags.Default, format, null, CancellationToken.None);
+            file.Export(dir, file.Name, ESerializeFlags.Default, format);
         }
 
         public T CreateInstance<T>(params object[] args) where T : ISponsorableMarshalByRefObject

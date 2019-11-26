@@ -270,11 +270,11 @@ namespace TheraEngine.Core.Files
                 case EFileFormat.ThirdParty:
                     await Export3rdPartyAsync(directory, fileName, thirdPartyExt, progress, cancel);
                     break;
+                case EFileFormat.Binary:
+                    //await ExportBinaryAsync(directory, fileName, flags, progress, cancel);
+                    //break;
                 case EFileFormat.XML:
                     await ExportXMLAsync(directory, fileName, flags, progress, cancel);
-                    break;
-                case EFileFormat.Binary:
-                    await ExportBinaryAsync(directory, fileName, flags, progress, cancel);
                     break;
                 default:
                     throw new InvalidOperationException("Not a valid file format.");

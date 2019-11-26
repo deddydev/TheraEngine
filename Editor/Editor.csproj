@@ -489,6 +489,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContentTree\Core\TheraMenu.cs" />
+    <Compile Include="ContentTree\Wrappers\Animation\PropAnimVec3Wrapper.cs" />
     <Compile Include="ContentTree\Wrappers\BasePathWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\BaseFileWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\FolderWrapper.cs" />
@@ -1274,7 +1275,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ContentTree\Wrappers\Animation\PropAnimVec2Wrapper.cs" />
-    <Compile Include="ContentTree\Wrappers\FileEditorWrapperBase.cs" />
+    <Compile Include="ContentTree\Wrappers\DockableFileEditorWrapperBase.cs" />
     <Compile Include="ContentTree\Wrappers\FileWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\GenericTextFileWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\Misc\UserInterfaceWrapper.cs" />

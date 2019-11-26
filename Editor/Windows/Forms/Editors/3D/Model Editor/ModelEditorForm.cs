@@ -146,6 +146,8 @@ namespace TheraEditor.Windows.Forms
 
         #endregion
 
+
+
         public void SetActor(BaseActor actor)
         {
             WorldManager?.SetActor(actor);
@@ -183,6 +185,8 @@ namespace TheraEditor.Windows.Forms
             WorldManager.OnShown();
             WorldManager.TargetActorLoaded += WorldManager_TargetActorLoaded;
         }
+
+        public event Action CloseInvoked;
         protected override void OnClosed(EventArgs e)
         {
             WorldManager.OnClosed();
@@ -193,6 +197,8 @@ namespace TheraEditor.Windows.Forms
 
             //if (Model is SkeletalModel skm && skm.SkeletonRef?.IsLoaded == true)
             //    World.Scene3D?.Renderables.Remove(skm.SkeletonRef.File);
+
+            CloseInvoked?.Invoke();
 
             base.OnClosed(e);
         }

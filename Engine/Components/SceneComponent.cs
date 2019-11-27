@@ -804,17 +804,17 @@ namespace TheraEngine.Components
         [Browsable(false)]
         public int ParentSocketChildIndex => ParentSocket?.ChildComponents?.IndexOf(this) ?? -1;
 
-        public virtual void HandleWorldTranslation(Vec3 delta)
+        public virtual void HandleTranslation(Vec3 delta)
         {
             //if (!IsTranslatable)
             //    throw new InvalidOperationException();
         }
-        public virtual void HandleWorldScale(Vec3 delta)
+        public virtual void HandleScale(Vec3 delta)
         {
             //if (!IsScalable)
             //    throw new InvalidOperationException();
         }
-        public virtual void HandleWorldRotation(Quat delta)
+        public virtual void HandleRotation(Quat delta)
         {
             //if (!IsRotatable)
             //    throw new InvalidOperationException();

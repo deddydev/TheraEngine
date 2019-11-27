@@ -103,10 +103,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _categories.Clear();
             base.DestroyHandle();
         }
-        private async void LoadProperties(bool notNull)
+        private void LoadProperties(bool notNull)
         {
             var propGridSettings = Editor.GetSettings().PropertyGrid;
-            await TheraPropertyGrid.LoadPropertiesToPanel(
+            TheraPropertyGrid.LoadPropertiesToPanel(
                 ParentCategory?.PropertyGrid,
                 pnlProps, _categories,
                 notNull ? _object : null,

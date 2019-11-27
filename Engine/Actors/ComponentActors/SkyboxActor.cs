@@ -239,7 +239,7 @@ namespace TheraEngine.Actors.Types
                 BoundingBox.ECubemapTextureUVs.WidthLarger :
                 BoundingBox.ECubemapTextureUVs.HeightLarger;
 
-            TShape box = BoundingBox.FromMinMax(min, max);
+            //TShape box = BoundingBox.FromMinMax(min, max);
             RenderInfo3D renderInfo = new RenderInfo3D(true, false) { /*CullingVolume = box*/ };
             StaticRigidSubMesh mesh = new StaticRigidSubMesh(
                 "Mesh",

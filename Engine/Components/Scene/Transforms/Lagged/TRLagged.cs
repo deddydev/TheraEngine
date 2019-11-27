@@ -124,12 +124,12 @@ namespace TheraEngine.Components.Scene.Transforms
 
         [Browsable(false)]
         public override bool IsRotatable => true;
-        public override void HandleWorldRotation(Quat delta)
+        public override void HandleRotation(Quat delta)
         {
             Quat q = _currentRotation.ToQuaternion();
             q = q * delta;
             _desiredRotation.SetRotations(q.ToYawPitchRoll());
-            base.HandleWorldRotation(delta);
+            base.HandleRotation(delta);
         }
 
         public Vec3 GetDesiredRightDir() => _desiredRotation.TransformVector(Vec3.Right);

@@ -89,6 +89,11 @@ namespace TheraEngine.Components.Scene.Transforms
             //Engine.PrintLine("Recalculated T.");
         }
 
+        /// <summary>
+        /// If false, this component will stay at the origin regardless of where it is shifted to.
+        /// Otherwise, the component will be moved to appear in the same position despite where the origin is moved to.
+        /// Defaults to true.
+        /// </summary>
         [Browsable(false)]
         public bool AllowOriginRebase { get; set; } = true;
 
@@ -96,12 +101,12 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             //Engine.PrintLine("Rebasing {0}.", OwningActor.GetType().GetFriendlyName());
             if (AllowOriginRebase)
-                HandleWorldTranslation(-newOrigin);
+                HandleTranslation(-newOrigin);
         }
 
         [Browsable(false)]
         public override bool IsTranslatable => true;
-        public override void HandleWorldTranslation(Vec3 delta)
+        public override void HandleTranslation(Vec3 delta)
             => Translation.Raw += delta;
     }
 }

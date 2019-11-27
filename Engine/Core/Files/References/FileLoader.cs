@@ -46,22 +46,6 @@ namespace TheraEngine.Core.Files
             {
                 Path = string.IsNullOrWhiteSpace(filePath) ? null : filePath
             };
-
-            if (AppDomainHelper.IsPrimaryDomain)
-            {
-                Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
-                Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
-            }
-        }
-
-        protected virtual void Instance_DomainProxyPostSet(EngineDomainProxy obj)
-        {
-            SubType = obj?.GetTypeFor<T>() ?? typeof(T);
-        }
-
-        protected virtual void Instance_DomainProxyPreUnset(EngineDomainProxy obj)
-        {
-
         }
 
         public FileLoader(string dir, string name, EProprietaryFileFormat format) 

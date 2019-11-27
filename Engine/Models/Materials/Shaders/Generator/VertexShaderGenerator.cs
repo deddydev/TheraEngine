@@ -533,6 +533,9 @@ namespace TheraEngine.Rendering
         /// </summary>
         ConstrainTranslationZ = 0x4000,
 
+        /// <summary>
+        /// If set, the position on all axes will not move with the camera.
+        /// </summary>
         ConstrainTranslations = ConstrainTranslationX | ConstrainTranslationY | ConstrainTranslationZ,
     }
 }

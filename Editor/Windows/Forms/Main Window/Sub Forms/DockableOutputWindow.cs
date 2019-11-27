@@ -7,10 +7,8 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class DockableOutputWindow : DockContent
     {
-        public DockableOutputWindow()
-        {
-            InitializeComponent();
-        }
+        public DockableOutputWindow() => InitializeComponent();
+
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
@@ -18,8 +16,8 @@ namespace TheraEditor.Windows.Forms
             OutputTextBox.Text = Engine.OutputString;
 
             OutputTextBox.LostFocus += OutputTextBox_LostFocus;
-            Engine.DebugOutput += QueueMessage;
-            Application.Idle += Application_Idle;
+            Engine.DebugOutput += DisplayMessage;
+            //Application.Idle += Application_Idle;
 
             OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
             OutputTextBox.ScrollToCaret();
@@ -31,28 +29,29 @@ namespace TheraEditor.Windows.Forms
             OutputTextBox.ScrollToCaret();
         }
 
-        private string _queuedMessage = string.Empty;
-        private void Application_Idle(object sender, EventArgs e)
-        {
-            if (_queuedMessage.Length > 0)
-            {
-                DisplayMessage(_queuedMessage);
-                _queuedMessage = string.Empty;
-            }
-        }
+        //private string _queuedMessage = string.Empty;
+        //private void Application_Idle(object sender, EventArgs e)
+        //{
+        //    if (_queuedMessage.Length > 0)
+        //    {
+        //        DisplayMessage(_queuedMessage);
+        //        _queuedMessage = string.Empty;
+        //    }
+        //}
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            Engine.DebugOutput -= QueueMessage;
+            Engine.DebugOutput -= DisplayMessage;
             OutputTextBox.LostFocus -= OutputTextBox_LostFocus;
-            Application.Idle -= Application_Idle;
+            //Application.Idle -= Application_Idle;
 
             base.OnHandleDestroyed(e);
         }
-        private void QueueMessage(string message)
-        {
-            _queuedMessage += message;
-        }
+        //private void QueueMessage(string message)
+        //{
+        //    //_queuedMessage += message;
+        //    DisplayMessage(message);
+        //}
         private void DisplayMessage(string message)
         {
             try
@@ -68,7 +67,7 @@ namespace TheraEditor.Windows.Forms
 
                 bool shouldScroll = OutputTextBox.SelectionStart == OutputTextBox.Text.Length;
 
-                OutputTextBox.Text += message;
+                OutputTextBox.AppendText(message);
 
                 Form activeForm = ActiveForm ?? Application.OpenForms[Application.OpenForms.Count - 1];
                 if (activeForm is DockContent c && c.DockPanel != null && c.DockPanel != DockPanel)

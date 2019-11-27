@@ -58,37 +58,33 @@ namespace TheraEngine.Core.Files
         public GlobalFileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound)
             : base(dir, name, format, createIfNotFound) { }
 
-        internal static bool AddGlobalFileInstance(T file, string path)
+        internal static void AddGlobalFileInstance(string path, T file)
         {
             if (string.IsNullOrEmpty(path))
-                return false;
+                return;
 
-            GlobalFileInstances.AddOrUpdate(path, file, (key, oldValue) => file);
-
-            return true;
+            Engine.DomainProxy.AddGlobalFile(path, file);
         }
-        internal static bool RemoveGlobalFileInstance(string absRefPath)
+        internal static void RemoveGlobalFileInstance(string path)
         {
-            if (string.IsNullOrEmpty(absRefPath))
-                return false;
+            if (string.IsNullOrEmpty(path))
+                return;
 
-            return GlobalFileInstances.TryRemove(absRefPath, out IFileObject value);
+            Engine.DomainProxy.RemoveGlobalFile(path);
         }
 
-        protected override bool RegisterInstance()
+        protected override void RegisterInstance()
         {
             T file = IsLoaded ? File : null;
             if (Context != null)
             {
                 if (string.IsNullOrEmpty(Path.Path) || IsLoaded)
-                    return false;
+                    return;
 
                 Context.GlobalFileInstances.AddOrUpdate(Path.Path, file, (key, oldValue) => file);
-
-                return true;
             }
             else
-                return AddGlobalFileInstance(file, Path.Path);
+                AddGlobalFileInstance(Path.Path, file);
         }
 
         protected override void OnAbsoluteRefPathChanged(string oldPath, string newPath)
@@ -112,7 +108,7 @@ namespace TheraEngine.Core.Files
                 if (!string.IsNullOrEmpty(oldPath))
                     RemoveGlobalFileInstance(oldPath);
                 if (!string.IsNullOrEmpty(newPath))
-                    AddGlobalFileInstance(default(T), Path.Path);
+                    AddGlobalFileInstance(Path.Path, default);
             }
         }
 
@@ -122,14 +118,6 @@ namespace TheraEngine.Core.Files
         /// </summary>
         [Browsable(false)]
         public IGlobalFilesContext<T> Context { get; set; } = null;
-
-        /// <summary>
-        /// Instances of files that are loaded only once and are accessable by all global references to that file.
-        /// </summary>
-        public static ConcurrentDictionary<string, IFileObject> GlobalFileInstances { get; } 
-            = new ConcurrentDictionary<string, IFileObject>();
-
-        public bool LoadInGameDomain { get; set; }
 
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
@@ -145,7 +133,7 @@ namespace TheraEngine.Core.Files
                 {
                     if (Context is null)
                     {
-                        if (GlobalFileInstances.TryGetValue(absolutePath, out IFileObject file))
+                        if (Engine.DomainProxy.GetGlobalFile(absolutePath, out IFileObject file))
                         {
                             if (file != null)
                             {
@@ -159,7 +147,7 @@ namespace TheraEngine.Core.Files
                                     Engine.LogWarning(file.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
                             }
                             else
-                                GlobalFileInstances.TryRemove(absolutePath, out _);
+                                Engine.DomainProxy.RemoveGlobalFile(absolutePath);
                         }
                     }
                     else
@@ -194,7 +182,7 @@ namespace TheraEngine.Core.Files
                 {
                     if (Context is null)
                     {
-                        GlobalFileInstances.AddOrUpdate(absolutePath, instance, (key, oldValue) => instance);
+                        AddGlobalFileInstance(absolutePath, instance);
                     }
                     else
                     {

@@ -102,7 +102,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         [Browsable(false)]
         public override bool IsScalable => true;
-        public override void HandleWorldScale(Vec3 delta)
+        public override void HandleScale(Vec3 delta)
         {
             _scale.Raw += delta;
         }

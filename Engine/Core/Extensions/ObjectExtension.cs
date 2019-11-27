@@ -7,12 +7,13 @@ namespace Extensions
     {
         public static TypeProxy GetTypeProxy(this object o)
         {
-#if EDITOR
-            if (o is IObject iobj && iobj.Domain.IsGameDomain())
-                return iobj.GetTypeProxy();
-#endif
+            return Engine.DomainProxy.GetTypeFor(o);
+//#if EDITOR
+//            if (o is IObject iobj && iobj.Domain.IsGameDomain())
+//                return iobj.GetTypeProxy();
+//#endif
             
-            return o.GetType();
+//            return o.GetType();
         }
         /// <summary>
         /// Creates an entirely independent copy of the given object.

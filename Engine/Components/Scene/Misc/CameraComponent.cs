@@ -215,7 +215,7 @@ namespace TheraEngine.Components.Scene
 
         [Browsable(false)]
         public override bool IsTranslatable => true;
-        public override void HandleWorldTranslation(Vec3 delta)
+        public override void HandleTranslation(Vec3 delta)
         {
             //Camera?.TranslateAbsolute(delta);
         }

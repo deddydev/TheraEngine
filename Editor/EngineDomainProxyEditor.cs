@@ -305,7 +305,7 @@ namespace TheraEditor
             if (string.IsNullOrEmpty(file.FilePath))
                 SaveFileAs(file);
             else
-                SaveFile(file, file.FilePath);
+                SaveFileAs(file, file.FilePath);
         }
         public void SaveFileAs(IFileObject file)
         {
@@ -316,16 +316,20 @@ namespace TheraEditor
             using (SaveFileDialog sfd = new SaveFileDialog() { Filter = filter })
             {
                 if (sfd.ShowDialog(Editor.Instance) == DialogResult.OK)
-                    SaveFile(file, sfd.FileName);
+                    SaveFileAs(file, sfd.FileName);
             }
         }
-        private async void SaveFile(IFileObject file, string filePath, ESerializeFlags flags = ESerializeFlags.Default)
+        public void SaveFileAs(IFileObject file, string filePath, ESerializeFlags flags = ESerializeFlags.Default) 
+            => SaveFileAs(file, filePath, "Saving file to " + filePath, "File successfully saved to " + filePath, flags);
+        public async void SaveFileAs(IFileObject file, string filePath, string beginMessage, string finishMessage, ESerializeFlags flags = ESerializeFlags.Default)
         {
+            if (!filePath.IsValidPath())
+                return;
+
             await RunOperationAsync(
-                "Saving file...",
-                "File saved.",
-                async (p, c, a) => await file.ExportAsync(filePath, flags, p, c.Token),
-                null);
+                beginMessage,
+                finishMessage,
+                async (p, c) => await file.ExportAsync(filePath, flags, p, c.Token));
         }
 
         private List<OperationInfo> Operations { get; } = new List<OperationInfo>();

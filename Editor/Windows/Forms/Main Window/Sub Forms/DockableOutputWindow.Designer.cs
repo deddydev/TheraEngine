@@ -33,7 +33,7 @@
             // 
             // OutputTextBox
             // 
-            this.OutputTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.OutputTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(15)))), ((int)(((byte)(20)))));
             this.OutputTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.OutputTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.OutputTextBox.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));

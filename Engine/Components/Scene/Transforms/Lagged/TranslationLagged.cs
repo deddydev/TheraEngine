@@ -102,7 +102,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         [Browsable(false)]
         public override bool IsTranslatable => true;
-        public override void HandleWorldTranslation(Vec3 delta)
+        public override void HandleTranslation(Vec3 delta)
             => DesiredTranslation += delta;
     }
 }

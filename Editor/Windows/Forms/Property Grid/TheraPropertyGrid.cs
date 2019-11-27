@@ -437,7 +437,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        private async void LoadProperties(
+        private void LoadProperties(
             bool showProperties = true, 
             bool showEvents = false, 
             bool showMethods = false)
@@ -449,7 +449,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var propGridSettings = settings.PropertyGrid;
             try
             {
-                await LoadPropertiesToPanel(
+                LoadPropertiesToPanel(
                     this,
                     pnlProps, _categories,
                     _targetObject,
@@ -463,7 +463,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             PropertiesLoaded?.Invoke(_targetObject);
         }
-        public static async Task LoadPropertiesToPanel(
+        public static void LoadPropertiesToPanel(
             TheraPropertyGrid grid,
             BetterTableLayoutPanel pnlProps,
             Dictionary<string, PropGridCategory> categories,
@@ -1302,14 +1302,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             return path;
         }
-        private async void Save(IFileObject file, string path)
+        private void Save(IFileObject file, string path)
         {
-            if (!path.IsValidPath())
-                return;
-
-            await Editor.RunOperationAsync(
-                $"Property Grid: Now saving {path}", $"Property Grid: Finished saving {path}", 
-                async (p, c) => await file.ExportAsync(path, ESerializeFlags.Default, p, c.Token));
+            Editor.DomainProxy.SaveFileAs(file, path, $"Property Grid: Now saving {path}", $"Property Grid: Finished saving {path}");
 
             //if (TargetFileObject.References.Count == 1)
             //{

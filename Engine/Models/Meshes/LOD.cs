@@ -57,8 +57,12 @@ namespace TheraEngine.Rendering.Models
                 VisibleDistanceChanged?.Invoke();
             }
         }
+        /// <summary>
+        /// Determines how this LOD will move in relation to the camera.
+        /// </summary>
         [Category("LOD")]
         [TSerialize(IsAttribute = true)]
+        [Description("Determines how this LOD will move in relation to the camera.")]
         public ETransformFlags TransformFlags
         {
             get => _billboardMode;
@@ -73,6 +77,7 @@ namespace TheraEngine.Rendering.Models
         protected GlobalFileRef<PrimitiveData> _primitivesRef;
         [TSerialize("Material")]
         protected LocalFileRef<TMaterial> _materialRef;
+
         protected float _visibleDistance = 0.0f;
         protected ETransformFlags _billboardMode = ETransformFlags.None;
 

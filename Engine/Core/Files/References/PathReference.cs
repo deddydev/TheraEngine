@@ -42,9 +42,9 @@ namespace TheraEngine.Core.Files
             => AbsolutePathChanged?.Invoke(oldPath, Path);
 
         [TSerialize("Type", Order = 0, NodeType = ENodeType.Attribute)]
-        protected EPathType _type = EPathType.FileRelative;
+        public EPathType _type = EPathType.FileRelative;
         [TSerialize("Path", Order = 1, NodeType = ENodeType.Attribute)]
-        protected string _path;
+        public string _path;
 
         public PathReference()
         {

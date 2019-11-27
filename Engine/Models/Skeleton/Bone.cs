@@ -422,15 +422,15 @@ namespace TheraEngine.Rendering.Models
         public Matrix4 WorldToLocalMatrix(Matrix4 worldMatrix)
             => (Parent is null ? (OwningComponent is null ? Matrix4.Identity : OwningComponent.InverseWorldMatrix) : Parent.InverseWorldMatrix) * worldMatrix;
         
-        public void HandleWorldTranslation(Vec3 delta)
+        public void HandleTranslation(Vec3 delta)
         {
 
         }
-        public void HandleWorldScale(Vec3 delta)
+        public void HandleScale(Vec3 delta)
         {
 
         }
-        public void HandleWorldRotation(Quat delta)
+        public void HandleRotation(Quat delta)
         {
 
         }

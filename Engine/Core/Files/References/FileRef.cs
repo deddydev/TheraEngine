@@ -42,7 +42,11 @@ namespace TheraEngine.Core.Files
         public FileRef() : this(string.Empty) { }
         public FileRef(TypeProxy type) : this(null, type) { }
         public FileRef(string filePath) : this(filePath, null) { }
-        public FileRef(string filePath, TypeProxy type) : base(filePath, type) { }
+        public FileRef(string filePath, TypeProxy type) : base(filePath, type)
+        {
+            if (AppDomainHelper.IsPrimaryDomain)
+                Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
+        }
         public FileRef(T file, string filePath) : this(filePath)
         {
             if (file != null)
@@ -69,7 +73,11 @@ namespace TheraEngine.Core.Files
                 //    ExportReferenceAsync();
             }
         }
-        public FileRef(string dir, string name, EProprietaryFileFormat format) : base(dir, name, format) { }
+        public FileRef(string dir, string name, EProprietaryFileFormat format) : base(dir, name, format) 
+        {
+            if (AppDomainHelper.IsPrimaryDomain)
+                Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
+        }
         public FileRef(string dir, string name, EProprietaryFileFormat format, T file) : this(dir, name, format)
         {
             if (file != null)
@@ -97,10 +105,10 @@ namespace TheraEngine.Core.Files
         }
         #endregion
 
-        protected override void Instance_DomainProxyPreUnset(EngineDomainProxy obj)
+        protected void Instance_DomainProxyPreUnset(EngineDomainProxy obj)
         {
-            base.Instance_DomainProxyPreUnset(obj);
-            _file = null;
+            SubType = null;
+            IsLoaded = false;
         }
 
         //TODO: export map actors externally, relative to map / world file location
@@ -193,7 +201,7 @@ namespace TheraEngine.Core.Files
             }
         }
 
-        protected abstract bool RegisterInstance();
+        protected abstract void RegisterInstance();
 
         public event Action<T> Unloaded;
 

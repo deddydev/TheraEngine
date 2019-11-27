@@ -1,7 +1,9 @@
 ﻿using Extensions;
 using System;
 using System.Drawing;
+using System.Runtime.Remoting;
 using System.Windows.Forms;
+using TheraEngine;
 using TheraEngine.Core.Files;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -67,9 +69,25 @@ namespace TheraEditor.Windows.Forms
             if (!AllowFileClose() || _file == file)
                 return false;
 
+            if (RemotingServices.IsTransparentProxy(_file))
+            {
+                Engine.Instance.DomainProxyPreUnset -= Instance_DomainProxyPreUnset;
+            }
+            if (RemotingServices.IsTransparentProxy(file))
+            {
+                Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
+            }
+
             _file = file;
             return true;
         }
+
+        private void Instance_DomainProxyPreUnset(TheraEngine.Core.EngineDomainProxy obj)
+        {
+            _file = null;
+            Engine.Instance.DomainProxyPreUnset -= Instance_DomainProxyPreUnset;
+        }
+
         IFileObject IFileEditorControl.File => File;
 
         protected void BtnSave_Click(object sender, EventArgs e) => Save();

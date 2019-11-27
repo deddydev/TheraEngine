@@ -68,6 +68,7 @@ namespace TheraEngine.Core
         public event Action Stopped;
         public event Action Started;
         public event Action<string> DebugOutput;
+
         public event Action<bool> ReloadTypeCaches;
 
         public string GetVersionInfo() =>
@@ -140,7 +141,22 @@ namespace TheraEngine.Core
             SetRenderTicking(true);
             OnStarted();
         }
-        
+
+        public bool GetGlobalFile(string absolutePath, out IFileObject file)
+            => GlobalFileInstances.TryGetValue(absolutePath, out file);
+
+        public void AddGlobalFile(string path, IFileObject file)
+            => GlobalFileInstances.AddOrUpdate(path, file, (key, oldValue) => file);
+
+        public void RemoveGlobalFile(string absolutePath)
+            => GlobalFileInstances.TryRemove(absolutePath, out _);
+
+        /// <summary>
+        /// Instances of files that are loaded only once and are accessable by all global references to that file.
+        /// </summary>
+        public static ConcurrentDictionary<string, IFileObject> GlobalFileInstances { get; }
+            = new ConcurrentDictionary<string, IFileObject>();
+
         protected virtual void OnStarted() => Started?.Invoke();
         public virtual void Stop()
         {
@@ -411,6 +427,8 @@ namespace TheraEngine.Core
                 }
             }
         }
+
+        public TypeProxy GetTypeFor(object o) => o.GetType();
 
         public TypeProxy GetTypeFor<T>()
         {

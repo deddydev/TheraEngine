@@ -30,9 +30,9 @@ namespace TheraEngine.Components.Scene.Mesh
         bool IsScalable { get; }
         bool IsRotatable { get; }
 
-        void HandleWorldTranslation(Vec3 delta);
-        void HandleWorldScale(Vec3 delta);
-        void HandleWorldRotation(Quat delta);
+        void HandleTranslation(Vec3 delta);
+        void HandleScale(Vec3 delta);
+        void HandleRotation(Quat delta);
 
         void SetParentInternal(ISocket socket);
     }
@@ -121,17 +121,17 @@ namespace TheraEngine.Components.Scene.Mesh
         }
 
         bool ISocket.IsTranslatable => true;
-        public void HandleWorldTranslation(Vec3 delta)
+        public void HandleTranslation(Vec3 delta)
         {
             _transform.Translation += delta;
         }
         bool ISocket.IsScalable => true;
-        public void HandleWorldScale(Vec3 delta)
+        public void HandleScale(Vec3 delta)
         {
             _transform.Scale += delta;
         }
         bool ISocket.IsRotatable => true;
-        public void HandleWorldRotation(Quat delta)
+        public void HandleRotation(Quat delta)
         {
             _transform.Quaternion *= delta;
         }

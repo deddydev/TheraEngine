@@ -112,11 +112,11 @@ namespace TheraEngine.Core.Files.Serialization
                     {
                         if (member.DeserializeAsync)
                         {
-                            Task.Run(() => 
+                            parentNode.Owner.PendingAsyncTasks.Add(Task.Run(() => 
                             {
                                 if (attrib.GetObject(member.MemberType, out object value))
                                     member.SetObject(o, value);
-                            });
+                            }));
                         }
                         else if (attrib.GetObject(member.MemberType, out object value))
                             member.SetObject(o, value);

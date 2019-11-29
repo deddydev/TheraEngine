@@ -112,8 +112,8 @@ namespace System.ComponentModel
             NameOverride = nameOverride;
         }
 
-        public bool AllowSerialize(object obj)
-            => Condition is null ? true : ExpressionParser.Evaluate<bool>(Condition, obj);
+        public bool AllowSerialize(object context)
+            => Condition is null ? true : ExpressionParser.Evaluate<bool>(Condition, context);
 
         protected TSerialize(SerializationInfo info, StreamingContext context)
         {

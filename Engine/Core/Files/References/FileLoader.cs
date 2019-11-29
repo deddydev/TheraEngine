@@ -13,16 +13,62 @@ namespace TheraEngine.Core.Files
     public interface IFileLoader : IFileObject
     {
         PathReference Path { get; set; }
-        TypeProxy ReferencedType { get; }
-    }
+        TypeProxy FileType { get; set; }
+        bool CreateFileIfNonExistent { get; set; }
+        bool AllowDynamicConstruction { get; set; }
+        EPathType PathType { get; set; }
+        string AbsolutePath { get; set; }
 
+        string Extension();
+        EFileFormat GetFormat();
+
+        IFileObject ConstructNewInstance(params (Type Type, object Value)[] args);
+        IFileObject LoadNewInstance();
+
+        Task<(IFileObject Instance, bool LoadedFromFile, bool LoadAttempted)> LoadNewInstanceAsync(
+            IProgress<float> progress,
+            CancellationToken cancel,
+            bool allowLoadingFromFile = true);
+
+        void LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel, Action<IFileObject> onLoaded);
+        void LoadNewInstanceAsync(Action<IFileObject> onLoaded);
+
+        Task<IFileObject> LoadNewInstanceAsync();
+        Task<IFileObject> LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel);
+    }
+    public interface IFileLoader<T> : IFileObject where T : class, IFileObject
+    {
+        PathReference Path { get; set; }
+        TypeProxy FileType { get; set; }
+        bool CreateFileIfNonExistent { get; set; }
+        bool AllowDynamicConstruction { get; set; }
+        EPathType PathType { get; set; }
+        string AbsolutePath { get; set; }
+
+        string Extension();
+        EFileFormat GetFormat();
+
+        T ConstructNewInstance(params (Type Type, object Value)[] args);
+        T LoadNewInstance();
+
+        Task<(T Instance, bool LoadedFromFile, bool LoadAttempted)> LoadNewInstanceAsync(
+            IProgress<float> progress,
+            CancellationToken cancel,
+            bool allowLoadingFromFile = true);
+
+        void LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel, Action<T> onLoaded);
+        void LoadNewInstanceAsync(Action<T> onLoaded);
+
+        Task<T> LoadNewInstanceAsync();
+        Task<T> LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel);
+    }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
     /// </summary>
     [Serializable]
     [TFileExt("ldr")]
     [TFileDef("File Loader")]
-    public class FileLoader<T> : TFileObject, IFileLoader where T : class, IFileObject
+    public class FileLoader<T> : TFileObject, IFileLoader<T>, IFileLoader where T : class, IFileObject
     {
         public event DelPathChange AbsoluteRefPathChanged;
         public event DelPathChange RelativeRefPathChanged;
@@ -38,7 +84,7 @@ namespace TheraEngine.Core.Files
             if (type != null && !type.IsAssignableTo(typeof(T)))
                 throw new Exception(type.GetFriendlyName() + " is not assignable to " + typeof(T).GetFriendlyName());
 
-            SubType = type;
+            FileType = type;
 
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
@@ -50,19 +96,21 @@ namespace TheraEngine.Core.Files
 
         public FileLoader(string dir, string name, EProprietaryFileFormat format) 
             : this(GetFilePath(dir, name, format, typeof(T))) { }
+
         #endregion
-        
+
+        #region Properties
         [Browsable(false)]
-        public TypeProxy SubType
+        public TypeProxy FileType
         {
-            get => _subType ?? (_subType = (Engine.DomainProxy?.GetTypeFor<T>() ?? typeof(T)));
+            get => _fileType ?? (_fileType = Engine.DomainProxy?.GetTypeFor<T>() ?? typeof(T));
             set
             {
                 if (!(value is null) && value.IsAssignableTo(typeof(T)))
-                    _subType = value;
+                    _fileType = value;
             }
         }
-        private TypeProxy _subType = null;
+        private TypeProxy _fileType = null;
 
         protected bool _updating;
         private PathReference _path;
@@ -141,12 +189,9 @@ namespace TheraEngine.Core.Files
                     return false;
 
                 TypeProxy fileType = DetermineType(Path.Path);
-                return fileType != null && SubType.IsAssignableFrom(fileType);
+                return fileType != null && FileType.IsAssignableFrom(fileType);
             }
         }
-
-        [Browsable(false)]
-        public TypeProxy ReferencedType => SubType;
 
         private event Action<T> Loaded_Internal;
         public virtual event Action<T> Loaded
@@ -163,18 +208,7 @@ namespace TheraEngine.Core.Files
             }
         }
 
-        protected void OnLoaded(T file) => Loaded_Internal?.Invoke(file);
-
-        protected virtual void OnAbsoluteRefPathChanged(string oldPath, string newPath)
-        {
-            if (!_updating)
-                AbsoluteRefPathChanged?.Invoke(oldPath, newPath);
-        }
-        protected virtual void OnRelativeRefPathChanged(string oldPath, string newPath)
-        {
-            if (!_updating)
-                RelativeRefPathChanged?.Invoke(oldPath, newPath);
-        }
+        #endregion
 
         ///// <summary>
         ///// Loads a new instance synchronously and allows dynamic construction when the ReferencePathAbsolute is invalid, assuming there is a constructor with no arguments.
@@ -187,8 +221,8 @@ namespace TheraEngine.Core.Files
         /// </summary>
         public T LoadNewInstance()
         {
-            Func<Task<T>> func = async () => await LoadNewInstanceAsync();
-            return func.RunSync();
+            Task<T> task = Task.Run(async () => await LoadNewInstanceAsync());
+            return task.Result;
         }
         
         public void LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel, Action<T> onLoaded)
@@ -242,7 +276,7 @@ namespace TheraEngine.Core.Files
                     string ext = System.IO.Path.GetExtension(absolutePath);
                     if (IsThirdPartyImportableExt(ext?.Substring(1)))
                     {
-                        file = SubType.CreateInstance() as T;
+                        file = FileType.CreateInstance() as T;
                         file.FilePath = absolutePath;
                         file.ManualRead3rdParty(absolutePath);
                         loadedFromFile = true;
@@ -271,12 +305,12 @@ namespace TheraEngine.Core.Files
                 }
             }
 
-            if (file != null && SubType != null)
+            if (file != null && FileType != null)
             {
                 TypeProxy fileType = file?.GetTypeProxy();
-                if (!SubType.IsAssignableFrom(fileType))
+                if (!FileType.IsAssignableFrom(fileType))
                 {
-                    Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {SubType.GetFriendlyName()}.");
+                    Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {FileType.GetFriendlyName()}.");
                     return (null, loadedFromFile, loadAttempted);
                 }
 
@@ -334,23 +368,23 @@ namespace TheraEngine.Core.Files
         public T ConstructNewInstance(params (Type Type, object Value)[] args) => ConstructNewInstance_Internal(true, args);
         protected T ConstructNewInstance_Internal(bool callLoadedEvent, (Type Type, object Value)[] args)
         {
-            if (SubType.IsAbstract)
+            if (FileType.IsAbstract)
             {
-                Engine.LogWarning("Can't automatically instantiate an abstract class: " + SubType.GetFriendlyName());
+                Engine.LogWarning("Can't automatically instantiate an abstract class: " + FileType.GetFriendlyName());
                 return null;
             }
-            else if (SubType.IsInterface)
+            else if (FileType.IsInterface)
             {
-                Engine.LogWarning("Can't automatically instantiate an interface: " + SubType.GetFriendlyName());
+                Engine.LogWarning("Can't automatically instantiate an interface: " + FileType.GetFriendlyName());
                 return null;
             }
             else
             {
                 if (args is null)
                     args = new (Type, object)[0];
-                if (SubType.GetConstructor(args.Select(x => x.Type).ToArray()) is null)
+                if (FileType.GetConstructor(args.Select(x => x.Type).ToArray()) is null)
                 {
-                    Engine.LogWarning("Can't automatically instantiate '" + SubType.GetFriendlyName() + "' with " + (args.Length == 0 ?
+                    Engine.LogWarning("Can't automatically instantiate '" + FileType.GetFriendlyName() + "' with " + (args.Length == 0 ?
                         "no parameters." : "these parameters: " + string.Join(", ", args.Select(x => x.Type.GetFriendlyName()))));
                     return null;
                 }
@@ -358,14 +392,27 @@ namespace TheraEngine.Core.Files
 
             T file;
             if (args.Length == 0)
-                file = SubType.CreateInstance() as T;
+                file = FileType.CreateInstance() as T;
             else
-                file = SubType.CreateInstance(args.Select(x => x.Value)) as T;
+                file = FileType.CreateInstance(args.Select(x => x.Value)) as T;
 
             if (callLoadedEvent)
                 OnLoaded(file);
 
             return file;
+        }
+
+        protected void OnLoaded(T file) => Loaded_Internal?.Invoke(file);
+
+        protected virtual void OnAbsoluteRefPathChanged(string oldPath, string newPath)
+        {
+            if (!_updating)
+                AbsoluteRefPathChanged?.Invoke(oldPath, newPath);
+        }
+        protected virtual void OnRelativeRefPathChanged(string oldPath, string newPath)
+        {
+            if (!_updating)
+                RelativeRefPathChanged?.Invoke(oldPath, newPath);
         }
 
         /// <summary>
@@ -374,7 +421,7 @@ namespace TheraEngine.Core.Files
         /// </summary>
         private bool IsThirdPartyImportableExt(string ext)
         {
-            var header = GetFile3rdPartyExtensions(SubType);
+            var header = GetFile3rdPartyExtensions(FileType);
             return header?.HasExtension(ext, false) ?? false;
         }
         //private bool IsThirdPartyExportableExt(string ext)
@@ -383,6 +430,27 @@ namespace TheraEngine.Core.Files
         //    return header?.ExportableExtensions?.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ?? false;
         //}
         public override string ToString() => Path.Path;
+
+        #region Interface IFileLoader
+        IFileObject IFileLoader.ConstructNewInstance(params (Type Type, object Value)[] args)
+            => ConstructNewInstance(args);
+        IFileObject IFileLoader.LoadNewInstance()
+            => LoadNewInstance();
+        async Task<(IFileObject Instance, bool LoadedFromFile, bool LoadAttempted)>
+            IFileLoader.LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel, bool allowLoadingFromFile)
+        {
+            var (Instance, LoadedFromFile, LoadAttempted) = await LoadNewInstanceAsync(progress, cancel, allowLoadingFromFile);
+            return (Instance, LoadedFromFile, LoadAttempted);
+        }
+        void IFileLoader.LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel, Action<IFileObject> onLoaded)
+            => LoadNewInstanceAsync(progress, cancel, OnLoaded);
+        void IFileLoader.LoadNewInstanceAsync(Action<IFileObject> onLoaded)
+            => LoadNewInstanceAsync(onLoaded);
+        async Task<IFileObject> IFileLoader.LoadNewInstanceAsync()
+            => await LoadNewInstanceAsync();
+        async Task<IFileObject> IFileLoader.LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel)
+            => await LoadNewInstanceAsync(progress, cancel);
+        #endregion
 
         public static implicit operator Task<T>(FileLoader<T> fileRef) => fileRef?.LoadNewInstanceAsync();
         public static implicit operator FileLoader<T>(string filePath) => new FileLoader<T>(filePath);

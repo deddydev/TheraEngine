@@ -11,7 +11,7 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Actors.Types.Pawns
 {
-    public interface IUserInterface : IPawn
+    public interface IUserInterfacePawn : IPawn
     {
         IPawn OwningPawn { get; set; }
 
@@ -55,17 +55,17 @@ namespace TheraEngine.Actors.Types.Pawns
         //[Browsable(false)]
         //public WorldFileRef<Camera> CanvasCamera { get; }
     }
-    public class UserInterface : UserInterfacePawn<UICanvasComponent>
+    public class UserInterfacePawn : UserInterfacePawn<UICanvasComponent>
     {
-        public UserInterface() : base() { }
-        public UserInterface(Vec2 bounds) : base(bounds) { }
+        public UserInterfacePawn() : base() { }
+        public UserInterfacePawn(Vec2 bounds) : base(bounds) { }
     }
     /// <summary>
     /// Each viewport has a HUD that manages 2D user interface elements.
     /// </summary>
     [TFileExt("ui")]
     [TFileDef("User Interface")]
-    public class UserInterfacePawn<T> : Pawn<T>, IUserInterface where T : UICanvasComponent, new()
+    public class UserInterfacePawn<T> : Pawn<T>, IUserInterfacePawn where T : UICanvasComponent, new()
     {
         public UserInterfacePawn() : base()
         {
@@ -226,7 +226,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public void RemoveRenderableComponent(I2DRenderable component)
         {
-            _screenSpaceUIScene.Renderables.Remove(component);
+            component.RenderInfo.UnlinkScene();
 
             //_renderables.Remove(component);
         }

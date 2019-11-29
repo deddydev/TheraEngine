@@ -349,6 +349,6 @@ namespace TheraEngine.Rendering
         }
         #endregion
 
-        public override IEnumerator<IRenderable> GetEnumerator() => Renderables.GetEnumerator();
+        //public override IEnumerator<IRenderable> GetEnumerator() => Renderables.GetEnumerator();
     }
 }

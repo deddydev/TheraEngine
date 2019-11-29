@@ -1,12 +1,6 @@
 ﻿using Microsoft.VisualBasic.FileIO;
-using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
-using TheraEngine;
-using TheraEngine.Core;
 
 namespace TheraEditor.Wrappers
 {

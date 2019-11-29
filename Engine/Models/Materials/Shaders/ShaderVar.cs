@@ -118,11 +118,130 @@ namespace TheraEngine.Rendering.Models.Materials
     public interface IShaderSignedType : IShaderVarType { }
     public interface IShaderUnsignedType : IShaderVarType { }
 
-    public abstract class ShaderVar : TObjectSlim, IShaderVarOwner
+    public abstract class ShaderVar : TObject, IShaderVarOwner
     {
         internal const string CategoryName = "Material Parameter";
         internal const string ValueName = "Value";
         public const string NoName = "NoName";
+
+        public event Action<ShaderVar> ValueChanged;
+
+        [TSerialize("CanSwizzle", NodeType = ENodeType.Attribute)]
+        protected bool _canSwizzle = true;
+
+        protected IShaderVarOwner _owner;
+
+        //[TSerialize("Fields")]
+        protected Dictionary<string, ShaderVar> _fields = new Dictionary<string, ShaderVar>();
+
+        internal IShaderVarOwner Owner => _owner;
+        public abstract EShaderVarType TypeName { get; }
+
+        [TSerialize]
+        [Browsable(true)]
+        [TString(false, false, false, false)]
+        [Category(CategoryName)]
+        public override string Name
+        {
+            get => base.Name;
+            set
+            {
+                //Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(value)
+                string oldName = base.Name;
+                base.Name = (value ?? "").ReplaceWhitespace("");
+                Renamed?.Invoke(this, oldName);
+            }
+        }
+
+        [Browsable(false)]
+        public abstract object GenericValue { get; }
+        public Action<ShaderVar, string> Renamed { get; set; }
+
+        internal void SetProgramUniform(RenderProgram program, string name)
+        {
+            int loc = program.GetUniformLocation(name);
+            if (loc >= 0)
+                SetProgramUniform(program, loc);
+            //else
+            //    throw new Exception();
+        }
+
+        internal void SetProgramUniform(RenderProgram program) 
+            => SetProgramUniform(program, Name);
+
+        //internal void SetUniform(string name) { SetUniform(Engine.Renderer.GetUniformLocation(programBindingId, name)); }
+        //internal void SetUniform() { SetUniform(Engine.Renderer.GetUniformLocation(programBindingId, Name)); }
+
+        internal abstract void SetProgramUniform(RenderProgram program, int location);
+
+        public ShaderVar(string userName, IShaderVarOwner owner)
+        {
+            _owner = owner;
+            Name = userName;
+        }
+
+        protected void OnValueChanged()
+        {
+            ValueChanged?.Invoke(this);
+        }
+
+        /// <summary>
+        /// Ex: layout (location = 0) uniform float potato;
+        /// </summary>
+        internal string GetUniformDeclaration(int bindingLocation = -1)
+        {
+            string line = "";
+            if (bindingLocation >= 0)
+                line = string.Format("layout (location = {0}) ", bindingLocation);
+            return line + string.Format("uniform {0};", GetDeclaration());
+        }
+        internal string GetDeclaration()
+        {
+            return string.Format("{0} {1}", TypeName.ToString().Substring(1), Name);
+        }
+        internal abstract string GetShaderValueString();
+        /// <summary>
+        /// Ex: this is float '.x', parent is vec4 '[0]', parent is mat4 'tomato': tomato[0].x
+        /// </summary>
+        /// <returns></returns>
+        internal virtual string AccessorTree()
+        {
+            return Name;
+        }
+
+        internal static Vec4 GetTypeColor(EShaderVarType argumentType)
+        {
+            switch (argumentType)
+            {
+                case EShaderVarType._bool:
+                case EShaderVarType._bvec2:
+                case EShaderVarType._bvec3:
+                case EShaderVarType._bvec4:
+                    return (ColorF4)Color.Red;
+                case EShaderVarType._int:
+                case EShaderVarType._ivec2:
+                case EShaderVarType._ivec3:
+                case EShaderVarType._ivec4:
+                    return (ColorF4)Color.HotPink;
+                case EShaderVarType._uint:
+                case EShaderVarType._uvec2:
+                case EShaderVarType._uvec3:
+                case EShaderVarType._uvec4:
+                    return (ColorF4)Color.Orange;
+                case EShaderVarType._float:
+                case EShaderVarType._vec2:
+                case EShaderVarType._vec3:
+                case EShaderVarType._vec4:
+                    return (ColorF4)Color.Blue;
+                case EShaderVarType._double:
+                case EShaderVarType._dvec2:
+                case EShaderVarType._dvec3:
+                case EShaderVarType._dvec4:
+                    return (ColorF4)Color.Green;
+            }
+            return BaseFuncValue.NoTypeColor;
+        }
+
 
         #region Type caches
         public EShaderVarType[] GetTypesMatching<T>() where T : IShaderVarType
@@ -317,122 +436,5 @@ namespace TheraEngine.Rendering.Models.Materials
             EShaderVarType._bvec4,
         };
         #endregion
-
-        public event Action<ShaderVar> ValueChanged;
-
-        [TSerialize("CanSwizzle", NodeType = ENodeType.Attribute)]
-        protected bool _canSwizzle = true;
-
-        protected IShaderVarOwner _owner;
-
-        //[TSerialize("Fields")]
-        protected Dictionary<string, ShaderVar> _fields = new Dictionary<string, ShaderVar>();
-
-        internal IShaderVarOwner Owner => _owner;
-        public abstract EShaderVarType TypeName { get; }
-
-        [TString(false, false, false, false)]
-        [Category(CategoryName)]
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                //Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(value)
-                string oldName = _name;
-                _name = (value ?? "").ReplaceWhitespace("");
-                Renamed?.Invoke(this, oldName);
-            }
-        }
-        private string _name;
-
-        [Browsable(false)]
-        public abstract object GenericValue { get; }
-        public Action<ShaderVar, string> Renamed { get; set; }
-
-        internal void SetProgramUniform(RenderProgram program, string name)
-        {
-            int loc = program.GetUniformLocation(name);
-            if (loc >= 0)
-                SetProgramUniform(program, loc);
-            //else
-            //    throw new Exception();
-        }
-
-        internal void SetProgramUniform(RenderProgram program) 
-            => SetProgramUniform(program, Name);
-
-        //internal void SetUniform(string name) { SetUniform(Engine.Renderer.GetUniformLocation(programBindingId, name)); }
-        //internal void SetUniform() { SetUniform(Engine.Renderer.GetUniformLocation(programBindingId, Name)); }
-
-        internal abstract void SetProgramUniform(RenderProgram program, int location);
-
-        public ShaderVar(string userName, IShaderVarOwner owner)
-        {
-            _owner = owner;
-            Name = userName;
-        }
-
-        protected void OnValueChanged()
-        {
-            ValueChanged?.Invoke(this);
-        }
-
-        /// <summary>
-        /// Ex: layout (location = 0) uniform float potato;
-        /// </summary>
-        internal string GetUniformDeclaration(int bindingLocation = -1)
-        {
-            string line = "";
-            if (bindingLocation >= 0)
-                line = string.Format("layout (location = {0}) ", bindingLocation);
-            return line + string.Format("uniform {0};", GetDeclaration());
-        }
-        internal string GetDeclaration()
-        {
-            return string.Format("{0} {1}", TypeName.ToString().Substring(1), Name);
-        }
-        internal abstract string GetShaderValueString();
-        /// <summary>
-        /// Ex: this is float '.x', parent is vec4 '[0]', parent is mat4 'tomato': tomato[0].x
-        /// </summary>
-        /// <returns></returns>
-        internal virtual string AccessorTree()
-        {
-            return Name;
-        }
-
-        internal static Vec4 GetTypeColor(EShaderVarType argumentType)
-        {
-            switch (argumentType)
-            {
-                case EShaderVarType._bool:
-                case EShaderVarType._bvec2:
-                case EShaderVarType._bvec3:
-                case EShaderVarType._bvec4:
-                    return (ColorF4)Color.Red;
-                case EShaderVarType._int:
-                case EShaderVarType._ivec2:
-                case EShaderVarType._ivec3:
-                case EShaderVarType._ivec4:
-                    return (ColorF4)Color.HotPink;
-                case EShaderVarType._uint:
-                case EShaderVarType._uvec2:
-                case EShaderVarType._uvec3:
-                case EShaderVarType._uvec4:
-                    return (ColorF4)Color.Orange;
-                case EShaderVarType._float:
-                case EShaderVarType._vec2:
-                case EShaderVarType._vec3:
-                case EShaderVarType._vec4:
-                    return (ColorF4)Color.Blue;
-                case EShaderVarType._double:
-                case EShaderVarType._dvec2:
-                case EShaderVarType._dvec3:
-                case EShaderVarType._dvec4:
-                    return (ColorF4)Color.Green;
-            }
-            return BaseFuncValue.NoTypeColor;
-        }
     }
 }

@@ -291,8 +291,7 @@ namespace TheraEngine.Editor
         //    FocusedMeshMaterial.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
         //}
     }
-    [Serializable]
-    public class EngineEditorState
+    public class EngineEditorState : TObjectSlim
     {
         /// <summary>
         /// Used to determine if the editor is editing the game currently instead of simulating gameplay.

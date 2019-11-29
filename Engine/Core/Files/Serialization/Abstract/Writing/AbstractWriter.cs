@@ -3,6 +3,7 @@ using SevenZip;
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Runtime.Remoting;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
@@ -94,6 +95,9 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public static bool PreExport(object file, string directory, string fileName, EProprietaryFileFormat format, TFileExt extOverride, out string filePath)
         {
+            if (RemotingServices.IsTransparentProxy(file))
+                throw new Exception("Cannot properly serialize files from other AppDomains! Errors will be thrown on serialized private properties.");
+
             TypeProxy fileType = file.GetTypeProxy();
             TFileExt extAttrib = extOverride ?? TFileObject.GetFileExtension(fileType);
             if (extAttrib is null)

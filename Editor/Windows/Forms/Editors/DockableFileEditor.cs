@@ -71,11 +71,11 @@ namespace TheraEditor.Windows.Forms
 
             if (RemotingServices.IsTransparentProxy(_file))
             {
-                Engine.Instance.DomainProxyPreUnset -= Instance_DomainProxyPreUnset;
+                Engine.Instance.DomainProxyDestroying -= Instance_DomainProxyPreUnset;
             }
             if (RemotingServices.IsTransparentProxy(file))
             {
-                Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
+                Engine.Instance.DomainProxyDestroying += Instance_DomainProxyPreUnset;
             }
 
             _file = file;
@@ -85,7 +85,7 @@ namespace TheraEditor.Windows.Forms
         private void Instance_DomainProxyPreUnset(TheraEngine.Core.EngineDomainProxy obj)
         {
             _file = null;
-            Engine.Instance.DomainProxyPreUnset -= Instance_DomainProxyPreUnset;
+            Engine.Instance.DomainProxyDestroying -= Instance_DomainProxyPreUnset;
         }
 
         IFileObject IFileEditorControl.File => File;

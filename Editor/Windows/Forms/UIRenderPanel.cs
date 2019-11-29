@@ -11,7 +11,7 @@ namespace TheraEngine
 {
     public interface IUIRenderHandler : IRenderHandler
     {
-        IUserInterface UI { get; }
+        IUserInterfacePawn UI { get; }
         IWorld World { get; }
         IUIGameMode GameMode { get; }
 
@@ -20,7 +20,7 @@ namespace TheraEngine
     }
     public class UIRenderHandler<UIPawnType, UIGameModeType, UIControllerType> : 
         BaseEditorRenderHandler<IScene2D, UIPawnType, UIGameModeType>, IUIRenderHandler 
-        where UIPawnType : class, IPawn, IUserInterface, new()
+        where UIPawnType : class, IPawn, IUserInterfacePawn, new()
         where UIGameModeType : UIGameMode<UIPawnType, UIControllerType>, new()
         where UIControllerType : LocalPlayerController
     {
@@ -31,7 +31,7 @@ namespace TheraEngine
         public override UIGameModeType GameMode { get; }
         public UIPawnType UI { get; }
 
-        IUserInterface IUIRenderHandler.UI => UI;
+        IUserInterfacePawn IUIRenderHandler.UI => UI;
         IWorld IUIRenderHandler.World => World;
         IUIGameMode IUIRenderHandler.GameMode => GameMode;
         public override UIPawnType EditorPawn => UI;

@@ -129,8 +129,8 @@ namespace TheraEngine.Rendering
         public BoundingRectangle InternalResolution => _internalResolution;
         public BaseRenderHandler RenderHandler { get; }
 
-        public IUserInterface _hud;
-        public IUserInterface HUD
+        public IUserInterfacePawn _hud;
+        public IUserInterfacePawn HUD
         {
             get => _hud;
             set
@@ -347,12 +347,41 @@ namespace TheraEngine.Rendering
         public static Vec2 CursorPosition(Viewport v)
         {
             Point absolute = Cursor.Position;
+
             if (v is null)
                 return new Vec2(absolute.X, absolute.Y);
+
             RenderContext ctx = v.RenderHandler.Context;
             absolute = ctx.PointToClient(absolute);
             Vec2 result = new Vec2(absolute.X, absolute.Y);
             result = v.AbsoluteToRelative(result);
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the cursor position relative to the the viewport.
+        /// </summary>
+        public static Vec2 CursorPosition(Viewport v, out bool isOutOfBounds)
+        {
+            Point absolute = Cursor.Position;
+
+            if (v is null)
+            {
+                isOutOfBounds = true;
+                return new Vec2(absolute.X, absolute.Y);
+            }
+
+            RenderContext ctx = v.RenderHandler.Context;
+            absolute = ctx.PointToClient(absolute);
+            Vec2 result = new Vec2(absolute.X, absolute.Y);
+            result = v.AbsoluteToRelative(result);
+
+            isOutOfBounds = 
+                result.X < 0 ||
+                result.Y < 0 ||
+                result.X > v.Region.Width ||
+                result.Y > v.Region.Height;
+
             return result;
         }
 

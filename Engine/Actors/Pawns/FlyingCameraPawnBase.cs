@@ -102,35 +102,35 @@ namespace TheraEngine.Actors.Types.Pawns
             //}
         }
 
-        private void MoveDown(bool pressed) 
+        protected virtual void MoveDown(bool pressed) 
             => _linearUp += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
-        private void MoveUp(bool pressed) 
+        protected virtual void MoveUp(bool pressed) 
             => _linearUp += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
-        private void MoveLeft(bool pressed)
+        protected virtual void MoveLeft(bool pressed)
             => _linearRight += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
-        private void MoveRight(bool pressed) 
+        protected virtual void MoveRight(bool pressed) 
             => _linearRight += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
-        private void MoveBackward(bool pressed) 
+        protected virtual void MoveBackward(bool pressed) 
             => _linearForward += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
-        private void MoveForward(bool pressed)
+        protected virtual void MoveForward(bool pressed)
             => _linearForward += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
 
-        private void OnLeftStickX(float value) 
+        protected virtual void OnLeftStickX(float value) 
             => _linearRight = value * GamepadTranslateSpeed;
-        private void OnLeftStickY(float value)
+        protected virtual void OnLeftStickY(float value)
             => _linearForward = value * GamepadTranslateSpeed;
-        private void OnRightStickX(float value)
+        protected virtual void OnRightStickX(float value)
             => _yaw = -value * GamepadRotateSpeed;
-        private void OnRightStickY(float value) 
+        protected virtual void OnRightStickY(float value) 
             => _pitch = value * GamepadRotateSpeed;
 
-        private void YawRight(bool pressed)
-            => _yaw -= KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
-        private void YawLeft(bool pressed)
+        protected virtual void YawRight(bool pressed)
             => _yaw += KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
-        private void PitchDown(bool pressed)
+        protected virtual void YawLeft(bool pressed)
+            => _yaw -= KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
+        protected virtual void PitchDown(bool pressed)
             => _pitch -= KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
-        private void PitchUp(bool pressed)
+        protected virtual void PitchUp(bool pressed)
             => _pitch += KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
 
         private void OnControl(bool pressed)

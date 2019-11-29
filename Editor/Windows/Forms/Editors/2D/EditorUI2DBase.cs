@@ -22,7 +22,7 @@ namespace TheraEditor.Windows.Forms
     /// <summary>
     /// Base class for 2D editor UIs.
     /// </summary>
-    public abstract class EditorUI2DBase : UserInterface, I2DRenderable
+    public abstract class EditorUI2DBase : UserInterfacePawn, I2DRenderable
     {
         public EditorUI2DBase() : base()
             => _rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);

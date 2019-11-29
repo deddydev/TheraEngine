@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering
     public interface IScene2D : IScene
     {
         IQuadtree RenderTree { get; }
-        IEventList<I2DRenderable> Renderables { get; }
+        //IEventList<I2DRenderable> Renderables { get; }
 
         void CollectVisibleRenderables(BoundingRectangle bounds);
         I2DRenderable FindDeepest(Vec2 viewportPoint);
@@ -24,8 +24,8 @@ namespace TheraEngine.Rendering
     {
         [Category("Scene 2D")]
         public IQuadtree RenderTree { get; private set; }
-        [Category("Scene 2D")]
-        public IEventList<I2DRenderable> Renderables { get; }
+        //[Category("Scene 2D")]
+        //public IEventList<I2DRenderable> Renderables { get; }
         //public override int Count => Renderables.Count;
 
         public Scene2D() : this(Vec2.Zero) { }
@@ -34,7 +34,7 @@ namespace TheraEngine.Rendering
             Render = DoRender;
             Clear(bounds);
 
-            Renderables = new EventList<I2DRenderable>();
+            //Renderables = new EventList<I2DRenderable>();
             //Renderables.PostAnythingAdded += Renderables_PostAnythingAdded;
             //Renderables.PostAnythingRemoved += Renderables_PostAnythingRemoved;
         }
@@ -65,19 +65,20 @@ namespace TheraEngine.Rendering
         }
         public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, ICamera camera, bool shadowPass)
         {
-            //RenderTree.CollectVisible(null, populatingPasses, camera);
-            foreach (I2DRenderable r in Renderables)
-                if (r.RenderInfo.Visible)
-                    r.AddRenderables(populatingPasses, camera);
+            RenderTree.CollectVisible(null, populatingPasses, camera);
+            //foreach (I2DRenderable r in Renderables)
+            //    if (r.RenderInfo.Visible)
+            //        r.AddRenderables(populatingPasses, camera);
         }
         public I2DRenderable FindDeepest(Vec2 viewportPoint)
         {
-            foreach (I2DRenderable r in Renderables)
-            {
-                if (r.RenderInfo.AxisAlignedRegion.Contains(viewportPoint))
-                    return r;
-            }
-            return null;
+            return RenderTree.FindDeepest(viewportPoint);
+            //foreach (I2DRenderable r in Renderables)
+            //{
+            //    if (r.RenderInfo.AxisAlignedRegion.Contains(viewportPoint))
+            //        return r;
+            //}
+            //return null;
         }
 
         public void Resize(Vec2 bounds)
@@ -174,7 +175,5 @@ namespace TheraEngine.Rendering
             Engine.Renderer.PopCurrent2DScene();
             Engine.Renderer.PopCamera();
         }
-
-        public override IEnumerator<IRenderable> GetEnumerator() => Renderables.GetEnumerator();
     }
 }

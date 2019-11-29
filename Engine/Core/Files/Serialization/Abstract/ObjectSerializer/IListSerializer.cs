@@ -148,6 +148,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             Type arrayType = list.GetType();
             Type elementType = arrayType.DetermineElementType();
+
             BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
             if (ser is null || !ser.CanWriteAsString(elementType))
                 return false;

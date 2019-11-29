@@ -358,8 +358,9 @@ namespace TheraEditor.Windows.Forms
         {
             if (_targetFile is GLSLScript script)
             {
-                _glslShader = Editor.DomainProxy.CreateInstance<RenderShader>(script);
-                AppDomainHelper.Sponsor(_glslShader);
+                //_glslShader = Editor.DomainProxy.CreateInstance<RenderShader>(script);
+                //AppDomainHelper.Sponsor(_glslShader);
+                _glslShader = new RenderShader(script);
                 _glslShader.Generate();
             }
 

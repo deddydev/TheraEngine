@@ -5,7 +5,7 @@ using TheraEngine.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableModelEditorRenderForm : DockableWorldRenderFormBase<ModelEditorRenderHandler>
+    public partial class DockableModelEditorRenderForm : DockableWorldRenderPanelBase<ModelEditorRenderHandler>
     {
         public DockableModelEditorRenderForm(ELocalPlayerIndex playerIndex, int formIndex, ModelEditorForm form) 
             : base(playerIndex, formIndex)

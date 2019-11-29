@@ -14,19 +14,19 @@ namespace TheraEngine.Core.Tools
         /// Parses an expression and returns the resulting primitive type.
         /// </summary>
         /// <param name="expression">The expression to evaluate, as a string.</param>
-        /// <param name="provider">The object to provide variable values.</param>
-        public static T Evaluate<T>(string expression, object provider)
+        /// <param name="context">The object to provide variable values.</param>
+        public static T Evaluate<T>(string expression, object context)
             where T : struct, IComparable, IConvertible, IComparable<T>, IEquatable<T>
         {
-            Queue<String> queue = new Queue<String>();
-            Stack<String> stack = new Stack<String>();
+            Queue<string> queue = new Queue<string>();
+            Stack<string> stack = new Stack<string>();
             try
             {
 
 
                 ConvertToPostFix(expression, queue, stack);
-                string result = GetAnswer(provider, queue, stack);
-                object value = GetValue(result, provider);
+                string result = GetAnswer(context, queue, stack);
+                object value = GetValue(result, context);
                 if (value is T tVal)
                     return tVal;
                 else
@@ -73,7 +73,7 @@ namespace TheraEngine.Core.Tools
                 inFix = inFix.Replace(o, " " + o + " ");
             return inFix.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         }
-        private static void ConvertToPostFix(String inFix, Queue<String> queue, Stack<String> stack)
+        private static void ConvertToPostFix(string inFix, Queue<string> queue, Stack<string> stack)
         {
             //Split up the expression by the spaces between each token
             String[] tokens = SplitInFix(inFix);
@@ -248,10 +248,10 @@ namespace TheraEngine.Core.Tools
 
             //Negations will be found first
             int invertCount = 0;
-            bool neg = false;
-            while ((neg = token.StartsWith("-")) || token.StartsWith("+"))
+            bool negate;
+            while ((negate = token.StartsWith("-")) || token.StartsWith("+"))
             {
-                if (neg)
+                if (negate)
                     ++invertCount;
                 token = token.Substring(1);
             }            

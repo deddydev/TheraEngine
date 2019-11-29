@@ -3,13 +3,48 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
+    public enum EAnimTreeTraversalMethod
+    {
+        /// <summary>
+        /// All members are animated at the same time.
+        /// </summary>
+        Parallel,
+        /// <summary>
+        /// Members are animated sequentially in order of appearance, parent-down.
+        /// Root-Children-Grandchildren-Etc
+        /// </summary>
+        BreadthFirst,
+        /// <summary>
+        /// Left-Root-Right
+        /// </summary>
+        DepthFirstInOrder,
+        /// <summary>
+        /// Left-Right-Root
+        /// </summary>
+        DepthFirstPreOrder,
+        /// <summary>
+        /// Root-Left-Right
+        /// </summary>
+        DepthFirstPostOrder
+    }
+
     [TFileExt("pat")]
     [TFileDef("Property Animation Tree")]
     public class AnimationTree : BaseAnimation
     {
         [Browsable(true)]
         [Category("Object")]
-        public override string Name { get => base.Name; set => base.Name = value; }
+        [TSerialize]
+        public override string Name 
+        {
+            get => base.Name;
+            set => base.Name = value;
+        }
+
+        [Browsable(true)]
+        [Category(AnimCategory)]
+        [TSerialize]
+        public EAnimTreeTraversalMethod TraversalMethod { get; set; } = EAnimTreeTraversalMethod.Parallel;
 
         public AnimationTree()
             : base(0.0f, false) { }

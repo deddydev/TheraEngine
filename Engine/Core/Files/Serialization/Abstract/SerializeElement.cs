@@ -156,12 +156,14 @@ namespace TheraEngine.Core.Files.Serialization
 
                 _object = value;
 
+                if (_object is IObject iobj)
+                    iobj.ConstructedProgrammatically = false;
+
                 if (Owner != null && Parent is null && _object != null)
                 {
                     Owner.RootFileObject = _object;
                     if (_object is IFileObject fobj)
                     {
-                        fobj.ConstructedProgrammatically = false;
                         if (fobj.RootFile != Owner.RootFileObject)
                             fobj.RootFile = Owner.RootFileObject as IFileObject;
                         if (IsRoot)
@@ -693,6 +695,7 @@ namespace TheraEngine.Core.Files.Serialization
             node.Content.SetValueAsObject(elementObject);
             Children.Add(node);
         }
+
         public void InsertAttribute(int index, string name, object value)
             => Attributes.Insert(index, new SerializeAttribute(name, value));
         public void AddAttribute(string name, object value)

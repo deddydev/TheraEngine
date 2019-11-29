@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
+using TheraEditor.Wrappers;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Editor;
 
@@ -35,10 +37,10 @@ namespace TheraEditor
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            Application.ThreadException += Application_ThreadException;
-            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+            //AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            //Application.ThreadException += Application_ThreadException;
+            //Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            //TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
             AppDomain.CurrentDomain.AssemblyLoad += AppDomainHelper.CurrentDomain_AssemblyLoad;
 
             Application.Run(Editor.Instance);
@@ -72,61 +74,86 @@ namespace TheraEditor
                 d.Show();
         }
 
-        /// <summary>
-        /// Populates a toolstrip button with all matching types based on the predicate method, arranged by namespace.
-        /// </summary>
-        /// <param name="button">The button to populate.</param>
-        /// <param name="onClick">The method to trigger when a leaf button is pressed.
-        /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
-        /// <param name="match">The predicate method used to find specific types.</param>
-        public static TypeProxy[] PopulateTreeView(TreeView tree, EventHandler onClick, Predicate<TypeProxy> match)
+        public static List<NamespaceNode> GenerateTypeTree(IEnumerable<TypeProxy> types)
         {
-            TypeProxy[] fileObjecTypes = AppDomainHelper.FindTypes(match).ToArray();
-            
-            ConcurrentDictionary<string, NamespaceNode> nodeCache = new ConcurrentDictionary<string, NamespaceNode>();
-            foreach (TypeProxy type in fileObjecTypes)
-            {
-                string path = type.Namespace;
-                int dotIndex = path.IndexOf(".");
-                string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
-                NamespaceNode node;
-                if (nodeCache.ContainsKey(name))
-                    node = nodeCache[name];
-                else
-                {
-                    node = new NamespaceNode(name);
-                    //node.CreateButton(true);
-                    //nodeCache.Add(name, node);
-                    //tree.Nodes.Add(node.TreeNode);
-                }
-                //node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, null, true);
-            }
-            tree.AfterSelect += (s, e) => onClick(e.Node, e);
-
-            return fileObjecTypes;
-        }
-
-        /// <summary>
-        /// Populates a toolstrip button with all matching types based on the predicate method, arranged by namespace.
-        /// </summary>
-        /// <param name="button">The button to populate.</param>
-        /// <param name="onClick">The method to trigger when a leaf button is pressed.
-        /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
-        /// <param name="match">The predicate method used to find specific types.</param>
-        public static List<NamespaceNode> GenerateTypeTree(Predicate<TypeProxy> match)
-        {
-            var results = AppDomainHelper.FindTypes(match);
-            ConcurrentDictionary<string, NamespaceNode> rootNodes = new ConcurrentDictionary<string, NamespaceNode>();
-            foreach (TypeProxy type in results)
+            Dictionary<string, NamespaceNode> children = new Dictionary<string, NamespaceNode>();
+            foreach (TypeProxy type in types)
             {
                 string path = type.FullName;
                 int dotIndex = path.IndexOf(".");
                 string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
-                NamespaceNode node = rootNodes.AddOrUpdate(name, k => new NamespaceNode(k), (t, v) => v);
+                NamespaceNode node;
+
+                if (children.ContainsKey(name))
+                    node = children[name];
+                else
+                {
+                    node = new NamespaceNode(name);
+                    children.Add(name, node);
+                }
+
                 node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type);
             }
-            return rootNodes.Values.ToList();
+            return children.Values.ToList();
         }
+
+        public static List<NamespaceNode> GenerateTypeTree(Predicate<TypeProxy> match)
+            => GenerateTypeTree(AppDomainHelper.FindTypes(match));
+
+        public static void GenerateTMenu(TMenuOption parentOption, IEnumerable<NamespaceNode> childList, Action<TypeProxy> action)
+        {
+            foreach (var child in childList)
+            {
+                var op = new TMenuNamespaceOption(child) { CreateAction = action };
+                GenerateTMenu(op, child.Children.OrderBy(x => x.Key).Select(x => x.Value), action);
+                parentOption.Add(op);
+            }
+        }
+
+        public static void GenerateTreeNodes(
+            TreeNodeCollection parentCollection,
+            IEnumerable<NamespaceNode> childList)
+        {
+            foreach (var child in childList)
+            {
+                var op = new TreeNode(child.Name) { Tag = child.Type };
+                GenerateTreeNodes(op.Nodes, child.Children.OrderBy(x => x.Key).Select(x => x.Value));
+                parentCollection.Add(op);
+            }
+        }
+
+        public static void GenerateToolStripItems(
+            ToolStripItemCollection parentCollection, 
+            IEnumerable<NamespaceNode> childList,
+            Func<NamespaceNode, ToolStripMenuItem> createItemFunc)
+        {
+            foreach (var child in childList)
+            {
+                var op = createItemFunc(child);
+                GenerateToolStripItems(op.DropDownItems, child.Children.OrderBy(x => x.Key).Select(x => x.Value), createItemFunc);
+                parentCollection.Add(op);
+            }
+        }
+
+        private class TMenuNamespaceOption : TMenuOption
+        {
+            public TMenuNamespaceOption(NamespaceNode node) : base(node.Name, null, Keys.None)
+            {
+                NamespaceInfo = node;
+                Action = SelectedAction;
+            }
+
+            public Action<TypeProxy> CreateAction { get; set; }
+            public NamespaceNode NamespaceInfo { get; set; }
+
+            private void SelectedAction()
+            {
+                TypeProxy type = NamespaceInfo?.Type;
+                if (type != null)
+                    CreateAction?.Invoke(type);
+            }
+        }
+
         public class NamespaceNode : MarshalByRefObject
         {
             public override object InitializeLifetimeService() => null;
@@ -173,24 +200,24 @@ namespace TheraEditor
 
             //    TreeNode.Nodes.Add(treeNode);
             //}
-            public void PopulateMenuNode(ToolStripMenuItem node, EventHandler onClick)
-            {
-                //if (Button is null)
-                //    CreateButton(false);
+            //public void PopulateMenuNode(ToolStripMenuItem node, EventHandler onClick)
+            //{
+            //    //if (Button is null)
+            //    //    CreateButton(false);
 
-                //ToolStripMenuItem btn = new ToolStripMenuItem(displayText)
-                //{
-                //    AutoSize = true,
-                //    //ShowDropDownArrow = false,
-                //    TextAlign = ContentAlignment.MiddleLeft,
-                //    Tag = type,
-                //};
-                ////Size s = TextRenderer.MeasureText(displayText, btn.Font);
-                ////btn.Width = s.Width;
-                ////btn.Height = s.Height + 10;
-                //btn.Click += onClick;
-                //Button.DropDownItems.Add(btn);
-            }
+            //    //ToolStripMenuItem btn = new ToolStripMenuItem(displayText)
+            //    //{
+            //    //    AutoSize = true,
+            //    //    //ShowDropDownArrow = false,
+            //    //    TextAlign = ContentAlignment.MiddleLeft,
+            //    //    Tag = type,
+            //    //};
+            //    ////Size s = TextRenderer.MeasureText(displayText, btn.Font);
+            //    ////btn.Width = s.Width;
+            //    ////btn.Height = s.Height + 10;
+            //    //btn.Click += onClick;
+            //    //Button.DropDownItems.Add(btn);
+            //}
             public void Add(string path, TypeProxy type)
             {
                 if (string.IsNullOrEmpty(path))

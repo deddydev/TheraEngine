@@ -128,6 +128,9 @@ namespace Extensions
         }
         public static void InvokeIfNecessary(this Control control, Delegate del, params object[] args)
         {
+            if (control.Disposing || control.IsDisposed)
+                return;
+
             if (control.InvokeRequired)
                 control.BeginInvoke(del, args);
             else

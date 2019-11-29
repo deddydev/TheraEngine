@@ -32,23 +32,12 @@ namespace TheraEditor.Windows.Forms
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DockableUserInterfaceEditor));
-            this.RenderPanel = new RenderPanel<UIGraphRenderHandler>();
             this.dockingHostToolStripPanel2 = new TheraEditor.Windows.Forms.DockingHostToolStripPanel();
             this.tearOffToolStrip1 = new TheraEditor.Windows.Forms.TearOffToolStrip();
             this.btnZoomExtents = new System.Windows.Forms.ToolStripButton();
             this.dockingHostToolStripPanel2.SuspendLayout();
             this.tearOffToolStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // RenderPanel
-            // 
-            this.RenderPanel.AllowDrop = true;
-            this.RenderPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.RenderPanel.Location = new System.Drawing.Point(0, 25);
-            this.RenderPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.RenderPanel.Name = "RenderPanel";
-            this.RenderPanel.Size = new System.Drawing.Size(328, 184);
-            this.RenderPanel.TabIndex = 1;
             // 
             // dockingHostToolStripPanel2
             // 
@@ -93,7 +82,6 @@ namespace TheraEditor.Windows.Forms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(328, 209);
-            this.Controls.Add(this.RenderPanel);
             this.Controls.Add(this.dockingHostToolStripPanel2);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
@@ -111,7 +99,6 @@ namespace TheraEditor.Windows.Forms
 
         #endregion
 
-        public RenderPanel<UIGraphRenderHandler> RenderPanel;
         private DockingHostToolStripPanel dockingHostToolStripPanel2;
         private TearOffToolStrip tearOffToolStrip1;
         private System.Windows.Forms.ToolStripButton btnZoomExtents;

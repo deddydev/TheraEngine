@@ -152,9 +152,9 @@ namespace TheraEngine.Rendering.UI
         #endregion
         
         [Browsable(false)]
-        public new IUserInterface OwningActor
+        public new IUserInterfacePawn OwningActor
         {
-            get => (IUserInterface)base.OwningActor;
+            get => (IUserInterfacePawn)base.OwningActor;
             set
             {
                 if (IsSpawned && this is I2DRenderable r)

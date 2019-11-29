@@ -25,7 +25,7 @@ namespace TheraEditor.Windows.Forms
             UIProps = new DockableFormInstance<DockablePropertyGrid>(x => x.Show(dockPanel1, DockState.DockRight));
         }
 
-        public UIEditorForm(IUserInterface manager) : this()
+        public UIEditorForm(IUserInterfacePawn manager) : this()
             => TargetUI = manager;
         
         protected override void OnLoad(EventArgs e)
@@ -36,7 +36,7 @@ namespace TheraEditor.Windows.Forms
         }
         public DockableFormInstance<DockableUserInterfaceEditor> UIGraph { get; }
         public DockableFormInstance<DockablePropertyGrid> UIProps { get; }
-        public IUserInterface TargetUI
+        public IUserInterfacePawn TargetUI
         {
             get => UIGraph.Form.RenderPanel.RenderHandler.UI.TargetUI;
             set

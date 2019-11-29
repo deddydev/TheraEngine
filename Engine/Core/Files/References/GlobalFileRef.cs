@@ -12,6 +12,10 @@ namespace TheraEngine.Core.Files
     {
 
     }
+    public interface IGlobalFileRef<T> : IFileRef<T> where T : class, IFileObject
+    {
+        IGlobalFilesContext<T> Context { get; set; }
+    }
     /// <summary>
     /// Add this interface to a class to use that class as the handler for global instances.
     /// </summary>
@@ -20,13 +24,6 @@ namespace TheraEngine.Core.Files
     {
         ConcurrentDictionary<string, T> GlobalFileInstances { get; }
     }
-    /// <summary>
-    /// 
-    /// </summary>
-    //public interface IGlobalFilesContext
-    //{
-    //    ConcurrentDictionary<string, IGlobalFileRef> GlobalFileInstances { get; }
-    //}
 
     /// <summary>
     /// Allows only one loaded instance of this file throughout the program.
@@ -35,7 +32,9 @@ namespace TheraEngine.Core.Files
     [Serializable]
     [TFileExt("gref")]
     [TFileDef("Global File Reference")]
-    public class GlobalFileRef<T> : FileRef<T>, IGlobalFileRef where T : class, IFileObject
+    public class GlobalFileRef<T> : 
+        FileRef<T>, IGlobalFileRef<T>, IGlobalFileRef
+        where T : class, IFileObject
     {
         public GlobalFileRef()
             : base() { }

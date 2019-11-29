@@ -160,8 +160,6 @@ namespace TheraEngine.Worlds
         [Category("Editor Traits")]
         public bool PreviewPhysics { get; set; } = false;
 
-        private const string NewActorTargetMapNameDefault = "DefaultMap";
-        private string _newActorTargetMapName = NewActorTargetMapNameDefault;
         [TSerialize]
         [Category("Editor Traits")]
         public string NewActorTargetMapName
@@ -169,6 +167,8 @@ namespace TheraEngine.Worlds
             get => _newActorTargetMapName ?? NewActorTargetMapNameDefault;
             set => _newActorTargetMapName = string.IsNullOrWhiteSpace(value) ? NewActorTargetMapNameDefault : value;
         }
+        private const string NewActorTargetMapNameDefault = "DefaultMap";
+        private string _newActorTargetMapName = NewActorTargetMapNameDefault;
 
         [Category("World")]
         [TSerialize]

@@ -50,6 +50,7 @@ namespace TheraEditor.Windows.Forms
         private void SetArgumentTypes(TypeProxy[] args)
         {
             SelectedTypes = new TypeProxy[args.Length];
+
             for (int i = 0; i < args.Length; ++i)
             {
                 SelectedTypes[i] = null;
@@ -141,7 +142,7 @@ namespace TheraEditor.Windows.Forms
                     Renderer = new TheraToolStripRenderer()
                 };
 
-                ToolStripMenuItem root = new ToolStripMenuItem("Select a type...") { Tag = i };
+                ToolStripMenuItem root = new ToolStripMenuItem("Select a type...");
 
                 bool test(TypeProxy type)
                 {
@@ -160,35 +161,61 @@ namespace TheraEditor.Windows.Forms
                     );
                 }
 
-                void onClick(object sender, EventArgs e)
-                {
-                    if (sender is ToolStripMenuItem button)
-                    {
-                        TypeProxy f = button.Tag as TypeProxy;
-                        if (f.ContainsGenericParameters)
-                        {
-                            using (GenericsSelector gs = new GenericsSelector(f))
-                            {
-                                if (gs.ShowDialog(this) == DialogResult.OK)
-                                    f = gs.FinalClassType;
-                                else
-                                    return;
-                            }
-                        }
-
-                        root.Text = f.GetFriendlyName();
-                        SelectedTypes[(int)root.Tag] = f;
-
-                        btnOkay.Enabled = !SelectedTypes.Any(x => x is null);
-                    }
-                }
-
-                Program.GenerateTypeTree(test);
+                var tree = Program.GenerateTypeTree(test);
+                Program.GenerateToolStripItems(root.DropDownItems, tree, node =>
+                    new ToolStripMenuItem(node.Name, null, OnClick)
+                    { 
+                        Tag = new ButtonContext(i, node.Type, root)
+                    });
 
                 menu.Items.Add(root);
                 box.Controls.Add(menu);
                 BodyPanel.Controls.Add(box);
             }
+        }
+
+        private class ButtonContext
+        {
+            public ButtonContext(int typeIndex, TypeProxy type, ToolStripMenuItem rootItem)
+            {
+                TypeIndex = typeIndex;
+                RootItem = rootItem;
+                Type = type;
+            }
+
+            public int TypeIndex { get; set; }
+            public TypeProxy Type { get; set; }
+            public ToolStripMenuItem RootItem { get; set; }
+        }
+
+        private void OnClick(object sender, EventArgs e)
+        {
+            if (!(sender is ToolStripItem button))
+                return;
+            
+            ButtonContext context = button.Tag as ButtonContext;
+            TypeProxy type = context.Type;
+            var root = context.RootItem;
+            int typeIndex = context.TypeIndex;
+
+            if (type is null)
+                return;
+
+            if (type.ContainsGenericParameters)
+            {
+                using (GenericsSelector gs = new GenericsSelector(type))
+                {
+                    if (gs.ShowDialog(this) == DialogResult.OK)
+                        type = gs.FinalClassType;
+                    else
+                        return;
+                }
+            }
+
+            root.Text = type.GetFriendlyName();
+            SelectedTypes[typeIndex] = type;
+
+            btnOkay.Enabled = !SelectedTypes.Any(x => x is null);
         }
 
         public TypeProxy OriginalClassType { get; private set; }

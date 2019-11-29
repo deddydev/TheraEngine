@@ -2,7 +2,7 @@
 
 namespace TheraEditor.Windows.Forms
 {
-    partial class DockableWorldRenderForm
+    partial class DockableWorldRenderPanel
     {
         /// <summary>
         /// Required designer variable.

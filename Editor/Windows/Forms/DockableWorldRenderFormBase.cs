@@ -15,9 +15,9 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class DockableWorldRenderFormBase<T> : DockContent where T : class, IRenderHandler
+    public class DockableWorldRenderPanelBase<T> : DockContent where T : class, IRenderHandler
     {
-        public DockableWorldRenderFormBase(ELocalPlayerIndex playerIndex, int formIndex) : base()
+        public DockableWorldRenderPanelBase(ELocalPlayerIndex playerIndex, int formIndex) : base()
         {
             FormIndex = formIndex;
             RenderPanel = new RenderPanel<T>

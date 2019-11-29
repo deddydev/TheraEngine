@@ -50,7 +50,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             file.Wrapper is IBaseFileWrapper pw &&
                             !string.IsNullOrWhiteSpace(node.FilePath))
                         {
-                            if (pw.FileType is null || pw.FileType.IsAssignableFrom(gridRef.ReferencedType))
+                            if (pw.FileType is null || pw.FileType.IsAssignableFrom(gridRef.FileType))
                             {
                                 gridRef.Path.Path = file.FilePath;
 

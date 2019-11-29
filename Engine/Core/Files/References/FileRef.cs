@@ -9,34 +9,38 @@ namespace TheraEngine.Core.Files
 {
     public interface IFileRef : IFileLoader
     {
-        IFileObject File { get; set; }
         bool IsLoaded { get; set; }
         bool StoredInternally { get; }
-        void UnloadReference();
         bool LoadAttempted { get; }
-        TypeProxy SubType { get; set; }
+
+        IFileObject File { get; set; }
 
         IFileObject GetInstance();
         Task<IFileObject> GetInstanceAsync();
         Task<IFileObject> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
 
-        //Task ExportReferenceAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-        //Task ExportReferenceAsync(string dir, string name, EFileFormat format, string thirdPartyExt, bool setPath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        void UnloadReference();
     }
-    public interface IFileRef<T> : IFileRef where T : class, IFileObject
+    public interface IFileRef<T> : IFileLoader<T> where T : class, IFileObject
     {
-        new T File { get; set; }
+        bool IsLoaded { get; set; }
+        bool StoredInternally { get; }
+        bool LoadAttempted { get; }
 
-        new T GetInstance();
-        new Task<T> GetInstanceAsync();
-        new Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
+        T File { get; set; }
+
+        T GetInstance();
+        Task<T> GetInstanceAsync();
+        Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
+
+        void UnloadReference();
     }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
     /// </summary>
     [Serializable]
     [TFileExt("ref")]
-    public abstract class FileRef<T> : FileLoader<T>, IFileRef<T> where T : class, IFileObject
+    public abstract class FileRef<T> : FileLoader<T>, IFileRef<T>, IFileRef where T : class, IFileObject
     {
         #region Constructors
         public FileRef() : this(string.Empty) { }
@@ -45,7 +49,7 @@ namespace TheraEngine.Core.Files
         public FileRef(string filePath, TypeProxy type) : base(filePath, type)
         {
             if (AppDomainHelper.IsPrimaryDomain)
-                Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
+                Engine.Instance.DomainProxyDestroying += Instance_DomainProxyPreUnset;
         }
         public FileRef(T file, string filePath) : this(filePath)
         {
@@ -76,7 +80,7 @@ namespace TheraEngine.Core.Files
         public FileRef(string dir, string name, EProprietaryFileFormat format) : base(dir, name, format) 
         {
             if (AppDomainHelper.IsPrimaryDomain)
-                Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
+                Engine.Instance.DomainProxyDestroying += Instance_DomainProxyPreUnset;
         }
         public FileRef(string dir, string name, EProprietaryFileFormat format, T file) : this(dir, name, format)
         {
@@ -107,7 +111,7 @@ namespace TheraEngine.Core.Files
 
         protected void Instance_DomainProxyPreUnset(EngineDomainProxy obj)
         {
-            SubType = null;
+            FileType = null;
             IsLoaded = false;
         }
 

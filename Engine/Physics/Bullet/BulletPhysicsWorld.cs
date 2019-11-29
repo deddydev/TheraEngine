@@ -103,7 +103,7 @@ namespace TheraEngine.Physics
             PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
             PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;
             ManifoldPoint.ContactAdded += ManifoldPoint_ContactAdded;
-            CompoundCollisionAlgorithm.CompoundChildShapePairCallback = CompoundChildShapeCallback;
+            //CompoundCollisionAlgorithm.CompoundChildShapePairCallback = CompoundChildShapeCallback;
         }
         private void NearCallback(BroadphasePair collisionPair, CollisionDispatcher dispatcher, DispatcherInfo dispatchInfo)
         {
@@ -113,25 +113,25 @@ namespace TheraEngine.Physics
         {
             return;
 
-            int numManifolds = world.Dispatcher.NumManifolds;
-            for (int i = 0; i < numManifolds; i++)
-            {
-                PersistentManifold contactManifold = world.Dispatcher.GetManifoldByIndexInternal(i);
-                CollisionObject body0 = contactManifold.Body0;
-                CollisionObject body1 = contactManifold.Body1;
+            //int numManifolds = world.Dispatcher.NumManifolds;
+            //for (int i = 0; i < numManifolds; i++)
+            //{
+            //    PersistentManifold contactManifold = world.Dispatcher.GetManifoldByIndexInternal(i);
+            //    CollisionObject body0 = contactManifold.Body0;
+            //    CollisionObject body1 = contactManifold.Body1;
 
-                int numContacts = contactManifold.NumContacts;
-                for (int j = 0; j < numContacts; j++)
-                {
-                    ManifoldPoint pt = contactManifold.GetContactPoint(j);
-                    if (pt.Distance < 0.0f)
-                    {
-                        Vector3 ptA = pt.PositionWorldOnA;
-                        Vector3 ptB = pt.PositionWorldOnB;
-                        Vector3 normalOnB = pt.NormalWorldOnB;
-                    }
-                }
-            }
+            //    int numContacts = contactManifold.NumContacts;
+            //    for (int j = 0; j < numContacts; j++)
+            //    {
+            //        ManifoldPoint pt = contactManifold.GetContactPoint(j);
+            //        if (pt.Distance < 0.0f)
+            //        {
+            //            Vector3 ptA = pt.PositionWorldOnA;
+            //            Vector3 ptB = pt.PositionWorldOnB;
+            //            Vector3 normalOnB = pt.NormalWorldOnB;
+            //        }
+            //    }
+            //}
         }
         private bool CompoundChildShapeCallback(CollisionShape pShape0, CollisionShape pShape)
         {
@@ -248,23 +248,23 @@ namespace TheraEngine.Physics
         {
             _dynamicsWorld.StepSimulation(delta, 2, Engine.RenderPeriod * Engine.TimeDilation);
         }
-        private class CustomOverlappingPair : OverlappingPairCallback
-        {
-            public override BroadphasePair AddOverlappingPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
-            {
-                throw new NotImplementedException();
-            }
+        //private class CustomOverlappingPair : OverlappingPairCallback
+        //{
+        //    public override BroadphasePair AddOverlappingPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
 
-            public override IntPtr RemoveOverlappingPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1, Dispatcher dispatcher)
-            {
-                throw new NotImplementedException();
-            }
+        //    public override IntPtr RemoveOverlappingPair(BroadphaseProxy proxy0, BroadphaseProxy proxy1, Dispatcher dispatcher)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
 
-            public override void RemoveOverlappingPairsContainingProxy(BroadphaseProxy proxy0, Dispatcher dispatcher)
-            {
-                throw new NotImplementedException();
-            }
-        }
+        //    public override void RemoveOverlappingPairsContainingProxy(BroadphaseProxy proxy0, Dispatcher dispatcher)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+        //}
         private class CustomOverlapFilter : OverlapFilterCallback
         {
             public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)

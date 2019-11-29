@@ -5,5 +5,5 @@ using TheraEngine.Actors.Types.Pawns;
 namespace TheraEditor.Wrappers
 {
     [TreeFileType(nameof(Resources.GenericFile))]
-    public class UserInterfaceWrapper : DockableFileEditorWrapperBase<UserInterface, DockableUserInterfaceEditor> { }
+    public class UserInterfaceWrapper : DockableFileEditorWrapperBase<UserInterfacePawn, DockableUserInterfaceEditor> { }
 }

@@ -11,7 +11,7 @@ using TheraEngine.Rendering.Models.Materials;
 namespace TheraEngine.Rendering.Text
 {
     public delegate void DelTextRedraw(bool forceFullRedraw);
-    public class TextDrawer
+    public class TextRasterizer
     {
         public class TextSort : IComparer<UIString2D>
         {
@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering.Text
         public bool Modified => _modified.Count > 0;
         public EventList<UIString2D> Text { get; }
 
-        public TextDrawer()
+        public TextRasterizer()
         {
             _sorter = new TextSort();
             Text = new EventList<UIString2D>();

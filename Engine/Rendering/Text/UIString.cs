@@ -57,7 +57,7 @@ namespace TheraEngine.Rendering.Text
 
         public EventBoundingRectangleF Region { get; } = new EventBoundingRectangleF();
         internal SolidBrush Brush { get; private set; } = new SolidBrush(Color.White);
-        internal TextDrawer Parent { get; set; }
+        internal TextRasterizer Parent { get; set; }
         internal List<UIString2D> Overlapping { get; set; } //Set after being drawn
 
         /// <summary>

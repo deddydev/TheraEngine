@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -68,6 +69,8 @@ namespace TheraEngine.Core.Files.Serialization
             public SerializeElement SharedObjectsElement { get; set; }
             public List<SerializeElement> ReadingSharedObjectsList { get; } = new List<SerializeElement>();
             public Dictionary<int, List<SerializeElement>> ReadingSharedObjectsSetQueue { get; } = new Dictionary<int, List<SerializeElement>>();
+
+            public List<Task> PendingAsyncTasks { get; } = new List<Task>();
         }
     }
 }

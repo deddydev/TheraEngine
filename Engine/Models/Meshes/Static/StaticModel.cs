@@ -32,9 +32,9 @@ namespace TheraEngine.Rendering.Models
         //    //int size = _collision.CalculateSerializeBufferSize();
         //}
 
-        [TSerialize(nameof(RigidChildren), DeserializeAsync = true)]
+        [TSerialize(nameof(RigidChildren))]
         protected EventList<StaticRigidSubMesh> _rigidChildren = new EventList<StaticRigidSubMesh>();
-        [TSerialize(nameof(SoftChildren), DeserializeAsync = true)]
+        [TSerialize(nameof(SoftChildren))]
         protected EventList<StaticSoftSubMesh> _softChildren = new EventList<StaticSoftSubMesh>();
         
         /// <summary>

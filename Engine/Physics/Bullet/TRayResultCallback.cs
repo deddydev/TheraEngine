@@ -17,11 +17,11 @@ namespace TheraEngine.Physics.Bullet
             float hitFraction = rayResult.HitFraction;
             int shapePart = -1, triangleIndex = -1;
 
-            if (rayResult.LocalShapeInfo != null)
-            {
-                shapePart = rayResult.LocalShapeInfo.ShapePart;
-                triangleIndex = rayResult.LocalShapeInfo.TriangleIndex;
-            }
+            //if (rayResult.LocalShapeInfo != null)
+            //{
+            //    shapePart = rayResult.LocalShapeInfo.ShapePart;
+            //    triangleIndex = rayResult.LocalShapeInfo.TriangleIndex;
+            //}
 
             Handler.AddResult(obj, hitNormalLocal, normalInWorldSpace, hitFraction, shapePart, triangleIndex);
 

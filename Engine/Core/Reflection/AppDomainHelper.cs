@@ -64,7 +64,7 @@ namespace TheraEngine.Core.Reflection
         }
 
         public static AppDomain GameAppDomain => GameAppDomainLazy.Value;
-        private static Lazy<AppDomain> GameAppDomainLazy = new Lazy<AppDomain>(GetGameAppDomain, LazyThreadSafetyMode.PublicationOnly);
+        private static Lazy<AppDomain> GameAppDomainLazy = new Lazy<AppDomain>(GetGameAppDomain, LazyThreadSafetyMode.ExecutionAndPublication);
         private static AppDomain GetGameAppDomain()
         {
             //There will only ever be two AppDomains loaded
@@ -84,9 +84,12 @@ namespace TheraEngine.Core.Reflection
 
         public static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
-            string name = args.LoadedAssembly.GetName().Name;
-            string path = args.LoadedAssembly.Location;
-            Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] LOADED {name} FROM {path}");
+            //string name = args.LoadedAssembly.GetName().Name;
+            //if (!args.LoadedAssembly.IsDynamic)
+            //{
+            //    string path = args.LoadedAssembly.Location;
+            //    Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] LOADED {name} FROM {path}");
+            //}
         }
 
         /// <summary>
@@ -162,21 +165,20 @@ namespace TheraEngine.Core.Reflection
         /// <returns>All types that match the predicate.</returns>
         public static IEnumerable<TypeProxy> FindTypes(Predicate<TypeProxy> matchPredicate, params AssemblyProxy[] assemblies)
         {
-            ConcurrentDictionary<int, TypeProxy> matches = new ConcurrentDictionary<int, TypeProxy>();
-            Parallel.For(0, ExportedTypes.Length, i =>
+            ConcurrentBag<TypeProxy> matches = new ConcurrentBag<TypeProxy>();
+            Parallel.ForEach(ExportedTypes, type =>
             //for (int i = 0; i < types.Length; ++i)
             {
-                TypeProxy type = ExportedTypes[i];
                 if ((assemblies.Length == 0 || assemblies.Contains(type.Assembly)) && matchPredicate(type))
-                    matches.TryAdd(i, type);
+                    matches.Add(type);
             });
 
-            return matches.Values.OrderBy(x => x.Name);
+            return matches.OrderBy(x => x.Name);
         }
 
         internal static void DomainAssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
-            Trace.WriteLine($"LOADED {args.LoadedAssembly.Location}");
+            //Trace.WriteLine($"LOADED {args.LoadedAssembly.Location}");
             //string assemblyName = args.LoadedAssembly.GetName().Name;
             //string domainName = AppDomain.CurrentDomain.FriendlyName;
             //Debug.Print($"{nameof(AppDomain)} {domainName} loaded assembly {assemblyName}");

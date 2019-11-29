@@ -135,7 +135,7 @@ namespace TheraEngine.Rendering
         void PreRenderSwap();
         void PreRender(Viewport viewport, ICamera camera);
     }
-    public interface IScene : IEnumerable<IRenderable>
+    public interface IScene
     {
         DelRender Render { get; }
 
@@ -254,7 +254,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         public abstract void GlobalSwap();
         
-        public abstract IEnumerator<IRenderable> GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        //public abstract IEnumerator<IRenderable> GetEnumerator();
+        //IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

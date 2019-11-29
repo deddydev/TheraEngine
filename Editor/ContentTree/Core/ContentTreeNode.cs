@@ -44,8 +44,8 @@ namespace TheraEditor.Wrappers
             FilePath = path;
             Text = Path.GetFileName(path);
 
-            Engine.Instance.DomainProxyPostSet += Instance_DomainProxyPostSet;
-            Engine.Instance.DomainProxyPreUnset += Instance_DomainProxyPreUnset;
+            Engine.Instance.DomainProxyCreated += Instance_DomainProxyPostSet;
+            Engine.Instance.DomainProxyDestroying += Instance_DomainProxyPreUnset;
             Instance_DomainProxyPostSet(Engine.DomainProxy);
         }
 

@@ -32,6 +32,7 @@ using TheraEngine.ThirdParty;
 using static TheraEngine.ThirdParty.MSBuild;
 using TheraEngine.Core.Files.XML;
 using static TheraEngine.ThirdParty.MSBuild.Item;
+using System.Runtime.Remoting;
 
 namespace TheraEditor
 {
@@ -131,6 +132,30 @@ namespace TheraEditor
             }
             //else
             //    throw new InvalidOperationException($"{nameof(NodeWrapperAttribute)} must be an attribute on a class that inherits from {nameof(FileWrapper<IFileObject>)} or {nameof(ThirdPartyFileWrapper)}.");
+        }
+
+        public async void NewFile(TypeProxy type, string dirPath)
+        {
+            object o = Editor.UserCreateInstanceOf(type, true);
+            if (!(o is IFileObject file))
+                return;
+
+            string typeName = type.GetFriendlyName();
+            await RunOperationAsync(
+                $"Exporting new {typeName} file to folder {dirPath}",
+                $"Successfully exported new {typeName} file to folder {dirPath}", 
+                async (p, c) => await file.ExportAsync(
+                    dirPath, file.Name, ESerializeFlags.Default, EProprietaryFileFormat.XML, p, c.Token));
+
+            //if (Serializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
+            //{
+            //    int op = Editor.Instance.BeginOperation($"Exporting {path}...", $"Export to {path} completed.", out Progress<float> progress, out CancellationTokenSource cancel);
+            //    string name = file.Name;
+            //    name = name.Replace("<", "[");
+            //    name = name.Replace(">", "]");
+            //    await Serializer.ExportXMLAsync(file, dir, name, ESerializeFlags.Default, progress, cancel.Token);
+            //    Editor.Instance.EndOperation(op);
+            //}
         }
 
         private static bool IsValidWrapperClassBase(TypeProxy type)

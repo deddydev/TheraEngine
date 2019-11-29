@@ -32,7 +32,7 @@ namespace TheraEngine.Actors
         AIController AIController { get; }
         LocalPlayerController LocalPlayerController { get; }
         CameraComponent CurrentCameraComponent { get; set; }
-        LocalFileRef<IUserInterface> HUD { get; set; }
+        LocalFileRef<IUserInterfacePawn> HUD { get; set; }
 
         void ForcePossessionBy(ELocalPlayerIndex possessor);
         void QueuePossession(ELocalPlayerIndex possessor);
@@ -68,7 +68,7 @@ namespace TheraEngine.Actors
             : base(root, logicComponents) { QueuePossession(possessor); }
 
         private CameraComponent _currentCameraComponent;
-        private LocalFileRef<IUserInterface> _hud = null;
+        private LocalFileRef<IUserInterfacePawn> _hud = null;
 
         [Browsable(false)]
         public ELocalPlayerIndex? ForcePossession { get; private set; }
@@ -124,7 +124,7 @@ namespace TheraEngine.Actors
         /// </summary>
         [TSerialize]
         [Category("Pawn")]
-        public LocalFileRef<IUserInterface> HUD
+        public LocalFileRef<IUserInterfacePawn> HUD
         {
             get => _hud;
             set
@@ -145,13 +145,13 @@ namespace TheraEngine.Actors
             }
         }
 
-        private void HudUnloaded(IUserInterface obj)
+        private void HudUnloaded(IUserInterfacePawn obj)
         {
             if (IsSpawned  && obj is BaseActor actor && actor.OwningWorld == OwningWorld)
                 actor.Despawned();
             obj.OwningPawn = null;
         }
-        private void HudLoaded(IUserInterface obj)
+        private void HudLoaded(IUserInterfacePawn obj)
         {
             obj.OwningPawn = this;
             if (IsSpawned && OwningWorld != null && obj is BaseActor actor)

@@ -16,17 +16,17 @@ namespace TheraEngine.Rendering.Models
     {
         public SkeletalModel() : base() { }
         public SkeletalModel(string name) : this() { _name = name; }
-        
-        [TSerialize("Skeleton")]
-        public GlobalFileRef<Skeleton> _skeleton = new GlobalFileRef<Skeleton>();
-        [TSerialize("RigidChildren", DeserializeAsync = true)]
-        public List<SkeletalRigidSubMesh> _rigidChildren = new List<SkeletalRigidSubMesh>();
-        [TSerialize("SoftChildren", DeserializeAsync = true)]
-        public List<SkeletalSoftSubMesh> _softChildren = new List<SkeletalSoftSubMesh>();
 
         public GlobalFileRef<Skeleton> SkeletonRef => _skeleton;
-        public List<SkeletalRigidSubMesh> RigidChildren => _rigidChildren;
-        public List<SkeletalSoftSubMesh> SoftChildren => _softChildren;
+        public EventList<SkeletalRigidSubMesh> RigidChildren => _rigidChildren;
+        public EventList<SkeletalSoftSubMesh> SoftChildren => _softChildren;
+
+        [TSerialize("Skeleton")]
+        public GlobalFileRef<Skeleton> _skeleton = new GlobalFileRef<Skeleton>();
+        [TSerialize(nameof(RigidChildren))]
+        public EventList<SkeletalRigidSubMesh> _rigidChildren = new EventList<SkeletalRigidSubMesh>();
+        [TSerialize(nameof(SoftChildren))]
+        public EventList<SkeletalSoftSubMesh> _softChildren = new EventList<SkeletalSoftSubMesh>();
 
         public BoundingBox CalculateBindPoseCullingAABB()
         {

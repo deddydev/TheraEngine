@@ -58,7 +58,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             _changeHandler = new ValueChangeHandler() { Grid = this };
 
-            Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
+            Engine.Instance.DomainProxyDestroying += Instance_DomainProxyUnset;
         }
 
         private void Instance_DomainProxyUnset(TheraEngine.Core.EngineDomainProxy obj)
@@ -500,7 +500,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //DateTime startTime = DateTime.Now;
 
             TypeProxy targetObjectType = obj.GetTypeProxy();
-            Engine.PrintLine($"Loading properties for {targetObjectType.GetFriendlyName()}.");
+            //Engine.PrintLine($"Loading properties for {targetObjectType.GetFriendlyName()}.");
             //await Task.Run(() =>
             {
                 const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance;

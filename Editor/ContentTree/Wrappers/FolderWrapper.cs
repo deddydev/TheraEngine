@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
@@ -101,10 +102,10 @@ namespace TheraEditor.Wrappers
                 Engine.PrintLine("Loading importable and creatable file types to folder menu.");
 
                 Task import = Task.Run(() => 
-                    RecursiveAdd(ImportFileOption, ImportableTree.Value, OnImportClick));
+                    Program.GenerateTMenu(ImportFileOption, ImportableTree.Value, OnImportClick));
 
                 Task create = Task.Run(() => 
-                    RecursiveAdd(NewFileOption, NewTree.Value, OnNewClick));
+                    Program.GenerateTMenu(NewFileOption, NewTree.Value, OnNewClick));
 
                 Task.WhenAll(import, create).ContinueWith(t => 
                     Engine.PrintLine("Finished loading importable and creatable file types to folder menu."));
@@ -114,52 +115,8 @@ namespace TheraEditor.Wrappers
         private void OnImportClick(TypeProxy type)
             => Editor.DomainProxy.ImportFile(type, FilePath);
 
-        private void OnNewClick(TypeProxy type)
-        {
-            object o = Editor.UserCreateInstanceOf(type, true);
-            if (!(o is IFileObject file))
-                return;
-
-            Engine.DomainProxy.ExportFile(file, FilePath, EProprietaryFileFormat.XML);
-
-            //if (Serializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
-            //{
-            //    int op = Editor.Instance.BeginOperation($"Exporting {path}...", $"Export to {path} completed.", out Progress<float> progress, out CancellationTokenSource cancel);
-            //    string name = file.Name;
-            //    name = name.Replace("<", "[");
-            //    name = name.Replace(">", "]");
-            //    await Serializer.ExportXMLAsync(file, dir, name, ESerializeFlags.Default, progress, cancel.Token);
-            //    Editor.Instance.EndOperation(op);
-            //}
-        }
-
-        private class TMenuNamespaceOption : TMenuOption
-        {
-            public TMenuNamespaceOption(Program.NamespaceNode node) : base(node.Name, null, Keys.None)
-            {
-                NamespaceInfo = node;
-                Action = SelectedAction;
-            }
-
-            public Action<TypeProxy> CreateAction { get; set; }
-            public Program.NamespaceNode NamespaceInfo { get; set; }
-
-            private void SelectedAction()
-            {
-                TypeProxy type = NamespaceInfo?.Type;
-                if (type != null)
-                    CreateAction?.Invoke(type);
-            }
-        }
-        private void RecursiveAdd(TMenuOption parentOption, IEnumerable<Program.NamespaceNode> childList, Action<TypeProxy> action)
-        {
-            foreach (var child in childList)
-            {
-                var op = new TMenuNamespaceOption(child) { CreateAction = action };
-                RecursiveAdd(op, child.Children.OrderBy(x => x.Key).Select(x => x.Value), action);
-                parentOption.Add(op);
-            }
-        }
+        private void OnNewClick(TypeProxy type) 
+            => Editor.DomainProxy.NewFile(type, FilePath);
 
         private enum ECodeFileType
         {

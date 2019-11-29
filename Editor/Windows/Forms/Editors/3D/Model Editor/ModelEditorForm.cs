@@ -30,11 +30,13 @@ namespace TheraEditor.Windows.Forms
             formMenu.Renderer = new TheraToolStripRenderer();
             FormTitle2.MouseDown += TitleBar_MouseDown;
             ModelEditorText.MouseDown += TitleBar_MouseDown;
+
+            GenerateWorldManager();
         }
 
-        public ModelEditorForm(SkeletalModel model) : this() => SetModel(model);
-        public ModelEditorForm(StaticModel model) : this() => SetModel(model);
-        public ModelEditorForm(BaseActor actor) : this() => SetActor(actor);
+        public ModelEditorForm(SkeletalModel model  ) : this() => SetModel(model);
+        public ModelEditorForm(StaticModel model    ) : this() => SetModel(model);
+        public ModelEditorForm(BaseActor actor      ) : this() => SetActor(actor);
         public ModelEditorForm(PropAnimVec3 vec3Anim) : this() => SetAnim(vec3Anim);
 
         public int WorldManagerId => WorldManager?.ID ?? -1;
@@ -48,6 +50,7 @@ namespace TheraEditor.Windows.Forms
                 WorldManagerChanged?.Invoke();
             }
         }
+
         private ModelEditorWorldManager _worldManager;
 
         #region Instanced Dock Forms
@@ -146,24 +149,22 @@ namespace TheraEditor.Windows.Forms
 
         #endregion
 
-
-
         public void SetActor(BaseActor actor)
         {
-            WorldManager?.SetActor(actor);
+            WorldManager.SetActor(actor);
             PropGrid.PropertyGrid.TargetObject = actor;
             RenderForm1.Focus();
         }
         public void SetModel(StaticModel stm)
         {
-            WorldManager?.SetModel(stm);
+            WorldManager.SetModel(stm);
             MaterialList.DisplayMaterials(stm);
             PropGrid.PropertyGrid.TargetObject = stm;
             RenderForm1.Focus();
         }
         public void SetModel(SkeletalModel skm)
         {
-            WorldManager?.SetModel(skm);
+            WorldManager.SetModel(skm);
             MaterialList.DisplayMaterials(skm);
             BoneTreeForm.SetSkeleton(skm.SkeletonRef?.File);
             AnimList.Show();
@@ -172,28 +173,19 @@ namespace TheraEditor.Windows.Forms
         }
         public void SetAnim(PropAnimVec3 vec3anim)
         {
-            WorldManager?.SetAnim(vec3anim);
+            WorldManager.SetAnim(vec3anim);
             PropGrid.PropertyGrid.TargetObject = vec3anim;
             RenderForm1.Focus();
         }
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-
-            WorldManager = Engine.DomainProxy.RegisterAndGetWorldManager<ModelEditorWorldManager>();
-            AppDomainHelper.Sponsor(WorldManager);
-            WorldManager.OnShown();
-            WorldManager.TargetActorLoaded += WorldManager_TargetActorLoaded;
-        }
+        //protected override void OnShown(EventArgs e)
+        //{
+        //    base.OnShown(e);
+        //}
 
         public event Action CloseInvoked;
         protected override void OnClosed(EventArgs e)
         {
-            WorldManager.OnClosed();
-            WorldManager.TargetActorLoaded -= WorldManager_TargetActorLoaded;
-            Engine.DomainProxy.UnregisterWorldManager(WorldManagerId);
-            AppDomainHelper.ReleaseSponsor(WorldManager);
-            WorldManager = null;
+            DestroyWorldManager();
 
             //if (Model is SkeletalModel skm && skm.SkeletonRef?.IsLoaded == true)
             //    World.Scene3D?.Renderables.Remove(skm.SkeletonRef.File);
@@ -271,6 +263,21 @@ namespace TheraEditor.Windows.Forms
             chkViewBones.Checked = !chkViewBones.Checked;
             if (WorldManager != null)
                 WorldManager.ViewBones = chkViewBones.Checked;
+        }
+        private void GenerateWorldManager()
+        {
+            WorldManager = Engine.DomainProxy.RegisterAndGetWorldManager<ModelEditorWorldManager>();
+            AppDomainHelper.Sponsor(WorldManager);
+            WorldManager.OnShown();
+            WorldManager.TargetActorLoaded += WorldManager_TargetActorLoaded;
+        }
+        private void DestroyWorldManager()
+        {
+            WorldManager.OnClosed();
+            WorldManager.TargetActorLoaded -= WorldManager_TargetActorLoaded;
+            Engine.DomainProxy.UnregisterWorldManager(WorldManagerId);
+            AppDomainHelper.ReleaseSponsor(WorldManager);
+            WorldManager = null;
         }
     }
 }

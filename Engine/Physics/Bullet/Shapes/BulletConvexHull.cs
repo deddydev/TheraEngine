@@ -1,7 +1,7 @@
-﻿using System;
+﻿using BulletSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using BulletSharp;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Physics.Bullet.Shapes

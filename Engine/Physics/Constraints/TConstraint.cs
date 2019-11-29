@@ -30,7 +30,7 @@ namespace TheraEngine.Physics
         public abstract int OverrideNumSolverIterations { get; set; }
 
         [PhysicsSupport(EPhysicsLibrary.Bullet)]
-        public abstract bool NeedsFeedback { get; set; }
+        public abstract bool NeedsFeedback { get; }
         [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 AppliedTorqueBodyB { get; set; }
         [PhysicsSupport(EPhysicsLibrary.Bullet)]

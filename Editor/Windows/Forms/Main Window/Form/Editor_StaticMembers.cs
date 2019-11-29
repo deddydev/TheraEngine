@@ -18,27 +18,25 @@ namespace TheraEditor.Windows.Forms
         {
             get
             {
-                bool existed = Singleton<Editor>.IsConstructed;
                 var inst = Singleton<Editor>.CachedInstance;
                 AppDomainHelper.Sponsor(inst);
-                if (!existed)
-                    inst.DefaultSettingsRef = new GlobalFileRef<EditorSettings>(
-                        TFileObject.GetFilePath<EditorSettings>(
-                            Application.StartupPath,
-                            ConfigFileName, 
-                            EProprietaryFileFormat.XML))
-                    {
-                        CreateFileIfNonExistent = true,
-                        AllowDynamicConstruction = true
-                    };
                 return inst;
             }
         }
 
         public static IEditorRenderHandler ActiveRenderForm { get; private set; } = null;
 
-        public GlobalFileRef<EditorSettings> DefaultSettingsRef { get; set; }
-        
+        public GlobalFileRef<EditorSettings> DefaultSettingsRef { get; set; } 
+            = new GlobalFileRef<EditorSettings>(
+                TFileObject.GetFilePath<EditorSettings>(
+                    Application.StartupPath,
+                    ConfigFileName,
+                    EProprietaryFileFormat.XML))
+        {
+            CreateFileIfNonExistent = true,
+            AllowDynamicConstruction = true
+        };
+
         public static Color BackgroundColor => Color.FromArgb(92, 93, 100);
         public static Color TitleBarColor => Color.FromArgb(92, 93, 100);
         public static Color TurquoiseColor => Color.FromArgb(60, 102, 100);

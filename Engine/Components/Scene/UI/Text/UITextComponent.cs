@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering.UI
                 Resizable = true
             }), true)
         {
-            _textDrawer = new TextDrawer();
+            _textDrawer = new TextRasterizer();
             _textDrawer.NeedsRedraw += WantsRedraw;
             
             RenderCommand.RenderPass = ERenderPass.TransparentForward;
@@ -37,10 +37,10 @@ namespace TheraEngine.Rendering.UI
         [TSerialize(nameof(TextureResolutionMultiplier))]
         private Vec2 _texRes = new Vec2(3.0f);
         [TSerialize(nameof(TextDrawer))]
-        private TextDrawer _textDrawer;
+        private TextRasterizer _textDrawer;
 
         public TexRef2D TextTexture => Texture<TexRef2D>(0);
-        public TextDrawer TextDrawer => _textDrawer;
+        public TextRasterizer TextDrawer => _textDrawer;
 
         public Vec2 TextureResolutionMultiplier
         {

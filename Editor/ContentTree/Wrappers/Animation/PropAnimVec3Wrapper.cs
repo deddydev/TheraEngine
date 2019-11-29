@@ -2,7 +2,6 @@
 using TheraEditor.Windows.Forms;
 using TheraEditor.Wrappers;
 using TheraEngine.Animation;
-using TheraEngine.Rendering.Models;
 
 namespace TheraEditor.ContentTree.Wrappers.Animation
 {

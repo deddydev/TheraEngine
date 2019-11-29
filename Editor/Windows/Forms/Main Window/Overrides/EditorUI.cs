@@ -25,7 +25,7 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class EditorUI3D : UserInterface
+    public class EditorUI3D : UserInterfacePawn
     {
         public EditorUI3D() : base()
         {
@@ -61,7 +61,7 @@ namespace TheraEditor.Windows.Forms
         [TSerialize]
         public float DraggingTestDistance { get; set; } = 20.0f;
         [TSerialize]
-        public double FPSUpdateIntervalSeconds { get; set; } = 1.0;
+        public double FPSUpdateIntervalSeconds { get; set; } = 0.2;
 
         public Vec3 HitPoint => _hitPoint;
         public Vec3 HitNormal => _hitNormal;
@@ -481,17 +481,28 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
+        public Vec2 MousePosition { get; private set; }
+        public bool IsMouseOutOfBounds { get; private set; }
+
         private void IntersectScene()
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport;
             if (v != null)
             {
-                Vec2 viewportPoint = /*gamepad ? v.Center : */Viewport.CursorPosition(v);
-                IntersectScene(v, viewportPoint);
+                MousePosition = /*gamepad ? v.Center : */Viewport.CursorPosition(v, out bool isOutOfBounds);
+                IsMouseOutOfBounds = isOutOfBounds;
+
+                IntersectScene(v, MousePosition, IsMouseOutOfBounds);
             }
         }
-        public void IntersectScene(Viewport v, Vec2 viewportPoint)
+        private void IntersectScene(Viewport v, Vec2 viewportPoint, bool isOutOfBounds)
         {
+            if (isOutOfBounds)
+            {
+                _highlightPoint.RenderInfo.Visible = HighlightedComponent != null;
+                return;
+            }
+
             ISceneComponent dragComp = DragComponent;
 
             //Transforming object?
@@ -565,9 +576,15 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
             
-            ISceneComponent comp = viewport.PickScene(viewportPoint, true, true, true, out _hitNormal, out _hitPoint, out _hitDistance);
+            ISceneComponent comp = viewport.PickScene(
+                viewportPoint, true, true, true,
+                out _hitNormal,
+                out _hitPoint,
+                out _hitDistance);
+
             bool hasHit = comp != null;
             _highlightPoint.RenderInfo.Visible = hasHit;
+
             if (hasHit)
             {
                 if (comp is UIViewportComponent subViewport)
@@ -590,6 +607,7 @@ namespace TheraEditor.Windows.Forms
                 //    pawn.TargetViewportComponent = null;
                 //}
             }
+
             UpdateHighlightPoint(c);
             HighlightedComponent = comp;
         }
@@ -619,11 +637,17 @@ namespace TheraEditor.Windows.Forms
         }
         public void DoMouseDown()
         {
+            if (IsMouseOutOfBounds)
+                return;
+
             MouseDown = true;
             SetSelectedComponent(true, HighlightedComponent);
         }
         public void DoMouseUp()
         {
+            if (!MouseDown)
+                return;
+
             MouseDown = false;
             if (_currentConstraint != null)
             {
@@ -642,7 +666,7 @@ namespace TheraEditor.Windows.Forms
                 DragComponent = null;
             }
 
-            _highlightPoint.RenderInfo.Visible = HighlightedComponent != null;
+            _highlightPoint.RenderInfo.Visible = HighlightedComponent != null && !IsMouseOutOfBounds;
         }
         public ISceneComponent SelectedComponent { get; private set; }
 

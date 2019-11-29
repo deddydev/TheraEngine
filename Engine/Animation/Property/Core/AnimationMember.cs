@@ -144,6 +144,7 @@ namespace TheraEngine.Animation
                     else
                         break;
                 }
+
                 if (MemberNotFound = _methodCache is null)
                     return;
             }
@@ -165,12 +166,9 @@ namespace TheraEngine.Animation
                     else
                         break;
                 }
+
                 if (MemberNotFound = _propertyCache is null)
                     return;
-                //else
-                //{
-                //    var delegateSetter = (Action<object, object>)Delegate.CreateDelegate(typeof(Action<object, object>), _propertyCache.GetSetMethod());
-                //}
             }
 
             if (Animation.IsLoaded)

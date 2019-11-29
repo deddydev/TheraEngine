@@ -56,9 +56,9 @@ namespace TheraEngine.Rendering
                     return;
 
                 if (value)
-                    Scene.Renderables.Add(Owner);
+                    Scene.RenderTree.Add(Owner);
                 else
-                    Scene.Renderables.Remove(Owner);
+                    Scene.RenderTree.Remove(Owner);
             }
         }
         
@@ -107,7 +107,7 @@ namespace TheraEngine.Rendering
             if (Owner is null || Scene is null)
                 return;
 
-            Scene.Renderables.Remove(Owner);
+            Scene.RenderTree.Remove(Owner);
             Scene = null;
             Owner = null;
         }

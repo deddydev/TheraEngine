@@ -120,13 +120,16 @@ namespace TheraEngine.Components.Scene.Mesh
                     Meshes = null;
                 }
 
-                _modelRef.Loaded -= (OnModelLoaded);
-                _modelRef.Unloaded -= (OnModelUnloaded);
+                if (_modelRef != null)
+                {
+                    _modelRef.Loaded -= OnModelLoaded;
+                    _modelRef.Unloaded -= OnModelUnloaded;
+                }
 
                 _modelRef = value ?? new GlobalFileRef<StaticModel>();
 
-                _modelRef.Loaded += (OnModelLoaded);
-                _modelRef.Unloaded += (OnModelUnloaded);
+                _modelRef.Loaded += OnModelLoaded;
+                _modelRef.Unloaded += OnModelUnloaded;
             }
         }
 
@@ -189,6 +192,8 @@ namespace TheraEngine.Components.Scene.Mesh
             if (model is null)
                 return;
 
+            Engine.PrintLine("Static Model : OnModelLoaded");
+
             model.RigidChildren.PostAnythingAdded += RigidChildren_PostAnythingAdded;
             model.RigidChildren.PostAnythingRemoved += RigidChildren_PostAnythingRemoved;
             model.SoftChildren.PostAnythingAdded += SoftChildren_PostAnythingAdded;
@@ -203,32 +208,30 @@ namespace TheraEngine.Components.Scene.Mesh
 
             ModelLoaded?.Invoke();
         }
+
         private void RigidChildren_PostAnythingAdded(StaticRigidSubMesh item)
-        {
-            StaticRenderableMesh m = new StaticRenderableMesh(item, this);
-            if (IsSpawned)
-                m.RenderInfo.LinkScene(m, OwningScene3D);
-            Meshes.Add(m);
-        }
+            => AddRenderMesh(item);
         private void RigidChildren_PostAnythingRemoved(StaticRigidSubMesh item)
-        {
-            int match = Meshes.FindIndex(x => x.Mesh == item);
-            if (Meshes.IndexInRange(match))
-            {
-                Meshes[match]?.RenderInfo?.UnlinkScene();
-                Meshes.RemoveAt(match);
-            }
-        }
+            => RemoveRenderMesh(item);
         private void SoftChildren_PostAnythingAdded(StaticSoftSubMesh item)
+            => AddRenderMesh(item);
+        private void SoftChildren_PostAnythingRemoved(StaticSoftSubMesh item)
+            => RemoveRenderMesh(item);
+
+        private void AddRenderMesh(IStaticSubMesh subMesh)
         {
-            StaticRenderableMesh m = new StaticRenderableMesh(item, this);
+            Engine.PrintLine("Static Model : AddRenderMesh");
+
+            StaticRenderableMesh m = new StaticRenderableMesh(subMesh, this);
             if (IsSpawned)
                 m.RenderInfo.LinkScene(m, OwningScene3D);
             Meshes.Add(m);
         }
-        private void SoftChildren_PostAnythingRemoved(StaticSoftSubMesh item)
+        private void RemoveRenderMesh(IStaticSubMesh subMesh)
         {
-            int match = Meshes.FindIndex(x => x.Mesh == item);
+            Engine.PrintLine("Static Model : RemoveRenderMesh");
+
+            int match = Meshes.FindIndex(x => x.Mesh == subMesh);
             if (Meshes.IndexInRange(match))
             {
                 Meshes[match]?.RenderInfo?.UnlinkScene();
@@ -236,18 +239,18 @@ namespace TheraEngine.Components.Scene.Mesh
             }
         }
 
-        public override void OnSpawned()
+        public override async void OnSpawned()
         {
             if (Meshes is null)
             {
-                if (_modelRef.IsLoaded)
-                    OnModelLoaded(_modelRef.File);
+                if (!_modelRef.IsLoaded)
+                    await _modelRef.GetInstanceAsync();
                 else
-                    _modelRef.GetInstanceAsync().ContinueWith(t => OnModelLoaded(t.Result));
+                    OnModelLoaded(_modelRef.File);
             }
 
             if (Meshes != null)
-                foreach (StaticRenderableMesh m in Meshes)
+                foreach (BaseRenderableMesh3D m in Meshes)
                     m.RenderInfo.LinkScene(m, OwningScene3D);
             
             base.OnSpawned();
@@ -255,8 +258,15 @@ namespace TheraEngine.Components.Scene.Mesh
         public override void OnDespawned()
         {
             if (Meshes != null)
-                foreach (StaticRenderableMesh m in Meshes)
+            {
+                foreach (BaseRenderableMesh3D m in Meshes)
+                {
                     m.RenderInfo.UnlinkScene();
+                    m.Destroy();
+                }
+                Meshes = null;
+            }
+
             base.OnDespawned();
         }
 

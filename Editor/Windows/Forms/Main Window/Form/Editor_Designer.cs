@@ -94,27 +94,27 @@ namespace TheraEditor.Windows.Forms
 
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances
-        private DockableWorldRenderForm[] _renderForms = new DockableWorldRenderForm[4];
+        private DockableWorldRenderPanel[] _renderForms = new DockableWorldRenderPanel[4];
         public bool RenderFormActive(int i)
         {
-            DockableWorldRenderForm form = _renderForms[i];
+            DockableWorldRenderPanel form = _renderForms[i];
             return form != null && !form.IsDisposed;
         }
-        public DockableWorldRenderForm GetRenderForm(int i)
+        public DockableWorldRenderPanel GetRenderForm(int i)
         {
-            DockableWorldRenderForm form = _renderForms[i];
+            DockableWorldRenderPanel form = _renderForms[i];
             if (form is null || form.IsDisposed)
             {
                 Engine.PrintLine("Created viewport " + (i + 1).ToString());
-                form = _renderForms[i] = new DockableWorldRenderForm(ELocalPlayerIndex.One, i);
+                form = _renderForms[i] = new DockableWorldRenderPanel(ELocalPlayerIndex.One, i);
                 form.Show(DockPanel);
             }
             return form;
         }
-        public DockableWorldRenderForm RenderForm1 => GetRenderForm(0);
-        public DockableWorldRenderForm RenderForm2 => GetRenderForm(1);
-        public DockableWorldRenderForm RenderForm3 => GetRenderForm(2);
-        public DockableWorldRenderForm RenderForm4 => GetRenderForm(3);
+        public DockableWorldRenderPanel RenderForm1 => GetRenderForm(0);
+        public DockableWorldRenderPanel RenderForm2 => GetRenderForm(1);
+        public DockableWorldRenderPanel RenderForm3 => GetRenderForm(2);
+        public DockableWorldRenderPanel RenderForm4 => GetRenderForm(3);
         
         private static bool GetFormActive<T>(T value) where T : DockContent
             => value != null && !value.IsDisposed;
@@ -179,16 +179,16 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnShown(e);
 
-            Engine.Instance.DomainProxyPostSet += Instance_ProxySet;
-            Engine.Instance.DomainProxyPostUnset += Instance_ProxyUnset;
+            Engine.Instance.DomainProxyCreated += Instance_ProxySet;
+            Engine.Instance.DomainProxyDestroying += Instance_ProxyUnset;
             Instance_ProxySet(Engine.DomainProxy);
         }
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             base.OnFormClosed(e);
 
-            Engine.Instance.DomainProxyPostSet -= Instance_ProxySet;
-            Engine.Instance.DomainProxyPostUnset -= Instance_ProxyUnset;
+            Engine.Instance.DomainProxyCreated -= Instance_ProxySet;
+            Engine.Instance.DomainProxyDestroying -= Instance_ProxyUnset;
             Instance_ProxyUnset(Engine.DomainProxy);
         }
         private void Instance_ProxyUnset(EngineDomainProxy proxy)
@@ -344,7 +344,7 @@ namespace TheraEditor.Windows.Forms
 
             base.OnFormClosing(e);
         }
-        public async void UpdateRecentProjectPaths()
+        public void UpdateRecentProjectPaths()
         {
             try
             {
@@ -352,7 +352,7 @@ namespace TheraEditor.Windows.Forms
                 if (string.IsNullOrWhiteSpace(projectPath))
                     return;
 
-                var defaultSettings = await DefaultSettingsRef.GetInstanceAsync();
+                var defaultSettings = DefaultSettingsRef.File;
                 var list = defaultSettings.RecentlyOpenedProjectPaths;
                 if (list != null)
                 {
@@ -363,7 +363,7 @@ namespace TheraEditor.Windows.Forms
                 else
                     defaultSettings.RecentlyOpenedProjectPaths = new List<string>() { projectPath };
 
-                await defaultSettings.ExportAsync();
+                defaultSettings.Export();
             }
             catch
             {
@@ -743,7 +743,7 @@ namespace TheraEditor.Windows.Forms
             btnPlay.Text = "Stop";
             btnPlayDetached.Text = "Play Detached";
 
-            BaseRenderPanel renderPanel = (ActiveRenderForm as DockableWorldRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
+            BaseRenderPanel renderPanel = (ActiveRenderForm as DockableWorldRenderPanel)?.RenderPanel ?? FocusViewport(0).RenderPanel;
 
             //Mouse is released in edit mode and detached mode
             CaptureMouse(renderPanel);
@@ -795,9 +795,9 @@ namespace TheraEditor.Windows.Forms
             }
         }
         
-        private DockableWorldRenderForm FocusViewport(int index)
+        private DockableWorldRenderPanel FocusViewport(int index)
         {
-            DockableWorldRenderForm form = GetRenderForm(index);
+            DockableWorldRenderPanel form = GetRenderForm(index);
             if (form.IsHidden)
                 form.Show(DockPanel, DockState.Document);
             form.Focus();
@@ -819,7 +819,7 @@ namespace TheraEditor.Windows.Forms
             if (parsedStrings.Length == 0)
                 return null;
             string type = parsedStrings[0];
-            if (type != typeof(DockableWorldRenderForm).ToString())
+            if (type != typeof(DockableWorldRenderPanel).ToString())
                 return null;
             if (parsedStrings.Length < 2)
                 return null;

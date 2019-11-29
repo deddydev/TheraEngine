@@ -18,7 +18,8 @@ namespace TheraEditor.Wrappers
         bool IsLoaded { get; }
         bool AlwaysReload { get; set; }
         bool ExternallyModified { get; set; }
-
+        IFileRef FileRefGeneric { get; }
+        
         IFileObject GetFileGeneric();
         Task<IFileObject> GetFileGenericAsync();
         Task<IFileObject> GetFileGenericAsync(IProgress<float> progress, CancellationToken cancel);
@@ -76,7 +77,7 @@ namespace TheraEditor.Wrappers
                 _fileType = value;
 
                 if (FileRefGeneric != null)
-                    FileRefGeneric.SubType = _fileType;
+                    FileRefGeneric.FileType = _fileType;
             }
         }
 
@@ -116,12 +117,7 @@ namespace TheraEditor.Wrappers
             }
         }
 
-        public virtual async void EditRaw()
-        {
-            var file = await TFileObject.LoadAsync<TextFile>(FilePath);
-            if (file != null)
-                DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, file);
-        }
+        public virtual void EditRaw() => Editor.Instance.EditText(FilePath);
 
         public static TypeProxy ResolveEditorType(TypeProxy fileType)
         {

@@ -128,18 +128,35 @@ namespace TheraEngine
     }
     public class RenderPanel<T> : BaseRenderPanel where T : class, IRenderHandler
     {
+        public RenderPanel()
+        {
+            _renderHandlerCache = new Lazy<T>(() => MarshalRenderHandler(true), System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
+        }
+
+        private bool IsHandleCreated { get; set; } = false;
+
         protected override void OnHandleCreated(EventArgs e)
         {
+            if (IsHandleCreated)
+                return;
+
+            IsHandleCreated = true;
+
             base.OnHandleCreated(e);
 
-            Engine.Instance.DomainProxyPostSet += Instance_DomainProxySet;
-            Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
+            Engine.Instance.DomainProxyCreated += Instance_DomainProxySet;
+            Engine.Instance.DomainProxyDestroying += Instance_DomainProxyUnset;
             Instance_DomainProxySet(Engine.DomainProxy);
         }
         protected override void DestroyHandle()
         {
-            Engine.Instance.DomainProxyPostSet -= Instance_DomainProxySet;
-            Engine.Instance.DomainProxyPostUnset -= Instance_DomainProxyUnset;
+            if (!IsHandleCreated)
+                return;
+
+            IsHandleCreated = false;
+
+            Engine.Instance.DomainProxyCreated -= Instance_DomainProxySet;
+            Engine.Instance.DomainProxyDestroying -= Instance_DomainProxyUnset;
 
             base.DestroyHandle();
         }
@@ -164,14 +181,25 @@ namespace TheraEngine
             proxy?.RegisterRenderPanel<T>(Handle, HandlerArgs);
         }
 
-        private T _renderHandlerCache = null;
-        public T RenderHandler  => _renderHandlerCache ?? MarshalRenderHandler(true);
-        
+        /// <summary>
+        /// Handles rendering for this panel in the game's AppDomain.
+        /// </summary>
+        public T RenderHandler => _renderHandlerCache.Value;
+        private Lazy<T> _renderHandlerCache;
+
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            _renderHandlerCache?.Sponsor?.Release();
+            if (_renderHandlerCache.IsValueCreated)
+                _renderHandlerCache.Value?.Sponsor?.Release();
+
             base.OnHandleDestroyed(e);
         }
+
+        /// <summary>
+        /// Marshals the render handler over from the game's AppDomain.
+        /// </summary>
+        /// <param name="cache"></param>
+        /// <returns></returns>
         public T MarshalRenderHandler(bool cache)
         {
             if (InvokeRequired)
@@ -179,11 +207,8 @@ namespace TheraEngine
             
             T handler = (T)Engine.DomainProxy.MarshalRenderHandler(Handle);
             if (cache)
-            {
                 AppDomainHelper.Sponsor(handler);
-                _renderHandlerCache = handler;
-            }
-
+            
             return handler;
         }
     }

@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms
             ctxActorTree.RenderMode = ToolStripRenderMode.Professional;
             ctxActorTree.Renderer = new TheraForm.TheraToolStripRenderer();
 
-            Engine.Instance.DomainProxyPostUnset += Instance_DomainProxyUnset;
+            Engine.Instance.DomainProxyDestroying += Instance_DomainProxyUnset;
         }
 
         private void Instance_DomainProxyUnset(EngineDomainProxy obj)
@@ -244,7 +244,7 @@ namespace TheraEditor.Windows.Forms
         private void ctxActorTree_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             TreeNode node = ActorTree.SelectedNode;
-            bool programmatic = node.Tag is IObject tobj && tobj.ConstructedProgrammatically;
+            bool programmatic = !(node.Tag is IObject tobj) || tobj.ConstructedProgrammatically;
 
             btnMoveUp.Visible = btnMoveDown.Visible = node?.Tag is IComponent;
             btnMoveDown.Enabled = btnMoveAsChildToSibNext.Enabled = node?.NextNode != null && !programmatic;

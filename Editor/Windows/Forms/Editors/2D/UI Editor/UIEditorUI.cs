@@ -91,7 +91,7 @@ namespace TheraEditor.Windows.Forms
         public event DelUIComponentSelect UIComponentSelected;
         //public event DelUIComponentSelect UIComponentHighlighted;
         
-        public IUserInterface TargetUI
+        public IUserInterfacePawn TargetUI
         {
             get => _targetHud;
             set
@@ -122,7 +122,7 @@ namespace TheraEditor.Windows.Forms
         protected override bool IsDragging => _dragComp != null;
 
         private IUIComponent _dragComp, _selectedComp, _highlightedComp;
-        private IUserInterface _targetHud;
+        private IUserInterfacePawn _targetHud;
         
         public override void RegisterInput(InputInterface input)
         {
@@ -216,9 +216,9 @@ namespace TheraEditor.Windows.Forms
                 passes.Add(_highlightRC);
             }
 
-            UICanvasComponent canvas = _targetHud?.RootComponent as UICanvasComponent;
-            _uiBoundsRC.WorldMatrix = canvas.WorldMatrix * Matrix4.CreateScale(canvas.Size);
-            
+            if (_targetHud?.RootComponent is UICanvasComponent canvas)
+                _uiBoundsRC.WorldMatrix = canvas.WorldMatrix * Matrix4.CreateScale(canvas.Size);
+
             passes.Add(_uiBoundsRC);
         }
     }

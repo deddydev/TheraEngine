@@ -55,7 +55,23 @@ namespace TheraEngine.Core.Files.Serialization
                 if (obj is IFileObject tobj)
                     tobj.FilePath = FilePath;
 
+                if (PendingAsyncTasks.Count > 0)
+                    WaitForAsyncComplete();
+
                 return obj;
+            }
+
+            public event Action FileAsyncIOCompleted;
+
+            private void WaitForAsyncComplete()
+            {
+                Engine.PrintLine($"Waiting for {PendingAsyncTasks.Count} async file IO tasks to complete.");
+                Task.WhenAll(PendingAsyncTasks).ContinueWith(AllTasksCompleted);
+            }
+            private void AllTasksCompleted(Task task)
+            {
+                Engine.PrintLine($"Finished all async file IO tasks.");
+                FileAsyncIOCompleted?.Invoke();
             }
         }
     }

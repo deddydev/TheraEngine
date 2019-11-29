@@ -166,15 +166,24 @@ namespace TheraEditor.Windows.Forms
             {
                 if (allowDerivedTypes)
                 {
-                    TypeProxy[] types = Program.PopulateTreeView(treeView1, OnTypeSelected, x => x.IsAssignableTo(type) && !x.IsInterface && !x.IsAbstract);
+                    bool IsMatchingDerivedType(TypeProxy otherType) => 
+                        otherType.IsAssignableTo(type) && !otherType.IsInterface && !otherType.IsAbstract;
+
+                    var types = AppDomainHelper.FindTypes(IsMatchingDerivedType).ToArray();
+                    var tree = Program.GenerateTypeTree(types);
+                    Program.GenerateTreeNodes(treeView1.Nodes, tree);
+
                     if (types.Length > 1)
                     {
+                        treeView1.AfterSelect += TreeView1_AfterSelect;
                         treeView1.Visible = true;
                         treeView1.ExpandAll();
                         return true;
                     }
                     else if (types.Length == 1)
                         type = types[0];
+
+                    //In this case, just use the type given
                     //else
                     //    return false;
                 }
@@ -239,11 +248,8 @@ namespace TheraEditor.Windows.Forms
             return true;
         }
 
-        private void OnTypeSelected(object sender, EventArgs e)
-        {
-            TreeNode item = sender as TreeNode;
-            SetTargetType(item?.Tag as TypeProxy);
-        }
+        private void TreeView1_AfterSelect(object sender, TreeViewEventArgs e)
+            => SetTargetType(e?.Node?.Tag as TypeProxy);
 
         //private void ConstructorSelector_CheckedChanged(object sender, EventArgs e)
         //{

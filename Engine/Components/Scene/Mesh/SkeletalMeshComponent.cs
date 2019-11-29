@@ -1,13 +1,14 @@
-﻿using TheraEngine.Rendering.Models;
-using System.ComponentModel;
-using TheraEngine.Rendering;
-using TheraEngine.Core.Files;
-using System.Collections.Generic;
-using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Rendering.Cameras;
+﻿using Extensions;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Components.Scene.Mesh
 {
@@ -86,12 +87,7 @@ namespace TheraEngine.Components.Scene.Mesh
             {
                 if (_modelRef == value)
                     return;
-
-                if (_modelRef != null)
-                {
-                    _modelRef.Loaded -= (ModelLoaded);
-                }
-
+                
                 if (Meshes != null)
                 {
                     foreach (SkeletalRenderableMesh mesh in Meshes)
@@ -102,11 +98,19 @@ namespace TheraEngine.Components.Scene.Mesh
                     Meshes = null;
                 }
 
+                if (_modelRef != null)
+                {
+                    _modelRef.Loaded -= OnModelLoaded;
+                    _modelRef.Unloaded -= OnModelUnloaded;
+                }
+
                 _modelRef = value ?? new GlobalFileRef<SkeletalModel>();
-                _modelRef.Loaded += (ModelLoaded);
+
+                _modelRef.Loaded += OnModelLoaded;
+                _modelRef.Unloaded += OnModelUnloaded;
             }
         }
-
+        
         /// <summary>
         /// Retrieves the skeleton. 
         /// May load synchronously if not currently loaded.
@@ -155,15 +159,37 @@ namespace TheraEngine.Components.Scene.Mesh
                 TargetSkeleton?.RenderInfo?.LinkScene(TargetSkeleton, OwningScene3D);
             }
         }
-        private async void ModelLoaded(SkeletalModel model)
+        private void OnModelUnloaded(SkeletalModel model)
         {
-            if (IsSpawned)
-            {
-                Skeleton skelOverride = null;
-                if (SkeletonOverrideRef != null)
-                    skelOverride = await SkeletonOverrideRef.GetInstanceAsync();
-                MakeMeshes(model, skelOverride);
-            }
+            if (model is null)
+                return;
+
+            model.RigidChildren.PostAnythingAdded -= RigidChildren_PostAnythingAdded;
+            model.RigidChildren.PostAnythingRemoved -= RigidChildren_PostAnythingRemoved;
+            model.SoftChildren.PostAnythingAdded -= SoftChildren_PostAnythingAdded;
+            model.SoftChildren.PostAnythingRemoved -= SoftChildren_PostAnythingRemoved;
+
+            foreach (var mesh in Meshes)
+                mesh?.RenderInfo?.UnlinkScene();
+            Meshes.Clear();
+        }
+        private async void OnModelLoaded(SkeletalModel model)
+        {
+            if (model is null)
+                return;
+
+            Engine.PrintLine("Skeletal Model : OnModelLoaded");
+
+            model.RigidChildren.PostAnythingAdded += RigidChildren_PostAnythingAdded;
+            model.RigidChildren.PostAnythingRemoved += RigidChildren_PostAnythingRemoved;
+            model.SoftChildren.PostAnythingAdded += SoftChildren_PostAnythingAdded;
+            model.SoftChildren.PostAnythingRemoved += SoftChildren_PostAnythingRemoved;
+
+            Skeleton skelOverride = null;
+            if (SkeletonOverrideRef != null)
+                skelOverride = await SkeletonOverrideRef.GetInstanceAsync();
+
+            MakeMeshes(model, skelOverride);
         }
 
         private async void MakeMeshes(SkeletalModel model, Skeleton skeletonOverride)
@@ -181,41 +207,66 @@ namespace TheraEngine.Components.Scene.Mesh
 
             TargetSkeleton = skeletonOverride ?? await model.SkeletonRef?.GetInstanceAsync();
 
-            if (TargetSkeleton is null)
-                return;
+            Meshes = new List<SkeletalRenderableMesh>();
 
-            TargetSkeleton.OwningComponent = this;
-
-            Meshes = new SkeletalRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
             for (int i = 0; i < model.RigidChildren.Count; ++i)
-            {
-                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.RigidChildren[i], TargetSkeleton, this);
-                mesh.RenderInfo.LinkScene(mesh, OwningScene3D);
-                Meshes[i] = mesh;
-            }
+                RigidChildren_PostAnythingAdded(model.RigidChildren[i]);
+            
             for (int i = 0; i < model.SoftChildren.Count; ++i)
-            {
-                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.SoftChildren[i], TargetSkeleton, this);
-                mesh.RenderInfo.LinkScene(mesh, OwningScene3D);
-                Meshes[model.RigidChildren.Count + i] = mesh;
-            }
+                SoftChildren_PostAnythingAdded(model.SoftChildren[i]);
+
             if (TargetSkeleton != null)
             {
-                AbstractPhysicsWorld world = OwningWorld.PhysicsWorld3D;
-                foreach (IBone b in TargetSkeleton.PhysicsDrivableBones)
+                TargetSkeleton.OwningComponent = this;
+
+                if (IsSpawned)
                 {
-                    TConstraint constraint = b.ParentPhysicsConstraint;
-                    if (constraint != null)
-                        world.AddConstraint(constraint);
-                    TRigidBody body = b.RigidBodyCollision;
-                    if (body != null)
-                        world.AddCollisionObject(body);
+                    AbstractPhysicsWorld world = OwningWorld.PhysicsWorld3D;
+                    foreach (IBone b in TargetSkeleton.PhysicsDrivableBones)
+                    {
+                        TConstraint constraint = b.ParentPhysicsConstraint;
+                        if (constraint != null)
+                            world.AddConstraint(constraint);
+                        TRigidBody body = b.RigidBodyCollision;
+                        if (body != null)
+                            world.AddCollisionObject(body);
+                    }
                 }
             }
         }
 
+        private void RigidChildren_PostAnythingAdded(SkeletalRigidSubMesh item)
+            => AddRenderMesh(item);
+        private void RigidChildren_PostAnythingRemoved(SkeletalRigidSubMesh item)
+            => RemoveRenderMesh(item);
+        private void SoftChildren_PostAnythingAdded(SkeletalSoftSubMesh item)
+            => AddRenderMesh(item);
+        private void SoftChildren_PostAnythingRemoved(SkeletalSoftSubMesh item)
+            => RemoveRenderMesh(item);
+
+        private void AddRenderMesh(ISkeletalSubMesh subMesh)
+        {
+            Engine.PrintLine("Skeletal Model : AddRenderMesh");
+
+            SkeletalRenderableMesh renderMesh = new SkeletalRenderableMesh(subMesh, TargetSkeleton, this);
+            if (IsSpawned)
+                renderMesh.RenderInfo.LinkScene(renderMesh, OwningScene3D);
+            Meshes.Add(renderMesh);
+        }
+        private void RemoveRenderMesh(ISkeletalSubMesh subMesh)
+        {
+            Engine.PrintLine("Skeletal Model : RemoveRenderMesh");
+
+            int match = Meshes.FindIndex(x => x.Mesh == subMesh);
+            if (Meshes.IndexInRange(match))
+            {
+                Meshes[match]?.RenderInfo?.UnlinkScene();
+                Meshes.RemoveAt(match);
+            }
+        }
+
         [Category("Skeletal Mesh Component")]
-        public SkeletalRenderableMesh[] Meshes { get; private set; }
+        public List<SkeletalRenderableMesh> Meshes { get; private set; }
         [Browsable(false)]
         public bool PreRenderEnabled { get; set; } = true;
         [Browsable(false)]
@@ -229,23 +280,33 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         public override async void OnSpawned()
         {
-            var model = await ModelRef?.GetInstanceAsync();
-            var skeletonOverride = await SkeletonOverrideRef?.GetInstanceAsync();
-            MakeMeshes(model, skeletonOverride);
+            if (Meshes is null)
+            {
+                if (!_modelRef.IsLoaded)
+                    await _modelRef.GetInstanceAsync();
+                else
+                    OnModelLoaded(_modelRef.File);
+            }
+
+            if (Meshes != null)
+                foreach (BaseRenderableMesh3D m in Meshes)
+                    m.RenderInfo.LinkScene(m, OwningScene3D);
+
             TargetSkeleton?.RenderInfo?.LinkScene(TargetSkeleton, OwningScene3D);
+
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             if (Meshes != null)
-                foreach (SkeletalRenderableMesh m in Meshes)
+            {
+                foreach (BaseRenderableMesh3D m in Meshes)
                 {
-                    if (m != null)
-                    {
-                        m.RenderInfo.Visible = false;
-                        m.Destroy();
-                    }
+                    m.RenderInfo.UnlinkScene();
+                    m.Destroy();
                 }
+                Meshes = null;
+            }
 
             if (TargetSkeleton != null)
             {

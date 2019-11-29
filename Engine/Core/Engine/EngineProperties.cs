@@ -546,14 +546,38 @@ namespace TheraEngine
         /// </summary>
         public partial class InternalEnginePersistentSingleton: MarshalByRefObject
         {
-            public void SetDomainProxy<T>(AppDomain domain, AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> prevDomain, string gamePath) where T : EngineDomainProxy, new()
+            private void SafePrintLine(string str)
             {
-                Trace.WriteLine($"Setting new domain proxy.");
+                Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}]" + str);
+            }
 
-                EngineDomainProxy oldProxy = DomainProxy;
+            private void StopProxy(EngineDomainProxy proxy)
+            {
+                if (proxy is null)
+                    return;
+                
+                DomainProxyDestroying?.Invoke(proxy);
+                proxy.Stop();
+                proxy.Stopped -= DomainProxy_Stopped;
 
-                string domainName = domain.FriendlyName;
-                //PrintLine($"Generating engine proxy of type {typeof(T).GetFriendlyName()} for domain {domainName}");
+                SafePrintLine($"DomainProxy stopped for accessing {proxy.Domain.FriendlyName}.");
+            }
+            private void StartProxy(EngineDomainProxy proxy, string gamePath, bool isUIDomain)
+            {
+                proxy.Start(gamePath, isUIDomain);
+                proxy.Stopped += DomainProxy_Stopped;
+                DomainProxyCreated?.Invoke(proxy);
+
+                SafePrintLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : proxy.Domain.FriendlyName)}.");
+            }
+
+            public void SetDomainProxy<T>(
+                AppDomain domain, 
+                AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> prevDomain, 
+                string gamePath) 
+                where T : EngineDomainProxy, new()
+            {
+                SafePrintLine($"Generating new domain proxy of type {typeof(T).GetFriendlyName()} for domain {domain.FriendlyName}");
 
                 bool isUIDomain = domain == AppDomain.CurrentDomain;
                 EngineDomainProxy newProxy;
@@ -566,49 +590,40 @@ namespace TheraEngine
                     newProxy = proxy;
                 }
 
+                EngineDomainProxy oldProxy = DomainProxy;
                 DomainProxy = newProxy;
 
-                if (oldProxy != null)
-                {
-                    DomainProxyPreUnset?.Invoke(oldProxy);
-                    oldProxy.Stop();
-                    oldProxy.Stopped -= DomainProxy_Stopped;
-                    DomainProxyPostUnset?.Invoke(oldProxy);
-                }
+                StopProxy(oldProxy);
+                DestroyDomain(prevDomain);
+                StartProxy(newProxy, gamePath, isUIDomain);
+            }
 
-                if (prevDomain != null)
-                {
-                    Trace.WriteLine($"Destroying game domain {prevDomain.Domain.FriendlyName}");
+            private void DestroyDomain(AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> prevDomain)
+            {
+                if (prevDomain is null)
+                    return;
+                
+                SafePrintLine($"Destroying game domain {prevDomain.Domain.FriendlyName}");
 
-                    AppDomainHelper.ResetAppDomainCache();
-                    Trace.WriteLine("Active domains before destroy: " + AppDomainHelper.AppDomainStringList);
+                AppDomainHelper.ResetAppDomainCache();
+                SafePrintLine("Active domains before destroy: " + AppDomainHelper.AppDomainStringList);
 
-                    prevDomain.Dispose();
+                prevDomain.Dispose();
 
-                    AppDomainHelper.ResetAppDomainCache();
-                    Trace.WriteLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
-                }
-
-                DomainProxyPreSet?.Invoke(newProxy);
-                newProxy.Start(gamePath, isUIDomain);
-                newProxy.Stopped += DomainProxy_Stopped;
-                DomainProxyPostSet?.Invoke(newProxy);
-
-                Trace.WriteLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : newProxy.Domain.FriendlyName)}.");
+                AppDomainHelper.ResetAppDomainCache();
+                SafePrintLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
             }
 
             private void DomainProxy_Stopped()
             {
-                PrintLine($"DomainProxy stopped.");
+                SafePrintLine($"DomainProxy stopped.");
             }
 
             //private Type TypeCreationFailed(string typeDeclaration)
             //    => DomainProxy.CreateType(typeDeclaration);
 
-            public event Action<EngineDomainProxy> DomainProxyPreSet;
-            public event Action<EngineDomainProxy> DomainProxyPostSet;
-            public event Action<EngineDomainProxy> DomainProxyPreUnset;
-            public event Action<EngineDomainProxy> DomainProxyPostUnset;
+            public event Action<EngineDomainProxy> DomainProxyCreated;
+            public event Action<EngineDomainProxy> DomainProxyDestroying;
 
             [Browsable(false)]
             public EngineDomainProxy DomainProxy { get; private set; } = null;

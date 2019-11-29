@@ -871,7 +871,7 @@ namespace TheraEngine
                 T value = new T { FilePath = ScriptPath(fileName) };
                 return value;
             }
-
+            
             public static async Task<TextureFile2D> LoadEngineTexture2DAsync(string fileName)
                 => await TFileObject.LoadAsync<TextureFile2D>(TexturePath(fileName));
             public static string TexturePath(string fileName)

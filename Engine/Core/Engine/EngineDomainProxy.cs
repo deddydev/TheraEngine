@@ -549,7 +549,9 @@ namespace TheraEngine.Core
             if (Contexts.ContainsKey(handle))
                 Contexts[handle]?.Dispose();
 
-            var handler = Activator.CreateInstance(typeof(T), handlerArgs) as BaseRenderHandler;
+            Type t = typeof(T);
+            var handler = Activator.CreateInstance(t, handlerArgs) as BaseRenderHandler;
+            Trace.WriteLine("CREATED RENDER HANDLER : " + t.GetFriendlyName());
 
             RenderContext ctx;
             switch (handler.RenderLibrary)

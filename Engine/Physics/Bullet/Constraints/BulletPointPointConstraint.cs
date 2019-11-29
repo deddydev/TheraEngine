@@ -70,7 +70,7 @@ namespace TheraEngine.Physics.Bullet.Constraints
         public override bool NeedsFeedback
         {
             get => Constraint.NeedsFeedback;
-            set => Constraint.NeedsFeedback = value;
+            //set => Constraint.NeedsFeedback = value;
         }
         public override Vec3 AppliedTorqueBodyB
         {

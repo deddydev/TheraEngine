@@ -17,91 +17,6 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class Serializer
     {
-        /// <summary>
-        /// Writes <paramref name="fileObject"/> as an XML file.
-        /// </summary>
-        /// <param name="fileObject">The object to serialize into binary.</param>
-        /// <param name="filePath">The path of the file to write.</param>
-        /// <param name="flags">Flags to determine what information to serialize.</param>
-        /// <param name="progress">Handler for progress updates.</param>
-        /// <param name="cancel">Handler for the caller to cancel the operation.</param>
-        /// <param name="endian">The direction to write multi-byte values in.</param>
-        /// <param name="encrypted">If true, encrypts the file. The data cannot be decrypted without the password.</param>
-        /// <param name="compressed">If true, compresses the file. This will make the file size as small as possible.</param>
-        /// <param name="encryptionPassword">If encrypted, this is the password to use to encrypt and decrypt.</param>
-        /// <param name="compressionProgress">Handler for compression updates.</param>
-        public async Task SerializeBinaryAsync(
-            object fileObject,
-            string filePath,
-            ESerializeFlags flags,
-            IProgress<float> progress,
-            CancellationToken cancel,
-            Endian.EOrder endian,
-            bool encrypted,
-            bool compressed,
-            string encryptionPassword,
-            ICodeProgress compressionProgress)
-        {
-            Writer = new WriterBinary(
-                this,
-                fileObject,
-                filePath,
-                flags,
-                progress,
-                cancel,
-                endian,
-                encrypted,
-                compressed,
-                encryptionPassword,
-                compressionProgress);
-
-            await Writer.WriteObjectAsync();
-            Engine.PrintLine("Serialized binary file to {0}", filePath);
-        }
-        /// <summary>
-        /// Writes <paramref name="fileObject"/> as an XML file.
-        /// </summary>
-        /// <param name="fileObject">The object to serialize into binary.</param>
-        /// <param name="targetDirectoryPath">The path to a directory to write the file in.</param>
-        /// <param name="fileName">The name of the file.</param>
-        /// <param name="flags">Flags to determine what information to serialize.</param>
-        /// <param name="progress">Handler for progress updates.</param>
-        /// <param name="cancel">Handler for the caller to cancel the operation.</param>
-        /// <param name="endian">The direction to write multi-byte values in.</param>
-        /// <param name="encrypted">If true, encrypts the file. The data cannot be decrypted without the password.</param>
-        /// <param name="compressed">If true, compresses the file. This will make the file size as small as possible.</param>
-        /// <param name="encryptionPassword">If encrypted, this is the password to use to encrypt and decrypt.</param>
-        /// <param name="compressionProgress">Handler for compression updates.</param>
-        public async Task SerializeBinaryAsync(
-            object fileObject,
-            string targetDirectoryPath,
-            string fileName,
-            ESerializeFlags flags,
-            IProgress<float> progress,
-            CancellationToken cancel,
-            Endian.EOrder endian,
-            bool encrypted,
-            bool compressed,
-            string encryptionPassword,
-            ICodeProgress compressionProgress)
-        {
-            string filePath = TFileObject.GetFilePath(targetDirectoryPath, fileName, EProprietaryFileFormat.Binary, fileObject.GetType());
-            Writer = new WriterBinary(
-                this,
-                fileObject,
-                filePath, 
-                flags,
-                progress,
-                cancel,
-                endian,
-                encrypted,
-                compressed,
-                encryptionPassword,
-                compressionProgress);
-
-            await Writer.WriteObjectAsync();
-            Engine.PrintLine("Serialized binary file to {0}", filePath);
-        }
         public class WriterBinary : AbstractWriter
         {
             public Endian.EOrder Endian { get; }
@@ -117,6 +32,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Serializer owner,
                 object rootFileObject,
                 string filePath,
+                Stream stream,
                 ESerializeFlags flags,
                 IProgress<float> progress,
                 CancellationToken cancel,
@@ -125,7 +41,7 @@ namespace TheraEngine.Core.Files.Serialization
                 bool compressed,
                 string encryptionPassword,
                 ICodeProgress compressionProgress)
-                : base(owner, rootFileObject, filePath, flags, progress, cancel)
+                : base(owner, rootFileObject, filePath, stream, flags, progress, cancel)
             {
                 Endian = endian;
                 Encrypted = encrypted;

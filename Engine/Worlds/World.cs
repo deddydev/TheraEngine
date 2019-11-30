@@ -180,6 +180,9 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void SpawnActor(IActor actor)
         {
+            if (actor is null)
+                return;
+
             actor.Spawned(this);
             State.SpawnedActors.Add(actor);
             //Engine.PrintLine("Spawned " + actor.Name);
@@ -189,6 +192,9 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void SpawnActor(IActor actor, Vec3 position)
         {
+            if (actor is null)
+                return;
+
             actor.Spawned(this);
             actor.RebaseOrigin(-position);
             State.SpawnedActors.Add(actor);
@@ -198,7 +204,7 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void DespawnActor(IActor actor)
         {
-            if (!State.SpawnedActors.Contains(actor))
+            if (actor is null || !State.SpawnedActors.Contains(actor))
                 return;
 
             State.SpawnedActors.Remove(actor);

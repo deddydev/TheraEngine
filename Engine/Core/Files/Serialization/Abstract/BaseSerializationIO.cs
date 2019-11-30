@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public class BaseSerializer : MarshalByRefObject
+    public class BaseSerializationIO : MarshalByRefObject
     {
         public EProprietaryFileFormat Format { get; protected set; }
         public abstract class BaseAbstractReaderWriter : MarshalByRefObject
@@ -18,6 +18,8 @@ namespace TheraEngine.Core.Files.Serialization
             public IProgress<float> Progress { get; internal set; }
             public CancellationToken Cancel { get; internal set; }
             public object RootFileObject { get; internal set; }
+            public Stream Stream { get; internal set; }
+
             private SerializeElement _rootNode;
             public SerializeElement RootNode
             {
@@ -47,9 +49,14 @@ namespace TheraEngine.Core.Files.Serialization
             public abstract EProprietaryFileFormatFlag Format { get; }
             public bool IsBinary => Format == EProprietaryFileFormatFlag.Binary;
 
-            protected BaseAbstractReaderWriter(string filePath, IProgress<float> progress, CancellationToken cancel)
+            protected BaseAbstractReaderWriter(
+                string filePath,
+                Stream stream,
+                IProgress<float> progress,
+                CancellationToken cancel)
             {
                 FilePath = filePath;
+                Stream = stream;
                 Progress = progress;
                 Cancel = cancel;
                 FileDirectory = Path.GetDirectoryName(FilePath);

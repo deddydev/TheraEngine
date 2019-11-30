@@ -2,36 +2,19 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class Deserializer : BaseSerializer
+    public partial class Deserializer : BaseSerializationIO
     {
-        /// <summary>
-        /// Reads the file at <paramref name="filePath"/> as a binary file.
-        /// </summary>
-        /// <param name="filePath">The path of the file to write.</param>
-        /// <param name="progress">Handler for progress updates.</param>
-        /// <param name="cancel">Handler for the caller to cancel the operation.</param>
-        /// <param name="encryptionPassword">If encrypted, this is the password to use to decrypt.</param>
-        public async Task<object> DeserializeBinaryAsync(
-            string filePath,
-            IProgress<float> progress,
-            CancellationToken cancel,
-            string encryptionPassword)
-        {
-            Format = EProprietaryFileFormat.Binary;
-            Reader = new ReaderBinary(this, filePath, progress, cancel, encryptionPassword);
-            await Reader.CreateObjectAsync();
-            Engine.PrintLine("Deserialized binary file at {0}", filePath);
-            return Reader.RootNode.Object;
-        }
         public class ReaderBinary : AbstractReader
         {
             public Endian.EOrder Endian { get; private set; }
@@ -46,10 +29,12 @@ namespace TheraEngine.Core.Files.Serialization
             public ReaderBinary(
                 Deserializer owner,
                 string filePath,
+                TypeProxy fileType,
+                Stream stream,
                 IProgress<float> progress,
                 CancellationToken cancel,
                 string encryptionPassword)
-                : base(owner, filePath, progress, cancel)
+                : base(owner, filePath, fileType, stream, progress, cancel)
             {
                 if (Encrypted)
                 {

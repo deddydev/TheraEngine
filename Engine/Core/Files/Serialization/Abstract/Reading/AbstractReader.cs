@@ -1,11 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class Deserializer : BaseSerializer
+    public partial class Deserializer : BaseSerializationIO
     {
         public AbstractReader Reader { get; private set; }
         public abstract class AbstractReader : BaseAbstractReaderWriter
@@ -16,11 +17,17 @@ namespace TheraEngine.Core.Files.Serialization
             public Deserializer Owner { get; }
             public TypeProxy RootFileType { get; }
 
-            protected AbstractReader(Deserializer owner, string filePath, IProgress<float> progress, CancellationToken cancel)
-                : base(filePath, progress, cancel)
+            protected AbstractReader(
+                Deserializer owner,
+                string filePath,
+                TypeProxy fileType,
+                Stream stream,
+                IProgress<float> progress,
+                CancellationToken cancel)
+                : base(filePath, stream, progress, cancel)
             {
                 Owner = owner;
-                RootFileType = SerializationCommon.DetermineType(FilePath, out EFileFormat _);
+                RootFileType = fileType ?? SerializationCommon.DetermineType(FilePath, out EFileFormat _);
             }
             
             protected abstract Task ReadTreeAsync();

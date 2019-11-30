@@ -251,17 +251,17 @@ namespace TheraEngine.Core.Files
         {
             T file = null;
 
-            string absolutePath = Path.Path;
+            string targetFilePath = Path.Path;
             bool loadedFromFile = false;
             bool loadAttempted = false;
 
-            if (!allowLoadingFromFile || !absolutePath.IsAbsolutePath() || !File.Exists(absolutePath))
+            if (!allowLoadingFromFile || !targetFilePath.IsAbsolutePath() || !File.Exists(targetFilePath))
             {
                 if (AllowDynamicConstruction)
                 {
-                    file = DynamicConstruct(DefaultConstructionArguments, absolutePath);
+                    file = DynamicConstruct(DefaultConstructionArguments, targetFilePath);
                     if (CreateFileIfNonExistent && !(file is null))
-                        await file.ExportAsync(absolutePath, ESerializeFlags.Default, progress, cancel);
+                        await file.ExportAsync(targetFilePath, ESerializeFlags.Default, progress, cancel);
                 }
                 else
                 {
@@ -273,35 +273,16 @@ namespace TheraEngine.Core.Files
                 loadAttempted = true;
                 try
                 {
-                    string ext = System.IO.Path.GetExtension(absolutePath);
-                    if (IsThirdPartyImportableExt(ext?.Substring(1)))
+                    file = await TryLoadAsync(FileType, targetFilePath, progress, cancel) as T;
+                    if (file != null)
                     {
-                        file = FileType.CreateInstance() as T;
-                        file.FilePath = absolutePath;
-                        file.ManualRead3rdParty(absolutePath);
+                        file.FilePath = targetFilePath;
                         loadedFromFile = true;
-                    }
-                    else
-                    {
-                        switch (GetFormat())
-                        {
-                            case EFileFormat.XML:
-                                file = await FromXMLAsync(absolutePath, progress, cancel) as T;
-                                loadedFromFile = true;
-                                break;
-                            case EFileFormat.Binary:
-                                file = await FromBinaryAsync(absolutePath, progress, cancel) as T;
-                                loadedFromFile = true;
-                                break;
-                            default:
-                                Engine.LogWarning($"Could not load file at \"{absolutePath}\". Invalid file format.");
-                                break;
-                        }
                     }
                 }
                 catch (Exception e)
                 {
-                    Engine.LogWarning($"Could not load file at \"{absolutePath}\".\nException:\n\n{e}");
+                    Engine.LogWarning($"Could not load file at \"{targetFilePath}\".\nException:\n\n{e}");
                 }
             }
 

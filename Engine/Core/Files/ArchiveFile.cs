@@ -10,13 +10,13 @@ namespace TheraEngine.Core.Files
     [TFileDef("Archive", "File containing various folders and files.")]
     public class ArchiveFile : TFileObject
     {
-        internal ArchiveFile()
+        public ArchiveFile()
         {
             Entries = new Dictionary<string, Entry>();
         }
         public ArchiveFile(string baseDirectory) : this()
         {
-            FilePath = Path.Combine(baseDirectory, "Archive");
+            FilePath = baseDirectory + ".trc";
         }
 
         [TSerialize(DeserializeAsync = true)]
@@ -25,12 +25,14 @@ namespace TheraEngine.Core.Files
         public static ArchiveFile FromDirectory(string dirPath, bool deleteDirectory = false)
         {
             ArchiveFile file = new ArchiveFile(dirPath);
+            
             string[] paths = Directory.GetFileSystemEntries(dirPath);
             foreach (string path in paths)
-                file.ImportPath(path, deleteDirectory);
+                file.ImportPath(dirPath, path, deleteDirectory);
+
             return file;
         }
-        public void ImportPath(string path, bool delete)
+        public void ImportPath(string dirPath, string path, bool delete)
         {
             bool? pathType = path?.IsExistingDirectoryPath();
             if (pathType is null)
@@ -41,28 +43,40 @@ namespace TheraEngine.Core.Files
             {
                 string[] paths = Directory.GetFileSystemEntries(path);
                 foreach (string subPath in paths)
-                    ImportPath(subPath, delete);
+                    ImportPath(dirPath, subPath, delete);
             }
             else
             {
-                string dirPath = DirectoryPath;
-                string relPath = path.MakeAbsolutePathRelativeTo(dirPath);
                 TypeProxy type = DetermineType(path, out EFileFormat format);
                 byte[] fileBytes = File.ReadAllBytes(path);
                 Entry entry = new Entry(fileBytes, format, type);
+
+                string relPath = path.MakeAbsolutePathRelativeTo(dirPath);
                 Entries.Add(relPath, entry);
             }
         }
         public class Entry : TFileObject
         {
-            [TSerialize]
-            public EFileFormat Format { get; internal set; }
-            [TSerialize]
-            public TypeProxy Type { get; internal set; }
-            [TSerialize]
-            public byte[] Bytes { get; internal set; }
+            [TSerialize(Order = 0)]
+            public EFileFormat Format { get; set; }
+
+            [TSerialize(Order = 1)]
+            public TypeProxy Type { get; set; }
+
+            [TSerialize(Order = 2)]
+            public byte[] Bytes 
+            {
+                get => _bytes;
+                set
+                {
+                    _bytes = value;
+                    ReadBytes();
+                }
+            }
 
             private TFileObject _file = null;
+            private byte[] _bytes;
+
             public TFileObject File
             {
                 get
@@ -80,7 +94,15 @@ namespace TheraEngine.Core.Files
 
             private void ReadBytes()
             {
+                //switch (Format)
+                //{
+                //    case EFileFormat.Binary:
+                //        TFileObject.LoadAsync(Type, null);
+                //        break;
+                //    case EFileFormat.XML:
 
+                //        break;
+                //}
             }
             private void WriteBytes()
             {
@@ -90,9 +112,9 @@ namespace TheraEngine.Core.Files
             public Entry() { }
             public Entry(byte[] data, EFileFormat format, TypeProxy type)
             {
-                Bytes = data;
                 Format = format;
                 Type = type;
+                Bytes = data;
             }
         }
     }

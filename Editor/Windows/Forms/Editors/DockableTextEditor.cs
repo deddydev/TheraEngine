@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
@@ -1828,9 +1829,21 @@ namespace TheraEditor.Windows.Forms
         public async void SaveToPath(string path)
         {
             TextBox.CloseBindingFile();
-            await Editor.RunOperationAsync(
-                $"Saving text to {path}...", $"Text saved successfully to {path}", 
-                async (p, c) => await TargetFile.ExportAsync(path, p, c.Token));
+
+            string beginMessage = $"Text Editor: Now saving {path}";
+            string finishMessage = $"Text Editor: Finished saving {path}";
+            if (RemotingServices.IsTransparentProxy(TargetFile))
+            {
+                Editor.DomainProxy.SaveFileAs(
+                    TargetFile, path,
+                    beginMessage,
+                    finishMessage);
+            }
+            else
+            {
+                await TargetFile.ExportAsync(path);
+            }
+
             TextBox.OpenBindingFile(path, TargetFile.Encoding);
 
             TextBox.OnTextChanged();

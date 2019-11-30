@@ -3,28 +3,12 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     public partial class Deserializer
     {
-        /// <summary>
-        /// Reads the file at <paramref name="filePath"/> as a binary file.
-        /// </summary>
-        /// <param name="filePath">The path of the file to write.</param>
-        /// <param name="progress">Handler for progress updates.</param>
-        /// <param name="cancel">Handler for the caller to cancel the operation.</param>
-        public async Task<object> DeserializeXMLAsync(
-            string filePath,
-            IProgress<float> progress,
-            CancellationToken cancel)
-        {
-            Format = EProprietaryFileFormat.XML;
-            Reader = new ReaderXML(this, filePath, progress, cancel, null);
-            object file = await Reader.CreateObjectAsync();
-            Engine.PrintLine("Deserialized XML file at {0}", filePath);
-            return file;
-        }
         public class ReaderXML : AbstractReader
         {
             public override EProprietaryFileFormatFlag Format => EProprietaryFileFormatFlag.XML;
@@ -41,10 +25,12 @@ namespace TheraEngine.Core.Files.Serialization
             public ReaderXML(
                 Deserializer owner,
                 string filePath,
+                TypeProxy fileType,
+                Stream stream,
                 IProgress<float> progress,
                 CancellationToken cancel,
                 XmlReaderSettings settings)
-                : base(owner, filePath, progress, cancel)
+                : base(owner, filePath, fileType, stream, progress, cancel)
             {
                 if (settings != null)
                 {
@@ -57,7 +43,7 @@ namespace TheraEngine.Core.Files.Serialization
                 try
                 {
                     long currentBytes = 0L;
-                    using (_stream = new ProgressStream(new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read), null, null))
+                    using (_stream = new ProgressStream(Stream, null, null))
                     {
                         _reader = XmlReader.Create(_stream, _settings);
                         

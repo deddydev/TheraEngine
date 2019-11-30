@@ -70,14 +70,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.DestroyHandle();
         }
 
-        private async void LoadDictionary(IDictionary dic)
+        private void LoadDictionary(IDictionary dic)
         {
             propGridDicItems.PropertyTable.SuspendLayout();
 
             if (dic is null)
                 propGridDicItems.DestroyProperties();
             else
-                await Task.Run(() =>
+                //await Task.Run(() =>
                 {
                     ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
                     ConcurrentDictionary<TypeProxy, Deque<TypeProxy>> editorTypeCaches = new ConcurrentDictionary<TypeProxy, Deque<TypeProxy>>();
@@ -135,7 +135,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         label.MouseDown += Label_MouseDown;
                         label.MouseUp += Label_MouseUp;
                     }
-                });
+                }//);
 
             propGridDicItems.PropertyTable.ResumeLayout(true);
         }

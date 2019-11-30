@@ -30,7 +30,8 @@ namespace TheraEngine.Core.Files.Serialization
                     List = listType.CreateInstance() as IList;
 
                 if (async)
-                    Task.Run(() => ReadElements(listType, count)).ContinueWith(t => DoneReadingElements?.Invoke());
+                    TreeNode.Owner.PendingAsyncTasks.Add(Task.Run(() => 
+                        ReadElements(listType, count)).ContinueWith(t => DoneReadingElements?.Invoke()));
                 else
                 {
                     ReadElements(listType, count);

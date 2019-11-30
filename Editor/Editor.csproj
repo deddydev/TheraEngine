@@ -534,19 +534,19 @@
       <DependentUpon>DockablePropAnimIntGraph.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Editors\2D\Property Animation\Int\UIPropAnimIntEditor.cs" />
-    <Compile Include="Windows\Forms\Editors\2D\UI Editor\DockableUIGraph.cs">
+    <Compile Include="Windows\Forms\Editors\2D\User Interface\DockableUIGraph.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\UI Editor\DockableUIGraph.Designer.cs">
+    <Compile Include="Windows\Forms\Editors\2D\User Interface\DockableUIGraph.Designer.cs">
       <DependentUpon>DockableUIGraph.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\UI Editor\UIEditorForm.cs">
+    <Compile Include="Windows\Forms\Editors\2D\User Interface\UIEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\UI Editor\UIEditorForm.Designer.cs">
+    <Compile Include="Windows\Forms\Editors\2D\User Interface\UIEditorForm.Designer.cs">
       <DependentUpon>UIEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\UI Editor\UIEditorUI.cs" />
+    <Compile Include="Windows\Forms\Editors\2D\User Interface\UIEditorUI.cs" />
     <Compile Include="Windows\Forms\Editors\2D\EditorUI2DBase.cs" />
     <Compile Include="Windows\Forms\Interfaces.cs" />
     <Compile Include="Windows\Forms\Main Window\AboutForm.cs">
@@ -650,25 +650,25 @@
     <Compile Include="Windows\Controls\TearOffToolStrip.designer.cs">
       <DependentUpon>TearOffToolStrip.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatProps.cs">
+    <Compile Include="Windows\Forms\Editors\2D\Material\Sub Forms\DockableMatProps.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatProps.Designer.cs">
+    <Compile Include="Windows\Forms\Editors\2D\Material\Sub Forms\DockableMatProps.Designer.cs">
       <DependentUpon>DockableMatProps.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatFuncProps.cs">
+    <Compile Include="Windows\Forms\Editors\2D\Material\Sub Forms\DockableMatFuncProps.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatFuncProps.Designer.cs">
+    <Compile Include="Windows\Forms\Editors\2D\Material\Sub Forms\DockableMatFuncProps.Designer.cs">
       <DependentUpon>DockableMatFuncProps.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatFuncList.cs">
+    <Compile Include="Windows\Forms\Editors\2D\Material\Sub Forms\DockableMatFuncList.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatFuncList.Designer.cs">
+    <Compile Include="Windows\Forms\Editors\2D\Material\Sub Forms\DockableMatFuncList.Designer.cs">
       <DependentUpon>DockableMatFuncList.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatGraph.cs">
+    <Compile Include="Windows\Forms\Editors\2D\Material\Sub Forms\DockableMatGraph.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Windows\Controls\RoundedButton.cs">
@@ -877,14 +877,14 @@
       <DependentUpon>ObjectCreator.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Editors\3D\Model Editor\ModelEditorRenderPanel.cs" />
-    <Compile Include="Windows\Forms\File Navigation\FileFolderList.cs">
+    <Compile Include="ContentTree\Controls\FileFolderList.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\EditorForAttribute.cs" />
-    <Compile Include="Windows\Forms\File Navigation\FileNavPanel.cs">
+    <Compile Include="ContentTree\Controls\FileNavPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\File Navigation\FileNavPanel.Designer.cs">
+    <Compile Include="ContentTree\Controls\FileNavPanel.Designer.cs">
       <DependentUpon>FileNavPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Editors\3D\Model Editor\GenericDropDownControl.cs">
@@ -1151,10 +1151,10 @@
     <EmbeddedResource Include="Windows\Forms\Editors\2D\Property Animation\Int\DockablePropAnimIntGraph.resx">
       <DependentUpon>DockablePropAnimIntGraph.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editors\2D\UI Editor\DockableUIGraph.resx">
+    <EmbeddedResource Include="Windows\Forms\Editors\2D\User Interface\DockableUIGraph.resx">
       <DependentUpon>DockableUIGraph.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editors\2D\UI Editor\UIEditorForm.resx">
+    <EmbeddedResource Include="Windows\Forms\Editors\2D\User Interface\UIEditorForm.resx">
       <DependentUpon>UIEditorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Main Window\AboutForm.resx">
@@ -1203,10 +1203,10 @@
       <DependentUpon>ReleaseCreatorForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="TheraDevKey.pfx" />
-    <None Include="Windows\Forms\File Navigation\ResourceListView.cs">
+    <None Include="ContentTree\Controls\ResourceListView.cs">
       <SubType>Component</SubType>
     </None>
-    <Compile Include="Windows\Forms\File Navigation\TreeViewEx.cs" />
+    <Compile Include="ContentTree\Controls\TreeViewEx.cs" />
     <Compile Include="Windows\Forms\Main Window\Sub Forms\DockablePropertyGrid.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -1251,18 +1251,18 @@
     <Compile Include="Windows\Forms\Class Creation\GenericSelector.Designer.cs">
       <DependentUpon>GenericSelector.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\Material Editor\MaterialEditorForm.cs">
+    <Compile Include="Windows\Forms\Editors\2D\Material\MaterialEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\Material Editor\MaterialEditorForm.Designer.cs">
+    <Compile Include="Windows\Forms\Editors\2D\Material\MaterialEditorForm.Designer.cs">
       <DependentUpon>MaterialEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\Material Editor\MaterialEditorUI.cs" />
+    <Compile Include="Windows\Forms\Editors\2D\Material\MaterialEditorUI.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="ProjectState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Windows\Forms\File Navigation\ResourceTree.cs">
+    <Compile Include="ContentTree\Controls\ResourceTree.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Main Window\Overrides\EditorWorldRenderPanel.cs" />
@@ -1317,16 +1317,16 @@
     <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableMSBuildTree.resx">
       <DependentUpon>DockableMSBuildTree.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatProps.resx">
+    <EmbeddedResource Include="Windows\Forms\Editors\2D\Material\Sub Forms\DockableMatProps.resx">
       <DependentUpon>DockableMatProps.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatFuncProps.resx">
+    <EmbeddedResource Include="Windows\Forms\Editors\2D\Material\Sub Forms\DockableMatFuncProps.resx">
       <DependentUpon>DockableMatFuncProps.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatFuncList.resx">
+    <EmbeddedResource Include="Windows\Forms\Editors\2D\Material\Sub Forms\DockableMatFuncList.resx">
       <DependentUpon>DockableMatFuncList.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editors\2D\Material Editor\Sub Forms\DockableMatGraph.resx">
+    <EmbeddedResource Include="Windows\Forms\Editors\2D\Material\Sub Forms\DockableMatGraph.resx">
       <DependentUpon>DockableMatGraph.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Misc\IssueDialog.resx">
@@ -1414,13 +1414,13 @@
     <EmbeddedResource Include="Windows\Forms\Class Creation\GenericSelector.resx">
       <DependentUpon>GenericSelector.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\File Navigation\FileNavPanel.resx">
+    <EmbeddedResource Include="ContentTree\Controls\FileNavPanel.resx">
       <DependentUpon>FileNavPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editors\3D\Model Editor\GenericDropDownControl.resx">
       <DependentUpon>GenericDropDownControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editors\2D\Material Editor\MaterialEditorForm.resx">
+    <EmbeddedResource Include="Windows\Forms\Editors\2D\Material\MaterialEditorForm.resx">
       <DependentUpon>MaterialEditorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -1601,7 +1601,7 @@
     <Folder Include="Core\OS\Win32\" />
     <Folder Include="Windows\Forms\Editors\2D\Cutscene Editor\" />
     <Folder Include="Windows\Forms\Editors\2D\Keyframe Timeline Editor\" />
-    <Folder Include="Windows\Forms\Editors\2D\Model Animation State Table Editor\" />
+    <Folder Include="Windows\Forms\Editors\2D\Model Animation State Machine\" />
     <Folder Include="Windows\Forms\Editors\3D\Cutscene Editor\" />
     <Folder Include="Windows\Forms\Editors\3D\Model Animation Editor\" />
   </ItemGroup>

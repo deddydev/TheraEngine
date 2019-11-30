@@ -4,53 +4,11 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Extensions;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     public partial class Serializer
     {
-        /// <summary>
-        /// Writes <paramref name="fileObject"/> as an XML file.
-        /// </summary>
-        /// <param name="fileObject">The object to serialize into XML.</param>
-        /// <param name="filePath">The path of the file to write.</param>
-        /// <param name="flags">Flags to determine what information to serialize.</param>
-        /// <param name="progress">Handler for progress updates.</param>
-        /// <param name="cancel">Handler for the caller to cancel the operation.</param>
-        public async Task SerializeXMLAsync(
-            object fileObject,
-            string filePath,
-            ESerializeFlags flags,
-            IProgress<float> progress,
-            CancellationToken cancel)
-        {
-            Writer = new WriterXML(this, fileObject, filePath, flags, progress, cancel, null);
-            await Writer.WriteObjectAsync();
-            //Engine.PrintLine("Serialized XML file to {0}", filePath);
-        }
-        /// <summary>
-        /// Writes <paramref name="fileObject"/> as an XML file.
-        /// </summary>
-        /// <param name="fileObject">The object to serialize into XML.</param>
-        /// <param name="targetDirectoryPath">The path to a directory to write the file in.</param>
-        /// <param name="fileName">The name of the file.</param>
-        /// <param name="flags">Flags to determine what information to serialize.</param>
-        /// <param name="progress">Handler for progress updates.</param>
-        /// <param name="cancel">Handler for the caller to cancel the operation.</param>
-        public async Task SerializeXMLAsync(
-            object fileObject,
-            string targetDirectoryPath,
-            string fileName,
-            ESerializeFlags flags,
-            IProgress<float> progress,
-            CancellationToken cancel)
-        {
-            string filePath = TFileObject.GetFilePath(targetDirectoryPath, fileName, EProprietaryFileFormat.XML, fileObject.GetType());
-            Writer = new WriterXML(this, fileObject, filePath, flags, progress, cancel, null);
-            await Writer.WriteObjectAsync();
-            //Engine.PrintLine("Serialized XML file to {0}", filePath);
-        }
         public class WriterXML : AbstractWriter
         {
             private XmlWriter _writer;
@@ -70,11 +28,12 @@ namespace TheraEngine.Core.Files.Serialization
                 Serializer owner,
                 object rootFileObject,
                 string filePath,
+                Stream stream,
                 ESerializeFlags flags,
                 IProgress<float> progress,
                 CancellationToken cancel,
                 XmlWriterSettings settings)
-                : base(owner, rootFileObject, filePath, flags, progress, cancel)
+                : base(owner, rootFileObject, filePath, stream, flags, progress, cancel)
             {
                 if (settings != null)
                     _settings = settings;
@@ -85,7 +44,7 @@ namespace TheraEngine.Core.Files.Serialization
                 //If not, write to a temp path and add to "saved but not where you want it" section
                 //So the user can situate the area for the file and move it there properly
                 long currentBytes = 0L;
-                using (_stream = new ProgressStream(new FileStream(FilePath, FileMode.Create, FileAccess.Write, FileShare.None), null, null))
+                using (_stream = new ProgressStream(Stream, null, null))
                 using (_writer = XmlWriter.Create(_stream, _settings))
                 {
                     if (Progress != null)

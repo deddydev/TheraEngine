@@ -13,11 +13,10 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public event Action DoneReadingElements;
         public IDictionary Dictionary { get; private set; }
-        public bool DeserializeAsync { get; private set; } = false;
 
         public override void DeserializeTreeToObject()
         {
-            DeserializeAsync = TreeNode.MemberInfo?.DeserializeAsync ?? false;
+            bool async = TreeNode.MemberInfo?.DeserializeAsync ?? false;
 
             int keyValCount = TreeNode.Children.Count;
             TypeProxy dicType = TreeNode.ObjectType;
@@ -28,8 +27,9 @@ namespace TheraEngine.Core.Files.Serialization
             if (keyValCount <= 0)
                 return;
 
-            if (DeserializeAsync)
-                Task.Run(() => ReadDictionary(dicType, keyValCount)).ContinueWith(t => DoneReadingElements?.Invoke());
+            if (async)
+                TreeNode.Owner.PendingAsyncTasks.Add(Task.Run(() =>
+                    ReadDictionary(dicType, keyValCount)).ContinueWith(t => DoneReadingElements?.Invoke()));
             else
             {
                 ReadDictionary(dicType, keyValCount);

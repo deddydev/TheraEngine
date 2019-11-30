@@ -118,11 +118,11 @@ namespace TheraEngine.Core.Files
         /// <param name="format">The format the data is written in.</param>
         /// <param name="fileType">The type of file object.</param>
         /// <returns>An absolute path to the file.</returns>
-        public static string GetFilePath(string dir, string name, EProprietaryFileFormat format, Type fileType)
+        public static string GetFilePath(string dir, string name, EProprietaryFileFormat format, TypeProxy fileType)
             => Path.Combine(dir, GetFileName(name, format, fileType));
-        public static string GetFileName(string name, EProprietaryFileFormat format, Type fileType)
+        public static string GetFileName(string name, EProprietaryFileFormat format, TypeProxy fileType)
             => name + "." + GetFileExtension(format, fileType);
-        public static string GetFileExtension(EProprietaryFileFormat format, Type fileType)
+        public static string GetFileExtension(EProprietaryFileFormat format, TypeProxy fileType)
             => GetFileExtension(fileType)?.GetFullExtension(format) ?? throw new InvalidOperationException();
 
         public static string GetFilePath<T>(string dir, string name, EProprietaryFileFormat format) where T : class, IFileObject
@@ -274,17 +274,26 @@ namespace TheraEngine.Core.Files
         }
 
         #region Import/Export
+
         public static async Task<T> LoadAsync<T>(string filePath)
         {
             T file;
             if (Engine.BeginOperation != null)
             {
-                int op = Engine.BeginOperation($"Loading file from {filePath}...", $"{filePath} loaded successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
-                file = (T)(await LoadAsync(typeof(T), filePath, progress, cancel.Token));
+                int op = Engine.BeginOperation(
+                    $"Loading file from {filePath}...",
+                    $"{filePath} loaded successfully.", 
+                    out Progress<float> progress,
+                    out CancellationTokenSource cancel);
+
+                file = (T)await LoadAsync(typeof(T), filePath, progress, cancel.Token);
+
                 if (Engine.EndOperation != null)
                     Engine.EndOperation(op);
                 else
                     ((IProgress<float>)progress).Report(1.0f);
+
+                cancel.Dispose();
             }
             else
                 file = (T)(await LoadAsync(typeof(T), filePath, null, CancellationToken.None));
@@ -303,27 +312,31 @@ namespace TheraEngine.Core.Files
         /// <summary>
         /// Opens a new instance of the file object at the given file path.
         /// </summary>
-        /// <param name="expectedType">The type of the file object to load.</param>
+        /// <param name="fileType">The type of the file object to load.</param>
         /// <param name="filePath">The path to the file.</param>
         /// <returns>A new instance of the file.</returns>
         public static async Task<object> LoadAsync(
-            Type expectedType, string filePath, IProgress<float> progress, CancellationToken cancel)
+            Type fileType, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
-            object result = await TryLoadAsync(expectedType, filePath, progress, cancel);
+            object result = await TryLoadAsync(fileType, filePath, progress, cancel);
             if (result != null)
                 return result;
 
-            Engine.LogWarning($"{filePath} cannot be loaded as {expectedType.GetFriendlyName()}.");
+            Engine.LogWarning($"{filePath} cannot be loaded as {fileType.GetFriendlyName()}.");
             return null;
         }
 
-        private static async Task<object> TryLoadAsync(Type expectedType, string filePath, IProgress<float> progress, CancellationToken cancel)
+        public static async Task<object> TryLoadAsync(
+            TypeProxy fileType,
+            string filePath,
+            IProgress<float> progress,
+            CancellationToken cancel)
         {
             object file = null;
             try
             {
-                TFileExt extAttrib = GetFileExtension(expectedType);
-                TFile3rdPartyExt tpAttrib = GetFile3rdPartyExtensions(expectedType);
+                TFileExt extAttrib = GetFileExtension(fileType);
+                TFile3rdPartyExt tpAttrib = GetFile3rdPartyExtensions(fileType);
                 EFileFormat fmt = GetFormat(filePath, out string ext);
                 if (extAttrib != null)
                 {
@@ -332,28 +345,28 @@ namespace TheraEngine.Core.Files
                         bool hasWildcard = extAttrib.HasImportableExtension("*");
                         bool hasExt = extAttrib.HasImportableExtension(ext);
                         if (hasWildcard || hasExt)
-                            file = await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
+                            file = await Read3rdPartyAsync(fileType, filePath, progress, cancel);
                     }
                     else
                     {
-                        //EProprietaryFileFormat pfmt = (EProprietaryFileFormat)(int)fmt;
+                        EProprietaryFileFormat pfmt = (EProprietaryFileFormat)(int)fmt;
 
                         //string fileExt = extAttrib.GetFullExtension(pfmt);
                         //if (string.Equals(ext, fileExt))
                         //{
-                        file = fmt == EFileFormat.XML ?
-                            await FromXMLAsync(filePath, progress, cancel) :
-                            await FromBinaryAsync(filePath, progress, cancel);
 
-                        if (file != null && expectedType != null)
-                        {
-                            Type fileType = file?.GetType();
-                            if (!expectedType.IsAssignableFrom(fileType))
-                            {
-                                Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {expectedType.GetFriendlyName()}.");
-                                file = null;
-                            }
-                        }
+                        file = await DeserializeProprietaryFormat(filePath, fileType, pfmt, progress, cancel);
+
+                        //if (fileType != null && file != null)
+                        //{
+                        //    TypeProxy fileType = file?.GetTypeProxy();
+                        //    if (!fileType.IsAssignableFrom(fileType))
+                        //    {
+                        //        Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {fileType.GetFriendlyName()}.");
+                        //        file = null;
+                        //    }
+                        //}
+
                         //}
                     }
                 }
@@ -362,15 +375,15 @@ namespace TheraEngine.Core.Files
                     bool hasWildcard = tpAttrib.HasExtension("*", true);
                     bool hasExt = tpAttrib.HasExtension(ext, false);
                     if (hasWildcard || hasExt)
-                        file = await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
+                        file = await Read3rdPartyAsync(fileType, filePath, progress, cancel);
                 }
 
                 if (file is null)
                 {
-                    var subClassTypes = AppDomainHelper.FindTypes(x => x.GetType().IsSubclassOf(expectedType));
+                    var subClassTypes = AppDomainHelper.FindTypes(x => x.GetType().IsSubclassOf(fileType));
                     foreach (var subClassType in subClassTypes)
                     {
-                        object result = await TryLoadAsync(expectedType, filePath, progress, cancel);
+                        object result = await TryLoadAsync(fileType, filePath, progress, cancel);
                         if (result != null)
                         {
                             file = result;
@@ -393,80 +406,47 @@ namespace TheraEngine.Core.Files
 
         #endregion
 
-        #region XML
-        internal static async Task<T> FromXMLAsync<T>(
-            string filePath, IProgress<float> progress, CancellationToken cancel)
-            where T : class, IFileObject
-            => await FromXMLAsync(filePath, progress, cancel) as T;
-        internal static async Task<IFileObject> FromXMLAsync(
-            string filePath, IProgress<float> progress, CancellationToken cancel)
-        {
-            //try
-            //{
-                if (!File.Exists(filePath))
-                    return null;
+        #region Deserialize Proprietary Format
 
-                TypeProxy fileType = SerializationCommon.DetermineType(filePath, out _);
-                if (fileType is null)
-                    return null;
+        //private static async Task<T> DeserializeProperietaryFormat<T>(
+        //    string filePath,
+        //    TypeProxy fileType,
+        //    EProprietaryFileFormat format,
+        //    IProgress<float> progress, 
+        //    CancellationToken cancel)
+        //    where T : class, IFileObject
+        //    => await DeserializeProperietaryFormat(filePath, fileType, format, progress, cancel) as T;
 
-                Deserializer deser = new Deserializer();
-                IFileObject file = await deser.DeserializeXMLAsync(filePath, progress, cancel) as IFileObject;
-                return file;
-            //}
-            //catch (Exception ex)
-            //{
-            //    Engine.LogWarning($"Unable to deserialize XML file at {filePath}.\n{ex.ToString()}");
-            //}
-            //return null;
-        }
-        private static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings()
-        {
-            Indent = true,
-            IndentChars = "\t",
-            NewLineChars = Environment.NewLine,
-            NewLineHandling = NewLineHandling.Replace
-        };
-        #endregion
-
-        #region Binary
-
-        internal static async Task<T> FromBinaryAsync<T>(string filePath, IProgress<float> progress, CancellationToken cancel) where T : class, IFileObject
-            => await FromBinaryAsync(filePath, progress, cancel) as T;
-        internal static async Task<IFileObject> FromBinaryAsync(
-            string filePath, IProgress<float> progress, CancellationToken cancel)
+        private static async Task<IFileObject> DeserializeProprietaryFormat(
+            string filePath,
+            TypeProxy fileType,
+            EProprietaryFileFormat format,
+            IProgress<float> progress, 
+            CancellationToken cancel)
         {
             try
             {
-                if (!File.Exists(filePath))
-                    return null;
-
-                TypeProxy fileType = SerializationCommon.DetermineType(filePath, out EFileFormat format);
-                if (format != EFileFormat.Binary)
-                {
-                    Engine.LogWarning($"Specified to read in {(EFileFormat.Binary).ToString()} format, but file is {format.ToString()}. Reading anyway.");
-                }
-
                 Deserializer deser = new Deserializer();
-                IFileObject file = await deser.DeserializeBinaryAsync(filePath, progress, cancel,  null) as IFileObject;
+                IFileObject file = await deser.DeserializeAsync(filePath, fileType, format, progress, cancel) as IFileObject;
                 return file;
             }
             catch (Exception ex)
             {
-                Engine.LogWarning($"Unable to deserialize binary file at {filePath}.\n{ex.ToString()}");
+                Engine.LogWarning($"Unable to deserialize file at {filePath}.\n{ex.ToString()}");
             }
             return null;
         }
+
         #endregion
 
         #region 3rd Party
         public static async Task<T> Read3rdPartyAsync<T>(string filePath)
             => (T)(await Read3rdPartyAsync(typeof(T), filePath, null, CancellationToken.None));
-        public static async Task<object> Read3rdPartyAsync(Type classType, string filePath)
+        public static async Task<object> Read3rdPartyAsync(TypeProxy classType, string filePath)
             => await Read3rdPartyAsync(classType, filePath, null, CancellationToken.None);
         public static async Task<T> Read3rdPartyAsync<T>(string filePath, IProgress<float> progress, CancellationToken cancel)
             => (T)await Read3rdPartyAsync(typeof(T), filePath, progress, cancel);
-        public static async Task<object> Read3rdPartyAsync(Type classType, string filePath, IProgress<float> progress, CancellationToken cancel)
+        public static async Task<object> Read3rdPartyAsync(TypeProxy classType, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             string ext = Path.GetExtension(filePath);
             if (ext != null && ext.StartsWith("."))

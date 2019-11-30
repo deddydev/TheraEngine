@@ -394,15 +394,17 @@ namespace TheraEditor
             object file = await RunOperationAsync(
                 $"Importing '{path}'...",
                 $"Import from '{path}' completed.", 
-                async (p, c) => await TFileObject.LoadAsync((Type)fileType, path, p, c.Token));
+                async (p, c) => await TFileObject.LoadAsync(
+                    (Type)fileType, path, p, c.Token));
 
-            if (file is null || !Serializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
+            if (!(file is IFileObject iobj))
                 return;
 
             await RunOperationAsync(
-                $"Saving to '{filePath}'...", 
-                $"Saved file to '{filePath}' successfully.", 
-                async (p, c) => await new Serializer().SerializeXMLAsync(file, filePath, ESerializeFlags.Default, p, c.Token));
+                $"Saving file...", 
+                $"Saved file successfully.", 
+                async (p, c) => await iobj.ExportAsync(
+                    dir, name, ESerializeFlags.Default, EProprietaryFileFormat.XML, p, c.Token));
         }
 
         public int TargetOperationValue { get; private set; }

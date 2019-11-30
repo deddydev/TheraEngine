@@ -291,13 +291,13 @@ namespace TheraEngine.Core
             Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Done {(reloadNow ? "regenerating" : "clearing")} type caches.");
         }
 
-        public Delegate Get3rdPartyLoader(Type fileType, string extension)
+        public Delegate Get3rdPartyLoader(TypeProxy fileType, string extension)
         {
             if (_3rdPartyLoaders is null)
                 Reset3rdPartyImportExportMethods();
             return Get3rdPartyMethod(_3rdPartyLoaders, fileType, extension);
         }
-        public Delegate Get3rdPartyExporter(Type fileType, string extension)
+        public Delegate Get3rdPartyExporter(TypeProxy fileType, string extension)
         {
             if (_3rdPartyExporters is null)
                 Reset3rdPartyImportExportMethods();

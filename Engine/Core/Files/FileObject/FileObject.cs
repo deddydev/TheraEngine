@@ -271,39 +271,14 @@ namespace TheraEngine.Core.Files
                     await Export3rdPartyAsync(directory, fileName, thirdPartyExt, progress, cancel);
                     break;
                 case EFileFormat.Binary:
-                    //await ExportBinaryAsync(directory, fileName, flags, progress, cancel);
-                    //break;
                 case EFileFormat.XML:
-                    await ExportXMLAsync(directory, fileName, flags, progress, cancel);
+                    await new Serializer().SerializeAsync(this, directory, fileName, (EProprietaryFileFormat)format, flags, progress, cancel);
                     break;
                 default:
                     throw new InvalidOperationException("Not a valid file format.");
             }
         }
 
-        public async Task ExportXMLAsync(
-            string directory,
-            string fileName,
-            ESerializeFlags flags, 
-            IProgress<float> progress,
-            CancellationToken cancel)
-            => await Serializer.ExportXMLAsync(this, directory, fileName, flags, progress, cancel);
-        
-        public async Task ExportBinaryAsync(
-            string directory,
-            string fileName,
-            ESerializeFlags flags,
-            IProgress<float> progress,
-            CancellationToken cancel,
-            Endian.EOrder endian = Endian.EOrder.Big,
-            bool encrypted = false,
-            bool compressed = false,
-            string encryptionPassword = null,
-            ICodeProgress compressionProgress = null)
-            => await Serializer.ExportBinaryAsync(this,
-                directory, fileName, flags, progress, cancel,
-                endian, encrypted, compressed, encryptionPassword, compressionProgress);
-        
         public static ConcurrentHashSet<string> ExportingPaths = new ConcurrentHashSet<string>();
         public async Task Export3rdPartyAsync(
             string directory,

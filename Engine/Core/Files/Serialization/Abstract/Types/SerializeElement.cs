@@ -17,7 +17,7 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public event DelObjectChange ObjectChanged;
 
-        private BaseSerializer.BaseAbstractReaderWriter _owner;
+        private BaseSerializationIO.BaseAbstractReaderWriter _owner;
         private object _object;
         private TypeProxy _desiredDerivedObjectType;
         private TSerializeMemberInfo _memberInfo;
@@ -36,7 +36,7 @@ namespace TheraEngine.Core.Files.Serialization
                 DetermineDefaultObject();
             }
         }
-        public BaseSerializer.BaseAbstractReaderWriter Owner
+        public BaseSerializationIO.BaseAbstractReaderWriter Owner
         {
             get => _owner;
             internal set
@@ -205,12 +205,12 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// Methods for serializing data in a specific manner.
         /// </summary>
-        public List<MethodInfoProxy> CustomSerializeMethods { get; private set; }
-        public List<MethodInfoProxy> CustomDeserializeMethods { get; private set; }
-        public List<MethodInfoProxy> PreSerializeMethods { get; private set; }
-        public List<MethodInfoProxy> PostSerializeMethods { get; private set; }
-        public List<MethodInfoProxy> PreDeserializeMethods { get; private set; }
-        public List<MethodInfoProxy> PostDeserializeMethods { get; private set; }
+        public ConcurrentQueue<MethodInfoProxy> CustomSerializeMethods { get; private set; }
+        public ConcurrentQueue<MethodInfoProxy> CustomDeserializeMethods { get; private set; }
+        public ConcurrentQueue<MethodInfoProxy> PreSerializeMethods { get; private set; }
+        public ConcurrentQueue<MethodInfoProxy> PostSerializeMethods { get; private set; }
+        public ConcurrentQueue<MethodInfoProxy> PreDeserializeMethods { get; private set; }
+        public ConcurrentQueue<MethodInfoProxy> PostDeserializeMethods { get; private set; }
         public enum ESerializeMethodType
         {
             CustomSerialize,
@@ -485,12 +485,12 @@ namespace TheraEngine.Core.Files.Serialization
         }
         private void ObjectTypeChanged()
         {
-            PreSerializeMethods = new List<MethodInfoProxy>();
-            PostSerializeMethods = new List<MethodInfoProxy>();
-            PreDeserializeMethods = new List<MethodInfoProxy>();
-            PostDeserializeMethods = new List<MethodInfoProxy>();
-            CustomSerializeMethods = new List<MethodInfoProxy>();
-            CustomDeserializeMethods = new List<MethodInfoProxy>();
+            PreSerializeMethods = new ConcurrentQueue<MethodInfoProxy>();
+            PostSerializeMethods = new ConcurrentQueue<MethodInfoProxy>();
+            PreDeserializeMethods = new ConcurrentQueue<MethodInfoProxy>();
+            PostDeserializeMethods = new ConcurrentQueue<MethodInfoProxy>();
+            CustomSerializeMethods = new ConcurrentQueue<MethodInfoProxy>();
+            CustomDeserializeMethods = new ConcurrentQueue<MethodInfoProxy>();
 
             if (ObjectType != null)
             {
@@ -506,40 +506,35 @@ namespace TheraEngine.Core.Files.Serialization
                         BindingFlags.Public |
                         BindingFlags.FlattenHierarchy);
 
-                    ConcurrentDictionary<MethodInfoProxy, ESerializeMethodType> attribCache = new ConcurrentDictionary<MethodInfoProxy, ESerializeMethodType>();
-                    Task determine = Task.Run(() => Parallel.ForEach(methods, m =>
+                    Task t = Task.Run(() => Parallel.ForEach(methods, m =>
                     {
                         if (m.CanRunForFormat(Owner.Format, out ESerializeMethodType type))
-                            attribCache.AddOrUpdate(m, type, (x, y) => type);
-
-                    })).ContinueWith(t =>
-                    {
-                        foreach (var x in attribCache)
                         {
-                            switch (x.Value)
+                            switch (type)
                             {
                                 case ESerializeMethodType.PreDeserialize:
-                                    PreDeserializeMethods.Add(x.Key);
+                                    PreDeserializeMethods.Enqueue(m);
                                     break;
                                 case ESerializeMethodType.PostDeserialize:
-                                    PostDeserializeMethods.Add(x.Key);
+                                    PostDeserializeMethods.Enqueue(m);
                                     break;
                                 case ESerializeMethodType.PreSerialize:
-                                    PreSerializeMethods.Add(x.Key);
+                                    PreSerializeMethods.Enqueue(m);
                                     break;
                                 case ESerializeMethodType.PostSerialize:
-                                    PostSerializeMethods.Add(x.Key);
+                                    PostSerializeMethods.Enqueue(m);
                                     break;
                                 case ESerializeMethodType.CustomSerialize:
-                                    CustomSerializeMethods.Add(x.Key);
+                                    CustomSerializeMethods.Enqueue(m);
                                     break;
                                 case ESerializeMethodType.CustomDeserialize:
-                                    CustomDeserializeMethods.Add(x.Key);
+                                    CustomDeserializeMethods.Enqueue(m);
                                     break;
                             }
                         }
-                    });
-                    determine.Wait();
+                    }));
+                    
+                    t.Wait();
                 }
             }
             else

@@ -30,7 +30,7 @@ namespace TheraEngine.Core.Files.Serialization
                 //Engine.PrintLine($"Deserializing {TreeNode.ObjectType.GetFriendlyName()} {TreeNode.Name} as {nameof(ENodeType.ElementContent)}.");
 
                 if (async)
-                    Task.Run(ReadContent);
+                    TreeNode.Owner.PendingAsyncTasks.Add(Task.Run(ReadContent));
                 else
                     ReadContent();
                 
@@ -131,7 +131,16 @@ namespace TheraEngine.Core.Files.Serialization
             }
             //Otherwise, this member must be default
         }
-        public async Task<bool> TryInvokeManualParentDeserializeAsync<T>(TSerializeMemberInfo member, SerializeElement parent, T data)
+        /// <summary>
+        /// If the parent member overrides deserialization, use that.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="member"></param>
+        /// <param name="parent"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public async Task<bool> TryInvokeManualParentDeserializeAsync<T>(
+            TSerializeMemberInfo member, SerializeElement parent, T data)
         {
             if (parent?.CustomDeserializeMethods is null)
                 return false;

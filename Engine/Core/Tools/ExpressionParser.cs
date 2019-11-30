@@ -22,8 +22,6 @@ namespace TheraEngine.Core.Tools
             Stack<string> stack = new Stack<string>();
             try
             {
-
-
                 ConvertToPostFix(expression, queue, stack);
                 string result = GetAnswer(context, queue, stack);
                 object value = GetValue(result, context);
@@ -70,7 +68,7 @@ namespace TheraEngine.Core.Tools
             inFix = inFix.ReplaceWhitespace("").Replace(")", " ) ").Replace("(", " ( ");
             var ops = _precedence.SelectMany(x => x).ToList();
             foreach (var o in ops)
-                inFix = inFix.Replace(o, " " + o + " ");
+                inFix = inFix.Replace(o, $" {o} ");
             return inFix.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         }
         private static void ConvertToPostFix(string inFix, Queue<string> queue, Stack<string> stack)
@@ -560,40 +558,25 @@ namespace TheraEngine.Core.Tools
         }
         private static string EvalToken(object value1, object value2, string token, string commonType)
         {
-            switch (token)
+            return token switch
             {
-                case "*":
-                    return EvalMult(value1, value2, commonType);
-                case "/":
-                    return EvalDiv(value1, value2, commonType);
-                case "+":
-                    return EvalAdd(value1, value2, commonType);
-                case "-":
-                    return EvalSub(value1, value2, commonType);
-                case "<<":
-                    return EvalLeftShift(value1, value2, commonType);
-                case ">>":
-                    return EvalRightShift(value1, value2, commonType);
-                case "<":
-                    return EvalLess(value1, value2, commonType);
-                case ">":
-                    return EvalGreater(value1, value2, commonType);
-                case "<=":
-                    return EvalLessEqual(value1, value2, commonType);
-                case ">=":
-                    return EvalGreaterEqual(value1, value2, commonType);
-                case "&":
-                    return EvalAnd(value1, value2, commonType);
-                case "^":
-                    return EvalXor(value1, value2, commonType);
-                case "|":
-                    return EvalOr(value1, value2, commonType);
-                case "==":
-                    return EvalEquals(value1, value2, commonType);
-                case "!=":
-                    return EvalNotEquals(value1, value2, commonType);
-            }
-            throw new Exception("Not a numeric primitive type");
+                "*" => EvalMult(value1, value2, commonType),
+                "/" => EvalDiv(value1, value2, commonType),
+                "+" => EvalAdd(value1, value2, commonType),
+                "-" => EvalSub(value1, value2, commonType),
+                "<<" => EvalLeftShift(value1, value2, commonType),
+                ">>" => EvalRightShift(value1, value2, commonType),
+                "<" => EvalLess(value1, value2, commonType),
+                ">" => EvalGreater(value1, value2, commonType),
+                "<=" => EvalLessEqual(value1, value2, commonType),
+                ">=" => EvalGreaterEqual(value1, value2, commonType),
+                "&" => EvalAnd(value1, value2, commonType),
+                "^" => EvalXor(value1, value2, commonType),
+                "|" => EvalOr(value1, value2, commonType),
+                "==" => EvalEquals(value1, value2, commonType),
+                "!=" => EvalNotEquals(value1, value2, commonType),
+                _ => throw new Exception("Not a numeric primitive type"),
+            };
         }
         private static string EvalMult(object value1, object value2, string commonType)
         {

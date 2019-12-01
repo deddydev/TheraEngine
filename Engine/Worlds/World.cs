@@ -12,6 +12,7 @@ using TheraEngine.GameModes;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
+using Extensions;
 
 namespace TheraEngine.Worlds
 {
@@ -154,12 +155,17 @@ namespace TheraEngine.Worlds
                 var mode = State.GameMode;
                 if (mode == value)
                     return;
+
                 CurrentGameModePreChanged?.Invoke(this, mode, value);
+
                 if (IsPlaying)
                     mode?.EndGameplay();
+
                 State.GameMode = value;
+
                 if (IsPlaying)
                     State.GameMode?.BeginGameplay(this);
+
                 CurrentGameModePostChanged?.Invoke(this, mode, value);
             }
         }
@@ -250,7 +256,7 @@ namespace TheraEngine.Worlds
                 PhysicsWorld3D.AllowIndividualAabbUpdates = false;
 
             //Update each actor in parallel; they should not depend on one another
-            await Task.Run(() => Parallel.ForEach(State.SpawnedActors, a => a.RebaseOrigin(newOrigin)));
+            await Task.Run(() => State.SpawnedActors.ForEachParallelIList(a => a.RebaseOrigin(newOrigin)));
             //foreach (IActor a in State.SpawnedActors)
             //    a.RebaseOrigin(newOrigin);
 

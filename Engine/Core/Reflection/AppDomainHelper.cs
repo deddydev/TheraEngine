@@ -84,12 +84,14 @@ namespace TheraEngine.Core.Reflection
 
         public static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
-            //string name = args.LoadedAssembly.GetName().Name;
-            //if (!args.LoadedAssembly.IsDynamic)
-            //{
-            //    string path = args.LoadedAssembly.Location;
-            //    Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] LOADED {name} FROM {path}");
-            //}
+            string name = args.LoadedAssembly.GetName().Name;
+            if (!args.LoadedAssembly.IsDynamic)
+            {
+                string path = args.LoadedAssembly.Location;
+                if (AppDomain.CurrentDomain.FriendlyName == "TheraEditor.exe" && name == "Puyo")
+                    throw new Exception();
+                Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] LOADED {name} FROM {path}");
+            }
         }
 
         /// <summary>
@@ -166,7 +168,7 @@ namespace TheraEngine.Core.Reflection
         public static IEnumerable<TypeProxy> FindTypes(Predicate<TypeProxy> matchPredicate, params AssemblyProxy[] assemblies)
         {
             ConcurrentBag<TypeProxy> matches = new ConcurrentBag<TypeProxy>();
-            Parallel.ForEach(ExportedTypes, type =>
+            ExportedTypes.ForEachParallelArray(type =>
             //for (int i = 0; i < types.Length; ++i)
             {
                 if ((assemblies.Length == 0 || assemblies.Contains(type.Assembly)) && matchPredicate(type))

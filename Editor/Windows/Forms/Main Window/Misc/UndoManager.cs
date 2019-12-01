@@ -1,7 +1,5 @@
 ﻿using Extensions;
-using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Editor;
 
@@ -21,7 +19,7 @@ namespace TheraEditor.Windows.Forms
                 CheckChangeSize();
             }
         }
-        private Deque<GlobalValueChange> Changes { get; } = new Deque<GlobalValueChange>();
+        private Deque<GlobalChange> Changes { get; } = new Deque<GlobalChange>();
         private void CheckChangeSize()
         {
             while (Changes.Count > _maxChanges)
@@ -29,7 +27,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void AddChange(EditorState state, params LocalValueChange[] changes)
         {
-            GlobalValueChange globalChange = state.AddChanges(changes);
+            GlobalChange globalChange = state.AddChanges(changes);
             OnChangeAdded(globalChange);
         }
         //public void AddChange(EditorState editorState, object oldValue, object newValue, IList listOwner, int listIndex)
@@ -62,19 +60,22 @@ namespace TheraEditor.Windows.Forms
         //    editorState.AddChange(oldValue, newValue, dicOwner, key, isKey, change);
         //    OnChangeAdded(change);
         //}
-        private void OnChangeAdded(GlobalValueChange change)
+        private void OnChangeAdded(GlobalChange change)
         {
-            while (CanRedo)
-                Changes.PopBack().DestroySelf();
+            lock (Changes)
+            {
+                while (CanRedo)
+                    Changes.PopBack().DestroySelf();
 
-            Changes.PushBack(change);
+                Changes.PushBack(change);
 
-            _stateIndex = (_stateIndex + 1).ClampMax(_maxChanges);
+                _stateIndex = (_stateIndex + 1).ClampMax(_maxChanges);
 
-            CheckChangeSize();
-            _moveToOldVal = true;
+                CheckChangeSize();
+                _moveToOldVal = true;
 
-            Editor.Instance.AddChangeToUI(change.AsUndoString(), change.AsRedoString());
+                Editor.Instance.AddChangeToUI(change.AsUndoString(), change.AsRedoString());
+            }
         }
         public bool CanUndo => Changes.Count > 0 && (_moveToOldVal ? 
             _stateIndex >= 0 :
@@ -95,7 +96,7 @@ namespace TheraEditor.Windows.Forms
                 if (_stateIndex >= Changes.Count)
                     _stateIndex = Changes.Count - 1;
 
-                GlobalValueChange c = Changes[(uint)_stateIndex];
+                GlobalChange c = Changes[(uint)_stateIndex];
                 c.ApplyOldValue();
                 --_stateIndex;
 
@@ -117,7 +118,7 @@ namespace TheraEditor.Windows.Forms
                 if (_stateIndex < 0)
                     _stateIndex = 0;
 
-                GlobalValueChange c = Changes[(uint)_stateIndex];
+                GlobalChange c = Changes[(uint)_stateIndex];
                 c.ApplyNewValue();
                 ++_stateIndex;
 

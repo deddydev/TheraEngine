@@ -24,7 +24,7 @@ namespace TheraEngine.Actors
         IReadOnlyCollection<ISceneComponent> SceneComponentCache { get; }
         IOriginRebasableComponent RootComponent { get; }
         
-        EventList<ILogicComponent> LogicComponents { get; }
+        IEventList<ILogicComponent> LogicComponents { get; }
         IScene OwningScene { get; set; }
 
         T1 FindFirstLogicComponentOfType<T1>() where T1 : class, ILogicComponent;

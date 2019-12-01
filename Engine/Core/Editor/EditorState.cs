@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine.Components.Scene;
@@ -85,10 +87,46 @@ namespace TheraEngine.Editor
                 AppDomainHelper.Sponsor(_treeNode);
             }
         }
-        public bool IsDirty { get; set; }
-        public List<LocalValueChange> ChangedValues { get; } = new List<LocalValueChange>();
+
+        /// <summary>
+        /// List of all states that have been modified.
+        /// </summary>
         public static List<EditorState> DirtyStates { get; } = new List<EditorState>();
+        /// <summary>
+        /// If set to false, this object will not be shown in the actor tree to the user for editing.
+        /// </summary>
         public bool DisplayInActorTree { get; set; } = true;
+
+        /// <summary>
+        /// Returns true if there are any global changes that have been applied to this state.
+        /// Indicates that this object should be saved.
+        /// </summary>
+        public bool IsDirty => _globalChanges.Count > 0;
+        /// <summary>
+        /// All changes made in a global scope that affect the object this state is monitoring.
+        /// </summary>
+        public IReadOnlyList<GlobalChange> GlobalChanges => _globalChanges;
+        private List<GlobalChange> _globalChanges = new List<GlobalChange>();
+
+        internal void RemoveGlobalChange(GlobalChange change)
+        {
+            lock (_globalChanges)
+            {
+                _globalChanges.Remove(change);
+                if (_globalChanges.Count == 0)
+                    DirtyStates.Remove(this);
+            }
+        }
+        internal void AddGlobalChange(GlobalChange change)
+        {
+            lock (_globalChanges)
+            {
+                if (!_globalChanges.Contains(change))
+                    _globalChanges.Add(change);
+                if (_globalChanges.Count > 0 && !DirtyStates.Contains(this))
+                    DirtyStates.Add(this);
+            }
+        }
 
         private new void OnSelectedChanged(bool selected)
         {
@@ -108,21 +146,30 @@ namespace TheraEngine.Editor
             Object?.OnHighlightChanged(_highlighted);
             HighlightingChanged?.Invoke(highlighted);
         }
-        public GlobalValueChange AddChanges(params LocalValueChange[] changes)
+        public GlobalChange AddChanges(params LocalValueChange[] changes)
         {
-            GlobalValueChange globalChange = new GlobalValueChange
+            GlobalChange globalChange = new GlobalChange
             {
-                ChangedStates = new List<(EditorState State, int ChangeIndex)>()
+                ChangedStates = new ConcurrentBag<(EditorState State, LocalValueChange Change)>()
             };
             foreach (LocalValueChange change in changes)
             {
-                globalChange.ChangedStates.Add((this, ChangedValues.Count));
+                globalChange.ChangedStates.Add((this, change));
                 change.GlobalChange = globalChange;
-                ChangedValues.Add(change);
             }
-            IsDirty = true;
+            AddGlobalChange(globalChange);
             return globalChange;
         }
+
+        public void ClearChanges()
+        {
+            lock (_globalChanges)
+            {
+                _globalChanges.Clear();
+                DirtyStates.Remove(this);
+            }
+        }
+
         //public void AddChange(object oldValue, object newValue, IList list, int index, GlobalValueChange change)
         //{
         //    ChangedValues.Add(new ListValueChange()
@@ -303,62 +350,71 @@ namespace TheraEngine.Editor
     /// <summary>
     /// Contains information pertaining to a change in a global setting.
     /// </summary>
-    public class GlobalValueChange : TObjectSlim
+    public class GlobalChange : TObjectSlim
     {
-        public List<(EditorState State, int ChangeIndex)> ChangedStates { get; set; }
+        public ConcurrentBag<(EditorState State, LocalValueChange Change)> ChangedStates { get; set; }
         //public EditorState State { get; set; }
         //public int ChangeIndex { get; set; }
 
         public void ApplyNewValue()
         {
-            foreach (var (State, ChangeIndex) in ChangedStates)
-                State.ChangedValues[ChangeIndex].ApplyNewValue();
+            foreach (var (State, Change) in ChangedStates)
+            {
+                Change.ApplyNewValue();
+                State.AddGlobalChange(this);
+            }
         }
         public void ApplyOldValue()
         {
-            foreach (var (State, ChangeIndex) in ChangedStates)
-                State.ChangedValues[ChangeIndex].ApplyOldValue();
+            foreach (var (State, Change) in ChangedStates)
+            {
+                Change.ApplyOldValue();
+                State.AddGlobalChange(this);
+            }
         }
 
         public void DestroySelf()
         {
-            for (int i = 0; i < ChangedStates.Count; ++i)
-            {
-                var (State, ChangeIndex) = ChangedStates[i];
+            //Unlink from local editor states
+            var modifiedStates = ChangedStates.Select(x => x.State).Distinct();
+            foreach (var state in modifiedStates)
+                state.RemoveGlobalChange(this);
+            
+            //for (int i = 0; i < ChangedStates.Count; ++i)
+            //{
+            //    var (State, ChangeIndex) = ChangedStates[i];
 
-                State.ChangedValues.RemoveAt(ChangeIndex);
+            //    State.ChangedValues.RemoveAt(ChangeIndex);
 
-                //Update all local changes after the one that was just removed
-                //Their global state's change index needs to be decremented to match the new index
-                for (int x = ChangeIndex; x < State.ChangedValues.Count; ++x)
-                    --ChangeIndex;
+            //    //Update all local changes after the one that was just removed
+            //    //Their global state's change index needs to be decremented to match the new index
+            //    for (int x = ChangeIndex; x < State.ChangedValues.Count; ++x)
+            //        --ChangeIndex;
 
-                if (State.ChangedValues.Count == 0)
-                    State.IsDirty = false;
-            }
+            //    if (State.ChangedValues.Count == 0)
+            //        State.IsDirty = false;
+            //}
         }
 
         public string AsUndoString()
         {
             string s = "";
-            for (int i = 0; i < ChangedStates.Count; ++i)
+            foreach (var (State, Change) in ChangedStates)
             {
-                var (State, ChangeIndex) = ChangedStates[i];
-                if (i > 0)
+                if (s.Length > 0)
                     s += ", ";
-                s += $"({State.ChangedValues[ChangeIndex].DisplayChangeAsUndo()}";
+                s += $"({Change.DisplayChangeAsUndo()}";
             }
             return s;
         }
         public string AsRedoString()
         {
             string s = "";
-            for (int i = 0; i < ChangedStates.Count; ++i)
+            foreach (var (State, Change) in ChangedStates)
             {
-                var (State, ChangeIndex) = ChangedStates[i];
-                if (i > 0)
+                if (s.Length > 0)
                     s += ", ";
-                s += $"({State.ChangedValues[ChangeIndex].DisplayChangeAsRedo()}";
+                s += $"({Change.DisplayChangeAsRedo()}";
             }
             return s;
         }
@@ -375,7 +431,7 @@ namespace TheraEngine.Editor
             NewValue = newValue;
         }
 
-        public GlobalValueChange GlobalChange { get; set; }
+        public GlobalChange GlobalChange { get; set; }
         public object OldValue { get; set; }
         public object NewValue { get; set; }
 

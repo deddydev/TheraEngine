@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Components.Scene;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering
 {
@@ -20,6 +22,7 @@ namespace TheraEngine.Rendering
 
         void LinkScene(I3DRenderable r3d, IScene3D scene, bool forceVisible = false);
         void UnlinkScene();
+        bool AllowRender(IVolume cullingVolume, RenderPasses passes, ICamera camera, bool shadowPass);
     }
     public class RenderInfo3D : RenderInfo, IRenderInfo3D
     {
@@ -138,6 +141,26 @@ namespace TheraEngine.Rendering
             Owner = null;
 
             CullingVolume?.RenderInfo?.UnlinkScene();
+        }
+
+        public virtual bool AllowRender(
+            IVolume cullingVolume,
+            RenderPasses passes,
+            ICamera camera,
+            bool shadowPass)
+        {
+#if EDITOR
+            if ((Owner is CameraComponent ccomp && ccomp.Camera == camera) ||
+                (Owner is ICamera cam && cam == camera))
+                return false;
+
+            bool editMode = Engine.EditorState.InEditMode;
+            if (!editMode && VisibleInEditorOnly)
+                return false;
+#endif
+            return Visible &&
+            (!shadowPass || CastsShadows) &&
+            (CullingVolume == null || cullingVolume.Contains(CullingVolume) != EContainment.Disjoint);
         }
     }
 }

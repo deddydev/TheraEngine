@@ -117,6 +117,9 @@ namespace TheraEngine
     public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
 
+    /// <summary>
+    /// Use this class for objects that just need to be marshalled between domains and need no extra functionality.
+    /// </summary>
     public abstract class TObjectSlim : SponsorableMarshalByRefObject, IObjectSlim
     {
         TypeProxy IObjectSlim.GetTypeProxy() => GetType();

@@ -41,7 +41,7 @@ namespace TheraEngine.Actors
         public float _lifeSpan = -1.0f;
         public int _spawnIndex = -1;
         protected IScene _scene;
-        protected EventList<ILogicComponent> _logicComponents;
+        protected IEventList<ILogicComponent> _logicComponents;
         protected List<ISceneComponent> _sceneComponentCache;
 
         [Browsable(false)]
@@ -107,7 +107,7 @@ namespace TheraEngine.Actors
         //[Browsable(false)]
         [TSerialize]
         [Category("Actor")]
-        public EventList<ILogicComponent> LogicComponents
+        public IEventList<ILogicComponent> LogicComponents
         {
             get => _logicComponents;
             set

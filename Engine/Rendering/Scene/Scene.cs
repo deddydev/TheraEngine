@@ -86,7 +86,10 @@ namespace TheraEngine.Rendering
         {
             int index = (int)item.RenderPass;
             var set = _updatingPasses[index];
-            set.Add(item);
+            //lock (set)
+            //{
+                set.Add(item);
+            //}
             ++_numCommandsRecentlyAdded;
             //++NumTotalCommandsAdded;
         }

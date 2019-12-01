@@ -41,16 +41,16 @@ namespace TheraEditor.Windows.Forms
         private void Instance_MouseUp()
         {
             ISocket socket = TransformTool3D.Instance.TargetSocket;
-            if (TransformTool3D.Instance.PrevRootWorldMatrix != socket.WorldMatrix)
-            {
-                Editor.DomainProxy.UndoManager.AddChange(
-                    ((IObject)socket).EditorState,
-                    new LocalValueChangeProperty(
-                        TransformTool3D.Instance.PrevRootWorldMatrix,
-                        socket.WorldMatrix,
-                        socket,
-                        socket.GetTypeProxy().GetProperty(nameof(ISocket.WorldMatrix))));
-            }
+            if (TransformTool3D.Instance.PrevRootWorldMatrix == socket.WorldMatrix)
+                return;
+            
+            Editor.DomainProxy.UndoManager.AddChange(
+                ((IObject)socket).EditorState,
+                new LocalValueChangeProperty(
+                    TransformTool3D.Instance.PrevRootWorldMatrix,
+                    socket.WorldMatrix,
+                    socket,
+                    socket.GetTypeProxy().GetProperty(nameof(ISocket.WorldMatrix))));
         }
 
         private void Instance_MouseDown()

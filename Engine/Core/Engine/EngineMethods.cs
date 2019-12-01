@@ -470,6 +470,7 @@ namespace TheraEngine
         private static void OnUpdate(object sender, FrameEventArgs e) 
             => Update?.Invoke(sender, e);
 
+        //TODO: Allow user to customize ticking groups
         /// <summary>
         /// Ticks all lists of methods registered to this group.
         /// Goes through timers, input, animation, logic and scene ticks in that order,
@@ -477,19 +478,39 @@ namespace TheraEngine
         /// </summary>
         private static void TickGroup(ETickGroup group, float delta)
         {
+            //Groups need to be processed in order
+
             int start = (int)group;
             for (int i = start; i < start + 15; i += 3)
-            {
-                //These need to be processed in order
-                for (int j = 0; j < 3; ++j)
-                //Parallel.For(0, 3, (int j) => 
+                //for (int j = 0; j < 3; ++j)
+                Parallel.For(0, 3, j =>
                 {
-                    if (j == 0 || (j == 1 && !IsPaused) || (j == 2 && IsPaused))
+                    if (AllowListTick[j]())
                         TickList(i + j, delta);
-                }
-                //);
-            }
+                });
+            
+            //int start = (int)group;
+            //for (int listIndex = start, tickType = 0; listIndex < start + 15; ++listIndex, tickType = listIndex % 3)
+            //    if (AllowListTick[tickType]())
+            //        TickList(listIndex, delta);
         }
+        private static readonly Func<bool>[] AllowListTick = new Func<bool>[]
+        {
+            () => true,         //Always tick
+            () => !IsPaused,    //Tick only when unpaused
+            () => IsPaused      //Tick only when paused
+        };
+
+        //TODO: make this an engine option, parallel or sequential ticking
+        private static void TickListParallel(List<DelTick> currentList, float delta)
+        {
+            currentList.ForEachParallelIList(currentFunc => currentFunc(delta));
+        }
+        private static void TickListSequential(List<DelTick> currentList, float delta)
+        {
+            currentList.ForEach(currentFunc => currentFunc(delta));
+        }
+
         /// <summary>
         /// Ticks the list of items at the given index (created by adding the tick group, order and pause type together).
         /// </summary>
@@ -498,8 +519,7 @@ namespace TheraEngine
             List<DelTick> currentList = TickLists[CurrentTickList = index];
 
             //These can be processed in parallel, as they are in the same tick list and group
-            Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
-            //currentList.ForEach(x => x(delta));
+            TickListParallel(currentList, delta);
 
             //Add or remove the list of methods that tried to register to or unregister from this group while it was ticking.
             while (!TickListQueue.IsEmpty && TickListQueue.TryDequeue(out Tuple<bool, DelTick> result))

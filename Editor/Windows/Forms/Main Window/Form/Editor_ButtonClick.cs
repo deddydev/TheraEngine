@@ -213,7 +213,7 @@ namespace TheraEditor.Windows.Forms
                 string name = Path.GetFileNameWithoutExtension(gamePath);
                 AppDomainSetup setupInfo = new AppDomainSetup()
                 {
-                    ApplicationName = name,
+                    ApplicationName = name + "_" + DateTime.Now.ToString("hh:mm:sstt"),
                     ApplicationBase = rootDir,
                     PrivateBinPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                     ShadowCopyFiles = "true",

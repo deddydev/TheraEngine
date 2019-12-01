@@ -82,10 +82,10 @@ namespace TheraEngine.Animation
         public void AddBoneAnimation(BoneAnimation anim)
         {
             anim.Parent = this;
-            if (_boneAnimations.ContainsKey(anim._name))
-                _boneAnimations[anim._name] = anim;
+            if (_boneAnimations.ContainsKey(anim.Name))
+                _boneAnimations[anim.Name] = anim;
             else
-                _boneAnimations.Add(anim._name, anim);
+                _boneAnimations.Add(anim.Name, anim);
         }
         public void RemoveBoneAnimation(string boneName)
         {

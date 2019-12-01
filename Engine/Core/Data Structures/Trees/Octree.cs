@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine;
-using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Shapes;
+using Extensions;
 
 namespace System
 {
@@ -314,56 +314,62 @@ namespace System
                 => Engine.Renderer.RenderAABB(_bounds.HalfExtents, _bounds.Translation, false, color, 1.0f);
             #endregion
 
-            #region Visible collection
+            #region Visible collection 
             public void CollectVisible(IVolume cullingVolume, RenderPasses passes, ICamera camera, bool shadowPass)
             {
-                EContainment c = cullingVolume.Contains(_bounds);
-                if (c != EContainment.Disjoint)
+                switch (cullingVolume.Contains(_bounds))
                 {
-                    if (c == EContainment.Contains)
+                    case EContainment.Disjoint:
+                        break;
+                    case EContainment.Contains:
                         CollectAll(passes, camera, shadowPass);
-                    else
-                    {
-                        for (int i = 0; i < _items.Count; ++i)
-                        {
-                            I3DRenderable r = _items[i] as I3DRenderable;
-//#if EDITOR
-//                            if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is ICamera cam && cam == camera))
-//                                continue;
-//                            bool editMode = Engine.EditorState.InEditMode;
-//                            if (!editMode && r.RenderInfo.VisibleInEditorOnly)
-//                                continue;
-//#endif
-                            bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
-                            if (allowRender && (r.RenderInfo.CullingVolume is null || (c = cullingVolume.Contains(r.RenderInfo.CullingVolume)) != EContainment.Disjoint))
-                            {
-                                if (!shadowPass)
-                                    r.RenderInfo.LastRenderedTime = DateTime.Now;
-                                r.AddRenderables(passes, camera);
-                                if (passes.GetCommandsAddedCount() == 0)
-                                {
-                                    //Engine.LogWarning($"{nameof(I3DRenderable)} type {r.GetType().GetFriendlyName()} added no commands in {nameof(I3DRenderable.AddRenderables)}.");
-                                }
-                            }
-                        }
-                        
-                        for (int i = 0; i < MaxChildNodeCount; ++i)
-                            _subNodes[i]?.CollectVisible(cullingVolume, passes, camera, shadowPass);
-                    }
+                        break;
+                    case EContainment.Intersects:
+                        CollectIntersecting(cullingVolume, passes, camera, shadowPass);
+                        break;
                 }
             }
+
+            private void CollectIntersecting(IVolume cullingVolume, RenderPasses passes, ICamera camera, bool shadowPass)
+            {
+                //Collect items in this bounds by comparing to culling volume directly
+                //Can't do this in parallel because SortedSet is not thread-safe.
+                //Would have to program a custom thread-safe sorted tree class with logn add time.
+                _items.ForEach(renderable => TryCollectRenderable(
+                    renderable, cullingVolume, passes, camera, shadowPass));
+
+                //Collect items from child bounds
+                for (int i = 0; i < MaxChildNodeCount; ++i)
+                    _subNodes[i]?.CollectVisible(cullingVolume, passes, camera, shadowPass);
+            }
+
+            private void TryCollectRenderable(
+                I3DRenderable renderable,
+                IVolume cullingVolume,
+                RenderPasses passes,
+                ICamera camera,
+                bool shadowPass)
+            {
+                var info = renderable.RenderInfo;
+                bool allowRender = info.AllowRender(cullingVolume, passes, camera, shadowPass);
+                if (!allowRender)
+                    return;
+
+                if (!shadowPass)
+                    info.LastRenderedTime = DateTime.Now;
+
+                renderable.AddRenderables(passes, camera);
+                //if (passes.GetCommandsAddedCount() == 0)
+                //{
+                //    //Engine.LogWarning($"{nameof(I3DRenderable)} type {r.GetType().GetFriendlyName()} added no commands in {nameof(I3DRenderable.AddRenderables)}.");
+                //}
+            }
+
             public void CollectAll(RenderPasses passes, ICamera camera, bool shadowPass)
             {
                 for (int i = 0; i < _items.Count; ++i)
                 {
                     I3DRenderable r = _items[i] as I3DRenderable;
-#if EDITOR
-                    if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is Camera c && c == camera))
-                        continue;
-                    bool editMode = Engine.EditorState.InEditMode;
-                    if (!editMode && r.RenderInfo.VisibleInEditorOnly)
-                        continue;
-#endif
                     bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
                     if (allowRender)
                     {

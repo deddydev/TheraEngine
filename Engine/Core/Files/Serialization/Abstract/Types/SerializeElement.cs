@@ -506,35 +506,35 @@ namespace TheraEngine.Core.Files.Serialization
                         BindingFlags.Public |
                         BindingFlags.FlattenHierarchy);
 
-                    Task t = Task.Run(() => Parallel.ForEach(methods, m =>
+                    Task task = Task.Run(() => methods.ForEachParallelArray(method =>
                     {
-                        if (m.CanRunForFormat(Owner.Format, out ESerializeMethodType type))
+                        if (method.CanRunForFormat(Owner.Format, out ESerializeMethodType type))
                         {
                             switch (type)
                             {
                                 case ESerializeMethodType.PreDeserialize:
-                                    PreDeserializeMethods.Enqueue(m);
+                                    PreDeserializeMethods.Enqueue(method);
                                     break;
                                 case ESerializeMethodType.PostDeserialize:
-                                    PostDeserializeMethods.Enqueue(m);
+                                    PostDeserializeMethods.Enqueue(method);
                                     break;
                                 case ESerializeMethodType.PreSerialize:
-                                    PreSerializeMethods.Enqueue(m);
+                                    PreSerializeMethods.Enqueue(method);
                                     break;
                                 case ESerializeMethodType.PostSerialize:
-                                    PostSerializeMethods.Enqueue(m);
+                                    PostSerializeMethods.Enqueue(method);
                                     break;
                                 case ESerializeMethodType.CustomSerialize:
-                                    CustomSerializeMethods.Enqueue(m);
+                                    CustomSerializeMethods.Enqueue(method);
                                     break;
                                 case ESerializeMethodType.CustomDeserialize:
-                                    CustomDeserializeMethods.Enqueue(m);
+                                    CustomDeserializeMethods.Enqueue(method);
                                     break;
                             }
                         }
                     }));
                     
-                    t.Wait();
+                    task.Wait();
                 }
             }
             else

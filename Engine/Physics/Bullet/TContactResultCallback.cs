@@ -50,6 +50,8 @@ namespace TheraEngine.Physics.Bullet
         }
         public override bool NeedsCollision(BroadphaseProxy proxy0)
         {
+            if (proxy0 is null)
+                return false;
             //if (_handler.TestApproxCollision(proxy0.UniqueID, (ushort)proxy0.CollisionFilterGroup, (ushort)proxy0.CollisionFilterMask, proxy0.AabbMin, proxy0.AabbMax, proxy0.ClientObject))
                 return base.NeedsCollision(proxy0);
             //return false;

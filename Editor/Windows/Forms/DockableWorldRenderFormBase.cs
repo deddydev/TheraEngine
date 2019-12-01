@@ -56,7 +56,7 @@ namespace TheraEditor.Windows.Forms
             LinkEngineWorldChangeEvents();
         }
         public override IWorld World => Engine.World;
-        public override IGameMode GameMode => Editor.DomainProxy.CurrentGameMode;
+        public override IGameMode GameMode => Editor.DomainProxy.CurrentGameMode ?? Editor.DomainProxy.EditorGameMode;
         protected virtual void LinkEngineWorldChangeEvents()
         {
             Engine.PreWorldChanged += PreWorldChanged;

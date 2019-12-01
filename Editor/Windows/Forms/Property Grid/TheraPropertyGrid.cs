@@ -136,35 +136,38 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         internal void SetObject(object value, string memberAccessor)
         {
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action<object, string>)SetObject, value, memberAccessor);
-                return;
-            }
-
             //Do nothing if target object is the same
             if (_targetObject == value)
                 return;
 
-            if (_targetObject != null)
-            {
-                bool visible = pnlProps.Visible;
-                pnlProps.Visible = false;
-                pnlProps.Controls.Clear();
-                foreach (var category in _categories.Values)
-                    category.DestroyProperties();
-                _categories.Clear();
-                pnlProps.Visible = visible;
-                lblFilePath.Text = null;
-            }
-
+            ClearUI();
+            
             _targetObject = value;
             AppDomainHelper.Sponsor(_targetObject);
 
-            bool notNull = _targetObject != null;
+            if (memberAccessor != null)
+            {
+                if (TargetObjects.Count == 0 || TargetObjects.Peek().Item1 != _targetObject)
+                    TargetObjects.Push((_targetObject, memberAccessor));
+            }
+            else
+            {
+                TargetObjects.Clear();
+                TargetObjects.Push((_targetObject, memberAccessor));
+            }
 
-            treeViewSceneComps.Nodes.Clear();
-            lstLogicComps.DataSource = null;
+            DisplayUI();
+        }
+
+        private void DisplayUI()
+        {
+            if (InvokeRequired)
+            {
+                Invoke((Action)DisplayUI);
+                return;
+            }
+
+            bool notNull = _targetObject != null;
 
             pnlHeader.Visible = pnlProps2.Visible = notNull;
             if (Enabled = notNull)
@@ -217,21 +220,29 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
             }
 
-            //Load the properties of the object
             LoadProperties();
-
-            if (memberAccessor != null)
-            {
-                if (TargetObjects.Count == 0 || TargetObjects.Peek().Item1 != _targetObject)
-                    TargetObjects.Push((_targetObject, memberAccessor));
-            }
-            else
-            {
-                TargetObjects.Clear();
-                TargetObjects.Push((_targetObject, memberAccessor));
-            }
-
             UpdateLabel();
+        }
+
+        private void ClearUI()
+        {
+            if (InvokeRequired)
+            {
+                Invoke((Action)ClearUI);
+                return;
+            }
+
+            bool visible = pnlProps.Visible;
+            pnlProps.Visible = false;
+            pnlProps.Controls.Clear();
+            foreach (var category in _categories.Values)
+                category.DestroyProperties();
+            _categories.Clear();
+            pnlProps.Visible = visible;
+            lblFilePath.Text = null;
+
+            treeViewSceneComps.Nodes.Clear();
+            lstLogicComps.DataSource = null;
         }
 
         private void UpdateLabel()
@@ -404,9 +415,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Thread.Sleep(sleepTime);
             }
         }
+        private static readonly ParallelOptions UpdateParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 2 };
         private void UpdateItems()
         {
-            Parallel.For(0, VisibleItems.Count, UpdateItem);
+            Parallel.For(0, VisibleItems.Count, UpdateParallelOptions, UpdateItem);
 
             while (VisibleItemsRemovalQueue.Count > 0)
                 VisibleItems.Remove(VisibleItemsRemovalQueue.Dequeue());
@@ -1319,7 +1331,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //}
 
             btnSave.Visible = btnSaveAs.Visible = false;
-            file.EditorState.IsDirty = false;
+            file.EditorState.ClearChanges();
         }
 
         private void btnExplorer_Click(object sender, EventArgs e)

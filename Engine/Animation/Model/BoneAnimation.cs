@@ -7,12 +7,12 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Animation
 {
-    public class BoneAnimation
+    public class BoneAnimation : TObject
     {
         public BoneAnimation() { }
         public BoneAnimation(SkeletalAnimation parent, string name)
         {
-            _name = name;
+            Name = name;
             Parent = parent;
         }
 
@@ -39,8 +39,9 @@ namespace TheraEngine.Animation
 
         internal SkeletalAnimation Parent { get; set; }
 
-        [Category("Bone Animation"), TSerialize("Name")]
-        public string _name;
+        [Category("Bone Animation"), TSerialize]
+        public override string Name { get => base.Name; set => base.Name = value; }
+
         private bool _useKeyframes = true;
 
         [TSerialize(nameof(TransformKeyCollection))]
@@ -71,9 +72,9 @@ namespace TheraEngine.Animation
             => _tracks.Progress(delta);
         
         public BoneFrame GetFrame()
-            => new BoneFrame(_name, _tracks.GetValues(), _tracks.EulerOrder);
+            => new BoneFrame(Name, _tracks.GetValues(), _tracks.EulerOrder);
         public BoneFrame GetFrame(float second)
-            => new BoneFrame(_name, _tracks.GetValues(second), _tracks.EulerOrder);
+            => new BoneFrame(Name, _tracks.GetValues(second), _tracks.EulerOrder);
         
         //public void SetValue(Matrix4 transform, float frameIndex, PlanarInterpType planar, RadialInterpType radial)
         //{
@@ -85,13 +86,13 @@ namespace TheraEngine.Animation
         private HashSet<string> _boneNotFoundCache = new HashSet<string>();
         public void UpdateSkeleton(Skeleton skeleton)
         {
-            IBone bone = skeleton[_name];
+            IBone bone = skeleton[Name];
             if (bone != null)
                 UpdateState(bone.FrameState, bone.BindState);
-            else if (!_boneNotFoundCache.Contains(_name))
+            else if (!_boneNotFoundCache.Contains(Name))
             {
-                _boneNotFoundCache.Add(_name);
-                Engine.PrintLine($"Bone '{_name}' not found in skeleton '{skeleton.ToString()}'.");
+                _boneNotFoundCache.Add(Name);
+                Engine.PrintLine($"Bone '{Name}' not found in skeleton '{skeleton.ToString()}'.");
             }
         }
         public void UpdateState(ITransform frameState, ITransform bindState)
@@ -140,7 +141,7 @@ namespace TheraEngine.Animation
             float otherWeight,
             EAnimBlendType blendType)
         {
-            IBone bone = skeleton[_name];
+            IBone bone = skeleton[Name];
             if (bone != null)
                 UpdateStateBlended(bone.FrameState, bone.BindState, otherBoneAnim, otherWeight, blendType);
         }

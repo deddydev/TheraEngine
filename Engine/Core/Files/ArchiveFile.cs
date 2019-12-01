@@ -94,15 +94,7 @@ namespace TheraEngine.Core.Files
 
             private void ReadBytes()
             {
-                //switch (Format)
-                //{
-                //    case EFileFormat.Binary:
-                //        TFileObject.LoadAsync(Type, null);
-                //        break;
-                //    case EFileFormat.XML:
 
-                //        break;
-                //}
             }
             private void WriteBytes()
             {

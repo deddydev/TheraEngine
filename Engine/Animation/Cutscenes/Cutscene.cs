@@ -129,7 +129,7 @@ namespace TheraEngine.Animation.Cutscenes
         }
         public void LoadAnimationsParallel()
         {
-            Parallel.ForEach(AnimationTracks, anim => anim.Value.Clip.AnimationRef.GetInstance());
+            AnimationTracks.Values.ForEachParallel(anim => anim.Clip.AnimationRef.GetInstance());
         }
         public async Task LoadAnimationsAsync()
         {

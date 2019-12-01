@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -98,6 +99,9 @@ namespace TheraEditor.Wrappers
             get => _wrapper;
             protected set
             {
+                if (!RemotingServices.IsTransparentProxy(value) && AppDomainHelper.AppDomains.Length > 1)
+                    throw new InvalidOperationException("Content tree wrappers must exist in the other domain.");
+
                 _wrapper = value;
                 AppDomainHelper.Sponsor(_wrapper);
             }
@@ -281,93 +285,10 @@ namespace TheraEditor.Wrappers
         //    }
         //    return w;
         //}
-        public static IBasePathWrapper TryWrapPath(string path)
-        {
-            IBasePathWrapper typeWrapper;
-            if (path.IsExistingDirectoryPath() == true)
-                typeWrapper = new FolderWrapper();
-            else
-            {
-                string ext = Path.GetExtension(path);
 
-                if (ext.Length > 0)
-                    ext = ext.Substring(1).ToLowerInvariant();
+        public static IBasePathWrapper TryWrapPath(string path) 
+            => Editor.DomainProxy.TryWrapPath(path);
 
-                typeWrapper = TryWrap3rdPartyExt(ext);
-                if (typeWrapper is null)
-                {
-                    TypeProxy type = !string.IsNullOrWhiteSpace(path) && File.Exists(path) ? TFileObject.DetermineType(path, out _) : null;
-                    typeWrapper = TryWrapProprietaryType(type);
-                    if (typeWrapper is null)
-                        typeWrapper = new UnknownFileWrapper();
-                }
-            }
-            typeWrapper.FilePath = path;
-            return typeWrapper;
-        }
-        public static IBasePathWrapper TryWrap3rdPartyExt(string ext)
-        {
-            var wrappers = Editor.DomainProxy.ThirdPartyWrappers;
-
-            if (wrappers.TryGetValue(ext, out TypeProxy wrapperType))
-                return wrapperType.CreateInstance() as IBasePathWrapper;
-
-            return null;
-        }
-        public static IBasePathWrapper TryWrapProprietaryType(TypeProxy type)
-        {
-            if (type is null)
-                return null;
-
-            IBasePathWrapper wrapper = null;
-
-            //Try to find wrapper for type or any inherited type, in order
-            var wrappers = Editor.DomainProxy.Wrappers;
-            TypeProxy currentType = type;
-            while (!(currentType is null) && wrapper is null)
-            {
-                if (wrappers.TryGetValue(currentType, out TypeProxy wrapperType))
-                    wrapper = wrapperType.CreateInstance() as IBasePathWrapper;
-                else
-                {
-                    TypeProxy[] interfaces = currentType.GetInterfaces();
-                    var validInterfaces = interfaces.Where(interfaceType => wrappers.Keys.Any(wrapperKeyType => wrapperKeyType == interfaceType)).ToArray();
-                    if (validInterfaces.Length > 0)
-                    {
-                        TypeProxy interfaceType;
-
-                        //TODO: find best interface to use if multiple matches?
-                        if (validInterfaces.Length > 1)
-                        {
-                            int[] numAssignableTo = validInterfaces.Select(match => validInterfaces.Count(other => other != match && other.IsAssignableTo(match))).ToArray();
-                            int min = numAssignableTo.Min();
-                            int[] mins = numAssignableTo.FindAllMatchIndices(x => x == min);
-                            string msg = "File of type " + type.GetFriendlyName() + " has multiple valid interface wrappers: " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName());
-                            msg += ". Narrowed down wrappers to " + mins.Select(x => validInterfaces[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
-                            Engine.PrintLine(msg);
-                            interfaceType = validInterfaces[mins[0]];
-                        }
-                        else
-                            interfaceType = validInterfaces[0];
-
-                        if (wrappers.TryGetValue(interfaceType, out wrapperType))
-                            wrapper = wrapperType.CreateInstance() as IBasePathWrapper;
-                    }
-                }
-
-                currentType = currentType.BaseType;
-            }
-
-            if (wrapper is null)
-            {
-                //Make wrapper for whatever file type this is
-                wrapper = new FileWrapper() { FileType = type };
-                //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
-                //w = Activator.CreateInstance((Type)genericFileWrapper) as BaseFileWrapper;
-            }
-
-            return wrapper;
-        }
         internal protected abstract void OnExpand();
         internal protected abstract void OnCollapse();
         internal protected abstract void SetPath(string parentFolderPath);

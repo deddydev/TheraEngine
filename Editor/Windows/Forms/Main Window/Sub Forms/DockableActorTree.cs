@@ -151,6 +151,9 @@ namespace TheraEditor.Windows.Forms
             if (item?.OwningWorld is null || Engine.ShuttingDown)
                 return;
 
+            if (item.HasEditorState && !item.EditorState.DisplayInActorTree)
+                return;
+
             IMap map = item.MapAttachment;
             TreeNode mapNode = CacheMap(map);
 

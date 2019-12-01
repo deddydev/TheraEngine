@@ -202,9 +202,13 @@ namespace TheraEngine.Input.Devices
             SendActionToServer?.Invoke(Index, listIndex);
 
             //Run the input locally
-            int i = list.Count;
-            for (int x = 0; x < i; ++x)
-                list[x]();
+            try
+            {
+                int i = list.Count;
+                for (int x = 0; x < i; ++x)
+                    list[x]();
+            }
+            catch { }
         }
         private void ExecutePressedStateList(int listIndex, bool pressed)
         {

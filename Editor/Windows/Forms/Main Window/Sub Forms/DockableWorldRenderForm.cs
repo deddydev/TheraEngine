@@ -82,8 +82,9 @@ namespace TheraEditor.Windows.Forms
             if (!(fileTreeNode.Wrapper is IBaseFileWrapper wrapper))
                 return;
 
+            var type = wrapper.FileType.GetFriendlyName();
             IFileObject instance = _dragInstance ?? (_dragInstance = wrapper.FileRefGeneric.LoadNewInstance());
-            if (!(instance is BaseActor actor))
+            if (!(instance is IActor actor))
                 return;
 
             RenderPanel.Focus();
@@ -103,7 +104,7 @@ namespace TheraEditor.Windows.Forms
             _prevTransformType = hud.TransformMode;
             hud.TransformMode = TransformType.DragDrop;
 
-            hud.HighlightedComponent = actor.RootComponentGeneric;
+            hud.HighlightedComponent = actor.RootComponent;
             hud.DoMouseDown();
         }
 

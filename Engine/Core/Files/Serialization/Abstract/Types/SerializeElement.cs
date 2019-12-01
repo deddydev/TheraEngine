@@ -453,7 +453,8 @@ namespace TheraEngine.Core.Files.Serialization
                 if (!success)
                 {
                     //Automatic deserialization
-                    ObjectSerializer?.DeserializeTreeToObject();
+                    if (!ObjectType.IsAbstract)
+                        ObjectSerializer?.DeserializeTreeToObject();
                     ApplyObjectToParent();
                 }
             }

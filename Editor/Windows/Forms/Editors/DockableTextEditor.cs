@@ -197,7 +197,7 @@ namespace TheraEditor.Windows.Forms
         private void DetermineMode()
         {
             string path = _targetFile?.FilePath ?? string.Empty;
-            if (_targetFile is CSharpScript || path.EndsWith("cs", StringComparison.InvariantCultureIgnoreCase))
+            if (_targetFile is ScriptCSharp || path.EndsWith("cs", StringComparison.InvariantCultureIgnoreCase))
             {
                 Mode = ETextEditorMode.CSharp;
             }

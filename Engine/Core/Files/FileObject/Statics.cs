@@ -378,19 +378,19 @@ namespace TheraEngine.Core.Files
                         file = await Read3rdPartyAsync(fileType, filePath, progress, cancel);
                 }
 
-                if (file is null)
-                {
-                    var subClassTypes = AppDomainHelper.FindTypes(x => x.GetType().IsSubclassOf(fileType));
-                    foreach (var subClassType in subClassTypes)
-                    {
-                        object result = await TryLoadAsync(fileType, filePath, progress, cancel);
-                        if (result != null)
-                        {
-                            file = result;
-                            break;
-                        }
-                    }
-                }
+                //if (file is null)
+                //{
+                //    var subClassTypes = AppDomainHelper.FindTypes(x => x.IsSubclassOf(fileType));
+                //    foreach (var subClassType in subClassTypes)
+                //    {
+                //        object result = await TryLoadAsync(subClassType, filePath, progress, cancel);
+                //        if (result != null)
+                //        {
+                //            file = result;
+                //            break;
+                //        }
+                //    }
+                //}
 
                 if (file is IFileObject fileObj)
                 {

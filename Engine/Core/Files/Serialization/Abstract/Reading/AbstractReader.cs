@@ -37,7 +37,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                 await ReadTreeAsync();
 
-                SerializeElement sharedObjectsElem = RootNode.GetChildElement("SharedObjects");
+                SerializeElement sharedObjectsElem = RootNode?.GetChildElement("SharedObjects");
                 if (sharedObjectsElem != null)
                     foreach (SerializeElement sharedObjectElem in sharedObjectsElem.Children)
                     {
@@ -56,9 +56,10 @@ namespace TheraEngine.Core.Files.Serialization
                         ReadingSharedObjectsSetQueue.Remove(index);
                     }
                 
-                await RootNode.DeserializeTreeToObjectAsync();
+                if (RootNode != null)
+                    await RootNode.DeserializeTreeToObjectAsync();
 
-                object obj = RootNode.Object;
+                object obj = RootNode?.Object;
                 if (obj is IFileObject tobj)
                     tobj.FilePath = FilePath;
 

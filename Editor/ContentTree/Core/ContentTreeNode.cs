@@ -185,6 +185,11 @@ namespace TheraEditor.Wrappers
 
         private static void AddItemToCollection(ITheraMenuItem item, ToolStripItemCollection coll)
         {
+            if (Editor.Instance.InvokeRequired)
+            {
+                Editor.Instance.Invoke((Action<ITheraMenuItem, ToolStripItemCollection>)AddItemToCollection, item, coll);
+                return;
+            }
             if (item is ITheraMenuDivider)
                 coll.Add(new ToolStripSeparator());
             else if (item is ITheraMenuOption op)

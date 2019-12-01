@@ -4,17 +4,33 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.ComponentModel;
 using TheraEngine.Core.Files;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
+using System.Threading;
 
 namespace TheraEngine.Scripting
 {
-    [TFile3rdPartyExt("cs")]
+    [TFile3rdPartyExt("csx")]
     [TFileDef("C# Script")]
-    public class CSharpScript : ScriptFile
+    public class ScriptCSharp : ScriptFile
     {
-        public CSharpScript() : base() { }
-        public CSharpScript(string path) : base(path) { }
-        public static new CSharpScript FromText(string text)
-            => new CSharpScript() { Text = text };
+        public ScriptCSharp() : base() { }
+        public ScriptCSharp(string path) : base(path) { }
+        public static new ScriptCSharp FromText(string text)
+            => new ScriptCSharp() { Text = text };
+
+        public ScriptState<object> ExecutionState;
+        public CancellationTokenSource ExecutionCancel;
+
+        public async void Execute()
+        {
+            ScriptOptions ops = ScriptOptions.Default.WithAllowUnsafe(true);
+            ExecutionState = await CSharpScript.RunAsync(Text, ops, null, null, ExecutionCancel.Token);
+
+            var script = CSharpScript.Create(Text, ops);
+            var comp = script.GetCompilation();
+            
+        }
 
         public void Analyze()
         {

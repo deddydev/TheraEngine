@@ -133,7 +133,7 @@ namespace TheraEditor.Wrappers
             TextFile file = Engine.Files.Script(type.ToString() + "_Template.cs");
             string text = string.Format(file.Text, ns, ClassName, ": " + nameof(TObject));
             text = text.Replace("@", "{").Replace("#", "}");
-            CSharpScript code = CSharpScript.FromText(text);
+            ScriptCSharp code = ScriptCSharp.FromText(text);
             string dir = FilePath;
 
             string name = "NewCodeFile";

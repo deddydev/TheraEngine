@@ -88,9 +88,14 @@ namespace TheraEditor.Wrappers
             set
             {
                 _filePath = value;
-
-                if (FileRefGeneric?.Path != null)
-                    FileRefGeneric.Path.Path = value;
+                _fileType = TFileObject.DetermineType(FilePath, out _);
+                var fref = FileRefGeneric;
+                if (fref != null)
+                {
+                    fref.FileType = _fileType;
+                    if (fref.Path != null)
+                        fref.Path.Path = value;
+                }
             }
         }
 

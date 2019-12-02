@@ -348,7 +348,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (!Engine.DesignMode)
             {
                 var inst = Editor.GetSettings();
-                BeginUpdatingVisibleItems(inst?.PropertyGridRef.File.UpdateRateInSeconds ?? 0.2f);
+                BeginUpdatingVisibleItems(inst?.PropertyGridRef?.File?.UpdateRateInSeconds ?? 0.2f);
             }
 
             base.OnHandleCreated(e);
@@ -415,7 +415,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Thread.Sleep(sleepTime);
             }
         }
-        private static readonly ParallelOptions UpdateParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 2 };
+        private static readonly ParallelOptions UpdateParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount };
         private void UpdateItems()
         {
             Parallel.For(0, VisibleItems.Count, UpdateParallelOptions, UpdateItem);

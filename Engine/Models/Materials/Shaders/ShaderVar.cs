@@ -137,25 +137,18 @@ namespace TheraEngine.Rendering.Models.Materials
         internal IShaderVarOwner Owner => _owner;
         public abstract EShaderVarType TypeName { get; }
 
-        [TSerialize]
         [Browsable(true)]
         [TString(false, false, false, false)]
         [Category(CategoryName)]
+        [DisplayName("Uniform Name")]
         public override string Name
         {
             get => base.Name;
-            set
-            {
-                //Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(value)
-                string oldName = base.Name;
-                base.Name = (value ?? "").ReplaceWhitespace("");
-                Renamed?.Invoke(this, oldName);
-            }
+            set => base.Name = (value ?? "").ReplaceWhitespace("");
         }
 
         [Browsable(false)]
         public abstract object GenericValue { get; }
-        public Action<ShaderVar, string> Renamed { get; set; }
 
         internal void SetProgramUniform(RenderProgram program, string name)
         {
@@ -241,7 +234,6 @@ namespace TheraEngine.Rendering.Models.Materials
             }
             return BaseFuncValue.NoTypeColor;
         }
-
 
         #region Type caches
         public EShaderVarType[] GetTypesMatching<T>() where T : IShaderVarType

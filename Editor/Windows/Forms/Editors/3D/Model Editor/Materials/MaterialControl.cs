@@ -152,9 +152,9 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        private void ShaderVar_Renamed(ShaderVar svar, string oldName)
+        private void ShaderVar_Renamed(TObject svar, string oldName)
         {
-            int index = Material.Parameters.IndexOf(svar);
+            int index = Material.Parameters.IndexOf((ShaderVar)svar);
             if (index < 0 || index >= tblUniforms.RowCount)
                 return;
             tblUniforms.GetControlFromPosition(0, index).Text = svar.Name;

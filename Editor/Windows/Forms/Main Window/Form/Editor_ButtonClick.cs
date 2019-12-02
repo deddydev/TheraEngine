@@ -7,7 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Actors;
+using TheraEngine.Components;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 
@@ -152,6 +156,47 @@ namespace TheraEditor.Windows.Forms
             => PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.SettingsRef;
         private void BtnNewMaterial_Click(object sender, EventArgs e) 
             => new MaterialEditorForm().Show();
+
+        internal void Item_LogicComponentsChanged(IActor actor)
+        {
+            Invoke((Action)(() =>
+            {
+                TreeNode node = actor.EditorState.TreeNode;
+                for (int i = 1; i < node.Nodes.Count; ++i)
+                    node.Nodes[i].Remove();
+
+                foreach (LogicComponent comp in actor.LogicComponents)
+                {
+                    AppDomainHelper.Sponsor(comp);
+                    TreeNode childNode = new TreeNode(comp.ToString()) { Tag = comp };
+                    node.Nodes.Add(childNode);
+                }
+            }));
+        }
+
+        internal void Item_SceneComponentCacheRegenerated(IActor actor)
+        {
+            Invoke((Action)(() =>
+            {
+                TreeNode node = actor.EditorState.TreeNode;
+                node.Nodes[0].Nodes.Clear();
+                RecursiveAddSceneComp(node.Nodes[0], actor.RootComponent);
+            }));
+        }
+
+        private static void RecursiveAddSceneComp(TreeNode node, ISocket comp)
+        {
+            AppDomainHelper.Sponsor(comp);
+            node.Text = comp.ToString();
+            node.Tag = comp;
+            foreach (SceneComponent child in comp.ChildComponents)
+            {
+                TreeNode childNode = new TreeNode();
+                node.Nodes.Add(childNode);
+                RecursiveAddSceneComp(childNode, child);
+            }
+        }
+
         private void btnUploadNewRelease_Click(object sender, EventArgs e)
         {
 #if DEBUG

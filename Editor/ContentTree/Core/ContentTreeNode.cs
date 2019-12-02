@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Remoting;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -59,7 +60,7 @@ namespace TheraEditor.Wrappers
             DestroyWrapper();
         }
 
-        protected virtual void DestroyWrapper()
+        public virtual void DestroyWrapper()
         {
             if (Wrapper != null)
             {
@@ -76,22 +77,29 @@ namespace TheraEditor.Wrappers
                 Wrapper = null;
             }
         }
-        protected virtual void DetermineWrapper()
+        public virtual void DetermineWrapper()
         {
-            IBasePathWrapper wrapper = TryWrapPath(FilePath);
-
-            if (wrapper != null)
+            try
             {
-                wrapper.RenameEvent += Rename;
-                wrapper.CopyEvent += Copy;
-                wrapper.CutEvent += Cut;
-                wrapper.PasteEvent += Paste;
-                wrapper.DeleteEvent += Delete;
+                IBasePathWrapper wrapper = TryWrapPath(FilePath);
 
-                Menu = wrapper.Menu;
+                if (wrapper != null)
+                {
+                    wrapper.RenameEvent += Rename;
+                    wrapper.CopyEvent += Copy;
+                    wrapper.CutEvent += Cut;
+                    wrapper.PasteEvent += Paste;
+                    wrapper.DeleteEvent += Delete;
+
+                    Menu = wrapper.Menu;
+                }
+
+                Wrapper = wrapper;
             }
-
-            Wrapper = wrapper;
+            catch (IOException)
+            {
+                Trace.WriteLine($"Failed to determine wrapper for {Path.GetFileName(FilePath)}.");
+            }
         }
 
         public IBasePathWrapper Wrapper 

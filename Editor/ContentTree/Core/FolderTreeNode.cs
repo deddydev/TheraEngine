@@ -2,6 +2,7 @@
 using Microsoft.VisualBasic.FileIO;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -16,14 +17,14 @@ namespace TheraEditor.Wrappers
             SelectedImageIndex = 1;
         }
 
-        protected override void DestroyWrapper()
+        public override void DestroyWrapper()
         {
             if (Wrapper is IFolderWrapper wrapper)
                 wrapper.NewFolderEvent -= NewFolder;
 
             base.DestroyWrapper();
         }
-        protected override void DetermineWrapper()
+        public override void DetermineWrapper()
         {
             base.DetermineWrapper();
 

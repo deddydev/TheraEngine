@@ -4,7 +4,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Physics.Bullet.Shapes
 {
-    public class BulletSphere : TCollisionSphere, IBulletShape
+    internal class BulletSphere : TCollisionSphere, IBulletShape
     {
         public SphereShape Shape { get; }
         CollisionShape IBulletShape.Shape => Shape;

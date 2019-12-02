@@ -142,29 +142,55 @@ namespace TheraEngine.Core.Files.Serialization
 
         public override bool ObjectToString(object obj, out string str)
         {
+            const string separator = "|";
+
             str = null;
 
             if (!(obj is IList list))
-                return true;
+                return false;
 
             Type arrayType = list.GetType();
             Type elementType = arrayType.DetermineElementType();
 
             BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
             if (ser is null || !ser.CanWriteAsString(elementType))
-                return false;
-
-            const string separator = "|";
-            //if (!SerializationCommon.IsPrimitiveType(elementType))
-            //    separator = "|";
-            
-            string Convert(object elem)
             {
-                //No if statements for best speed possible
-                ser.ObjectToString(elem, out string subStr);
-                return subStr;
+                string Convert(object elem)
+                {
+                    //if (!SerializationCommon.IsPrimitiveType(elementType))
+                    //    separator = "|";
+                    Type indivElemType = elem.GetType();
+                    BaseObjectSerializer ser = DetermineObjectSerializer(indivElemType, true);
+                    if (ser is null || !ser.CanWriteAsString(indivElemType))
+                        throw new InvalidOperationException();
+
+                    ser.ObjectToString(elem, out string subStr);
+                    return subStr;
+                }
+
+                try
+                {
+                    str = list.ToStringListGeneric(separator, separator, Convert);
+                }
+                catch (InvalidOperationException)
+                {
+                    return false;
+                }
             }
-            str = list.ToStringListGeneric(separator, separator, Convert);
+            else
+            {
+                //if (!SerializationCommon.IsPrimitiveType(elementType))
+                //    separator = "|";
+
+                string Convert(object elem)
+                {
+                    //No if statements for best speed possible
+                    ser.ObjectToString(elem, out string subStr);
+                    return subStr;
+                }
+
+                str = list.ToStringListGeneric(separator, separator, Convert);
+            }
             return true;
         }
         #endregion

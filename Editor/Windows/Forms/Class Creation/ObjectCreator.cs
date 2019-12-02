@@ -164,6 +164,8 @@ namespace TheraEditor.Windows.Forms
             if (Mode == EObjectCreatorMode.Object || 
                 Mode == EObjectCreatorMode.Array)
             {
+                //TODO: matching types include static methods that return the abstract type
+
                 if (allowDerivedTypes)
                 {
                     bool IsMatchingDerivedType(TypeProxy otherType) => 

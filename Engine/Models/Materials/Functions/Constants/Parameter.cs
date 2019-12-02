@@ -25,13 +25,13 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             set
             {
                 _value = value ?? new T();
-                _value.Renamed += _value_Renamed;
+                _value.Renamed += ValueRenamed;
                 _headerString.Text = _value.Name ?? "<Nameless Parameter>";
                 ArrangeControls();
             }
         }
 
-        private void _value_Renamed(ShaderVar node, string oldName)
+        private void ValueRenamed(TObject node, string oldName)
         {
             _headerString.Text = node.Name;
             ArrangeControls();

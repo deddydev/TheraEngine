@@ -588,7 +588,7 @@ namespace TheraEditor.Windows.Forms
                         b.SetPath(f.FilePath);
             }
         }
-        private async void ContentWatcherUpdate(object sender, FileSystemEventArgs e)
+        private void ContentWatcherUpdate(object sender, FileSystemEventArgs e)
         {
             if (InvokeRequired)
             {
@@ -618,7 +618,8 @@ namespace TheraEditor.Windows.Forms
 
                     //The change of a file or folder. The types of changes include: 
                     //changes to size, attributes, security settings, last write, and last access time.
-                    //ContentTreeNode changedNode = GetNode(e.FullPath);
+                    ContentTreeNode changedNode = GetNode(e.FullPath);
+                    changedNode?.DetermineWrapper();
                     //if (changedNode is FileTreeNode wrapper && wrapper.IsLoaded)
                     //{
                     //    if (wrapper.AlwaysReload || !wrapper.SingleInstance.EditorState.HasChanges)

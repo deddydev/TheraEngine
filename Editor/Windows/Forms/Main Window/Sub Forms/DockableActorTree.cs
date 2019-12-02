@@ -165,11 +165,11 @@ namespace TheraEditor.Windows.Forms
             mapNode.Nodes.Add(node);
             node.EnsureVisible();
 
-            item.SceneComponentCacheRegenerated += Item_SceneComponentCacheRegenerated;
-            item.LogicComponentsChanged += Item_LogicComponentsChanged;
+            item.SceneComponentCacheRegenerated += Editor.Instance.Item_SceneComponentCacheRegenerated;
+            item.LogicComponentsChanged += Editor.Instance.Item_LogicComponentsChanged;
 
-            Item_LogicComponentsChanged(item);
-            Item_SceneComponentCacheRegenerated(item);
+            Editor.Instance.Item_LogicComponentsChanged(item);
+            Editor.Instance.Item_SceneComponentCacheRegenerated(item);
         }
         internal void ActorDespawned(IActor item)
         {
@@ -188,41 +188,8 @@ namespace TheraEditor.Windows.Forms
                 item.EditorState.TreeNode = null;
             }
 
-            item.SceneComponentCacheRegenerated -= Item_SceneComponentCacheRegenerated;
-            item.LogicComponentsChanged -= Item_LogicComponentsChanged;
-        }
-        private void Item_LogicComponentsChanged(IActor actor)
-        {
-            TreeNode node = actor.EditorState.TreeNode;
-
-            for (int i = 1; i < node.Nodes.Count; ++i)
-                node.Nodes[i].Remove();
-
-            foreach (LogicComponent comp in actor.LogicComponents)
-            {
-                AppDomainHelper.Sponsor(comp);
-                TreeNode childNode = new TreeNode(comp.ToString()) { Tag = comp };
-                node.Nodes.Add(childNode);
-            }
-        }
-
-        private static void Item_SceneComponentCacheRegenerated(IActor actor)
-        {
-            TreeNode node = actor.EditorState.TreeNode;
-            node.Nodes[0].Nodes.Clear();
-            RecursiveAddSceneComp(node.Nodes[0], actor.RootComponent);
-        }
-        private static void RecursiveAddSceneComp(TreeNode node, ISocket comp)
-        {
-            AppDomainHelper.Sponsor(comp);
-            node.Text = comp.ToString();
-            node.Tag = comp;
-            foreach (SceneComponent child in comp.ChildComponents)
-            {
-                TreeNode childNode = new TreeNode();
-                node.Nodes.Add(childNode);
-                RecursiveAddSceneComp(childNode, child);
-            }
+            item.SceneComponentCacheRegenerated -= Editor.Instance.Item_SceneComponentCacheRegenerated;
+            item.LogicComponentsChanged -= Editor.Instance.Item_LogicComponentsChanged;
         }
 
         public void ClearMaps()

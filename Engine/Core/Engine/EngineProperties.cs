@@ -517,9 +517,6 @@ namespace TheraEngine
         /// </summary>
         public static UserSettings UserSettings => Game?.UserSettingsRef?.File;
 
-        public static Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
-        public static PrivateFontCollection _fontCollection = new PrivateFontCollection();
-
         /// <summary>
         /// Class containing this computer's specs. Use to adjust engine performance accordingly.
         /// </summary>

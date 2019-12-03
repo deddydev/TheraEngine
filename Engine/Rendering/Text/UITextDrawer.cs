@@ -121,10 +121,8 @@ namespace TheraEngine.Rendering.Text
         //        OnDoRedraw(false);
         //}
 
-        public unsafe void Draw(TexRef2D texture, Vec2 texRes, TextRenderingHint textQuality, bool forceFullRedraw)
+        public unsafe void Draw(TexRef2D texture, Vec2 texScale, TextRenderingHint textQuality, bool forceFullRedraw)
         {
-            forceFullRedraw = true;
-
             if (texture is null ||
                 texture.Mipmaps is null ||
                 texture.Mipmaps.Length == 0)
@@ -156,44 +154,59 @@ namespace TheraEngine.Rendering.Text
 
                     if (forceFullRedraw)
                     {
-                        //Reset canvas
+                        //Reset whole canvas
                         g.ResetClip();
                         g.Clear(Color.Transparent);
 
                         foreach (UIString2D text in Text.OrderBy(x => x.Order))
                         {
+                            //Don't draw strings that aren't in the bounds of the texture
                             var bounds = text.Region;
-                            if (!bounds.DisjointWith(b.Width, b.Height))
-                            {
-                                PointF pos = bounds.OriginTranslation;
+                            if (bounds.DisjointWith(b.Width / texScale.X, b.Height / texScale.Y))
+                                continue;
 
-                                g.ResetTransform();
-                                g.TranslateTransform(bounds.Translation.X, bounds.Translation.Y);
-                                g.RotateTransformAt(text.Rotation, pos);
-                                g.ScaleTransformAt(texRes.X, texRes.Y, pos);
-                                g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
-                            }
+                            PointF originPos = bounds.OriginTranslation;
+
+                            g.ResetTransform();
+                            g.TranslateTransform(bounds.Translation.X, bounds.Translation.Y);
+                            g.RotateTransformAt(text.Rotation, originPos);
+                            g.ScaleTransformAt(texScale.X, texScale.Y, originPos);
+
+                            g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
                         }
                     }
                     else
                     {
+                        //Only redraw modified sections of the full texture
+                        //TODO: determine regions intersecting with this one.
+                        //Redraw their unions with the current region.
                         foreach (UIString2D text in _modified)
                         {
+                            //Don't draw strings that aren't in the bounds of the texture
                             var bounds = text.Region;
-                            if (!bounds.DisjointWith(b.Width, b.Height))
-                            {
-                                PointF pos = bounds.OriginTranslation;
+                            if (bounds.DisjointWith(b.Width / texScale.X, b.Height / texScale.Y))
+                                continue;
+                            
+                            PointF originPos = bounds.OriginTranslation;
+                            originPos.X *= texScale.X;
+                            originPos.Y *= texScale.Y;
 
-                                g.ResetClip();
-                                g.SetClip(bounds.AsRectangleF(b.Height));
-                                g.Clear(Color.Transparent);
+                            RectangleF clipRect = bounds.AsRectangleF(b.Height / texScale.Y);
+                            clipRect.X *= texScale.X;
+                            clipRect.Y *= texScale.Y;
+                            clipRect.Width *= texScale.X;
+                            clipRect.Height *= texScale.Y;
 
-                                g.ResetTransform();
-                                g.TranslateTransform(bounds.Translation.X, bounds.Translation.Y);
-                                g.RotateTransformAt(text.Rotation, pos);
-                                g.ScaleTransformAt(texRes.X, texRes.Y, pos);
-                                g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
-                            }
+                            g.ResetClip();
+                            g.SetClip(clipRect);
+                            g.Clear(Color.Transparent);
+
+                            g.ResetTransform();
+                            g.TranslateTransform(clipRect.X, clipRect.Y);
+                            g.RotateTransformAt(text.Rotation, originPos);
+                            g.ScaleTransformAt(texScale.X, texScale.Y, originPos);
+
+                            g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
                         }
                     }
 

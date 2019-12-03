@@ -26,6 +26,7 @@ using Valve.VR;
 using TheraEngine.Core.Reflection;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using System.Drawing.Text;
 
 namespace TheraEngine
 {
@@ -73,8 +74,6 @@ namespace TheraEngine
             RetrieveAudioManager();
             //InputLibraryChanged();
             RetrievePhysicsInterface();
-
-            //LoadCustomFonts();
         }
 
         /// <summary>
@@ -978,6 +977,8 @@ namespace TheraEngine
             public InternalEnginePersistentSingleton()
             {
                 Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Constructing new engine singleton.");
+
+                LoadCustomFonts().Wait();
             }
 
             public async Task<EngineSettings> GetSettingsAsync()
@@ -1027,8 +1028,8 @@ namespace TheraEngine
                 string ext = Path.GetExtension(path).ToLowerInvariant().Substring(1);
                 if (!(ext.Equals("ttf") || ext.Equals("otf")))
                     return;
-                _fontIndexMatching.Add(fontFamilyName.ToLowerInvariant(), _fontCollection.Families.Length);
-                _fontCollection.AddFontFile(path);
+                _fontIndexMatching?.Add(fontFamilyName?.ToLowerInvariant(), _fontCollection?.Families?.Length ?? 0);
+                _fontCollection?.AddFontFile(path);
             }
             /// <summary>
             /// Gets a custom font family using its name.
@@ -1042,17 +1043,27 @@ namespace TheraEngine
             /// <param name="fontFamilyIndex">The index of the font, in the order it was loaded in.</param>
             public FontFamily GetCustomFontFamily(int fontFamilyIndex)
                 => _fontCollection.Families.IndexInRange(fontFamilyIndex) ? _fontCollection.Families[fontFamilyIndex] : null;
+
+            private Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
+            private PrivateFontCollection _fontCollection = new PrivateFontCollection();
+
             private async Task LoadCustomFonts()
             {
                 //if (DesignMode)
                 //    return;
+
                 FontsLoaded = true;
+
                 EngineSettings s = await GetSettingsAsync();
                 string folder = Path.GetFullPath(s.FontsFolder);
+
                 string[] ttf = Directory.GetFiles(folder, "*.ttf");
+                foreach (string path in ttf) 
+                    LoadCustomFont(path);
+
                 string[] otf = Directory.GetFiles(folder, "*.otf");
-                foreach (string path in ttf) LoadCustomFont(path);
-                foreach (string path in otf) LoadCustomFont(path);
+                foreach (string path in otf) 
+                    LoadCustomFont(path);
             }
 
             public void OnPauseChanged(bool isPaused, ELocalPlayerIndex toggler)

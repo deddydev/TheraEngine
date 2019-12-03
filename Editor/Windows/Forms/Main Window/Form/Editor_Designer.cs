@@ -1,5 +1,4 @@
-﻿using AppDomainToolkit;
-using Extensions;
+﻿using Extensions;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -16,11 +15,8 @@ using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Reflection;
-using TheraEngine.GameModes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Networking;
-using TheraEngine.Rendering;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 using WindowsNativeInterop;

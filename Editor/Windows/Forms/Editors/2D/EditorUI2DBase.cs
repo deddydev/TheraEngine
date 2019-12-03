@@ -32,8 +32,8 @@ namespace TheraEditor.Windows.Forms
         protected UIMaterialRectangleComponent _backgroundComponent;
         
         protected UITextComponent _originText;
-        private Deque<(UITextComponent, UIString2D, float)> _textCacheX = new Deque<(UITextComponent, UIString2D, float)>();
-        private Deque<(UITextComponent, UIString2D, float)> _textCacheY = new Deque<(UITextComponent, UIString2D, float)>();
+        private Dictionary<string, (UITextComponent, UIString2D)> _textCacheX = new Dictionary<string, (UITextComponent, UIString2D)>();
+        private Dictionary<string, (UITextComponent, UIString2D)> _textCacheY = new Dictionary<string, (UITextComponent, UIString2D)>();
         protected UITextComponent _xUnitText, _yUnitText;
         protected UIString2D _xUnitString, _yUnitString;
         
@@ -144,6 +144,7 @@ namespace TheraEditor.Windows.Forms
             comp.SizeableHeight.SetSizingPixels(height);
             comp.SizeableWidth.SetSizingPixels(width);
             comp.TextureResolutionMultiplier = UIFont.Size;
+
             str = new UIString2D()
             {
                 Font = UIFont,
@@ -151,6 +152,9 @@ namespace TheraEditor.Windows.Forms
                 Text = initialText,
                 TextColor = color,
             };
+            str.Region.Width = width;
+            str.Region.Height = height;
+
             comp.TextDrawer.Text.Add(str);
 
             BaseTransformComponent.ChildComponents.Add(comp);
@@ -301,39 +305,43 @@ namespace TheraEditor.Windows.Forms
             
             BaseTransformComponent.IgnoreResizes = false;
         }
-
-        private void UpdateTextIncPass(float unitCount, Deque<(UITextComponent, UIString2D, float)> textCache, float minimum, float increment, bool xCoord)
+        private void UpdateTextIncPass(float unitCount, Dictionary<string, (UITextComponent, UIString2D)> textCache, float minimum, float increment, bool xCoord)
         {
             UITextComponent comp;
             UIString2D str;
             float pos = minimum;
             float max = minimum + increment * unitCount;
+            float count = Math.Max(unitCount, textCache.Count);
 
-            for (int i = 0; i < Math.Max(unitCount, textCache.Count); ++i, pos += increment)
+            for (int i = 0; i < count; pos = ++i * increment)
             {
+                string numStr = pos.ToString("###0.0##");
                 if (i >= textCache.Count)
                 {
                     //Need more cached text components
-                    comp = ConstructText(new ColorF4(0.3f), "0", "-0000.000", out str);
-                    textCache.PushBack((comp, str, pos));
+                    comp = ConstructText(new ColorF3(0.4f), "0", "-0000.000", out str);
+                    textCache.Add(str.Text, (comp, str));
                 }
                 else
                 {
-                    var cache = textCache[(uint)i];
-                    comp = cache.Item1;
-                    if (i >= unitCount)
+                    (UITextComponent, UIString2D)? cache = textCache.ContainsKey(numStr) ? ((UITextComponent, UIString2D)?)textCache[numStr] : null;
+                    if (cache.HasValue)
                     {
-                        comp.RenderInfo.Visible = false;
-                        continue;
+                        comp = cache.Value.Item1;
+                        if (i >= unitCount)
+                        {
+                            comp.RenderInfo.Visible = false;
+                            continue;
+                        }
+                        str = cache.Value.Item2;
                     }
-                    str = cache.Item2;
                 }
 
-                if (pos == 0.0f)
+                if (Math.Abs(pos) < float.Epsilon)
                     comp.RenderInfo.Visible = false;
                 else
                 {
-                    str.Text = pos.ToString("###0.0##");
+                    str.Text = numStr;
                     if (xCoord)
                     {
                         comp.SizeablePosX.ModificationValue = pos;
@@ -526,7 +534,8 @@ namespace TheraEditor.Windows.Forms
         protected virtual void HandleDragView()
         {
             Vec2 diff = GetWorldCursorDiff(CursorPosition());
-            BaseTransformComponent.LocalTranslation += diff;
+            if (diff.LengthSquared > float.Epsilon)
+                BaseTransformComponent.LocalTranslation += diff;
         }
         protected override void OnScrolledInput(bool down)
         {
@@ -548,9 +557,9 @@ namespace TheraEditor.Windows.Forms
             Vec2 scale = 1.0f / BaseTransformComponent.Scale;
             _originText.Scale = scale;
             foreach (var comp in _textCacheX)
-                comp.Item1.Scale = scale;
+                comp.Value.Item1.Scale = scale;
             foreach (var comp in _textCacheY)
-                comp.Item1.Scale = scale;
+                comp.Value.Item1.Scale = scale;
             if (_xUnitText != null)
                 _xUnitText.Scale = scale;
             if (_yUnitText != null)

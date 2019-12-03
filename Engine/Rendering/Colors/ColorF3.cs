@@ -51,6 +51,7 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
+        public ColorF3(float rgb) { R = G = B = rgb; }
         public ColorF3(float r, float g, float b) { R = r; G = g; B = b; }
         public ColorF3(string s)
         {

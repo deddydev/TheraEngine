@@ -56,10 +56,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         public Vec2 OriginTranslation
         {
             get => _raw.OriginTranslation;
-            set
-            {
-                _raw.OriginTranslation = value;
-            }
+            set => _raw.OriginTranslation = value;
         }
 
         public EventBoundingRectangleF() => _raw = new BoundingRectangleFStruct();
@@ -196,6 +193,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
                 _raw.Extents = value;
             }
         }
+
         /// <summary>
         /// The location of this rectangle's bottom left point (top right if both width and height are negative). 0 is fully left/down, positive values are right/up.
         /// </summary>

@@ -56,7 +56,10 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         public Vec2 OriginTranslation
         {
             get => _raw.OriginTranslation;
-            set => _raw.OriginTranslation = value;
+            set
+            {
+                _raw.OriginTranslation = value;
+            }
         }
 
         public EventBoundingRectangleF() => _raw = new BoundingRectangleFStruct();
@@ -296,6 +299,26 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
                 _raw.IntHeight = value;
             }
         }
+
+        public Size SizeInt
+        {
+            get => new Size(IntWidth, IntHeight);
+            set
+            {
+                IntWidth = value.Width;
+                IntHeight = value.Height;
+            }
+        }
+        public SizeF Size
+        {
+            get => new SizeF(Width, Height);
+            set
+            {
+                Width = value.Width;
+                Height = value.Height;
+            }
+        }
+
         /// <summary>
         /// Translates this rectangle relative to the current translation using an offset.
         /// </summary>
@@ -344,13 +367,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
 
         public bool IsEmpty() => _raw.IsEmpty();
 
-        public static explicit operator BoundingRectangleFStruct(EventBoundingRectangleF value)
-        {
-            return value._raw;
-        }
-        public static implicit operator EventBoundingRectangleF(BoundingRectangleFStruct value)
-        {
-            return new EventBoundingRectangleF(value);
-        }
+        public static explicit operator BoundingRectangleFStruct(EventBoundingRectangleF value) => value._raw;
+        public static implicit operator EventBoundingRectangleF(BoundingRectangleFStruct value) => new EventBoundingRectangleF(value);
     }
 }

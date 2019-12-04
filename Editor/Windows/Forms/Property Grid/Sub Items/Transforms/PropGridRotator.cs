@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -9,7 +10,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridRotator()
         {
             InitializeComponent();
-            cboOrder.DataSource = Enum.GetValues(typeof(ERotationOrder));
+            cboOrder.Items.AddRange(Enum.GetValues(typeof(ERotationOrder)).Cast<object>().ToArray());
 
             numericInputBoxPitch.Tag = nameof(Rotator.Pitch);
             numericInputBoxYaw.Tag = nameof(Rotator.Yaw);

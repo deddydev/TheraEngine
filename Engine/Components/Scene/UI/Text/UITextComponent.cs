@@ -12,8 +12,8 @@ namespace TheraEngine.Rendering.UI
         public UITextComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(
             new TexRef2D("DrawSurface", 1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
             {
-                MagFilter = ETexMagFilter.Nearest,
-                MinFilter = ETexMinFilter.Nearest,
+                MagFilter = ETexMagFilter.Linear,
+                MinFilter = ETexMinFilter.Linear,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 Resizable = true

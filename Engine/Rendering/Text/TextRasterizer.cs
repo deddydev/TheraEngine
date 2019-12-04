@@ -134,10 +134,6 @@ namespace TheraEngine.Rendering.Text
             var tex = texture.GetTexture(true);
             Bitmap b = tex.Mipmaps[0];
 
-            //TODO: instead of redrawing the whole image, keep track of overlapping text
-            //and only redraw the previous and new regions. Repeat for any other overlapping texts.
-            //Then textsubimage2d using the min and max values of all updated texts.
-
             try
             {
                 //Draw text information onto the bitmap
@@ -180,6 +176,9 @@ namespace TheraEngine.Rendering.Text
                         //Only redraw modified sections of the full texture
                         //TODO: determine regions intersecting with this one.
                         //Redraw their unions with the current region.
+
+                        //Then textsubimage2d using the min and max values of all updated texts.
+
                         foreach (UIString2D text in _modified)
                         {
                             //Don't draw strings that aren't in the bounds of the texture
@@ -219,7 +218,7 @@ namespace TheraEngine.Rendering.Text
             }
 
             _modified.Clear();
-            tex.InvalidateData();
+            tex.QueueRedraw();
         }
         internal void TextChanged(UIString2D textData)
         {

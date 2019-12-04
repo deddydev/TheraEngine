@@ -116,7 +116,7 @@ namespace TheraEditor.Windows.Forms
             if (hud?.DragComponent is null)
                 return;
 
-            handler?.World?.DespawnActor(hud.DragComponent.OwningActor);
+            handler?.World?.DespawnActor(((TheraEngine.Components.IComponent)hud.DragComponent).OwningActor);
             hud.DoMouseUp();
             hud.TransformMode = _prevTransformType;
             //Engine.TargetUpdateFreq = _preUpdateFreq;

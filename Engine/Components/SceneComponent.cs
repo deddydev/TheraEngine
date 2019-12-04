@@ -70,6 +70,9 @@ namespace TheraEngine.Components
 
         void OnLostAudioListener();
         void OnGotAudioListener();
+
+        void RemovedFromParent();
+        void AddedToParent(ISocket parent, bool isParentSpawned);
     }
 
     /// <summary>
@@ -349,7 +352,7 @@ namespace TheraEngine.Components
             {
                 base.OwningActor = value;
                 foreach (ISceneComponent c in _children)
-                    c.OwningActor = value;
+                    ((IComponent)c).OwningActor = value;
             }
         }
 
@@ -519,6 +522,7 @@ namespace TheraEngine.Components
         //public bool IsSpawned
         //    => OwningActor is null ? false : OwningActor.IsSpawned;
         //[Browsable(false)]
+        [TSerialize]
         [Category("Scene Component")]
         public virtual ISocket ParentSocket
         {
@@ -526,12 +530,15 @@ namespace TheraEngine.Components
             set
             {
                 _parent?.ChildComponents.Remove(this);
-                if (value != null)
-                    value.ChildComponents.Add(this);
+                _parent = value;
+                if (_parent != null)
+                {
+                    if (!_parent.ChildComponents.Contains(this))
+                        _parent.ChildComponents.Add(this);
+                    OwningActor = _parent.OwningActor;
+                }
                 else
                 {
-                    _parent = null;
-                    OwningActor?.GenerateSceneComponentCache();
                     OwningActor = null;
                 }
             }
@@ -685,34 +692,11 @@ namespace TheraEngine.Components
         }
         protected virtual void HandleSingleChildRemoved(ISceneComponent item)
         {
-            if (item.IsSpawned)
-                item.OnDespawned();
-
-            item.SetParentInternal(null);
-            item.OwningActor = null;
-            item.RecalcWorldTransform();
+            item.RemovedFromParent();
         }
         protected virtual void HandleSingleChildAdded(ISceneComponent item)
         {
-            if (item is null)
-            {
-                Engine.LogWarning("Null scene component child added.");
-                return;
-            }
-
-            bool spawnedMismatch = IsSpawned != item.IsSpawned;
-
-            item.SetParentInternal(this);
-            item.OwningActor = OwningActor;
-            item.RecalcWorldTransform();
-
-            if (spawnedMismatch)
-            {
-                if (IsSpawned)
-                    item.OnSpawned();
-                else
-                    item.OnDespawned();
-            }
+            item.AddedToParent(this, IsSpawned);
         }
         void ISocket.SetParentInternal(ISocket parent) => _parent = parent;
         #endregion
@@ -880,6 +864,33 @@ namespace TheraEngine.Components
                 SocketTransformChanged -= eventMethod;
             else
                 SocketTransformChanged += eventMethod;
+        }
+
+        public void RemovedFromParent()
+        {
+            if (IsSpawned)
+                OnDespawned();
+
+            ((ISocket)this).SetParentInternal(null);
+            OwningActor = null;
+            RecalcWorldTransform();
+        }
+
+        public void AddedToParent(ISocket parent, bool isParentSpawned)
+        {
+            bool spawnedMismatch = isParentSpawned != IsSpawned;
+
+            ((ISocket)this).SetParentInternal(parent);
+            OwningActor = OwningActor;
+            RecalcWorldTransform();
+
+            if (spawnedMismatch)
+            {
+                if (isParentSpawned)
+                    OnSpawned();
+                else
+                    OnDespawned();
+            }
         }
     }
 }

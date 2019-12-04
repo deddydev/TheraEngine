@@ -249,15 +249,7 @@ namespace TheraEditor.Windows.Forms
                 //Alignment = StringAlignment.Center,
                 //LineAlignment = StringAlignment.Near
             };
-            SubViewportText.TextDrawer.Text.Add(new UIString2D()
-            {
-                Font = f,
-                Format = sf,
-                Text = t,
-                TextColor = new ColorF4(1.0f),
-                //OriginPercentages = new Vec2(0.0f, 1.0f),
-                //Position = new Vec2(0.0f, 0.0f),
-            });
+            SubViewportText.TextDrawer.Text.Add(new UIString2D(t, f, new ColorF4(1.0f), sf));
             SubViewport.ChildComponents.Add(SubViewportText);
 
             //TextOverlay = new UITextProjectionComponent()
@@ -285,13 +277,8 @@ namespace TheraEditor.Windows.Forms
             fpsComp.SizeablePosY.Origin = fpsComp.SizeableHeight;
 
             fpsComp.TextureResolutionMultiplier = f.Size;
-            fpsComp.TextDrawer.Text.Add(FPSText = new UIString2D()
-            {
-                Font = f,
-                Format = sf,
-                Text = t,
-                TextColor = new ColorF4(0.1f, 1.0f, 0.1f, 1.0f),
-            });
+            FPSText = new UIString2D(t, f, new ColorF4(0.1f, 1.0f, 0.1f, 1.0f), sf);
+            fpsComp.TextDrawer.Text.Add(FPSText);
             canvas.ChildComponents.Add(fpsComp);
 
             canvas.OriginRebased += RootComponent_OriginRebased;
@@ -682,7 +669,7 @@ namespace TheraEditor.Windows.Forms
             if (fromActorTree)
                 return;
             
-            TreeNode t = SelectedComponent?.OwningActor?.EditorState?.TreeNode;
+            TreeNode t = ((TheraEngine.Components.IComponent)SelectedComponent)?.OwningActor?.EditorState?.TreeNode;
             Editor.Instance.SetSelectedTreeNode(t);
         }
         private void PreSelectedComponentChanged(bool selectedByViewport)
@@ -721,7 +708,7 @@ namespace TheraEditor.Windows.Forms
                     return;
 
                 _highlightPoint.RenderInfo.Visible = false;
-                if (SelectedComponent.OwningActor is TransformTool3D tool)
+                if (((TheraEngine.Components.IComponent)SelectedComponent).OwningActor is TransformTool3D tool)
                 {
 
                 }

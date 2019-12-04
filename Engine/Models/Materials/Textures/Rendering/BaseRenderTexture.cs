@@ -53,8 +53,16 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         internal static T[] GenTextures<T>(int count) where T : BaseRenderTexture
             => Engine.Renderer.CreateObjects<T>(EObjectType.Texture, count);
 
-        public bool Invalidated { get; private set; } = true;
-        public bool InvalidateData() => Invalidated = true;
+        /// <summary>
+        /// If true, this texture's data has been updated and needs to be pushed to the GPU.
+        /// </summary>
+        /// <returns></returns>
+        public bool RedrawQueued { get; private set; } = true;
+        /// <summary>
+        /// Informs the renderer that this texture's data has been updated and needs to be pushed to the GPU.
+        /// </summary>
+        /// <returns></returns>
+        public bool QueueRedraw() => RedrawQueued = true;
 
         public virtual void Bind()
         {
@@ -64,9 +72,9 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                 if (id != NullBindingId)
                 {
                     Engine.Renderer.BindTexture(TextureTarget, id);
-                    if (Invalidated)
+                    if (RedrawQueued)
                     {
-                        Invalidated = false;
+                        RedrawQueued = false;
                         PushData();
                     }
                 }

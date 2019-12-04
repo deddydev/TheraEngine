@@ -55,14 +55,14 @@ namespace TheraEngine.Actors
                     return;
 
                 if (_rootComponent != null)
-                    _rootComponent.OwningActor = null;
+                    ((Components.IComponent)_rootComponent).OwningActor = null;
 
                 T oldRoot = _rootComponent;
                 _rootComponent = value ?? OnConstructRoot();
 
                 if (_rootComponent != null)
                 {
-                    _rootComponent.OwningActor = this;
+                    ((Components.IComponent)_rootComponent).OwningActor = this;
                     _rootComponent.RecalcWorldTransform();
                 }
                 GenerateSceneComponentCache();

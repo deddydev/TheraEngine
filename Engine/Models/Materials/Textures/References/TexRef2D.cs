@@ -176,7 +176,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (_texture != null)
                 {
                     _texture.PixelFormat = _pixelFormat;
-                    _texture.InvalidateData();
+                    _texture.QueueRedraw();
                 }
             }
         }
@@ -190,7 +190,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (_texture != null)
                 {
                     _texture.PixelType = _pixelType;
-                    _texture.InvalidateData();
+                    _texture.QueueRedraw();
                 }
             }
         }
@@ -204,7 +204,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (_texture != null)
                 {
                     _texture.InternalFormat = _internalFormat;
-                    _texture.InvalidateData();
+                    _texture.QueueRedraw();
                 }
             }
         }

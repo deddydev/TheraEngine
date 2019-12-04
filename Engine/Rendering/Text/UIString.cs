@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Windows.Forms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials;
@@ -45,15 +46,37 @@ namespace TheraEngine.Rendering.Text
     }
     public class UIString2D : TObject
     {
-        public UIString2D() { }
+        public UIString2D() 
+        {
+
+        }
+        public UIString2D(string text, Font font, ColorF4 color, StringFormat format, int order = 0)
+        {
+            _text = text;
+            _font = font;
+            _format = format;
+            _order = order;
+
+            _color = color;
+            Brush = new SolidBrush((Color)_color);
+
+            SetRegionSizeWithText(text);
+        }
 
         private string _text = string.Empty;
         private Font _font = new Font("Segoe UI", 9.0f, FontStyle.Regular);
-        private Vec2 _scale = Vec2.One;
         private int _order = 0;
-        private float _rotation = 0.0f;
         private ColorF4 _color = new ColorF4(1.0f);
         private StringFormat _format = new StringFormat();
+
+        private Vec2 _scale = Vec2.One;
+        private float _rotation = 0.0f;
+
+        public void SetRegionSizeWithText(string text)
+        {
+            Size size = TextRenderer.MeasureText(text, Font);
+            Region.SizeInt = size;
+        }
 
         public EventBoundingRectangleF Region { get; } = new EventBoundingRectangleF();
         internal SolidBrush Brush { get; private set; } = new SolidBrush(Color.White);

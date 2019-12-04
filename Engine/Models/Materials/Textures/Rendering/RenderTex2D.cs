@@ -176,7 +176,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
             //Destroy();
             //Generate();
-            InvalidateData();
+            QueueRedraw();
         }
         public override void Destroy()
         {

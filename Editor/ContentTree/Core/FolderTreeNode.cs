@@ -2,7 +2,6 @@
 using Microsoft.VisualBasic.FileIO;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -54,7 +53,12 @@ namespace TheraEditor.Wrappers
         public void LoadFileTypes(bool now)
         {
             (Wrapper as IFolderWrapper)?.LoadFileTypes(now);
-            GenerateMenu();
+            if (ContextMenuStrip != null)
+            {
+                ContextMenuStrip.Opening -= Strip_Opening;
+                ContextMenuStrip.Closing -= Strip_Closing;
+                ContextMenuStrip = null;
+            }
         }
 
         public static bool IsClipboardPasteReady()

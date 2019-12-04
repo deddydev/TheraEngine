@@ -25,7 +25,8 @@ namespace TheraEngine.Components.Scene.Mesh
         Matrix4 WorldMatrix { get; set; }
         Matrix4 InverseWorldMatrix { get; set; }
         IEventList<ISceneComponent> ChildComponents { get; }
-        
+        IActor OwningActor { get; set; }
+
         bool IsTranslatable { get; }
         bool IsScalable { get; }
         bool IsRotatable { get; }
@@ -61,6 +62,11 @@ namespace TheraEngine.Components.Scene.Mesh
         public Matrix4 WorldMatrix { get=> _transform.Matrix; set => _transform.Matrix = value; }
         public Matrix4 InverseWorldMatrix { get => _transform.InverseMatrix; set => _transform.InverseMatrix = value; }
         public IEventList<ISceneComponent> ChildComponents { get; }
+        public IActor OwningActor
+        {
+            get => _owningActor;
+            set => _owningActor = value;
+        }
 
         [Browsable(false)]
         public int ParentSocketChildIndex => -1;//ParentSocket?.ChildComponents?.IndexOf(this) ?? -1;
@@ -75,7 +81,7 @@ namespace TheraEngine.Components.Scene.Mesh
         private void _children_Removed(ISceneComponent item)
         {
             item.SetParentInternal(null);
-            item.OwningActor = null;
+            ((IComponent)item).OwningActor = null;
             item.RecalcWorldTransform();
             //_owner?.GenerateSceneComponentCache();
         }
@@ -93,7 +99,7 @@ namespace TheraEngine.Components.Scene.Mesh
         private void _children_Added(ISceneComponent item)
         {
             item.SetParentInternal(this);
-            item.OwningActor = _owningActor;
+            ((IComponent)item).OwningActor = _owningActor;
             item.RecalcWorldTransform();
             //_owner?.GenerateSceneComponentCache();
         }

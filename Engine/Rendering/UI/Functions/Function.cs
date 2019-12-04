@@ -96,18 +96,8 @@ namespace TheraEngine.Rendering.UI.Functions
         {
             ChildComponents.Add(arg);
 
-            UITextComponent text = new UITextComponent
-            {
-                Name = arg.Name + " Text",
-            };
-            text.TextDrawer.Text.Add(new UIString2D()
-            {
-                Text = arg.Name,
-                Font = _paramFont,
-                Format = new StringFormat(
-                    StringFormatFlags.NoClip |
-                    StringFormatFlags.NoWrap)
-            });
+            UITextComponent text = new UITextComponent { Name = arg.Name + " Text", };
+            text.TextDrawer.Text.Add(new UIString2D(arg.Name, _paramFont, Color.White, new StringFormat(StringFormatFlags.NoClip | StringFormatFlags.NoWrap)));
             ChildComponents.Add(text);
 
             if (arg is IFuncExecInput || arg is IFuncValueInput)

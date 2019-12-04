@@ -777,7 +777,7 @@
     <Compile Include="Rendering\Scene\RenderCommands.cs" />
     <Compile Include="Rendering\Scene\RenderInfo.cs" />
     <Compile Include="Models\Materials\Shaders\Generator\VarNameGen.cs" />
-    <Compile Include="Rendering\Text\UITextDrawer.cs" />
+    <Compile Include="Rendering\Text\TextRasterizer.cs" />
     <Compile Include="Rendering\Text\VariableStringTable\VariableMethods.cs" />
     <Compile Include="Scripting\CSharp\Script.cs" />
     <Compile Include="Scripting\Lua\Script.cs" />

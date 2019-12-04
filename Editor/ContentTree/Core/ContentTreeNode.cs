@@ -137,6 +137,17 @@ namespace TheraEditor.Wrappers
 
         public bool IsPopulated => _isPopulated;
 
+        public override ContextMenuStrip ContextMenuStrip
+        {
+            get
+            {
+                if (base.ContextMenuStrip is null)
+                    GenerateMenu();
+                return base.ContextMenuStrip;
+            }
+            set => base.ContextMenuStrip = value;
+        }
+
         public ITheraMenu Menu
         {
             get => _menu;
@@ -153,11 +164,10 @@ namespace TheraEditor.Wrappers
                 _menu = value;
 
                 AppDomainHelper.Sponsor(_menu);
-
-                GenerateMenu();
             }
         }
 
+        //TODO: use previous method of making one context menu per file type instead of per node
         protected void GenerateMenu() => GenerateMenu(_menu);
         protected void GenerateMenu(ITheraMenu menu)
         {
@@ -172,7 +182,14 @@ namespace TheraEditor.Wrappers
             strip.Tag = menu;
             AppDomainHelper.Sponsor(menu);
 
+            if (base.ContextMenuStrip != null)
+            {
+                ContextMenuStrip.Opening -= Strip_Opening;
+                ContextMenuStrip.Closing -= Strip_Closing;
+            }
+
             ContextMenuStrip = strip;
+
             ContextMenuStrip.Opening += Strip_Opening;
             ContextMenuStrip.Closing += Strip_Closing;
         }
@@ -195,7 +212,7 @@ namespace TheraEditor.Wrappers
         {
             if (Editor.Instance.InvokeRequired)
             {
-                Editor.Instance.Invoke((Action<ITheraMenuItem, ToolStripItemCollection>)AddItemToCollection, item, coll);
+                Editor.Instance.BeginInvoke((Action<ITheraMenuItem, ToolStripItemCollection>)AddItemToCollection, item, coll);
                 return;
             }
             if (item is ITheraMenuDivider)

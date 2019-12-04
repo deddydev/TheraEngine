@@ -145,13 +145,7 @@ namespace TheraEditor.Windows.Forms
             comp.SizeableWidth.SetSizingPixels(width);
             comp.TextureResolutionMultiplier = UIFont.Size;
 
-            str = new UIString2D()
-            {
-                Font = UIFont,
-                Format = format,
-                Text = initialText,
-                TextColor = color,
-            };
+            str = new UIString2D(initialText, UIFont, color, format);
             str.Region.Width = width;
             str.Region.Height = height;
 
@@ -320,7 +314,7 @@ namespace TheraEditor.Windows.Forms
                 {
                     //Need more cached text components
                     comp = ConstructText(new ColorF3(0.4f), "0", "-0000.000", out str);
-                    textCache.Add(str.Text, (comp, str));
+                    textCache.Add(numStr, (comp, str));
                 }
                 else
                 {
@@ -337,23 +331,23 @@ namespace TheraEditor.Windows.Forms
                     }
                 }
 
-                if (Math.Abs(pos) < float.Epsilon)
-                    comp.RenderInfo.Visible = false;
-                else
-                {
-                    str.Text = numStr;
-                    if (xCoord)
-                    {
-                        comp.SizeablePosX.ModificationValue = pos;
-                        comp.SizeablePosY.ModificationValue = 0.0f;
-                    }
-                    else
-                    {
-                        comp.SizeablePosX.ModificationValue = 0.0f;
-                        comp.SizeablePosY.ModificationValue = pos;
-                    }
-                    comp.RenderInfo.Visible = true;
-                }
+                //if (Math.Abs(pos) < float.Epsilon)
+                //    comp.RenderInfo.Visible = false;
+                //else
+                //{
+                //    str.Text = numStr;
+                //    if (xCoord)
+                //    {
+                //        comp.SizeablePosX.ModificationValue = pos;
+                //        comp.SizeablePosY.ModificationValue = 0.0f;
+                //    }
+                //    else
+                //    {
+                //        comp.SizeablePosX.ModificationValue = 0.0f;
+                //        comp.SizeablePosY.ModificationValue = pos;
+                //    }
+                //    comp.RenderInfo.Visible = true;
+                //}
             }
         }
 

@@ -8,6 +8,7 @@ using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components;
 using TheraEngine.Physics;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Actors;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -626,7 +627,7 @@ namespace TheraEngine.Rendering.Models
         private void ChildComponentsAdded(ISceneComponent item)
         {
             item.SetParentInternal(this);
-            item.OwningActor = OwningComponent.OwningActor;
+            ((Components.IComponent)item).OwningActor = OwningComponent.OwningActor;
             item.RecalcWorldTransform();
         }
         private void ChildComponentsAddedRange(IEnumerable<ISceneComponent> items)
@@ -641,7 +642,7 @@ namespace TheraEngine.Rendering.Models
         private void ChildComponentsRemoved(ISceneComponent item)
         {
             item.SetParentInternal(null);
-            item.OwningActor = null;
+            ((Components.IComponent)item).OwningActor = null;
             item.RecalcWorldTransform();
         }
         private void ChildComponentsRemovedRange(IEnumerable<ISceneComponent> items)
@@ -764,7 +765,7 @@ namespace TheraEngine.Rendering.Models
         ISocket ISocket.ParentSocket
         {
             get => _parent;
-            set => _parent = value as Bone; //TODO: actually perform link
+            set => _parent = value as IBone; //TODO: actually perform link
         }
         bool ISocket.IsTranslatable => true;
         bool ISocket.IsScalable => true;
@@ -772,6 +773,8 @@ namespace TheraEngine.Rendering.Models
 
         [Browsable(false)]
         public int ParentSocketChildIndex => _parent.ChildBones.IndexOf(this);
+
+        public IActor OwningActor { get; set; }
 
         public event DelSocketTransformChange SocketTransformChanged;
     }

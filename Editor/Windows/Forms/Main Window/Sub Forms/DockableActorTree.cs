@@ -1,4 +1,5 @@
-﻿using Extensions;
+﻿using AppDomainToolkit;
+using Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -393,25 +394,24 @@ namespace TheraEditor.Windows.Forms
             var node = ActorTree.SelectedNode;
             if (node.Tag is ISceneComponent comp && comp.ParentSocket != null)
             {
-                ISceneComponent newComp = Editor.DomainProxy.UserCreateInstanceOf<ISceneComponent>();
-                if (newComp != null)
+                RemoteAction.Invoke(AppDomainHelper.GameAppDomain, comp, (comp2) =>
                 {
-                    var parent = comp.ParentSocket;
-                    comp.DetachFromParent();
-                    parent.ChildComponents.Add(newComp);
-                    newComp.ChildComponents.Add(comp);
-                }
+                    ISceneComponent newComp = Editor.UserCreateInstanceOf<ISceneComponent>(true, Editor.Instance);
+                    if (newComp != null)
+                    {
+                        var parent = comp2.ParentSocket;
+                        comp2.DetachFromParent();
+                        parent.ChildComponents.Add(newComp);
+                        newComp.ChildComponents.Add(comp2);
+                    }
+                });
             }
         }
         private void btnNewChildSceneComp_Click(object sender, EventArgs e)
         {
             var node = ActorTree.SelectedNode;
             if (node.Tag is ISceneComponent comp)
-            {
-                ISceneComponent newComp = Editor.DomainProxy.UserCreateInstanceOf<ISceneComponent>();
-                if (newComp != null)
-                    comp.ChildComponents.Add(newComp);
-            }
+                Editor.DomainProxy.NewSceneComponentChild(comp);
         }
         private void btnAddLogicComp_Click(object sender, EventArgs e)
         {

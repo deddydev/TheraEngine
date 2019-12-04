@@ -33,6 +33,7 @@ using static TheraEngine.ThirdParty.MSBuild;
 using TheraEngine.Core.Files.XML;
 using static TheraEngine.ThirdParty.MSBuild.Item;
 using System.Runtime.Remoting;
+using TheraEngine.Components;
 
 namespace TheraEditor
 {
@@ -336,6 +337,13 @@ namespace TheraEditor
             Engine.PreWorldChanged -= Engine_PreWorldChanged;
 
             base.Stop();
+        }
+
+        public void NewSceneComponentChild(ISceneComponent parent)
+        {
+            ISceneComponent newComp = Editor.UserCreateInstanceOf<ISceneComponent>(true, Editor.Instance);
+            if (newComp != null)
+                parent.ChildComponents.Add(newComp);
         }
 
         public T UserCreateInstanceOf<T>(bool allowDerivedTypes = true)

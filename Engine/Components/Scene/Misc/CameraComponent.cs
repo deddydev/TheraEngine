@@ -144,6 +144,13 @@ namespace TheraEngine.Components.Scene
         }
 
 #if EDITOR
+
+        protected override void OnWorldTransformChanged()
+        {
+            PreviewIconRenderCommand.Position = WorldPoint;
+            base.OnWorldTransformChanged();
+        }
+
         private bool _previewAlwaysVisible = false;
         [Category("Editor Traits")]
         public bool PreviewAlwaysVisible
@@ -165,12 +172,17 @@ namespace TheraEngine.Components.Scene
         string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
         protected string PreviewIconName { get; } = "CameraIcon.png";
 
-        RenderCommandMesh3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
+        PreviewRenderCommand3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
         {
             get => PreviewIconRenderCommand;
             set => PreviewIconRenderCommand = value;
         }
-        private RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
+        private PreviewRenderCommand3D _previewIconRenderCommand;
+        private PreviewRenderCommand3D PreviewIconRenderCommand
+        {
+            get => _previewIconRenderCommand ?? (_previewIconRenderCommand = CreatePreviewRenderCommand(PreviewIconName));
+            set => _previewIconRenderCommand = value;
+        }
 
         public void AddRenderables(RenderPasses passes, ICamera camera)
         {

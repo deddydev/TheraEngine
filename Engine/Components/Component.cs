@@ -32,6 +32,10 @@ namespace TheraEngine.Components
         [Browsable(false)]
         public bool IsSpawned => OwningActor?.IsSpawned ?? false;
 
+        /// <summary>
+        /// Called when this component is spawned.
+        /// This base method starts any attached animations.
+        /// </summary>
         public virtual void OnSpawned()
         {
             Animations?.ForEach(anim =>
@@ -40,6 +44,13 @@ namespace TheraEngine.Components
                     anim.Start();
             });
         }
-        public virtual void OnDespawned() { }
+        public virtual void OnDespawned() 
+        {
+            Animations?.ForEach(anim =>
+            {
+                if (anim.State != Animation.EAnimationState.Stopped)
+                    anim.Start();
+            });
+        }
     }
 }

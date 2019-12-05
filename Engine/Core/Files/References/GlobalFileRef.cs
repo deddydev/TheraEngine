@@ -62,14 +62,14 @@ namespace TheraEngine.Core.Files
             if (string.IsNullOrEmpty(path))
                 return;
 
-            Engine.DomainProxy.AddGlobalFile(path, file);
+            Engine.DomainProxy?.AddGlobalFile(path, file);
         }
         internal static void RemoveGlobalFileInstance(string path)
         {
             if (string.IsNullOrEmpty(path))
                 return;
 
-            Engine.DomainProxy.RemoveGlobalFile(path);
+            Engine.DomainProxy?.RemoveGlobalFile(path);
         }
 
         protected override void RegisterInstance()

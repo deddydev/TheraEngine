@@ -170,15 +170,14 @@ namespace TheraEngine
 
 
 #if EDITOR
-        public static EngineEditorState EditorState
+        private static Lazy<EngineEditorState> EditorStateLazy { get; set; } = new Lazy<EngineEditorState>(() =>
         {
-            get
-            {
-                var state = Instance.EditorState;
-                AppDomainHelper.Sponsor(state);
-                return state;
-            }
-        }
+            return new EngineEditorState();
+            //var state = Instance.EditorState;
+            //AppDomainHelper.Sponsor(state);
+            //return state;
+        }, LazyThreadSafetyMode.ExecutionAndPublication);
+        public static EngineEditorState EditorState => EditorStateLazy.Value;
 #endif
 
         #region Timing
@@ -625,9 +624,9 @@ namespace TheraEngine
             [Browsable(false)]
             public EngineDomainProxy DomainProxy { get; private set; } = null;
 
-#if EDITOR
-            public EngineEditorState EditorState { get; } = new EngineEditorState();
-#endif
+//#if EDITOR
+//            public EngineEditorState EditorState { get; } = new EngineEditorState();
+//#endif
         }
     }
 }

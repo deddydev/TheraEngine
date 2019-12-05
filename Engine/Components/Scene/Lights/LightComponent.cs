@@ -158,6 +158,13 @@ namespace TheraEngine.Components.Scene.Lights
         }
 
 #if EDITOR
+
+        protected override void OnWorldTransformChanged()
+        {
+            PreviewIconRenderCommand.Position = WorldPoint;
+            base.OnWorldTransformChanged();
+        }
+
         [Category("Editor Traits")]
         public bool ScalePreviewIconByDistance { get; set; } = true;
         [Category("Editor Traits")]
@@ -166,12 +173,17 @@ namespace TheraEngine.Components.Scene.Lights
         string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
         protected abstract string PreviewIconName { get; }
 
-        RenderCommandMesh3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
+        PreviewRenderCommand3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
         {
             get => PreviewIconRenderCommand;
             set => PreviewIconRenderCommand = value;
         }
-        private RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
+        private PreviewRenderCommand3D _previewIconRenderCommand;
+        private PreviewRenderCommand3D PreviewIconRenderCommand
+        {
+            get => _previewIconRenderCommand ?? (_previewIconRenderCommand = CreatePreviewRenderCommand(PreviewIconName));
+            set => _previewIconRenderCommand = value;
+        }
 
         public void AddRenderables(RenderPasses passes, ICamera camera)
         {

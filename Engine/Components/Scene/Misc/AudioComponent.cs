@@ -92,6 +92,10 @@ namespace TheraEngine.Components.Scene
 
         private void UpdateTransform(AudioParameters parameters)
         {
+#if EDITOR
+            PreviewIconRenderCommand.Position = WorldPoint;
+#endif
+
             if (parameters?.Position != null)
                 parameters.Position.OverrideValue = WorldPoint;
 
@@ -103,6 +107,7 @@ namespace TheraEngine.Components.Scene
         }
 
 #if EDITOR
+
         [Category("Editor Traits")]
         [TSerialize]
         public IRenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(true, true);
@@ -114,12 +119,17 @@ namespace TheraEngine.Components.Scene
         string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
         protected string PreviewIconName { get; } = "AudioIcon.png";
 
-        RenderCommandMesh3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
+        PreviewRenderCommand3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
         {
             get => PreviewIconRenderCommand;
             set => PreviewIconRenderCommand = value;
         }
-        private RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
+        private PreviewRenderCommand3D _previewIconRenderCommand;
+        private PreviewRenderCommand3D PreviewIconRenderCommand
+        {
+            get => _previewIconRenderCommand ?? (_previewIconRenderCommand = CreatePreviewRenderCommand(PreviewIconName));
+            set => _previewIconRenderCommand = value;
+        }
 
         public void AddRenderables(RenderPasses passes, ICamera camera)
         {

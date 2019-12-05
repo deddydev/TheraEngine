@@ -16,13 +16,13 @@ namespace TheraEngine.Components.Scene
         [TSerialize]
         [Category("Decal")]
         public TMaterial Material { get; set; }
-        
-        public DecalComponent() 
+
+        public DecalComponent()
             : base()
         {
             RenderInfo.VisibleByDefault = true;
         }
-        public DecalComponent(Vec3 halfExtents) 
+        public DecalComponent(Vec3 halfExtents)
             : base(halfExtents, null)
         {
             RenderInfo.VisibleByDefault = true;
@@ -77,12 +77,15 @@ namespace TheraEngine.Components.Scene
             }
         }
 
-        private void ShapeHalfExtentsPreSet(Box box, EventVec3 halfExtents) 
+        private void ShapeHalfExtentsPreSet(Box box, EventVec3 halfExtents)
             => _shape.HalfExtents.Changed -= UpdateRenderCommandMatrix;
-        private void ShapeHalfExtentsPostSet(Box box, EventVec3 halfExtents) 
+        private void ShapeHalfExtentsPostSet(Box box, EventVec3 halfExtents)
             => _shape.HalfExtents.Changed += UpdateRenderCommandMatrix;
         private void UpdateRenderCommandMatrix()
         {
+#if EDITOR
+            PreviewIconRenderCommand.Position = WorldPoint;
+#endif
             Vec3 halfExtents = _shape.HalfExtents.Raw;
             RenderCommandDecal.WorldMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
         }
@@ -149,6 +152,7 @@ namespace TheraEngine.Components.Scene
         public RenderCommandMesh3D RenderCommandDecal { get; } = new RenderCommandMesh3D(ERenderPass.DeferredDecals);
 
 #if EDITOR
+
         [Category("Editor Traits")]
         public bool ScalePreviewIconByDistance { get; set; } = true;
         [Category("Editor Traits")]
@@ -157,12 +161,17 @@ namespace TheraEngine.Components.Scene
         string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
         protected string PreviewIconName { get; } = "CameraIcon.png";
 
-        RenderCommandMesh3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
+        PreviewRenderCommand3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
         {
             get => PreviewIconRenderCommand;
             set => PreviewIconRenderCommand = value;
         }
-        private RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
+        private PreviewRenderCommand3D _previewIconRenderCommand;
+        private PreviewRenderCommand3D PreviewIconRenderCommand 
+        {
+            get => _previewIconRenderCommand ?? (_previewIconRenderCommand = CreatePreviewRenderCommand(PreviewIconName));
+            set => _previewIconRenderCommand = value; 
+        }
 #endif
 
         //TODO: separate visibility of the decal mesh and wireframe intersection

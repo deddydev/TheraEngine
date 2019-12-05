@@ -10,6 +10,8 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
+using Extensions;
+using static TheraEngine.Components.SceneComponent;
 
 namespace TheraEngine.Components
 {
@@ -22,7 +24,7 @@ namespace TheraEngine.Components
         string PreviewIconName { get; }
         bool ScalePreviewIconByDistance { get; set; }
         float PreviewIconScale { get; set; }
-        RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
+        PreviewRenderCommand3D PreviewIconRenderCommand { get; set; }
 #endif
     }
     public interface ISceneComponent : ISocket, IComponent
@@ -81,6 +83,9 @@ namespace TheraEngine.Components
     [TFileExt("scomp")]
     public abstract class SceneComponent : Component, ISceneComponent
     {
+        public const string RenderingCategoryName = "Rendering";
+        public const string PhysicsCategoryName = "Physics";
+
         void ISceneComponent.OnLostAudioListener() => OnLostAudioListener();
         internal void OnLostAudioListener()
         {
@@ -100,9 +105,6 @@ namespace TheraEngine.Components
         {
             Engine.Audio.UpdateListener(WorldPoint, WorldForwardVec, WorldUpVec, Velocity, 1.0f, 1.0f, true);
         }
-
-        public const string RenderingCategoryName = "Rendering";
-        public const string PhysicsCategoryName = "Physics";
 
         void ISceneComponent.RecalcLocalTransform() => RecalcLocalTransform();
         void ISceneComponent.RecalcWorldTransform() => RecalcWorldTransform();
@@ -558,8 +560,7 @@ namespace TheraEngine.Components
         }
 
         /// <summary>
-        /// Runs spawning code for 
-        /// IRigidBodyCollidable, IPreRendered, I3DRenderable, and/or I2DRenderable, 
+        /// Runs setup code for interfaces,
         /// starts any attached animations,
         /// and runs OnSpawned for all child scene components.
         /// </summary>
@@ -567,6 +568,30 @@ namespace TheraEngine.Components
         {
             base.OnSpawned();
 
+            InformInterfacesSpawned();
+
+            //TODO: There will probably never be enough child components to warrant parallel initialization
+            //Make this an option?
+
+            //_children.AsParallel().ForAll(x => x.OnSpawned());
+            _children.ForEach(x => x.OnSpawned());
+        }
+
+        public override void OnDespawned()
+        {
+            InformInterfacesDespawned();
+
+            foreach (ISceneComponent c in _children)
+                c.OnDespawned();
+        }
+
+        /// <summary>
+        /// Method called during component spawn to check if this component implements particular interfaces
+        /// and to cast to and inform those interfaces that setup is needed.
+        /// This base method runs setup for IRigidBodyCollidable, IPreRendered, I3DRenderable, and/or I2DRenderable.
+        /// </summary>
+        protected virtual void InformInterfacesSpawned()
+        {
             if (this is IRigidBodyCollidable p)
                 p.RigidBodyCollision?.Spawn(OwningWorld);
 
@@ -580,18 +605,16 @@ namespace TheraEngine.Components
                 if (Engine.EditorState.InEditMode && r3D.RenderInfo.EditorVisibilityMode == EEditorVisibility.VisibleAlways)
                     r3D.RenderInfo.Visible = true;
 
-                if (this is IEditorPreviewIconRenderable icon)
+                if (this is IEditorPreviewIconRenderable icon && icon.PreviewIconRenderCommand is null)
                     icon.PreviewIconRenderCommand = CreatePreviewRenderCommand(icon.PreviewIconName);
 #endif
             }
 
             if (this is I2DRenderable r2D && OwningScene2D != null)
                 r2D.RenderInfo.LinkScene(r2D, OwningScene2D);
-
-            foreach (ISceneComponent c in _children)
-                c.OnSpawned();
         }
-        public override void OnDespawned()
+
+        protected virtual void InformInterfacesDespawned()
         {
             if (this is IRigidBodyCollidable p)
                 p.RigidBodyCollision?.Despawn(OwningWorld);
@@ -604,10 +627,8 @@ namespace TheraEngine.Components
 
             if (this is I2DRenderable r2D)
                 r2D.RenderInfo.UnlinkScene();
-
-            foreach (ISceneComponent c in _children)
-                c.OnDespawned();
         }
+
         protected bool AllowLocalRecalc { get; set; } = true;
         protected void RecalcLocalTransform()
         {
@@ -806,24 +827,34 @@ namespace TheraEngine.Components
         #endregion
 
 #if EDITOR
-        protected void AddPreviewRenderCommand(RenderCommandMesh3D renderCommand, RenderPasses passes, ICamera camera, bool scaleByDistance, float scale)
+        public class PreviewRenderCommand3D : RenderCommandMesh3D
+        {
+            public PreviewRenderCommand3D(ERenderPass pass) : base(pass) { }
+
+            public Vec3 Position { get; set; }
+        }
+        protected void AddPreviewRenderCommand(PreviewRenderCommand3D renderCommand, RenderPasses passes, ICamera camera, bool scaleByDistance, float scale)
         {
             if (passes.ShadowPass || camera is null)
                 return;
 
-            float camDist = camera.DistanceFromScreenPlane(WorldPoint);
+            Vec3 position = renderCommand.Position;
+            float camDist = camera.DistanceFromScreenPlane(position);
             if (scaleByDistance)
                 scale *= camDist;
 
             renderCommand.RenderDistance = camDist;
-            renderCommand.WorldMatrix = Matrix4.CreateSpacialTransform(WorldPoint,
-                camera.RightVector * scale, camera.UpVector * scale, camera.ForwardVector * scale);
+            renderCommand.WorldMatrix = Matrix4.CreateSpacialTransform(
+                position,
+                camera.RightVector * scale,
+                camera.UpVector * scale, 
+                camera.ForwardVector * scale);
 
             passes.Add(renderCommand);
         }
-        private RenderCommandMesh3D CreatePreviewRenderCommand(string textureName)
+        protected PreviewRenderCommand3D CreatePreviewRenderCommand(string textureName)
         {
-            RenderCommandMesh3D rc = new RenderCommandMesh3D(ERenderPass.TransparentForward);
+            PreviewRenderCommand3D rc = new PreviewRenderCommand3D(ERenderPass.TransparentForward);
             VertexQuad quad = VertexQuad.PosZQuad();
             PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), quad.ToTriangles());
             string texPath = Engine.Files.TexturePath(textureName);

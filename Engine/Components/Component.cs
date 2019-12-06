@@ -9,9 +9,10 @@ namespace TheraEngine.Components
     {
         bool Locked { get; }
         IActor OwningActor { get; set; }
+
         bool IsSpawned { get; }
-        void OnSpawned();
-        void OnDespawned();
+        void Spawn(IActor owner);
+        void Despawn(IActor owner);
     }
     /// <summary>
     /// Components are plugged into actors to define customizable functionality.
@@ -31,6 +32,18 @@ namespace TheraEngine.Components
 
         [Browsable(false)]
         public bool IsSpawned => OwningActor?.IsSpawned ?? false;
+
+        public void Spawn(IActor owner) 
+        {
+            OwningActor = owner;
+            OnSpawned(); 
+        }
+        public void Despawn(IActor owner)
+        {
+            OnDespawned();
+            if (OwningActor == owner)
+                OwningActor = null;
+        }
 
         /// <summary>
         /// Called when this component is spawned.

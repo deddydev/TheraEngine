@@ -574,7 +574,7 @@ namespace TheraEngine.Components
             //Make this an option?
 
             //_children.AsParallel().ForAll(x => x.OnSpawned());
-            _children.ForEach(x => x.OnSpawned());
+            _children.ForEach(x => x.Spawn(OwningActor));
         }
 
         public override void OnDespawned()
@@ -582,7 +582,7 @@ namespace TheraEngine.Components
             InformInterfacesDespawned();
 
             foreach (ISceneComponent c in _children)
-                c.OnDespawned();
+                c.Despawn(OwningActor);
         }
 
         /// <summary>
@@ -877,9 +877,12 @@ namespace TheraEngine.Components
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (this is I3DRenderable r3D && r3D.RenderInfo.EditorVisibilityMode == EEditorVisibility.VisibleOnlyWhenSelected)
+            if (this is I3DRenderable r3D &&
+                r3D.RenderInfo.EditorVisibilityMode == EEditorVisibility.VisibleOnlyWhenSelected)
                 r3D.RenderInfo.Visible = selected;
-            if (this is I2DRenderable r2D && r2D.RenderInfo.EditorVisibilityMode == EEditorVisibility.VisibleOnlyWhenSelected)
+
+            if (this is I2DRenderable r2D &&
+                r2D.RenderInfo.EditorVisibilityMode == EEditorVisibility.VisibleOnlyWhenSelected)
                 r2D.RenderInfo.Visible = selected;
 
             //foreach (SceneComponent comp in ChildComponents)
@@ -912,7 +915,7 @@ namespace TheraEngine.Components
             bool spawnedMismatch = isParentSpawned != IsSpawned;
 
             ((ISocket)this).SetParentInternal(parent);
-            OwningActor = OwningActor;
+            OwningActor = parent.OwningActor;
             RecalcWorldTransform();
 
             if (spawnedMismatch)

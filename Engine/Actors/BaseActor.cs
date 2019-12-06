@@ -180,9 +180,9 @@ namespace TheraEngine.Actors
 
             OnSpawnedPreComponentSpawn();
 
-            RootComponentGeneric.OnSpawned();
+            RootComponentGeneric.Spawn(this);
             foreach (ILogicComponent comp in _logicComponents)
-                comp.OnSpawned();
+                comp.Spawn(this);
 
             if (this is IPreRendered r)
                 OwningScene?.AddPreRenderedObject(r);
@@ -229,9 +229,9 @@ namespace TheraEngine.Actors
 
             OnDespawned();
 
-            foreach (LogicComponent comp in _logicComponents)
-                comp.OnDespawned();
-            RootComponentGeneric.OnDespawned();
+            foreach (ILogicComponent comp in _logicComponents)
+                comp.Despawn(this);
+            RootComponentGeneric.Despawn(this);
 
             _spawnIndex = -1;
             OwningWorld = null;

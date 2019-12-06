@@ -183,12 +183,12 @@ namespace TheraEngine.Rendering.UI
         {
             base.OnSpawned();
             if (this is I2DRenderable r)
-                OwningActor.AddRenderableComponent(r);
+                OwningActor?.AddRenderableComponent(r);
         }
         public override void OnDespawned()
         {
             if (this is I2DRenderable r)
-                OwningActor.RemoveRenderableComponent(r);
+                OwningActor?.RemoveRenderableComponent(r);
             base.OnDespawned();
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)

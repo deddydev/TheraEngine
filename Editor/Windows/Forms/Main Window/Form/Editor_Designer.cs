@@ -309,16 +309,14 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
-            Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null, null);
-
             EditorSettings defaultSettings = await DefaultSettingsRef.GetInstanceAsync();
             List<string> recentFiles = defaultSettings?.RecentlyOpenedProjectPaths;
+
+            string lastOpened = null;
             if (recentFiles != null && recentFiles.Count > 0)
-            {
-                string lastOpened = recentFiles[recentFiles.Count - 1];
-                if (!string.IsNullOrEmpty(lastOpened))
-                    LoadProject(lastOpened);
-            }
+                lastOpened = recentFiles[recentFiles.Count - 1];
+            
+            LoadProject(lastOpened);
 
             //Run on UI side
             Engine.Run();
@@ -554,7 +552,7 @@ namespace TheraEditor.Windows.Forms
             }
             else
             {
-                CreateGameDomain(null, null, null);
+                //CreateGameDomain(null, null, null);
 
                 Text = string.Empty;
 

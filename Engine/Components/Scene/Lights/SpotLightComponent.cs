@@ -194,7 +194,7 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void SetUniforms(RenderProgram program, string targetStructName)
         {
-            targetStructName = targetStructName ?? Uniform.LightsStructName;
+            targetStructName ??= Uniform.LightsStructName;
             targetStructName += ".";
 
             program.Uniform(targetStructName + "Direction", _direction);

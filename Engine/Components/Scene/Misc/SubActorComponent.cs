@@ -45,14 +45,14 @@ namespace TheraEngine.Components.Scene
             if (oldRoot != null && oldRoot.ParentSocket == this)
             {
                 if (actor.IsSpawned)
-                    oldRoot.OnDespawned();
+                    oldRoot.Despawn(OwningActor);
                 oldRoot.ParentSocket = null;
             }
             if (actor.RootComponent != null)
             {
                 actor.RootComponent.ParentSocket = this;
                 if (actor.IsSpawned)
-                    actor.RootComponent.OnSpawned();
+                    actor.RootComponent.Spawn(OwningActor);
             }
         }
         public override void OnSpawned()

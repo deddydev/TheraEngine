@@ -301,53 +301,76 @@ namespace TheraEditor.Windows.Forms
         }
         private void UpdateTextIncPass(float unitCount, Dictionary<string, (UITextComponent, UIString2D)> textCache, float minimum, float increment, bool xCoord)
         {
+            var allKeys = textCache.Keys.ToList();
+            var visible = Enumerable.Range(0, (int)Math.Ceiling(unitCount)).Select(x =>
+            {
+                var value = minimum + x * increment;
+                var vstr = value.ToString("###0.0##");
+                if (!allKeys.Contains(vstr))
+                    allKeys.Add(vstr);
+                return (value, vstr);
+            }).ToDictionary(x => x.vstr, x => x.value);
+
+            bool isUsed(string key) => visible.ContainsKey(key);
+            string findUnused() => textCache.FirstOrDefault(x => !isUsed(x.Key)).Key;
+
             UITextComponent comp;
             UIString2D str;
-            float pos = minimum;
-            float max = minimum + increment * unitCount;
-            float count = Math.Max(unitCount, textCache.Count);
 
-            for (int i = 0; i < count; pos = ++i * increment)
+            foreach (var key in allKeys)
             {
-                string numStr = pos.ToString("###0.0##");
-                if (i >= textCache.Count)
+                if (isUsed(key))
                 {
-                    //Need more cached text components
-                    comp = ConstructText(new ColorF3(0.4f), "0", "-0000.000", out str);
-                    textCache.Add(numStr, (comp, str));
+                    //Visible, and in cache?
+                    if (textCache.ContainsKey(key))
+                    {
+                        //Show it
+                        var cache = textCache[key];
+                        comp = cache.Item1;
+                        str = cache.Item2;
+                    }
+                    else
+                    {
+                        //Not in cache, find an unused cache item
+                        var unusedKey = findUnused();
+                        if (unusedKey != null)
+                        {
+                            var value = textCache[unusedKey];
+                            textCache.Remove(unusedKey);
+                            comp = value.Item1;
+                            str = value.Item2;
+                            str.Text = key;
+                            textCache.Add(key, value);
+                        }
+                        else
+                        {
+                            //Not in cache, none unused
+                            //Need more cached text components
+                            comp = ConstructText(new ColorF3(0.4f), "0", "-0000.000", out str);
+                            textCache.Add(key, (comp, str));
+                        }
+                    }
+
+                    var pos = visible[key];
+                    if (xCoord)
+                    {
+                        comp.SizeablePosX.ModificationValue = pos;
+                        comp.SizeablePosY.ModificationValue = 0.0f;
+                    }
+                    else
+                    {
+                        comp.SizeablePosX.ModificationValue = 0.0f;
+                        comp.SizeablePosY.ModificationValue = pos;
+                    }
+
+                    comp.RenderInfo.Visible = true;
                 }
                 else
                 {
-                    (UITextComponent, UIString2D)? cache = textCache.ContainsKey(numStr) ? ((UITextComponent, UIString2D)?)textCache[numStr] : null;
-                    if (cache.HasValue)
-                    {
-                        comp = cache.Value.Item1;
-                        if (i >= unitCount)
-                        {
-                            comp.RenderInfo.Visible = false;
-                            continue;
-                        }
-                        str = cache.Value.Item2;
-                    }
+                    //Not visible, but exists in cache? Hide it
+                    textCache[key].Item1.RenderInfo.Visible = false;
+                    continue;
                 }
-
-                //if (Math.Abs(pos) < float.Epsilon)
-                //    comp.RenderInfo.Visible = false;
-                //else
-                //{
-                //    str.Text = numStr;
-                //    if (xCoord)
-                //    {
-                //        comp.SizeablePosX.ModificationValue = pos;
-                //        comp.SizeablePosY.ModificationValue = 0.0f;
-                //    }
-                //    else
-                //    {
-                //        comp.SizeablePosX.ModificationValue = 0.0f;
-                //        comp.SizeablePosY.ModificationValue = pos;
-                //    }
-                //    comp.RenderInfo.Visible = true;
-                //}
             }
         }
 

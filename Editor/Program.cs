@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEditor.Wrappers;
+using TheraEngine;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Editor;
 
@@ -42,6 +43,8 @@ namespace TheraEditor
             //Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             //TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
             AppDomain.CurrentDomain.AssemblyLoad += AppDomainHelper.CurrentDomain_AssemblyLoad;
+
+            Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null, null);
 
             Application.Run(Editor.Instance);
         }

@@ -115,7 +115,7 @@ namespace TheraEngine.Rendering.UI
             {
                 SizeableWidth.SetResultingValueNoUpdate(value.X, ParentBounds);
                 SizeableHeight.SetResultingValueNoUpdate(value.Y, ParentBounds);
-                PerformResize();
+                Resize();
             }
         }
         [Browsable(false)]
@@ -138,7 +138,7 @@ namespace TheraEngine.Rendering.UI
             {
                 SizeablePosX.SetResultingValueNoUpdate(value.X, ParentBounds);
                 SizeablePosY.SetResultingValueNoUpdate(value.Y, ParentBounds);
-                PerformResize();
+                Resize();
             }
         }
         [Browsable(false)]
@@ -155,10 +155,10 @@ namespace TheraEngine.Rendering.UI
         }
         public UIDockableComponent() : base()
         {
-            SizeableHeight.ParameterChanged += PerformResize;
-            SizeableWidth.ParameterChanged += PerformResize;
-            SizeablePosX.ParameterChanged += PerformResize;
-            SizeablePosY.ParameterChanged += PerformResize;
+            SizeableHeight.ParameterChanged += Resize;
+            SizeableWidth.ParameterChanged += Resize;
+            SizeablePosX.ParameterChanged += Resize;
+            SizeablePosY.ParameterChanged += Resize;
             _sizeableElements = new ISizeable[]
             {
                 SizeableWidth,
@@ -242,7 +242,7 @@ namespace TheraEngine.Rendering.UI
                 }
                 IgnoreResizes = false;
                 _dockStyle = value;
-                PerformResize();
+                Resize();
             }
         }
         //[Category("Transform")]
@@ -259,7 +259,7 @@ namespace TheraEngine.Rendering.UI
         [Browsable(false)]
         public bool Docked => _dockStyle != EUIDockStyle.None;
         
-        public override unsafe Vec2 Resize(Vec2 parentBounds)
+        public override unsafe Vec2 OnResize(Vec2 parentBounds)
         {
             if (IgnoreResizes)
                 return parentBounds;
@@ -278,7 +278,7 @@ namespace TheraEngine.Rendering.UI
 
             Vec2 bounds = Size;
             foreach (UIComponent c in _children)
-                bounds = c.Resize(bounds);
+                bounds = c.OnResize(bounds);
 
             IgnoreResizes = false;
 

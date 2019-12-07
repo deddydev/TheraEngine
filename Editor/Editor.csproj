@@ -491,7 +491,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ContentTree\Core\TheraMenu.cs" />
+    <Compile Include="ContentTree\Core\TMenu.cs" />
     <Compile Include="ContentTree\Wrappers\Animation\PropAnimVec3Wrapper.cs" />
     <Compile Include="ContentTree\Wrappers\BasePathWrapper.cs" />
     <Compile Include="ContentTree\Wrappers\BaseFileWrapper.cs" />

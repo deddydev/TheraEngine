@@ -1,8 +1,8 @@
 ﻿namespace TheraEngine.Rendering.UI
 {
-    public class ButtonHudComponent : UIInteractableComponent
+    public class UIButtonComponent : UIInteractableComponent
     {
-        public ButtonHudComponent()
+        public UIButtonComponent()
         {
 
         }

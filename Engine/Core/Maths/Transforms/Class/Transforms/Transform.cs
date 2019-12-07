@@ -122,7 +122,21 @@ namespace TheraEngine.Core.Maths.Transforms
             _transformOrder = transformOrder;
             CreateTransform();
         }
-        
+
+        public static ETransformOrder OppositeOrder(ETransformOrder order)
+        {
+            switch (order)
+            {
+                case ETransformOrder.TRS: return ETransformOrder.SRT;
+                case ETransformOrder.TSR: return ETransformOrder.RST;
+                case ETransformOrder.RST: return ETransformOrder.RST;
+                case ETransformOrder.RTS: return ETransformOrder.RTS;
+                case ETransformOrder.STR: return ETransformOrder.STR;
+                case ETransformOrder.SRT: return ETransformOrder.SRT;
+            }
+            return ETransformOrder.TRS;
+        }
+
         public void SetAll(Vec3 translate, Rotator rotation, Vec3 scale)
         {
             _translation.SetRawNoUpdate(translate);

@@ -51,7 +51,7 @@ namespace TheraEngine.Rendering.UI
 
                 NeedsRedraw = true;
                 ForceFullRedraw = true;
-                PerformResize();
+                Resize();
             }
         }
         public TextRenderingHint TextQuality
@@ -70,9 +70,9 @@ namespace TheraEngine.Rendering.UI
         public IVec2? NeedsResize { get; set; } = null;
         public bool NeedsRedraw { get; set; } = false;
 
-        public override Vec2 Resize(Vec2 parentBounds)
+        public override Vec2 OnResize(Vec2 parentBounds)
         {
-            Vec2 rect = base.Resize(parentBounds);
+            Vec2 rect = base.OnResize(parentBounds);
 
             int w = (int)(Width * TextureResolutionMultiplier.X);
             int h = (int)(Height * TextureResolutionMultiplier.Y);

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows.Forms;
+using TheraEditor.ContentTree.Core;
 using TheraEditor.Windows.Forms;
 
 namespace TheraEditor.Wrappers
@@ -17,12 +17,12 @@ namespace TheraEditor.Wrappers
             Menu.Insert(3, compOp);
         }
 
-        private void CompOp_Opening(TheraMenuItem obj)
+        private void CompOp_Opening(ITMenuItem obj)
             => obj.Visible =
                 string.Equals(FilePath, Editor.Instance.Project?.SolutionPath ?? string.Empty,
                 StringComparison.InvariantCultureIgnoreCase);
 
-        private void CompOp_Closing(TheraMenuItem obj)
+        private void CompOp_Closing(ITMenuItem obj)
             => obj.Visible = false;
 
         private void Compile()

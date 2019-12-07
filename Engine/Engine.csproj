@@ -546,6 +546,11 @@
     <Compile Include="Components\Scene\Shapes\CollidableShape3DComponent.cs" />
     <Compile Include="Components\Scene\Splines\Spline2DComponent.cs" />
     <Compile Include="Components\Scene\Misc\SubActorComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\Transforms\UIScaleComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\Transforms\UITransformComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\Transforms\UITranslationComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\Arrangements\UIGridComponent.cs" />
+    <Compile Include="Components\Scene\UI\Interactable\UITreeComponent.cs" />
     <Compile Include="Core\Attributes\TDeprecatedName.cs" />
     <Compile Include="Core\Attributes\TDropDownIndexSelectorAttribute.cs" />
     <Compile Include="Components\Logic\Common\HealthComponent.cs" />
@@ -573,8 +578,8 @@
     <Compile Include="Components\Scene\Transforms\Noise\NoiseTR.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoiseRotation.cs" />
     <Compile Include="Components\Scene\Transforms\Lagged\TRLagged.cs" />
-    <Compile Include="Components\Scene\UI\Base UI Components\SizeableElement.cs" />
-    <Compile Include="Components\Scene\UI\Base UI Components\UIBoundableComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\SizeableElement.cs" />
+    <Compile Include="Components\Scene\UI\Core\UIBoundableComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIButtonComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIComboBoxComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIInteractableComponent.cs" />
@@ -583,10 +588,10 @@
     <Compile Include="Components\Scene\UI\Text\UIRichTextBoxComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextProjectionComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextComponent.cs" />
-    <Compile Include="Components\Scene\UI\Base UI Components\UIComponent.cs" />
-    <Compile Include="Components\Scene\UI\Base UI Components\UIDockableComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\UIComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\UIDockableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIMaterialRectangleComponent.cs" />
-    <Compile Include="Components\Scene\UI\Base UI Components\UIRotatableComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\Transforms\UIRotationComponent.cs" />
     <Compile Include="Components\Scene\UI\UIViewportComponent.cs" />
     <Compile Include="Components\Scene\Volumes\Boost.cs" />
     <Compile Include="Core\Attributes\TNumericPrefixSuffixAttribute.cs" />
@@ -677,6 +682,7 @@
     <Compile Include="Rendering\Renderer\RenderHandler.cs" />
     <Compile Include="Rendering\Scene\RenderInfo3D.cs" />
     <Compile Include="Rendering\Scene\RenderInfo2D.cs" />
+    <Compile Include="Rendering\UI\TMenuComponent.cs" />
     <Compile Include="Shapes\BoundingRectangle.cs" />
     <Compile Include="Shapes\Boxes\BoundingBoxStruct.cs" />
     <Compile Include="Shapes\Cylindrical\XAligned\CapsuleX.cs" />

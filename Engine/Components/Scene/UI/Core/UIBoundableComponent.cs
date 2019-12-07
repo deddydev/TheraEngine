@@ -20,6 +20,8 @@ namespace TheraEngine.Rendering.UI
     {
         public UIBoundableComponent() : base() { }
         
+        public bool IsMouseOver { get; set; }
+
         protected Vec2 _localOriginPercentage = Vec2.Zero;
         protected Vec2 _size = Vec2.Zero;
         
@@ -31,7 +33,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _size = value;
-                PerformResize();
+                Resize();
             }
         }
         [Browsable(false)]
@@ -41,7 +43,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _size.Y = value;
-                PerformResize();
+                Resize();
             }
         }
         [Browsable(false)]
@@ -51,7 +53,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _size.X = value;
-                PerformResize();
+                Resize();
             }
         }
         #endregion
@@ -68,7 +70,7 @@ namespace TheraEngine.Rendering.UI
             {
                 _translation += (value - _localOriginPercentage) * Size;
                 _localOriginPercentage = value;
-                PerformResize();
+                Resize();
             }
         }
         [Category("Transform")]
@@ -121,9 +123,9 @@ namespace TheraEngine.Rendering.UI
             base.RecalcWorldTransform();
             RemakeAxisAlignedRegion();
         }
-        public override Vec2 Resize(Vec2 parentBounds)
+        public override Vec2 OnResize(Vec2 parentBounds)
         {
-            Vec2 bounds = base.Resize(parentBounds);
+            Vec2 bounds = base.OnResize(parentBounds);
             RemakeAxisAlignedRegion();
             return bounds;
         }
@@ -158,9 +160,9 @@ namespace TheraEngine.Rendering.UI
             return null;
         }
         
-        protected override void HandleSingleChildAdded(ISceneComponent item)
+        protected override void OnChildAdded(ISceneComponent item)
         {
-            base.HandleSingleChildAdded(item);
+            base.OnChildAdded(item);
             if (item is IUIComponent c)
                 c.RenderInfo.LayerIndex = RenderInfo.LayerIndex;
         }

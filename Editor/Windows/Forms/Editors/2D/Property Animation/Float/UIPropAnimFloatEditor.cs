@@ -423,7 +423,7 @@ void main()
             _xString.Text = pos.X.ToString("###0.0##");
             _yString.Text = pos.Y.ToString("###0.0##");
 
-            BaseTransformComponent.PerformResize();
+            BaseTransformComponent.Resize();
         }
         private bool _redrewLastMove = false;
         protected override void BaseWorldTransformChanged(ISceneComponent comp)

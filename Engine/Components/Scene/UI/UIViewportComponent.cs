@@ -60,9 +60,9 @@ namespace TheraEngine.Rendering.UI
         [Category("Rendering")]
         public Viewport Viewport { get; private set; } = new Viewport(1, 1);
 
-        public override Vec2 Resize(Vec2 parentBounds)
+        public override Vec2 OnResize(Vec2 parentBounds)
         {
-            Vec2 r = base.Resize(parentBounds);
+            Vec2 r = base.OnResize(parentBounds);
 
             int 
                 w = (int)Width.ClampMin(1.0f), 

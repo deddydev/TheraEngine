@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
+using TheraEditor.ContentTree.Core;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models;

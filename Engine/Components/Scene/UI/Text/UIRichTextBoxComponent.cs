@@ -10,9 +10,9 @@ namespace TheraEngine.Rendering.UI.Text
             TextDrawer.Text.Add(Text);
         }
 
-        public override Vec2 Resize(Vec2 parentBounds)
+        public override Vec2 OnResize(Vec2 parentBounds)
         {
-            var resize = base.Resize(parentBounds);
+            var resize = base.OnResize(parentBounds);
             Text.Region.Extents = Size;
             return resize;
         }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.Remoting;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheraEditor.ContentTree.Core;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
@@ -129,7 +130,7 @@ namespace TheraEditor.Wrappers
         }
 
         protected bool _isPopulated = false;
-        private ITheraMenu _menu;
+        private ITMenu _menu;
         private IBasePathWrapper _wrapper;
 
         public new ResourceTree TreeView => (ResourceTree)base.TreeView;
@@ -148,7 +149,7 @@ namespace TheraEditor.Wrappers
             set => base.ContextMenuStrip = value;
         }
 
-        public ITheraMenu Menu
+        public ITMenu Menu
         {
             get => _menu;
             set
@@ -169,7 +170,7 @@ namespace TheraEditor.Wrappers
 
         //TODO: use previous method of making one context menu per file type instead of per node
         protected void GenerateMenu() => GenerateMenu(_menu);
-        protected void GenerateMenu(ITheraMenu menu)
+        protected void GenerateMenu(ITMenu menu)
         {
             ContextMenuStrip strip = new ContextMenuStrip
             {
@@ -195,29 +196,29 @@ namespace TheraEditor.Wrappers
         }
 
         protected virtual void Strip_Closing(object sender, ToolStripDropDownClosingEventArgs e)
-            => ((ITheraMenu)ContextMenuStrip.Tag).OnOpening();
+            => ((ITMenu)ContextMenuStrip.Tag).OnOpening();
         protected virtual void Strip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-            => ((ITheraMenu)ContextMenuStrip.Tag).OnClosing();
+            => ((ITMenu)ContextMenuStrip.Tag).OnClosing();
 
-        private static void AddMenuToCollection(ITheraMenu menu, ToolStripItemCollection coll)
+        private static void AddMenuToCollection(ITMenu menu, ToolStripItemCollection coll)
         {
             if (menu is null)
                 return;
 
-            foreach (ITheraMenuItem item in menu)
+            foreach (ITMenuItem item in menu)
                 AddItemToCollection(item, coll);
         }
 
-        private static void AddItemToCollection(ITheraMenuItem item, ToolStripItemCollection coll)
+        private static void AddItemToCollection(ITMenuItem item, ToolStripItemCollection coll)
         {
             if (Editor.Instance.InvokeRequired)
             {
-                Editor.Instance.BeginInvoke((Action<ITheraMenuItem, ToolStripItemCollection>)AddItemToCollection, item, coll);
+                Editor.Instance.BeginInvoke((Action<ITMenuItem, ToolStripItemCollection>)AddItemToCollection, item, coll);
                 return;
             }
-            if (item is ITheraMenuDivider)
+            if (item is ITMenuDivider)
                 coll.Add(new ToolStripSeparator());
-            else if (item is ITheraMenuOption op)
+            else if (item is ITMenuOption op)
             {
                 ToolStripMenuItem menuItem = new ToolStripMenuItem(op.Text, null, MenuItemClicked, op.HotKeys);
                 menuItem.Tag = new ItemWrapper(menuItem, op);
@@ -229,10 +230,10 @@ namespace TheraEditor.Wrappers
 
         private class ItemWrapper : TObjectSlim
         {
-            public ITheraMenuOption Option { get; set; }
+            public ITMenuOption Option { get; set; }
             public ToolStripMenuItem Item { get; set; }
 
-            public ItemWrapper(ToolStripMenuItem item, ITheraMenuOption option)
+            public ItemWrapper(ToolStripMenuItem item, ITMenuOption option)
             {
                 Item = item;
                 Option = option;
@@ -242,7 +243,7 @@ namespace TheraEditor.Wrappers
             }
 
             private void Option_ChildrenCleared() => Item.DropDownItems.Clear();
-            private void Option_ChildAdded(ITheraMenuItem item) => AddItemToCollection(item, Item.DropDownItems);
+            private void Option_ChildAdded(ITMenuItem item) => AddItemToCollection(item, Item.DropDownItems);
         }
 
         private static void MenuItemClicked(object sender, EventArgs e)

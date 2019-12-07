@@ -15,45 +15,62 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI
 {
+    public abstract class UIParentAttachmentInfo
+    {
+        
+    }
     public interface IUIComponent : IOriginRebasableComponent, I2DRenderable, IEnumerable<IUIComponent>
     {
-        Vec2 ScreenTranslation { get; }
-        Vec2 LocalTranslation { get; set; }
-        float LocalTranslationX { get; set; }
-        float LocalTranslationY { get; set; }
-        Vec2 Scale { get; set; }
-        float ScaleX { get; set; }
-        float ScaleY { get; set; }
         bool IsVisible { get; set; }
+        bool IsEnabled { get; set; }
 
         IUIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis);
         void RegisterInputs(InputInterface input);
-        Vec2 Resize(Vec2 parentBounds);
-        void PerformResize();
+        Vec2 OnResize(Vec2 parentBounds);
+        void Resize();
         Vec2 ScreenToLocal(Vec2 coordinate, bool delta = false);
     }
-    public class UIComponent : OriginRebasableComponent, IUIComponent
+    public abstract class UIComponent : OriginRebasableComponent, IUIComponent
     {
-        public UIComponent() : base() { _rc = new RenderCommandMethod2D(ERenderPass.OnTopForward, Render); }
+        public UIComponent() : base() { _rc = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderVisualGuides); }
 
-        protected Vec2 _translation = Vec2.Zero;
-        protected Vec2 _scale = Vec2.One;
         protected bool _visible = true;
+        protected bool _enabled = true;
 
+        IRenderInfo2D I2DRenderable.RenderInfo => RenderInfo;
         [Category("Rendering")]
-        public IRenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
         [Category("Rendering")]
         public virtual bool IsVisible
         {
             get => _visible;
             set
             {
-                //if (_visible == value)
-                //    return;
+                if (_visible == value)
+                    return;
+
                 _visible = value;
                 RenderInfo.Visible = value;
-                foreach (UIComponent c in _children)
-                    c.IsVisible = value;
+
+                foreach (ISceneComponent c in _children)
+                    if (c is UIComponent uic)
+                        uic.IsVisible = value;
+            }
+        }
+        [Category("Rendering")]
+        public virtual bool IsEnabled
+        {
+            get => _enabled;
+            set
+            {
+                if (_enabled == value)
+                    return;
+
+                _enabled = value;
+
+                foreach (ISceneComponent c in _children)
+                    if (c is UIComponent uic)
+                        uic.IsEnabled = value;
             }
         }
 
@@ -64,93 +81,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 base.ParentSocket = value;
-                PerformResize();
+                Resize();
             }
         }
 
-        #region Translation
-
-        [Browsable(false)]
-        [Category("Transform")]
-        public Vec2 ScreenTranslation
-        {
-            get => Vec3.TransformPosition(WorldPoint, GetComponentTransform()).Xy;
-            set => LocalTranslation = Vec3.TransformPosition(value, GetInvComponentTransform()).Xy;
-        }
-
-        [Category("Transform")]
-        public virtual Vec2 LocalTranslation
-        {
-            get => _translation;
-            set
-            {
-                _translation = value;
-                //RecalcLocalTransform();
-                PerformResize();
-            }
-        }
-        [Category("Transform")]
-        public virtual float LocalTranslationX
-        {
-            get => _translation.X;
-            set
-            {
-                _translation.X = value;
-                //RecalcLocalTransform();
-                PerformResize();
-            }
-        }
-        [Category("Transform")]
-        public virtual float LocalTranslationY
-        {
-            get => _translation.Y;
-            set
-            {
-                _translation.Y = value;
-                //RecalcLocalTransform();
-                PerformResize();
-            }
-        }
-        #endregion
-
-        #region Scale
-        [Category("Transform")]
-        public virtual Vec2 Scale
-        {
-            get => _scale;
-            set
-            {
-                _scale = value;
-                RecalcLocalTransform();
-                //PerformResize();
-            }
-        }
-        [Browsable(false)]
-        [Category("Transform")]
-        public virtual float ScaleX
-        {
-            get => _scale.X;
-            set
-            {
-                _scale.X = value;
-                RecalcLocalTransform();
-                //PerformResize();
-            }
-        }
-        [Browsable(false)]
-        [Category("Transform")]
-        public virtual float ScaleY
-        {
-            get => _scale.Y;
-            set
-            {
-                _scale.Y = value;
-                RecalcLocalTransform();
-                //PerformResize();
-            }
-        }
-        #endregion
-        
         [Browsable(false)]
         public new IUserInterfacePawn OwningActor
         {
@@ -165,9 +99,14 @@ namespace TheraEngine.Rendering.UI
                 base.OwningActor = value as BaseActor;
 
                 //if (ParentSocket is null)
-                    PerformResize();
+                    Resize();
             }
         }
+
+        public bool RenderTransformation { get; set; } = true;
+
+        public UIParentAttachmentInfo ParentInfo { get; set; }
+
         void IUIComponent.RegisterInputs(InputInterface input) => RegisterInputs(input);
         /// <summary>
         /// Recursively registers (or unregisters) inputs on this and all child UI components.
@@ -193,36 +132,27 @@ namespace TheraEngine.Rendering.UI
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.TransformMatrix(
-                new Vec3(Scale, 1.0f),
-                Matrix4.Identity,
-                LocalTranslation,
-                ETransformOrder.TRS);
-
-            inverseLocalTransform = Matrix4.TransformMatrix(
-                new Vec3(1.0f / Scale, 1.0f),
-                Matrix4.Identity,
-                -LocalTranslation,
-                ETransformOrder.SRT);
+            localTransform = Matrix4.Identity;
+            inverseLocalTransform = Matrix4.Identity;
         }
         [Browsable(false)]
         public bool IgnoreResizes { get; set; } = false;
         [Browsable(false)]
         public Vec2 ParentBounds { get; protected set; }
-        [TSerialize]
-        public bool RenderTransformation { get; set; } = true;
 
-        public virtual Vec2 Resize(Vec2 parentBounds)
+        public virtual Vec2 OnResize(Vec2 parentBounds)
         {
             if (IgnoreResizes)
                 return parentBounds;
 
             IgnoreResizes = true;
-            ParentBounds = parentBounds;
+
             foreach (ISceneComponent c in _children)
                 if (c is IUIComponent uiComp)
-                    uiComp.Resize(parentBounds);
+                    uiComp.OnResize(parentBounds);
+
             RecalcLocalTransform();
+
             IgnoreResizes = false;
 
             return parentBounds;
@@ -230,17 +160,23 @@ namespace TheraEngine.Rendering.UI
         /// <summary>
         /// Resizes self depending on the parent component.
         /// </summary>
-        public virtual void PerformResize()
+        public void Resize()
         {
             if (IgnoreResizes)
                 return;
 
             if (ParentSocket is UIBoundableComponent comp)
-                Resize(comp.Size);
+            {
+                ParentBounds = comp.Size;
+            }
             //else if (OwningActor != null)
             //    Resize(OwningActor.Bounds);
             else
-                Resize(Vec2.Zero);
+            {
+                ParentBounds = Vec2.Zero;
+            }
+
+            OnResize(ParentBounds);
         }
         public virtual IUIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis)
         {
@@ -258,65 +194,14 @@ namespace TheraEngine.Rendering.UI
             return null;
         }
 
-        public void Zoom(float amount, Vec2 worldScreenPoint, Vec2? minScale, Vec2? maxScale)
+        protected override void OnChildAdded(ISceneComponent item)
         {
-            if (amount == 0.0f)
-                return;
-
-            Vec2 multiplier = Vec2.One / _scale * amount;
-            Vec2 newScale = _scale - amount;
-
-            bool xClamped = false;
-            bool yClamped = false;
-            if (minScale != null)
-            {
-                if (newScale.X < minScale.Value.X)
-                {
-                    newScale.X = minScale.Value.X;
-                    xClamped = true;
-                }
-                if (newScale.Y < minScale.Value.Y)
-                {
-                    newScale.Y = minScale.Value.Y;
-                    yClamped = true;
-                }
-            }
-            if (maxScale != null)
-            {
-                if (newScale.X > maxScale.Value.X)
-                {
-                    newScale.X = maxScale.Value.X;
-                    xClamped = true;
-                }
-                if (newScale.Y > maxScale.Value.Y)
-                {
-                    newScale.Y = maxScale.Value.Y;
-                    yClamped = true;
-                }
-            }
-
-            if (!xClamped || !yClamped)
-            {
-                _translation = (_translation + (worldScreenPoint - WorldPoint.Xy) * multiplier);
-                _scale = newScale;
-            }
-
-            PerformResize();
-
-            //_cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * Matrix4.CreateScale(scale);
-            //_worldToCameraSpaceMatrix = Matrix4.CreateScale(-scale) * _worldToCameraSpaceMatrix;
-            //UpdateTransformedFrustum();
-            //OnTransformChanged();
-        }
-
-        protected override void HandleSingleChildAdded(ISceneComponent item)
-        {
-            base.HandleSingleChildAdded(item);
+            base.OnChildAdded(item);
             if (item is IUIComponent c)
             {
                 c.RenderInfo.LayerIndex = RenderInfo.LayerIndex;
                 c.RenderInfo.IndexWithinLayer = RenderInfo.IndexWithinLayer + 1;
-                c.PerformResize();
+                c.Resize();
             }
         }
 
@@ -355,20 +240,25 @@ namespace TheraEngine.Rendering.UI
                 mtx = mtx.ClearTranslation();
             return (coordinate * mtx).Xy;
         }
+
         public RenderCommandMethod2D _rc;
         public virtual void AddRenderables(RenderPasses passes, ICamera camera)
         {
-//#if EDITOR
-//            if (!Engine.EditorState.InEditMode)
-//                return;
-//#endif
+            //#if EDITOR
+            //if (!Engine.EditorState.InEditMode)
+            //    return;
+            //#endif
 
             if (!RenderTransformation)
                 return;
 
             passes.Add(_rc);
         }
-        private void Render()
+
+        /// <summary>
+        /// Helper method for rendering transforms, bounds, rotations, etc in the editor.
+        /// </summary>
+        protected virtual void RenderVisualGuides()
         {
             Vec3 startPoint = (ParentSocket?.WorldMatrix.Translation ?? Vec3.Zero) + AbstractRenderer.UIPositionBias;
             Vec3 endPoint = WorldMatrix.Translation + AbstractRenderer.UIPositionBias;
@@ -376,7 +266,7 @@ namespace TheraEngine.Rendering.UI
             Engine.Renderer.RenderLine(startPoint, endPoint, ColorF4.White);
             Engine.Renderer.RenderPoint(endPoint, ColorF4.White);
 
-            Vec3 scale = WorldMatrix.Scale;
+            //Vec3 scale = WorldMatrix.Scale;
             Vec3 up = WorldMatrix.UpVec.NormalizedFast() * 50.0f;
             Vec3 right = WorldMatrix.RightVec.NormalizedFast() * 50.0f;
             

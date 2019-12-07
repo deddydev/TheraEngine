@@ -32,7 +32,7 @@ namespace TheraEditor.Wrappers
     {
         public BaseFileWrapper()
         {
-            Menu = TMenu.Default(this);
+            Menu = DefaultMenu(this);
         }
 
         public void Reload()

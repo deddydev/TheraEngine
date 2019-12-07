@@ -16,6 +16,7 @@ using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
 using TheraEngine.Rendering.UI;
 using Extensions;
+using TheraEditor.Wrappers;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -292,7 +293,7 @@ namespace TheraEditor.Windows.Forms
             min.X = min.X.RoundToNearestMultiple(inc);
             min.Y = min.Y.RoundToNearestMultiple(inc);
 
-            Vec2 unitCounts = Bounds / (inc * BaseTransformComponent.ScaleX);
+            Vec2 unitCounts = Bounds / (inc * BaseTransformComponent.ScaleX) + Vec2.One;
 
             UpdateTextIncPass(unitCounts.X, _textCacheX, min.X, inc, true);
             UpdateTextIncPass(unitCounts.Y, _textCacheY, min.Y, inc, false);
@@ -312,7 +313,6 @@ namespace TheraEditor.Windows.Forms
             }).ToDictionary(x => x.vstr, x => x.value);
 
             bool isUsed(string key) => visible.ContainsKey(key);
-            string findUnused() => textCache.FirstOrDefault(x => !isUsed(x.Key)).Key;
 
             UITextComponent comp;
             UIString2D str;
@@ -332,7 +332,7 @@ namespace TheraEditor.Windows.Forms
                     else
                     {
                         //Not in cache, find an unused cache item
-                        var unusedKey = findUnused();
+                        var unusedKey = textCache.FirstOrDefault(x => !isUsed(x.Key)).Key;
                         if (unusedKey != null)
                         {
                             var value = textCache[unusedKey];
@@ -426,7 +426,8 @@ namespace TheraEditor.Windows.Forms
             input.RegisterKeyPressed(EKey.Q, ZoomIn, EInputPauseType.TickAlways);
 
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickAlways);
-            input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickAlways);
+
+            base.RegisterInput(input);
         }
 
         /// <summary>
@@ -504,11 +505,15 @@ namespace TheraEditor.Windows.Forms
         {
             RightClickPressed = true;
             _lastWorldPos = CursorPositionWorld();
+
+            ContextMenu.IsVisible = true;
         }
         protected virtual void OnRightClickReleased()
         {
             RightClickPressed = false;
         }
+
+        public TMenuComponent ContextMenu { get; set; }
 
         protected Vec2 GetWorldCursorDiff(Vec2 cursorPosScreen)
         {
@@ -521,7 +526,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         protected abstract bool IsDragging { get; }
-        public UIComponent BaseTransformComponent { get; protected set; }
+        public UITransformComponent BaseTransformComponent { get; protected set; }
 
         protected override void MouseMove(float x, float y)
         {

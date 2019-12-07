@@ -62,7 +62,7 @@ namespace TheraEngine.Components
             Animations?.ForEach(anim =>
             {
                 if (anim.State != Animation.EAnimationState.Stopped)
-                    anim.Start();
+                    anim.Stop();
             });
         }
     }

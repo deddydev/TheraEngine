@@ -164,7 +164,9 @@ namespace TheraEngine.Components
         protected Matrix4 _inverseLocalMatrix = Matrix4.Identity;
 
         internal ISocket _parent;
-        protected IEventList<ISceneComponent> _children;
+        protected EventList<ISceneComponent> _children;
+        
+        IEventList<ISceneComponent> ISocket.ChildComponents => _children;
 
         private bool _monitorAudioVelocity = false;
         private bool _monitorVelocity = false;
@@ -411,7 +413,7 @@ namespace TheraEngine.Components
         [TSerialize]
         //[Browsable(false)]
         [Category("Scene Component")]
-        public IEventList<ISceneComponent> ChildComponents
+        public EventList<ISceneComponent> ChildComponents
         {
             get => _children;
             set
@@ -674,13 +676,13 @@ namespace TheraEngine.Components
         protected virtual void OnChildComponentsRemoved(IEnumerable<ISceneComponent> items)
         {
             foreach (ISceneComponent item in items)
-                HandleSingleChildRemoved(item);
+                OnChildRemoved(item);
 
             OwningActor?.GenerateSceneComponentCache();
         }
         protected virtual void OnChildComponentRemoved(ISceneComponent item)
         {
-            HandleSingleChildRemoved(item);
+            OnChildRemoved(item);
 
             OwningActor?.GenerateSceneComponentCache();
         }
@@ -696,7 +698,7 @@ namespace TheraEngine.Components
         protected virtual void OnChildComponentsAdded(IEnumerable<ISceneComponent> items)
         {
             foreach (ISceneComponent item in items)
-                HandleSingleChildAdded(item);
+                OnChildAdded(item);
 
             OwningActor?.GenerateSceneComponentCache();
         }
@@ -707,15 +709,15 @@ namespace TheraEngine.Components
         /// <param name="item"></param>
         protected virtual void OnChildComponentAdded(ISceneComponent item)
         {
-            HandleSingleChildAdded(item);
+            OnChildAdded(item);
 
             OwningActor?.GenerateSceneComponentCache();
         }
-        protected virtual void HandleSingleChildRemoved(ISceneComponent item)
+        protected virtual void OnChildRemoved(ISceneComponent item)
         {
             item.RemovedFromParent();
         }
-        protected virtual void HandleSingleChildAdded(ISceneComponent item)
+        protected virtual void OnChildAdded(ISceneComponent item)
         {
             item.AddedToParent(this, IsSpawned);
         }

@@ -83,7 +83,7 @@ namespace System.Collections.Generic
     [Serializable]
     public class EventList<T> : TObjectSlim, IEventList<T>
     {
-        private List<T> _list;
+        private readonly List<T> _list;
 
         public delegate void SingleHandler(T item);
         public delegate bool SingleCancelableHandler(T item);

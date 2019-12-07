@@ -140,7 +140,7 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             RootComponent.RegisterInputs(input);
             
-            input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickOnlyWhenPaused);
+            input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickAlways);
             //input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickOnlyWhenPaused);
 
             //input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false, EInputPauseType.TickOnlyWhenPaused);
@@ -198,14 +198,14 @@ namespace TheraEngine.Actors.Types.Pawns
             if (Bounds == Vec2.Zero)
                 return;
             _screenSpaceUIScene.Resize(bounds);
-            RootComponent.Resize(bounds);
+            RootComponent.OnResize(bounds);
             ScreenOverlayCamera.Resize(bounds.X, bounds.Y);
         }
         protected override void PostConstruct()
         {
             base.PostConstruct();
             if (Bounds != Vec2.Zero)
-                RootComponent?.Resize(Bounds);
+                RootComponent?.OnResize(Bounds);
         }
         //public void Render()
         //{

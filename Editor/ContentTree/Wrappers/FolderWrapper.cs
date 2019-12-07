@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.Remoting;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheraEditor.ContentTree.Core;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
@@ -39,19 +40,19 @@ namespace TheraEditor.Wrappers
 
             Menu = new TMenu()
             {
-                TMenuOption.Rename(this),
-                TMenuOption.Explorer(this),
+                RenameMenuOption(this),
+                ExplorerMenuOption(this),
                 TMenuDivider.Instance,
                 ImportFileOption,
                 NewFileOption,
                 new TMenuOption("New Folder", NewFolder, Keys.Control | Keys.F),
                 new TMenuOption("Compile To Archive", ToArchive, Keys.Control | Keys.A),
                 TMenuDivider.Instance,
-                TMenuOption.Cut(this),
-                TMenuOption.Copy(this),
-                TMenuOption.Paste(this),
+                CutMenuOption(this),
+                CopyMenuOption(this),
+                PasteMenuOption(this),
                 TMenuDivider.Instance,
-                TMenuOption.Delete(this),
+                DeleteMenuOption(this),
             };
         }
 

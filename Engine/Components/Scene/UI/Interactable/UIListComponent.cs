@@ -1,8 +1,8 @@
 ﻿namespace TheraEngine.Rendering.UI
 {
-    public class ListHudComponent : UIInteractableComponent
+    public class UIListComponent : UIInteractableComponent
     {
-        public ListHudComponent()
+        public UIListComponent()
         {
 
         }

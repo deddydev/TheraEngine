@@ -358,7 +358,7 @@ namespace TheraEngine.Rendering.UI.Functions
 
             //_headerText.LocalTranslation = new Vec2(0.0f, _size.Y);
 
-            PerformResize();
+            Resize();
         }
         private void Arrange2(BaseFuncArg arg, UITextComponent text, Size size, bool input, float headerHeight, float yTrans, int maxRowHeight)
         {
@@ -393,9 +393,9 @@ namespace TheraEngine.Rendering.UI.Functions
         }
         #endregion
 
-        protected override void HandleSingleChildAdded(ISceneComponent item)
+        protected override void OnChildAdded(ISceneComponent item)
         {
-            base.HandleSingleChildAdded(item);
+            base.OnChildAdded(item);
             if (OwningActor != null)
             {
                 foreach (var e in _execInputs)

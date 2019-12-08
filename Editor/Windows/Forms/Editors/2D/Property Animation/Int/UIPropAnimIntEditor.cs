@@ -136,8 +136,8 @@ namespace TheraEditor.Windows.Forms
             Vec2 tangentOutVector = new Vec2(1.0f, velOut);
             tangentInVector.Normalize();
             tangentOutVector.Normalize();
-            tangentInVector *= TangentScale / BaseTransformComponent.ScaleX;
-            tangentOutVector *= TangentScale / BaseTransformComponent.ScaleX;
+            tangentInVector *= TangentScale / BaseTransformComponent.Scale.X;
+            tangentOutVector *= TangentScale / BaseTransformComponent.Scale.X;
 
             inPos = new Vec3(kf.Second, kf.InValue, 0.0f);
             inTanPos = new Vec3(kf.Second + tangentInVector.X, kf.InValue + tangentInVector.Y, 0.0f);
@@ -420,9 +420,10 @@ void main()
         protected override void UpdateTextScale()
         {
             base.UpdateTextScale();
-            Vec2 scale = 1.0f / BaseTransformComponent.Scale;
-            _xCoord.Scale = scale;
-            _yCoord.Scale = scale;
+
+            Vec2 scale = 1.0f / BaseTransformComponent.Scale.Xy;
+            _xCoord.Scale.Xy = scale;
+            _yCoord.Scale.Xy = scale;
         }
         protected override bool GetWorkArea(out Vec2 min, out Vec2 max)
         {
@@ -872,7 +873,7 @@ void main()
                     }
                     else
                     {
-                        float tangentScale = TangentScale / BaseTransformComponent.ScaleX;
+                        float tangentScale = TangentScale / BaseTransformComponent.Scale.X;
                      
                         if (kf.Value.DraggingInTangent)
                         {
@@ -910,7 +911,7 @@ void main()
                 return;
 
             Vec2 cursorPos = CursorPositionTransformRelative();
-            float radius = SelectionRadius / BaseTransformComponent.ScaleX;
+            float radius = SelectionRadius / BaseTransformComponent.Scale.X;
             ClosestPositionIndices = KeyframeInOutPosInOutTan.FindAllMatchIndices(x => x.DistanceToFast(cursorPos) < radius);
         }
         protected override void OnScrolledInput(bool down)

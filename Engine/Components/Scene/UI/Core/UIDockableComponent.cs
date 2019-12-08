@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -98,17 +99,17 @@ namespace TheraEngine.Rendering.UI
         {
             if (Width < 0)
             {
-                LocalTranslationX += Width;
+                LocalTranslation.X += Width;
                 Width = -Width;
             }
             if (Height < 0)
             {
-                LocalTranslationY += Height;
+                LocalTranslation.Y += Height;
                 Height = -Height;
             }
         }
         [Category("Transform")]
-        public override Vec2 Size
+        public override EventVec2 Size
         {
             get => base.Size;
             set
@@ -118,40 +119,16 @@ namespace TheraEngine.Rendering.UI
                 Resize();
             }
         }
-        [Browsable(false)]
-        public override float Width
-        {
-            get => SizeableWidth.GetResultingValue(ParentBounds);
-            set => SizeableWidth.SetResultingValue(value, ParentBounds);
-        }
-        [Browsable(false)]
-        public override float Height
-        {
-            get => SizeableHeight.GetResultingValue(ParentBounds);
-            set => SizeableHeight.SetResultingValue(value, ParentBounds);
-        }
         [Category("Transform")]
-        public override Vec2 LocalTranslation
+        public override EventVec3 LocalTranslation
         {
-            get => new Vec2(SizeablePosX.GetResultingValue(ParentBounds), SizeablePosY.GetResultingValue(ParentBounds));
+            get => base.LocalTranslation;
             set
             {
                 SizeablePosX.SetResultingValueNoUpdate(value.X, ParentBounds);
                 SizeablePosY.SetResultingValueNoUpdate(value.Y, ParentBounds);
                 Resize();
             }
-        }
-        [Browsable(false)]
-        public override float LocalTranslationX
-        {
-            get => SizeablePosX.GetResultingValue(ParentBounds);
-            set => SizeablePosX.SetResultingValue(value, ParentBounds);
-        }
-        [Browsable(false)]
-        public override float LocalTranslationY
-        {
-            get => SizeablePosY.GetResultingValue(ParentBounds);
-            set => SizeablePosY.SetResultingValue(value, ParentBounds);
         }
         public UIDockableComponent() : base()
         {
@@ -269,10 +246,10 @@ namespace TheraEngine.Rendering.UI
             Vec2 leftOver = parentBounds;
             Vec2 prevRegion = Size;
             
-            _size.X = SizeableWidth.GetResultingValue(parentBounds);
-            _size.Y = SizeableHeight.GetResultingValue(parentBounds);
-            _translation.X = SizeablePosX.GetResultingValue(parentBounds);
-            _translation.Y = SizeablePosY.GetResultingValue(parentBounds);
+            Size.X = SizeableWidth.GetResultingValue(parentBounds);
+            Size.Y = SizeableHeight.GetResultingValue(parentBounds);
+            LocalTranslation.X = SizeablePosX.GetResultingValue(parentBounds);
+            LocalTranslation.Y = SizeablePosY.GetResultingValue(parentBounds);
             
             RecalcLocalTransform();
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,9 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public class BaseSerializationIO : MarshalByRefObject
     {
+        protected static void Log(string message)
+            => Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}]" + message);
+
         public EProprietaryFileFormat Format { get; protected set; }
         public abstract class BaseAbstractReaderWriter : MarshalByRefObject
         {

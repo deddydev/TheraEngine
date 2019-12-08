@@ -7,7 +7,6 @@ namespace TheraEngine.Components
 {
     public interface IComponent : IFileObject
     {
-        bool Locked { get; }
         IActor OwningActor { get; set; }
 
         bool IsSpawned { get; }
@@ -21,22 +20,23 @@ namespace TheraEngine.Components
     [TFileExt("comp")]
     public abstract class Component : TFileObject, IComponent
     {
-        /// <summary>
-        /// Determines if this component was constructed by code and cannot be removed.
-        /// </summary>
-        [Browsable(false)]
-        public bool Locked { get; } = true;
+        [TSerialize(nameof(OwningActor))]
+        private IActor _owningActor;
 
         [Browsable(false)]
-        public virtual IActor OwningActor { get; set; }
+        public virtual IActor OwningActor
+        {
+            get => _owningActor;
+            set => SetBackingField(ref _owningActor, value);
+        }
 
         [Browsable(false)]
         public bool IsSpawned => OwningActor?.IsSpawned ?? false;
 
-        public void Spawn(IActor owner) 
+        public void Spawn(IActor owner)
         {
             OwningActor = owner;
-            OnSpawned(); 
+            OnSpawned();
         }
         public void Despawn(IActor owner)
         {
@@ -57,7 +57,7 @@ namespace TheraEngine.Components
                     anim.Start();
             });
         }
-        public virtual void OnDespawned() 
+        public virtual void OnDespawned()
         {
             Animations?.ForEach(anim =>
             {

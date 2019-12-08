@@ -288,102 +288,102 @@ namespace TheraEngine.Rendering.UI.Functions
         #region Control Arrangement
         public void ArrangeControls()
         {
-            Vec2 headerSize = _headerString.Region.Extents;
-            int totalHeaderPadding = HeaderPadding * 2;
-            headerSize.Y += totalHeaderPadding;
-            headerSize.X += totalHeaderPadding;
+            //Vec2 headerSize = _headerString.Region.Extents;
+            //int totalHeaderPadding = HeaderPadding * 2;
+            //headerSize.Y += totalHeaderPadding;
+            //headerSize.X += totalHeaderPadding;
             
-            int connectionBoxBounds = BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin;
-            int rows = Math.Max(
-                _valueInputs.Count + _execInputs.Count,
-                _valueOutputs.Count + _execOutputs.Count);
+            //int connectionBoxBounds = BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin;
+            //int rows = Math.Max(
+            //    _valueInputs.Count + _execInputs.Count,
+            //    _valueOutputs.Count + _execOutputs.Count);
 
-            Size[] inputTextSizes = new Size[rows];
-            Size[] outputTextSizes = new Size[rows];
-            int[] maxHeights = new int[rows];
-            int maxRows = Math.Max(inputTextSizes.Length, outputTextSizes.Length);
+            //Size[] inputTextSizes = new Size[rows];
+            //Size[] outputTextSizes = new Size[rows];
+            //int[] maxHeights = new int[rows];
+            //int maxRows = Math.Max(inputTextSizes.Length, outputTextSizes.Length);
 
-            int middleMargin = 2;
+            //int middleMargin = 2;
 
-            int maxRowWidth = 0;
-            int maxRowHeight = 0;
-            int currentRowWidth;
-            _size.Y = headerSize.Y + BaseFuncArg.ConnectionBoxMargin * 2.0f;
-            for (int i = 0; i < maxRows; ++i)
-            {
-                currentRowWidth = middleMargin;
+            //int maxRowWidth = 0;
+            //int maxRowHeight = 0;
+            //int currentRowWidth;
+            //_size.Y = headerSize.Y + BaseFuncArg.ConnectionBoxMargin * 2.0f;
+            //for (int i = 0; i < maxRows; ++i)
+            //{
+            //    currentRowWidth = middleMargin;
 
-                if (i < _execInputs.Count)
-                    Arrange1(_execInputs[i], i, inputTextSizes, ref currentRowWidth);
-                else if (i - _execInputs.Count < _valueInputs.Count)
-                    Arrange1(_valueInputs[i - _execInputs.Count], i, inputTextSizes, ref currentRowWidth);
+            //    if (i < _execInputs.Count)
+            //        Arrange1(_execInputs[i], i, inputTextSizes, ref currentRowWidth);
+            //    else if (i - _execInputs.Count < _valueInputs.Count)
+            //        Arrange1(_valueInputs[i - _execInputs.Count], i, inputTextSizes, ref currentRowWidth);
 
-                if (i < _execOutputs.Count)
-                    Arrange1(_execOutputs[i], i, outputTextSizes, ref currentRowWidth);
-                else if (i - _execOutputs.Count < _valueOutputs.Count)
-                    Arrange1(_valueOutputs[i - _execOutputs.Count], i, outputTextSizes, ref currentRowWidth);
+            //    if (i < _execOutputs.Count)
+            //        Arrange1(_execOutputs[i], i, outputTextSizes, ref currentRowWidth);
+            //    else if (i - _execOutputs.Count < _valueOutputs.Count)
+            //        Arrange1(_valueOutputs[i - _execOutputs.Count], i, outputTextSizes, ref currentRowWidth);
 
-                maxRowWidth = Math.Max(maxRowWidth, currentRowWidth);
-                maxRowHeight = TMath.Max(connectionBoxBounds,
-                    i < inputTextSizes.Length ? inputTextSizes[i].Height : 0,
-                    i < outputTextSizes.Length ? outputTextSizes[i].Height : 0);
-                maxHeights[i] = maxRowHeight;
-                _size.Y += maxRowHeight;
-            }
+            //    maxRowWidth = Math.Max(maxRowWidth, currentRowWidth);
+            //    maxRowHeight = TMath.Max(connectionBoxBounds,
+            //        i < inputTextSizes.Length ? inputTextSizes[i].Height : 0,
+            //        i < outputTextSizes.Length ? outputTextSizes[i].Height : 0);
+            //    maxHeights[i] = maxRowHeight;
+            //    _size.Y += maxRowHeight;
+            //}
 
-            _size.X = Math.Max(maxRowWidth, headerSize.X);
+            //_size.X = Math.Max(maxRowWidth, headerSize.X);
 
-            SizeableWidth.SetSizingPixels(_size.X);
-            SizeableHeight.SetSizingPixels(_size.Y);
+            //SizeableWidth.SetSizingPixels(_size.X);
+            //SizeableHeight.SetSizingPixels(_size.Y);
 
-            float yTrans = _size.Y - headerSize.Y - BaseFuncArg.ConnectionBoxMargin;
-            for (int i = 0; i < maxRows; ++i)
-            {
-                int height = TMath.Max(connectionBoxBounds,
-                    i < inputTextSizes.Length ? inputTextSizes[i].Height : 0,
-                    i < outputTextSizes.Length ? outputTextSizes[i].Height : 0);
+            //float yTrans = _size.Y - headerSize.Y - BaseFuncArg.ConnectionBoxMargin;
+            //for (int i = 0; i < maxRows; ++i)
+            //{
+            //    int height = TMath.Max(connectionBoxBounds,
+            //        i < inputTextSizes.Length ? inputTextSizes[i].Height : 0,
+            //        i < outputTextSizes.Length ? outputTextSizes[i].Height : 0);
 
-                yTrans -= height;
+            //    yTrans -= height;
 
-                if (i < _execInputs.Count)
-                    Arrange2(_execInputs[i], _inputParamTexts[i], inputTextSizes[i], true, headerSize.Y, yTrans, maxHeights[i]);
-                else if (i - _execInputs.Count < _valueInputs.Count)
-                    Arrange2(_valueInputs[i - _execInputs.Count], _inputParamTexts[i], inputTextSizes[i], true, headerSize.Y, yTrans, maxHeights[i]);
+            //    if (i < _execInputs.Count)
+            //        Arrange2(_execInputs[i], _inputParamTexts[i], inputTextSizes[i], true, headerSize.Y, yTrans, maxHeights[i]);
+            //    else if (i - _execInputs.Count < _valueInputs.Count)
+            //        Arrange2(_valueInputs[i - _execInputs.Count], _inputParamTexts[i], inputTextSizes[i], true, headerSize.Y, yTrans, maxHeights[i]);
 
-                if (i < _execOutputs.Count)
-                    Arrange2(_execOutputs[i], _outputParamTexts[i], outputTextSizes[i], false, headerSize.Y, yTrans, maxHeights[i]);
-                else if (i - _execOutputs.Count < _valueOutputs.Count)
-                    Arrange2(_valueOutputs[i - _execOutputs.Count], _outputParamTexts[i], outputTextSizes[i], false, headerSize.Y, yTrans, maxHeights[i]);
-            }
+            //    if (i < _execOutputs.Count)
+            //        Arrange2(_execOutputs[i], _outputParamTexts[i], outputTextSizes[i], false, headerSize.Y, yTrans, maxHeights[i]);
+            //    else if (i - _execOutputs.Count < _valueOutputs.Count)
+            //        Arrange2(_valueOutputs[i - _execOutputs.Count], _outputParamTexts[i], outputTextSizes[i], false, headerSize.Y, yTrans, maxHeights[i]);
+            //}
 
-            //_headerText.LocalTranslation = new Vec2(0.0f, _size.Y);
+            ////_headerText.LocalTranslation = new Vec2(0.0f, _size.Y);
 
-            Resize();
+            //Resize();
         }
         private void Arrange2(BaseFuncArg arg, UITextComponent text, Size size, bool input, float headerHeight, float yTrans, int maxRowHeight)
         {
-            text.Size = size;
-            int t = BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin;
+            //text.Size = size;
+            //int t = BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin;
 
-            float xTrans;
-            if (input)
-            {
-                xTrans = BaseFuncArg.ConnectionBoxMargin;
-                arg.LocalOriginPercentage = new Vec2(0.0f, 0.6f);
+            //float xTrans;
+            //if (input)
+            //{
+            //    xTrans = BaseFuncArg.ConnectionBoxMargin;
+            //    arg.LocalOriginPercentage = new Vec2(0.0f, 0.6f);
 
-                text.LocalOriginPercentage = new Vec2(0.0f, 0.0f);
-            }
-            else
-            {
-                xTrans = _size.X - BaseFuncArg.ConnectionBoxMargin;
-                arg.LocalOriginPercentage = new Vec2(1.0f, 0.6f);
+            //    text.LocalOriginPercentage = new Vec2(0.0f, 0.0f);
+            //}
+            //else
+            //{
+            //    xTrans = _size.X - BaseFuncArg.ConnectionBoxMargin;
+            //    arg.LocalOriginPercentage = new Vec2(1.0f, 0.6f);
 
-                t = -t;
-                text.LocalOriginPercentage = new Vec2(1.0f, 0.0f);
-            }
-            arg.LocalTranslation = new Vec2(xTrans, yTrans);
-            text.LocalTranslation = new Vec2(xTrans + t, yTrans);
-            arg.LocalTranslationY += maxRowHeight * 0.5f;
+            //    t = -t;
+            //    text.LocalOriginPercentage = new Vec2(1.0f, 0.0f);
+            //}
+            //arg.LocalTranslation = new Vec2(xTrans, yTrans);
+            //text.LocalTranslation = new Vec2(xTrans + t, yTrans);
+            //arg.LocalTranslationY += maxRowHeight * 0.5f;
         }
         private void Arrange1(BaseFuncArg arg, int i, Size[] sizes, ref int currentRowWidth)
         {

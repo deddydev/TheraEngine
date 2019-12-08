@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace TheraEngine.Core.Files.Serialization
             protected abstract Task ReadTreeAsync();
             public async Task<object> CreateObjectAsync()
             {
-                Engine.PrintLine("Deserializing object from " + FilePath);
+                Log($"Deserializing object from {FilePath}");
 
                 await ReadTreeAsync();
 
@@ -64,21 +65,18 @@ namespace TheraEngine.Core.Files.Serialization
                     tobj.FilePath = FilePath;
 
                 if (PendingAsyncTasks.Count > 0)
-                    WaitForAsyncComplete();
+                    MonitorAsyncCompletion();
 
                 return obj;
             }
 
             public event Action FileAsyncIOCompleted;
 
-            private void WaitForAsyncComplete()
+            private async void MonitorAsyncCompletion()
             {
-                Engine.PrintLine($"Waiting for {PendingAsyncTasks.Count} async file IO tasks to complete.");
-                Task.WhenAll(PendingAsyncTasks).ContinueWith(AllTasksCompleted);
-            }
-            private void AllTasksCompleted(Task task)
-            {
-                Engine.PrintLine($"Finished all async file IO tasks.");
+                Log($"Waiting for {PendingAsyncTasks.Count} async file IO tasks to complete.");
+                await Task.WhenAll(PendingAsyncTasks);
+                Log($"Finished all async file IO tasks.");
                 FileAsyncIOCompleted?.Invoke();
             }
         }

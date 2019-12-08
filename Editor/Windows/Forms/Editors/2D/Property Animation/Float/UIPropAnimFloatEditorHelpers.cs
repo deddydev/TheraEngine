@@ -110,8 +110,8 @@ namespace TheraEditor.Windows.Forms
             Vec2 tangentOutVector = new Vec2(1.0f, outVel);
             tangentInVector.Normalize();
             tangentOutVector.Normalize();
-            tangentInVector *= TangentScale / BaseTransformComponent.ScaleX;
-            tangentOutVector *= TangentScale / BaseTransformComponent.ScaleX;
+            tangentInVector *= TangentScale / BaseTransformComponent.Scale.X;
+            tangentOutVector *= TangentScale / BaseTransformComponent.Scale.X;
 
             inPos = new Vec3(kf.Second, inVal, 0.0f);
             inTanPos = inPos + tangentInVector;

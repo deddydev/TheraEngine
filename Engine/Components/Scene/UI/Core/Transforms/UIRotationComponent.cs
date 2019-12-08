@@ -6,6 +6,7 @@ namespace TheraEngine.Rendering.UI
 {
     public class UIRotationComponent : UIComponent
     {
+        [TSerialize(nameof(RotationAngle))]
         private float _rotationAngle = 0.0f;
 
         /// <summary>
@@ -18,8 +19,8 @@ namespace TheraEngine.Rendering.UI
             get => _rotationAngle;
             set
             {
-                _rotationAngle = value;
-                RecalcLocalTransform();
+                if (SetBackingField(ref _rotationAngle, value))
+                    RecalcLocalTransform();
             }
         }
 

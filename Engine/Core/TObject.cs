@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Lifetime;
 using System.Security.Permissions;
 using TheraEngine.Animation;
@@ -18,7 +19,7 @@ namespace TheraEngine
     {
         TypeProxy GetTypeProxy();
     }
-    public interface IObject : IObjectSlim
+    public interface IObject : IObjectSlim, INotifyPropertyChanged, INotifyPropertyChanging
     {
         event RenamedEventHandler Renamed;
 
@@ -117,6 +118,13 @@ namespace TheraEngine
     public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
 
+    public class CancellablePropertyChangingEventArgs : PropertyChangingEventArgs
+    {
+        public CancellablePropertyChangingEventArgs(string propertyName) : base(propertyName) { }
+
+        public bool Cancel { get; set; } = false;
+    }
+
     /// <summary>
     /// Use this class for objects that just need to be marshalled between domains and need no extra functionality.
     /// </summary>
@@ -161,6 +169,9 @@ namespace TheraEngine
         [Browsable(false)]
         public bool ConstructedProgrammatically { get; set; } = true;
 
+        //protected internal bool IsDeserializing { get; set; } = false;
+        //protected internal bool IsSerializing { get; set; } = false;
+
         [TSerialize]
         //[BrowsableIf("_userData != null")]
         [Browsable(false)]
@@ -181,9 +192,58 @@ namespace TheraEngine
                 OnRenamed(oldName);
             }
         }
+
         public event RenamedEventHandler Renamed;
+        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangingEventHandler PropertyChanging;
+        
+        /// <summary>
+        /// Returns true if cancelled.
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        protected virtual bool NotifyPropertyChanging([CallerMemberName] string propertyName = null)
+        {
+            var args = new CancellablePropertyChangingEventArgs(propertyName);
+            PropertyChanging?.Invoke(this, args);
+            return args.Cancel;
+        }
+        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        /// <summary>
+        /// Helper method to set a property's backing field.
+        /// Checks if the new value is equal to the new value and cancels if true.
+        /// Otherwise, reports property changing event, sets value, then reports property changed event.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fieldValue"></param>
+        /// <param name="newValue"></param>
+        /// <param name="propertyName"></param>
+        protected virtual bool SetBackingField<T>(ref T fieldValue, T newValue, Action beforeSet = null, Action afterSet = null, bool executeMethodsIfNull = true, [CallerMemberName] string propertyName = null)
+        {
+            if (Equals(fieldValue, newValue))
+                return false;
+
+            if (NotifyPropertyChanging(propertyName))
+                return false;
+
+            if (executeMethodsIfNull || fieldValue != default)
+                beforeSet?.Invoke();
+
+            fieldValue = newValue;
+
+            if (executeMethodsIfNull || newValue != default)
+                afterSet?.Invoke();
+
+            NotifyPropertyChanged(propertyName);
+
+            return true;
+        }
+
         protected virtual void OnRenamed(string oldName)
             => Renamed?.Invoke(this, oldName);
+
         #endregion
 
 

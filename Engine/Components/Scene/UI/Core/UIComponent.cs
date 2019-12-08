@@ -40,16 +40,16 @@ namespace TheraEngine.Rendering.UI
         IRenderInfo2D I2DRenderable.RenderInfo => RenderInfo;
         [Category("Rendering")]
         public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
+
         [Category("Rendering")]
         public virtual bool IsVisible
         {
             get => _visible;
             set
             {
-                if (_visible == value)
+                if (!SetBackingField(ref _visible, value))
                     return;
-
-                _visible = value;
+                
                 RenderInfo.Visible = value;
 
                 foreach (ISceneComponent c in _children)
@@ -63,10 +63,8 @@ namespace TheraEngine.Rendering.UI
             get => _enabled;
             set
             {
-                if (_enabled == value)
+                if (!SetBackingField(ref _enabled, value))
                     return;
-
-                _enabled = value;
 
                 foreach (ISceneComponent c in _children)
                     if (c is UIComponent uic)

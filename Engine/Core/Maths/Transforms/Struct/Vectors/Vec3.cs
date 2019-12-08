@@ -110,10 +110,20 @@ namespace TheraEngine.Core.Maths.Transforms
         /// </summary>
         public Matrix4 AsTranslationMatrix() => Matrix4.CreateTranslation(this);
         /// <summary>
+        /// Converts a translation vector to an inverse matrix transformation.
+        /// </summary>
+        public Matrix4 AsInverseTranslationMatrix() => Matrix4.CreateTranslation(-this);
+
+        /// <summary>
         /// Converts a scale vector to a matrix transformation.
         /// </summary>
         /// <returns></returns>
         public Matrix4 AsScaleMatrix() => Matrix4.CreateScale(this);
+        /// <summary>
+        /// Converts a scale vector to an inverse matrix transformation.
+        /// </summary>
+        /// <returns></returns>
+        public Matrix4 AsInverseScaleMatrix() => Matrix4.CreateScale(1.0f / this);
 
         /// <summary>
         /// The magnitude of this vector, squared. Also the same thing as the distance to the origin, but squared.

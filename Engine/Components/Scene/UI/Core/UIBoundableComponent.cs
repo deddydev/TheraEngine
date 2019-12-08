@@ -9,66 +9,105 @@ namespace TheraEngine.Rendering.UI
 {
     public interface IUIBoundableComponent : IUIComponent
     {
-        Vec2 Size { get; set; }
-        float Height { get; set; }
-        float Width { get; set; }
-        Vec2 LocalOriginPercentage { get; set; }
+        EventVec2 Size { get; set; }
+        EventVec2 LocalOriginPercentage { get; set; }
         Vec2 LocalOriginTranslation { get; set; }
         Vec2 BottomLeftTranslation { get; set; }
     }
-    public abstract class UIBoundableComponent : UIComponent, IUIBoundableComponent, IEnumerable<IUIComponent>
+    /// <summary>
+    /// Only applies if the parent is a UIBoundableComponent.
+    /// </summary>
+    public enum EVerticalSizingMode
+    {
+        Top,
+        Center,
+        Bottom,
+        Stretch,
+    }
+    /// <summary>
+    /// Only applies if the parent is a UIBoundableComponent.
+    /// </summary>
+    public enum EHorizontalSizingMode
+    {
+        Left,
+        Center,
+        Right,
+        Stretch,
+    }
+    public abstract class UIBoundableComponent : UITransformComponent, IUIBoundableComponent, IEnumerable<IUIComponent>
     {
         public UIBoundableComponent() : base() { }
-        
-        public bool IsMouseOver { get; set; }
 
-        protected Vec2 _localOriginPercentage = Vec2.Zero;
-        protected Vec2 _size = Vec2.Zero;
-        
-        #region Bounds
+        private bool _isMouseOver = false;
+
+        [TSerialize(nameof(LocalOriginPercentage))]
+        private EventVec2 _localOriginPercentage = EventVec2.Zero;
+
+        [TSerialize(nameof(Size))]
+        private EventVec2 _size = EventVec2.Zero;
+
+        [TSerialize(nameof(HorizontalSizingMode))]
+        private EHorizontalSizingMode _horizontalSizingMode;
+
+        [TSerialize(nameof(VerticalSizingMode))]
+        private EVerticalSizingMode _verticalSizingMode;
+
+        [Category("State")]
+        public bool IsMouseOver
+        {
+            get => _isMouseOver;
+            set => SetBackingField(ref _isMouseOver, value);
+        }
         [Category("Transform")]
-        public virtual Vec2 Size
+        public EVerticalSizingMode VerticalSizingMode
+        {
+            get => _verticalSizingMode;
+            set => SetBackingField(ref _verticalSizingMode, value);
+        }
+        [Category("Transform")]
+        public EHorizontalSizingMode HorizontalSizingMode
+        {
+            get => _horizontalSizingMode;
+            set => SetBackingField(ref _horizontalSizingMode, value);
+        }
+        [Category("Transform")]
+        public virtual EventVec2 Size
         {
             get => _size;
             set
             {
-                _size = value;
+                SetBackingField(ref _size, value,
+                    () => _size.Changed -= Resize,
+                    () => _size.Changed += Resize,
+                    false);
+
                 Resize();
             }
         }
         [Browsable(false)]
-        public virtual float Height
+        public float Width 
         {
-            get => _size.Y;
-            set
-            {
-                _size.Y = value;
-                Resize();
-            }
+            get => _size.X; 
+            set => _size.X = value;
         }
         [Browsable(false)]
-        public virtual float Width
+        public float Height
         {
-            get => _size.X;
-            set
-            {
-                _size.X = value;
-                Resize();
-            }
+            get => _size.Y; 
+            set => _size.Y = value;
         }
-        #endregion
-        
+
         /// <summary>
         /// The origin of the component's rotation and scale, as a percentage.
         /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
         /// </summary>
         [Category("Transform")]
-        public virtual Vec2 LocalOriginPercentage
+        public virtual EventVec2 LocalOriginPercentage
         {
             get => _localOriginPercentage;
             set
             {
-                _translation += (value - _localOriginPercentage) * Size;
+                LocalTranslation.Xy += (value - _localOriginPercentage) * Size;
                 _localOriginPercentage = value;
                 Resize();
             }
@@ -76,20 +115,20 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public virtual Vec2 LocalOriginTranslation
         {
-            get => LocalOriginPercentage * Size;
-            set => LocalOriginPercentage = value / Size;
+            get => LocalOriginPercentage.Raw * Size.Raw;
+            set => LocalOriginPercentage.Raw = value / Size.Raw;
         }
         [Category("Transform")]
         public virtual Vec2 BottomLeftTranslation
         {
-            get => LocalTranslation - LocalOriginTranslation;
-            set => LocalTranslation = value + LocalOriginTranslation;
+            get => LocalTranslation.Raw.Xy - LocalOriginTranslation;
+            set => LocalTranslation.Xy = value + LocalOriginTranslation;
         }
 
         public bool Contains(Vec2 worldPoint)
         {
             Vec3 localPoint = worldPoint * GetInvComponentTransform();
-            return Size.Contains(localPoint.Xy);
+            return Size.Raw.Contains(localPoint.Xy);
         }
 
         /// <summary>
@@ -101,19 +140,19 @@ namespace TheraEngine.Rendering.UI
         public bool Contains(Vec3 worldPoint, float zMargin = 0.5f)
         {
             Vec3 localPoint = Vec3.TransformPosition(worldPoint, InverseWorldMatrix);
-            return Math.Abs(localPoint.Z) < zMargin && Size.Contains(localPoint.Xy);
+            return Math.Abs(localPoint.Z) < zMargin && Size.Raw.Contains(localPoint.Xy);
         }
-        
+
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             localTransform = Matrix4.TransformMatrix(
-                new Vec3(Scale, 1.0f),
+                Scale.Raw,
                 Matrix4.Identity,
                 BottomLeftTranslation,
                 ETransformOrder.TRS);
 
             inverseLocalTransform = Matrix4.TransformMatrix(
-                new Vec3(1.0f / Scale, 1.0f),
+                1.0f / Scale.Raw,
                 Matrix4.Identity,
                 -BottomLeftTranslation,
                 ETransformOrder.SRT);
@@ -131,7 +170,7 @@ namespace TheraEngine.Rendering.UI
         }
         protected virtual void RemakeAxisAlignedRegion()
         {
-            Matrix4 mtx = WorldMatrix * Matrix4.CreateScale(Width, Height, 0.0f);
+            Matrix4 mtx = WorldMatrix * Matrix4.CreateScale(Size.X, Size.Y, 0.0f);
 
             Vec3 minPos = Vec3.TransformPosition(Vec3.Zero, mtx);
             Vec3 maxPos = Vec3.TransformPosition(Vec2.One, mtx); //This is Vec2.One on purpose, we only want Z to be 0
@@ -159,7 +198,7 @@ namespace TheraEngine.Rendering.UI
 
             return null;
         }
-        
+
         protected override void OnChildAdded(ISceneComponent item)
         {
             base.OnChildAdded(item);

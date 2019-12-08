@@ -6,166 +6,117 @@ namespace TheraEngine.Rendering.UI
 {
     public interface IUITransformComponent : IUIComponent
     {
-        Vec2 ScreenTranslation { get; }
+        Vec3 ScreenTranslation { get; }
 
-        Vec2 LocalTranslation { get; set; }
-        float LocalTranslationX { get; set; }
-        float LocalTranslationY { get; set; }
-
-        Vec2 Scale { get; set; }
-        float ScaleX { get; set; }
-        float ScaleY { get; set; }
+        EventVec3 LocalTranslation { get; set; }
+        EventVec3 Scale { get; set; }
     }
-    public class UITransformComponent : UIComponent, IUITranslationComponent
+    public class UITransformComponent : UIComponent, IUITransformComponent
     {
         public UITransformComponent() : base() { }
 
-        [TSerialize]
-        public ETransformOrder Order { get; set; }
-
-        #region Translation
-
-        protected Vec2 _translation = Vec2.Zero;
+        [TSerialize(nameof(LocalTranslation))]
+        private EventVec3 _translation = EventVec3.Zero;
+        [TSerialize(nameof(Scale))]
+        private EventVec3 _scale = EventVec3.One;
+        [TSerialize(nameof(Order))]
+        private ETransformOrder _order = ETransformOrder.TRS;
 
         [Browsable(false)]
         [Category("Transform")]
-        public Vec2 ScreenTranslation
+        public Vec3 ScreenTranslation
         {
-            get => Vec3.TransformPosition(WorldPoint, GetComponentTransform()).Xy;
-            set => LocalTranslation = Vec3.TransformPosition(value, GetInvComponentTransform()).Xy;
+            get => Vec3.TransformPosition(WorldPoint, GetComponentTransform());
+            set => LocalTranslation = Vec3.TransformPosition(value, GetInvComponentTransform());
         }
 
         [Category("Transform")]
-        public virtual Vec2 LocalTranslation
+        public ETransformOrder Order
+        {
+            get => _order;
+            set
+            {
+                if (SetBackingField(ref _order, value))
+                    RecalcLocalTransform();
+            }
+        }
+        [Category("Transform")]
+        public virtual EventVec3 LocalTranslation
         {
             get => _translation;
             set
             {
-                _translation = value;
-                //RecalcLocalTransform();
-                Resize();
+                if (SetBackingField(ref _translation, value,
+                    () => _translation.Changed -= RecalcLocalTransform,
+                    () => _translation.Changed += RecalcLocalTransform,
+                    false))
+                    RecalcLocalTransform();
             }
         }
         [Category("Transform")]
-        public virtual float LocalTranslationX
-        {
-            get => _translation.X;
-            set
-            {
-                _translation.X = value;
-                //RecalcLocalTransform();
-                Resize();
-            }
-        }
-        [Category("Transform")]
-        public virtual float LocalTranslationY
-        {
-            get => _translation.Y;
-            set
-            {
-                _translation.Y = value;
-                //RecalcLocalTransform();
-                Resize();
-            }
-        }
-        #endregion
-
-        #region Scale
-
-        protected Vec2 _scale = Vec2.One;
-
-        [Category("Transform")]
-        public virtual Vec2 Scale
+        public virtual EventVec3 Scale
         {
             get => _scale;
             set
             {
-                _scale = value;
-                RecalcLocalTransform();
-                //PerformResize();
+                if (SetBackingField(ref _scale, value,
+                    () => _scale.Changed -= RecalcLocalTransform,
+                    () => _scale.Changed += RecalcLocalTransform,
+                    false))
+                    RecalcLocalTransform();
             }
         }
-        [Browsable(false)]
-        [Category("Transform")]
-        public virtual float ScaleX
-        {
-            get => _scale.X;
-            set
-            {
-                _scale.X = value;
-                RecalcLocalTransform();
-                //PerformResize();
-            }
-        }
-        [Browsable(false)]
-        [Category("Transform")]
-        public virtual float ScaleY
-        {
-            get => _scale.Y;
-            set
-            {
-                _scale.Y = value;
-                RecalcLocalTransform();
-                //PerformResize();
-            }
-        }
-        #endregion
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.TransformMatrix(Scale, Matrix4.Identity, LocalTranslation, Order);
-            inverseLocalTransform = Matrix4.TransformMatrix(1.0f / ScaleX, Matrix4.Identity, -LocalTranslation, Transform.OppositeOrder(Order));
+            localTransform = Matrix4.TransformMatrix(Scale.Raw, Matrix4.Identity, LocalTranslation, Order);
+            inverseLocalTransform = Matrix4.TransformMatrix(1.0f / Scale.Raw, Matrix4.Identity, -LocalTranslation, Transform.OppositeOrder(Order));
         }
 
+        /// <summary>
+        /// Scale and translate in/out to/from a specific point.
+        /// </summary>
+        /// <param name="amount"></param>
+        /// <param name="worldScreenPoint"></param>
+        /// <param name="minScale"></param>
+        /// <param name="maxScale"></param>
         public void Zoom(float amount, Vec2 worldScreenPoint, Vec2? minScale, Vec2? maxScale)
         {
-            if (amount == 0.0f)
+            if (Math.Abs(amount) < 0.0001f)
                 return;
 
-            Vec2 multiplier = Vec2.One / _scale * amount;
-            Vec2 newScale = _scale - amount;
+            Vec2 scale = _scale.Raw.Xy;
+            Vec2 multiplier = Vec2.One / scale * amount;
+            Vec2 newScale = scale - amount;
 
-            bool xClamped = false;
-            bool yClamped = false;
             if (minScale != null)
             {
                 if (newScale.X < minScale.Value.X)
-                {
                     newScale.X = minScale.Value.X;
-                    xClamped = true;
-                }
+
                 if (newScale.Y < minScale.Value.Y)
-                {
                     newScale.Y = minScale.Value.Y;
-                    yClamped = true;
-                }
             }
+
             if (maxScale != null)
             {
                 if (newScale.X > maxScale.Value.X)
-                {
                     newScale.X = maxScale.Value.X;
-                    xClamped = true;
-                }
+
                 if (newScale.Y > maxScale.Value.Y)
-                {
                     newScale.Y = maxScale.Value.Y;
-                    yClamped = true;
-                }
             }
 
-            if (!xClamped || !yClamped)
-            {
-                _translation = (_translation + (worldScreenPoint - WorldPoint.Xy) * multiplier);
-                _scale = newScale;
-            }
+            if (scale.DistanceTo(newScale) < 0.0001f)
+                return;
 
+            Vec2 newTranslation = _translation.Raw.Xy + (worldScreenPoint - WorldPoint.Xy) * multiplier;
+
+            _translation.SetRawNoUpdate(new Vec3(newTranslation, _translation.Z));
+            _scale.SetRawNoUpdate(new Vec3(newScale, _scale.Z));
+
+            RecalcLocalTransform();
             Resize();
-
-            //_cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * Matrix4.CreateScale(scale);
-            //_worldToCameraSpaceMatrix = Matrix4.CreateScale(-scale) * _worldToCameraSpaceMatrix;
-            //UpdateTransformedFrustum();
-            //OnTransformChanged();
         }
     }
 }

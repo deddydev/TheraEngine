@@ -185,6 +185,10 @@ namespace System
         [XmlIgnore]
         public EventVec2 Yx { get => new EventVec2(Y, X); set { Y = value.X; X = value.Y; } }
 
+        public static EventVec2 Zero => new EventVec2(0.0f);
+        public static EventVec2 Half => new EventVec2(0.5f);
+        public static EventVec2 One => new EventVec2(1.0f);
+
         public static EventVec2 operator -(EventVec2 left, EventVec2 right)
         {
             left.X -= right.X;

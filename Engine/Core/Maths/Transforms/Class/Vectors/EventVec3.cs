@@ -21,6 +21,10 @@ namespace TheraEngine.Core.Maths.Transforms
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public unsafe class EventVec3 : TObject, IEquatable<EventVec3>, IUniformable3Float, IBufferable, ISerializableString, IPoolable
     {
+        public static EventVec3 Zero => new EventVec3(0.0f);
+        public static EventVec3 Half => new EventVec3(0.5f);
+        public static EventVec3 One => new EventVec3(1.0f);
+
         public event Action XChanged;
         public event Action YChanged;
         public event Action ZChanged;
@@ -107,8 +111,13 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public Matrix4 AsScaleMatrix()
             => _data.AsScaleMatrix();
+        public Matrix4 AsInverseScaleMatrix()
+            => _data.AsInverseScaleMatrix();
+        
         public Matrix4 AsTranslationMatrix()
             => _data.AsTranslationMatrix();
+        public Matrix4 AsInverseTranslationMatrix()
+            => _data.AsInverseTranslationMatrix();
 
         [Browsable(false)]
         public VoidPtr Address => _data.Address;
@@ -516,85 +525,85 @@ namespace TheraEngine.Core.Maths.Transforms
         [XmlIgnore]
         public Vec2 Xy
         {
-            get { return new Vec2(X, Y); }
-            set { SetXy(value.X, value.Y); }
+            get => new Vec2(X, Y);
+            set => SetXy(value.X, value.Y);
         }
         [Browsable(false)]
         [XmlIgnore]
         public Vec2 Xz
         {
-            get { return new Vec2(X, Z); }
-            set { SetXz(value.X, value.Y); }
+            get => new Vec2(X, Z);
+            set => SetXz(value.X, value.Y);
         }
         [Browsable(false)]
         [XmlIgnore]
         public Vec2 Yx
         {
-            get { return new Vec2(Y, X); }
-            set { SetXy(value.Y, value.X); }
+            get => new Vec2(Y, X);
+            set => SetXy(value.Y, value.X);
         }
         [Browsable(false)]
         [XmlIgnore]
         public Vec2 Yz
         {
-            get { return new Vec2(Y, Z); }
-            set { SetYz(value.X, value.Y); }
+            get => new Vec2(Y, Z);
+            set => SetYz(value.X, value.Y);
         }
         [Browsable(false)]
         [XmlIgnore]
         public Vec2 Zx
         {
-            get { return new Vec2(Z, X); }
-            set { SetXz(value.Y, value.X); }
+            get => new Vec2(Z, X);
+            set => SetXz(value.Y, value.X);
         }
         [Browsable(false)]
         [XmlIgnore]
         public Vec2 Zy
         {
-            get { return new Vec2(Z, Y); }
-            set { SetYz(value.Y, value.X); }
+            get => new Vec2(Z, Y);
+            set => SetYz(value.Y, value.X);
         }
         [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Xzy
         {
-            get { return new EventVec3(X, Z, Y); }
-            set { SetXyz(value.X, value.Z, value.Y); }
+            get => new EventVec3(X, Z, Y);
+            set => SetXyz(value.X, value.Z, value.Y);
         }
         [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Yxz
         {
-            get { return new EventVec3(Y, X, Z); }
-            set { SetXyz(value.Y, value.X, value.Z); }
+            get => new EventVec3(Y, X, Z);
+            set => SetXyz(value.Y, value.X, value.Z);
         }
         [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Yzx
         {
-            get { return new EventVec3(Y, Z, X); }
-            set { SetXyz(value.Y, value.Z, value.X); }
+            get => new EventVec3(Y, Z, X);
+            set => SetXyz(value.Y, value.Z, value.X);
         }
         [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Zxy
         {
-            get { return new EventVec3(Z, X, Y); }
-            set { SetXyz(value.Z, value.X, value.Y); }
+            get => new EventVec3(Z, X, Y);
+            set => SetXyz(value.Z, value.X, value.Y);
         }
         [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Zyx
         {
-            get { return new EventVec3(Z, Y, X); }
-            set { SetXyz(value.Z, value.Y, value.X); }
+            get => new EventVec3(Z, Y, X);
+            set => SetXyz(value.Z, value.Y, value.X);
         }
         [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Xyz
         {
-            get { return new EventVec3(X, Y, Z); }
-            set { SetXyz(value.X, value.Y, value.Z); }
+            get => new EventVec3(X, Y, Z);
+            set => SetXyz(value.X, value.Y, value.Z);
         }
 
         public static Vec3 operator +(float left, EventVec3 right) { return left + right._data; }

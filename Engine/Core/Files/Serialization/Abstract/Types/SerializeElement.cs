@@ -156,6 +156,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                 _object = value;
 
+                //TODO: tell the object it is being serialized or deserialized currently
                 if (_object is IObject iobj)
                     iobj.ConstructedProgrammatically = false;
 
@@ -215,8 +216,10 @@ namespace TheraEngine.Core.Files.Serialization
         {
             CustomSerialize,
             CustomDeserialize,
+
             PreSerialize,
             PostSerialize,
+
             PreDeserialize,
             PostDeserialize,
         }
@@ -267,6 +270,7 @@ namespace TheraEngine.Core.Files.Serialization
             Attributes.PostAnythingRemoved += Attributes_PostAnythingRemoved;
 
             Content = new SerializeElementContent { Parent = this };
+            GenerateMethodEnqueueCache();
         }
 
         private void Attributes_PostAnythingRemoved(SerializeAttribute item)
@@ -484,14 +488,34 @@ namespace TheraEngine.Core.Files.Serialization
             if (!custom)
                 ObjectSerializer?.SerializeTreeFromObject();
         }
+
+        private void GenerateMethodEnqueueCache()
+        {
+            MethodEnqueueActions = new Action<MethodInfoProxy>[]
+            {
+                m => CustomSerializeMethods.Enqueue(m),
+                m => CustomDeserializeMethods.Enqueue(m),
+
+                m => PreSerializeMethods.Enqueue(m),
+                m => PostSerializeMethods.Enqueue(m),
+
+                m => PreDeserializeMethods.Enqueue(m),
+                m => PostDeserializeMethods.Enqueue(m),
+            };
+        }
+
+        private Action<MethodInfoProxy>[] MethodEnqueueActions { get; set; }
+
         private void ObjectTypeChanged()
         {
-            PreSerializeMethods = new ConcurrentQueue<MethodInfoProxy>();
-            PostSerializeMethods = new ConcurrentQueue<MethodInfoProxy>();
-            PreDeserializeMethods = new ConcurrentQueue<MethodInfoProxy>();
-            PostDeserializeMethods = new ConcurrentQueue<MethodInfoProxy>();
             CustomSerializeMethods = new ConcurrentQueue<MethodInfoProxy>();
             CustomDeserializeMethods = new ConcurrentQueue<MethodInfoProxy>();
+
+            PreSerializeMethods = new ConcurrentQueue<MethodInfoProxy>();
+            PostSerializeMethods = new ConcurrentQueue<MethodInfoProxy>();
+
+            PreDeserializeMethods = new ConcurrentQueue<MethodInfoProxy>();
+            PostDeserializeMethods = new ConcurrentQueue<MethodInfoProxy>();
 
             if (ObjectType != null)
             {
@@ -510,29 +534,7 @@ namespace TheraEngine.Core.Files.Serialization
                     Task task = Task.Run(() => methods.ForEachParallelArray(method =>
                     {
                         if (method.CanRunForFormat(Owner.Format, out ESerializeMethodType type))
-                        {
-                            switch (type)
-                            {
-                                case ESerializeMethodType.PreDeserialize:
-                                    PreDeserializeMethods.Enqueue(method);
-                                    break;
-                                case ESerializeMethodType.PostDeserialize:
-                                    PostDeserializeMethods.Enqueue(method);
-                                    break;
-                                case ESerializeMethodType.PreSerialize:
-                                    PreSerializeMethods.Enqueue(method);
-                                    break;
-                                case ESerializeMethodType.PostSerialize:
-                                    PostSerializeMethods.Enqueue(method);
-                                    break;
-                                case ESerializeMethodType.CustomSerialize:
-                                    CustomSerializeMethods.Enqueue(method);
-                                    break;
-                                case ESerializeMethodType.CustomDeserialize:
-                                    CustomDeserializeMethods.Enqueue(method);
-                                    break;
-                            }
-                        }
+                            MethodEnqueueActions[(int)type](method);
                     }));
                     
                     task.Wait();

@@ -20,8 +20,6 @@ namespace TheraEngine
     {
         public TGame() { }
 
-        public LocalizedStringTable _localizedStringTable;
-
         [TSerialize(nameof(TransitionWorldRef))]
         public GlobalFileRef<World> _transitionWorldRef
             = new GlobalFileRef<World>("TransitionWorld.xworld");
@@ -39,11 +37,20 @@ namespace TheraEngine
         [TSerialize(nameof(DefaultGameModeRef))]
         public GlobalFileRef<BaseGameMode> _gameModeRef;
 
+        private LocalizedStringTable _localizedStringTable;
         private List<GlobalFileRef<World>> _worldCollection;
+        private string _description;
+        private string _copyright;
+        private string _credits;
+        private string _iconPath;
+        private Viewport.ETwoPlayerPreference _twoPlayerPref = Viewport.ETwoPlayerPreference.SplitHorizontally;
+        private Viewport.EThreePlayerPreference _threePlayerPref = Viewport.EThreePlayerPreference.PreferFirstPlayer;
+        private GameState _state = new GameState();
+
         public List<GlobalFileRef<World>> WorldCollection
         {
             get => _worldCollection;
-            set => _worldCollection = value ?? new List<GlobalFileRef<World>>();
+            set => SetBackingField(ref _worldCollection, value ?? new List<GlobalFileRef<World>>());
         }
 
         /// <summary>
@@ -53,7 +60,7 @@ namespace TheraEngine
         public GlobalFileRef<World> TransitionWorldRef
         {
             get => _transitionWorldRef;
-            set => _transitionWorldRef = value;
+            set => SetBackingField(ref _transitionWorldRef, value);
         }
         /// <summary>
         /// The world the game starts with.
@@ -62,60 +69,90 @@ namespace TheraEngine
         public GlobalFileRef<World> OpeningWorldRef
         {
             get => _openingWorldRef;
-            set => _openingWorldRef = value;
+            set => SetBackingField(ref _openingWorldRef, value);
         }
         [Category("Game")]
         public GlobalFileRef<BaseGameMode> DefaultGameModeRef
         {
             get => _gameModeRef;
-            set => _gameModeRef = value;
+            set => SetBackingField(ref _gameModeRef, value);
         }
         [Category("Engine")]
         public GlobalFileRef<UserSettings> UserSettingsRef
         {
             get => _userSettingsRef;
-            set => _userSettingsRef = value;
+            set => SetBackingField(ref _userSettingsRef, value);
         }
         [Category("Engine")]
         public GlobalFileRef<EngineSettings> EngineSettingsOverrideRef
         {
             get => _engineSettingsRef;
-            set => _engineSettingsRef = value;
+            set => SetBackingField(ref _engineSettingsRef, value);
         }
 
         [Category("About")]
         [TSerialize]
-        public string Description { get; set; }
+        public string Description
+        {
+            get => _description;
+            set => SetBackingField(ref _description, value);
+        }
 
         [Category("About")]
         [TSerialize]
-        public string Copyright { get; set; }
+        public string Copyright
+        {
+            get => _copyright;
+            set => SetBackingField(ref _copyright, value);
+        }
 
         [Category("About")]
         [TSerialize]
-        public string Credits { get; set; }
+        public string Credits
+        {
+            get => _credits;
+            set => SetBackingField(ref _credits, value);
+        }
 
         [Category("About")]
         [TSerialize]
-        public string IconPath { get; set; }
+        public string IconPath
+        {
+            get => _iconPath;
+            set => SetBackingField(ref _iconPath, value);
+        }
 
         [Category("Viewports")]
         [TSerialize]
-        public Viewport.ETwoPlayerPreference TwoPlayerPref { get; set; } = Viewport.ETwoPlayerPreference.SplitHorizontally;
+        public Viewport.ETwoPlayerPreference TwoPlayerPref
+        {
+            get => _twoPlayerPref;
+            set => SetBackingField(ref _twoPlayerPref, value);
+        }
 
         [Category("Viewports")]
         [TSerialize]
-        public Viewport.EThreePlayerPreference ThreePlayerPref { get; set; } = Viewport.EThreePlayerPreference.PreferFirstPlayer;
+        public Viewport.EThreePlayerPreference ThreePlayerPref
+        {
+            get => _threePlayerPref;
+            set => SetBackingField(ref _threePlayerPref, value);
+        }
 
         [TSerialize]
         [Category("Text")]
         public LocalizedStringTable LocalizedStringTable
         {
             get => _localizedStringTable;
-            set => _localizedStringTable = value;
+            set => SetBackingField(ref _localizedStringTable, value);
         }
 
-        public virtual GameState State { get; set; } = new GameState();
+        [TSerialize(Config = false, State = true)]
+        [Category("Engine")]
+        public virtual GameState State 
+        {
+            get => _state;
+            set => SetBackingField(ref _state, value);
+        }
 
         public Icon GetIcon()
         {

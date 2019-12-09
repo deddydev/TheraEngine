@@ -72,6 +72,10 @@ namespace TheraEngine.Physics.Bullet
             
             return softBody;
         }
+        public override TGhostBody NewGhostBody(TGhostBodyConstructionInfo info)
+        {
+            return new BulletGhostBody(info, null);
+        }
 
         #region Constraints
         public override TPointPointConstraint NewPointPointConstraint(TRigidBody rigidBodyA, TRigidBody rigidBodyB, Vec3 pivotInA, Vec3 pivotInB)

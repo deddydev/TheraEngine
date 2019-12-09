@@ -7,13 +7,13 @@ using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UITextComponent : UIMaterialRectangleComponent, IPreRendered
+    public class UITextComponent : UIInteractableComponent, IPreRendered
     {
         public UITextComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(
             new TexRef2D("DrawSurface", 1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
             {
-                MagFilter = ETexMagFilter.Linear,
-                MinFilter = ETexMinFilter.Linear,
+                MagFilter = ETexMagFilter.Nearest,
+                MinFilter = ETexMinFilter.Nearest,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 Resizable = true

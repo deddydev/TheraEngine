@@ -10,54 +10,49 @@ namespace TheraEngine.Components.Scene.Volumes
     public delegate void DelOnOverlapLeave(TCollisionObject actor);
     public class TriggerVolumeComponent : BoxComponent
     {
-        public DelOnOverlapEnter OnEntered;
-        public DelOnOverlapLeave OnLeft;
+        public DelOnOverlapEnter Entered;
+        public DelOnOverlapLeave Left;
+
+        protected virtual void OnEntered(TCollisionObject obj)
+        {
+            Entered?.Invoke(obj);
+        }
+        protected virtual void OnLeft(TCollisionObject obj)
+        {
+            Left?.Invoke(obj);
+        }
 
         public Dictionary<TCollisionObject, (TContactInfo info, bool isB)> Contacts =
            new Dictionary<TCollisionObject, (TContactInfo info, bool isB)>();
 
-        public override TRigidBody RigidBodyCollision
-        {
-            get => base.RigidBodyCollision;
-            set
-            {
-                base.RigidBodyCollision = value;
-
-            }
-        }
-
         public TriggerVolumeComponent() : this(1.0f) { }
         public TriggerVolumeComponent(Vec3 halfExtents)
-            : base(halfExtents, new TRigidBodyConstructionInfo()
+            : base(halfExtents, new TGhostBodyConstructionInfo()
             {
-                IsGhostObject = true,
-                UseMotionState = false,
-                SimulatePhysics = false,
-                CollisionEnabled = true,
                 CollidesWith = (ushort)ETheraCollisionGroup.All,
-                CollisionGroup = (ushort)ETheraCollisionGroup.StaticWorld,
+                CollisionGroup = (ushort)ETheraCollisionGroup.DynamicWorld,
             }) { }
 
         public override void OnSpawned()
         {
             base.OnSpawned();
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick);
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }
         public override void OnDespawned()
         {
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick);
+            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             base.OnDespawned();
         }
         private ContactTestMulti _test = new ContactTestMulti(null, 0, 0);
         private void Tick(float delta)
         {
-            if (RigidBodyCollision is null)
+            if (CollisionObject is null)
                 return;
 
-            ushort group = RigidBodyCollision.CollisionGroup;
-            ushort with = RigidBodyCollision.CollidesWith;
+            ushort group = CollisionObject.CollisionGroup;
+            ushort with = CollisionObject.CollidesWith;
 
-            _test.Object = RigidBodyCollision;
+            _test.Object = CollisionObject;
             _test.CollisionGroup = group;
             _test.CollidesWith = with;
 
@@ -81,7 +76,7 @@ namespace TheraEngine.Components.Scene.Volumes
             foreach (var obj in remove)
             {
                 Contacts.Remove(obj);
-                OnLeft?.Invoke(obj);
+                OnLeft(obj);
                 Engine.PrintLine($"TRIGGER OBJECT LEFT: {Contacts.Count} contacts total");
             }
             foreach (var result in _test.Results)
@@ -93,7 +88,7 @@ namespace TheraEngine.Components.Scene.Volumes
                 else
                 {
                     Contacts.Add(obj, info);
-                    OnEntered?.Invoke(obj);
+                    OnEntered(obj);
                     Engine.PrintLine($"TRIGGER OBJECT ENTERED: {Contacts.Count} contacts total");
                 }
                 //RigidBodyCollision.OnOverlapped(result.CollisionObject, result.Contact, result.IsObjectB);

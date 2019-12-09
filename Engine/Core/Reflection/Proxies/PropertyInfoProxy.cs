@@ -29,8 +29,8 @@ namespace TheraEngine.Core.Reflection
 
         public object GetValue(object parentObject)
         {
-            if (!PropertyType.IsMarshalByRef && !PropertyType.IsSerializable)
-                return PropertyType.GetDefaultValue();
+            //if (!PropertyType.IsMarshalByRef && !PropertyType.IsSerializable && !PropertyType.IsInterface)
+            //    return PropertyType.GetDefaultValue();
 
             return Value.GetValue(parentObject);
         }

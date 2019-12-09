@@ -7,20 +7,37 @@ namespace TheraEngine.Rendering.UI.Text
     {
         public UIRichTextBoxComponent() : base()
         {
-            TextDrawer.Text.Add(Text);
+            TextDrawer.Text.Add(_uiText);
         }
 
         public override Vec2 OnResize(Vec2 parentBounds)
         {
             var resize = base.OnResize(parentBounds);
-            Text.Region.Extents = Size;
+            _uiText.Region.Extents = Size;
             return resize;
         }
 
-        public IVec2 CursorPosition { get; set; }
-        public UIString2D Text { get; } = new UIString2D();
+        private readonly UIString2D _uiText = new UIString2D();
+
+        public string Text
+        {
+            get => _uiText.Text;
+            set => _uiText.Text = value;
+        }
+
         public bool AllowHorizontalScroll { get; set; } = false;
         public bool AllowVerticalScroll { get; set; } = true;
-        public bool WordWrap { get; set; }
+
+        public bool WordWrap 
+        {
+            get => (_uiText.Format.FormatFlags & System.Drawing.StringFormatFlags.NoWrap) == 0;
+            set
+            {
+                if (value)
+                    _uiText.Format.FormatFlags &= ~System.Drawing.StringFormatFlags.NoWrap;
+                else
+                    _uiText.Format.FormatFlags |= System.Drawing.StringFormatFlags.NoWrap;
+            }
+        }
     }
 }

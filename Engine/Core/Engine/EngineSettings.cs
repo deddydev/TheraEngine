@@ -73,9 +73,9 @@ namespace TheraEngine
     [TFileDef("Engine Settings")]
     public class EngineSettings : TSettings
     {
-        public event Action SingleThreadedChanged;
-        public event Action UpdatePerSecondChanged;
-        public event Action FramesPerSecondChanged;
+        public event Action<EngineSettings> SingleThreadedChanged;
+        public event Action<EngineSettings> UpdatePerSecondChanged;
+        public event Action<EngineSettings> FramesPerSecondChanged;
 
         private bool _singleThreaded = false;
         private bool _capUPS = false;
@@ -103,7 +103,7 @@ namespace TheraEngine
             set
             {
                 _singleThreaded = value;
-                SingleThreadedChanged?.Invoke();
+                SingleThreadedChanged?.Invoke(this);
             }
         }
 
@@ -120,7 +120,7 @@ namespace TheraEngine
             set
             {
                 _capFPS = value;
-                FramesPerSecondChanged?.Invoke();
+                FramesPerSecondChanged?.Invoke(this);
             }
         }
         /// <summary>
@@ -136,7 +136,7 @@ namespace TheraEngine
             set
             {
                 _targetFPS = value;
-                FramesPerSecondChanged?.Invoke();
+                FramesPerSecondChanged?.Invoke(this);
             }
         }
 
@@ -153,7 +153,7 @@ namespace TheraEngine
             set
             {
                 _capUPS = value;
-                UpdatePerSecondChanged?.Invoke();
+                UpdatePerSecondChanged?.Invoke(this);
             }
         }
         /// <summary>
@@ -169,7 +169,7 @@ namespace TheraEngine
             set
             {
                 _targetUPS = value;
-                UpdatePerSecondChanged?.Invoke();
+                UpdatePerSecondChanged?.Invoke(this);
             }
         }
 

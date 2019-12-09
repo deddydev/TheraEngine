@@ -21,16 +21,16 @@ namespace TheraEngine.Components.Scene.Shapes
         public BoxComponent(float uniformHalfExtents)
             : base(new Box(uniformHalfExtents)) { }
 
-        public BoxComponent(TRigidBodyConstructionInfo info)
+        public BoxComponent(ICollisionObjectConstructionInfo info)
             : base(new Box(1.0f), info) { }
 
-        public BoxComponent(Vec3 halfExtents, TRigidBodyConstructionInfo info)
+        public BoxComponent(Vec3 halfExtents, ICollisionObjectConstructionInfo info)
             : base(new Box(halfExtents), info) { }
 
-        public BoxComponent(float halfExtentsX, float halfExtentsY, float halfExtentsZ, TRigidBodyConstructionInfo info)
+        public BoxComponent(float halfExtentsX, float halfExtentsY, float halfExtentsZ, ICollisionObjectConstructionInfo info)
             : base(new Box(halfExtentsX, halfExtentsY, halfExtentsZ), info) { }
 
-        public BoxComponent(float uniformHalfExtents, TRigidBodyConstructionInfo info)
+        public BoxComponent(float uniformHalfExtents, ICollisionObjectConstructionInfo info)
             : base(new Box(uniformHalfExtents), info) { }
         
         public Vec3[] GetTransformedCorners() => _shape.GetCorners();

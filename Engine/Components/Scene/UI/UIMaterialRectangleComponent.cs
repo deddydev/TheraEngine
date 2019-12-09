@@ -58,12 +58,14 @@ namespace TheraEngine.Rendering.UI
         {
             if (RenderCommand.Mesh.Material.Textures.IndexInRange(index))
                 return RenderCommand.Mesh.Material.Textures[index];
+
             return null;
         }
         public T Texture<T>(int index) where T : BaseTexRef
         {
             if (RenderCommand.Mesh.Material.Textures.IndexInRange(index))
                 return RenderCommand.Mesh.Material.Textures[index] as T;
+
             return null;
         }
 

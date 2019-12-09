@@ -72,15 +72,16 @@ namespace TheraEngine.Components.Logic.Movement
                     return;
                 if (OwningActor.RootComponent is CapsuleYComponent root)
                 {
-                    root.RigidBodyCollision.SimulatingPhysics = true;
+                    TRigidBody body = root.CollisionObject as TRigidBody;
+                    body.SimulatingPhysics = true;
                     switch (value)
                     {
                         case EMovementMode.Walking:
 
                             _justJumped = false;
                             //_velocity = root.PhysicsDriver.CollisionObject.LinearVelocity;
-                            //root.RigidBodyCollision.SimulatingPhysics = false;
-                            root.RigidBodyCollision.IsKinematic = true;
+                            //body.SimulatingPhysics = false;
+                            body.IsKinematic = true;
                             //Physics simulation updates the world matrix, but not its components (translation, for example)
                             //Do that now
                             root.Translation = root.WorldPoint;
@@ -94,9 +95,10 @@ namespace TheraEngine.Components.Logic.Movement
                                 AllowJumpTimeDelta = 0.0f;
                                 _velocity.Y = 0.0f;
                             }
-                            
-                            root.RigidBodyCollision.IsKinematic = false;
-                            root.RigidBodyCollision.LinearVelocity = _velocity;
+
+                            body.IsKinematic = false;
+                            body.LinearVelocity = _velocity;
+
                             CurrentWalkingSurface = null;
 
                             _subUpdateTick = TickFalling;
@@ -167,7 +169,7 @@ namespace TheraEngine.Components.Logic.Movement
             Matrix4 inputTransform;
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             TCollisionShape shape = root.RenderInfo.CullingVolume.GetCollisionShape();
-            TRigidBody body = root.RigidBodyCollision;
+            TRigidBody body = root.CollisionObject as TRigidBody;
             
             _prevPosition = root.Translation.Raw;
 
@@ -287,7 +289,7 @@ namespace TheraEngine.Components.Logic.Movement
 
             #endregion
 
-            root.RigidBodyCollision.WorldTransform = root.WorldMatrix;
+            root.CollisionObject.WorldTransform = root.WorldMatrix;
 
             _prevVelocity = _velocity;
             _position = root.Translation;
@@ -300,10 +302,11 @@ namespace TheraEngine.Components.Logic.Movement
                 return;
 
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
-            Vec3 v = root.RigidBodyCollision.LinearVelocity;
+            TRigidBody body = root.CollisionObject as TRigidBody;
+            Vec3 v = body.LinearVelocity;
 
             if (v.Xz.LengthFast < 8.667842f)
-                root.RigidBodyCollision.ApplyCentralForce((root.RigidBodyCollision.Mass * FallingMovementSpeed) * movementInput);
+                body.ApplyCentralForce((body.Mass * FallingMovementSpeed) * movementInput);
         }
         public void Jump()
         {

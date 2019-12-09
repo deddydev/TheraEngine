@@ -12,6 +12,7 @@ namespace TheraEngine.Worlds
     {
         IWorld OwningWorld { get; set; }
         bool VisibleByDefault { get; set; }
+        bool IsVisible { get; set; }
         Vec3 SpawnPosition { get; set; }
         IEventList<IActor> Actors { get; }
         
@@ -22,7 +23,8 @@ namespace TheraEngine.Worlds
     [TFileDef("Map")]
     public class Map : TFileObject, IMap
     {
-        protected bool _visibleByDefault;
+        protected bool _visibleByDefault = true;
+        protected bool _isVisible = false;
         protected IEventList<IActor> _actors = new EventList<IActor>();
         protected Vec3 _spawnPosition;
 
@@ -45,6 +47,12 @@ namespace TheraEngine.Worlds
         [Browsable(false)]
         public IWorld OwningWorld { get; set; }
 
+        [TSerialize(Config = false, State = true)]
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set => _isVisible = value;
+        }
         [TSerialize]
         public bool VisibleByDefault
         {

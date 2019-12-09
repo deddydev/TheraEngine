@@ -15,13 +15,14 @@ namespace TheraEngine.Components.Scene.Shapes
         protected CommonShape3DComponent(T shape)
             : this(shape, null) { }
 
-        protected CommonShape3DComponent(T shape, TRigidBodyConstructionInfo info)
+        protected CommonShape3DComponent(T shape, ICollisionObjectConstructionInfo info)
             : base()
         {
             Shape = shape;
             RenderCommand = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
-            GenerateRigidBody(info);
+            GenerateCollisionObject(info);
         }
+
 
         [Category(RenderingCategoryName)]
         public RenderCommandMethod3D RenderCommand { get; }
@@ -58,9 +59,9 @@ namespace TheraEngine.Components.Scene.Shapes
 
         private void _shape_VolumePropertyChanged()
         {
-            if (RigidBodyCollision != null)
+            if (CollisionObject != null)
             {
-                RigidBodyCollision.CollisionShape = GetCollisionShape();
+                CollisionObject.CollisionShape = GetCollisionShape();
                 RigidBodyUpdated();
             }
         }

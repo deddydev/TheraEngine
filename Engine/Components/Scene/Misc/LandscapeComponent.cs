@@ -126,7 +126,7 @@ namespace TheraEngine.Components.Scene
                 bodyInfo.CollisionShape = _heightFieldShape;
                 bodyInfo.UseMotionState = false;
                 bodyInfo.SleepingEnabled = false;
-                GenerateRigidBody(bodyInfo);
+                GenerateCollisionObject(bodyInfo);
             }
         }
 
@@ -338,7 +338,7 @@ namespace TheraEngine.Components.Scene
             Stream.Dispose();
             Stream = DataSource.AsStream();
 
-            RigidBodyCollision.CollisionShape = _heightFieldShape = TCollisionHeightField.New(_dimensions.X, _dimensions.Y, Stream, 1.0f, _minMaxHeight.X, _minMaxHeight.Y, 1, _heightValueType, false);
+            CollisionObject.CollisionShape = _heightFieldShape = TCollisionHeightField.New(_dimensions.X, _dimensions.Y, Stream, 1.0f, _minMaxHeight.X, _minMaxHeight.Y, 1, _heightValueType, false);
             RigidBodyUpdated();
         }
         private Vec3 GetPosition(int x, int y, float halfX, float halfY, float yOffset) => new Vec3(x - halfX, GetHeight(x, y) - yOffset, y - halfY);

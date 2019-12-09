@@ -23,6 +23,7 @@ namespace Extensions
         {
             return Enum.Parse(otherEnum, e.ToString()) as Enum;
         }
+
         public static bool IsSet(this Enum value, Enum flags)
         {
             Type vuType = Enum.GetUnderlyingType(value.GetType());

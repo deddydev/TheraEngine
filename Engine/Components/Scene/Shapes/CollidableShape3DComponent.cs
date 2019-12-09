@@ -4,20 +4,20 @@ using TheraEngine.Physics;
 
 namespace TheraEngine.Components.Scene.Shapes
 {
-    public abstract class CollidableShape3DComponent : Shape3DComponent, IRigidBodyCollidable
+    public abstract class CollidableShape3DComponent : Shape3DComponent, IGenericCollidable
     {
         public CollidableShape3DComponent() : base() { }
         //public CollidableShape3DComponent(TRigidBodyConstructionInfo info) : base() 
         //    => GenerateRigidBody(info);
         
-        protected TRigidBody _rigidBodyCollision;
+        protected TCollisionObject _collisionObject;
 
         public void RigidBodyUpdated()
         {
-            if (IsSpawned && OwningWorld?.PhysicsWorld3D != null && _rigidBodyCollision != null)
+            if (IsSpawned && OwningWorld?.PhysicsWorld3D != null && _collisionObject != null)
             {
-                OwningWorld.PhysicsWorld3D.RemoveCollisionObject(_rigidBodyCollision);
-                OwningWorld.PhysicsWorld3D.AddCollisionObject(_rigidBodyCollision);
+                OwningWorld.PhysicsWorld3D.RemoveCollisionObject(_collisionObject);
+                OwningWorld.PhysicsWorld3D.AddCollisionObject(_collisionObject);
             }
         }
         Matrix4 ICollidable.CollidableWorldMatrix
@@ -27,44 +27,44 @@ namespace TheraEngine.Components.Scene.Shapes
         }
         [Category(PhysicsCategoryName)]
         [TSerialize]
-        public virtual TRigidBody RigidBodyCollision
+        public virtual TCollisionObject CollisionObject
         {
-            get => _rigidBodyCollision;
+            get => _collisionObject;
             set
             {
-                if (_rigidBodyCollision == value)
+                if (_collisionObject == value)
                     return;
-                if (_rigidBodyCollision != null)
+                if (_collisionObject != null)
                 {
                     if (IsSpawned)
-                        OwningWorld.PhysicsWorld3D?.RemoveCollisionObject(_rigidBodyCollision);
+                        OwningWorld.PhysicsWorld3D?.RemoveCollisionObject(_collisionObject);
 
-                    _rigidBodyCollision.Owner = null;
-                    _rigidBodyCollision.TransformChanged -= BodyMoved;
+                    _collisionObject.Owner = null;
+                    _collisionObject.TransformChanged -= BodyMoved;
                     WorldTransformChanged -= ThisMoved;
-                    _rigidBodyCollision.Dispose();
+                    _collisionObject.Dispose();
                 }
-                _rigidBodyCollision = value;
-                if (_rigidBodyCollision != null)
+                _collisionObject = value;
+                if (_collisionObject != null)
                 {
-                    _rigidBodyCollision.Owner = this;
-                    _rigidBodyCollision.TransformChanged += BodyMoved;
+                    _collisionObject.Owner = this;
+                    _collisionObject.TransformChanged += BodyMoved;
                     WorldTransformChanged += ThisMoved;
 
                     if (IsSpawned)
-                        OwningWorld.PhysicsWorld3D?.AddCollisionObject(_rigidBodyCollision);
+                        OwningWorld.PhysicsWorld3D?.AddCollisionObject(_collisionObject);
                 }
             }
         }
 
         public abstract TCollisionShape GetCollisionShape();
 
-        public void GenerateRigidBody(TRigidBodyConstructionInfo info)
+        public void GenerateCollisionObject(ICollisionObjectConstructionInfo info)
         {
             if (info is null)
             {
                 //Engine.LogWarning("A rigid body could not be generated for collidable shape component; construction info is null.");
-                RigidBodyCollision = null;
+                CollisionObject = null;
                 return;
             }
 
@@ -72,19 +72,32 @@ namespace TheraEngine.Components.Scene.Shapes
             info.InitialWorldTransform = WorldMatrix;
 
             if (info.CollisionShape != null)
-                RigidBodyCollision = TRigidBody.New(info);
+            {
+                switch (info)
+                {
+                    case TRigidBodyConstructionInfo r:
+                        CollisionObject = TRigidBody.New(r);
+                        break;
+                    case TSoftBodyConstructionInfo s:
+                        CollisionObject = TSoftBody.New(s);
+                        break;
+                    case TGhostBodyConstructionInfo g:
+                        CollisionObject = TGhostBody.New(g);
+                        break;
+                }
+            }
             else
             {
                 Engine.LogWarning("A rigid body could not be generated for collidable shape component; collision shape is null.");
-                RigidBodyCollision = null;
+                CollisionObject = null;
             }
         }
 
         private void BodyMoved(Matrix4 transform)
-            => WorldMatrix = _rigidBodyCollision.WorldTransform;
+            => WorldMatrix = _collisionObject.WorldTransform;
 
         private void ThisMoved(ISceneComponent comp)
-            => _rigidBodyCollision.ProceedToTransform(WorldMatrix);
+            => _collisionObject.WorldTransform = (WorldMatrix);
 
         private void PhysicsSimulationStateChanged(bool isSimulating)
         {
@@ -96,12 +109,12 @@ namespace TheraEngine.Components.Scene.Shapes
 
         public override void OnSpawned()
         {
-            _rigidBodyCollision?.Spawn(OwningWorld);
+            _collisionObject?.Spawn(OwningWorld);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            _rigidBodyCollision?.Despawn(OwningWorld);
+            _collisionObject?.Despawn(OwningWorld);
             base.OnDespawned();
         }
     }

@@ -675,7 +675,10 @@
     <Compile Include="Input\Devices\DirectX\DXGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\OpenTK\TKGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\ScrollWheelManager.cs" />
+    <Compile Include="Physics\Bullet\Collision Bodies\BulletGhostBody.cs" />
     <Compile Include="Physics\Bullet\TContactResultCallback.cs" />
+    <Compile Include="Physics\Collision Bodies\TGhostBody.cs" />
+    <Compile Include="Physics\Collision Bodies\TGhostBodyConstructionInfo.cs" />
     <Compile Include="Physics\ContactTest.cs" />
     <Compile Include="Rendering\Cameras\BlendableCamera.cs" />
     <Compile Include="Rendering\Cameras\TypicalCamera.cs" />

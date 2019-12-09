@@ -62,7 +62,7 @@ namespace TheraEngine.Core.Shapes
         public Box(float halfExtentX, float halfExtentY, float halfExtentZ, Transform transform)
             : this()
         {
-            _halfExtents = new Vec3(halfExtentX, halfExtentY, halfExtentZ);
+            HalfExtents = new Vec3(halfExtentX, halfExtentY, halfExtentZ);
             _transform = transform;
         }
         public Box(Vec3 halfExtents) 
@@ -70,7 +70,7 @@ namespace TheraEngine.Core.Shapes
         public Box(Vec3 halfExtents, Transform transform)
             : this()
         {
-            _halfExtents = halfExtents;
+            HalfExtents = halfExtents;
             _transform = transform;
         }
         public Box(float uniformHalfExtents) 
@@ -78,12 +78,12 @@ namespace TheraEngine.Core.Shapes
         public Box(float uniformHalfExtents, Transform transform) 
             : this()
         {
-            _halfExtents = new Vec3(uniformHalfExtents);
+            HalfExtents = new Vec3(uniformHalfExtents);
             _transform = transform;
         }
         public Box()
         {
-            _halfExtents = Vec3.Half;
+            HalfExtents = Vec3.Half;
             _transform = Transform.GetIdentity();
         }
 

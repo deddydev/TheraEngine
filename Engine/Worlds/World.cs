@@ -20,6 +20,7 @@ namespace TheraEngine.Worlds
     public interface IWorld : IFileObject, I3DRenderable, I2DRenderable, IEnumerable<IActor>, IDisposable
     {
         event DelGameModeChange CurrentGameModePreChanged;
+
         event DelGameModeChange CurrentGameModePostChanged;
         event Action PreBeginPlay;
         event Action PostBeginPlay;
@@ -50,6 +51,9 @@ namespace TheraEngine.Worlds
         void SpawnActor(IActor item);
         void SpawnActor(IActor actor, Vec3 position);
         void DespawnActor(IActor baseActor);
+
+        void SpawnMap(IMap map);
+        void DespawnMap(IMap map);
 
         void RebaseOrigin(Vec3 newOrigin);
         void BeginPlay();
@@ -312,8 +316,7 @@ namespace TheraEngine.Worlds
             Engine.TimeDilation = Settings.TimeDilation;
 
             foreach (var m in Settings.Maps)
-                if (m.Value.File.VisibleByDefault)
-                    m.Value.File.BeginPlay(this);
+                SpawnMap(m.Value.File);
 
             IScene3D s3D = Scene3D;
             if (s3D != null)
@@ -336,12 +339,38 @@ namespace TheraEngine.Worlds
 
             PostBeginPlay?.Invoke();
         }
+
+        public void SpawnMap(IMap value)
+        {
+            if (value is null)
+                return;
+
+            if (value.VisibleByDefault)
+                value.BeginPlay(this);
+
+            State.SpawnedMaps.Add(value);
+        }
+        public void DespawnMap(IMap value)
+        {
+            if (value is null)
+                return;
+
+            if (value.IsVisible)
+                value.EndPlay();
+
+            State.SpawnedMaps.Remove(value);
+        }
+
         public virtual void EndPlay()
         {
             PreEndPlay?.Invoke();
 
-            foreach (var m in Settings.Maps)
-                m.Value.File.EndPlay();
+            foreach (var m in State.SpawnedMaps)
+                if (m.IsVisible)
+                    m.EndPlay();
+
+            State.SpawnedMaps.Clear();
+            State.SpawnedActors.Clear();
 
             if (Settings.TwoDimensional)
                 RenderInfo2D.UnlinkScene();

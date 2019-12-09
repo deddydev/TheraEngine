@@ -20,6 +20,8 @@ namespace TheraEngine.Physics
         /// <returns>A new rigid body.</returns>
         public abstract TRigidBody NewRigidBody(TRigidBodyConstructionInfo info);
 
+        public abstract TGhostBody NewGhostBody(TGhostBodyConstructionInfo info);
+
         /// <summary>
         /// Creates a new soft body using the specified physics library.
         /// </summary>

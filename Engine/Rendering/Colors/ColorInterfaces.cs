@@ -10,5 +10,4 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         ColorF4 Color { get; set; }
     }
-
 }

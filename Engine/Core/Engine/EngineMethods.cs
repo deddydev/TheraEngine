@@ -307,20 +307,18 @@ namespace TheraEngine
             Timer.Run(settings?.SingleThreaded ?? false);
         }
 
-        private static void Settings_UpdatePerSecondChanged()
+        private static void Settings_UpdatePerSecondChanged(EngineSettings settings)
         {
-            EngineSettings settings = Settings;
             TargetUpdatesPerSecond = settings.CapUPS ? settings.TargetUPS.ClampMin(1.0f) : 0.0f;
         }
-        private static void Settings_FramesPerSecondChanged()
+        private static void Settings_FramesPerSecondChanged(EngineSettings settings)
         {
-            EngineSettings settings = Settings;
             TargetFramesPerSecond = settings.CapFPS ? settings.TargetFPS.ClampMin(1.0f) : 0.0f;
         }
-        private static void Settings_SingleThreadedChanged()
+        private static void Settings_SingleThreadedChanged(EngineSettings settings)
         {
-            if (Timer.IsRunning)
-                Timer.IsSingleThreaded = Settings.SingleThreaded;
+            //if (Timer.IsRunning)
+                Timer.IsSingleThreaded = settings.SingleThreaded;
         }
 
         /// <summary>

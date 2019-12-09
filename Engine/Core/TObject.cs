@@ -152,11 +152,14 @@ namespace TheraEngine
 
         #endregion
     }
-    public abstract class TObject  : TObjectSlim, IObject
+    public abstract class TObject : TObjectSlim, IObject
     {
         [TString(false, false, false)]
         [TSerialize(nameof(Name), NodeType = ENodeType.Attribute)]
         public string _name = null;
+
+        [TSerialize]
+        private object _userObject = null;
 
         [Browsable(false)]
         //[TSerialize(NodeType = ENodeType.Attribute)]
@@ -172,11 +175,14 @@ namespace TheraEngine
         //protected internal bool IsDeserializing { get; set; } = false;
         //protected internal bool IsSerializing { get; set; } = false;
 
-        [TSerialize]
-        //[BrowsableIf("_userData != null")]
-        [Browsable(false)]
+        [BrowsableIf("_userObject != null")]
+        //[Browsable(false)]
         [Category("Object")]
-        public object UserObject { get; set; } = null;
+        public object UserObject
+        {
+            get => _userObject;
+            set => SetBackingField(ref _userObject, value); 
+        }
 
         #region Name
         [Browsable(false)]
@@ -188,15 +194,15 @@ namespace TheraEngine
             set
             {
                 string oldName = _name;
-                _name = value;
-                OnRenamed(oldName);
+                if (SetBackingField(ref _name, value))
+                    OnRenamed(oldName);
             }
         }
 
         public event RenamedEventHandler Renamed;
         public event PropertyChangedEventHandler PropertyChanged;
         public event PropertyChangingEventHandler PropertyChanging;
-        
+
         /// <summary>
         /// Returns true if cancelled.
         /// </summary>
@@ -330,7 +336,7 @@ namespace TheraEngine
         public IEventList<AnimationTree> _animations = null;
 
         [Category("Object")]
-        [BrowsableIf("_animations != null")] // && _animations.Count > 0
+        [BrowsableIf("_animations != null")]
         public IEventList<AnimationTree> Animations
         {
             get => _animations;
@@ -338,28 +344,38 @@ namespace TheraEngine
             {
                 if (_animations != null)
                 {
-                    _animations.PostAnythingAdded -= _animations_PostAnythingAdded;
-                    _animations.PostAnythingRemoved -= _animations_PostAnythingRemoved;
+                    _animations.PostAnythingAdded -= AnimationAdded;
+                    _animations.PostAnythingRemoved -= AnimationRemoved;
                 }
+
                 _animations = value;
+
                 if (_animations != null)
                 {
-                    _animations.PostAnythingAdded += _animations_PostAnythingAdded;
-                    _animations.PostAnythingRemoved += _animations_PostAnythingRemoved;
+                    _animations.PostAnythingAdded += AnimationAdded;
+                    _animations.PostAnythingRemoved += AnimationRemoved;
                 }
             }
         }
 
-        private void _animations_PostAnythingAdded(AnimationTree item)
+        private void AnimationAdded(AnimationTree item)
         {
+            if (item is null)
+                return;
+
             if (item.RemoveOnEnd)
                 item.AnimationEnded += RemoveAnimationSelf;
+
             item.Owners.Add(this);
         }
-        private void _animations_PostAnythingRemoved(AnimationTree item)
+        private void AnimationRemoved(AnimationTree item)
         {
+            if (item is null)
+                return;
+
             if (item.RemoveOnEnd)
                 item.AnimationEnded -= RemoveAnimationSelf;
+
             item.Owners.Remove(this);
         }
 

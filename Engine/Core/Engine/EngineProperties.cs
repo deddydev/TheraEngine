@@ -10,6 +10,7 @@ using System.Drawing.Text;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Audio;
@@ -165,6 +166,7 @@ namespace TheraEngine
                     return;
 
                 _game = value;
+                SettingsSourcesChanged();
             }
         }
 
@@ -440,76 +442,107 @@ namespace TheraEngine
         /// </summary>
         public static event Action<string> DebugOutput;
 
-        private static Lazy<EngineSettings> _defaultEngineSettings = new Lazy<EngineSettings>(() => new EngineSettings(), true);
+        private static readonly Lazy<EngineSettings> _defaultEngineSettings = new Lazy<EngineSettings>(() => new EngineSettings(), LazyThreadSafetyMode.ExecutionAndPublication);
 
         public static NetworkConnection Network { get; set; }
         public static Server ServerConnection => Network as Server;
         public static Client ClientConnection => Network as Client;
         public static EngineSingleton Singleton { get; set; }
 
-        public static GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
-            = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistent = true };
-
-        private static EngineSettings _cachedSettings;
-        public static EngineSettings Settings
+        public static LocalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef
         {
-            get
-            {
-                if (_cachedSettings is null)
-                    Settings = GetBestSettings();
-                return _cachedSettings;
-            }
+            get => _defaultEngineSettingsOverrideRef;
             set
             {
-                bool singleThreaded = false;
-                bool capFPS = false;
-                bool capUPS = false;
-                float fps = 0.0f;
-                float ups = 0.0f;
+                if (_defaultEngineSettingsOverrideRef == value)
+                    return;
 
-                if (_cachedSettings != null)
-                {
-                    singleThreaded = _cachedSettings.SingleThreaded;
-                    capFPS = _cachedSettings.CapFPS;
-                    capUPS = _cachedSettings.CapUPS;
-                    fps = _cachedSettings.TargetFPS;
-                    ups = _cachedSettings.TargetUPS;
+                if (_defaultEngineSettingsOverrideRef != null)
+                    _defaultEngineSettingsOverrideRef.Loaded -= _defaultEngineSettingsOverrideRef_Loaded;
 
-                    _cachedSettings.SingleThreadedChanged -= Settings_SingleThreadedChanged;
-                    _cachedSettings.FramesPerSecondChanged -= Settings_FramesPerSecondChanged;
-                    _cachedSettings.UpdatePerSecondChanged -= Settings_UpdatePerSecondChanged;
-                }
-                _cachedSettings = value;
-                if (_cachedSettings != null)
-                {
-                    _cachedSettings.SingleThreadedChanged += Settings_SingleThreadedChanged;
-                    _cachedSettings.FramesPerSecondChanged += Settings_FramesPerSecondChanged;
-                    _cachedSettings.UpdatePerSecondChanged += Settings_UpdatePerSecondChanged;
+                _defaultEngineSettingsOverrideRef = value;
 
-                    if (_cachedSettings.SingleThreaded != singleThreaded)
-                        Settings_SingleThreadedChanged();
-                    if (_cachedSettings.CapFPS != capFPS || _cachedSettings.TargetFPS != fps)
-                        Settings_FramesPerSecondChanged();
-                    if (_cachedSettings.CapUPS != capUPS || _cachedSettings.TargetUPS != ups)
-                        Settings_UpdatePerSecondChanged();
-                }
+                if (_defaultEngineSettingsOverrideRef != null)
+                    _defaultEngineSettingsOverrideRef.Loaded += _defaultEngineSettingsOverrideRef_Loaded;
+
+                SettingsSourcesChanged();
             }
         }
 
-        public static void SettingsSourcesChanged(bool cacheBestSettingsNow = false)
+        private static void _defaultEngineSettingsOverrideRef_Loaded(EngineSettings obj)
+            => SettingsSourcesChanged();
+
+        private static LocalFileRef<EngineSettings> _defaultEngineSettingsOverrideRef
+            = new LocalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset"))
+            {
+                AllowDynamicConstruction = true,
+                CreateFileIfNonExistent = true
+            };
+
+        public static EngineSettings Settings 
         {
-            _cachedSettings = null;
-            if (cacheBestSettingsNow)
-                Settings = GetBestSettings();
+            get => _settings ?? (_settings = GetBestSettings());
+            private set => _settings = value;
         }
+
+        public static void SettingsSourcesChanged()
+        {
+            UnlinkSettings();
+            _settings = LinkSettings(GetBestSettings());
+        }
+
+        private static EngineSettings LinkSettings(EngineSettings settings)
+        {
+            if (settings is null)
+                return null;
+
+            settings.SingleThreadedChanged += Settings_SingleThreadedChanged;
+            settings.FramesPerSecondChanged += Settings_FramesPerSecondChanged;
+            settings.UpdatePerSecondChanged += Settings_UpdatePerSecondChanged;
+
+            Settings_SingleThreadedChanged(settings);
+            Settings_FramesPerSecondChanged(settings);
+            Settings_UpdatePerSecondChanged(settings);
+
+            return settings;
+        }
+
+        private static void UnlinkSettings()
+        {
+            if (_settings is null)
+                return;
+
+            var value = _settings;
+            value.SingleThreadedChanged -= Settings_SingleThreadedChanged;
+            value.FramesPerSecondChanged -= Settings_FramesPerSecondChanged;
+            value.UpdatePerSecondChanged -= Settings_UpdatePerSecondChanged;
+        }
+
         /// <summary>
         /// Returns settings from the game, from the engine override settings, or the default hardcoded settings.
         /// </summary>
         /// <returns></returns>
         public static EngineSettings GetBestSettings() =>
             Game?.EngineSettingsOverrideRef?.File ?? //Game overrides engine settings?
-            DefaultEngineSettingsOverrideRef.File ?? //User overrides engine settings?
+            DefaultEngineSettingsOverrideRef?.File ?? //User overrides engine settings?
             _defaultEngineSettings.Value; //Fall back to truly default engine settings
+
+        /// <summary>
+        /// Returns settings from the game, from the engine override settings, or the default hardcoded settings.
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<EngineSettings> GetBestSettingsAsync()
+        {
+            var ref1 = Game?.EngineSettingsOverrideRef;
+            if (ref1 != null)
+                return await ref1.GetInstanceAsync();
+
+            var ref2 = DefaultEngineSettingsOverrideRef;
+            if (ref2 != null)
+                return await ref2.GetInstanceAsync();
+
+            return _defaultEngineSettings.Value;
+        }
 
         /// <summary>
         /// The settings for the engine, specified by the user.
@@ -523,6 +556,7 @@ namespace TheraEngine
 
         public static AbstractAudioManager _audioManager;
         public static AbstractPhysicsInterface _physicsInterface;
+        private static EngineSettings _settings;
 
         public static Viewport CurrentlyRenderingViewport
         {
@@ -540,7 +574,7 @@ namespace TheraEngine
         /// Statics are not persistent across AppDomains so the static engine members
         /// are completely separate entities per AppDomain, which is why this singleton exists.
         /// </summary>
-        public partial class InternalEnginePersistentSingleton: MarshalByRefObject
+        public partial class InternalEnginePersistentSingleton : MarshalByRefObject
         {
             private void SafePrintLine(string str)
             {
@@ -551,7 +585,7 @@ namespace TheraEngine
             {
                 if (proxy is null)
                     return;
-                
+
                 DomainProxyDestroying?.Invoke(proxy);
                 proxy.Stop();
                 proxy.Stopped -= DomainProxy_Stopped;
@@ -568,9 +602,9 @@ namespace TheraEngine
             }
 
             public void SetDomainProxy<T>(
-                AppDomain domain, 
-                AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> prevDomain, 
-                string gamePath) 
+                AppDomain domain,
+                AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> prevDomain,
+                string gamePath)
                 where T : EngineDomainProxy, new()
             {
                 SafePrintLine($"Generating new domain proxy of type {typeof(T).GetFriendlyName()} for domain {domain.FriendlyName}");
@@ -598,7 +632,7 @@ namespace TheraEngine
             {
                 if (prevDomain is null)
                     return;
-                
+
                 SafePrintLine($"Destroying game domain {prevDomain.Domain.FriendlyName}");
 
                 AppDomainHelper.ResetAppDomainCache();
@@ -624,9 +658,9 @@ namespace TheraEngine
             [Browsable(false)]
             public EngineDomainProxy DomainProxy { get; private set; } = null;
 
-//#if EDITOR
-//            public EngineEditorState EditorState { get; } = new EngineEditorState();
-//#endif
+            //#if EDITOR
+            //            public EngineEditorState EditorState { get; } = new EngineEditorState();
+            //#endif
         }
     }
 }

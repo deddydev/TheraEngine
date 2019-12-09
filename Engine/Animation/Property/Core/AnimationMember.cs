@@ -228,6 +228,25 @@ namespace TheraEngine.Animation
 
             return count;
         }
+        /// <summary>
+        /// Registers to the AnimationHasEnded method in the animation tree
+        /// and returns the total amount of animations this member and its child members contain.
+        /// </summary>
+        /// <param name="tree">The animation tree that owns this member.</param>
+        /// <returns>The total amount of animations this member and its child members contain.</returns>
+        internal int Unregister(AnimationTree tree)
+        {
+            bool animExists = Animation.File != null;
+            int count = animExists ? 1 : 0;
+
+            if (animExists)
+                Animation.File.AnimationEnded -= tree.AnimationHasEnded;
+
+            foreach (AnimationMember folder in _children)
+                count += folder.Unregister(tree);
+
+            return count;
+        }
         internal void StartAnimations()
         {
             MemberNotFound = false;

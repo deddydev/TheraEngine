@@ -5,20 +5,14 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Physics
 {
-    public interface ICollisionObjectConstructionInfo
-    {
-        TCollisionShape CollisionShape { get; set; }
-        Matrix4 InitialWorldTransform { get; set; }
-    }
-
     /// <summary>
-    /// Contains parameters for constructing a new rigid body.
+    /// Contains parameters for constructing a new ghost body.
     /// </summary>
-    [TFileDef("Rigid Body Construction Info", "Contains parameters for constructing a new rigid body.")]
-    public class TRigidBodyConstructionInfo : TFileObject, ICollisionObjectConstructionInfo
+    [TFileDef("Ghost Body Construction Info", "Contains parameters for constructing a new ghost body.")]
+    public class TGhostBodyConstructionInfo : TFileObject, ICollisionObjectConstructionInfo
     {
-        public TRigidBodyConstructionInfo() { }
-        public TRigidBodyConstructionInfo(
+        public TGhostBodyConstructionInfo() { }
+        public TGhostBodyConstructionInfo(
             TCollisionShape shape,
             float mass,
             Vec3? localIntertia,

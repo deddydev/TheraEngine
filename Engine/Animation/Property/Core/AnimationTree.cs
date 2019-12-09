@@ -35,7 +35,7 @@ namespace TheraEngine.Animation
         [Browsable(true)]
         [Category("Object")]
         [TSerialize]
-        public override string Name 
+        public override string Name
         {
             get => base.Name;
             set => base.Name = value;
@@ -50,7 +50,7 @@ namespace TheraEngine.Animation
             : base(0.0f, false) { }
         public AnimationTree(AnimationMember rootFolder)
             : this() => RootMember = rootFolder;
-        
+
         public AnimationTree(string animationName, string memberPath, BasePropAnim anim) : this()
         {
             Name = animationName;
@@ -84,10 +84,23 @@ namespace TheraEngine.Animation
         [TSerialize("EndedAnimations", Config = false, State = true)]
         private int _endedAnimations = 0;
 
-        [TSerialize]
-        public bool RemoveOnEnd { get; set; }
-        [TSerialize]
-        public bool BeginOnSpawn { get; set; }
+        [TSerialize(nameof(RemoveOnEnd))]
+        private bool _removeOnEnd;
+        [TSerialize(nameof(BeginOnSpawn))]
+        private bool _beginOnSpawn;
+
+        [Category(AnimCategory)]
+        public bool RemoveOnEnd
+        {
+            get => _removeOnEnd;
+            set => SetBackingField(ref _removeOnEnd, value);
+        }
+        [Category(AnimCategory)]
+        public bool BeginOnSpawn 
+        {
+            get => _beginOnSpawn;
+            set => SetBackingField(ref _beginOnSpawn, value);
+        }
 
         [TSerialize]
         public AnimationMember RootMember
@@ -95,8 +108,9 @@ namespace TheraEngine.Animation
             get => _root;
             set
             {
+                _root?.Unregister(this);
                 _root = value;
-                _totalAnimCount = _root != null ? _root.Register(this) : 0;
+                _totalAnimCount = _root?.Register(this) ?? 0;
             }
         }
 

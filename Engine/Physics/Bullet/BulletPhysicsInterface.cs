@@ -74,7 +74,7 @@ namespace TheraEngine.Physics.Bullet
         }
         public override TGhostBody NewGhostBody(TGhostBodyConstructionInfo info)
         {
-            return new BulletGhostBody(info, null);
+            return new BulletGhostBody(info, info.CollisionShape);
         }
 
         #region Constraints

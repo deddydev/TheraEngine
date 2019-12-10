@@ -18,6 +18,7 @@ namespace TheraEngine.Physics.Bullet
             {
                 if (_body != null)
                     _body.UserObject = null;
+
                 _body = value ?? new RigidBody(new RigidBodyConstructionInfo(0.0f, null, null));
                 _body.UserObject = this;
             }

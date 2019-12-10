@@ -69,6 +69,8 @@ namespace TheraEngine.Physics.Jitter
         {
             throw new NotImplementedException();
         }
+
+        public override TGhostBody NewGhostBody(TGhostBodyConstructionInfo info) => throw new NotImplementedException();
         //=> new JitterHeightField(heightStickLength, heightStickLength, heightfieldData, heightScale, minHeight, maxHeight, upAxis, (PhyScalarType)(int)heightDataType, flipQuadEdges);
         #endregion
     }

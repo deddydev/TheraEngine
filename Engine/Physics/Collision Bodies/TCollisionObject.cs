@@ -145,19 +145,103 @@ namespace TheraEngine.Physics
             => world.PhysicsWorld3D.AddCollisionObject(this);
         public void Despawn(IWorld world)
             => world.PhysicsWorld3D.RemoveCollisionObject(this);
-        
+
+        protected ushort _previousCollidesWith = 0xFFFF;
+        private bool _collisionEnabled;
+        public bool CollisionEnabled
+        {
+            get => _collisionEnabled;
+            set
+            {
+                if (_collisionEnabled == value)
+                    return;
+
+                _collisionEnabled = value;
+
+                HasContactResponse = _collisionEnabled;
+
+                //if (_collisionEnabled)
+                //    CollidesWith = _previousCollidesWith;
+                //else
+                //{
+                //    _previousCollidesWith = CollidesWith;
+                //    CollidesWith = 0;
+                //}
+            }
+        }
+
+        private bool _sleepingEnabled;
+        public bool SleepingEnabled
+        {
+            get => _sleepingEnabled;
+            set
+            {
+                _sleepingEnabled = value;
+                if (_sleepingEnabled)
+                {
+                    if (ActivationState == EBodyActivationState.DisableSleep)
+                        ActivationState = EBodyActivationState.WantsSleep;
+                }
+                else
+                {
+                    if (ActivationState != EBodyActivationState.DisableSimulation)
+                        ActivationState = EBodyActivationState.DisableSleep;
+                }
+            }
+        }
+
+        private bool _simulatingPhysics = false;
+        public bool SimulatingPhysics
+        {
+            get => _simulatingPhysics;
+            set
+            {
+                //if (_simulatingPhysics == value)
+                //    return;
+                _simulatingPhysics = value;
+                if (!_simulatingPhysics)
+                    StopSimulation();
+                else
+                    StartSimulation();
+            }
+        }
+
+        protected virtual void StopSimulation()
+        {
+            IsStatic = true;
+            ActivationState = EBodyActivationState.DisableSimulation;
+        }
+        protected virtual void StartSimulation()
+        {
+            IsStatic = false;
+            WorldTransform = Owner?.CollidableWorldMatrix ?? Matrix4.Identity;
+
+            if (_sleepingEnabled)
+            {
+                if (ActivationState == EBodyActivationState.DisableSleep)
+                    ActivationState = EBodyActivationState.Active;
+            }
+            else
+            {
+                if (ActivationState != EBodyActivationState.DisableSimulation)
+                    ActivationState = EBodyActivationState.DisableSleep;
+            }
+        }
+
         public abstract void Activate();
         public abstract void Activate(bool forceActivation);
         public abstract bool CheckCollideWith(TCollisionObject collisionObject);
         public abstract void ForceActivationState(EBodyActivationState newState);
         public abstract void GetWorldTransform(out Matrix4 transform);
+
         [Flags]
         public enum EAnisotropicFrictionFlags
         {
-            Disabled = 0,
-            Linear = 1,
-            Rolling = 2
+            Disabled    = 0b00,
+            Linear      = 0b01,
+            Rolling     = 0b10,
         }
+
         public abstract bool HasAnisotropicFriction(EAnisotropicFrictionFlags frictionMode);
         public abstract bool HasAnisotropicFriction();
         public abstract void SetAnisotropicFriction(Vec3 anisotropicFriction);

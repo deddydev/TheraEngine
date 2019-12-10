@@ -17,13 +17,16 @@ namespace TheraEngine.Physics
     {
         protected TRigidBody() : base() { }
 
+        protected Vec3 _previousLinearFactor = Vec3.One;
+        protected Vec3 _previousAngularFactor = Vec3.One;
+
         public new IRigidBodyCollidable Owner
         {
             get => (IRigidBodyCollidable)base.Owner;
             set
             {
                 base.Owner = value;
-                if (_simulatingPhysics && value != null)
+                if (SimulatingPhysics && value != null)
                     WorldTransform = value.CollidableWorldMatrix;
             }
         }
@@ -48,7 +51,6 @@ namespace TheraEngine.Physics
         [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract int ConstraintCount { get; }
 
-        protected Vec3 _previousLinearFactor = Vec3.One;
         [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 LinearFactor { get; set; }
         [PhysicsSupport(EPhysicsLibrary.Bullet)]
@@ -58,7 +60,6 @@ namespace TheraEngine.Physics
         [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float LinearDamping { get; }
 
-        protected Vec3 _previousAngularFactor = Vec3.One;
         [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 AngularFactor { get; set; }
         [PhysicsSupport(EPhysicsLibrary.Bullet)]
@@ -72,88 +73,6 @@ namespace TheraEngine.Physics
         public abstract bool IsInWorld { get; }
         [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract bool WantsSleeping { get; }
-
-        protected ushort _previousCollidesWith = 0xFFFF;
-        private bool _collisionEnabled;
-        public bool CollisionEnabled
-        {
-            get => _collisionEnabled;
-            set
-            {
-                if (_collisionEnabled == value)
-                    return;
-
-                _collisionEnabled = value;
-
-                HasContactResponse = _collisionEnabled;
-
-                //if (_collisionEnabled)
-                //    CollidesWith = _previousCollidesWith;
-                //else
-                //{
-                //    _previousCollidesWith = CollidesWith;
-                //    CollidesWith = 0;
-                //}
-            }
-        }
-
-        private bool _sleepingEnabled;
-        public bool SleepingEnabled
-        {
-            get => _sleepingEnabled;
-            set
-            {
-                _sleepingEnabled = value;
-                if (_sleepingEnabled)
-                {
-                    if (ActivationState == EBodyActivationState.DisableSleep)
-                        ActivationState = EBodyActivationState.WantsSleep;
-                }
-                else
-                {
-                    if (ActivationState != EBodyActivationState.DisableSimulation)
-                        ActivationState = EBodyActivationState.DisableSleep;
-                }
-            }
-        }
-
-        private bool _simulatingPhysics = false;
-        public bool SimulatingPhysics
-        {
-            get => _simulatingPhysics;
-            set
-            {
-                //if (_simulatingPhysics == value)
-                //    return;
-                _simulatingPhysics = value;
-                if (!_simulatingPhysics)
-                {
-                    _previousLinearFactor = LinearFactor;
-                    _previousAngularFactor = AngularFactor;
-                    IsStatic = true;
-                    LinearFactor = 0.0f;
-                    AngularFactor = 0.0f;
-                    ActivationState = EBodyActivationState.DisableSimulation;
-                }
-                else
-                {
-                    IsStatic = false;
-                    LinearFactor = _previousLinearFactor;
-                    AngularFactor = _previousAngularFactor;
-                    WorldTransform = Owner?.CollidableWorldMatrix ?? Matrix4.Identity;
-                    if (_sleepingEnabled)
-                    {
-                        if (ActivationState == EBodyActivationState.DisableSleep)
-                            ActivationState = EBodyActivationState.Active;
-                    }
-                    else
-                    {
-                        if (ActivationState != EBodyActivationState.DisableSimulation)
-                            ActivationState = EBodyActivationState.DisableSleep;
-                    }
-                }
-            }
-        }
 
         [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 Gravity { get; set; }
@@ -212,5 +131,23 @@ namespace TheraEngine.Physics
         public abstract void SetMassProps(float mass, Vec3 inertia);
         public abstract void SetSleepingThresholds(float linear, float angular);
         public abstract void Translate(Vec3 v);
+
+        protected override void StopSimulation()
+        {
+            _previousLinearFactor = LinearFactor;
+            _previousAngularFactor = AngularFactor;
+
+            LinearFactor = 0.0f;
+            AngularFactor = 0.0f;
+
+            base.StopSimulation();
+        }
+        protected override void StartSimulation()
+        {
+            LinearFactor = _previousLinearFactor;
+            AngularFactor = _previousAngularFactor;
+
+            base.StartSimulation();
+        }
     }
 }

@@ -62,29 +62,11 @@ namespace TheraEngine.Physics
         public Matrix4 InitialWorldTransform { get; set; } = Matrix4.Identity;
 
         [TSerialize]
-        public bool AdditionalDamping { get; set; } = false;
-        [TSerialize]
-        public float AdditionalDampingFactor { get; set; } = 0.005f;
-        [TSerialize]
-        public float AdditionalLinearDampingThresholdSqr { get; set; } = 0.01f;
-        [TSerialize]
-        public float AngularDamping { get; set; } = 0.0f;
-        [TSerialize]
-        public float AngularSleepingThreshold { get; set; } = 1.0f;
-        [TSerialize]
         public float Friction { get; set; } = 0.5f;
-        [TSerialize]
-        public float LinearDamping { get; set; } = 0.0f;
-        [TSerialize]
-        public float AdditionalAngularDampingThresholdSqr { get; set; } = 0.01f;
         [TSerialize]
         public float Restitution { get; set; } = 0.0f;
         [TSerialize]
         public float RollingFriction { get; set; } = 0.0f;
-        [TSerialize]
-        public float LinearSleepingThreshold { get; set; } = 0.8f;
-        [TSerialize]
-        public float AdditionalAngularDampingFactor { get; set; } = 0.01f;
         [TSerialize]
         public bool IsKinematic { get; set; } = false;
         [TSerialize]

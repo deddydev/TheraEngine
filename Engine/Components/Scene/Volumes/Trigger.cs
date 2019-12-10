@@ -30,12 +30,15 @@ namespace TheraEngine.Components.Scene.Volumes
             : base(halfExtents, new TGhostBodyConstructionInfo()
             {
                 CollidesWith = (ushort)ETheraCollisionGroup.All,
-                CollisionGroup = (ushort)ETheraCollisionGroup.DynamicWorld,
+                CollisionGroup = (ushort)ETheraCollisionGroup.StaticWorld,
+                CollisionEnabled = false,
+                SimulatePhysics = false,
             }) { }
 
         public override void OnSpawned()
         {
             base.OnSpawned();
+            //_collisionObject?.Despawn(OwningWorld);
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }
         public override void OnDespawned()
@@ -46,9 +49,15 @@ namespace TheraEngine.Components.Scene.Volumes
         private ContactTestMulti _test = new ContactTestMulti(null, 0, 0);
         private void Tick(float delta)
         {
-            if (CollisionObject is null)
+            if (!(CollisionObject is TGhostBody ghost))
                 return;
 
+            //var list = ghost.CollectOverlappingPairs();
+
+            //if (list.Count > 0)
+            //    Engine.PrintLine(list.Count + " overlaps");
+
+            ghost.HasContactResponse = false;
             ushort group = CollisionObject.CollisionGroup;
             ushort with = CollisionObject.CollidesWith;
 

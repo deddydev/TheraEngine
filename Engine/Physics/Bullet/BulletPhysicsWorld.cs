@@ -96,8 +96,9 @@ namespace TheraEngine.Physics
             //_dynamicsWorld.DispatchInfo.UseContinuous = true;
             //_dynamicsWorld.DispatchInfo.AllowedCcdPenetration = 0.1f;
             //_dynamicsWorld.PairCache.SetInternalGhostPairCallback(new CustomOverlappingPair());
-            _dynamicsWorld.PairCache.SetOverlapFilterCallback(new CustomOverlapFilter());
-            _dynamicsWorld.ApplySpeculativeContactRestitution = true;
+            //_dynamicsWorld.PairCache.SetOverlapFilterCallback(new CustomOverlapFilter());
+            _dynamicsWorld.PairCache.SetInternalGhostPairCallback(new GhostPairCallback());
+            //_dynamicsWorld.ApplySpeculativeContactRestitution = true;
             //_dynamicsWorld.SetInternalTickCallback(CustomTickCallback);
 
             PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
@@ -311,6 +312,7 @@ namespace TheraEngine.Physics
         {
             test.Reset();
             _contactCallback.Handler = test;
+            _dynamicsWorld.ComputeOverlappingPairs();
             _dynamicsWorld.ContactTest(((IBulletCollisionObject)test.Object).CollisionObject, _contactCallback);
             return test.HasContact;
         }

@@ -1,4 +1,6 @@
-﻿namespace TheraEngine.Physics
+﻿using System.Collections.Generic;
+
+namespace TheraEngine.Physics
 {
     public abstract class TGhostBody : TCollisionObject
     {
@@ -11,5 +13,7 @@
         /// <returns>A new rigid body.</returns>
         public static TGhostBody New(TGhostBodyConstructionInfo info)
             => Engine.Physics.NewGhostBody(info);
+
+        public abstract List<TCollisionObject> CollectOverlappingPairs();
     }
 }

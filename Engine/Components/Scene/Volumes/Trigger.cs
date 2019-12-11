@@ -3,6 +3,7 @@ using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ContactTesting;
+using Extensions;
 
 namespace TheraEngine.Components.Scene.Volumes
 {
@@ -22,14 +23,27 @@ namespace TheraEngine.Components.Scene.Volumes
             Left?.Invoke(obj);
         }
 
-        public Dictionary<TCollisionObject, (TContactInfo info, bool isB)> Contacts =
-           new Dictionary<TCollisionObject, (TContactInfo info, bool isB)>();
+        public class TriggerContactInfo
+        {
+            public TriggerContactInfo() { }
+            public TriggerContactInfo(TContactInfo contact, bool isB)
+            {
+                Contact = contact;
+                IsObjectB = isB;
+            }
+
+            public TContactInfo Contact { get; set; }
+            public bool IsObjectB { get; set; }
+        }
+
+        public Dictionary<TCollisionObject, TriggerContactInfo> Contacts =
+           new Dictionary<TCollisionObject, TriggerContactInfo>();
 
         public TriggerVolumeComponent() : this(1.0f) { }
         public TriggerVolumeComponent(Vec3 halfExtents)
             : base(halfExtents, new TGhostBodyConstructionInfo()
             {
-                CollidesWith = (ushort)ETheraCollisionGroup.All,
+                CollidesWith = (ushort)ETheraCollisionGroup.DynamicWorld,
                 CollisionGroup = (ushort)ETheraCollisionGroup.StaticWorld,
                 CollisionEnabled = false,
                 SimulatePhysics = false,
@@ -54,32 +68,29 @@ namespace TheraEngine.Components.Scene.Volumes
 
             //var list = ghost.CollectOverlappingPairs();
 
-            //if (list.Count > 0)
-            //    Engine.PrintLine(list.Count + " overlaps");
-
-            ghost.HasContactResponse = false;
             ushort group = CollisionObject.CollisionGroup;
             ushort with = CollisionObject.CollidesWith;
 
             _test.Object = CollisionObject;
             _test.CollisionGroup = group;
             _test.CollidesWith = with;
-
             _test.Test(OwningWorld);
 
             List<TCollisionObject> remove = new List<TCollisionObject>(Contacts.Count);
-            foreach (var key in Contacts.Keys)
+            foreach (var kv in Contacts)
             {
-                int matchIndex = _test.Results.FindIndex(x => x.CollisionObject == key);
-                if (matchIndex < 0)
-                {
-                    remove.Add(key);
-                }
-                else
+                int matchIndex = _test.Results.FindIndex(x => x.CollisionObject == kv.Key);
+                if (_test.Results.IndexInRange(matchIndex))
                 {
                     var match = _test.Results[matchIndex];
                     _test.Results.RemoveAt(matchIndex);
-                    //Contacts[key] = (match.Contact, match.IsObjectB);
+
+                    kv.Value.Contact = match.Contact;
+                    kv.Value.IsObjectB = match.IsObjectB;
+                }
+                else
+                {
+                    remove.Add(kv.Key);
                 }
             }
             foreach (var obj in remove)
@@ -90,8 +101,9 @@ namespace TheraEngine.Components.Scene.Volumes
             }
             foreach (var result in _test.Results)
             {
-                var info = (result.Contact, result.IsObjectB);
+                var info = new TriggerContactInfo(result.Contact, result.IsObjectB);
                 var obj = result.CollisionObject;
+
                 if (Contacts.ContainsKey(obj))
                     Contacts[obj] = info;
                 else

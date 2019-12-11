@@ -165,7 +165,7 @@ namespace TheraEditor.Windows.Forms
                 for (int i = 1; i < node.Nodes.Count; ++i)
                     node.Nodes[i].Remove();
 
-                foreach (LogicComponent comp in actor.LogicComponents)
+                foreach (ILogicComponent comp in actor.LogicComponents)
                 {
                     AppDomainHelper.Sponsor(comp);
                     TreeNode childNode = new TreeNode(comp.ToString()) { Tag = comp };
@@ -189,7 +189,7 @@ namespace TheraEditor.Windows.Forms
             AppDomainHelper.Sponsor(comp);
             node.Text = comp.ToString();
             node.Tag = comp;
-            foreach (SceneComponent child in comp.ChildComponents)
+            foreach (ISceneComponent child in comp.ChildComponents)
             {
                 TreeNode childNode = new TreeNode();
                 node.Nodes.Add(childNode);

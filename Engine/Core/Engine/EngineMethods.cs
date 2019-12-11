@@ -536,8 +536,8 @@ namespace TheraEngine
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
         public static void SetCurrentWorld(IWorld world)
         {
-            if (World == world)
-                return;
+            //if (World == world)
+            //    return;
 
             PreWorldChanged?.Invoke();
 

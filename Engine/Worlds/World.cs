@@ -125,7 +125,7 @@ namespace TheraEngine.Worlds
                 obj.OwningWorld = null;
         }
 
-        [TSerialize(State = true)]
+        //[TSerialize(State = true)]
         public GlobalFileRef<WorldState> StateRef
         {
             get => _stateRef;

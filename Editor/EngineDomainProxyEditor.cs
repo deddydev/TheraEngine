@@ -361,18 +361,16 @@ namespace TheraEditor
             base.OnStarted();
         }
 
-        public async override void LoadWorld(string filePath)
+        public override void LoadWorld(string filePath)
         {
             if (filePath.IsExistingDirectoryPath() != false)
                 return;
 
-            World world = await RunOperationAsync(
+            RunOperationAsync(
                 "Loading world from " + filePath, 
                 "World loaded successfully.",
                 async (p, c, a) => await TFileObject.LoadAsync<World>(filePath, p, c.Token),
-                null);
-
-            SetWorld_Internal(world);
+                null).ContinueWith(t => SetWorld_Internal(t.Result));
         }
         public void CreateNewWorld()
         {

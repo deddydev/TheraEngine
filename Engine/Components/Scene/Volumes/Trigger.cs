@@ -4,6 +4,10 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ContactTesting;
 using Extensions;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
+using System.Linq;
+using System.Drawing;
 
 namespace TheraEngine.Components.Scene.Volumes
 {
@@ -114,6 +118,22 @@ namespace TheraEngine.Components.Scene.Volumes
                 }
                 //RigidBodyCollision.OnOverlapped(result.CollisionObject, result.Contact, result.IsObjectB);
                 //result.CollisionObject.OnOverlapped(RigidBodyCollision, result.Contact, !result.IsObjectB);
+            }
+        }
+
+        protected override void Render()
+        {
+            base.Render();
+
+            var contacts = Contacts.ToList();
+            foreach (var contact in contacts)
+            {
+                var aPos = contact.Value.Contact.PositionWorldOnA;
+                var bPos = contact.Value.Contact.PositionWorldOnB;
+
+                Engine.Renderer.RenderPoint(aPos, Color.Red, false);
+                Engine.Renderer.RenderPoint(bPos, Color.Green, false);
+                Engine.Renderer.RenderLine(aPos, bPos, Color.Magenta, false);
             }
         }
     }

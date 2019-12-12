@@ -137,14 +137,14 @@ namespace TheraEngine.Components.Scene.Lights
             if (ShadowMap is null)
                 return;
 
-            Engine.Renderer.MaterialOverride = ShadowMap.Material;
+            Engine.Renderer.MeshMaterialOverride = ShadowMap.Material;
             Engine.Renderer.PushRenderArea(_region);
 
             //scene.PreRender(null, ShadowCamera);
             scene.Render(_passes, ShadowCamera, null, ShadowMap);
             
             Engine.Renderer.PopRenderArea();
-            Engine.Renderer.MaterialOverride = null;
+            Engine.Renderer.MeshMaterialOverride = null;
         }
         public static EPixelInternalFormat GetShadowDepthMapFormat(EDepthPrecision precision)
         {

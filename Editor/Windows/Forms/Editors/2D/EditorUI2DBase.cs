@@ -28,16 +28,16 @@ namespace TheraEditor.Windows.Forms
         public EditorUI2DBase() : base()
             => _rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
         public EditorUI2DBase(Vec2 bounds) : base(bounds)
-            =>_rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
+            => _rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
 
         protected UIMaterialRectangleComponent _backgroundComponent;
-        
+
         protected UITextComponent _originText;
         private Dictionary<string, (UITextComponent, UIString2D)> _textCacheX = new Dictionary<string, (UITextComponent, UIString2D)>();
         private Dictionary<string, (UITextComponent, UIString2D)> _textCacheY = new Dictionary<string, (UITextComponent, UIString2D)>();
         protected UITextComponent _xUnitText, _yUnitText;
         protected UIString2D _xUnitString, _yUnitString;
-        
+
         public Font UIFont { get; set; } = new Font("Segoe UI", 10.0f, FontStyle.Regular);
 
         private readonly RenderCommandMethod2D _rcMethod;
@@ -45,7 +45,7 @@ namespace TheraEditor.Windows.Forms
         public IRenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
         public BoundingRectangleFStruct AxisAlignedRegion { get; } = new BoundingRectangleFStruct();
         public IQuadtreeNode QuadtreeNode { get; set; }
-        
+
         public float UnitIncrement { get; set; } = 1.0f;
 
         [TSerialize]
@@ -80,7 +80,7 @@ namespace TheraEditor.Windows.Forms
             (_zoomIn + _zoomOut) != 0.0f ||
             (_moveUp + _moveDown) != 0.0f ||
             (_moveLeft + _moveRight) != 0.0f;
-        
+
         public virtual string XUnitString { get; } = null;
         public virtual string YUnitString { get; } = null;
         protected override UICanvasComponent OnConstructRoot()
@@ -98,7 +98,7 @@ namespace TheraEditor.Windows.Forms
             baseUI.ChildComponents.Add(_backgroundComponent);
 
             BaseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
-            
+
             _originText = ConstructText(new ColorF4(0.3f), "0", "0", out UIString2D originStr);
             if (!string.IsNullOrWhiteSpace(XUnitString))
                 _xUnitText = ConstructText(ColorF4.White, XUnitString, XUnitString, out _xUnitString);
@@ -259,7 +259,7 @@ namespace TheraEditor.Windows.Forms
                 ++mults;
                 range *= MaxIncrementExclusive;
             }
-            
+
             float[] dists = IncrementsRange.Select(x => Math.Abs(range - x)).ToArray();
             float minDist = MaxIncrementExclusive;
             int minDistIndex = 0;
@@ -283,7 +283,7 @@ namespace TheraEditor.Windows.Forms
             if (inc != UnitIncrement)
                 UnitIncrement = inc;
         }
-        
+
         private void UpdateTextIncrements()
         {
             BaseTransformComponent.IgnoreResizes = true;
@@ -295,12 +295,12 @@ namespace TheraEditor.Windows.Forms
 
             Vec2 unitCounts = Bounds / (inc * BaseTransformComponent.Scale.Xy) + Vec2.One;
 
-            UpdateTextIncPass(unitCounts.X, _textCacheX, min.X, inc, true);
-            UpdateTextIncPass(unitCounts.Y, _textCacheY, min.Y, inc, false);
-            
+            UpdateTextIncrements(unitCounts.X, _textCacheX, min.X, inc, true);
+            UpdateTextIncrements(unitCounts.Y, _textCacheY, min.Y, inc, false);
+
             BaseTransformComponent.IgnoreResizes = false;
         }
-        private void UpdateTextIncPass(float unitCount, Dictionary<string, (UITextComponent, UIString2D)> textCache, float minimum, float increment, bool xCoord)
+        private void UpdateTextIncrements(float unitCount, Dictionary<string, (UITextComponent, UIString2D)> textCache, float minimum, float increment, bool xCoord)
         {
             var allKeys = textCache.Keys.ToList();
             var visible = Enumerable.Range(0, (int)Math.Ceiling(unitCount)).Select(x =>
@@ -398,16 +398,16 @@ namespace TheraEditor.Windows.Forms
         }
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterKeyPressed(EKey.ControlLeft,  OnCtrlPressed,    EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.ControlRight, OnCtrlPressed,    EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.ShiftLeft,    OnShiftPressed,   EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.ShiftRight,   OnShiftPressed,   EInputPauseType.TickAlways);
-            
-            input.RegisterKeyEvent(EKey.Number1,                EButtonInputType.Pressed,   ToggleSnap,     EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick,   EButtonInputType.Pressed,   OnLeftClickDown,  EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick,   EButtonInputType.Released,  OnLeftClickUp,    EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.RightClick,  EButtonInputType.Pressed,   OnRightClickPressed, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.RightClick,  EButtonInputType.Released,  OnRightClickReleased,   EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ControlLeft, OnCtrlPressed, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ControlRight, OnCtrlPressed, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ShiftLeft, OnShiftPressed, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ShiftRight, OnShiftPressed, EInputPauseType.TickAlways);
+
+            input.RegisterKeyEvent(EKey.Number1, EButtonInputType.Pressed, ToggleSnap, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Pressed, OnLeftClickDown, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Released, OnLeftClickUp, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.RightClick, EButtonInputType.Pressed, OnRightClickPressed, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.RightClick, EButtonInputType.Released, OnRightClickReleased, EInputPauseType.TickAlways);
 
             //input.RegisterKeyPressed(EKey.Left, MoveLeft, EInputPauseType.TickAlways);
             //input.RegisterKeyPressed(EKey.Down, MoveDown, EInputPauseType.TickAlways);
@@ -495,25 +495,55 @@ namespace TheraEditor.Windows.Forms
         }
 
         private void ToggleSnap() => SnapToUnits = !SnapToUnits;
-        
+
         protected virtual void OnCtrlPressed(bool pressed) => CtrlDown = pressed;
         protected virtual void OnShiftPressed(bool pressed) => ShiftDown = pressed;
 
-        protected abstract void OnLeftClickDown();
-        protected abstract void OnLeftClickUp();
+        protected virtual void OnLeftClickDown()
+        {
+
+        }
+        protected virtual void OnLeftClickUp()
+        {
+            if (ContextMenu is null)
+                return;
+
+            Vec2 cursorPos = CursorPositionWorld();
+            if (ContextMenu.Contains(cursorPos))
+                ContextMenu.HoveredMenuItem?.Click();
+            
+            ContextMenu.IsVisible = false;
+        }
+
         protected virtual void OnRightClickPressed()
         {
-            RightClickPressed = true;
+            _viewDragged = false;
             _lastWorldPos = CursorPositionWorld();
 
-            ContextMenu.IsVisible = true;
+            RightClickPressed = true;
         }
         protected virtual void OnRightClickReleased()
         {
             RightClickPressed = false;
+
+            if (ContextMenu != null)
+                ContextMenu.IsVisible = !_viewDragged;
         }
 
-        public TMenuComponent ContextMenu { get; set; }
+        public TMenuComponent ContextMenu 
+        {
+            get => _contextMenu;
+            set
+            {
+                if (_contextMenu != null)
+                    RootComponent.ChildComponents.Remove(_contextMenu);
+
+                _contextMenu = value;
+
+                if (_contextMenu != null)
+                    RootComponent.ChildComponents.Add(_contextMenu);
+            }
+        }
 
         protected Vec2 GetWorldCursorDiff(Vec2 cursorPosScreen)
         {
@@ -524,6 +554,9 @@ namespace TheraEditor.Windows.Forms
             _lastWorldPos = newFocusPoint;
             return diff;
         }
+
+        private bool _viewDragged = false;
+        private TMenuComponent _contextMenu;
 
         protected abstract bool IsDragging { get; }
         public UITransformComponent BaseTransformComponent { get; protected set; }
@@ -555,6 +588,7 @@ namespace TheraEditor.Windows.Forms
         protected abstract void HandleDragItem();
         protected virtual void HandleDragView()
         {
+            _viewDragged = true;
             Vec2 diff = GetWorldCursorDiff(CursorPosition());
             if (diff.LengthSquared > float.Epsilon)
                 BaseTransformComponent.LocalTranslation += diff;

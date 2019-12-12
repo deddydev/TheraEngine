@@ -35,19 +35,23 @@ namespace TheraEngine.Rendering
             => RenderDistance < ((other as RenderCommand3D)?.RenderDistance ?? 0.0f) ? -1 : 1;
         
         public RenderCommand3D() : this(0.0f) { }
-        public RenderCommand3D(float renderDistance) : base(ERenderPass.OpaqueDeferredLit) => RenderDistance = renderDistance;
-        public RenderCommand3D(ERenderPass renderPass) : base(renderPass) => RenderDistance = 0.0f;
-        public RenderCommand3D(ERenderPass renderPass, float renderDistance) : this(renderPass) => RenderDistance = renderDistance;
+        public RenderCommand3D(float renderDistance) : base(ERenderPass.OpaqueDeferredLit) 
+            => RenderDistance = renderDistance;
+        public RenderCommand3D(ERenderPass renderPass) : base(renderPass) 
+            => RenderDistance = 0.0f;
+        public RenderCommand3D(ERenderPass renderPass, float renderDistance) : this(renderPass) 
+            => RenderDistance = renderDistance;
         
-        public void SetRenderDistanceByCamera(Camera camera, Vec3 point, bool planar)
-        {
-            if (camera is null)
-                RenderDistance = 0.0f;
-             else
-                RenderDistance = planar ?
-                    camera.DistanceFromScreenPlane(point) :
-                    camera.DistanceFromWorldPointFast(point);
-        }
+        /// <summary>
+        /// Sets RenderDistance by calculating the distance between the provided camera and point.
+        /// If planar is true, distance is calculated to the camera's near plane.
+        /// If false, the distance is calculated to the camera's world position.
+        /// </summary>
+        /// <param name="camera"></param>
+        /// <param name="point"></param>
+        /// <param name="planar"></param>
+        public void SetRenderDistanceByCamera(ICamera camera, Vec3 point, bool planar)
+            => RenderDistance = camera is null ? 0.0f : (planar ? camera.DistanceFromScreenPlane(point) : camera.DistanceFromWorldPointFast(point));
     }
     public abstract class RenderCommand2D : RenderCommand
     {
@@ -58,10 +62,7 @@ namespace TheraEngine.Rendering
 
         public RenderCommand2D() : base(ERenderPass.OpaqueForward) { }
         public RenderCommand2D(ERenderPass renderPass) : base(renderPass) { }
-        public RenderCommand2D(ERenderPass renderPass, int zIndex) : base(renderPass)
-        {
-            ZIndex = zIndex;
-        }
+        public RenderCommand2D(ERenderPass renderPass, int zIndex) : base(renderPass) => ZIndex = zIndex;
     }
     public class RenderCommandMethod2D : RenderCommand2D
     {

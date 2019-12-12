@@ -32,7 +32,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Set this to force every mesh to render with this material.
         /// </summary>
-        public TMaterial MaterialOverride { get; set; }
+        public TMaterial MeshMaterialOverride { get; set; }
         public abstract ERenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext => RenderContext.Captured;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
@@ -660,8 +660,14 @@ namespace TheraEngine.Rendering
         #endregion
 
         #region Render area
+
         public abstract void CropRenderArea(BoundingRectangle region);
         protected abstract void SetRenderArea(BoundingRectangle region);
+
+        public void PushRenderArea(int width, int height)
+            => PushRenderArea(0, 0, width, height);
+        public void PushRenderArea(int x, int y, int width, int height)
+            => PushRenderArea(new BoundingRectangle(x, y, width, height));
         public virtual void PushRenderArea(BoundingRectangle region)
         {
             _renderAreaStack.Push(region);
@@ -752,6 +758,7 @@ namespace TheraEngine.Rendering
 
         #region Frame Buffers
 
+        public void ClearFrameBufferBinding() => BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
         public abstract void BindFrameBuffer(EFramebufferTarget type, int bindingId);
         public abstract void CheckFrameBufferErrors();
         public abstract void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel);

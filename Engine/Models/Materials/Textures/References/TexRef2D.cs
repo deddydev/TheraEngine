@@ -474,8 +474,18 @@ namespace TheraEngine.Rendering.Models.Materials
         public bool Rectangle { get; set; } = false;
         public bool MultiSample { get; set; } = false;
         public float DotLuminance { get; private set; }
+        private DateTime LastCalculate = DateTime.Now;
         public unsafe void CalcDotLuminance()
         {
+            //TODO: speed this method up. GetTexImage is too slow
+
+            DateTime now = DateTime.Now;
+            TimeSpan elapsed = now - LastCalculate;
+            if (elapsed.TotalSeconds < 1.0)
+                return;
+
+            LastCalculate = now;
+
             //Calculate average color value using 1x1 mipmap of scene
             var tex = RenderTextureGeneric;
             tex.Bind();

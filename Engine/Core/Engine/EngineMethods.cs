@@ -353,8 +353,10 @@ namespace TheraEngine
         {
             if (render != null)
                 Timer.RenderFrame += render;
+
             if (update != null)
                 Update += update;
+
             if (swapBuffers != null)
                 Timer.SwapBuffers += swapBuffers;
         }
@@ -436,6 +438,7 @@ namespace TheraEngine
 
             TickGroup(ETickGroup.PostPhysics, delta);
 
+            //Collect renderables
             OnUpdate(sender, e);
 
             //Network?.UpdatePacketQueue(e.Time);

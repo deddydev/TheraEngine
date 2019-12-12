@@ -351,8 +351,7 @@ namespace System
                 bool shadowPass)
             {
                 var info = renderable.RenderInfo;
-                bool allowRender = info.AllowRender(cullingVolume, passes, camera, shadowPass);
-                if (!allowRender)
+                if (!info.AllowRender(cullingVolume, passes, camera, shadowPass))
                     return;
 
                 if (!shadowPass)

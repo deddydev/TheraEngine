@@ -345,7 +345,7 @@ namespace TheraEngine.Tests
             #endregion
 
             #region Skybox
-            TextureFile2D skyTex = await Engine.Files.LoadEngineTexture2DAsync("modelviewerbg1.png");
+            TextureFile2D skyTex = await Engine.Files.LoadEngineTexture2DAsync("modelviewerbg2.png");
             SkyboxActor skyboxActor = new SkyboxActor(skyTex, 1000.0f);
             actors.Add(skyboxActor);
             #endregion

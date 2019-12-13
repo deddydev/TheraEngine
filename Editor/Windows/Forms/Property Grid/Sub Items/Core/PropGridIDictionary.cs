@@ -77,65 +77,69 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (dic is null)
                 propGridDicItems.DestroyProperties();
             else
-                //await Task.Run(() =>
+            //await Task.Run(() =>
+            {
+                ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
+                ConcurrentDictionary<TypeProxy, Deque<TypeProxy>> editorTypeCaches = new ConcurrentDictionary<TypeProxy, Deque<TypeProxy>>();
+
+                object[] dicKeys = new object[dic.Keys.Count];
+                dic.Keys.CopyTo(dicKeys, 0);
+                try
                 {
-                    ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
-                    ConcurrentDictionary<TypeProxy, Deque<TypeProxy>> editorTypeCaches = new ConcurrentDictionary<TypeProxy, Deque<TypeProxy>>();
-
-                    object[] dicKeys = new object[dic.Keys.Count];
-                    dic.Keys.CopyTo(dicKeys, 0);
                     Array.Sort(dicKeys);
+                }
+                catch { }
 
-                    Deque<TypeProxy> valueTypes = TheraPropertyGrid.GetControlTypes(_valueType);
-                    Deque<TypeProxy> keyTypes = TheraPropertyGrid.GetControlTypes(_keyType);
+                Deque<TypeProxy> valueTypes = TheraPropertyGrid.GetControlTypes(_valueType);
+                Deque<TypeProxy> keyTypes = TheraPropertyGrid.GetControlTypes(_keyType);
 
-                    Parallel.For(0, dic.Count, i =>
+                Parallel.For(0, dic.Count, i =>
+                {
+                    var key = dicKeys[i];
+                    TypeProxy keyType = key?.GetTypeProxy();
+                    TypeProxy valType = dic[key]?.GetTypeProxy() ?? _valueType;
+
+                    Deque<TypeProxy> keyControlTypes;
+                    if (editorTypeCaches.ContainsKey(keyType))
+                        keyControlTypes = editorTypeCaches[keyType];
+                    else
                     {
-                        var key = dicKeys[i];
-                        TypeProxy keyType = key?.GetTypeProxy();
-                        TypeProxy valType = dic[key]?.GetTypeProxy() ?? _valueType;
-
-                        Deque<TypeProxy> keyControlTypes;
-                        if (editorTypeCaches.ContainsKey(keyType))
-                            keyControlTypes = editorTypeCaches[keyType];
-                        else
-                        {
-                            keyControlTypes = TheraPropertyGrid.GetControlTypes(keyType);
-                            editorTypeCaches.TryAdd(keyType, keyControlTypes);
-                        }
-                        Deque<TypeProxy> valControlTypes;
-                        if (editorTypeCaches.ContainsKey(valType))
-                            valControlTypes = editorTypeCaches[valType];
-                        else
-                        {
-                            valControlTypes = TheraPropertyGrid.GetControlTypes(valType);
-                            editorTypeCaches.TryAdd(valType, valControlTypes);
-                        }
-                        
-                        List<PropGridItem> keys = TheraPropertyGrid.InstantiatePropertyEditors(keyControlTypes, 
-                            new PropGridItemRefIDictionaryInfo(this, key, true), ParentCategory, DataChangeHandler);
-                        List<PropGridItem> values = TheraPropertyGrid.InstantiatePropertyEditors(valControlTypes,
-                            new PropGridItemRefIDictionaryInfo(this, key, false), ParentCategory, DataChangeHandler);
-
-                        //TODO: don't interlace, put key editor in place of label
-                        int count = keys.Count + values.Count;
-                        List<PropGridItem> interlaced = new List<PropGridItem>(count);
-                        int valueIndex = -1;
-                        int keyIndex = -1;
-                        for (int x = 0; x < count; ++x)
-                            interlaced.Add(((x & 1) == 0) ? keys[++keyIndex] : values[++valueIndex]);
-
-                        controls.TryAdd(i, interlaced);
-                    });
-                    for (int i = 0; i < controls.Count; ++i)
-                    {
-                        Label label = propGridDicItems.AddMember(controls[i]);
-                        label.MouseEnter += Label_MouseEnter;
-                        label.MouseLeave += Label_MouseLeave;
-                        label.MouseDown += Label_MouseDown;
-                        label.MouseUp += Label_MouseUp;
+                        keyControlTypes = TheraPropertyGrid.GetControlTypes(keyType);
+                        editorTypeCaches.TryAdd(keyType, keyControlTypes);
                     }
-                }//);
+                    Deque<TypeProxy> valControlTypes;
+                    if (editorTypeCaches.ContainsKey(valType))
+                        valControlTypes = editorTypeCaches[valType];
+                    else
+                    {
+                        valControlTypes = TheraPropertyGrid.GetControlTypes(valType);
+                        editorTypeCaches.TryAdd(valType, valControlTypes);
+                    }
+                        
+                    List<PropGridItem> keys = TheraPropertyGrid.InstantiatePropertyEditors(keyControlTypes, 
+                        new PropGridItemRefIDictionaryInfo(this, key, true), ParentCategory, DataChangeHandler);
+                    List<PropGridItem> values = TheraPropertyGrid.InstantiatePropertyEditors(valControlTypes,
+                        new PropGridItemRefIDictionaryInfo(this, key, false), ParentCategory, DataChangeHandler);
+
+                    //TODO: don't interlace, put key editor in place of label
+                    int count = keys.Count + values.Count;
+                    List<PropGridItem> interlaced = new List<PropGridItem>(count);
+                    int valueIndex = -1;
+                    int keyIndex = -1;
+                    for (int x = 0; x < count; ++x)
+                        interlaced.Add(((x & 1) == 0) ? keys[++keyIndex] : values[++valueIndex]);
+
+                    controls.TryAdd(i, interlaced);
+                });
+                for (int i = 0; i < controls.Count; ++i)
+                {
+                    Label label = propGridDicItems.AddMember(controls[i]);
+                    label.MouseEnter += Label_MouseEnter;
+                    label.MouseLeave += Label_MouseLeave;
+                    label.MouseDown += Label_MouseDown;
+                    label.MouseUp += Label_MouseUp;
+                }
+            }//);
 
             propGridDicItems.PropertyTable.ResumeLayout(true);
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering;
@@ -15,11 +14,11 @@ namespace TheraEngine.Worlds
             set => _targetWorld = value;
         }
 
-        private List<RenderContext> _contexts = new List<RenderContext>();
+        private readonly List<RenderContext> _contexts = new List<RenderContext>();
         public IReadOnlyList<RenderContext> AssociatedContexts => _contexts;
 
-        private ConcurrentQueue<RenderContext> _contextAddQueue = new ConcurrentQueue<RenderContext>();
-        private ConcurrentQueue<RenderContext> _contextRemoveQueue = new ConcurrentQueue<RenderContext>();
+        private readonly ConcurrentQueue<RenderContext> _contextAddQueue = new ConcurrentQueue<RenderContext>();
+        private readonly ConcurrentQueue<RenderContext> _contextRemoveQueue = new ConcurrentQueue<RenderContext>();
         
         public virtual void SwapBuffers()
         {
@@ -31,14 +30,10 @@ namespace TheraEngine.Worlds
 
         public int ID { get; internal set; }
 
-        public async void LoadWorldFromPath(string filePath)
-        {
-            World = await TFileObject.LoadAsync<World>(filePath);
-        }
-        public void UseEngineWorld()
-        {
-            World = null;
-        }
+        public async void LoadWorldFromPath(string filePath) 
+            => World = await TFileObject.LoadAsync<World>(filePath);
+        public void UseEngineWorld() 
+            => World = null;
 
         public void GlobalUpdate() => World?.GlobalUpdate();
         public void GlobalPreRender() => World?.GlobalPreRender();

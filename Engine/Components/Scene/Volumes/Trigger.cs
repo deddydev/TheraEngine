@@ -8,6 +8,7 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using System.Linq;
 using System.Drawing;
+using System.ComponentModel;
 
 namespace TheraEngine.Components.Scene.Volumes
 {
@@ -18,6 +19,9 @@ namespace TheraEngine.Components.Scene.Volumes
         public DelOnOverlapEnter Entered;
         public DelOnOverlapLeave Left;
 
+        [TSerialize]
+        public bool TrackContacts { get; set; } = false;
+
         protected virtual void OnEntered(TCollisionObject obj)
         {
             Entered?.Invoke(obj);
@@ -27,7 +31,7 @@ namespace TheraEngine.Components.Scene.Volumes
             Left?.Invoke(obj);
         }
 
-        public class TriggerContactInfo
+        public class TriggerContactInfo : TObjectSlim
         {
             public TriggerContactInfo() { }
             public TriggerContactInfo(TContactInfo contact, bool isB)
@@ -40,7 +44,7 @@ namespace TheraEngine.Components.Scene.Volumes
             public bool IsObjectB { get; set; }
         }
 
-        public Dictionary<TCollisionObject, TriggerContactInfo> Contacts =
+        public Dictionary<TCollisionObject, TriggerContactInfo> Contacts { get; } =
            new Dictionary<TCollisionObject, TriggerContactInfo>();
 
         public TriggerVolumeComponent() : this(1.0f) { }
@@ -64,60 +68,99 @@ namespace TheraEngine.Components.Scene.Volumes
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             base.OnDespawned();
         }
-        private ContactTestMulti _test = new ContactTestMulti(null, 0, 0);
+
+        private readonly ContactTestMulti _test = new ContactTestMulti(null, 0, 0);
         private void Tick(float delta)
         {
             if (!(CollisionObject is TGhostBody ghost))
                 return;
 
-            //var list = ghost.CollectOverlappingPairs();
-
-            ushort group = CollisionObject.CollisionGroup;
-            ushort with = CollisionObject.CollidesWith;
-
-            _test.Object = CollisionObject;
-            _test.CollisionGroup = group;
-            _test.CollidesWith = with;
-            _test.Test(OwningWorld);
-
-            List<TCollisionObject> remove = new List<TCollisionObject>(Contacts.Count);
-            foreach (var kv in Contacts)
+            if (TrackContacts)
             {
-                int matchIndex = _test.Results.FindIndex(x => x.CollisionObject == kv.Key);
-                if (_test.Results.IndexInRange(matchIndex))
-                {
-                    var match = _test.Results[matchIndex];
-                    _test.Results.RemoveAt(matchIndex);
+                ushort group = CollisionObject.CollisionGroup;
+                ushort with = CollisionObject.CollidesWith;
 
-                    kv.Value.Contact = match.Contact;
-                    kv.Value.IsObjectB = match.IsObjectB;
-                }
-                else
+                _test.Object = CollisionObject;
+                _test.CollisionGroup = group;
+                _test.CollidesWith = with;
+                _test.Test(OwningWorld);
+
+                List<TCollisionObject> remove = new List<TCollisionObject>(Contacts.Count);
+                foreach (var kv in Contacts)
                 {
-                    remove.Add(kv.Key);
+                    int matchIndex = _test.Results.FindIndex(x => x.CollisionObject == kv.Key);
+                    if (_test.Results.IndexInRange(matchIndex))
+                    {
+                        var match = _test.Results[matchIndex];
+                        _test.Results.RemoveAt(matchIndex);
+
+                        kv.Value.Contact = match.Contact;
+                        kv.Value.IsObjectB = match.IsObjectB;
+                    }
+                    else
+                    {
+                        remove.Add(kv.Key);
+                    }
+                }
+                foreach (var obj in remove)
+                {
+                    Contacts.Remove(obj);
+                    OnLeft(obj);
+                    Engine.PrintLine($"TRIGGER OBJECT LEFT: {Contacts.Count} contacts total");
+                }
+                foreach (var result in _test.Results)
+                {
+                    var info = new TriggerContactInfo(result.Contact, result.IsObjectB);
+                    var obj = result.CollisionObject;
+
+                    if (Contacts.ContainsKey(obj))
+                        Contacts[obj] = info;
+                    else
+                    {
+                        Contacts.Add(obj, info);
+                        OnEntered(obj);
+                        Engine.PrintLine($"TRIGGER OBJECT ENTERED: {Contacts.Count} contacts total");
+                    }
+                    //RigidBodyCollision.OnOverlapped(result.CollisionObject, result.Contact, result.IsObjectB);
+                    //result.CollisionObject.OnOverlapped(RigidBodyCollision, result.Contact, !result.IsObjectB);
                 }
             }
-            foreach (var obj in remove)
+            else
             {
-                Contacts.Remove(obj);
-                OnLeft(obj);
-                Engine.PrintLine($"TRIGGER OBJECT LEFT: {Contacts.Count} contacts total");
-            }
-            foreach (var result in _test.Results)
-            {
-                var info = new TriggerContactInfo(result.Contact, result.IsObjectB);
-                var obj = result.CollisionObject;
-
-                if (Contacts.ContainsKey(obj))
-                    Contacts[obj] = info;
-                else
+                var list = ghost.CollectOverlappingPairs();
+                List<TCollisionObject> remove = new List<TCollisionObject>(Contacts.Count);
+                foreach (var kv in Contacts)
                 {
-                    Contacts.Add(obj, info);
-                    OnEntered(obj);
-                    Engine.PrintLine($"TRIGGER OBJECT ENTERED: {Contacts.Count} contacts total");
+                    int matchIndex = list.IndexOf(kv.Key);
+                    if (list.IndexInRange(matchIndex))
+                    {
+                        var match = list[matchIndex];
+                        list.RemoveAt(matchIndex);
+                    }
+                    else
+                    {
+                        remove.Add(kv.Key);
+                    }
                 }
-                //RigidBodyCollision.OnOverlapped(result.CollisionObject, result.Contact, result.IsObjectB);
-                //result.CollisionObject.OnOverlapped(RigidBodyCollision, result.Contact, !result.IsObjectB);
+                foreach (var obj in remove)
+                {
+                    Contacts.Remove(obj);
+                    OnLeft(obj);
+                    Engine.PrintLine($"TRIGGER OBJECT LEFT: {Contacts.Count} contacts total");
+                }
+                foreach (var obj in list)
+                {
+                    if (Contacts.ContainsKey(obj))
+                        Contacts[obj] = null;
+                    else
+                    {
+                        Contacts.Add(obj, null);
+                        OnEntered(obj);
+                        Engine.PrintLine($"TRIGGER OBJECT ENTERED: {Contacts.Count} contacts total");
+                    }
+                    //RigidBodyCollision.OnOverlapped(result.CollisionObject, result.Contact, result.IsObjectB);
+                    //result.CollisionObject.OnOverlapped(RigidBodyCollision, result.Contact, !result.IsObjectB);
+                }
             }
         }
 
@@ -125,9 +168,16 @@ namespace TheraEngine.Components.Scene.Volumes
         {
             base.Render();
 
+            if (!TrackContacts)
+                return;
+
             var contacts = Contacts.ToList();
             foreach (var contact in contacts)
             {
+                var contactInfo = contact.Value;
+                if (contactInfo is null)
+                    continue;
+
                 var aPos = contact.Value.Contact.PositionWorldOnA;
                 var bPos = contact.Value.Contact.PositionWorldOnB;
 

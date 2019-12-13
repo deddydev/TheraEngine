@@ -58,6 +58,9 @@ namespace TheraEditor.Windows.Forms
             _uiBoundsRC.Mesh = new PrimitiveManager(data3, boundsMat);
 
             BaseTransformComponent.WorldTransformChanged += BaseTransformComponent_WorldTransformChanged;
+
+            ContextMenu = new TMenuComponent();
+            ContextMenu.ChildComponents.Add(new TMenuItemComponent());
         }
 
         private void BaseTransformComponent_WorldTransformChanged(ISceneComponent obj)

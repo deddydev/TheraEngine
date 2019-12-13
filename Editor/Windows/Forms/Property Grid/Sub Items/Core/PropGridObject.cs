@@ -72,7 +72,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 !(MemberInfo is PropGridMemberInfoIList ilist && 
                 ilist.ListElementType == CurrentType))
             {
-                string typeName = (value?.GetTypeProxy() ?? DataType).GetFriendlyName();
+                string typeName = (value?.GetTypeProxy() ?? DataType)?.GetFriendlyName() ?? string.Empty;
                 lblObjectTypeName.Text = "[" + typeName + "] " + (value is null ? "null" : value.ToString());
             }
             else

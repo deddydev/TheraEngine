@@ -536,12 +536,18 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 if (_contextMenu != null)
+                {
+                    _contextMenu.IsVisible = false;
                     RootComponent.ChildComponents.Remove(_contextMenu);
+                }
 
                 _contextMenu = value;
 
                 if (_contextMenu != null)
+                {
+                    _contextMenu.IsVisible = false;
                     RootComponent.ChildComponents.Add(_contextMenu);
+                }
             }
         }
 

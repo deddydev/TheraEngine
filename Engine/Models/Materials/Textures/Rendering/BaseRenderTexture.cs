@@ -80,8 +80,16 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                 }
             }
         }
-        internal void Clear(ColorF4 clearColor, int level = 0)
-            => Engine.Renderer.ClearTexImage(BindingId, level, clearColor);
+
+        public void Clear(ColorF4 color, int level = 0)
+        {
+            var id = BindingId;
+            if (id != NullBindingId)
+            {
+                Engine.Renderer.BindTexture(TextureTarget, id);
+                Engine.Renderer.ClearTexImage(id, level, color);
+            }
+        }
 
         public abstract int MaxDimension { get; }
 

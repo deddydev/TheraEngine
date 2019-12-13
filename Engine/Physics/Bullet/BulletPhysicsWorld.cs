@@ -232,7 +232,7 @@ namespace TheraEngine.Physics
             if (b?.CollisionObject != null)
             {
                 _dynamicsWorld.AddCollisionObject(b.CollisionObject, (short)collision.CollisionGroup, (short)collision.CollidesWith);
-                Engine.PrintLine($"Added {b.CollisionObject.CollisionShape.ToString()} to Bullet physics world.");
+                Engine.PrintLine($"Added {b.CollisionObject.CollisionShape.ToString()} to Bullet physics world: {collision.CollisionGroup} collides with {collision.CollidesWith}.");
             }
             else
                 Engine.LogWarning("Collision object is null; cannot add to Bullet physics world.");
@@ -241,7 +241,10 @@ namespace TheraEngine.Physics
         {
             IBulletCollisionObject b = collision as IBulletCollisionObject;
             if (b?.CollisionObject != null)
+            {
                 _dynamicsWorld.RemoveCollisionObject(b.CollisionObject);
+                Engine.PrintLine($"Removed {b.CollisionObject.CollisionShape.ToString()} from Bullet physics world.");
+            }
             else
                 Engine.LogWarning("Collision object is null; nothing to remove from Bullet physics world.");
         }

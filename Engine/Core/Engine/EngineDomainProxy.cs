@@ -204,14 +204,14 @@ namespace TheraEngine.Core
         //}
         public RenderContext GetContext(EPanelType type)
         {
-            switch (type)
+            return type switch
             {
-                case EPanelType.World: return WorldPanel;
-                case EPanelType.Hovered: return Hovered;
-                case EPanelType.Focused: return Focused;
-                case EPanelType.Rendering: return Captured;
-            }
-            return null;
+                EPanelType.World => WorldPanel,
+                EPanelType.Hovered => Hovered,
+                EPanelType.Focused => Focused,
+                EPanelType.Rendering => Captured,
+                _ => null,
+            };
         }
 
         private void UpdateTick(object sender, FrameEventArgs e)
@@ -221,10 +221,9 @@ namespace TheraEngine.Core
                 if (m is null || m.AssociatedContexts.Count == 0)
                     continue;
 
-                m.GlobalUpdate();
-
                 try
                 {
+                    m.GlobalUpdate();
                     foreach (var ctx in m.AssociatedContexts)
                         ctx.Update();
                 }

@@ -11,6 +11,11 @@
         public override void OnMouseLeave() => Unhighlight();
         public override void OnGamepadEnter() => Highlight();
         public override void OnGamepadLeave() => Unhighlight();
+
+        public virtual void Click()
+        {
+
+        }
         
         protected virtual void Highlight()
         {

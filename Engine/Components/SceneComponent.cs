@@ -139,7 +139,7 @@ namespace TheraEngine.Components
                 r3d.RenderInfo?.OctreeNode?.ItemMoved(r3d);
 
             foreach (ISceneComponent c in _children)
-                c.RecalcWorldTransform();
+                c?.RecalcWorldTransform();
 
             WorldTransformChanged?.Invoke(this);
             SocketTransformChanged?.Invoke(this);
@@ -355,8 +355,10 @@ namespace TheraEngine.Components
             set
             {
                 base.OwningActor = value;
-                foreach (ISceneComponent c in _children)
-                    ((IComponent)c).OwningActor = value;
+
+                foreach (IComponent c in _children)
+                    if (c != null)
+                        c.OwningActor = value;
             }
         }
 
@@ -669,7 +671,7 @@ namespace TheraEngine.Components
             ActorSceneComponentCacheIndex = cache.Count;
             cache.Add(this);
             foreach (ISceneComponent c in _children)
-                c.GenerateChildCache(cache);
+                c?.GenerateChildCache(cache);
         }
 
         #region Child Components

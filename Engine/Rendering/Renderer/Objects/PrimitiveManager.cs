@@ -500,7 +500,7 @@ namespace TheraEngine.Rendering.Models
         private Matrix4 _lastRenderedModelMatrix = Matrix4.Identity;
 
         internal TMaterial GetRenderMaterial(TMaterial localOverrideMat)
-            => Engine.Renderer.MaterialOverride ?? localOverrideMat ?? Material;
+            => Engine.Renderer.MeshMaterialOverride ?? localOverrideMat ?? Material;
 
         public void Render() => Render(1);
         public void Render(int instances) 

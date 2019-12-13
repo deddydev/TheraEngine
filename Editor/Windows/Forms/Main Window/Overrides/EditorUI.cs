@@ -31,11 +31,13 @@ namespace TheraEditor.Windows.Forms
         {
             TransformTool3D.Instance.MouseDown += Instance_MouseDown;
             TransformTool3D.Instance.MouseUp += Instance_MouseUp;
+            CacheIntersectionEvents();
         }
         public EditorUI3D(Vec2 bounds) : base(bounds)
         {
             TransformTool3D.Instance.MouseDown += Instance_MouseDown;
             TransformTool3D.Instance.MouseUp += Instance_MouseUp;
+            CacheIntersectionEvents();
         }
 
         private void Instance_MouseUp()
@@ -474,83 +476,95 @@ namespace TheraEditor.Windows.Forms
         private void IntersectScene()
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport;
-            if (v != null)
-            {
-                MousePosition = /*gamepad ? v.Center : */Viewport.CursorPosition(v, out bool isOutOfBounds);
-                IsMouseOutOfBounds = isOutOfBounds;
-
-                IntersectScene(v, MousePosition, IsMouseOutOfBounds);
-            }
+            if (v is null)
+                return;
+            
+            MousePosition = /*gamepad ? v.Center : */Viewport.CursorPosition(v, out bool isOutOfBounds);
+            IsMouseOutOfBounds = isOutOfBounds;
+            IntersectScene(v, MousePosition);
         }
-        private void IntersectScene(Viewport v, Vec2 viewportPoint, bool isOutOfBounds)
+        private void IntersectScene(Viewport v, Vec2 viewportPoint)
         {
-            if (isOutOfBounds)
+            if (IsMouseOutOfBounds)
             {
                 _highlightPoint.RenderInfo.Visible = HighlightedComponent != null;
                 return;
             }
 
-            ISceneComponent dragComp = DragComponent;
-
-            //Transforming object?
-            if (TransformTool3D.Instance.IsSpawned)
-            {
-                Ray cursor = v.GetWorldRay(viewportPoint);
-                if (!TransformTool3D.Instance.MouseMove(cursor, v.Camera, MouseDown))
-                    HighlightScene(v, viewportPoint);
-                else if (!MouseDown)
-                    HighlightedComponent = null;//TransformTool3D.Instance.RootComponent;
-            }
-            else if (_currentConstraint != null) //Dragging physics object?
-            {
-                Ray cursor = v.GetWorldRay(viewportPoint);
-                _currentConstraint.PivotInB = cursor.StartPoint + cursor.Direction * DraggingTestDistance;
-            }
-            else if (dragComp != null) //Dragging and dropping object?
-            {
-                ISceneComponent comp = v.PickScene(
-                    viewportPoint, true, true, true,
-                    out _hitNormal, out _hitPoint, out float dist,
-                    dragComp is IRigidBodyCollidable p ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
-
-                if (dist > DraggingTestDistance)
-                    comp = null;
-
-                float upDist = 0.0f;
-                if (comp is null)
+            foreach (var ev in OrderedIntersectionEvents)
+                if (ev.Condition())
                 {
-                    _hitNormal = Vec3.Up;
-                    float depth = TMath.DistanceToDepth(DraggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
-                    _hitPoint = v.ScreenToWorld(viewportPoint, depth);
+                    ev.Action(v, viewportPoint);
+                    return;
                 }
 
-                Vec3 rightCameraVector = v.Camera.RightVector;
-                Quat rotation = Quat.FromAxisAngleDeg(_hitNormal, _spawnRotation);
-                rightCameraVector = rotation * rightCameraVector;
-                Vec3
-                    forward = rightCameraVector ^ _hitNormal,
-                    up = _hitNormal,
-                    right = up ^ forward,
-                    translation = HitPoint;
-
-                right.Normalize();
-                up.Normalize();
-                forward.Normalize();
-
-                translation += up * upDist;
-
-                dragComp.WorldMatrix = Matrix4.CreateSpacialTransform(
-                    translation,
-                    right * _draggingUniformScale,
-                    up * _draggingUniformScale,
-                    forward * _draggingUniformScale);
-            }
-            else //Not doing anything
-            {
-                HighlightScene(v, viewportPoint);
-            }
+            HighlightScene(v, viewportPoint);
         }
-        public void HighlightScene(Viewport viewport, Vec2 viewportPoint)
+
+        protected (Func<bool> Condition, Action<Viewport, Vec2> Action)[] OrderedIntersectionEvents { get; set; }
+        protected virtual void CacheIntersectionEvents()
+        {
+            OrderedIntersectionEvents = new (Func<bool>, Action<Viewport, Vec2>)[]
+            {
+                (() => TransformTool3D.Instance.IsSpawned,  HandleTransformTool),
+                (() => _currentConstraint != null,          HandleConstraint),
+                (() => DragComponent != null,               HandleDraggedComponent),
+            };
+        }
+
+        protected virtual void HandleTransformTool(Viewport v, Vec2 viewportPoint)
+        {
+            Ray cursor = v.GetWorldRay(viewportPoint);
+            if (!TransformTool3D.Instance.MouseMove(cursor, v.Camera, MouseDown))
+                HighlightScene(v, viewportPoint);
+            else if (!MouseDown)
+                HighlightedComponent = null;//TransformTool3D.Instance.RootComponent;
+        }
+        protected virtual void HandleConstraint(Viewport v, Vec2 viewportPoint)
+        {
+            Ray cursor = v.GetWorldRay(viewportPoint);
+            _currentConstraint.PivotInB = cursor.StartPoint + cursor.Direction * DraggingTestDistance;
+        }
+        protected virtual void HandleDraggedComponent(Viewport v, Vec2 viewportPoint)
+        {
+            ISceneComponent comp = v.PickScene(
+                viewportPoint, true, true, true,
+                out _hitNormal, out _hitPoint, out float dist,
+                DragComponent is IRigidBodyCollidable p ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
+
+            if (dist > DraggingTestDistance)
+                comp = null;
+
+            float upDist = 0.0f;
+            if (comp is null)
+            {
+                _hitNormal = Vec3.Up;
+                float depth = TMath.DistanceToDepth(DraggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
+                _hitPoint = v.ScreenToWorld(viewportPoint, depth);
+            }
+
+            Vec3 rightCameraVector = v.Camera.RightVector;
+            Quat rotation = Quat.FromAxisAngleDeg(_hitNormal, _spawnRotation);
+            rightCameraVector = rotation * rightCameraVector;
+            Vec3
+                forward = rightCameraVector ^ _hitNormal,
+                up = _hitNormal,
+                right = up ^ forward,
+                translation = HitPoint;
+
+            right.Normalize();
+            up.Normalize();
+            forward.Normalize();
+
+            translation += up * upDist;
+
+            DragComponent.WorldMatrix = Matrix4.CreateSpacialTransform(
+                translation,
+                right * _draggingUniformScale,
+                up * _draggingUniformScale,
+                forward * _draggingUniformScale);
+        }
+        protected virtual void HighlightScene(Viewport viewport, Vec2 viewportPoint)
         {
             ICamera c = viewport.Camera;
             if (c.IsNull())

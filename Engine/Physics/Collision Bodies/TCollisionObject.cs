@@ -153,12 +153,7 @@ namespace TheraEngine.Physics
             get => _collisionEnabled;
             set
             {
-                if (_collisionEnabled == value)
-                    return;
-
-                _collisionEnabled = value;
-
-                HasContactResponse = _collisionEnabled;
+                HasContactResponse = _collisionEnabled = value;
 
                 //if (_collisionEnabled)
                 //    CollidesWith = _previousCollidesWith;
@@ -196,8 +191,6 @@ namespace TheraEngine.Physics
             get => _simulatingPhysics;
             set
             {
-                //if (_simulatingPhysics == value)
-                //    return;
                 _simulatingPhysics = value;
                 if (!_simulatingPhysics)
                     StopSimulation();

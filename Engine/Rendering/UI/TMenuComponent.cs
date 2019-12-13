@@ -29,6 +29,8 @@ namespace TheraEngine.Rendering.UI
     }
     public class TMenuComponent : TMenuItemComponent, ITMenu
     {
+        public TMenuItemComponent HoveredMenuItem { get; set; }
+
         public void Show(UIComponent parent, Vec2 worldPosition, float z)
         {
 

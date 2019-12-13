@@ -7,6 +7,7 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Shapes;
 
 namespace TheraEngine.Rendering
@@ -52,13 +53,22 @@ namespace TheraEngine.Rendering
             
             Render = RenderDeferred;
 
-            TMaterial m = new TMaterial("VoxelizeMat",
+            TMaterial voxMat = new TMaterial("VoxelizeMat",
                 new ShaderVar[] { },
                 new BaseTexRef[]
                 {
                     new TexRef3D("VoxelScene")
                     {
-                        Resizable = false
+                        SamplerName = "texture3D",
+                        Resizable = false,
+                        MagFilter = ETexMagFilter.Nearest,
+                        MinFilter = ETexMinFilter.LinearMipmapLinear,
+                        UWrap = ETexWrapMode.ClampToBorder,
+                        VWrap = ETexWrapMode.ClampToBorder,
+                        WWrap = ETexWrapMode.ClampToBorder,
+                        InternalFormat = EPixelInternalFormat.Rgba8,
+                        PixelFormat = EPixelFormat.Rgba,
+                        PixelType = EPixelType.Float,
                     },
                 },
                 new GLSLScript[]
@@ -67,11 +77,13 @@ namespace TheraEngine.Rendering
                 }
             );
 
-            m.RenderParams.CullMode = ECulling.None;
-            m.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-            m.RenderParams.BlendMode.Enabled = ERenderParamUsage.Disabled;
+            var rp = voxMat.RenderParams;
+            rp.CullMode = ECulling.None;
+            rp.DepthTest.Enabled = ERenderParamUsage.Disabled;
+            rp.BlendMode.Enabled = ERenderParamUsage.Disabled;
+            rp.WriteRed = rp.WriteGreen = rp.WriteBlue = rp.WriteAlpha = false;
 
-            _voxelizationMaterial = m;
+            _voxelizationMaterial = voxMat;
         }
 
         private void Renderables_PostAnythingAdded(I3DRenderable item) => RenderTree.Add(item);
@@ -81,34 +93,35 @@ namespace TheraEngine.Rendering
         public void RenderShadowMaps() => Lights?.RenderShadowMaps(this);
         public void Voxelize(bool clearVoxelization = true)
         {
-            //TMaterial m = _voxelizationMaterial;
-            //RenderTex3D tex = m.Textures[0].RenderTextureGeneric as RenderTex3D;
-            //if (clearVoxelization)
-            //{
-            //    voxelTexture->Clear(clearColor);
-            //}
-            //Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
-            //Engine.Renderer.ColorMask(false, false, false, false);
-            //Engine.Renderer.PushRenderArea(new BoundingRectangle(0, 0, tex.Width, tex.Height, 0.0f, 0.0f));
-            //Engine.Renderer.MaterialOverride = m;
-            //{
-            //    // Texture.
-            //    tex.Bind();
-                
-            //    voxelTexture->Activate(material->program, "texture3D", 0);
-            //    Engine.Renderer.BindImageTexture(0, voxelTexture->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+            TMaterial voxMat = _voxelizationMaterial;
 
-            //    // Lighting.
-            //    uploadLighting(renderingScene, material->program);
+            RenderTex3D tex = voxMat.Textures[0].RenderTextureGeneric as RenderTex3D;
+            if (clearVoxelization)
+                tex.Clear(ColorF4.Black);
 
-            //    // Render.
-            //    renderQueue(renderingScene.renderers, material->program, true);
+            Engine.Renderer.ClearFrameBufferBinding();
 
-            //    Engine.Renderer.GenerateMipmap(ETexTarget.Texture3D);
-            //}
-            //Engine.Renderer.MaterialOverride = null;
-            //Engine.Renderer.PopRenderArea();
-            //Engine.Renderer.ColorMask(true, true, true, true);
+            Engine.Renderer.ColorMask(false, false, false, false);
+            Engine.Renderer.PushRenderArea(tex.Width, tex.Height);
+            Engine.Renderer.MeshMaterialOverride = voxMat;
+            {
+                // Texture.
+                tex.Bind();
+
+                //voxelTexture->Activate(material->program, "texture3D", 0);
+                //Engine.Renderer.BindImageTexture(0, voxelTexture->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+                //// Lighting.
+                //uploadLighting(renderingScene, material->program);
+
+                //// Render.
+                //renderQueue(renderingScene.renderers, material->program, true);
+
+                Engine.Renderer.GenerateMipmap(ETexTarget.Texture3D);
+            }
+            Engine.Renderer.MeshMaterialOverride = null;
+            Engine.Renderer.PopRenderArea();
+            Engine.Renderer.ColorMask(true, true, true, true);
         }
         public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, ICamera camera, bool shadowPass)
         {
@@ -122,14 +135,14 @@ namespace TheraEngine.Rendering
         {
 
         }
-        private bool _queueRemake = false;
+
         public override void RegenerateTree()
         {
-            _queueRemake = true;
+
         }
         public override void GlobalPreRender()
         {
-            Voxelize();
+            //Voxelize();
             RenderShadowMaps();
         }
         public override void GlobalSwap()
@@ -303,10 +316,13 @@ namespace TheraEngine.Rendering
             {
                 //Start with blank slate so additive blending doesn't ghost old frames
                 Engine.Renderer.Clear(EFBOTextureType.Color);
+
                 foreach (PointLightComponent c in Lights.PointLights)
                     viewport.RenderPointLight(c);
+
                 foreach (SpotLightComponent c in Lights.SpotLights)
                     viewport.RenderSpotLight(c);
+
                 foreach (DirectionalLightComponent c in Lights.DirectionalLights)
                     viewport.RenderDirLight(c);
             }

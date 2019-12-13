@@ -215,14 +215,14 @@ namespace TheraEngine.Physics.Bullet
             get => base.CollidesWith;
             set
             {
-                if (CollisionEnabled)
-                {
+                //if (CollisionEnabled)
+                //{
                     base.CollidesWith = value;
                     if (Body.BroadphaseHandle != null)
                         Body.BroadphaseHandle.CollisionFilterMask = (CollisionFilterGroups)value;
-                }
-                else
-                    _previousCollidesWith = value;
+                //}
+                //else
+                //    _previousCollidesWith = value;
             }
         }
         public override ushort CollisionGroup

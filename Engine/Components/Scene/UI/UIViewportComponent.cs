@@ -7,14 +7,10 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI
 {
-    public interface IInteractableUI
-    {
-
-    }
     /// <summary>
     /// Houses a viewport that renders a scene from a designated camera.
     /// </summary>
-    public class UIViewportComponent : UIMaterialRectangleComponent, I2DRenderable, IPreRendered, IInteractableUI
+    public class UIViewportComponent : UIMaterialRectangleComponent, I2DRenderable, IPreRendered
     {
         public event DelSetUniforms SettingUniforms;
 

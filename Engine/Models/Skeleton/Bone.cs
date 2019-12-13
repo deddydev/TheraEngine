@@ -185,8 +185,10 @@ namespace TheraEngine.Rendering.Models
         [TPostDeserialize]
         internal void PostDeserialize()
         {
-            foreach (IBone b in _childBones)
-                b.SetParentInternal(this);
+            if (_childBones != null)
+                foreach (IBone b in _childBones)
+                    b.SetParentInternal(this);
+
             FrameState = _bindState.HardCopy();
             CalcBindMatrix(true);
             FrameState.MatrixChanged += FrameStateMatrixChanged;

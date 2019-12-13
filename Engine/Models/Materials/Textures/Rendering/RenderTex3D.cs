@@ -62,6 +62,8 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
         public override int MaxDimension => TMath.Max(Width, Height, Depth);
 
+        public bool Resizable { get; set; }
+
         public static RenderTex3D[] GenTextures(int count)
             => Engine.Renderer.CreateObjects<RenderTex3D>(EObjectType.Texture, count);
 

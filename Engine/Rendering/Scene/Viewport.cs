@@ -478,10 +478,9 @@ namespace TheraEngine.Rendering
             if (testHud)
             {
                 IUIComponent hudComp = HUD?.FindDeepestComponent(viewportPoint);
-                bool valid = hudComp?.IsVisible ?? false;
-                if (interactableHudOnly)
-                    valid = valid && hudComp is IInteractableUI;
-                if (valid)
+                bool hasHit = hudComp?.IsVisible ?? false;
+                bool hitValidated = !interactableHudOnly || hudComp is UIInteractableComponent;
+                if (hasHit && hitValidated)
                 {
                     hitNormal = Vec3.Backward;
                     hitPoint = new Vec3(viewportPoint, 0.0f);
@@ -822,26 +821,23 @@ namespace TheraEngine.Rendering
                     new Vec3(-1.0f, 1.0f, -0.5f),
                     false, false).ToTriangles();
 
-            using (MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat))
+            using MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat);
+            fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
+
+            using PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), tris);
+            using PrimitiveManager quad = new PrimitiveManager(data, mat);
+            
+            BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
+
+            //Now render the texture to the FBO using the quad
+            fbo.Bind(EFramebufferTarget.DrawFramebuffer);
+            Engine.Renderer.PushRenderArea(region);
             {
-                fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
-
-                using (PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), tris))
-                using (PrimitiveManager quad = new PrimitiveManager(data, mat))
-                {
-                    BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
-
-                    //Now render the texture to the FBO using the quad
-                    fbo.Bind(EFramebufferTarget.DrawFramebuffer);
-                    Engine.Renderer.PushRenderArea(region);
-                    {
-                        Engine.Renderer.Clear(EFBOTextureType.Color);
-                        quad.Render();
-                    }
-                    Engine.Renderer.PopRenderArea();
-                    fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
-                }
+                Engine.Renderer.Clear(EFBOTextureType.Color);
+                quad.Render();
             }
+            Engine.Renderer.PopRenderArea();
+            fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
         
         /// <summary>

@@ -234,12 +234,12 @@ namespace TheraEngine
             if (NotifyPropertyChanging(propertyName))
                 return false;
 
-            if (executeMethodsIfNull || fieldValue != default)
+            if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(fieldValue, default))
                 beforeSet?.Invoke();
 
             fieldValue = newValue;
 
-            if (executeMethodsIfNull || newValue != default)
+            if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(newValue, default))
                 afterSet?.Invoke();
 
             NotifyPropertyChanged(propertyName);

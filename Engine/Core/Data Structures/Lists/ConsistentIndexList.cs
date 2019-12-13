@@ -22,10 +22,11 @@ namespace TheraEngine.Core
             set
             {
                 _rwl.EnterWriteLock();
-                
-                if (_list[index] == default && value != default)
+
+                var comp = EqualityComparer<T>.Default;
+                if (comp.Equals(_list[index], default) && !comp.Equals(value, default))
                     _activeIndices.Add(index);
-                else if (_list[index] != default && value == default)
+                else if (!comp.Equals(_list[index], default) && comp.Equals(value, default))
                     _activeIndices.Remove(index);
                 
                 _rwl.ExitWriteLock();
@@ -71,7 +72,7 @@ namespace TheraEngine.Core
             if (index == _list.Count - 1)
             {
                 _list.RemoveAt(index);
-                while (_list.Count > 0 && _list[_list.Count - 1] == default)
+                while (_list.Count > 0 && EqualityComparer<T>.Default.Equals(_list[_list.Count - 1], default))
                     _list.RemoveAt(_list.Count - 1);
             }
             else
@@ -88,7 +89,7 @@ namespace TheraEngine.Core
         }
 
         public bool HasValueAtIndex(int index)
-            => index >= 0 && index < _list.Count && _list[index] != default;
+            => index >= 0 && index < _list.Count && !EqualityComparer<T>.Default.Equals(_list[index], default);
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {

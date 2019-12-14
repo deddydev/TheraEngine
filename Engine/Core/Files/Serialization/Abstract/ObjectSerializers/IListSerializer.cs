@@ -18,7 +18,6 @@ namespace TheraEngine.Core.Files.Serialization
         public override void DeserializeTreeToObject()
         {
             TypeProxy listType = TreeNode.ObjectType;
-            bool async = TreeNode.MemberInfo?.DeserializeAsync ?? false;
 
             if (!TreeNode.Content.GetObject(listType, out object list))
             {
@@ -29,13 +28,25 @@ namespace TheraEngine.Core.Files.Serialization
                 else
                     List = listType.CreateInstance() as IList;
 
-                if (async)
-                    TreeNode.Owner.PendingAsyncTasks.Add(Task.Run(() => 
-                        ReadElements(listType, count)).ContinueWith(t => DoneReadingElements?.Invoke()));
-                else
+                bool streamable = TreeNode.MemberInfo?.IsStreamable ?? false;
+                bool dontReadStreamables = (TreeNode.Owner.Flags & ESerializeFlags.SkipStreamableProperties) != 0;
+
+                if (streamable)
                 {
-                    ReadElements(listType, count);
-                    DoneReadingElements?.Invoke();
+
+                }
+
+                if (!streamable || !dontReadStreamables)
+                {
+                    bool async = TreeNode.MemberInfo?.DeserializeAsync ?? false;
+                    if (async)
+                        TreeNode.Owner.PendingAsyncTasks.Add(Task.Run(() =>
+                            ReadElements(listType, count)).ContinueWith(t => DoneReadingElements?.Invoke()));
+                    else
+                    {
+                        ReadElements(listType, count);
+                        DoneReadingElements?.Invoke();
+                    }
                 }
 
                 list = List;

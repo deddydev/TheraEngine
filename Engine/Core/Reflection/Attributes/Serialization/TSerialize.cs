@@ -61,6 +61,8 @@ namespace System.ComponentModel
 
         public bool DeserializeAsync { get; set; } = false;
 
+        public bool IsStreamable { get; set; } = false;
+        
         /// <summary>
         /// Determines if this field should not be written if it is null or default.
         /// </summary>
@@ -97,10 +99,7 @@ namespace System.ComponentModel
         /// Creates a new TSerialize attribute definition.
         /// </summary>
         /// <param name="nameOverride">The name this property or field should go by in the file. If null, empty or whitespace, uses the field or property's name.</param>
-        public TSerialize(string nameOverride)
-        {
-            NameOverride = nameOverride;
-        }
+        public TSerialize(string nameOverride) => NameOverride = nameOverride;
         /// <summary>
         ///  Creates a new TSerialize attribute definition.
         /// </summary>

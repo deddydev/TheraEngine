@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Extensions;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Linq;
 using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ContactTesting;
-using Extensions;
-using TheraEngine.Rendering;
-using TheraEngine.Rendering.Cameras;
-using System.Linq;
-using System.Drawing;
-using System.ComponentModel;
 
 namespace TheraEngine.Components.Scene.Volumes
 {
@@ -22,14 +20,8 @@ namespace TheraEngine.Components.Scene.Volumes
         [TSerialize]
         public bool TrackContacts { get; set; } = false;
 
-        protected virtual void OnEntered(TCollisionObject obj)
-        {
-            Entered?.Invoke(obj);
-        }
-        protected virtual void OnLeft(TCollisionObject obj)
-        {
-            Left?.Invoke(obj);
-        }
+        protected virtual void OnEntered(TCollisionObject obj) => Entered?.Invoke(obj);
+        protected virtual void OnLeft(TCollisionObject obj) => Left?.Invoke(obj);
 
         public class TriggerContactInfo : TObjectSlim
         {

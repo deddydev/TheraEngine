@@ -5,10 +5,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using static TheraEngine.Core.Files.Serialization.Deserializer.ReaderBinary;
 using static TheraEngine.Core.Files.Serialization.Serializer.WriterBinary;
@@ -416,6 +418,55 @@ namespace TheraEngine.Core.Files
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable)\" required when using ManualBinSerialize in FileClass attribute.");
         #endregion
 
+        public class StreamableProperty
+        {
+            public StreamableProperty() { }
+            public StreamableProperty(long fileOffset, long dataLength, TypeProxy dataType) 
+            {
+                FileOffset = fileOffset;
+                DataLength = dataLength;
+                DataType = dataType;
+            }
+
+            public TypeProxy DataType { get; set; }
+            public long FileOffset { get; set; }
+            public long DataLength { get; set; }
+
+            public byte[] ReadRaw(long relativeOffset, int chunkSize, MemoryMappedViewStream stream)
+            {
+                stream.Seek(FileOffset + relativeOffset, SeekOrigin.Begin);
+                byte[] buffer = new byte[chunkSize];
+                stream.Read(buffer, 0, chunkSize);
+                return buffer;
+            }
+            //public object[] ReadArrayPortion(int startIndex, int count, MemoryMappedViewStream stream)
+            //{
+            //    TypeProxy elemType = DataType.DetermineElementType();
+            //    if (elemType is null)
+            //        throw new InvalidOperationException("Streamable property is not an array or IList.");
+
+                
+            //}
+        }
+        
+        public Dictionary<string, StreamableProperty> StreamableProperties { get; set; }
+        private MemoryMappedFile FileMap { get; set; }
+        private MemoryMappedViewStream FileMapStream { get; set; }
+
+        public void OpenForStreaming()
+        {
+            FileMap = MemoryMappedFile.CreateFromFile(FilePath);
+            FileMapStream = FileMap.CreateViewStream();
+        }
+        public void CloseStreaming()
+        {
+            FileMapStream?.Dispose();
+            FileMapStream = null;
+
+            FileMap?.Dispose();
+            FileMap = null;
+        }
+
         /// <summary>
         /// Method declaration if not async:
         /// static ClassName Load(string path)
@@ -501,6 +552,8 @@ namespace TheraEngine.Core.Files
         /// If set, writes null members as empty elements.
         /// </summary>
         WriteDefaultMembers = 0x20,
+
+        SkipStreamableProperties = 0x40,
 
         Default = SerializeConfig | SerializeState | ExportGlobalRefs | ExportLocalRefs | WriteChangedMembersOnly,
 

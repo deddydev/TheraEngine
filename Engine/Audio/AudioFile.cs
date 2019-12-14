@@ -14,7 +14,7 @@ namespace TheraEngine.Audio
     public class AudioFile : TFileObject
     {
         [Browsable(false)]
-        [TSerialize(DeserializeAsync = true)]
+        [TSerialize(IsStreamable = true)]
         public byte[] Samples { get; set; }
 
         [TSerialize(IsAttribute = true)]

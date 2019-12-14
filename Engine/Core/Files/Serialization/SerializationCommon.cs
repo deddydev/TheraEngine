@@ -32,7 +32,6 @@ namespace TheraEngine.Core.Files.Serialization
                 MemberTypeChanged?.Invoke();
             }
         }
-        public string Name { get; set; }
         public string Category { get; set; }
         public bool State { get; set; }
         public bool Config { get; set; }
@@ -40,6 +39,7 @@ namespace TheraEngine.Core.Files.Serialization
         public int Order { get; set; }
         public string Condition { get; set; }
         public bool DeserializeAsync { get; set; }
+        public bool IsStreamable { get; set; }
 
         public TSerializeMemberInfo(TypeProxy memberType, string name, string category = null, bool state = true, bool config = true, ENodeType nodeType = ENodeType.ChildElement, int order = 0, string condition = null)
         {
@@ -78,6 +78,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Order = attrib.Order;
                 Condition = attrib.Condition;
                 DeserializeAsync = attrib.DeserializeAsync;
+                IsStreamable = attrib.IsStreamable;
             }
 
             if (attrib is null || !attrib.UseCategory)

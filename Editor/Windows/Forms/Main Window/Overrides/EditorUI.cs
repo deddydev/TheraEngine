@@ -214,7 +214,7 @@ namespace TheraEditor.Windows.Forms
             },
         };
         public UIViewportComponent SubViewport { get; private set; }
-        public UITextComponent SubViewportText { get; private set; }
+        public UITextRasterComponent SubViewportText { get; private set; }
         public UIString2D FPSText { get; private set; }
         //public UITextProjectionComponent TextOverlay { get; private set; }
         protected override UICanvasComponent OnConstructRoot()
@@ -237,13 +237,12 @@ namespace TheraEditor.Windows.Forms
             Font f = new Font("Segoe UI", 10.0f, FontStyle.Regular);
             string t = "Selected Camera View";
             Size s = TextRenderer.MeasureText(t, f);
-            SubViewportText = new UITextComponent
+            SubViewportText = new UITextRasterComponent
             {
                 DockStyle = EUIDockStyle.Top,
                 Height = s.Height,
                 RenderTransformation = false,
             };
-            SubViewportText.RenderInfo.Visible = false;
             SubViewportText.SizeableHeight.Minimum = SizeableElement.Pixels(s.Height, true, EParentBoundsInheritedValue.Height);
             SubViewportText.SizeableWidth.Minimum = SizeableElement.Pixels(s.Width, true, EParentBoundsInheritedValue.Width);
             StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip)
@@ -253,6 +252,7 @@ namespace TheraEditor.Windows.Forms
             };
             SubViewportText.TextDrawer.Text.Add(new UIString2D(t, f, new ColorF4(1.0f), sf));
             SubViewport.ChildComponents.Add(SubViewportText);
+            SubViewportText.IsVisible = false;
 
             //TextOverlay = new UITextProjectionComponent()
             //{
@@ -263,7 +263,7 @@ namespace TheraEditor.Windows.Forms
 
             t = "FPS: 000";
             s = TextRenderer.MeasureText(t, f);
-            UITextComponent fpsComp = new UITextComponent() { RenderTransformation = false };
+            UITextRasterComponent fpsComp = new UITextRasterComponent() { RenderTransformation = false };
 
             fpsComp.RenderInfo.VisibleByDefault = true;
             fpsComp.SizeableWidth.SetSizingPixels(s.Width);

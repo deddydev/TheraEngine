@@ -27,7 +27,7 @@ namespace TheraEditor.Windows.Forms
         public EditorUIPropAnimVec2() : base() { }
         public EditorUIPropAnimVec2(Vec2 bounds) : base(bounds) { }
         
-        protected UITextComponent _xCoord, _yCoord;
+        protected UITextRasterComponent _xCoord, _yCoord;
         protected UIString2D _xString, _yString;
         
         private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D(ERenderPass.OnTopForward);

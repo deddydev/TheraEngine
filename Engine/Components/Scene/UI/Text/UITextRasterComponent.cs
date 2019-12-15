@@ -7,24 +7,36 @@ using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UITextComponent : UIInteractableComponent, IPreRendered
+    /// <summary>
+    /// Renders text to a texture and binds the texure to a material rendered on a quad.
+    /// If any text in the drawer is modified, the portion of the teture it inhabits will be redrawn.
+    /// This component is best for text that does not change often or has a LOT of characters in it.
+    /// </summary>
+    public class UITextRasterComponent : UIInteractableComponent, IPreRendered
     {
-        public UITextComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(
-            new TexRef2D("DrawSurface", 1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+        public UITextRasterComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(MakeDrawSurface()), true) => Init();
+        public UITextRasterComponent(TMaterial material) : base(material, true)
+        {
+            Init();
+        }
+        private void Init()
+        {
+            _textDrawer = new TextRasterizer();
+            _textDrawer.NeedsRedraw += WantsRedraw;
+
+            RenderCommand.RenderPass = ERenderPass.TransparentForward;
+            RenderCommand.Mesh.Material.RenderParams = new RenderingParameters(true);
+        }
+
+        private static TexRef2D MakeDrawSurface()
+            => new TexRef2D("DrawSurface", 1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
             {
                 MagFilter = ETexMagFilter.Nearest,
                 MinFilter = ETexMinFilter.Nearest,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 Resizable = true
-            }), true)
-        {
-            _textDrawer = new TextRasterizer();
-            _textDrawer.NeedsRedraw += WantsRedraw;
-            
-            RenderCommand.RenderPass = ERenderPass.TransparentForward;
-            RenderCommand.Mesh.Material.RenderParams = new RenderingParameters(true);
-        }
+            };
 
         private void WantsRedraw(bool forceFullRedraw)
         {

@@ -134,7 +134,7 @@ namespace TheraEngine.Actors.Types
 
         private void TextureLoaded(TextureFile2D tex)
         {
-            if (Material is null || Material.Textures.Length == 0)
+            if (Material is null || Material.Textures.Count == 0)
                 return;
 
             TexRef2D tref = (TexRef2D)Material.Textures[0];

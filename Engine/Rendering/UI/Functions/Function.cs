@@ -57,10 +57,10 @@ namespace TheraEngine.Rendering.UI.Functions
         [Browsable(false)]
         public string Category => Definition?.Category;
 
-        protected UITextComponent _headerText;
+        protected UITextRasterComponent _headerText;
         protected UIString2D _headerString;
-        protected List<UITextComponent> _inputParamTexts = new List<UITextComponent>();
-        protected List<UITextComponent> _outputParamTexts = new List<UITextComponent>();
+        protected List<UITextRasterComponent> _inputParamTexts = new List<UITextRasterComponent>();
+        protected List<UITextRasterComponent> _outputParamTexts = new List<UITextRasterComponent>();
 
         protected const int HeaderPadding = 2;
         protected Font _paramFont = new Font("Segoe UI", 9.0f, FontStyle.Regular);
@@ -68,7 +68,7 @@ namespace TheraEngine.Rendering.UI.Functions
 
         public BaseFunction() : base(MakeFunctionMaterial())
         {
-            _headerText = new UITextComponent
+            _headerText = new UITextRasterComponent
             {
                 Name = FunctionName + " [Header Text]",
                 DockStyle = EUIDockStyle.Top,
@@ -96,7 +96,7 @@ namespace TheraEngine.Rendering.UI.Functions
         {
             ChildComponents.Add(arg);
 
-            UITextComponent text = new UITextComponent { Name = arg.Name + " Text", };
+            UITextRasterComponent text = new UITextRasterComponent { Name = arg.Name + " Text", };
             text.TextDrawer.Text.Add(new UIString2D(arg.Name, _paramFont, Color.White, new StringFormat(StringFormatFlags.NoClip | StringFormatFlags.NoWrap)));
             ChildComponents.Add(text);
 
@@ -360,7 +360,7 @@ namespace TheraEngine.Rendering.UI.Functions
 
             //Resize();
         }
-        private void Arrange2(BaseFuncArg arg, UITextComponent text, Size size, bool input, float headerHeight, float yTrans, int maxRowHeight)
+        private void Arrange2(BaseFuncArg arg, UITextRasterComponent text, Size size, bool input, float headerHeight, float yTrans, int maxRowHeight)
         {
             //text.Size = size;
             //int t = BaseFuncArg.ConnectionBoxDims + BaseFuncArg.ConnectionBoxMargin;

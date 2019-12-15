@@ -96,7 +96,7 @@ namespace TheraEditor.Windows.Forms
 
                     //ImageList images = new ImageList();
                     //lstTextures.LargeImageList = lstTextures.SmallImageList = lstTextures.StateImageList = images;
-                    for (int i = 0; i < _material.Textures.Length; ++i)
+                    for (int i = 0; i < _material.Textures.Count; ++i)
                     {
                         BaseTexRef tref = _material.Textures[i];
                         if (tref != null)
@@ -355,16 +355,17 @@ namespace TheraEditor.Windows.Forms
 
             if (lstTextures.SelectedIndices.Count == 0)
             {
-                int index = _material.Textures.Length;
-                _material.Textures = _material.Textures.Resize(index + 1);
-                _material.Textures[index] = tref;
+                int index = _material.Textures.Count;
+                //_material.Textures = _material.Textures.Resize(index + 1);
+                _material.Textures.Add(tref);
                 lstTextures.Items.Add(item);
             }
             else
             {
                 int index = lstTextures.SelectedIndices[0];
-                _material.Textures = _material.Textures.Resize(_material.Textures.Length + 1);
-                for (int i = index + 1; i < _material.Textures.Length; ++i)
+                //_material.Textures = _material.Textures.Resize(_material.Textures.Count + 1);
+                _material.Textures.Add(null);
+                for (int i = index + 1; i < _material.Textures.Count; ++i)
                     _material.Textures[i] = _material.Textures[i - 1];
                 _material.Textures[index] = tref;
                 lstTextures.Items.Insert(index, item);
@@ -376,10 +377,11 @@ namespace TheraEditor.Windows.Forms
             if (lstTextures.SelectedIndices.Count > 0)
             {
                 int index = lstTextures.SelectedIndices[0];
-                int length = _material.Textures.Length;
-                for (int i = index; i < _material.Textures.Length - 1; ++i)
+                //int length = _material.Textures.Length;
+                for (int i = index; i < _material.Textures.Count - 1; ++i)
                     _material.Textures[i] = _material.Textures[i + 1];
-                _material.Textures = _material.Textures.Resize(length - 1);
+                //_material.Textures = _material.Textures.Resize(length - 1);
+                _material.Textures.RemoveAt(_material.Textures.Count - 1);
                 lstTextures.Items.RemoveAt(index);
             }
         }

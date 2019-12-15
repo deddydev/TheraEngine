@@ -32,10 +32,10 @@ namespace TheraEditor.Windows.Forms
 
         protected UIMaterialRectangleComponent _backgroundComponent;
 
-        protected UITextComponent _originText;
-        private Dictionary<string, (UITextComponent, UIString2D)> _textCacheX = new Dictionary<string, (UITextComponent, UIString2D)>();
-        private Dictionary<string, (UITextComponent, UIString2D)> _textCacheY = new Dictionary<string, (UITextComponent, UIString2D)>();
-        protected UITextComponent _xUnitText, _yUnitText;
+        protected UITextRasterComponent _originText;
+        private Dictionary<string, (UITextRasterComponent, UIString2D)> _textCacheX = new Dictionary<string, (UITextRasterComponent, UIString2D)>();
+        private Dictionary<string, (UITextRasterComponent, UIString2D)> _textCacheY = new Dictionary<string, (UITextRasterComponent, UIString2D)>();
+        protected UITextRasterComponent _xUnitText, _yUnitText;
         protected UIString2D _xUnitString, _yUnitString;
 
         public Font UIFont { get; set; } = new Font("Segoe UI", 10.0f, FontStyle.Regular);
@@ -130,7 +130,7 @@ namespace TheraEditor.Windows.Forms
             },
             frag);
         }
-        protected UITextComponent ConstructText(ColorF4 color, string initialText, string largestText, out UIString2D str)
+        protected UITextRasterComponent ConstructText(ColorF4 color, string initialText, string largestText, out UIString2D str)
         {
             StringFormatFlags flags = StringFormatFlags.NoWrap | StringFormatFlags.NoClip;
             StringFormat format = new StringFormat(flags);
@@ -140,7 +140,7 @@ namespace TheraEditor.Windows.Forms
             float width = size.Width;
             float height = size.Height;
 
-            UITextComponent comp = new UITextComponent() { RenderTransformation = false };
+            UITextRasterComponent comp = new UITextRasterComponent() { RenderTransformation = false };
             comp.RenderInfo.VisibleByDefault = true;
             comp.SizeableHeight.SetSizingPixels(height);
             comp.SizeableWidth.SetSizingPixels(width);
@@ -300,7 +300,7 @@ namespace TheraEditor.Windows.Forms
 
             BaseTransformComponent.IgnoreResizes = false;
         }
-        private void UpdateTextIncrements(float unitCount, Dictionary<string, (UITextComponent, UIString2D)> textCache, float minimum, float increment, bool xCoord)
+        private void UpdateTextIncrements(float unitCount, Dictionary<string, (UITextRasterComponent, UIString2D)> textCache, float minimum, float increment, bool xCoord)
         {
             var allKeys = textCache.Keys.ToList();
             var visible = Enumerable.Range(0, (int)Math.Ceiling(unitCount)).Select(x =>
@@ -314,7 +314,7 @@ namespace TheraEditor.Windows.Forms
 
             bool isUsed(string key) => visible.ContainsKey(key);
 
-            UITextComponent comp;
+            UITextRasterComponent comp;
             UIString2D str;
 
             foreach (var key in allKeys)

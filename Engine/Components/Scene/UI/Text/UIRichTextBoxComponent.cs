@@ -3,7 +3,7 @@ using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI.Text
 {
-    public class UIRichTextBoxComponent : UITextComponent
+    public class UIRichTextBoxComponent : UITextRasterComponent
     {
         public UIRichTextBoxComponent() : base()
         {

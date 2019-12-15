@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         protected float _secondsLive = 0.0f;
         protected ShaderVar[] _parameters;
-        protected BaseTexRef[] _textures;
+        protected EventList<BaseTexRef> _textures;
         protected RenderProgram _program;
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
         private LocalFileRef<RenderingParameters> _renderParamsRef = new RenderingParameters();
@@ -59,6 +59,8 @@ namespace TheraEngine.Rendering.Models.Materials
         private void _program_Generated()
         {
             _secondsLive = 0.0f;
+
+            //Parse shaders for editor
 
             //return;
             //if (Program.IsValid)
@@ -230,7 +232,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
 
         [TSerialize(Order = 1)]
-        public BaseTexRef[] Textures
+        public EventList<BaseTexRef> Textures
         {
             get => _textures;
             set
@@ -296,7 +298,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public EDrawBuffersAttachment[] CollectFBOAttachments()
         {
-            if (_textures != null && _textures.Length > 0)
+            if (_textures != null && _textures.Count > 0)
             {
                 List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
                 foreach (BaseTexRef tref in _textures)
@@ -346,7 +348,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         public void SetTextureUniforms(RenderProgram program)
         {
-            for (int i = 0; i < Textures.Length; ++i)
+            for (int i = 0; i < Textures.Count; ++i)
                 SetTextureUniform(program, i);
         }
         public void SetTextureUniform(RenderProgram program, int textureIndex, string samplerNameOverride = null)

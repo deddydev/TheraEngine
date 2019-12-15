@@ -200,7 +200,7 @@ namespace TheraEditor.Windows.Forms
         {
             IUIComponent comp = FindComponent();
 
-            if (comp is UITextComponent)
+            if (comp is UITextRasterComponent)
                 comp = (IUIComponent)comp.ParentSocket;
 
             if (_highlightedFunc != null && comp != _highlightedFunc)

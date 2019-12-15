@@ -672,11 +672,14 @@ namespace TheraEditor.Windows.Forms
 
             //Both attached and detached use gameplay mode and are unpaused
             world.EndPlay();
+
             SetEditingMode();
             InputInterface.GlobalRegisters.Remove(RegisterInput);
-            ActorTreeForm.ClearMaps();
+            //ActorTreeForm.ClearMaps();
+
             world.BeginPlay();
             Engine.Pause(ELocalPlayerIndex.One, true);
+
             GameplayPawn = null;
         }
         public IPawn GameplayPawn { get; set; }
@@ -708,9 +711,11 @@ namespace TheraEditor.Windows.Forms
 
                 //Mouse already released in edit mode
                 world.EndPlay();
+
                 SetGameplayMode();
                 InputInterface.GlobalRegisters.Add(RegisterInput);
-                ActorTreeForm.ClearMaps();
+                //ActorTreeForm.ClearMaps();
+
                 world.BeginPlay();
                 Engine.Unpause(ELocalPlayerIndex.One, true);
             }
@@ -747,11 +752,14 @@ namespace TheraEditor.Windows.Forms
                 //Editing -> Attached
 
                 world.EndPlay();
+
                 SetGameplayMode();
                 InputInterface.GlobalRegisters.Add(RegisterInput);
-                ActorTreeForm.ClearMaps();
+                //ActorTreeForm.ClearMaps();
+
                 world.BeginPlay();
                 Engine.Unpause(ELocalPlayerIndex.One, true);
+
                 if (world.CurrentGameMode.LocalPlayers.Count > 0)
                     GameplayPawn = world.CurrentGameMode.LocalPlayers[0].ControlledPawn;
             }

@@ -7,7 +7,7 @@ namespace TheraEngine.Rendering.UI
     {
         UIString3D[] Text { get; }
     }
-    public class UITextProjectionComponent : UITextComponent
+    public class UITextProjectionComponent : UITextRasterComponent
     {
         public UITextProjectionComponent() : base() { }
 

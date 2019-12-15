@@ -304,41 +304,41 @@ namespace TheraEditor.Windows.Forms
 
         private void button2_Click(object sender, EventArgs e)
         {
-            BaseTexRef tref = BaseTexRef.CreateTexRef((ETextureType)comboBox2.SelectedIndex);
-            tref.Renamed += Tref_Renamed;
+            //BaseTexRef tref = BaseTexRef.CreateTexRef((ETextureType)comboBox2.SelectedIndex);
+            //tref.Renamed += Tref_Renamed;
 
-            var item = new ListViewItem(string.Format("{0} [{1}]",
-               tref.Name, tref.GetType().GetFriendlyName())) { Tag = tref };
+            //var item = new ListViewItem(string.Format("{0} [{1}]",
+            //   tref.Name, tref.GetType().GetFriendlyName())) { Tag = tref };
 
-            if (lstTextures.SelectedIndices.Count == 0)
-            {
-                int index = _material.Textures.Length;
-                _material.Textures = _material.Textures.Resize(index + 1);
-                _material.Textures[index] = tref;
-                lstTextures.Items.Add(item);
-            }
-            else
-            {
-                int index = lstTextures.SelectedIndices[0];
-                _material.Textures = _material.Textures.Resize(_material.Textures.Length + 1);
-                for (int i = index + 1; i < _material.Textures.Length; ++i)
-                    _material.Textures[i] = _material.Textures[i - 1];
-                _material.Textures[index] = tref;
-                lstTextures.Items.Insert(index, item);
-            }
+            //if (lstTextures.SelectedIndices.Count == 0)
+            //{
+            //    int index = _material.Textures.Length;
+            //    _material.Textures = _material.Textures.Resize(index + 1);
+            //    _material.Textures[index] = tref;
+            //    lstTextures.Items.Add(item);
+            //}
+            //else
+            //{
+            //    int index = lstTextures.SelectedIndices[0];
+            //    _material.Textures = _material.Textures.Resize(_material.Textures.Length + 1);
+            //    for (int i = index + 1; i < _material.Textures.Length; ++i)
+            //        _material.Textures[i] = _material.Textures[i - 1];
+            //    _material.Textures[index] = tref;
+            //    lstTextures.Items.Insert(index, item);
+            //}
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (lstTextures.SelectedIndices.Count > 0)
-            {
-                int index = lstTextures.SelectedIndices[0];
-                int length = _material.Textures.Length;
-                for (int i = index; i < _material.Textures.Length - 1; ++i)
-                    _material.Textures[i] = _material.Textures[i + 1];
-                _material.Textures = _material.Textures.Resize(length - 1);
-                lstTextures.Items.RemoveAt(index);
-            }
+            //if (lstTextures.SelectedIndices.Count > 0)
+            //{
+            //    int index = lstTextures.SelectedIndices[0];
+            //    int length = _material.Textures.Length;
+            //    for (int i = index; i < _material.Textures.Length - 1; ++i)
+            //        _material.Textures[i] = _material.Textures[i + 1];
+            //    _material.Textures = _material.Textures.Resize(length - 1);
+            //    lstTextures.Items.RemoveAt(index);
+            //}
         }
     }
 }

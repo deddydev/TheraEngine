@@ -587,7 +587,7 @@
     <Compile Include="Components\Scene\UI\Text\UIDebugPrintComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UIRichTextBoxComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextProjectionComponent.cs" />
-    <Compile Include="Components\Scene\UI\Text\UITextComponent.cs" />
+    <Compile Include="Components\Scene\UI\Text\UITextRasterComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\UIComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\UIDockableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIMaterialRectangleComponent.cs" />

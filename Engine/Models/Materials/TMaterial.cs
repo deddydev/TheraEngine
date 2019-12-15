@@ -60,23 +60,25 @@ namespace TheraEngine.Rendering.Models.Materials
             : this(name, null, vars, new BaseTexRef[0], shaders) { }
         public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, params GLSLScript[] shaders)
             : this(name, renderParams, vars, new BaseTexRef[0], shaders) { }
-        public TMaterial(string name, BaseTexRef[] textures, params GLSLScript[] shaders)
+        public TMaterial(string name, IEnumerable<BaseTexRef> textures, params GLSLScript[] shaders)
             : this(name, null, new ShaderVar[0], textures, shaders) { }
-        public TMaterial(string name, RenderingParameters renderParams, BaseTexRef[] textures, params GLSLScript[] shaders)
+        public TMaterial(string name, RenderingParameters renderParams, IEnumerable<BaseTexRef> textures, params GLSLScript[] shaders)
             : this(name, renderParams, new ShaderVar[0], textures, shaders) { }
-        public TMaterial(string name, ShaderVar[] vars, BaseTexRef[] textures, params GLSLScript[] shaders)
+        public TMaterial(string name, ShaderVar[] vars, IEnumerable<BaseTexRef> textures, params GLSLScript[] shaders)
             : this(name, null, vars, textures, shaders) { }
         public TMaterial(
             string name,
             RenderingParameters renderParams,
             ShaderVar[] vars,
-            BaseTexRef[] textures,
+            IEnumerable<BaseTexRef> textures,
             params GLSLScript[] shaders)
         {
             _name = name;
             RenderParams = renderParams ?? new RenderingParameters();
             _parameters = vars ?? new ShaderVar[0];
-            Textures = textures ?? new BaseTexRef[0];
+
+            Textures = new EventList<BaseTexRef>(textures);
+
             _shaders = new EventList<GlobalFileRef<GLSLScript>>();
             _shaders.PostModified += ShadersChanged;
             if (shaders != null)

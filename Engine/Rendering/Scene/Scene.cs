@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         OpaqueForward,
         /// <summary>
-        /// Use for all objects that use alpha translucency! Material.HasTransparency will help you determine this.
+        /// Use for all objects that use alpha translucency
         /// </summary>
         TransparentForward,
         /// <summary>
@@ -63,8 +63,9 @@ namespace TheraEngine.Rendering
             };
         }
 
-        public bool ShadowPass { get; internal set; }
-        public bool HasItemsToRender => _renderingPasses.Any(x => x.Count > 0);
+        public bool IsShadowPass { get; internal set; }
+
+        //internal bool HasItemsToRender => _renderingPasses.Any(x => x.Count > 0);
         //public int NumTotalCommandsAdded { get; private set; }
         private int _numCommandsRecentlyAdded = 0;
 
@@ -73,11 +74,11 @@ namespace TheraEngine.Rendering
         private SortedSet<RenderCommand>[] _updatingPasses;
         private SortedSet<RenderCommand>[] _renderingPasses;
 
-        public class RenderSortFarToNear : IComparer<RenderCommand>
+        private class RenderSortFarToNear : IComparer<RenderCommand>
         {
             int IComparer<RenderCommand>.Compare(RenderCommand x, RenderCommand y) => -x.CompareTo(y);
         }
-        public class RenderSortNearToFar : IComparer<RenderCommand>
+        private class RenderSortNearToFar : IComparer<RenderCommand>
         {
             int IComparer<RenderCommand>.Compare(RenderCommand x, RenderCommand y) => x.CompareTo(y);
         }
@@ -102,7 +103,7 @@ namespace TheraEngine.Rendering
         internal void Render(ERenderPass pass)
         {
             var list = _renderingPasses[(int)pass];
-            list.ForEach(x => x.Render(ShadowPass));
+            list.ForEach(x => x.Render(IsShadowPass));
             list.Clear();
         }
         internal void ClearRendering(ERenderPass pass)

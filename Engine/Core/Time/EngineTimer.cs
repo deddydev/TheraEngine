@@ -30,9 +30,9 @@ namespace TheraEngine.Timers
         private readonly FrameEventArgs _renderArgs = new FrameEventArgs();
         private readonly Stopwatch _watch = new Stopwatch();
 
-        private ManualResetEvent _commandsReady;
-        private ManualResetEvent _commandsSwappedForRender;
-        private ManualResetEvent _renderDone;
+        private ManualResetEventSlim _commandsReady;
+        private ManualResetEventSlim _commandsSwappedForRender;
+        private ManualResetEventSlim _renderDone;
 
         public bool IsRunning { get; private set; } = false;
 
@@ -73,12 +73,11 @@ namespace TheraEngine.Timers
 
             InitiateLoop(singleThreaded);
         }
-        private int _spinCount = 1000;
         private void MakeManualResetEvents()
         {
-            _commandsReady = new ManualResetEvent(false);
-            _commandsSwappedForRender = new ManualResetEvent(false);
-            _renderDone = new ManualResetEvent(true);
+            _commandsReady = new ManualResetEventSlim(false);
+            _commandsSwappedForRender = new ManualResetEventSlim(false);
+            _renderDone = new ManualResetEventSlim(true);
         }
         private Task UpdateTask = null;
         private Task RenderTask = null;
@@ -128,7 +127,7 @@ namespace TheraEngine.Timers
         {
             while (IsRunning && !IsSingleThreaded)
             {
-                _commandsReady.WaitOne(); //Wait for the update thread to finish
+                _commandsReady.Wait(); //Wait for the update thread to finish
                 _commandsReady.Reset();
 
                 //Swap command buffers
@@ -158,7 +157,7 @@ namespace TheraEngine.Timers
         {
             while (IsRunning && IsApplicationIdle())
             {
-                _commandsReady.WaitOne(); //Wait for the update thread to finish
+                _commandsReady.Wait(); //Wait for the update thread to finish
                 _commandsReady.Reset();
                     
                 //Swap command buffers
@@ -182,14 +181,14 @@ namespace TheraEngine.Timers
                 DispatchUpdate();
 
                 //Wait for the previous frame render to complete
-                _renderDone.WaitOne();
+                _renderDone.Wait();
                 _renderDone.Reset();
 
                 //Signal the render thread that the update is done
                 _commandsReady.Set();
 
                 //Wait until the render thread has swapped and is now rendering
-                _commandsSwappedForRender.WaitOne();
+                _commandsSwappedForRender.Wait();
                 _commandsSwappedForRender.Reset();
             }
         }

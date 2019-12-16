@@ -179,7 +179,8 @@ namespace TheraEditor.Windows.Forms
             Invoke((Action)(() =>
             {
                 TreeNode node = actor.EditorState.TreeNode;
-                node.Nodes[0].Nodes.Clear();
+                if (node.Nodes.Count > 0)
+                    node.Nodes[0].Nodes.Clear();
                 RecursiveAddSceneComp(node.Nodes[0], actor.RootComponent);
             }));
         }

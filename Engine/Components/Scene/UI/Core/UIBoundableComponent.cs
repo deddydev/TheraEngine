@@ -162,11 +162,10 @@ namespace TheraEngine.Rendering.UI
             base.RecalcWorldTransform();
             RemakeAxisAlignedRegion();
         }
-        public override Vec2 OnResize(Vec2 parentBounds)
+        public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
         {
-            Vec2 bounds = base.OnResize(parentBounds);
+            base.ArrangeChildren(translation, parentBounds);
             RemakeAxisAlignedRegion();
-            return bounds;
         }
         protected virtual void RemakeAxisAlignedRegion()
         {

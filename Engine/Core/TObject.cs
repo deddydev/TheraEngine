@@ -226,7 +226,13 @@ namespace TheraEngine
         /// <param name="fieldValue"></param>
         /// <param name="newValue"></param>
         /// <param name="propertyName"></param>
-        protected virtual bool SetBackingField<T>(ref T fieldValue, T newValue, Action beforeSet = null, Action afterSet = null, bool executeMethodsIfNull = true, [CallerMemberName] string propertyName = null)
+        protected virtual bool SetBackingField<T>(
+            ref T fieldValue, 
+            T newValue, 
+            Action beforeSet = null, 
+            Action afterSet = null,
+            bool executeMethodsIfNull = true, 
+            [CallerMemberName] string propertyName = null)
         {
             if (Equals(fieldValue, newValue))
                 return false;

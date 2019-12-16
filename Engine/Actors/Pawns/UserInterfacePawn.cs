@@ -198,14 +198,14 @@ namespace TheraEngine.Actors.Types.Pawns
             if (Bounds == Vec2.Zero)
                 return;
             _screenSpaceUIScene.Resize(bounds);
-            RootComponent.OnResize(bounds);
+            RootComponent.Resize();
             ScreenOverlayCamera.Resize(bounds.X, bounds.Y);
         }
         protected override void PostConstruct()
         {
             base.PostConstruct();
             if (Bounds != Vec2.Zero)
-                RootComponent?.OnResize(Bounds);
+                RootComponent?.ArrangeChildren(Vec2.Zero, Bounds);
         }
         //public void Render()
         //{

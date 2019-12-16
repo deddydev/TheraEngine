@@ -29,23 +29,23 @@ namespace TheraEngine.Animation
     public class Vec3Keyframe : VectorKeyframe<Vec3>
     {
         public override Vec3 Lerp(VectorKeyframe<Vec3> next, float diff, float span)
-          => Interp.Lerp(OutValue, next.InValue, diff / span);
+          => Interp.Lerp(OutValue, next.InValue, span.IsZero() ? 0.0f : diff / span);
         public override Vec3 LerpVelocity(VectorKeyframe<Vec3> next, float diff, float span)
-            => (next.InValue - OutValue) / (diff / span);
+            => span.IsZero() ? 0.0f : (next.InValue - OutValue) / (diff / span);
 
         public override Vec3 CubicBezier(VectorKeyframe<Vec3> next, float diff, float span)
-            => Interp.CubicBezier(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span);
+            => Interp.CubicBezier(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, span.IsZero() ? 0.0f : diff / span);
         public override Vec3 CubicBezierVelocity(VectorKeyframe<Vec3> next, float diff, float span)
-            => Interp.CubicBezierVelocity(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span);
+            => Interp.CubicBezierVelocity(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, span.IsZero() ? 0.0f : diff / span);
         public override Vec3 CubicBezierAcceleration(VectorKeyframe<Vec3> next, float diff, float span)
-            => Interp.CubicBezierAcceleration(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span);
+            => Interp.CubicBezierAcceleration(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, span.IsZero() ? 0.0f : diff / span);
 
         public override Vec3 CubicHermite(VectorKeyframe<Vec3> next, float diff, float span)
-            => Interp.CubicHermite(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span);
+            => Interp.CubicHermite(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, span.IsZero() ? 0.0f : diff / span);
         public override Vec3 CubicHermiteVelocity(VectorKeyframe<Vec3> next, float diff, float span)
-            => Interp.CubicHermiteVelocity(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span);
+            => Interp.CubicHermiteVelocity(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, span.IsZero() ? 0.0f : diff / span);
         public override Vec3 CubicHermiteAcceleration(VectorKeyframe<Vec3> next, float diff, float span)
-            => Interp.CubicHermiteAcceleration(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span);
+            => Interp.CubicHermiteAcceleration(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, span.IsZero() ? 0.0f : diff / span);
 
         public override string WriteToString()
             => string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);

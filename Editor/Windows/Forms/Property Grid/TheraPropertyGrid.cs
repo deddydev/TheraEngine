@@ -136,12 +136,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         internal void SetObject(object value, string memberAccessor)
         {
-            //Do nothing if target object is the same
             if (_targetObject == value)
                 return;
 
-            ClearUI();
-            
             _targetObject = value;
             AppDomainHelper.Sponsor(_targetObject);
 
@@ -163,9 +160,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (InvokeRequired)
             {
-                Invoke((Action)DisplayUI);
+                BeginInvoke((Action)DisplayUI);
                 return;
             }
+
+            ClearUI();
 
             bool notNull = _targetObject != null;
 
@@ -226,11 +225,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void ClearUI()
         {
-            if (InvokeRequired)
-            {
-                Invoke((Action)ClearUI);
-                return;
-            }
+            //if (InvokeRequired)
+            //{
+            //    Invoke((Action)ClearUI);
+            //    return;
+            //}
 
             bool visible = pnlProps.Visible;
             pnlProps.Visible = false;

@@ -21,7 +21,11 @@ namespace TheraEngine.Rendering.UI
         /// <summary>
         /// 
         /// </summary>
-        Proportion,
+        ProportionalToElement,
+        /// <summary>
+        /// 
+        /// </summary>
+        Ratio,
     }
     public enum EParentBoundsInheritedValue
     {
@@ -221,7 +225,7 @@ namespace TheraEngine.Rendering.UI
                 case ESizingMode.PercentageOfParent:
                     newValue += size * _modValue;
                     break;
-                case ESizingMode.Proportion:
+                case ESizingMode.ProportionalToElement:
                     if (ProportionElement != null)
                         newValue += ProportionElement.GetResultingValue(parentBounds) * _modValue;
                     break;
@@ -265,7 +269,7 @@ namespace TheraEngine.Rendering.UI
                     else
                         newValue = 0.0f;
                     break;
-                case ESizingMode.Proportion:
+                case ESizingMode.ProportionalToElement:
                     if (ProportionElement != null)
                     {
                         float dim = ProportionElement.GetResultingValue(parentBounds);
@@ -308,7 +312,7 @@ namespace TheraEngine.Rendering.UI
         }
         public void SetSizingProportioned(SizeableElement proportionalElement, float ratio)
         {
-            SizingOption = ESizingMode.Proportion;
+            SizingOption = ESizingMode.ProportionalToElement;
             ProportionElement = proportionalElement;
             ModificationValue = ratio;
         }

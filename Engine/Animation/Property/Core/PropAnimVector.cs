@@ -950,6 +950,10 @@ namespace TheraEngine.Animation
                 span = OwningTrack.LengthInSeconds - Second + next.Second;
             else
                 span = next.Second - Second;
+
+            if (span.IsZero())
+                return OutValue;
+
             return _interpolate(next, span * time, span);
         }
         /// <summary>
@@ -965,6 +969,10 @@ namespace TheraEngine.Animation
                 span = OwningTrack.LengthInSeconds - Second + next.Second;
             else
                 span = next.Second - Second;
+
+            if (span.IsZero())
+                return OutTangent;
+
             return _interpolateVelocity(next, span * time, span);
         }
         /// <summary>
@@ -980,14 +988,17 @@ namespace TheraEngine.Animation
                 span = OwningTrack.LengthInSeconds - Second + next.Second;
             else
                 span = next.Second - Second;
+
+            if (span.IsZero())
+                return default;
+
             return _interpolateAcceleration(next, span * time, span);
         }
 
         public T Interpolate(float desiredSecond, EVectorInterpValueType type)
         {
-            float span = 1.0f, diff = 0.0f;
             VectorKeyframe<T> key1, key2;
-
+            float diff, span;
             if (desiredSecond >= Second)
             {
                 if (IsLast || Next.Second > OwningTrack.LengthInSeconds)

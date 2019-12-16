@@ -342,18 +342,25 @@ void main()
 
             if (RenderSpline)
                 passes.Add(_rcSpline);
+
             if (RenderTangents)
                 passes.Add(_rcVelocityTangents);
+
             if (RenderKeyframePoints)
                 passes.Add(_rcPoints);
+
             if (RenderKeyframeTangentPoints)
                 passes.Add(_rcKeyframeTangents);
+
             if (RenderKeyframeTangentLines)
                 passes.Add(_rcKfLines);
+
             if (RenderExtrema)
                 passes.Add(_rcExtrema);
-            //if (RenderBounds)
-            //    RenderInfo.CullingVolume?.AddRenderables(passes, camera);
+
+            if (RenderBounds)
+                RenderInfo.CullingVolume?.AddRenderables(passes, camera);
+
             if (RenderCurrentTimePoint)
                 passes.Add(_rcCurrentPoint);
         }

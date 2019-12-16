@@ -176,9 +176,9 @@ namespace TheraEngine.Core.Files.Serialization
 
         internal static string GetTypeName(TypeProxy t)
         {
-            if (t is null || t.IsInterface)
+            if (t is null)
                 return null;
-            string name = t.Name;
+
             if (t.IsGenericType)
             {
                 return t.Name.Remove(t.Name.IndexOf('`'))/* + "-"*/;
@@ -194,6 +194,7 @@ namespace TheraEngine.Core.Files.Serialization
                 //}
                 //name += "-";
             }
+
             return t.Name;
         }
 

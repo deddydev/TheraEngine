@@ -56,9 +56,9 @@ namespace TheraEngine.Rendering.UI
         [Category("Rendering")]
         public Viewport Viewport { get; private set; } = new Viewport(1, 1);
 
-        public override Vec2 OnResize(Vec2 parentBounds)
+        public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
         {
-            Vec2 r = base.OnResize(parentBounds);
+            base.ArrangeChildren(translation, parentBounds);
 
             int 
                 w = (int)Width.ClampMin(1.0f), 
@@ -66,8 +66,6 @@ namespace TheraEngine.Rendering.UI
 
             Viewport.Resize(w, h);
             _fbo.Resize(w, h);
-
-            return r;
         }
 
         public void PreRenderUpdate(ICamera camera)

@@ -528,7 +528,7 @@ namespace TheraEngine.Components
         //public bool IsSpawned
         //    => OwningActor is null ? false : OwningActor.IsSpawned;
         //[Browsable(false)]
-        [TSerialize]
+        //[TSerialize]
         [Category("Scene Component")]
         public virtual ISocket ParentSocket
         {
@@ -839,7 +839,7 @@ namespace TheraEngine.Components
         }
         protected void AddPreviewRenderCommand(PreviewRenderCommand3D renderCommand, RenderPasses passes, ICamera camera, bool scaleByDistance, float scale)
         {
-            if (passes.ShadowPass || camera is null)
+            if (passes.IsShadowPass || camera is null)
                 return;
 
             Vec3 position = renderCommand.Position;

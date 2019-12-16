@@ -15,18 +15,19 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI
 {
-    public abstract class UIParentAttachmentInfo
+    public abstract class UIParentAttachmentInfo : TObject
     {
-        
+        public IUIComponent UIComponent { get; set; }
     }
     public interface IUIComponent : IOriginRebasableComponent, I2DRenderable, IEnumerable<IUIComponent>
     {
         bool IsVisible { get; set; }
         bool IsEnabled { get; set; }
+        UIParentAttachmentInfo ParentInfo { get; set; }
 
         IUIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis);
         void RegisterInputs(InputInterface input);
-        Vec2 OnResize(Vec2 parentBounds);
+        void ArrangeChildren(Vec2 translation, Vec2 parentBounds);
         void Resize();
         Vec2 ScreenToLocal(Vec2 coordinate, bool delta = false);
     }
@@ -37,9 +38,8 @@ namespace TheraEngine.Rendering.UI
         protected bool _visible = true;
         protected bool _enabled = true;
 
-        IRenderInfo2D I2DRenderable.RenderInfo => RenderInfo;
         [Category("Rendering")]
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
+        public IRenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
 
         [Category("Rendering")]
         public virtual bool IsVisible
@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering.UI
             {
                 if (!SetBackingField(ref _visible, value))
                     return;
-                
+
                 RenderInfo.Visible = value;
 
                 foreach (ISceneComponent c in _children)
@@ -97,13 +97,22 @@ namespace TheraEngine.Rendering.UI
                 base.OwningActor = value as BaseActor;
 
                 //if (ParentSocket is null)
-                    Resize();
+                Resize();
             }
         }
 
+        [Category("Rendering")]
         public bool RenderTransformation { get; set; } = true;
 
-        public UIParentAttachmentInfo ParentInfo { get; set; }
+        [Category("Rendering")]
+        public UIParentAttachmentInfo ParentInfo
+        {
+            get => _parentInfo;
+            set => SetBackingField(ref _parentInfo, value,
+                () => _parentInfo.UIComponent = null,
+                () => _parentInfo.UIComponent = this,
+                false);
+        }
 
         void IUIComponent.RegisterInputs(InputInterface input) => RegisterInputs(input);
         /// <summary>
@@ -138,22 +147,20 @@ namespace TheraEngine.Rendering.UI
         [Browsable(false)]
         public Vec2 ParentBounds { get; protected set; }
 
-        public virtual Vec2 OnResize(Vec2 parentBounds)
+        public virtual void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
         {
             if (IgnoreResizes)
-                return parentBounds;
+                return;
 
             IgnoreResizes = true;
 
             foreach (ISceneComponent c in _children)
                 if (c is IUIComponent uiComp)
-                    uiComp.OnResize(parentBounds);
+                    uiComp.ArrangeChildren(translation, parentBounds);
 
             RecalcLocalTransform();
 
             IgnoreResizes = false;
-
-            return parentBounds;
         }
         /// <summary>
         /// Resizes self depending on the parent component.
@@ -163,18 +170,9 @@ namespace TheraEngine.Rendering.UI
             if (IgnoreResizes)
                 return;
 
-            if (ParentSocket is UIBoundableComponent comp)
-            {
-                ParentBounds = comp.Size;
-            }
-            //else if (OwningActor != null)
-            //    Resize(OwningActor.Bounds);
-            else
-            {
-                ParentBounds = Vec2.Zero;
-            }
+            ParentBounds = ParentSocket is IUIBoundableComponent comp ? comp.Size.Raw : Vec2.Zero;
 
-            OnResize(ParentBounds);
+            ArrangeChildren(Vec2.Zero, ParentBounds);
         }
         public virtual IUIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis)
         {
@@ -240,6 +238,8 @@ namespace TheraEngine.Rendering.UI
         }
 
         public RenderCommandMethod2D _rc;
+        private UIParentAttachmentInfo _parentInfo;
+
         public virtual void AddRenderables(RenderPasses passes, ICamera camera)
         {
             //#if EDITOR
@@ -267,7 +267,7 @@ namespace TheraEngine.Rendering.UI
             //Vec3 scale = WorldMatrix.Scale;
             Vec3 up = WorldMatrix.UpVec.NormalizedFast() * 50.0f;
             Vec3 right = WorldMatrix.RightVec.NormalizedFast() * 50.0f;
-            
+
             Engine.Renderer.RenderLine(endPoint, endPoint + up, Color.Green);
             Engine.Renderer.RenderLine(endPoint, endPoint + right, Color.Red);
         }

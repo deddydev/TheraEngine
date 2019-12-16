@@ -246,18 +246,18 @@ namespace TheraEditor
         public string LibrariesDirectory { get; private set; }
         
         [TSerialize(nameof(ProjectStateRef), State = true, Config = false)]
-        private GlobalFileRef<ProjectState> _projectStateRef;
+        private LocalFileRef<ProjectState> _projectStateRef;
         [TSerialize(nameof(EditorSettingsOverrideRef))]
-        private GlobalFileRef<EditorSettings> _editorSettingsRef;
+        private LocalFileRef<EditorSettings> _editorSettingsRef;
 
         [Category("Project")]
-        public GlobalFileRef<ProjectState> ProjectStateRef
+        public LocalFileRef<ProjectState> ProjectStateRef
         {
             get => _projectStateRef;
             set => _projectStateRef = value;
         }
         [Category("Project")]
-        public GlobalFileRef<EditorSettings> EditorSettingsOverrideRef
+        public LocalFileRef<EditorSettings> EditorSettingsOverrideRef
         {
             get => _editorSettingsRef;
             set => _editorSettingsRef = value;
@@ -293,11 +293,11 @@ namespace TheraEditor
             MakePaths(directory);
             FilePath = GetFilePath<TProject>(directory, Name, EProprietaryFileFormat.XML);
 
-            void Update<T>(ref GlobalFileRef<T> gref, string defaultName) where T : TFileObject, new()
+            void Update<T>(ref LocalFileRef<T> gref, string defaultName) where T : TFileObject, new()
             {
                 if (gref is null)
                 {
-                    gref = new GlobalFileRef<T>(
+                    gref = new LocalFileRef<T>(
                         directory, defaultName, EProprietaryFileFormat.XML, new T());
                 }
                 else
@@ -428,11 +428,11 @@ namespace TheraEditor
                     EProprietaryFileFormat.XML),
 
                 ProjectStateRef
-                    = new GlobalFileRef<ProjectState>(directory, nameof(ProjectState),
+                    = new LocalFileRef<ProjectState>(directory, nameof(ProjectState),
                     EProprietaryFileFormat.XML, state),
 
                 EditorSettingsOverrideRef
-                    = new GlobalFileRef<EditorSettings>(cfgDir, nameof(EditorSettings),
+                    = new LocalFileRef<EditorSettings>(cfgDir, nameof(EditorSettings),
                     EProprietaryFileFormat.XML, editorSettings),
             };
 

@@ -156,7 +156,7 @@ namespace System
         }
         public void CollectVisible(IVolume cullingVolume, RenderPasses passes, ICamera camera, bool shadowPass)
         {
-            passes.ShadowPass = shadowPass;
+            passes.IsShadowPass = shadowPass;
             if (cullingVolume != null)
                 _head.CollectVisible(cullingVolume, passes, camera, shadowPass);
             else

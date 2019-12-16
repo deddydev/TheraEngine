@@ -302,11 +302,13 @@ namespace TheraEngine.Components.Logic.Movement
                 return;
 
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
-            TRigidBody body = root.CollisionObject as TRigidBody;
-            Vec3 v = body.LinearVelocity;
 
-            if (v.Xz.LengthFast < 8.667842f)
-                body.ApplyCentralForce((body.Mass * FallingMovementSpeed) * movementInput);
+            if (root?.CollisionObject is TRigidBody body)
+            {
+                Vec3 v = body.LinearVelocity;
+                if (v.Xz.LengthFast < 8.667842f)
+                    body.ApplyCentralForce((body.Mass * FallingMovementSpeed) * movementInput);
+            }
         }
         public void Jump()
         {

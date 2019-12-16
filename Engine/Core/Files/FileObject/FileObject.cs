@@ -448,8 +448,11 @@ namespace TheraEngine.Core.Files
                 
             //}
         }
-        
+
+        [Browsable(false)]
+        [TSerialize]
         public Dictionary<string, StreamableProperty> StreamableProperties { get; set; }
+
         private MemoryMappedFile FileMap { get; set; }
         private MemoryMappedViewStream FileMapStream { get; set; }
 

@@ -10,11 +10,10 @@ namespace TheraEngine.Rendering.UI.Text
             TextDrawer.Text.Add(_uiText);
         }
 
-        public override Vec2 OnResize(Vec2 parentBounds)
+        public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
         {
-            var resize = base.OnResize(parentBounds);
+            base.ArrangeChildren(translation, parentBounds);
             _uiText.Region.Extents = Size;
-            return resize;
         }
 
         private readonly UIString2D _uiText = new UIString2D();

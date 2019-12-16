@@ -136,7 +136,7 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             float distance = camera?.DistanceFromScreenPlane(_component?.WorldPoint ?? Vec3.Zero) ?? 0.0f;
 
-            if (!passes.ShadowPass)
+            if (!passes.IsShadowPass)
                 UpdateLOD(distance);
 
             RenderCommand.Mesh = CurrentLOD?.Manager;

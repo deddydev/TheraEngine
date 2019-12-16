@@ -66,15 +66,12 @@ namespace TheraEngine.Core.Files.Serialization
             IProgress<float> progress,
             CancellationToken cancel)
         {
-            if (PreExport(fileObject, targetDirectoryPath, fileName, format, null, out string filePath))
-            {
-                using (Stream stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
-                {
-                    Writer = GetWriter(format, fileObject, filePath, stream, flags, progress, cancel);
-                    await Writer.WriteObjectAsync();
-                    //Engine.PrintLine("Serialized XML file to {0}", filePath);
-                }
-            }
+            if (!PreExport(fileObject, targetDirectoryPath, fileName, format, null, out string filePath))
+                return;
+            
+            using Stream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
+            Writer = GetWriter(format, fileObject, filePath, stream, flags, progress, cancel);
+            await Writer.WriteObjectAsync();
         }
 
         private AbstractWriter GetWriter(
@@ -87,7 +84,7 @@ namespace TheraEngine.Core.Files.Serialization
             CancellationToken cancel)
             => format switch
             {
-                EProprietaryFileFormat.Binary => new WriterXML(this, fileObject, filePath, stream, flags, progress, cancel, null),
+                EProprietaryFileFormat.Binary => new WriterBinary(this, fileObject, filePath, stream, flags, progress, cancel, Endian.EOrder.Big, false, true, null, null),
                 EProprietaryFileFormat.XML => new WriterXML(this, fileObject, filePath, stream, flags, progress, cancel, null),
                 _ => throw new Exception(),
             };

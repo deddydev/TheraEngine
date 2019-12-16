@@ -15,8 +15,11 @@ namespace TheraEngine.Rendering.UI
     public class UITextRasterComponent : UIInteractableComponent, IPreRendered
     {
         public UITextRasterComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(MakeDrawSurface()), true) => Init();
-        public UITextRasterComponent(TMaterial material) : base(material, true)
+        public UITextRasterComponent(TMaterial material, bool appendDrawSurfaceTexture = true) : base(material, true)
         {
+            if (appendDrawSurfaceTexture)
+                material.Textures.Add(MakeDrawSurface());
+
             Init();
         }
         private void Init()
@@ -28,7 +31,7 @@ namespace TheraEngine.Rendering.UI
             RenderCommand.Mesh.Material.RenderParams = new RenderingParameters(true);
         }
 
-        private static TexRef2D MakeDrawSurface()
+        public static TexRef2D MakeDrawSurface()
             => new TexRef2D("DrawSurface", 1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
             {
                 MagFilter = ETexMagFilter.Nearest,
@@ -82,9 +85,9 @@ namespace TheraEngine.Rendering.UI
         public IVec2? NeedsResize { get; set; } = null;
         public bool NeedsRedraw { get; set; } = false;
 
-        public override Vec2 OnResize(Vec2 parentBounds)
+        public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
         {
-            Vec2 rect = base.OnResize(parentBounds);
+            base.ArrangeChildren(translation, parentBounds);
 
             int w = (int)(Width * TextureResolutionMultiplier.X);
             int h = (int)(Height * TextureResolutionMultiplier.Y);
@@ -94,8 +97,6 @@ namespace TheraEngine.Rendering.UI
                 NeedsRedraw = true;
                 ForceFullRedraw = true;
             }
-
-            return rect;
         }
         [Browsable(false)]
         public bool PreRenderEnabled => NeedsResize != null || NeedsRedraw;

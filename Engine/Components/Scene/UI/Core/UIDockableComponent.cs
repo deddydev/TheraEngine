@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.UI
@@ -235,16 +236,15 @@ namespace TheraEngine.Rendering.UI
 
         [Browsable(false)]
         public bool Docked => _dockStyle != EUIDockStyle.None;
-        
-        public override unsafe Vec2 OnResize(Vec2 parentBounds)
+
+        public override unsafe void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
         {
             if (IgnoreResizes)
-                return parentBounds;
+                return;
+
             IgnoreResizes = true;
 
             ParentBounds = parentBounds;
-            Vec2 leftOver = parentBounds;
-            Vec2 prevRegion = Size;
             
             Size.X = SizeableWidth.GetResultingValue(parentBounds);
             Size.Y = SizeableHeight.GetResultingValue(parentBounds);
@@ -253,13 +253,12 @@ namespace TheraEngine.Rendering.UI
             
             RecalcLocalTransform();
 
-            Vec2 bounds = Size;
-            foreach (UIComponent c in _children)
-                bounds = c.OnResize(bounds);
+            Vec2 bounds = Size.Raw;
+            foreach (ISceneComponent c in _children)
+                if (c is IUIComponent uic)
+                    uic.ArrangeChildren(translation, bounds);
 
             IgnoreResizes = false;
-
-            return leftOver;
         }
         //private BoundingRectangleF RegionDockComplement(BoundingRectangleF parentRegion, BoundingRectangleF region)
         //{

@@ -487,7 +487,133 @@ namespace TheraEngine.Core.Maths
         #endregion
 
         #endregion
-        
+
+        #region Lerp
+
+        public static float Lerp(float start, float end, float time)
+            => start + (end - start) * time;
+        public static float Lerp(float start, float end, float time, float speed)
+            => Lerp(start, end, time * speed);
+
+        public static Vec2 Lerp(Vec2 start, Vec2 end, float time)
+            => start + (end - start) * time;
+        public static Vec2 Lerp(Vec2 start, Vec2 end, float time, float speed)
+            => Lerp(start, end, time * speed);
+
+        public static Vec3 Lerp(Vec3 start, Vec3 end, float time)
+            => start + (end - start) * time;
+        public static Vec3 Lerp(Vec3 start, Vec3 end, float time, float speed)
+            => Lerp(start, end, time * speed);
+
+        public static Vec4 Lerp(Vec4 start, Vec4 end, float time)
+            => start + (end - start) * time;
+        public static Vec4 Lerp(Vec4 start, Vec4 end, float time, float speed)
+            => Lerp(start, end, time * speed);
+
+        public static ColorF3 Lerp(ColorF3 startValue, ColorF3 endValue, float time)
+            => startValue + (endValue - startValue) * time;
+        public static ColorF3 Lerp(ColorF3 startValue, ColorF3 endValue, float time, float speed)
+            => startValue + (endValue - startValue) * time * speed;
+
+        public static ColorF4 Lerp(ColorF4 startValue, ColorF4 endValue, float time)
+            => startValue + (endValue - startValue) * time;
+        public static ColorF4 Lerp(ColorF4 startValue, ColorF4 endValue, float time, float speed)
+            => startValue + (endValue - startValue) * time * speed;
+
+        #endregion
+
+        #region Time Modifiers
+
+        /// <summary>
+        /// Maps a linear time value from 0.0f to 1.0f to a time value that bounces back a specified amount of times after hitting 1.0f.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <param name="bounces"></param>
+        /// <param name="bounceFalloff"></param>
+        /// <returns></returns>
+        public static float BounceTimeModifier(float time, int bounces, double bounceFalloff)
+            => 1.0f - (float)(Pow(E, -bounceFalloff * time) * Abs(Cos(PI * (0.5 + bounces) * time)));
+        /// <summary>
+        /// Maps a linear time value from 0.0f to 1.0f to a cosine time value that eases in and out.
+        /// </summary>
+        public static float CosineTimeModifier(float time)
+            => (1.0f - (float)Cos(time * PIf)) * 0.5f;
+
+        #endregion
+
+        #region Special Interps
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="time"></param>
+        /// <param name="speed"></param>
+        /// <param name="exponent"></param>
+        /// <returns></returns>
+        public static float QuadraticEaseEnd(float start, float end, float time, float speed = 1.0f, float exponent = 2.0f)
+            => Lerp(start, end, 1.0f - (float)Pow(1.0f - (time * speed), exponent));
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="time"></param>
+        /// <param name="speed"></param>
+        /// <param name="exponent"></param>
+        /// <returns></returns>
+        public static float QuadraticEaseStart(float start, float end, float time, float speed = 1.0f, float exponent = 2.0f)
+            => Lerp(start, end, (float)Pow(time * speed, exponent));
+        /// <summary>
+        /// Smoothed interpolation between two points. Eases in and out.
+        /// </summary>
+        public static float Cosine(float start, float end, float time, float speed = 1.0f)
+            => Lerp(start, end, CosineTimeModifier(time * speed));
+        /// <summary>
+        /// Smoothed interpolation between two points. Eases in and out.
+        /// </summary>
+        public static Vec2 Cosine(Vec2 start, Vec2 end, float time, float speed = 1.0f)
+            => Vec2.Lerp(start, end, CosineTimeModifier(time * speed));
+        /// <summary>
+        /// Smoothed interpolation between two points. Eases in and out.
+        /// </summary>
+        public static Vec3 CosineTo(Vec3 start, Vec3 end, float time, float speed = 1.0f)
+            => Vec3.Lerp(start, end, CosineTimeModifier(time * speed));
+        /// <summary>
+        /// Smoothed interpolation between two points. Eases in and out.
+        /// </summary>
+        public static Vec4 CosineTo(Vec4 start, Vec4 end, float time, float speed = 1.0f)
+            => Vec4.Lerp(start, end, CosineTimeModifier(time * speed));
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="current"></param>
+        /// <param name="target"></param>
+        /// <param name="delta"></param>
+        /// <param name="degPerSec"></param>
+        /// <returns></returns>
+        public static Vec3 VInterpNormalRotationTo(Vec3 current, Vec3 target, float delta, float degPerSec)
+        {
+            Quat deltaQuat = Quat.BetweenVectors(current, target);
+
+            deltaQuat.ToAxisAngleRad(out Vec3 deltaAxis, out float totalRads);
+
+            float deltaRads = DegToRad(degPerSec) * delta;
+
+            if (Abs(totalRads) > deltaRads)
+            {
+                //totalRads = totalRads.Clamp(-deltaRads, deltaRads);
+                deltaQuat = Quat.FromAxisAngleDeg(deltaAxis, deltaRads);
+                return deltaQuat * current;
+            }
+
+            return target;
+        }
+
+        #endregion
+
+        #region Misc Lerps
         public static Color Lerp(
             Color startColor,
             Color endColor,
@@ -521,99 +647,6 @@ namespace TheraEngine.Core.Maths
                 start.X + (end.X - start.X) * time,
                 start.Y + (end.Y - start.Y) * time);
         }
-
-        public static float Lerp(float startValue, float endValue, float time)
-            => startValue + (endValue - startValue) * time;
-        public static Vec2 Lerp(Vec2 startValue, Vec2 endValue, float time)
-            => startValue + (endValue - startValue) * time;
-        public static Vec3 Lerp(Vec3 startValue, Vec3 endValue, float time)
-            => startValue + (endValue - startValue) * time;
-        public static Vec4 Lerp(Vec4 startValue, Vec4 endValue, float time)
-            => startValue + (endValue - startValue) * time;
-
-        public static ColorF3 Lerp(ColorF3 startValue, ColorF3 endValue, float time)
-            => startValue + (endValue - startValue) * time;
-        public static ColorF4 Lerp(ColorF4 startValue, ColorF4 endValue, float time)
-            => startValue + (endValue - startValue) * time;
-
-        public static float InterpQuadraticEaseEnd(float start, float end, float time, float speed = 1.0f, float exponent = 2.0f)
-            => Lerp(start, end, 1.0f - (float)Pow(1.0f - (time * speed), exponent));
-        public static float InterpQuadraticEaseStart(float start, float end, float time, float speed = 1.0f, float exponent = 2.0f)
-            => Lerp(start, end, (float)Pow(time * speed, exponent));
-
-        /// <summary>
-        /// Maps a linear time value from 0.0f to 1.0f to a time value that bounces back a specified amount of times after hitting 1.0f.
-        /// </summary>
-        /// <param name="time"></param>
-        /// <param name="bounces"></param>
-        /// <param name="bounceFalloff"></param>
-        /// <returns></returns>
-        public static float BounceTimeModifier(float time, int bounces = 4, double bounceFalloff = 4.0)
-            => 1.0f - (float)(Pow(E, -bounceFalloff * time) * Abs(Cos(PI * (0.5 + bounces) * time)));
-        /// <summary>
-        /// Maps a linear time value from 0.0f to 1.0f to a cosine time value that eases in and out.
-        /// </summary>
-        public static float CosineTimeModifier(float time)
-            => (1.0f - (float)Cos(time * PIf)) * 0.5f;
-        /// <summary>
-        /// Smoothed interpolation between two points. Eases in and out.
-        /// A speed of 2 symbolizes the interpolation will occur in half a second
-        /// if update/frame delta is used as time.
-        /// </summary>
-        public static float InterpCosineTo(float start, float end, float time, float speed = 1.0f)
-            => Lerp(start, end, CosineTimeModifier(time * speed));
-        /// <summary>
-        /// Smoothed interpolation between two points. Eases in and out.
-        /// A speed of 2 symbolizes the interpolation will occur in half a second
-        /// if update/frame delta is used as time.
-        /// </summary>
-        public static Vec2 InterpCosineTo(Vec2 start, Vec2 end, float time, float speed = 1.0f)
-            => Vec2.Lerp(start, end, CosineTimeModifier(time * speed));
-        /// <summary>
-        /// Smoothed interpolation between two points. Eases in and out.
-        /// A speed of 2 symbolizes the interpolation will occur in half a second
-        /// if update/frame delta is used as time.
-        /// </summary>
-        public static Vec3 InterpCosineTo(Vec3 start, Vec3 end, float time, float speed = 1.0f)
-            => Vec3.Lerp(start, end, CosineTimeModifier(time * speed));
-        /// <summary>
-        /// Smoothed interpolation between two points. Eases in and out.
-        /// A speed of 2 symbolizes the interpolation will occur in half a second
-        /// if update/frame delta is used as time.
-        /// </summary>
-        public static Vec4 InterpCosineTo(Vec4 start, Vec4 end, float time, float speed = 1.0f)
-            => Vec4.Lerp(start, end, CosineTimeModifier(time * speed));
-
-        /// <summary>
-        /// Constant interpolation directly from one point to another.
-        /// A speed of 2 symbolizes the interpolation will occur in half a second
-        /// if update/frame delta is used as time.
-        /// </summary>
-        public static float InterpLinearTo(float start, float end, float time, float speed = 1.0f)
-            => Lerp(start, end, time * speed);
-        public static Vec2 InterpLinearTo(Vec2 start, Vec2 end, float time, float speed = 1.0f)
-            => Vec2.Lerp(start, end, time * speed);
-        public static Vec3 InterpLinearTo(Vec3 start, Vec3 end, float time, float speed = 1.0f)
-            => Vec3.Lerp(start, end, time * speed);
-        public static Vec4 InterpLinearTo(Vec4 start, Vec4 end, float time, float speed = 1.0f)
-            => Vec4.Lerp(start, end, time * speed);
-
-        public static Vec3 VInterpNormalRotationTo(Vec3 current, Vec3 target, float delta, float degPerSec)
-        {
-            Quat deltaQuat = Quat.BetweenVectors(current, target);
-
-            deltaQuat.ToAxisAngleRad(out Vec3 deltaAxis, out float totalRads);
-
-            float deltaRads = DegToRad(degPerSec) * delta;
-
-            if (Abs(totalRads) > deltaRads)
-            {
-                //totalRads = totalRads.Clamp(-deltaRads, deltaRads);
-                deltaQuat = Quat.FromAxisAngleDeg(deltaAxis, deltaRads);
-                return deltaQuat * current;
-            }
-
-            return target;
-        }
+        #endregion
     }
 }

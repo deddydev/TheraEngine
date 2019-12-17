@@ -15,7 +15,9 @@ namespace TheraEngine.Rendering.UI
 
         }
 
-        public int[,] Indices { get; set; }
+        //Jagged array indexed by (row,col) of int lists.
+        //Each int list contains indices of child UI components that reside in the cell specified by (row,col).
+        public List<int>[,] Indices { get; set; }
         public bool InvertY { get; set; }
 
         public EventList<RowDefinition> Rows
@@ -43,10 +45,12 @@ namespace TheraEngine.Rendering.UI
         private void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) => RegenerateIndices();
         private void RegenerateIndices()
         {
-            Indices = new int[Rows.Count, Columns.Count];
+            Indices = new List<int>[Rows.Count, Columns.Count];
+            Indices.Initialize();
+
             for (int i = 0; i < ChildComponents.Count; ++i)
                 if (ChildComponents[i] is IUIComponent uic && uic.ParentInfo is GridPlacementInfo info)
-                    Indices[info.Row, info.Column] = i;
+                    Indices[info.Row, info.Column].Add(i);
         }
 
         public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
@@ -63,18 +67,20 @@ namespace TheraEngine.Rendering.UI
                 {
                     float width = Columns[col].Width.GetResultingValue(parentBounds);
 
-                    int index = Indices[row, col];
-
-                    ISceneComponent comp = ChildComponents[index];
-                    if (comp is IUIComponent uic)
+                    List<int> indices = Indices[row, col];
+                    foreach (var index in indices)
                     {
-                        if (comp is IUIBoundableComponent bc)
+                        ISceneComponent comp = ChildComponents[index];
+                        if (comp is IUIComponent uic)
                         {
-                            bc.ArrangeChildren(new Vec2(x, y), new Vec2(width, height));
-                        }
-                        else
-                        {
+                            if (comp is IUIBoundableComponent bc)
+                            {
+                                bc.ArrangeChildren(new Vec2(x, y), new Vec2(width, height));
+                            }
+                            else
+                            {
 
+                            }
                         }
                     }
 
@@ -92,7 +98,7 @@ namespace TheraEngine.Rendering.UI
                 if (!(uic.ParentInfo is GridPlacementInfo info))
                     uic.ParentInfo = info = new GridPlacementInfo();
 
-                info.PropertyChanging += Info_PropertyChanging;
+                //info.PropertyChanging += Info_PropertyChanging;
                 info.PropertyChanged += Info_PropertyChanged;
             }
 
@@ -104,7 +110,7 @@ namespace TheraEngine.Rendering.UI
             {
                 if (uic.ParentInfo is GridPlacementInfo info)
                 {
-                    info.PropertyChanging -= Info_PropertyChanging;
+                    //info.PropertyChanging -= Info_PropertyChanging;
                     info.PropertyChanged -= Info_PropertyChanged;
                 }
 
@@ -116,30 +122,33 @@ namespace TheraEngine.Rendering.UI
 
         private void Info_PropertyChanging(object sender, PropertyChangingEventArgs e)
         {
-            GridPlacementInfo info = sender as GridPlacementInfo;
-            switch (e.PropertyName)
-            {
-                case nameof(GridPlacementInfo.Row):
+            //GridPlacementInfo info = sender as GridPlacementInfo;
+            //switch (e.PropertyName)
+            //{
+            //    case nameof(GridPlacementInfo.Row):
 
-                    break;
-                case nameof(GridPlacementInfo.Column):
+            //        break;
+            //    case nameof(GridPlacementInfo.Column):
 
-                    break;
-            }
+            //        break;
+            //}
         }
 
         private void Info_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            GridPlacementInfo info = sender as GridPlacementInfo;
-            switch (e.PropertyName)
-            {
-                case nameof(GridPlacementInfo.Row):
+            //TODO: don't fully regenerate every time
+            RegenerateIndices();
 
-                    break;
-                case nameof(GridPlacementInfo.Column):
+            //GridPlacementInfo info = sender as GridPlacementInfo;
+            //switch (e.PropertyName)
+            //{
+            //    case nameof(GridPlacementInfo.Row):
 
-                    break;
-            }
+            //        break;
+            //    case nameof(GridPlacementInfo.Column):
+
+            //        break;
+            //}
         }
 
         public class GridPlacementInfo : UIParentAttachmentInfo
@@ -162,11 +171,21 @@ namespace TheraEngine.Rendering.UI
         }
         public class RowDefinition
         {
-            public SizeableElement Height { get; set; }
+            private SizeableElement _height = null;
+            public SizeableElement Height
+            {
+                get => _height;
+                set => _height = value ?? new SizeableElement();
+            }
         }
         public class ColumnDefinition
         {
-            public SizeableElement Width { get; set; }
+            private SizeableElement _width;
+            public SizeableElement Width 
+            {
+                get => _width; 
+                set => _width = value ?? new SizeableElement();
+            }
         }
     }
 }

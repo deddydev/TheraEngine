@@ -8,7 +8,6 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
-using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Worlds;
@@ -61,6 +60,11 @@ namespace TheraEditor.Windows.Forms
             else
                 switch (e.Node.Tag)
                 {
+                    case IWorld world:
+                        {
+                            Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = world;
+                            break;
+                        }
                     case IActor actor:
                         {
                             actor.EditorState.Selected = true;
@@ -71,7 +75,8 @@ namespace TheraEditor.Windows.Forms
                     case IComponent component:
                         {
                             component.EditorState.Selected = true;
-                            EditorHUD?.SetSelectedComponent(false, component as ISceneComponent, true);
+                            if (component is ISceneComponent sceneComp)
+                                EditorHUD?.SetSelectedComponent(false, sceneComp, true);
                             Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = component;
                             break;
                         }
@@ -91,7 +96,9 @@ namespace TheraEditor.Windows.Forms
                 world.State.SpawnedActors.PostAnythingAdded -= ActorSpawned;
                 world.State.SpawnedActors.PostAnythingRemoved -= ActorDespawned;
             }
+            Clear();
         }
+
         public void LinkWorld(IWorld world)
         {
             if (InvokeRequired)
@@ -100,10 +107,13 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            ClearMaps();
+            Clear();
 
             if (world is null || Engine.ShuttingDown)
                 return;
+
+            TreeNode node = new TreeNode(world.Name ?? "World") { Tag = world };
+            ActorTree.Nodes.Add(node);
 
             world.Settings.Maps.ForEach(x => CacheMap(x.Value.File));
             world.State.SpawnedActors.ForEach(ActorSpawned);
@@ -120,7 +130,7 @@ namespace TheraEditor.Windows.Forms
                 if (_dynamicActorsMapNode is null)
                 {
                     _dynamicActorsMapNode = new TreeNode("Dynamic Actors");
-                    ActorTree.Nodes.Insert(0, _dynamicActorsMapNode);
+                    ActorTree.Nodes[0].Nodes.Insert(0, _dynamicActorsMapNode);
                 }
                 mapNode = _dynamicActorsMapNode;
             }
@@ -128,7 +138,7 @@ namespace TheraEditor.Windows.Forms
             {
                 AppDomainHelper.Sponsor(map);
                 mapNode = new TreeNode(map.Name) { Tag = map };
-                ActorTree.Nodes.Add(mapNode);
+                ActorTree.Nodes[0].Nodes.Add(mapNode);
                 _mapTreeNodes.Add(map.Guid, mapNode);
                 map.Renamed += Map_Renamed;
             }
@@ -193,11 +203,11 @@ namespace TheraEditor.Windows.Forms
             item.LogicComponentsChanged -= Editor.Instance.Item_LogicComponentsChanged;
         }
 
-        public void ClearMaps()
+        public void Clear()
         {
             if (InvokeRequired)
             {
-                BeginInvoke((Action)ClearMaps);
+                BeginInvoke((Action)Clear);
                 return;
             }
             _dynamicActorsMapNode = null;
@@ -241,6 +251,9 @@ namespace TheraEditor.Windows.Forms
             btnRemove.Enabled = !programmatic;
             switch (node.Tag)
             {
+                case IWorld world:
+
+                    break;
                 case IMap map:
                     btnNewLogicComp.Visible = false;
                     btnNewMap.Visible = true;

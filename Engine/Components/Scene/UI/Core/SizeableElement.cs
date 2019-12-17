@@ -46,11 +46,13 @@ namespace TheraEngine.Rendering.UI
             _modValue = 0.0f,
             _resValue = 0.0f;
         private ESizingMode _sizingMode = ESizingMode.Pixels;
+
         private SizeableElement
             _propElem = null,
             _minSize,
             _maxSize,
             _origin;
+
         private EParentBoundsInheritedValue _parentBoundsInherit = EParentBoundsInheritedValue.Width;
         private bool _smallerRelative = true;
 
@@ -98,6 +100,7 @@ namespace TheraEngine.Rendering.UI
 
             _resValue = value;
             GetModificationValue(parentBounds);
+
             ParameterChanged?.Invoke();
         }
         internal void SetModificationValueNoUpdate(float value)
@@ -200,22 +203,22 @@ namespace TheraEngine.Rendering.UI
                 }
             }
         }
+
         private float GetDim(Vec2 parentBounds)
-        {
-            switch (ParentBoundsInherited)
+            => ParentBoundsInherited switch
             {
-                case EParentBoundsInheritedValue.Width:
-                    return parentBounds.X;
-                case EParentBoundsInheritedValue.Height:
-                    return parentBounds.Y;
-            }
-            return 0.0f;
-        }
+                EParentBoundsInheritedValue.Width => parentBounds.X,
+                EParentBoundsInheritedValue.Height => parentBounds.Y,
+                _ => 0.0f,
+            };
+
+        /// <summary>
+        /// Converts the modification value into the final value by transforming it using the current properties.
+        /// </summary>
         public float GetResultingValue(Vec2 parentBounds)
         {
-            float origin = Origin?.GetResultingValue(parentBounds) ?? 0.0f;
-            float size = GetDim(parentBounds);
-            float newValue = origin;
+            float range = GetDim(parentBounds);
+            float newValue = Origin?.GetResultingValue(parentBounds) ?? 0.0f;
             switch (SizingOption)
             {
                 default:
@@ -223,7 +226,7 @@ namespace TheraEngine.Rendering.UI
                     newValue += _modValue;
                     break;
                 case ESizingMode.PercentageOfParent:
-                    newValue += size * _modValue;
+                    newValue += range * _modValue;
                     break;
                 case ESizingMode.ProportionalToElement:
                     if (ProportionElement != null)
@@ -231,16 +234,19 @@ namespace TheraEngine.Rendering.UI
                     break;
             }
 
-            newValue = _smallerRelative ? newValue : size - newValue;
+            newValue = _smallerRelative ? newValue : range - newValue;
 
-            if (Minimum != null)
-                newValue = newValue.ClampMin(Minimum.GetResultingValue(parentBounds));
+            if (_minSize != null)
+                newValue = newValue.ClampMin(_minSize.GetResultingValue(parentBounds));
 
-            if (Maximum != null)
-                newValue = newValue.ClampMax(Maximum.GetResultingValue(parentBounds));
+            if (_maxSize != null)
+                newValue = newValue.ClampMax(_maxSize.GetResultingValue(parentBounds));
 
             return _resValue = newValue;
         }
+        /// <summary>
+        /// Converts the resulting value back into a modification value relative to the current properties.
+        /// </summary>
         public float GetModificationValue(Vec2 parentBounds)
         {
             float origin = Origin?.GetResultingValue(parentBounds) ?? 0.0f;
@@ -248,11 +254,11 @@ namespace TheraEngine.Rendering.UI
 
             float newValue = _resValue;
 
-            if (Minimum != null)
-                newValue = newValue.ClampMin(Minimum.GetResultingValue(parentBounds));
+            if (_minSize != null)
+                newValue = newValue.ClampMin(_minSize.GetResultingValue(parentBounds));
 
-            if (Maximum != null)
-                newValue = newValue.ClampMax(Maximum.GetResultingValue(parentBounds));
+            if (_maxSize != null)
+                newValue = newValue.ClampMax(_maxSize.GetResultingValue(parentBounds));
 
             if (!_smallerRelative)
                 newValue = size - newValue;
@@ -342,11 +348,6 @@ namespace TheraEngine.Rendering.UI
         //    SizingOption = SizingMode.Ignore;
         //}
         #endregion
-
-        //public void Update(Vec2 parentBounds)
-        //{
-        //    GetValue(parentBounds);
-        //}
     }
     public class SizeableElementQuad : ISizeable
     {
@@ -355,17 +356,11 @@ namespace TheraEngine.Rendering.UI
         public SizeableElement Top { get; set; } = new SizeableElement();
         public SizeableElement Bottom { get; set; } = new SizeableElement();
 
-        public Vec4 GetLRTB(Vec2 parentBounds)
-        {
-            return new Vec4(
+        public Vec4 GetLRTB(Vec2 parentBounds) 
+            => new Vec4(
                 Left.GetResultingValue(parentBounds),
                 Right.GetResultingValue(parentBounds),
                 Top.GetResultingValue(parentBounds),
                 Bottom.GetResultingValue(parentBounds));
-        }
-        public void Update(Vec2 parentBounds)
-        {
-            GetLRTB(parentBounds);
-        }
     }
 }

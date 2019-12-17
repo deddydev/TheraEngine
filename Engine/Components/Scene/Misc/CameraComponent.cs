@@ -218,10 +218,10 @@ namespace TheraEngine.Components.Scene
         }
         public override void RecalcWorldTransform()
         {
-            _previousWorldTransform = _worldTransform;
-            _worldTransform = GetParentMatrix() * LocalMatrix;
-            _previousInverseWorldTransform = _inverseWorldTransform;
-            _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
+            _previousWorldMatrix = _worldMatrix;
+            _worldMatrix = ParentMatrix * LocalMatrix;
+            _previousInverseWorldMatrix = _inverseWorldMatrix;
+            _inverseWorldMatrix = InverseLocalMatrix * InverseParentMatrix;
             OnWorldTransformChanged();
         }
 

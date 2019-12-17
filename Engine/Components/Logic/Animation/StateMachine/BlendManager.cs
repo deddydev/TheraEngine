@@ -51,13 +51,13 @@ namespace TheraEngine.Components.Logic.Animation
                             _blendFunction = (time) => time;
                             break;
                         case EAnimBlendType.CosineEaseInOut:
-                            _blendFunction = (time) => Interp.InterpCosineTo(0.0f, 1.0f, time);
+                            _blendFunction = (time) => Interp.Cosine(0.0f, 1.0f, time);
                             break;
                         case EAnimBlendType.QuadraticEaseStart:
-                            _blendFunction = (time) => Interp.InterpQuadraticEaseStart(0.0f, 1.0f, time);
+                            _blendFunction = (time) => Interp.QuadraticEaseStart(0.0f, 1.0f, time);
                             break;
                         case EAnimBlendType.QuadraticEaseEnd:
-                            _blendFunction = (time) => Interp.InterpQuadraticEaseEnd(0.0f, 1.0f, time);
+                            _blendFunction = (time) => Interp.QuadraticEaseEnd(0.0f, 1.0f, time);
                             break;
                         case EAnimBlendType.Custom:
                             _blendFunction = (time) => _customBlendFunction.First.Interpolate(time, EVectorInterpValueType.Position);

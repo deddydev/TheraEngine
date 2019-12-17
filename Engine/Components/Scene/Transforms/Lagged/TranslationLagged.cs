@@ -73,7 +73,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected virtual void Tick(float delta)
         {
-            _currentTranslation.Raw = Interp.InterpCosineTo(_currentTranslation.Raw, _desiredTranslation, delta, _invTransInterpSec);
+            _currentTranslation.Raw = Interp.CosineTo(_currentTranslation.Raw, _desiredTranslation, delta, _invTransInterpSec);
             RecalcLocalTransform();
         }
 

@@ -48,31 +48,31 @@ namespace TheraEngine.Components.Scene.Transforms
         }
         public override void RecalcWorldTransform()
         {
-            _previousWorldTransform = _worldTransform;
-            _previousInverseWorldTransform = _inverseWorldTransform;
+            _previousWorldMatrix = _worldMatrix;
+            _previousInverseWorldMatrix = _inverseWorldMatrix;
 
-            _worldTransform = _interpPoint.AsTranslationMatrix();
-            _inverseWorldTransform = (-_interpPoint).AsTranslationMatrix();
+            _worldMatrix = _interpPoint.AsTranslationMatrix();
+            _inverseWorldMatrix = (-_interpPoint).AsTranslationMatrix();
 
             OnWorldTransformChanged();
         }
         protected internal void Tick(float delta)
         {
             _delta = delta;
-            _currentPoint = _worldTransform.Translation;
-            _destPoint = GetParentMatrix().Translation;
+            _currentPoint = _worldMatrix.Translation;
+            _destPoint = ParentMatrix.Translation;
             LaggingDistance = _destPoint.DistanceToFast(_currentPoint);
 
             //if (_laggingDistance > _maxLagDistance)
             //    _interpPoint = CustomMath.InterpLinearTo(_destPoint, _currentPoint, _maxLagDistance / _laggingDistance);
             //else
-                _interpPoint = Interp.InterpLinearTo(_currentPoint, _destPoint, _delta, InterpSpeed);
+                _interpPoint = Interp.Lerp(_currentPoint, _destPoint, _delta, InterpSpeed);
             
             RecalcWorldTransform();
         }
         public override void OnSpawned()
         {
-            _currentPoint = _worldTransform.Translation;
+            _currentPoint = _worldMatrix.Translation;
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             base.OnSpawned();
         }

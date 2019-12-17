@@ -231,7 +231,7 @@ namespace TheraEngine.Rendering.UI
         /// <returns></returns>
         public Vec2 ScreenToLocal(Vec2 coordinate, bool delta = false)
         {
-            Matrix4 mtx = GetInvComponentTransform();
+            Matrix4 mtx = InverseComponentTransform;
             if (delta)
                 mtx = mtx.ClearTranslation();
             return (coordinate * mtx).Xy;

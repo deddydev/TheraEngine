@@ -230,7 +230,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void Maps_Changed()
         {
-            ActorTreeForm.ClearMaps();
+            ActorTreeForm.Clear();
         }
 
 #region World Management

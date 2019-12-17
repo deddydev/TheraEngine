@@ -121,13 +121,13 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public virtual Vec2 BottomLeftTranslation
         {
-            get => LocalTranslation.Raw.Xy - LocalOriginTranslation;
+            get => LocalTranslation.Xy - LocalOriginTranslation;
             set => LocalTranslation.Xy = value + LocalOriginTranslation;
         }
 
         public bool Contains(Vec2 worldPoint)
         {
-            Vec3 localPoint = worldPoint * GetInvComponentTransform();
+            Vec3 localPoint = worldPoint * InverseComponentTransform;
             return Size.Raw.Contains(localPoint.Xy);
         }
 
@@ -169,7 +169,7 @@ namespace TheraEngine.Rendering.UI
         }
         protected virtual void RemakeAxisAlignedRegion()
         {
-            Matrix4 mtx = WorldMatrix * Matrix4.CreateScale(Size.X, Size.Y, 0.0f);
+            Matrix4 mtx = WorldMatrix * Matrix4.CreateScale(Size.X, Size.Y, 1.0f);
 
             Vec3 minPos = Vec3.TransformPosition(Vec3.Zero, mtx);
             Vec3 maxPos = Vec3.TransformPosition(Vec2.One, mtx); //This is Vec2.One on purpose, we only want Z to be 0

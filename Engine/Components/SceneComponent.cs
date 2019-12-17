@@ -49,11 +49,11 @@ namespace TheraEngine.Components
         Vec3 WorldForwardVec { get; }
         Vec3 WorldPoint { get; }
         int ActorSceneComponentCacheIndex { get; }
-
-        Matrix4 GetParentMatrix();
-        Matrix4 GetInverseParentMatrix();
-        Matrix4 GetComponentTransform();
-        Matrix4 GetInvComponentTransform();
+        
+        Matrix4 ParentMatrix { get; }
+        Matrix4 InverseParentMatrix { get; }
+        Matrix4 ComponentTransform { get; }
+        Matrix4 InverseComponentTransform { get; }
         
         ISocket AttachTo(SkeletalMeshComponent mesh, string socketName);
         ISocket AttachTo(StaticMeshComponent mesh, string socketName);
@@ -124,7 +124,7 @@ namespace TheraEngine.Components
         {
             if (this is IRigidBodyCollidable p && p.RigidBodyCollision != null)
             {
-                p.RigidBodyCollision.WorldTransform = _worldTransform;
+                p.RigidBodyCollision.WorldTransform = _worldMatrix;
 
                 //AABBs are not updated unless the physics world is ticking.
                 //Without an updated AABB, collision against traces will not work properly.
@@ -150,14 +150,14 @@ namespace TheraEngine.Components
         //[TSerialize(Config = false)]
         protected bool _simulatingPhysics = false;
         //[TSerialize(Config = false)]
-        protected Matrix4 _previousWorldTransform = Matrix4.Identity;
+        protected Matrix4 _previousWorldMatrix = Matrix4.Identity;
         //[TSerialize(Config = false)]
-        protected Matrix4 _previousInverseWorldTransform = Matrix4.Identity;
+        protected Matrix4 _previousInverseWorldMatrix = Matrix4.Identity;
 
         //[TSerialize("WorldTransform")]
-        protected Matrix4 _worldTransform = Matrix4.Identity;
+        protected Matrix4 _worldMatrix = Matrix4.Identity;
         //[TSerialize("InverseWorldTransform")]
-        protected Matrix4 _inverseWorldTransform = Matrix4.Identity;
+        protected Matrix4 _inverseWorldMatrix = Matrix4.Identity;
         //[TSerialize("LocalTransform")]
         protected Matrix4 _localMatrix = Matrix4.Identity;
         //[TSerialize("InverseLocalTransform")]
@@ -226,14 +226,14 @@ namespace TheraEngine.Components
         /// </summary>
         public void SetWorldMatrices(Matrix4 transform, Matrix4 inverse)
         {
-            _previousWorldTransform = _worldTransform;
-            _previousInverseWorldTransform = _inverseWorldTransform;
+            _previousWorldMatrix = _worldMatrix;
+            _previousInverseWorldMatrix = _inverseWorldMatrix;
 
-            _inverseWorldTransform = inverse;
-            _worldTransform = transform;
+            _inverseWorldMatrix = inverse;
+            _worldMatrix = transform;
 
-            _localMatrix = GetInverseParentMatrix() * WorldMatrix;
-            _inverseLocalMatrix = InverseWorldMatrix * GetParentMatrix();
+            _localMatrix = InverseParentMatrix * WorldMatrix;
+            _inverseLocalMatrix = InverseWorldMatrix * ParentMatrix;
 
             OnWorldTransformChanged();
         }
@@ -245,17 +245,17 @@ namespace TheraEngine.Components
         [Category("Transform")]
         public virtual Matrix4 WorldMatrix
         {
-            get => _worldTransform;
+            get => _worldMatrix;
             set
             {
-                _previousWorldTransform = _worldTransform;
-                _previousInverseWorldTransform = _inverseWorldTransform;
+                _previousWorldMatrix = _worldMatrix;
+                _previousInverseWorldMatrix = _inverseWorldMatrix;
 
-                _worldTransform = value;
-                _inverseWorldTransform = _worldTransform.Inverted();
+                _worldMatrix = value;
+                _inverseWorldMatrix = _worldMatrix.Inverted();
 
-                _localMatrix = WorldMatrix * GetInverseParentMatrix();
-                _inverseLocalMatrix = GetParentMatrix() * InverseWorldMatrix;
+                _localMatrix = WorldMatrix * InverseParentMatrix;
+                _inverseLocalMatrix = ParentMatrix * InverseWorldMatrix;
 
                 OnWorldTransformChanged();
             }
@@ -298,18 +298,18 @@ namespace TheraEngine.Components
                 //    _inverseWorldTransform = _worldTransform.Inverted();
                 //return _inverseWorldTransform.Value;
 
-                return _inverseWorldTransform;
+                return _inverseWorldMatrix;
             }
             set
             {
-                _previousWorldTransform = _worldTransform;
-                _previousInverseWorldTransform = _inverseWorldTransform;
+                _previousWorldMatrix = _worldMatrix;
+                _previousInverseWorldMatrix = _inverseWorldMatrix;
 
-                _inverseWorldTransform = value;
-                _worldTransform = _inverseWorldTransform.Inverted();
+                _inverseWorldMatrix = value;
+                _worldMatrix = _inverseWorldMatrix.Inverted();
 
-                _localMatrix = GetInverseParentMatrix() * WorldMatrix;
-                _inverseLocalMatrix = InverseWorldMatrix * GetParentMatrix();
+                _localMatrix = InverseParentMatrix * WorldMatrix;
+                _inverseLocalMatrix = InverseWorldMatrix * ParentMatrix;
 
                 OnWorldTransformChanged();
             }
@@ -387,27 +387,27 @@ namespace TheraEngine.Components
         /// Right direction relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldRightVec => _worldTransform.RightVec;
+        public Vec3 WorldRightVec => _worldMatrix.RightVec;
         /// <summary>
         /// Up direction relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldUpVec => _worldTransform.UpVec;
+        public Vec3 WorldUpVec => _worldMatrix.UpVec;
         /// <summary>
         /// Forward direction relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldForwardVec => _worldTransform.ForwardVec;
+        public Vec3 WorldForwardVec => _worldMatrix.ForwardVec;
         /// <summary>
         /// The position of this component relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldPoint => _worldTransform.Translation;
+        public Vec3 WorldPoint => _worldMatrix.Translation;
         /// <summary>
         /// The scale of this component relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldScale => _worldTransform.Scale;
+        public Vec3 WorldScale => _worldMatrix.Scale;
 
         /// <summary>
         /// All scene components that derive their transform from this one.
@@ -463,9 +463,9 @@ namespace TheraEngine.Components
             _simulatingPhysics = false;
             if (retainCurrentPosition)
             {
-                _inverseWorldTransform = WorldMatrix.Inverted();
-                _localMatrix = WorldMatrix * GetInverseParentMatrix();
-                _inverseLocalMatrix = GetParentMatrix() * InverseWorldMatrix;
+                _inverseWorldMatrix = WorldMatrix.Inverted();
+                _localMatrix = WorldMatrix * InverseParentMatrix;
+                _inverseLocalMatrix = ParentMatrix * InverseWorldMatrix;
                 RecalcWorldTransform();
             }
             foreach (ISceneComponent c in ChildComponents)
@@ -474,10 +474,10 @@ namespace TheraEngine.Components
         void ISceneComponent.PhysicsSimulationEnded() => PhysicsSimulationEnded();
         protected void PhysicsSimulationEnded()
         {
-            _previousWorldTransform = _worldTransform;
-            _previousInverseWorldTransform = _inverseWorldTransform;
-            _worldTransform = GetParentMatrix() * LocalMatrix;
-            _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
+            _previousWorldMatrix = _worldMatrix;
+            _previousInverseWorldMatrix = _inverseWorldMatrix;
+            _worldMatrix = ParentMatrix * LocalMatrix;
+            _inverseWorldMatrix = InverseLocalMatrix * InverseParentMatrix;
 
             _ancestorSimulatingPhysics = null;
             foreach (ISceneComponent c in ChildComponents)
@@ -488,40 +488,38 @@ namespace TheraEngine.Components
         /// Returns the rotation matrix of this component, possibly with scaling.
         /// </summary>
         public Matrix4 GetWorldAnisotropicRotation()
-            => _worldTransform.GetRotationMatrix4();
+            => _worldMatrix.GetRotationMatrix4();
 
         /// <summary>
         /// Returns the world transform of the parent scene component.
         /// </summary>
-        public Matrix4 GetParentMatrix()
-            => ParentSocket is null ? Matrix4.Identity : ParentSocket.WorldMatrix;
+        public Matrix4 ParentMatrix => ParentSocket is null ? Matrix4.Identity : ParentSocket.WorldMatrix;
         /// <summary>
         /// Returns the inverse of the world transform of the parent scene component.
         /// </summary>
-        public Matrix4 GetInverseParentMatrix()
-            => ParentSocket is null ? Matrix4.Identity : ParentSocket.InverseWorldMatrix;
+        public Matrix4 InverseParentMatrix => ParentSocket is null ? Matrix4.Identity : ParentSocket.InverseWorldMatrix;
 
         /// <summary>
         /// Gets the transformation of this component in relation to the actor's root component.
         /// </summary>
-        public Matrix4 GetComponentTransform()
-            => WorldMatrix * GetInvActorTransform();
+        [Browsable(false)]
+        public Matrix4 ComponentTransform => WorldMatrix * InverseActorRootWorldMatrix;
         /// <summary>
         /// Gets the inverse transformation of this component in relation to the actor's root component.
         /// </summary>
-        public Matrix4 GetInvComponentTransform() =>
-            InverseWorldMatrix * GetActorTransform();
+        [Browsable(false)]
+        public Matrix4 InverseComponentTransform => InverseWorldMatrix * ActorRootWorldMatrix;
 
         /// <summary>
-        /// Gets the transformation of this component's owning actor in the world.
+        /// Gets the transformation of the actor's root component in the world.
         /// </summary>
-        public Matrix4 GetActorTransform()
-            => OwningActor?.RootComponent.WorldMatrix ?? Matrix4.Identity;
+        [Browsable(false)]
+        public Matrix4 ActorRootWorldMatrix => OwningActor?.RootComponent?.WorldMatrix ?? Matrix4.Identity;
         /// <summary>
-        /// Gets the inverse transformation of this component's owning actor in the world.
+        /// Gets the inverse transformation of the actor's root component in the world.
         /// </summary>
-        public Matrix4 GetInvActorTransform() =>
-            OwningActor?.RootComponent.InverseWorldMatrix ?? Matrix4.Identity;
+        [Browsable(false)]
+        public Matrix4 InverseActorRootWorldMatrix => OwningActor?.RootComponent?.InverseWorldMatrix ?? Matrix4.Identity;
 
         //[Browsable(false)]
         //[Category("Rendering")]
@@ -553,14 +551,14 @@ namespace TheraEngine.Components
         [Browsable(false)]
         public Matrix4 PreviousWorldMatrix
         {
-            get => _previousWorldTransform;
-            set => _previousWorldTransform = value;
+            get => _previousWorldMatrix;
+            set => _previousWorldMatrix = value;
         }
         [Browsable(false)]
         public Matrix4 PreviousInverseWorldMatrix
         {
-            get => _previousInverseWorldTransform;
-            set => _previousInverseWorldTransform = value;
+            get => _previousInverseWorldMatrix;
+            set => _previousInverseWorldMatrix = value;
         }
 
         /// <summary>
@@ -652,10 +650,10 @@ namespace TheraEngine.Components
         /// </summary>
         public virtual void RecalcWorldTransform()
         {
-            _previousWorldTransform = _worldTransform;
-            _worldTransform = GetParentMatrix() * LocalMatrix;
-            _previousInverseWorldTransform = _inverseWorldTransform;
-            _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
+            _previousWorldMatrix = _worldMatrix;
+            _worldMatrix = ParentMatrix * LocalMatrix;
+            _previousInverseWorldMatrix = _inverseWorldMatrix;
+            _inverseWorldMatrix = InverseLocalMatrix * InverseParentMatrix;
             OnWorldTransformChanged();
         }
 

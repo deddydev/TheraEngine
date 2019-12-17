@@ -48,7 +48,7 @@ namespace TheraEngine.Components.Scene.Transforms
         private void Render()
         {
             Engine.Renderer.RenderSphere(WorldPoint, _traceShape.Radius, false, Color.Black);
-            Engine.Renderer.RenderLine(GetParentMatrix().Translation, WorldPoint, Color.Black);
+            Engine.Renderer.RenderLine(ParentMatrix.Translation, WorldPoint, Color.Black);
         }
 
 #if EDITOR
@@ -89,7 +89,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         private void Tick(float delta)
         {
-            Matrix4 startMatrix = GetParentMatrix() * Rotation.GetMatrix() * Translation.AsTranslationMatrix();
+            Matrix4 startMatrix = ParentMatrix * Rotation.GetMatrix() * Translation.AsTranslationMatrix();
             _startPoint = startMatrix.Translation;
             Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, MaxLength));
             Vec3 testEnd = endMatrix.Translation;
@@ -107,7 +107,7 @@ namespace TheraEngine.Components.Scene.Transforms
                 if (newLength < _currentLength)
                     _currentLength = newLength; //Moving closer to the character, meaning something is obscuring the view. Need to jump to the right position.
                 else //Nothing is now obscuring the view, so we can lerp out quickly to give the appearance of a clean camera zoom out
-                    _currentLength = Interp.InterpLinearTo(_currentLength, newLength, delta, 15.0f);
+                    _currentLength = Interp.Lerp(_currentLength, newLength, delta, 15.0f);
 
                 RecalcLocalTransform();
                 CurrentDistanceChanged?.Invoke(_currentLength);

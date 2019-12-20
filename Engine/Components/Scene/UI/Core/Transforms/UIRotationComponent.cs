@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering.UI
             get => _rotationAngle;
             set
             {
-                if (SetBackingField(ref _rotationAngle, value))
+                if (Set(ref _rotationAngle, value))
                     RecalcLocalTransform();
             }
         }

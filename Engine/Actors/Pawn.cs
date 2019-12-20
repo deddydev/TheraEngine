@@ -100,6 +100,9 @@ namespace TheraEngine.Actors
         [Browsable(false)]
         public PlayerController PlayerController => Controller as PlayerController;
         
+        /// <summary>
+        /// The viewport of the local player controller that is controlling this pawn.
+        /// </summary>
         [Browsable(false)]
         public Viewport Viewport => LocalPlayerController?.Viewport;
 

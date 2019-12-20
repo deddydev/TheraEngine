@@ -254,6 +254,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         public abstract void GlobalUpdate();
         /// <summary>
+        /// Swaps all render pass buffers and processes render trees.
         /// Occurs before any individual viewport processing.
         /// </summary>
         public abstract void GlobalSwap();

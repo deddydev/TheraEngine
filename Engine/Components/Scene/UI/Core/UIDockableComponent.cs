@@ -152,16 +152,16 @@ namespace TheraEngine.Rendering.UI
 
         //[EditInPlace]
         [Category("Transform")]
-        public SizeableElement SizeableWidth { get; } = new SizeableElement() { ParentBoundsInherited = EParentBoundsInheritedValue.Width };
+        public UIFloat SizeableWidth { get; }
         //[EditInPlace]
         [Category("Transform")]
-        public SizeableElement SizeableHeight { get; } = new SizeableElement() { ParentBoundsInherited = EParentBoundsInheritedValue.Height };
+        public UIFloat SizeableHeight { get; }
         //[EditInPlace]
         [Category("Transform")]
-        public SizeableElement SizeablePosX { get; } = new SizeableElement() { ParentBoundsInherited = EParentBoundsInheritedValue.Width };
+        public UIFloat SizeablePosX { get; }
         //[EditInPlace]
         [Category("Transform")]
-        public SizeableElement SizeablePosY { get; } = new SizeableElement() { ParentBoundsInherited = EParentBoundsInheritedValue.Height };
+        public UIFloat SizeablePosY { get; }
         //[EditInPlace]
         //[Category("Transform")]
         //public SizeableElementQuad Padding { get; } = new SizeableElementQuad();
@@ -182,10 +182,10 @@ namespace TheraEngine.Rendering.UI
                 switch (value)
                 {
                     case EUIDockStyle.None:
-                        SizeablePosX.SetSizingPixels(SizeablePosX.GetResultingValue(ParentBounds));
-                        SizeablePosY.SetSizingPixels(SizeablePosY.GetResultingValue(ParentBounds));
-                        SizeableWidth.SetSizingPixels(SizeableWidth.GetResultingValue(ParentBounds));
-                        SizeableHeight.SetSizingPixels(SizeableHeight.GetResultingValue(ParentBounds));
+                        SizeablePosX.SetSizingPixels(SizeablePosX.Value);
+                        SizeablePosY.SetSizingPixels(SizeablePosY.Value);
+                        SizeableWidth.SetSizingPixels(SizeableWidth.Value);
+                        SizeableHeight.SetSizingPixels(SizeableHeight.Value);
                         break;
                     case EUIDockStyle.Fill:
                         SizeablePosX.SetSizingPixels(0.0f);
@@ -246,10 +246,10 @@ namespace TheraEngine.Rendering.UI
 
             ParentBounds = parentBounds;
             
-            Size.X = SizeableWidth.GetResultingValue(parentBounds);
-            Size.Y = SizeableHeight.GetResultingValue(parentBounds);
-            LocalTranslation.X = SizeablePosX.GetResultingValue(parentBounds);
-            LocalTranslation.Y = SizeablePosY.GetResultingValue(parentBounds);
+            Size.X = SizeableWidth.Value;
+            Size.Y = SizeableHeight.Value;
+            LocalTranslation.X = SizeablePosX.Value;
+            LocalTranslation.Y = SizeablePosY.Value;
             
             RecalcLocalTransform();
 

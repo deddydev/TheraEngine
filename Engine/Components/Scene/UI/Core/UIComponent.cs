@@ -25,7 +25,6 @@ namespace TheraEngine.Rendering.UI
         bool IsEnabled { get; set; }
         UIParentAttachmentInfo ParentInfo { get; set; }
 
-        IUIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis);
         void RegisterInputs(InputInterface input);
         void ArrangeChildren(Vec2 translation, Vec2 parentBounds);
         void Resize();
@@ -47,14 +46,14 @@ namespace TheraEngine.Rendering.UI
             get => _visible;
             set
             {
-                if (!SetBackingField(ref _visible, value))
+                if (!Set(ref _visible, value))
                     return;
 
-                RenderInfo.Visible = value;
+                RenderInfo.Visible = _visible;
 
                 foreach (ISceneComponent c in _children)
                     if (c is UIComponent uic)
-                        uic.IsVisible = value;
+                        uic.IsVisible = _visible;
             }
         }
         [Category("Rendering")]
@@ -63,12 +62,10 @@ namespace TheraEngine.Rendering.UI
             get => _enabled;
             set
             {
-                if (!SetBackingField(ref _enabled, value))
-                    return;
-
-                foreach (ISceneComponent c in _children)
-                    if (c is UIComponent uic)
-                        uic.IsEnabled = value;
+                if (Set(ref _enabled, value))
+                    foreach (ISceneComponent c in _children)
+                        if (c is UIComponent uic)
+                            uic.IsEnabled = _enabled;
             }
         }
 
@@ -108,7 +105,7 @@ namespace TheraEngine.Rendering.UI
         public UIParentAttachmentInfo ParentInfo
         {
             get => _parentInfo;
-            set => SetBackingField(ref _parentInfo, value,
+            set => Set(ref _parentInfo, value,
                 () => _parentInfo.UIComponent = null,
                 () => _parentInfo.UIComponent = this,
                 false);
@@ -149,10 +146,10 @@ namespace TheraEngine.Rendering.UI
 
         public virtual void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
         {
-            if (IgnoreResizes)
-                return;
+            //if (IgnoreResizes)
+            //    return;
 
-            IgnoreResizes = true;
+            //IgnoreResizes = true;
 
             foreach (ISceneComponent c in _children)
                 if (c is IUIComponent uiComp)
@@ -160,7 +157,7 @@ namespace TheraEngine.Rendering.UI
 
             RecalcLocalTransform();
 
-            IgnoreResizes = false;
+            //IgnoreResizes = false;
         }
         /// <summary>
         /// Resizes self depending on the parent component.
@@ -174,21 +171,21 @@ namespace TheraEngine.Rendering.UI
 
             ArrangeChildren(Vec2.Zero, ParentBounds);
         }
-        public virtual IUIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis)
-        {
-            foreach (ISceneComponent c in _children)
-                if (c is IUIComponent uiComp)
-                {
-                    IUIComponent comp = uiComp.FindDeepestComponent(cursorPointWorld, true);
-                    if (comp != null)
-                        return comp;
-                }
+        //public virtual IUIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis)
+        //{
+        //    foreach (ISceneComponent c in _children)
+        //        if (c is IUIComponent uiComp)
+        //        {
+        //            IUIComponent comp = uiComp.FindDeepestComponent(cursorPointWorld, true);
+        //            if (comp != null)
+        //                return comp;
+        //        }
 
-            if (includeThis && cursorPointWorld.DistanceTo(WorldPoint.Xy) < 20)
-                return this;
+        //    if (includeThis && cursorPointWorld.DistanceTo(WorldPoint.Xy) < 20)
+        //        return this;
 
-            return null;
-        }
+        //    return null;
+        //}
 
         protected override void OnChildAdded(ISceneComponent item)
         {

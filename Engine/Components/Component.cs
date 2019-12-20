@@ -27,7 +27,7 @@ namespace TheraEngine.Components
         public virtual IActor OwningActor
         {
             get => _owningActor;
-            set => SetBackingField(ref _owningActor, value);
+            set => Set(ref _owningActor, value);
         }
 
         [Browsable(false)]

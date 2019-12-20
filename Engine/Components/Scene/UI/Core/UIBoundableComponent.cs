@@ -13,6 +13,10 @@ namespace TheraEngine.Rendering.UI
         EventVec2 LocalOriginPercentage { get; set; }
         Vec2 LocalOriginTranslation { get; set; }
         Vec2 BottomLeftTranslation { get; set; }
+
+        IUIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis);
+        List<IUIBoundableComponent> FindAllIntersecting(Vec2 worldPoint, bool includeThis);
+        void FindAllIntersecting(Vec2 worldPoint, bool includeThis, List<IUIBoundableComponent> results);
     }
     /// <summary>
     /// Only applies if the parent is a UIBoundableComponent.
@@ -23,6 +27,7 @@ namespace TheraEngine.Rendering.UI
         Center,
         Bottom,
         Stretch,
+        Positional,
     }
     /// <summary>
     /// Only applies if the parent is a UIBoundableComponent.
@@ -33,6 +38,7 @@ namespace TheraEngine.Rendering.UI
         Center,
         Right,
         Stretch,
+        Positional,
     }
     public abstract class UIBoundableComponent : UITransformComponent, IUIBoundableComponent, IEnumerable<IUIComponent>
     {
@@ -56,19 +62,27 @@ namespace TheraEngine.Rendering.UI
         public bool IsMouseOver
         {
             get => _isMouseOver;
-            set => SetBackingField(ref _isMouseOver, value);
+            set => Set(ref _isMouseOver, value);
         }
         [Category("Transform")]
         public EVerticalSizingMode VerticalSizingMode
         {
             get => _verticalSizingMode;
-            set => SetBackingField(ref _verticalSizingMode, value);
+            set
+            {
+                if (Set(ref _verticalSizingMode, value))
+                    Resize();
+            }
         }
         [Category("Transform")]
         public EHorizontalSizingMode HorizontalSizingMode
         {
             get => _horizontalSizingMode;
-            set => SetBackingField(ref _horizontalSizingMode, value);
+            set
+            {
+                if (Set(ref _horizontalSizingMode, value))
+                    Resize();
+            }
         }
         [Category("Transform")]
         public virtual EventVec2 Size
@@ -76,18 +90,20 @@ namespace TheraEngine.Rendering.UI
             get => _size;
             set
             {
-                SetBackingField(ref _size, value,
-                    () => _size.Changed -= Resize,
-                    () => _size.Changed += Resize,
-                    false);
-
-                Resize();
+                if (Set(ref _size, value,
+                    () => _size.PropertyChanged -= SizingPropertyChanged,
+                    () => _size.PropertyChanged += SizingPropertyChanged,
+                    false))
+                    Resize();
             }
         }
+
+        private void SizingPropertyChanged(object sender, PropertyChangedEventArgs e) => Resize();
+
         [Browsable(false)]
         public float Width 
         {
-            get => _size.X; 
+            get => _size.X;
             set => _size.X = value;
         }
         [Browsable(false)]
@@ -107,9 +123,11 @@ namespace TheraEngine.Rendering.UI
             get => _localOriginPercentage;
             set
             {
-                LocalTranslation.Xy += (value - _localOriginPercentage) * Size;
-                _localOriginPercentage = value;
-                Resize();
+                if (Set(ref _localOriginPercentage, value,
+                    () => _localOriginPercentage.Changed -= Resize,
+                    () => _localOriginPercentage.Changed += Resize,
+                    false))
+                    Resize();
             }
         }
         [Category("Transform")]
@@ -121,8 +139,8 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public virtual Vec2 BottomLeftTranslation
         {
-            get => LocalTranslation.Xy - LocalOriginTranslation;
-            set => LocalTranslation.Xy = value + LocalOriginTranslation;
+            get => -LocalOriginTranslation;
+            set => LocalOriginTranslation = -value;
         }
 
         public bool Contains(Vec2 worldPoint)
@@ -145,17 +163,8 @@ namespace TheraEngine.Rendering.UI
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.TransformMatrix(
-                Scale.Raw,
-                Matrix4.Identity,
-                BottomLeftTranslation,
-                ETransformOrder.TRS);
-
-            inverseLocalTransform = Matrix4.TransformMatrix(
-                1.0f / Scale.Raw,
-                Matrix4.Identity,
-                -BottomLeftTranslation,
-                ETransformOrder.SRT);
+            localTransform = Matrix4.CreateTranslation(BottomLeftTranslation);
+            inverseLocalTransform = Matrix4.CreateTranslation(-BottomLeftTranslation);
         }
         public override void RecalcWorldTransform()
         {
@@ -180,14 +189,11 @@ namespace TheraEngine.Rendering.UI
             RenderInfo.AxisAlignedRegion = BoundingRectangleFStruct.FromMinMaxSides(min.X, max.X, min.Y, max.Y, 0.0f, 0.0f);
             //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
-        public override IUIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis)
+        public IUIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis)
         {
-            if (includeThis && IsVisible && Contains(worldPoint))
-                return this;
-
             foreach (ISceneComponent c in _children)
             {
-                if (c is IUIComponent uiComp && uiComp.IsVisible)
+                if (c is IUIBoundableComponent uiComp)
                 {
                     IUIComponent comp = uiComp.FindDeepestComponent(worldPoint, true);
                     if (comp != null)
@@ -195,7 +201,25 @@ namespace TheraEngine.Rendering.UI
                 }
             }
 
+            if (includeThis && Contains(worldPoint))
+                return this;
+
             return null;
+        }
+        public List<IUIBoundableComponent> FindAllIntersecting(Vec2 worldPoint, bool includeThis)
+        {
+            List<IUIBoundableComponent> list = new List<IUIBoundableComponent>();
+            FindAllIntersecting(worldPoint, includeThis, list);
+            return list;
+        }
+        public void FindAllIntersecting(Vec2 worldPoint, bool includeThis, List<IUIBoundableComponent> results)
+        {
+            foreach (ISceneComponent c in _children)
+                if (c is IUIBoundableComponent uiComp)
+                    uiComp.FindAllIntersecting(worldPoint, true, results);
+
+            if (includeThis && Contains(worldPoint))
+                results.Add(this);
         }
 
         protected override void OnChildAdded(ISceneComponent item)

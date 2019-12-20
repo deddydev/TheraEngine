@@ -500,12 +500,12 @@ namespace TheraEngine.Components
         public Matrix4 InverseParentMatrix => ParentSocket is null ? Matrix4.Identity : ParentSocket.InverseWorldMatrix;
 
         /// <summary>
-        /// Gets the transformation of this component in relation to the actor's root component.
+        /// Gets the transformation of this component relative to the actor's root component.
         /// </summary>
         [Browsable(false)]
         public Matrix4 ComponentTransform => WorldMatrix * InverseActorRootWorldMatrix;
         /// <summary>
-        /// Gets the inverse transformation of this component in relation to the actor's root component.
+        /// Gets the inverse transformation of this component relative to the actor's root component.
         /// </summary>
         [Browsable(false)]
         public Matrix4 InverseComponentTransform => InverseWorldMatrix * ActorRootWorldMatrix;

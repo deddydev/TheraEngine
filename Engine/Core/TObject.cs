@@ -1,24 +1,17 @@
 using Extensions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Lifetime;
-using System.Security.Permissions;
 using TheraEngine.Animation;
 using TheraEngine.Core;
-using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
 using TheraEngine.Input.Devices;
 
 namespace TheraEngine
 {
-    public interface IObjectSlim : ISponsorableMarshalByRefObject
-    {
-        TypeProxy GetTypeProxy();
-    }
     public interface IObject : IObjectSlim, INotifyPropertyChanged, INotifyPropertyChanging
     {
         event RenamedEventHandler Renamed;
@@ -62,101 +55,14 @@ namespace TheraEngine
         //bool RemoveAnimation(AnimationTree anim);
         #endregion
     }
-
-    public class MarshalSponsor : MarshalByRefObject, ISponsor, IDisposable
-    {
-        public static readonly TimeSpan RenewalTimeSpan = TimeSpan.FromSeconds(1.0);
-
-        public ILease Lease { get; private set; }
-        public bool WantsRelease { get; set; } = false;
-        public bool IsReleased { get; private set; } = false;
-        public ISponsorableMarshalByRefObject Object { get; private set; }
-        public DateTime LastRenewalTime { get; private set; }
-
-        public TimeSpan Renewal(ILease lease)
-        {
-            // if any of these cases is true
-            IsReleased = lease is null || lease.CurrentState == LeaseState.Expired || WantsRelease;
-            string fn = Object.GetTypeProxy().GetFriendlyName();
-            if (IsReleased)
-            {
-                //Engine.PrintLine($"Released lease for {fn}.");
-                return TimeSpan.Zero;
-            }
-            //if (lease.CurrentState == LeaseState.Renewing)
-            {
-                TimeSpan span = DateTime.Now - LastRenewalTime;
-                double sec = Math.Round(span.TotalSeconds, 1);
-                //Engine.PrintLine($"Renewed lease for {fn}. {sec} seconds elapsed since last renewal.");
-                LastRenewalTime = DateTime.Now;
-                return TimeSpan.FromMinutes(10.0);
-            }
-            //return TimeSpan.Zero;
-        }
-        
-        public MarshalSponsor(ISponsorableMarshalByRefObject mbro)
-        {
-            Object = mbro;
-            Lease = mbro.InitializeLifetimeService() as ILease;
-            Lease?.Register(this);
-            LastRenewalTime = DateTime.Now;
-        }
-
-        public void Dispose()
-        {
-            Lease?.Unregister(this);
-            Lease = null;
-        }
-
-        [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]
-        public override object InitializeLifetimeService() => null;
-        
-        public void Release() => WantsRelease = true;
-    }
-
-    public delegate void ResourceEventHandler(TObject node);
-    public delegate void RenamedEventHandler(TObject node, string oldName);
-    public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
-
-    public class CancellablePropertyChangingEventArgs : PropertyChangingEventArgs
-    {
-        public CancellablePropertyChangingEventArgs(string propertyName) : base(propertyName) { }
-
-        public bool Cancel { get; set; } = false;
-    }
-
-    /// <summary>
-    /// Use this class for objects that just need to be marshalled between domains and need no extra functionality.
-    /// </summary>
-    public abstract class TObjectSlim : SponsorableMarshalByRefObject, IObjectSlim
-    {
-        TypeProxy IObjectSlim.GetTypeProxy() => GetType();
-
-        public bool ExistsInOtherDomain(AppDomain thisDomain)
-            => thisDomain != Domain;
-
-        #region Debug
-
-        /// <summary>
-        /// Prints a line to output.
-        /// Identical to Engine.PrintLine().
-        /// </summary>
-        protected static void PrintLine(string message, params object[] args) => Debug.Print(message, args);
-        /// <summary>
-        /// Prints a line to output.
-        /// Identical to Engine.PrintLine().
-        /// </summary>
-        protected static void PrintLine(string message) => Debug.Print(message);
-
-        public override string ToString() => GetType().GetFriendlyName();
-
-        #endregion
-    }
     public abstract class TObject : TObjectSlim, IObject
     {
-        [TString(false, false, false)]
-        [TSerialize(nameof(Name), NodeType = ENodeType.Attribute)]
-        public string _name = null;
+        public TObject()
+        {
+
+        }
+
+        #region Misc
 
         [TSerialize]
         private object _userObject = null;
@@ -181,10 +87,17 @@ namespace TheraEngine
         public object UserObject
         {
             get => _userObject;
-            set => SetBackingField(ref _userObject, value); 
+            set => Set(ref _userObject, value); 
         }
 
+        #endregion
+
         #region Name
+
+        [TString(false, false, false)]
+        [TSerialize(nameof(Name), NodeType = ENodeType.Attribute)]
+        public string _name = null;
+
         [Browsable(false)]
         [TString(false, false, false)]
         [Category("Object")]
@@ -194,12 +107,20 @@ namespace TheraEngine
             set
             {
                 string oldName = _name;
-                if (SetBackingField(ref _name, value))
+                if (Set(ref _name, value))
                     OnRenamed(oldName);
             }
         }
 
         public event RenamedEventHandler Renamed;
+
+        protected virtual void OnRenamed(string oldName)
+            => Renamed?.Invoke(this, oldName);
+
+        #endregion
+
+        #region Property Management
+
         public event PropertyChangedEventHandler PropertyChanged;
         public event PropertyChangingEventHandler PropertyChanging;
 
@@ -208,14 +129,24 @@ namespace TheraEngine
         /// </summary>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        protected virtual bool NotifyPropertyChanging([CallerMemberName] string propertyName = null)
+        protected virtual bool OnPropertyChanging([CallerMemberName] string propertyName = null)
         {
             var args = new CancellablePropertyChangingEventArgs(propertyName);
             PropertyChanging?.Invoke(this, args);
             return args.Cancel;
         }
-        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        
+        protected virtual T Get<T>(
+           ref T fieldValue,
+           [CallerMemberName] string propertyName = null)
+        {
+            if (Bindings.ContainsKey(propertyName))
+                fieldValue = (T)Bindings[propertyName].Get();
+            
+            return fieldValue;
+        }
 
         /// <summary>
         /// Helper method to set a property's backing field.
@@ -226,18 +157,18 @@ namespace TheraEngine
         /// <param name="fieldValue"></param>
         /// <param name="newValue"></param>
         /// <param name="propertyName"></param>
-        protected virtual bool SetBackingField<T>(
+        protected virtual bool Set<T>(
             ref T fieldValue, 
             T newValue, 
             Action beforeSet = null, 
             Action afterSet = null,
-            bool executeMethodsIfNull = true, 
+            bool executeMethodsIfNull = false, 
             [CallerMemberName] string propertyName = null)
         {
             if (Equals(fieldValue, newValue))
                 return false;
 
-            if (NotifyPropertyChanging(propertyName))
+            if (OnPropertyChanging(propertyName))
                 return false;
 
             if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(fieldValue, default))
@@ -245,19 +176,65 @@ namespace TheraEngine
 
             fieldValue = newValue;
 
+            if (Bindings.ContainsKey(propertyName))
+                Bindings[propertyName].Set(newValue);
+
             if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(newValue, default))
                 afterSet?.Invoke();
 
-            NotifyPropertyChanged(propertyName);
+            OnPropertyChanged(propertyName);
+
+            return true;
+        }
+        /// <summary>
+        /// Helper method to set a property's backing field.
+        /// Checks if the new value is equal to the new value and cancels if true.
+        /// Otherwise, reports property changing event, sets value, then reports property changed event.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fieldValue"></param>
+        /// <param name="newValue"></param>
+        /// <param name="propertyName"></param>
+        protected virtual bool SetBackingField2<T>(
+            ref T fieldValue,
+            T newValue,
+            Action<T> beforeSet = null,
+            Action<T> afterSet = null,
+            bool executeMethodsIfNull = false,
+            [CallerMemberName] string propertyName = null)
+        {
+            if (Equals(fieldValue, newValue))
+                return false;
+
+            if (OnPropertyChanging(propertyName))
+                return false;
+
+            if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(fieldValue, default))
+                beforeSet?.Invoke(fieldValue);
+
+            fieldValue = newValue;
+
+            if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(newValue, default))
+                afterSet?.Invoke(newValue);
+
+            OnPropertyChanged(propertyName);
 
             return true;
         }
 
-        protected virtual void OnRenamed(string oldName)
-            => Renamed?.Invoke(this, oldName);
+        public ConcurrentDictionary<string, PropertyBinding> Bindings { get; private set; }
+        public void BindProperty(string propertyName, TObject source, string sourcePropertyName, EBindingMode mode = EBindingMode.OneWay, TPropertyConverter converter = null)
+        {
+            if (Bindings is null)
+                Bindings = new ConcurrentDictionary<string, PropertyBinding>();
+
+            Bindings.TryAdd(propertyName, new PropertyBinding(this, source, sourcePropertyName, mode, converter, false));
+
+            if (mode == EBindingMode.TwoWay)
+                source.Bindings.TryAdd(sourcePropertyName, new PropertyBinding(source, this, propertyName, mode, converter, true));
+        }
 
         #endregion
-
 
         #region Ticking
         private List<(ETickGroup Group, ETickOrder Order, DelTick Tick)> _tickFunctions
@@ -301,7 +278,13 @@ namespace TheraEngine
         [Browsable(false)]
         public EditorState EditorState
         {
-            get => _editorState ?? (_editorState = new EditorState(this));
+            get
+            {
+                lock (_editorState)
+                {
+                    return _editorState ?? (_editorState = new EditorState(this));
+                }
+            }
             set
             {
                 _editorState = value;
@@ -429,5 +412,14 @@ namespace TheraEngine
         private void RemoveAnimationSelf(BaseAnimation anim)
             => _animations.Remove((AnimationTree)anim);
         #endregion
+    }
+
+    public delegate void RenamedEventHandler(TObject node, string oldName);
+
+    public class CancellablePropertyChangingEventArgs : PropertyChangingEventArgs
+    {
+        public CancellablePropertyChangingEventArgs(string propertyName) : base(propertyName) { }
+
+        public bool Cancel { get; set; } = false;
     }
 }

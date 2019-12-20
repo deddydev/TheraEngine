@@ -108,7 +108,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private const string MethodName = "Methods";
         private const string EventName = "Events";
 
-        private List<object> _prevObjectChain = new List<object>();
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
         private bool _updating;
         //private IFileObject _targetFileObject;
@@ -124,7 +123,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             set => SetObject(value, null);
         }
 
-        private void lblObjectName_Click(object sender, EventArgs e)
+        private void LblObjectName_Click(object sender, EventArgs e)
         {
             if (TargetObjects.Count <= 1)
                 return;
@@ -792,7 +791,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 case PropGridMemberInfoMethod _:
                     return "Methods";
                 default:
-                    return MiscName;
+                    return info?.DataType?.GetFriendlyName() ?? MiscName;
             }
         }
         /// <summary>

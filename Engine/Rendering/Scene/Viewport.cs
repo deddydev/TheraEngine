@@ -319,8 +319,9 @@ namespace TheraEngine.Rendering
         {
             if (!FBOsInitialized)
                 InitializeFBOs();
-            
-            HUD?.ScreenSpaceUIScene?.Render(HUD.RenderPasses, HUD.ScreenOverlayCamera, this, HUDFBO);
+
+            HUD?.RenderInScreenSpace(this, HUDFBO);
+
             scene.Render(_renderPasses, camera, this, target);
 
             if (scene is Scene3D s3d)
@@ -329,15 +330,11 @@ namespace TheraEngine.Rendering
         internal protected virtual void SwapBuffers()
         {
             _renderPasses.SwapBuffers();
-            if (HUD != null)
-            {
-                HUD.ScreenSpaceUIScene?.GlobalSwap();
-                HUD.RenderPasses.SwapBuffers();
-            }
+            HUD?.SwapInScreenSpace();
         }
         public void Update(IScene scene, ICamera camera, IVolume cullingVolume)
         {
-            HUD?.ScreenSpaceUIScene?.Update(HUD.RenderPasses, null, HUD.ScreenOverlayCamera);
+            HUD?.UpdateInScreenSpace();
             scene?.Update(_renderPasses, cullingVolume, camera);
         }
 

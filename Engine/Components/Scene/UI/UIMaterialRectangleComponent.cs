@@ -8,7 +8,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UIMaterialRectangleComponent : UIDockableComponent, I2DRenderable
+    public class UIMaterialRectangleComponent : UIBoundableComponent, I2DRenderable
     {
         public UIMaterialRectangleComponent() 
             : this(TMaterial.CreateUnlitColorMaterialForward(Color.Magenta)) { }

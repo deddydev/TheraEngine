@@ -50,7 +50,7 @@ namespace TheraEngine
         public List<GlobalFileRef<World>> WorldCollection
         {
             get => _worldCollection;
-            set => SetBackingField(ref _worldCollection, value ?? new List<GlobalFileRef<World>>());
+            set => Set(ref _worldCollection, value ?? new List<GlobalFileRef<World>>());
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace TheraEngine
         public GlobalFileRef<World> TransitionWorldRef
         {
             get => _transitionWorldRef;
-            set => SetBackingField(ref _transitionWorldRef, value);
+            set => Set(ref _transitionWorldRef, value);
         }
         /// <summary>
         /// The world the game starts with.
@@ -69,25 +69,25 @@ namespace TheraEngine
         public GlobalFileRef<World> OpeningWorldRef
         {
             get => _openingWorldRef;
-            set => SetBackingField(ref _openingWorldRef, value);
+            set => Set(ref _openingWorldRef, value);
         }
         [Category("Game")]
         public GlobalFileRef<BaseGameMode> DefaultGameModeRef
         {
             get => _gameModeRef;
-            set => SetBackingField(ref _gameModeRef, value);
+            set => Set(ref _gameModeRef, value);
         }
         [Category("Engine")]
         public GlobalFileRef<UserSettings> UserSettingsRef
         {
             get => _userSettingsRef;
-            set => SetBackingField(ref _userSettingsRef, value);
+            set => Set(ref _userSettingsRef, value);
         }
         [Category("Engine")]
         public GlobalFileRef<EngineSettings> EngineSettingsOverrideRef
         {
             get => _engineSettingsRef;
-            set => SetBackingField(ref _engineSettingsRef, value);
+            set => Set(ref _engineSettingsRef, value);
         }
 
         [Category("About")]
@@ -95,7 +95,7 @@ namespace TheraEngine
         public string Description
         {
             get => _description;
-            set => SetBackingField(ref _description, value);
+            set => Set(ref _description, value);
         }
 
         [Category("About")]
@@ -103,7 +103,7 @@ namespace TheraEngine
         public string Copyright
         {
             get => _copyright;
-            set => SetBackingField(ref _copyright, value);
+            set => Set(ref _copyright, value);
         }
 
         [Category("About")]
@@ -111,7 +111,7 @@ namespace TheraEngine
         public string Credits
         {
             get => _credits;
-            set => SetBackingField(ref _credits, value);
+            set => Set(ref _credits, value);
         }
 
         [Category("About")]
@@ -119,7 +119,7 @@ namespace TheraEngine
         public string IconPath
         {
             get => _iconPath;
-            set => SetBackingField(ref _iconPath, value);
+            set => Set(ref _iconPath, value);
         }
 
         [Category("Viewports")]
@@ -127,7 +127,7 @@ namespace TheraEngine
         public Viewport.ETwoPlayerPreference TwoPlayerPref
         {
             get => _twoPlayerPref;
-            set => SetBackingField(ref _twoPlayerPref, value);
+            set => Set(ref _twoPlayerPref, value);
         }
 
         [Category("Viewports")]
@@ -135,7 +135,7 @@ namespace TheraEngine
         public Viewport.EThreePlayerPreference ThreePlayerPref
         {
             get => _threePlayerPref;
-            set => SetBackingField(ref _threePlayerPref, value);
+            set => Set(ref _threePlayerPref, value);
         }
 
         [TSerialize]
@@ -143,7 +143,7 @@ namespace TheraEngine
         public LocalizedStringTable LocalizedStringTable
         {
             get => _localizedStringTable;
-            set => SetBackingField(ref _localizedStringTable, value);
+            set => Set(ref _localizedStringTable, value);
         }
 
         [TSerialize(Config = false, State = true)]
@@ -151,7 +151,7 @@ namespace TheraEngine
         public virtual GameState State 
         {
             get => _state;
-            set => SetBackingField(ref _state, value);
+            set => Set(ref _state, value);
         }
 
         public Icon GetIcon()

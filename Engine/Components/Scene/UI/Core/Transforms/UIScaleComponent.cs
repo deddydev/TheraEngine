@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering.UI
             get => _scale;
             set
             {
-                SetBackingField(ref _scale, value ?? new EventVec3(),
+                Set(ref _scale, value ?? new EventVec3(),
                     () => _scale.Changed -= RecalcLocalTransform,
                     () => _scale.Changed += RecalcLocalTransform,
                     false);

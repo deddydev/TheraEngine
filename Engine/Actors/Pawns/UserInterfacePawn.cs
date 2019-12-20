@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -15,11 +16,7 @@ namespace TheraEngine.Actors.Types.Pawns
     {
         IPawn OwningPawn { get; set; }
 
-        IScene2D ScreenSpaceUIScene { get; }
-        OrthographicCamera ScreenOverlayCamera { get; }
-
-        Vec2 Bounds { get; }
-        RenderPasses RenderPasses { get; set; }
+        EventVec2 Bounds { get; }
 
         Vec2 CursorPosition();
         Vec2 CursorPositionWorld();
@@ -32,28 +29,12 @@ namespace TheraEngine.Actors.Types.Pawns
         List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint);
         void RemoveRenderableComponent(I2DRenderable r);
         void AddRenderableComponent(I2DRenderable r);
-    }
-    public class UICanvasComponent : UIBoundableComponent
-    {
-        public enum ECanvasDrawSpace
-        {
-            /// <summary>
-            /// Canvas is drawn on top of the viewport.
-            /// </summary>
-            Screen,
-            /// <summary>
-            /// Canvas is drawn in front of the camera.
-            /// </summary>
-            Camera,
-            /// <summary>
-            /// Canvas is drawn in the world like any other actor.
-            /// Camera is irrelevant.
-            /// </summary>
-            World,
-        }
 
-        //[Browsable(false)]
-        //public WorldFileRef<Camera> CanvasCamera { get; }
+        void PreRender();
+
+        void SwapInScreenSpace();
+        void RenderInScreenSpace(Viewport viewport, QuadFrameBuffer fbo);
+        void UpdateInScreenSpace();
     }
     public class UserInterfacePawn : UserInterfacePawn<UICanvasComponent>
     {
@@ -67,34 +48,26 @@ namespace TheraEngine.Actors.Types.Pawns
     [TFileDef("User Interface")]
     public class UserInterfacePawn<T> : Pawn<T>, IUserInterfacePawn where T : UICanvasComponent, new()
     {
-        public UserInterfacePawn() : base()
-        {
-            ScreenOverlayCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
-            ScreenOverlayCamera.SetOriginBottomLeft();
-            ScreenOverlayCamera.Resize(1, 1);
-
-            _screenSpaceUIScene = new Scene2D();
-        }
-        public UserInterfacePawn(Vec2 bounds) : this()
-        {
-            Resize(bounds);
-        }
+        public UserInterfacePawn() : base() { }
+        public UserInterfacePawn(Vec2 bounds) : this() => Resize(bounds);
 
         protected Vec2 _cursorPos = Vec2.Zero;
 
-        internal Scene2D _screenSpaceUIScene;
         private IPawn _owningPawn;
 
         [Browsable(false)]
-        public Vec2 Bounds { get; private set; }
-        [Browsable(false)]
-        public OrthographicCamera ScreenOverlayCamera { get; }
-        [Browsable(false)]
-        public IScene2D ScreenSpaceUIScene => _screenSpaceUIScene;
-        [Browsable(false)]
-        public RenderPasses RenderPasses { get; set; } = new RenderPasses();
+        public EventVec2 Bounds 
+        {
+            get => RootComponent.Size;
+            private set => RootComponent.Size = value;
+        }
+
         [Browsable(false)]
         public IUIComponent FocusedComponent { get; set; }
+
+        /// <summary>
+        /// The pawn that has this HUD linked for screen space use.
+        /// </summary>
         [Browsable(false)]
         public IPawn OwningPawn
         {
@@ -176,12 +149,13 @@ namespace TheraEngine.Actors.Types.Pawns
 
         protected virtual void MouseMove(float x, float y)
         {
-            _cursorPos.X = x;
-            _cursorPos.Y = y;
+            _cursorPos = CursorPositionWorld();
+
+            
         }
 
         public List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint)
-            => new List<I2DRenderable>();//_scene.RenderTree.FindAllIntersecting(viewportPoint);
+            => RootComponent.FindAllIntersecting(viewportPoint);
         public IUIComponent FindDeepestComponent(Vec2 viewportPoint)
             => RootComponent.FindDeepestComponent(viewportPoint, false);
         //UIComponent current = null;
@@ -194,18 +168,13 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public virtual void Resize(Vec2 bounds)
         {
-            Bounds = bounds;
-            if (Bounds == Vec2.Zero)
-                return;
-            _screenSpaceUIScene.Resize(bounds);
+            Bounds.Raw = bounds;
             RootComponent.Resize();
-            ScreenOverlayCamera.Resize(bounds.X, bounds.Y);
         }
         protected override void PostConstruct()
         {
             base.PostConstruct();
-            if (Bounds != Vec2.Zero)
-                RootComponent?.ArrangeChildren(Vec2.Zero, Bounds);
+            RootComponent.Resize();
         }
         //public void Render()
         //{
@@ -232,7 +201,7 @@ namespace TheraEngine.Actors.Types.Pawns
         }
         public void AddRenderableComponent(I2DRenderable component)
         {
-            component.RenderInfo.LinkScene(component, _screenSpaceUIScene);
+            component.RenderInfo.LinkScene(component, RootComponent.ScreenSpaceUIScene);
             //_screenSpaceUIScene.Add(component);
 
             //if (_renderables.Count == 0)
@@ -323,6 +292,33 @@ namespace TheraEngine.Actors.Types.Pawns
             => v.ScreenToWorld(Viewport.CursorPosition(v)).Xy;
         public Vec2 CursorPositionWorld(Viewport v, Vec2 viewportPosition)
             => v.ScreenToWorld(viewportPosition).Xy;
+
+        /// <summary>
+        /// Renders the HUD in screen-space.
+        /// </summary>
+        public void PreRender()
+        {
+            Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
+            if (v != null)
+                RootComponent?.ScreenSpaceUIScene?.PreRender(v, RootComponent?.ScreenSpaceCamera);
+        }
+
+        public void SwapInScreenSpace()
+        {
+            if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)
+                RootComponent.SwapInScreenSpace();
+        }
+
+        public void RenderInScreenSpace(Viewport viewport, QuadFrameBuffer fbo)
+        {
+            if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)
+                RootComponent.RenderInScreenSpace(viewport, fbo);
+        }
+        public void UpdateInScreenSpace(IVolume collectionVolume)
+        {
+            if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)
+                RootComponent.UpdateInScreenSpace(collectionVolume);
+        }
 
         #endregion
     }

@@ -3,6 +3,7 @@ using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
+using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -32,7 +33,7 @@ namespace TheraEditor.Windows.Forms
 
             item.EnqueuePosession(RenderHandler.UI);
             item.Viewport.HUD = RenderHandler.UI;
-            item.ViewportCamera = RenderHandler.UI.ScreenOverlayCamera;
+            item.ViewportCamera = ((IUICanvasComponent)RenderHandler.UI.RootComponent).ScreenSpaceCamera;
         }
         protected override void HandleLocalPlayerLeft(ControllerType item)
         {

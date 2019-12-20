@@ -88,10 +88,9 @@ namespace TheraEditor.Windows.Forms
             BaseTransformComponent = new UITransformComponent() { RenderTransformation = false };
 
             _backgroundComponent = new UIMaterialRectangleComponent(GetBackgroundMaterial()) { RenderTransformation = false };
-            _backgroundComponent.SizeablePosX.SetSizingPixels(0.0f);
-            _backgroundComponent.SizeablePosY.SetSizingPixels(0.0f);
-            _backgroundComponent.SizeableHeight.SetSizingPercentageOfParent(1.0f);
-            _backgroundComponent.SizeableWidth.SetSizingPercentageOfParent(1.0f);
+            _backgroundComponent.LocalTranslation.Xy = 0.0f;
+            _backgroundComponent.HorizontalSizingMode = EHorizontalSizingMode.Stretch;
+            _backgroundComponent.VerticalSizingMode = EVerticalSizingMode.Stretch;
             _backgroundComponent.ChildComponents.Add(BaseTransformComponent);
 
             UICanvasComponent baseUI = new UICanvasComponent() { RenderTransformation = false };
@@ -110,11 +109,11 @@ namespace TheraEditor.Windows.Forms
         public Vec2 GetViewportBottomLeftWorldSpace()
             => Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
         public Vec2 GetViewportTopRightWorldSpace()
-            => Vec3.TransformPosition(Bounds, BaseTransformComponent.InverseWorldMatrix).Xy;
+            => Vec3.TransformPosition(Bounds.Raw, BaseTransformComponent.InverseWorldMatrix).Xy;
         public void GetViewportBoundsWorldSpace(out Vec2 min, out Vec2 max)
         {
             min = Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
-            max = Vec3.TransformPosition(Bounds, BaseTransformComponent.InverseWorldMatrix).Xy;
+            max = Vec3.TransformPosition(Bounds.Raw, BaseTransformComponent.InverseWorldMatrix).Xy;
         }
         protected virtual TMaterial GetBackgroundMaterial()
         {
@@ -142,8 +141,7 @@ namespace TheraEditor.Windows.Forms
 
             UITextRasterComponent comp = new UITextRasterComponent() { RenderTransformation = false };
             comp.RenderInfo.VisibleByDefault = true;
-            comp.SizeableHeight.SetSizingPixels(height);
-            comp.SizeableWidth.SetSizingPixels(width);
+            comp.Size.Raw = new Vec2(width, height);
             comp.TextureResolutionMultiplier = UIFont.Size;
 
             str = new UIString2D(initialText, UIFont, color, format);
@@ -219,12 +217,12 @@ namespace TheraEditor.Windows.Forms
             if (_xUnitText != null)
             {
                 float width = _xUnitText.SizeableWidth.GetResultingValue(_xUnitText.ParentBounds);
-                _xUnitText.SizeablePosX.ModificationValue = origin.X - width / BaseTransformComponent.Scale.X;
+                _xUnitText.LocalTranslation.Y = origin.X - width / BaseTransformComponent.Scale.X;
             }
             if (_yUnitText != null)
             {
                 float height = _yUnitText.SizeableHeight.GetResultingValue(_yUnitText.ParentBounds);
-                _yUnitText.SizeablePosY.ModificationValue = origin.Y - height / BaseTransformComponent.Scale.Y;
+                _yUnitText.LocalTranslation.Y = origin.Y - height / BaseTransformComponent.Scale.Y;
             }
             UpdateBackgroundMaterial();
         }
@@ -240,7 +238,7 @@ namespace TheraEditor.Windows.Forms
             if (BaseTransformComponent.Scale.X.EqualTo(0.0f, 0.00001f))
                 return;
 
-            Vec2 visibleAnimRange = Bounds / BaseTransformComponent.Scale.Xy;
+            Vec2 visibleAnimRange = Bounds.Raw / BaseTransformComponent.Scale.Xy;
             float range = TMath.Min(visibleAnimRange.X, visibleAnimRange.Y);
             if (range == 0.0f || float.IsInfinity(range) || float.IsNaN(range))
                 return;
@@ -293,7 +291,7 @@ namespace TheraEditor.Windows.Forms
             min.X = min.X.RoundToNearestMultiple(inc);
             min.Y = min.Y.RoundToNearestMultiple(inc);
 
-            Vec2 unitCounts = Bounds / (inc * BaseTransformComponent.Scale.Xy) + Vec2.One;
+            Vec2 unitCounts = Bounds.Raw / (inc * BaseTransformComponent.Scale.Xy) + Vec2.One;
 
             UpdateTextIncrements(unitCounts.X, _textCacheX, min.X, inc, true);
             UpdateTextIncrements(unitCounts.Y, _textCacheY, min.Y, inc, false);
@@ -354,13 +352,11 @@ namespace TheraEditor.Windows.Forms
                     var pos = visible[key];
                     if (xCoord)
                     {
-                        comp.SizeablePosX.ModificationValue = pos;
-                        comp.SizeablePosY.ModificationValue = 0.0f;
+                        comp.LocalTranslation.Xy = new Vec2(pos, 0.0f);
                     }
                     else
                     {
-                        comp.SizeablePosX.ModificationValue = 0.0f;
-                        comp.SizeablePosY.ModificationValue = pos;
+                        comp.LocalTranslation.Xy = new Vec2(0.0f, pos);
                     }
 
                     comp.RenderInfo.Visible = true;
@@ -388,7 +384,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
-            RenderInfo.LinkScene(this, ScreenSpaceUIScene);
+            RenderInfo.LinkScene(this, RootComponent.ScreenSpaceUIScene);
             ZoomExtents();
         }
         protected override void OnDespawned()
@@ -573,7 +569,7 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             Vec2 cursorPos = CursorPosition();
-            if (!Bounds.Contains(cursorPos))
+            if (!Bounds.Raw.Contains(cursorPos))
             {
                 _cursorPos = cursorPos;
                 return;
@@ -597,7 +593,7 @@ namespace TheraEditor.Windows.Forms
             _viewDragged = true;
             Vec2 diff = GetWorldCursorDiff(CursorPosition());
             if (diff.LengthSquared > float.Epsilon)
-                BaseTransformComponent.LocalTranslation += diff;
+                BaseTransformComponent.LocalTranslation.Xy += diff;
         }
         protected override void OnScrolledInput(bool down)
         {

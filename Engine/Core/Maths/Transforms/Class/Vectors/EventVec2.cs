@@ -1,21 +1,71 @@
-﻿using TheraEngine;
-using TheraEngine.Rendering.Models;
+﻿using System.ComponentModel;
 using System.Drawing;
+using System.Threading;
 using System.Xml.Serialization;
-using static System.Math;
-using System.ComponentModel;
+using TheraEngine;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
+using TheraEngine.Input.Devices;
+using TheraEngine.Rendering.Models;
+using static System.Math;
 
 namespace System
 {
-    [Serializable]
-    public unsafe class EventVec2 : IEquatable<EventVec2>, IUniformable2Float, IBufferable, ISerializableString
+    public delegate Vec2 DelGetVec2Value(float delta);
+
+    /// <summary>
+    /// A wrapper class for <see cref="Vec2"/> that supports events and synchronization when its values change.
+    /// </summary>
+    public unsafe class EventVec2 : TObject, IEquatable<EventVec2>, IUniformable2Float, IBufferable, ISerializableString
     {
-        //private int _updating = 0;
+        public EventVec2() { }
+
+        public EventVec2(Vec2 xy) => _data = xy;
+        public EventVec2(float x, float y) => _data = new Vec2(x, y);
+        public EventVec2(float xy) : this(xy, xy) { }
+
+        public EventVec2(Vec3 xyz, bool divideByZ) => _data = new Vec2(xyz, divideByZ);
+
+        public static EventVec2 UnitX => new EventVec2(1.0f, 0.0f);
+        public static EventVec2 UnitY => new EventVec2(0.0f, 1.0f);
+        public static EventVec2 Zero => new EventVec2(0.0f);
+        public static EventVec2 Half => new EventVec2(0.5f);
+        public static EventVec2 One => new EventVec2(1.0f);
+        public static EventVec2 Min => new EventVec2(float.MinValue);
+        public static EventVec2 Max => new EventVec2(float.MaxValue);
+
+        public event Action XChanged;
+        public event Action YChanged;
+        public event DelFloatChange XValueChanged;
+        public event DelFloatChange YValueChanged;
+        public event Action Changed;
+
+        private int _recursiveUpdates = 0;
         private float _oldX, _oldY;
         [TSerialize("XY", NodeType = ENodeType.ElementContent)]
         private Vec2 _data;
+
+        public EventVec2 _syncX, _syncY, _syncAll;
+
+        public void Reset()
+        {
+            _data = Vec2.Zero;
+
+            _oldX = 0.0f;
+            _oldY = 0.0f;
+
+            _syncX = null;
+            _syncY = null;
+            _syncAll = null;
+
+            XChanged = null;
+            YChanged = null;
+
+            XValueChanged = null;
+            YValueChanged = null;
+
+            Changed = null;
+        }
 
         public void SetRawNoUpdate(Vec2 raw)
             => _data = raw;
@@ -27,8 +77,14 @@ namespace System
             set
             {
                 BeginUpdate();
-                _data = value;
-                EndUpdate();
+                try
+                {
+                    Set(ref _data, value);
+                }
+                finally
+                {
+                    EndUpdate();
+                }
             }
         }
         public float X
@@ -36,9 +92,20 @@ namespace System
             get => _data.X;
             set
             {
+                if (OnPropertyChanging())
+                    return;
+
                 BeginUpdate();
-                _data.X = value;
-                EndUpdate();
+                try
+                {
+                    _data.X = value;
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+
+                OnPropertyChanged();
             }
         }
         public float Y
@@ -46,9 +113,19 @@ namespace System
             get => _data.Y;
             set
             {
-                BeginUpdate();
-                _data.Y = value;
-                EndUpdate();
+                if (OnPropertyChanging())
+                    return;
+
+                try
+                {
+                    _data.Y = value;
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+
+                OnPropertyChanged();
             }
         }
 
@@ -68,48 +145,114 @@ namespace System
         public void Read(VoidPtr address)
         {
             BeginUpdate();
-            _data.Read(address);
-            EndUpdate();
+            try
+            {
+                _data.Read(address);
+            }
+            finally
+            {
+                EndUpdate();
+            }
+        }
+        public void SyncXFrom(EventVec2 other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncX != null)
+            {
+                _syncX.XValueChanged -= Other_XChanged;
+                _syncX = null;
+            }
+            if (other != null)
+            {
+                other.XValueChanged += Other_XChanged;
+                _syncX = other;
+                X = other.X;
+            }
+        }
+        public void SyncYFrom(EventVec2 other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncY != null)
+            {
+                _syncY.YValueChanged -= Other_YChanged;
+                _syncY = null;
+            }
+            if (other != null)
+            {
+                other.YValueChanged += Other_YChanged;
+                _syncY = other;
+                Y = other.Y;
+            }
+        }
+        public void SyncFrom(EventVec2 other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncX != null)
+            {
+                _syncX.XValueChanged -= Other_XChanged;
+                _syncX = null;
+            }
+            if (_syncY != null)
+            {
+                _syncY.YValueChanged -= Other_YChanged;
+                _syncY = null;
+            }
+            if (other != null)
+            {
+                other.Changed += Other_Changed;
+                _syncAll = other;
+                Raw = other.Raw;
+            }
+        }
+        public void StopSynchronization()
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncX != null)
+            {
+                _syncX.XValueChanged -= Other_XChanged;
+                _syncX = null;
+            }
+            if (_syncY != null)
+            {
+                _syncY.YValueChanged -= Other_YChanged;
+                _syncY = null;
+            }
         }
 
-        public EventVec2(float value)
-        {
-            X = value;
-            Y = value;
-        }
-        public EventVec2(float x, float y)
-        {
-            X = x;
-            Y = y;
-        }
-        public EventVec2(Vec3 v, bool normalizeWithZ)
-        {
-            if (normalizeWithZ)
-                _data = new Vec2(v.X / v.Z, v.Y / v.Z);
-            else
-                _data = new Vec2(v.X, v.Y);
-        }
-
-        public event Action XChanged;
-        public event Action YChanged;
-        public event DelFloatChange XValueChanged;
-        public event DelFloatChange YValueChanged;
-        public event Action Changed;
+        private void Other_Changed() => Raw = _syncAll.Raw;
+        private void Other_XChanged(float newValue, float oldValue) => X = newValue;
+        private void Other_YChanged(float newValue, float oldValue) => Y = newValue;
 
         private void BeginUpdate()
         {
-            //++_updating;
+            Interlocked.Increment(ref _recursiveUpdates);
             _oldX = X;
             _oldY = Y;
         }
         private void EndUpdate()
         {
+            if (Interlocked.Decrement(ref _recursiveUpdates) > 0)
+                return;
+
             float x = X, y = Y;
             float ox = _oldX, oy = _oldY;
 
-            //--_updating;
-            //if (_updating > 0)
-            //    return;
             bool anyChanged = false;
             if (*(int*)&x != *(int*)&ox)
             {
@@ -165,18 +308,30 @@ namespace System
         /// Gets the perpendicular vector on the left side of this vector.
         /// </summary>
         public Vec2 PerpendicularLeft => _data.PerpendicularLeft;
-        
+
         public void Normalize()
         {
             BeginUpdate();
-            _data.Normalize();
-            EndUpdate();
+            try
+            {
+                _data.Normalize();
+            }
+            finally
+            {
+                EndUpdate();
+            }
         }
         public void NormalizeFast()
         {
             BeginUpdate();
-            _data.NormalizeFast();
-            EndUpdate();
+            try
+            {
+                _data.NormalizeFast();
+            }
+            finally
+            {
+                EndUpdate();
+            }
         }
         public float Dot(EventVec2 right)
             => X * right.X + Y * right.Y;
@@ -184,10 +339,6 @@ namespace System
         [Browsable(false)]
         [XmlIgnore]
         public EventVec2 Yx { get => new EventVec2(Y, X); set { Y = value.X; X = value.Y; } }
-
-        public static EventVec2 Zero => new EventVec2(0.0f);
-        public static EventVec2 Half => new EventVec2(0.5f);
-        public static EventVec2 One => new EventVec2(1.0f);
 
         public static EventVec2 operator -(EventVec2 left, EventVec2 right)
         {
@@ -239,14 +390,14 @@ namespace System
         }
         public static EventVec2 operator +(EventVec2 vec, float amount)
         {
-            vec.X = vec.X + amount;
-            vec.Y = vec.Y + amount;
+            vec.X += amount;
+            vec.Y += amount;
             return vec;
         }
         public static EventVec2 operator -(EventVec2 vec, float amount)
         {
-            vec.X = vec.X - amount;
-            vec.Y = vec.Y - amount;
+            vec.X -= amount;
+            vec.Y -= amount;
             return vec;
         }
         public static EventVec2 operator -(float amount, EventVec2 vec)
@@ -264,11 +415,8 @@ namespace System
         public static implicit operator EventVec2(Vec2 v) { return new EventVec2(v.X, v.Y); }
         public static implicit operator Vec2(EventVec2 v) { return v.Raw; }
 
-        private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
-        public override string ToString()
-        {
-            return String.Format("({0}{2} {1})", X, Y, listSeparator);
-        }
+        private static readonly string ListSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        public override string ToString() => string.Format("({0}{2} {1})", X, Y, ListSeparator);
         public override int GetHashCode()
         {
             unchecked
@@ -293,11 +441,8 @@ namespace System
                 Y == other.Y;
         }
         public bool Equals(EventVec2 other, float precision)
-        {
-            return
-                Abs(X - other.X) < precision &&
-                Abs(Y - other.Y) < precision;
-        }
+            => Abs(X - other.X) < precision &&
+               Abs(Y - other.Y) < precision;
 
         public string WriteToString()
             => _data.WriteToString();

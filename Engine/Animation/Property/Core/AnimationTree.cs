@@ -93,13 +93,13 @@ namespace TheraEngine.Animation
         public bool RemoveOnEnd
         {
             get => _removeOnEnd;
-            set => SetBackingField(ref _removeOnEnd, value);
+            set => Set(ref _removeOnEnd, value);
         }
         [Category(AnimCategory)]
         public bool BeginOnSpawn 
         {
             get => _beginOnSpawn;
-            set => SetBackingField(ref _beginOnSpawn, value);
+            set => Set(ref _beginOnSpawn, value);
         }
 
         [TSerialize]

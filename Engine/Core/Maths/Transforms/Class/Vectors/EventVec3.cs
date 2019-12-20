@@ -3,8 +3,10 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
+using System.Threading;
 using System.Xml.Serialization;
 using TheraEngine.Core.Memory;
+using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using static System.Math;
@@ -18,9 +20,20 @@ namespace TheraEngine.Core.Maths.Transforms
     /// <summary>
     /// A wrapper class for <see cref="Vec3"/> that supports events and synchronization when its values change.
     /// </summary>
-    [TypeConverter(typeof(ExpandableObjectConverter))]
     public unsafe class EventVec3 : TObject, IEquatable<EventVec3>, IUniformable3Float, IBufferable, ISerializableString, IPoolable
     {
+        public EventVec3() { }
+
+        public EventVec3(Vec3 xyz) => _data = xyz;
+        public EventVec3(float x, float y, float z) => _data = new Vec3(x, y, z);
+        public EventVec3(float xyz) : this(xyz, xyz, xyz) { }
+
+        public EventVec3(Vec2 xy) : this(xy.X, xy.Y, 0.0f) { }
+        public EventVec3(Vec2 xy, float z) : this(xy.X, xy.Y, z) { }
+        public EventVec3(float x, Vec2 yz) : this(x, yz.X, yz.Y) { }
+
+        public EventVec3(Vec4 xyzw, bool divideByW) => _data = new Vec3(xyzw, divideByW);
+
         public static EventVec3 Zero => new EventVec3(0.0f);
         public static EventVec3 Half => new EventVec3(0.5f);
         public static EventVec3 One => new EventVec3(1.0f);
@@ -33,38 +46,43 @@ namespace TheraEngine.Core.Maths.Transforms
         public event DelFloatChange ZValueChanged;
         public event Action Changed;
 
-        //private int _updating = 0;
+        private int _recursiveUpdates = 0;
         public float _oldX, _oldY, _oldZ;
         [TSerialize("XYZ", NodeType = ENodeType.ElementContent)]
         public Vec3 _data;
+
         public EventVec3 _syncX, _syncY, _syncZ, _syncAll;
-        public DelGetVec3Value _setTick = null;
 
         public void Reset()
         {
             _data = Vec3.Zero;
+
             _oldX = 0.0f;
             _oldY = 0.0f;
             _oldZ = 0.0f;
+
             _syncX = null;
             _syncY = null;
             _syncZ = null;
             _syncAll = null;
+
             XChanged = null;
             YChanged = null;
             ZChanged = null;
+
             XValueChanged = null;
             YValueChanged = null;
             ZValueChanged = null;
+
             Changed = null;
         }
+
         /// <summary>
         /// Sets the internal <see cref="Vec3"/> value and does not fire any events.
         /// </summary>
         public void SetRawNoUpdate(Vec3 raw)
-        {
-            _data = raw;
-        }
+            => _data = raw;
+
         [Browsable(false)]
         public Vec3 Raw
         {
@@ -72,8 +90,14 @@ namespace TheraEngine.Core.Maths.Transforms
             set
             {
                 BeginUpdate();
-                _data = value;
-                EndUpdate();
+                try
+                {
+                    Set(ref _data, value);
+                }
+                finally
+                {
+                    EndUpdate();
+                }
             }
         }
         public float X
@@ -81,9 +105,20 @@ namespace TheraEngine.Core.Maths.Transforms
             get => _data.X;
             set
             {
+                if (OnPropertyChanging())
+                    return;
+
                 BeginUpdate();
-                _data.X = value;
-                EndUpdate();
+                try
+                {
+                    _data.X = value;
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+
+                OnPropertyChanged();
             }
         }
         public float Y
@@ -91,9 +126,20 @@ namespace TheraEngine.Core.Maths.Transforms
             get => _data.Y;
             set
             {
+                if (OnPropertyChanging())
+                    return;
+
                 BeginUpdate();
-                _data.Y = value;
-                EndUpdate();
+                try
+                {
+                    _data.Y = value;
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+
+                OnPropertyChanged();
             }
         }
         public float Z
@@ -101,13 +147,25 @@ namespace TheraEngine.Core.Maths.Transforms
             get => _data.Z;
             set
             {
+                if (OnPropertyChanging())
+                    return;
+
                 BeginUpdate();
-                _data.Z = value;
-                EndUpdate();
+                try
+                {
+                    _data.Z = value;
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+
+                OnPropertyChanged();
             }
         }
+
         [Browsable(false)]
-        public float* Data { get { return _data.Data; } }
+        public float* Data => _data.Data;
 
         public Matrix4 AsScaleMatrix()
             => _data.AsScaleMatrix();
@@ -135,29 +193,14 @@ namespace TheraEngine.Core.Maths.Transforms
         public void Read(VoidPtr address)
         {
             BeginUpdate();
-            _data.Read(address);
-            EndUpdate();
-        }
-        private void SyncByFrame(float delta) => Raw = _setTick(delta);
-        public void SyncByFrame(DelGetVec3Value tickMethod)
-        {
-            _setTick = tickMethod;
-
-            RegisterTick(
-                ETickGroup.PostPhysics,
-                ETickOrder.Logic,
-                SyncByFrame,
-                Input.Devices.EInputPauseType.TickAlways);
-        }
-        public void ClearSyncByFrame()
-        {
-            UnregisterTick(
-                ETickGroup.PostPhysics,
-                ETickOrder.Logic,
-                SyncByFrame,
-                Input.Devices.EInputPauseType.TickAlways);
-
-            _setTick = null;
+            try
+            {
+                _data.Read(address);
+            }
+            finally
+            {
+                EndUpdate();
+            }
         }
         public void SyncXFrom(EventVec3 other)
         {
@@ -166,9 +209,17 @@ namespace TheraEngine.Core.Maths.Transforms
                 _syncAll.Changed -= Other_Changed;
                 _syncAll = null;
             }
-            other.XValueChanged += Other_XChanged;
-            _syncX = other;
-            X = other.X;
+            if (_syncX != null)
+            {
+                _syncX.XValueChanged -= Other_XChanged;
+                _syncX = null;
+            }
+            if (other != null)
+            {
+                other.XValueChanged += Other_XChanged;
+                _syncX = other;
+                X = other.X;
+            }
         }
         public void SyncYFrom(EventVec3 other)
         {
@@ -177,23 +228,44 @@ namespace TheraEngine.Core.Maths.Transforms
                 _syncAll.Changed -= Other_Changed;
                 _syncAll = null;
             }
-            other.YValueChanged += Other_YChanged;
-            _syncY = other;
-            Y = other.Y;
+            if (_syncY != null)
+            {
+                _syncY.YValueChanged -= Other_YChanged;
+                _syncY = null;
+            }
+            if (other != null)
+            {
+                other.YValueChanged += Other_YChanged;
+                _syncY = other;
+                Y = other.Y;
+            }
         }
-        public void SyncRollFrom(EventVec3 other)
+        public void SyncZFrom(EventVec3 other)
         {
             if (_syncAll != null)
             {
                 _syncAll.Changed -= Other_Changed;
                 _syncAll = null;
             }
-            other.ZValueChanged += Other_ZChanged;
-            _syncZ = other;
-            Z = other.Z;
+            if (_syncZ != null)
+            {
+                _syncZ.ZValueChanged -= Other_ZChanged;
+                _syncZ = null;
+            }
+            if (other != null)
+            {
+                other.ZValueChanged += Other_ZChanged;
+                _syncZ = other;
+                Z = other.Z;
+            }
         }
         public void SyncFrom(EventVec3 other)
         {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
             if (_syncX != null)
             {
                 _syncX.XValueChanged -= Other_XChanged;
@@ -209,9 +281,12 @@ namespace TheraEngine.Core.Maths.Transforms
                 _syncZ.ZValueChanged -= Other_ZChanged;
                 _syncZ = null;
             }
-            other.Changed += Other_Changed;
-            _syncAll = other;
-            Xyz = other.Raw;
+            if (other != null)
+            {
+                other.Changed += Other_Changed;
+                _syncAll = other;
+                Xyz = other.Raw;
+            }
         }
         public void StopSynchronization()
         {
@@ -237,41 +312,10 @@ namespace TheraEngine.Core.Maths.Transforms
             }
         }
 
-        private void Other_Changed()
-        {
-            Xyz = _syncAll.Raw;
-        }
-        private void Other_XChanged(float newValue, float oldValue)
-        {
-            X = newValue;
-        }
-        private void Other_YChanged(float newValue, float oldValue)
-        {
-            Y = newValue;
-        }
-        private void Other_ZChanged(float newValue, float oldValue)
-        {
-            Z = newValue;
-        }
-
-
-        public EventVec3() { }
-        public EventVec3(float x, float y, float z)
-        {
-            _data = new Vec3(x, y, z);
-        }
-        public EventVec3(Vec3 v)
-        {
-            _data = v;
-        }
-        public EventVec3(float value) : this(value, value, value) { }
-        public EventVec3(Vec2 v) : this(v.X, v.Y, 0.0f) { }
-        public EventVec3(Vec2 v, float z) : this(v.X, v.Y, z) { }
-        public EventVec3(float x, Vec2 v) : this(x, v.X, v.Y) { }
-        public EventVec3(Vec4 v, bool divideByW)
-        {
-            _data = new Vec3(v, divideByW);
-        }
+        private void Other_Changed() => Raw = _syncAll.Raw;
+        private void Other_XChanged(float newValue, float oldValue) => X = newValue;
+        private void Other_YChanged(float newValue, float oldValue) => Y = newValue;
+        private void Other_ZChanged(float newValue, float oldValue) => Z = newValue;
 
         public float this[int index]
         {
@@ -302,19 +346,19 @@ namespace TheraEngine.Core.Maths.Transforms
 
         private void BeginUpdate()
         {
-            //++_updating;
+            Interlocked.Increment(ref _recursiveUpdates);
             _oldX = X;
             _oldY = Y;
             _oldZ = Z;
         }
         private void EndUpdate()
         {
+            if (Interlocked.Decrement(ref _recursiveUpdates) > 0)
+                return;
+
             float x = X, y = Y, z = Z;
             float ox = _oldX, oy = _oldY, oz = _oldZ;
 
-            //--_updating;
-            //if (_updating > 0)
-            //    return;
             bool anyChanged = false;
             if (*(int*)&x != *(int*)&ox)
             {
@@ -340,14 +384,26 @@ namespace TheraEngine.Core.Maths.Transforms
         public void Normalize()
         {
             BeginUpdate();
-            _data.Normalize();
-            EndUpdate();
+            try
+            {
+                _data.Normalize();
+            }
+            finally
+            {
+                EndUpdate();
+            }
         }
         public void NormalizeFast()
         {
             BeginUpdate();
-            _data.NormalizeFast();
-            EndUpdate();
+            try
+            {
+                _data.NormalizeFast();
+            }
+            finally
+            {
+                EndUpdate();
+            }
         }
 
         public void SetLequalTo(Vec3 other)

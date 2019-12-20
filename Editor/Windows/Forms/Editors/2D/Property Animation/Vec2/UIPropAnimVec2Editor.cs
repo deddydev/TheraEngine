@@ -27,7 +27,7 @@ namespace TheraEditor.Windows.Forms
         public EditorUIPropAnimVec2() : base() { }
         public EditorUIPropAnimVec2(Vec2 bounds) : base(bounds) { }
         
-        protected UITextRasterComponent _xCoord, _yCoord;
+        protected UITransformComponent _xCoord, _yCoord;
         protected UIString2D _xString, _yString;
         
         private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D(ERenderPass.OnTopForward);
@@ -394,7 +394,7 @@ namespace TheraEditor.Windows.Forms
                 visibleAnimYRange = Bounds.Y;
             VisibleRange = new Vec2(visibleAnimXRange, visibleAnimYRange);
 
-            DisplayFPS = Bounds / VisibleRange * Resolution;
+            DisplayFPS = Bounds.Raw / VisibleRange * Resolution;
 
             Vec2 inc = 1.0f / DisplayFPS;
 
@@ -563,6 +563,7 @@ void main()
 
             _xCoord.SizeablePosX.ModificationValue = pos.X;
             _yCoord.SizeablePosY.ModificationValue = pos.Y;
+
             _xCoord.SizeablePosY.ModificationValue = origin.Y;
             _yCoord.SizeablePosX.ModificationValue = origin.X;
             
@@ -665,7 +666,7 @@ void main()
         protected override void OnLeftClickDown()
         {
             Vec2 v = CursorPosition();
-            if (!Bounds.Contains(v))
+            if (!Bounds.Raw.Contains(v))
                 return;
 
             if (_targetAnimation != null)

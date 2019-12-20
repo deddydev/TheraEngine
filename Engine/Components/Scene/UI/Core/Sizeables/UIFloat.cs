@@ -27,34 +27,27 @@ namespace TheraEngine.Rendering.UI
         /// </summary>
         Ratio,
     }
-    public enum EParentBoundsInheritedValue
-    {
-        Width,
-        Height,
-    }
     public interface ISizeable
     {
         //void Update(Vec2 parentBounds);
     }
-    public class SizeableElement : TObject, ISizeable
+    public class UIFloat : TObject, ISizeable
     {
         internal bool IgnoreUserChanges { get; set; } = false;
-
-        public event Action ParameterChanged;
 
         private float
             _modValue = 0.0f,
             _resValue = 0.0f;
         private ESizingMode _sizingMode = ESizingMode.Pixels;
 
-        private SizeableElement
+        private UIFloat
             _propElem = null,
             _minSize,
             _maxSize,
             _origin;
 
-        private EParentBoundsInheritedValue _parentBoundsInherit = EParentBoundsInheritedValue.Width;
         private bool _smallerRelative = true;
+        private UIFloat _valueRange;
 
         //public float CurrentValue
         //{
@@ -68,18 +61,6 @@ namespace TheraEngine.Rendering.UI
         //        }
         //    }
         //}
-        public float ModificationValue
-        {
-            get => _modValue;
-            set
-            {
-                if (!IgnoreUserChanges)
-                {
-                    _modValue = value;
-                    ParameterChanged?.Invoke();
-                }
-            }
-        }
         //[ReadOnly(true)]
         //public float ResultingValue
         //{
@@ -93,100 +74,21 @@ namespace TheraEngine.Rendering.UI
         //    //    }
         //    //}
         //}
-        public void SetResultingValue(float value, Vec2 parentBounds)
-        {
-            if (IgnoreUserChanges)
-                return;
-
-            _resValue = value;
-            GetModificationValue(parentBounds);
-
-            ParameterChanged?.Invoke();
-        }
         internal void SetModificationValueNoUpdate(float value)
         {
-            if (!IgnoreUserChanges)
-                _modValue = value;
+            if (IgnoreUserChanges)
+                return;
+
+            _modValue = value;
+            InvalidateAbsoluteValue();
         }
-        internal void SetResultingValueNoUpdate(float value, Vec2 parentBounds)
+        internal void SetResultingValueNoUpdate(float value)
         {
             if (IgnoreUserChanges)
                 return;
 
             _resValue = value;
-            GetModificationValue(parentBounds);
-        }
-        public ESizingMode SizingOption
-        {
-            get => _sizingMode;
-            set
-            {
-                if (!IgnoreUserChanges)
-                {
-                    _sizingMode = value;
-                    ParameterChanged?.Invoke();
-                }
-            }
-        }
-        public SizeableElement ProportionElement
-        {
-            get => _propElem;
-            set
-            {
-                if (!IgnoreUserChanges)
-                {
-                    _propElem = value;
-                    ParameterChanged?.Invoke();
-                }
-            }
-        }
-        public SizeableElement Minimum
-        {
-            get => _minSize;
-            set
-            {
-                if (!IgnoreUserChanges)
-                {
-                    _minSize = value;
-                    ParameterChanged?.Invoke();
-                }
-            }
-        }
-        public SizeableElement Maximum
-        {
-            get => _maxSize;
-            set
-            {
-                if (!IgnoreUserChanges)
-                {
-                    _maxSize = value;
-                    ParameterChanged?.Invoke();
-                }
-            }
-        }
-        public SizeableElement Origin
-        {
-            get => _origin;
-            set
-            {
-                if (!IgnoreUserChanges)
-                {
-                    _origin = value;
-                    ParameterChanged?.Invoke();
-                }
-            }
-        }
-        public EParentBoundsInheritedValue ParentBoundsInherited
-        {
-            get => _parentBoundsInherit;
-            set
-            {
-                if (!IgnoreUserChanges)
-                {
-                    _parentBoundsInherit = value;
-                    ParameterChanged?.Invoke();
-                }
-            }
+            CalcModValue();
         }
         /// <summary>
         /// If the resulting value should be calculated relative to the left/bottom (smaller value) or right/top (larger value).
@@ -197,28 +99,113 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
-                {
-                    _smallerRelative = value;
-                    ParameterChanged?.Invoke();
-                }
+                    Set(ref _smallerRelative, value, null, InvalidateAbsoluteValue, true);
+            }
+        }
+        public ESizingMode SizingOption
+        {
+            get => _sizingMode;
+            set
+            {
+                if (!IgnoreUserChanges)
+                    Set(ref _sizingMode, value, null, InvalidateAbsoluteValue, true);
             }
         }
 
-        private float GetDim(Vec2 parentBounds)
-            => ParentBoundsInherited switch
-            {
-                EParentBoundsInheritedValue.Width => parentBounds.X,
-                EParentBoundsInheritedValue.Height => parentBounds.Y,
-                _ => 0.0f,
-            };
-
-        /// <summary>
-        /// Converts the modification value into the final value by transforming it using the current properties.
-        /// </summary>
-        public float GetResultingValue(Vec2 parentBounds)
+        private void UnReg(UIFloat obj)
         {
-            float range = GetDim(parentBounds);
-            float newValue = Origin?.GetResultingValue(parentBounds) ?? 0.0f;
+            obj.PropertyChanged -= AnyDependentPropertyChanged;
+        }
+        private void Reg(UIFloat obj)
+        {
+            obj.PropertyChanged += AnyDependentPropertyChanged;
+            InvalidateAbsoluteValue();
+        }
+
+        public UIFloat ProportionElement
+        {
+            get => _propElem;
+            set
+            {
+                if (!IgnoreUserChanges)
+                    SetBackingField2(ref _propElem, value, UnReg, Reg);
+            }
+        }
+        public UIFloat Minimum
+        {
+            get => _minSize;
+            set
+            {
+                if (!IgnoreUserChanges)
+                    SetBackingField2(ref _minSize, value, UnReg, Reg);
+            }
+        }
+        public UIFloat Maximum
+        {
+            get => _maxSize;
+            set
+            {
+                if (!IgnoreUserChanges)
+                    SetBackingField2(ref _maxSize, value, UnReg, Reg);
+            }
+        }
+        public UIFloat Origin
+        {
+            get => _origin;
+            set
+            {
+                if (!IgnoreUserChanges)
+                    SetBackingField2(ref _origin, value, UnReg, Reg);
+            }
+        }
+        public UIFloat Range
+        {
+            get => _valueRange;
+            set
+            {
+                if (!IgnoreUserChanges)
+                    SetBackingField2(ref _valueRange, value, UnReg, Reg);
+            }
+        }
+
+        private void AnyDependentPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) 
+            => InvalidateAbsoluteValue();
+
+        public float Value
+        {
+            get
+            {
+                if (_resValueInvalidated)
+                {
+                    _resValueInvalidated = false;
+                    CalcResValue();
+                }
+                return _resValue;
+            }
+            set
+            {
+                if (!IgnoreUserChanges && Set(ref _resValue, value))
+                    CalcModValue();
+            }
+        }
+        public float RelativeValue
+        {
+            get => _modValue;
+            set
+            {
+                if (!IgnoreUserChanges && Set(ref _modValue, value))
+                    CalcResValue();
+            }
+        }
+
+        public void InvalidateAbsoluteValue() 
+            => Set(ref _resValueInvalidated, true, null, null, false, nameof(Value));
+
+        private bool _resValueInvalidated = false;
+        private void CalcResValue()
+        {
+            float range = Range?.Value ?? 0.0f;
+            float newValue = Origin?.Value ?? 0.0f;
             switch (SizingOption)
             {
                 default:
@@ -230,35 +217,36 @@ namespace TheraEngine.Rendering.UI
                     break;
                 case ESizingMode.ProportionalToElement:
                     if (ProportionElement != null)
-                        newValue += ProportionElement.GetResultingValue(parentBounds) * _modValue;
+                        newValue += ProportionElement.Value * _modValue;
                     break;
             }
 
             newValue = _smallerRelative ? newValue : range - newValue;
 
             if (_minSize != null)
-                newValue = newValue.ClampMin(_minSize.GetResultingValue(parentBounds));
+                newValue = newValue.ClampMin(_minSize.Value);
 
             if (_maxSize != null)
-                newValue = newValue.ClampMax(_maxSize.GetResultingValue(parentBounds));
+                newValue = newValue.ClampMax(_maxSize.Value);
 
-            return _resValue = newValue;
+            _resValue = newValue;
         }
+
         /// <summary>
         /// Converts the resulting value back into a modification value relative to the current properties.
         /// </summary>
-        public float GetModificationValue(Vec2 parentBounds)
+        public void CalcModValue()
         {
-            float origin = Origin?.GetResultingValue(parentBounds) ?? 0.0f;
-            float size = GetDim(parentBounds);
+            float origin = Origin?.Value ?? 0.0f;
+            float size = Range?.Value ?? 0.0f;
 
             float newValue = _resValue;
 
             if (_minSize != null)
-                newValue = newValue.ClampMin(_minSize.GetResultingValue(parentBounds));
+                newValue = newValue.ClampMin(_minSize.Value);
 
             if (_maxSize != null)
-                newValue = newValue.ClampMax(_maxSize.GetResultingValue(parentBounds));
+                newValue = newValue.ClampMax(_maxSize.Value);
 
             if (!_smallerRelative)
                 newValue = size - newValue;
@@ -278,7 +266,7 @@ namespace TheraEngine.Rendering.UI
                 case ESizingMode.ProportionalToElement:
                     if (ProportionElement != null)
                     {
-                        float dim = ProportionElement.GetResultingValue(parentBounds);
+                        float dim = ProportionElement.Value;
                         if (dim != 0.0f)
                             newValue /= dim;
                         else
@@ -286,16 +274,17 @@ namespace TheraEngine.Rendering.UI
                     }
                     break;
             }
-            
-            return _modValue = newValue;
+
+            _modValue = newValue;
         }
 
+        public static implicit operator UIFloat(float value) => Pixels(value, true);
+
         #region Sizing modes
-        public static SizeableElement PercentageOfParent(float percentage, bool smallerRelative, EParentBoundsInheritedValue parentBoundsInherited)
+        public static UIFloat PercentageOfParent(float percentage, bool smallerRelative = true)
         {
-            SizeableElement e = new SizeableElement
+            UIFloat e = new UIFloat
             {
-                ParentBoundsInherited = parentBoundsInherited,
                 SmallerRelative = smallerRelative
             };
             e.SetSizingPercentageOfParent(percentage);
@@ -306,27 +295,25 @@ namespace TheraEngine.Rendering.UI
             SizingOption = ESizingMode.PercentageOfParent;
             ModificationValue = percentage;
         }
-        public static SizeableElement Proportioned(SizeableElement proportionalElement, float ratio, bool smallerRelative, EParentBoundsInheritedValue parentBoundsInherited)
+        public static UIFloat Proportioned(UIFloat proportionalElement, float ratio, bool smallerRelative = true)
         {
-            SizeableElement e = new SizeableElement
+            UIFloat e = new UIFloat
             {
-                ParentBoundsInherited = parentBoundsInherited,
                 SmallerRelative = smallerRelative
             };
             e.SetSizingProportioned(proportionalElement, ratio);
             return e;
         }
-        public void SetSizingProportioned(SizeableElement proportionalElement, float ratio)
+        public void SetSizingProportioned(UIFloat proportionalElement, float ratio)
         {
             SizingOption = ESizingMode.ProportionalToElement;
             ProportionElement = proportionalElement;
             ModificationValue = ratio;
         }
-        public static SizeableElement Pixels(float pixels, bool smallerRelative, EParentBoundsInheritedValue parentBoundsInherited)
+        public static UIFloat Pixels(float pixels, bool smallerRelative = true)
         {
-            SizeableElement e = new SizeableElement
+            UIFloat e = new UIFloat
             {
-                ParentBoundsInherited = parentBoundsInherited,
                 SmallerRelative = smallerRelative
             };
             e.SetSizingPixels(pixels);
@@ -351,16 +338,15 @@ namespace TheraEngine.Rendering.UI
     }
     public class SizeableElementQuad : ISizeable
     {
-        public SizeableElement Left { get; set; } = new SizeableElement();
-        public SizeableElement Right { get; set; } = new SizeableElement();
-        public SizeableElement Top { get; set; } = new SizeableElement();
-        public SizeableElement Bottom { get; set; } = new SizeableElement();
+        public UIFloat Left { get; set; } = new UIFloat();
+        public UIFloat Right { get; set; } = new UIFloat();
+        public UIFloat Top { get; set; } = new UIFloat();
+        public UIFloat Bottom { get; set; } = new UIFloat();
 
-        public Vec4 GetLRTB(Vec2 parentBounds) 
-            => new Vec4(
-                Left.GetResultingValue(parentBounds),
-                Right.GetResultingValue(parentBounds),
-                Top.GetResultingValue(parentBounds),
-                Bottom.GetResultingValue(parentBounds));
+        public Vec4 GetLRTB() => new Vec4(
+            Left.Value,
+            Right.Value,
+            Top.Value,
+            Bottom.Value);
     }
 }

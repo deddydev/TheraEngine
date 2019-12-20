@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using TheraEngine.Components;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UIGridComponent : UIDockableComponent
+    public class UIGridComponent : UIBoundableComponent
     {
         private EventList<RowDefinition> _rows = new EventList<RowDefinition>();
         private EventList<ColumnDefinition> _columns = new EventList<ColumnDefinition>();
@@ -20,23 +21,23 @@ namespace TheraEngine.Rendering.UI
         public List<int>[,] Indices { get; set; }
         public bool InvertY { get; set; }
 
-        public EventList<RowDefinition> Rows
+        public EventList<SizingDefinition> Rows
         {
             get => _rows;
             set
             {
-                if (SetBackingField(ref _rows, value,
+                if (Set(ref _rows, value,
                     () => _rows.CollectionChanged -= CollectionChanged,
                     () => _rows.CollectionChanged += CollectionChanged, false))
                     RegenerateIndices();
             }
         }
-        public EventList<ColumnDefinition> Columns
+        public EventList<SizingDefinition> Columns
         {
             get => _columns;
             set
             {
-                if (SetBackingField(ref _columns, value,
+                if (Set(ref _columns, value,
                     () => _columns.CollectionChanged -= CollectionChanged,
                     () => _columns.CollectionChanged += CollectionChanged, false))
                     RegenerateIndices();
@@ -55,19 +56,22 @@ namespace TheraEngine.Rendering.UI
 
         public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
         {
-            base.ArrangeChildren(translation, parentBounds);
+            var autoRows = Rows.Select(x => x.AnyAuto ? x : null).ToArray();
+            var autoCols = Columns.Select(x => x.AnyAuto ? x : null).ToArray();
+            
 
             float y = 0.0f;
-            for (int row = 0; row < Rows.Count; ++row)
+            for (int r = 0; r < Rows.Count; ++r)
             {
-                float height = Rows[row].Height.GetResultingValue(parentBounds);
+                var row = Rows[r];
+                float height = row.Value.Value;
 
                 float x = 0.0f;
-                for (int col = 0; col < Columns.Count; ++col)
+                for (int c = 0; c < Columns.Count; ++c)
                 {
-                    float width = Columns[col].Width.GetResultingValue(parentBounds);
+                    float width = Columns[c].Width.Value;
 
-                    List<int> indices = Indices[row, col];
+                    List<int> indices = Indices[r, c];
                     foreach (var index in indices)
                     {
                         ISceneComponent comp = ChildComponents[index];
@@ -155,36 +159,81 @@ namespace TheraEngine.Rendering.UI
         {
             private int _row = 0;
             private int _column = 0;
+            private int _rowSpan = 1;
+            private int _columnSpan = 1;
 
             [Category("Grid")]
             public int Row
             {
-                get => _row;
-                set => SetBackingField(ref _row, value);
+                get => Get(ref _row);
+                set => Set(ref _row, value);
             }
             [Category("Grid")]
             public int Column
             {
-                get => _column;
-                set => SetBackingField(ref _column, value);
+                get => Get(ref _column);
+                set => Set(ref _column, value);
+            }
+            [Category("Grid")]
+            public int RowSpan
+            {
+                get => Get(ref _rowSpan);
+                set => Set(ref _rowSpan, value);
+            }
+            [Category("Grid")]
+            public int ColumnSpan
+            {
+                get => Get(ref _columnSpan);
+                set => Set(ref _columnSpan, value);
             }
         }
-        public class RowDefinition
+        public enum ESizingMode
         {
-            private SizeableElement _height = null;
-            public SizeableElement Height
+            Auto,
+            Fixed,
+            Proportional,
+        }
+        public class SizingValue : TObject
+        {
+            private float _value = 0.0f;
+            private ESizingMode _mode = ESizingMode.Auto;
+
+            public ESizingMode Mode
             {
-                get => _height;
-                set => _height = value ?? new SizeableElement();
+                get => Get(ref _mode);
+                set => Set(ref _mode, value);
+            }
+            public float Value
+            {
+                get => Get(ref _value);
+                set => Set(ref _value, value);
             }
         }
-        public class ColumnDefinition
+        public class SizingDefinition : TObject
         {
-            private SizeableElement _width;
-            public SizeableElement Width 
+            private SizingValue _value = null;
+            private SizingValue _min = null;
+            private SizingValue _max = null;
+
+            public bool AnyAuto =>
+                _value != null && _value.Mode == ESizingMode.Auto ||
+                _min != null && _min.Mode == ESizingMode.Auto ||
+                _max != null && _max.Mode == ESizingMode.Auto;
+
+            public SizingValue Value
             {
-                get => _width; 
-                set => _width = value ?? new SizeableElement();
+                get => Get(ref _value);
+                set => Set(ref _value, value);
+            }
+            public SizingValue Min
+            {
+                get => Get(ref _min);
+                set => Set(ref _min, value);
+            }
+            public SizingValue Max
+            {
+                get => Get(ref _max);
+                set => Set(ref _max, value);
             }
         }
     }

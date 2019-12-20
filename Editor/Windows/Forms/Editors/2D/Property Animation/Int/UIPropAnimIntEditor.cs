@@ -136,8 +136,8 @@ namespace TheraEditor.Windows.Forms
             Vec2 tangentOutVector = new Vec2(1.0f, velOut);
             tangentInVector.Normalize();
             tangentOutVector.Normalize();
-            tangentInVector *= TangentScale / BaseTransformComponent.Scale.X;
-            tangentOutVector *= TangentScale / BaseTransformComponent.Scale.X;
+            tangentInVector *= TangentScale / BaseTransformComponent.Scale.XProperty;
+            tangentOutVector *= TangentScale / BaseTransformComponent.Scale.XProperty;
 
             inPos = new Vec3(kf.Second, kf.InValue, 0.0f);
             inTanPos = new Vec3(kf.Second + tangentInVector.X, kf.InValue + tangentInVector.Y, 0.0f);
@@ -199,7 +199,7 @@ namespace TheraEditor.Windows.Forms
             //else
             {
                 //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
-                displayFPS = Bounds.X / visibleAnimSecRange * Resolution;
+                displayFPS = Bounds.XProperty / visibleAnimSecRange * Resolution;
             }
             float secondsPerFrame = 1.0f / displayFPS;
 
@@ -290,8 +290,8 @@ namespace TheraEditor.Windows.Forms
             float visibleAnimSecRange = maxSec - minSec;
             float visibleAnimValRange = maxVal - minVal;
             if (visibleAnimSecRange <= 0.0f)
-                visibleAnimSecRange = Bounds.X;
-            DisplayFPS = Bounds.X / visibleAnimSecRange * Resolution;
+                visibleAnimSecRange = Bounds.XProperty;
+            DisplayFPS = Bounds.XProperty / visibleAnimSecRange * Resolution;
             
             float secondsPerFrame = 1.0f / DisplayFPS;
 
@@ -873,7 +873,7 @@ void main()
                     }
                     else
                     {
-                        float tangentScale = TangentScale / BaseTransformComponent.Scale.X;
+                        float tangentScale = TangentScale / BaseTransformComponent.Scale.XProperty;
                      
                         if (kf.Value.DraggingInTangent)
                         {
@@ -911,7 +911,7 @@ void main()
                 return;
 
             Vec2 cursorPos = CursorPositionTransformRelative();
-            float radius = SelectionRadius / BaseTransformComponent.Scale.X;
+            float radius = SelectionRadius / BaseTransformComponent.Scale.XProperty;
             ClosestPositionIndices = KeyframeInOutPosInOutTan.FindAllMatchIndices(x => x.DistanceToFast(cursorPos) < radius);
         }
         protected override void OnScrolledInput(bool down)

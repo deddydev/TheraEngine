@@ -1,18 +1,49 @@
-﻿using System.Xml.Serialization;
+﻿using System.ComponentModel;
+using System.Threading;
+using System.Xml.Serialization;
+using TheraEngine;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Memory;
+using TheraEngine.Input.Devices;
+using TheraEngine.Rendering.Models;
 using static System.Math;
 using static System.TMath;
-using TheraEngine;
-using TheraEngine.Rendering.Models;
-using System.ComponentModel;
-using TheraEngine.Core.Memory;
-using TheraEngine.Core.Maths.Transforms;
 
 namespace System
 {
-    [Serializable]
-    [TypeConverter(typeof(ExpandableObjectConverter))]
-    public unsafe class EventVec4 : IEquatable<EventVec4>, IUniformable4Float, IBufferable, ISerializableString
+    public delegate Vec4 DelGetVec4Value(float delta);
+
+    /// <summary>
+    /// A wrapper class for <see cref="Vec4"/> that supports events and synchronization when its values change.
+    /// </summary>
+    public unsafe class EventVec4 : TObject, IEquatable<EventVec4>, IUniformable4Float, IBufferable, ISerializableString
     {
+        public EventVec4() { }
+
+        public EventVec4(Vec4 xyzw) => _data = xyzw;
+        public EventVec4(float x, float y, float z, float w) => _data = new Vec4(x, y, z, w);
+        public EventVec4(float xyzw) : this(xyzw, xyzw, xyzw, xyzw) { }
+
+        public EventVec4(Vec3 xyz) : this(xyz.X, xyz.Y, xyz.Z, 0.0f) { }
+        public EventVec4(Vec3 xyz, float w) : this(xyz.X, xyz.Y, xyz.Z, w) { }
+        public EventVec4(float x, Vec3 yzw) : this(x, yzw.X, yzw.Y, yzw.Z) { }
+        
+        public EventVec4(Vec2 xy) : this(xy.X, xy.Y, 0.0f, 0.0f) { }
+        public EventVec4(Vec2 xy, Vec2 zw) : this(xy.X, xy.Y, zw.X, zw.Y) { }
+        public EventVec4(Vec2 xy, float z, float w) : this(xy.X, xy.Y, z, w) { }
+        public EventVec4(float x, float y, Vec2 zw) : this(x, y, zw.X, zw.Y) { }
+        public EventVec4(float x, Vec2 yz, float w) : this(x, yz.X, yz.Y, w) { }
+
+        public static EventVec4 UnitX => new EventVec4(1.0f, 0.0f, 0.0f, 0.0f);
+        public static EventVec4 UnitY => new EventVec4(0.0f, 1.0f, 0.0f, 0.0f);
+        public static EventVec4 UnitZ => new EventVec4(0.0f, 0.0f, 1.0f, 0.0f);
+        public static EventVec4 UnitW => new EventVec4(0.0f, 0.0f, 0.0f, 1.0f);
+        public static EventVec4 Zero => new EventVec4(0.0f);
+        public static EventVec4 Half => new EventVec4(0.5f);
+        public static EventVec4 One => new EventVec4(1.0f);
+        public static EventVec4 Min => new EventVec4(float.MinValue);
+        public static EventVec4 Max => new EventVec4(float.MaxValue);
+
         public event Action XChanged;
         public event Action YChanged;
         public event Action ZChanged;
@@ -23,19 +54,83 @@ namespace System
         public event DelFloatChange WValueChanged;
         public event Action Changed;
 
-        //private int _updating = 0;
+        private int _recursiveUpdates = 0;
         private float _oldX, _oldY, _oldZ, _oldW;
         [TSerialize("XYZW", NodeType = ENodeType.ElementContent)]
         private Vec4 _data;
-        
+
+        public EventVec4 _syncX, _syncY, _syncZ, _syncW, _syncAll;
+
+        public void Reset()
+        {
+            _data = Vec4.Zero;
+
+            _oldX = 0.0f;
+            _oldY = 0.0f;
+            _oldZ = 0.0f;
+            _oldW = 0.0f;
+
+            _syncX = null;
+            _syncY = null;
+            _syncZ = null;
+            _syncW = null;
+            _syncAll = null;
+
+            XChanged = null;
+            YChanged = null;
+            ZChanged = null;
+            WChanged = null;
+
+            XValueChanged = null;
+            YValueChanged = null;
+            ZValueChanged = null;
+            WValueChanged = null;
+
+            Changed = null;
+        }
+
+        /// <summary>
+        /// Sets the internal <see cref="Vec4"/> value and does not fire any events.
+        /// </summary>
+        public void SetRawNoUpdate(Vec4 raw)
+            => _data = raw;
+
+        [Browsable(false)]
+        public Vec4 Raw
+        {
+            get => _data;
+            set
+            {
+                BeginUpdate();
+                try
+                {
+                    Set(ref _data, value);
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+            }
+        }
         public float X
         {
             get => _data.X;
             set
             {
+                if (OnPropertyChanging())
+                    return;
+
                 BeginUpdate();
-                _data.X = value;
-                EndUpdate();
+                try
+                {
+                    _data.X = value;
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+
+                OnPropertyChanged();
             }
         }
         public float Y
@@ -43,9 +138,20 @@ namespace System
             get => _data.Y;
             set
             {
+                if (OnPropertyChanging())
+                    return;
+
                 BeginUpdate();
-                _data.Y = value;
-                EndUpdate();
+                try
+                {
+                    _data.Y = value;
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+
+                OnPropertyChanged();
             }
         }
         public float Z
@@ -53,9 +159,20 @@ namespace System
             get => _data.Z;
             set
             {
+                if (OnPropertyChanging())
+                    return;
+
                 BeginUpdate();
-                _data.Z = value;
-                EndUpdate();
+                try
+                {
+                    _data.Z = value;
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+
+                OnPropertyChanged();
             }
         }
         public float W
@@ -63,9 +180,20 @@ namespace System
             get => _data.W;
             set
             {
+                if (OnPropertyChanging())
+                    return;
+
                 BeginUpdate();
-                _data.Z = value;
-                EndUpdate();
+                try
+                {
+                    _data.W = value;
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+
+                OnPropertyChanged();
             }
         }
 
@@ -81,66 +209,163 @@ namespace System
         public void Read(VoidPtr address)
         {
             BeginUpdate();
-            _data.Read(address);
-            EndUpdate();
+            try
+            {
+                _data.Read(address);
+            }
+            finally
+            {
+                EndUpdate();
+            }
+        }
+        public void SyncXFrom(EventVec4 other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncX != null)
+            {
+                _syncX.XValueChanged -= Other_XChanged;
+                _syncX = null;
+            }
+            if (other != null)
+            {
+                other.XValueChanged += Other_XChanged;
+                _syncX = other;
+                X = other.X;
+            }
+        }
+        public void SyncYFrom(EventVec4 other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncY != null)
+            {
+                _syncY.YValueChanged -= Other_YChanged;
+                _syncY = null;
+            }
+            if (other != null)
+            {
+                other.YValueChanged += Other_YChanged;
+                _syncY = other;
+                Y = other.Y;
+            }
+        }
+        public void SyncZFrom(EventVec4 other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncZ != null)
+            {
+                _syncZ.ZValueChanged -= Other_ZChanged;
+                _syncZ = null;
+            }
+            if (other != null)
+            {
+                other.ZValueChanged += Other_ZChanged;
+                _syncZ = other;
+                Z = other.Z;
+            }
+        }
+        public void SyncWFrom(EventVec4 other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncW != null)
+            {
+                _syncW.WValueChanged -= Other_WChanged;
+                _syncW = null;
+            }
+            if (other != null)
+            {
+                other.WValueChanged += Other_WChanged;
+                _syncW = other;
+                W = other.W;
+            }
+        }
+        public void SyncFrom(EventVec4 other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncX != null)
+            {
+                _syncX.XValueChanged -= Other_XChanged;
+                _syncX = null;
+            }
+            if (_syncY != null)
+            {
+                _syncY.YValueChanged -= Other_YChanged;
+                _syncY = null;
+            }
+            if (_syncZ != null)
+            {
+                _syncZ.ZValueChanged -= Other_ZChanged;
+                _syncZ = null;
+            }
+            if (_syncW != null)
+            {
+                _syncW.WValueChanged -= Other_WChanged;
+                _syncW = null;
+            }
+            if (other != null)
+            {
+                other.Changed += Other_Changed;
+                _syncAll = other;
+                Raw = other.Raw;
+            }
+        }
+        public void StopSynchronization()
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncX != null)
+            {
+                _syncX.XValueChanged -= Other_XChanged;
+                _syncX = null;
+            }
+            if (_syncY != null)
+            {
+                _syncY.YValueChanged -= Other_YChanged;
+                _syncY = null;
+            }
+            if (_syncZ != null)
+            {
+                _syncZ.ZValueChanged -= Other_ZChanged;
+                _syncZ = null;
+            }
+            if (_syncW != null)
+            {
+                _syncW.WValueChanged -= Other_WChanged;
+                _syncW = null;
+            }
         }
 
-        public static readonly EventVec4 UnitX = new EventVec4(1.0f, 0.0f, 0.0f, 0.0f);
-        public static readonly EventVec4 UnitY = new EventVec4(0.0f, 1.0f, 0.0f, 0.0f);
-        public static readonly EventVec4 UnitZ = new EventVec4(0.0f, 0.0f, 1.0f, 0.0f);
-        public static readonly EventVec4 UnitW = new EventVec4(0.0f, 0.0f, 0.0f, 1.0f);
-        public static readonly EventVec4 Zero = new EventVec4(0.0f, 0.0f, 0.0f, 0.0f);
-        public static readonly EventVec4 One = new EventVec4(1.0f, 1.0f, 1.0f, 1.0f);
-        public static readonly EventVec4 Min = new EventVec4(float.MinValue);
-        public static readonly EventVec4 Max = new EventVec4(float.MaxValue);
-
-        public EventVec4() { }
-        public EventVec4(float value)
-        {
-            X = value;
-            Y = value;
-            Z = value;
-            W = value;
-        }
-        public EventVec4(float x, float y, float z, float w)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-            W = w;
-        }
-        public EventVec4(Vec2 v)
-        {
-            X = v.X;
-            Y = v.Y;
-            Z = 0.0f;
-            W = 0.0f;
-        }
-        public EventVec4(Vec3 v)
-        {
-            X = v.X;
-            Y = v.Y;
-            Z = v.Z;
-            W = 0.0f;
-        }
-        public EventVec4(Vec3 v, float w)
-        {
-            X = v.X;
-            Y = v.Y;
-            Z = v.Z;
-            W = w;
-        }
-        public EventVec4(EventVec4 v)
-        {
-            X = v.X;
-            Y = v.Y;
-            Z = v.Z;
-            W = v.W;
-        }
+        private void Other_Changed() => Raw = _syncAll.Raw;
+        private void Other_XChanged(float newValue, float oldValue) => X = newValue;
+        private void Other_YChanged(float newValue, float oldValue) => Y = newValue;
+        private void Other_ZChanged(float newValue, float oldValue) => Z = newValue;
+        private void Other_WChanged(float newValue, float oldValue) => W = newValue;
 
         private void BeginUpdate()
         {
-            //++_updating;
+            Interlocked.Increment(ref _recursiveUpdates);
             _oldX = X;
             _oldY = Y;
             _oldZ = Z;
@@ -148,12 +373,12 @@ namespace System
         }
         private void EndUpdate()
         {
+            if (Interlocked.Decrement(ref _recursiveUpdates) > 0)
+                return;
+
             float x = X, y = Y, z = Z, w = W;
             float ox = _oldX, oy = _oldY, oz = _oldZ, ow = _oldW;
 
-            //--_updating;
-            //if (_updating > 0)
-            //    return;
             bool anyChanged = false;
             if (*(int*)&x != *(int*)&ox)
             {
@@ -199,9 +424,9 @@ namespace System
             }
         }
 
-        public float Length { get { return (float)Sqrt(LengthSquared); } }
-        public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
-        public float LengthSquared { get { return X * X + Y * Y + Z * Z + W * W; } }
+        public float Length => (float)Sqrt(LengthSquared);
+        public float LengthFast => 1.0f / InverseSqrtFast(LengthSquared);
+        public float LengthSquared => X * X + Y * Y + Z * Z + W * W;
 
         public EventVec4 Normalized()
         {
@@ -217,21 +442,27 @@ namespace System
         }
         public void Normalize()
         {
-            float length = Length;
             BeginUpdate();
-            X /= length;
-            Y /= length;
-            Z /= length;
-            EndUpdate();
+            try
+            {
+                _data.Normalize();
+            }
+            finally
+            {
+                EndUpdate();
+            }
         }
         public void NormalizeFast()
         {
-            float length = LengthFast;
             BeginUpdate();
-            X /= length;
-            Y /= length;
-            Z /= length;
-            EndUpdate();
+            try
+            {
+                _data.NormalizeFast();
+            }
+            finally
+            {
+                EndUpdate();
+            }
         }
 
         public static EventVec4 ComponentMin(EventVec4 a, EventVec4 b)

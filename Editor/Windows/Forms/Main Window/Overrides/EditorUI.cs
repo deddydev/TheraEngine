@@ -226,7 +226,7 @@ namespace TheraEditor.Windows.Forms
             };
 
             SubViewport = new UIViewportComponent() { RenderTransformation = false };
-            SubViewport.SizeableWidth.Minimum = SizeableElement.Pixels(200.0f, true, EParentBoundsInheritedValue.Width);
+            SubViewport.SizeableWidth.Minimum = UIFloat.Pixels(200.0f, true, EParentBoundsInheritedValue.Width);
             SubViewport.SizeableWidth.SetSizingPercentageOfParent(0.4f);
             SubViewport.SizeableHeight.SetSizingProportioned(SubViewport.SizeableWidth, 9.0f / 16.0f);
             SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f);
@@ -243,8 +243,8 @@ namespace TheraEditor.Windows.Forms
                 Height = s.Height,
                 RenderTransformation = false,
             };
-            SubViewportText.SizeableHeight.Minimum = SizeableElement.Pixels(s.Height, true, EParentBoundsInheritedValue.Height);
-            SubViewportText.SizeableWidth.Minimum = SizeableElement.Pixels(s.Width, true, EParentBoundsInheritedValue.Width);
+            SubViewportText.SizeableHeight.Minimum = UIFloat.Pixels(s.Height, true, EParentBoundsInheritedValue.Height);
+            SubViewportText.SizeableWidth.Minimum = UIFloat.Pixels(s.Width, true, EParentBoundsInheritedValue.Width);
             StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip)
             {
                 //Alignment = StringAlignment.Center,

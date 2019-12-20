@@ -27,7 +27,7 @@ namespace TheraEngine.Rendering.UI
         public Vec3 ScreenTranslation
         {
             get => Vec3.TransformPosition(WorldPoint, ComponentTransform);
-            set => LocalTranslation = Vec3.TransformPosition(value, InverseComponentTransform);
+            set => LocalTranslation.Xyz = Vec3.TransformPosition(value, InverseComponentTransform);
         }
 
         [Category("Transform")]
@@ -36,7 +36,7 @@ namespace TheraEngine.Rendering.UI
             get => _order;
             set
             {
-                if (SetBackingField(ref _order, value))
+                if (Set(ref _order, value))
                     RecalcLocalTransform();
             }
         }
@@ -46,7 +46,7 @@ namespace TheraEngine.Rendering.UI
             get => _translation;
             set
             {
-                if (SetBackingField(ref _translation, value,
+                if (Set(ref _translation, value,
                     () => _translation.Changed -= RecalcLocalTransform,
                     () => _translation.Changed += RecalcLocalTransform,
                     false))
@@ -59,7 +59,7 @@ namespace TheraEngine.Rendering.UI
             get => _scale;
             set
             {
-                if (SetBackingField(ref _scale, value,
+                if (Set(ref _scale, value,
                     () => _scale.Changed -= RecalcLocalTransform,
                     () => _scale.Changed += RecalcLocalTransform,
                     false))

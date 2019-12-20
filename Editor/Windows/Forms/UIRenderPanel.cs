@@ -37,7 +37,7 @@ namespace TheraEngine
         public override UIPawnType EditorPawn => UI;
 
         protected override IScene2D GetScene(Viewport v) => World?.Scene2D;
-        protected override ICamera GetCamera(Viewport v) => UI?.ScreenOverlayCamera;
+        protected override ICamera GetCamera(Viewport v) => UI?.ScreenSpaceCamera;
 
         public UIRenderHandler() : base(ELocalPlayerIndex.One)
         {
@@ -50,7 +50,7 @@ namespace TheraEngine
             UI = new UIPawnType();
 
             v.HUD = UI;
-            v.Camera = UI.ScreenOverlayCamera;
+            v.Camera = UI.ScreenSpaceCamera;
         }
         protected override void OnWorldManagerPreChanged()
         {

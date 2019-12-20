@@ -546,11 +546,15 @@
     <Compile Include="Components\Scene\Shapes\CollidableShape3DComponent.cs" />
     <Compile Include="Components\Scene\Splines\Spline2DComponent.cs" />
     <Compile Include="Components\Scene\Misc\SubActorComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\Sizeables\UIVec2.cs" />
+    <Compile Include="Components\Scene\UI\Core\Sizeables\UIVec4.cs" />
     <Compile Include="Components\Scene\UI\Core\Transforms\UIScaleComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Transforms\UITransformComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Transforms\UITranslationComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Arrangements\UIGridComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\Sizeables\UIVec3.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UITreeComponent.cs" />
+    <Compile Include="Components\Scene\UI\UICanvasComponent.cs" />
     <Compile Include="Core\Attributes\TDeprecatedName.cs" />
     <Compile Include="Core\Attributes\TDropDownIndexSelectorAttribute.cs" />
     <Compile Include="Components\Logic\Common\HealthComponent.cs" />
@@ -578,7 +582,7 @@
     <Compile Include="Components\Scene\Transforms\Noise\NoiseTR.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoiseRotation.cs" />
     <Compile Include="Components\Scene\Transforms\Lagged\TRLagged.cs" />
-    <Compile Include="Components\Scene\UI\Core\SizeableElement.cs" />
+    <Compile Include="Components\Scene\UI\Core\Sizeables\UIFloat.cs" />
     <Compile Include="Components\Scene\UI\Core\UIBoundableComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIButtonComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIComboBoxComponent.cs" />
@@ -589,7 +593,7 @@
     <Compile Include="Components\Scene\UI\Text\UITextProjectionComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextRasterComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\UIComponent.cs" />
-    <Compile Include="Components\Scene\UI\Core\UIDockableComponent.cs" />
+    <None Include="Components\Scene\UI\Core\UIDockableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIMaterialRectangleComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Transforms\UIRotationComponent.cs" />
     <Compile Include="Components\Scene\UI\UIViewportComponent.cs" />
@@ -639,8 +643,10 @@
     <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterXML.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Types\SerializeElement.cs" />
     <Compile Include="Core\LocalizedString.cs" />
+    <Compile Include="Core\MarshalSponsor.cs" />
     <Compile Include="Core\Maths\Half.cs" />
     <Compile Include="Core\Memory\Int24.cs" />
+    <Compile Include="Core\PropertyBinding.cs" />
     <Compile Include="Core\Reflection\AppDomainHelper.cs" />
     <Compile Include="Core\Reflection\Attributes\GridCallable.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\TFileExt.cs" />
@@ -670,6 +676,8 @@
     <Compile Include="Core\ResourcePool.cs" />
     <EmbeddedResource Include="Core\Engine\Program_Template.tcs" />
     <Compile Include="Core\Engine\EngineDomainProxy.cs" />
+    <Compile Include="Core\TObjectSlim.cs" />
+    <Compile Include="Core\TPropertyConverter.cs" />
     <Compile Include="Input\Devices\BaseGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\CursorManager.cs" />
     <Compile Include="Input\Devices\DirectX\DXGamepadConfiguration.cs" />

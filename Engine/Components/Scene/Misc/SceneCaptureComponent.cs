@@ -149,7 +149,9 @@ namespace TheraEngine.Components.Scene
                         (_tempDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
                 }
 
-                _viewport.HUD?.ScreenSpaceUIScene?.PreRender(_viewport, _viewport.HUD.ScreenOverlayCamera);
+
+                _viewport.HUD?.PreRender();
+
                 scene.PreRender(_viewport, camera);
 
                 _viewport.Render(scene, camera, RenderFBO);

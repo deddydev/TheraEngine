@@ -124,7 +124,9 @@ namespace TheraEditor.Windows.Forms
 
         protected override bool IsDragging => _dragComp != null;
 
-        private UITransformComponent _dragComp, _selectedComp, _highlightedComp;
+        private UITransformComponent _dragComp;
+        private UIComponent _selectedComp, _highlightedComp;
+
         private IUserInterfacePawn _targetHud;
         
         public override void RegisterInput(InputInterface input)

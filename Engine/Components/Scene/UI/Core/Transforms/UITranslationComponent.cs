@@ -30,7 +30,7 @@ namespace TheraEngine.Rendering.UI
             get => _translation;
             set
             {
-                if (SetBackingField(ref _translation, value,
+                if (Set(ref _translation, value,
                     () => _translation.Changed -= RecalcLocalTransform,
                     () => _translation.Changed += RecalcLocalTransform,
                     false))

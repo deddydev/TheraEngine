@@ -334,7 +334,7 @@ namespace TheraEngine.Rendering
         }
         public void Update(IScene scene, ICamera camera, IVolume cullingVolume)
         {
-            HUD?.UpdateInScreenSpace();
+            HUD?.UpdateLayout();
             scene?.Update(_renderPasses, cullingVolume, camera);
         }
 

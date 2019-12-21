@@ -27,7 +27,7 @@ namespace TheraEngine.Rendering.UI
 
         void RegisterInputs(InputInterface input);
         void ArrangeChildren(Vec2 translation, Vec2 parentBounds);
-        void Resize();
+        void ResizeLayout();
         Vec2 ScreenToLocal(Vec2 coordinate, bool delta = false);
     }
     public abstract class UIComponent : OriginRebasableComponent, IUIComponent
@@ -76,7 +76,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 base.ParentSocket = value;
-                Resize();
+                ResizeLayout();
             }
         }
 
@@ -94,12 +94,21 @@ namespace TheraEngine.Rendering.UI
                 base.OwningActor = value as BaseActor;
 
                 //if (ParentSocket is null)
-                Resize();
+                ResizeLayout();
             }
         }
 
+        public void InvalidateLayout()
+        {
+            OwningActor?.InvalidateLayout();
+        }
+
         [Category("Rendering")]
-        public bool RenderTransformation { get; set; } = true;
+        public bool RenderTransformation 
+        {
+            get => _renderTransformation;
+            set => Set(ref _renderTransformation, value); 
+        }
 
         [Category("Rendering")]
         public UIParentAttachmentInfo ParentInfo
@@ -162,12 +171,12 @@ namespace TheraEngine.Rendering.UI
         /// <summary>
         /// Resizes self depending on the parent component.
         /// </summary>
-        public void Resize()
+        public void ResizeLayout()
         {
             if (IgnoreResizes)
                 return;
 
-            ParentBounds = ParentSocket is IUIBoundableComponent comp ? comp.Size.Raw : Vec2.Zero;
+            ParentBounds = ParentSocket is IUIBoundableComponent comp ? comp.Size : Vec2.Zero;
 
             ArrangeChildren(Vec2.Zero, ParentBounds);
         }
@@ -194,7 +203,7 @@ namespace TheraEngine.Rendering.UI
             {
                 c.RenderInfo.LayerIndex = RenderInfo.LayerIndex;
                 c.RenderInfo.IndexWithinLayer = RenderInfo.IndexWithinLayer + 1;
-                c.Resize();
+                c.ResizeLayout();
             }
         }
 
@@ -228,7 +237,7 @@ namespace TheraEngine.Rendering.UI
         /// <returns></returns>
         public Vec2 ScreenToLocal(Vec2 coordinate, bool delta = false)
         {
-            Matrix4 mtx = InverseComponentTransform;
+            Matrix4 mtx = InverseActorRelativeTransform;
             if (delta)
                 mtx = mtx.ClearTranslation();
             return (coordinate * mtx).Xy;
@@ -236,6 +245,7 @@ namespace TheraEngine.Rendering.UI
 
         public RenderCommandMethod2D _rc;
         private UIParentAttachmentInfo _parentInfo;
+        private bool _renderTransformation = true;
 
         public virtual void AddRenderables(RenderPasses passes, ICamera camera)
         {

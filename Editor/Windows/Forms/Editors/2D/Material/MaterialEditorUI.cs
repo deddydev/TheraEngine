@@ -186,13 +186,13 @@ namespace TheraEditor.Windows.Forms
                 DragInputs(diff);
             }
             else
-                _draggedFunc.LocalTranslation += Vec3.TransformVector(diff, _draggedFunc.InverseWorldMatrix).Xy;
+                _draggedFunc.Translation += Vec3.TransformVector(diff, _draggedFunc.InverseWorldMatrix).Xy;
         }
         private HashSet<MaterialFunction> _inputTree = null;
         private void DragInputs(Vec2 diff)
         {
             foreach (MaterialFunction f in _inputTree)
-                f.LocalTranslation += Vec3.TransformVector(diff, _draggedFunc.InverseWorldMatrix).Xy;
+                f.Translation += Vec3.TransformVector(diff, _draggedFunc.InverseWorldMatrix).Xy;
         }
         #endregion
 

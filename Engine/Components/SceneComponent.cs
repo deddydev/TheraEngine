@@ -52,8 +52,8 @@ namespace TheraEngine.Components
         
         Matrix4 ParentMatrix { get; }
         Matrix4 InverseParentMatrix { get; }
-        Matrix4 ComponentTransform { get; }
-        Matrix4 InverseComponentTransform { get; }
+        Matrix4 ActorRelativeTransform { get; }
+        Matrix4 InverseActorRelativeTransform { get; }
         
         ISocket AttachTo(SkeletalMeshComponent mesh, string socketName);
         ISocket AttachTo(StaticMeshComponent mesh, string socketName);
@@ -493,34 +493,63 @@ namespace TheraEngine.Components
         /// <summary>
         /// Returns the world transform of the parent scene component.
         /// </summary>
-        public Matrix4 ParentMatrix => ParentSocket is null ? Matrix4.Identity : ParentSocket.WorldMatrix;
+        public Matrix4 ParentMatrix
+            => ParentSocket is null ? Matrix4.Identity : ParentSocket.WorldMatrix;
         /// <summary>
         /// Returns the inverse of the world transform of the parent scene component.
         /// </summary>
-        public Matrix4 InverseParentMatrix => ParentSocket is null ? Matrix4.Identity : ParentSocket.InverseWorldMatrix;
+        public Matrix4 InverseParentMatrix 
+            => ParentSocket is null ? Matrix4.Identity : ParentSocket.InverseWorldMatrix;
 
         /// <summary>
         /// Gets the transformation of this component relative to the actor's root component.
         /// </summary>
         [Browsable(false)]
-        public Matrix4 ComponentTransform => WorldMatrix * InverseActorRootWorldMatrix;
+        public Matrix4 ActorRelativeTransform 
+            => TransformRelativeTo(OwningActor?.RootComponent);
         /// <summary>
         /// Gets the inverse transformation of this component relative to the actor's root component.
         /// </summary>
         [Browsable(false)]
-        public Matrix4 InverseComponentTransform => InverseWorldMatrix * ActorRootWorldMatrix;
+        public Matrix4 InverseActorRelativeTransform 
+            => InverseTransformRelativeTo(OwningActor?.RootComponent);
+
+        public Matrix4 InverseTransformRelativeTo(ISceneComponent component) 
+            => TransformBetween(component, this);
+        public Matrix4 TransformRelativeTo(ISceneComponent component)
+            => TransformBetween(this, component);
+
+        public static Matrix4 TransformBetween(ISceneComponent from, ISceneComponent to)
+            => (from?.WorldMatrix ?? Matrix4.Identity) * (to?.InverseWorldMatrix ?? Matrix4.Identity);
 
         /// <summary>
         /// Gets the transformation of the actor's root component in the world.
         /// </summary>
         [Browsable(false)]
-        public Matrix4 ActorRootWorldMatrix => OwningActor?.RootComponent?.WorldMatrix ?? Matrix4.Identity;
+        public Matrix4 ActorRootWorldMatrix 
+            => OwningActor?.RootComponent?.WorldMatrix ?? Matrix4.Identity;
         /// <summary>
         /// Gets the inverse transformation of the actor's root component in the world.
         /// </summary>
         [Browsable(false)]
-        public Matrix4 InverseActorRootWorldMatrix => OwningActor?.RootComponent?.InverseWorldMatrix ?? Matrix4.Identity;
+        public Matrix4 InverseActorRootWorldMatrix 
+            => OwningActor?.RootComponent?.InverseWorldMatrix ?? Matrix4.Identity;
+        
+        public static Vec3 WorldToPointRelativeTo(Vec3 worldPoint, ISceneComponent comp)
+            => Vec3.TransformPosition(worldPoint, comp?.InverseWorldMatrix ?? Matrix4.Identity);
+        public static Vec3 PointRelativeToToWorld(Vec3 relativePoint, ISceneComponent comp)
+            => Vec3.TransformPosition(relativePoint, comp?.WorldMatrix ?? Matrix4.Identity);
+        
+        public Vec3 WorldToLocalPoint(Vec3 worldPoint) 
+            => WorldToPointRelativeTo(worldPoint, this);
+        public Vec3 WorldToActorRelativePoint(Vec3 worldPoint)
+            => WorldToPointRelativeTo(worldPoint, OwningActor?.RootComponent);
 
+        public Vec3 LocalPointToWorld(Vec3 relativePoint) 
+            => PointRelativeToToWorld(relativePoint, this);
+        public Vec3 ActorRelativePointToWorld(Vec3 relativePoint)
+            => PointRelativeToToWorld(relativePoint, OwningActor?.RootComponent);
+        
         //[Browsable(false)]
         //[Category("Rendering")]
         //public bool IsSpawned

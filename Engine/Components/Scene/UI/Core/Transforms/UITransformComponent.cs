@@ -8,14 +8,14 @@ namespace TheraEngine.Rendering.UI
     {
         Vec3 ScreenTranslation { get; }
 
-        EventVec3 LocalTranslation { get; set; }
+        EventVec3 Translation { get; set; }
         EventVec3 Scale { get; set; }
     }
     public class UITransformComponent : UIComponent, IUITransformComponent
     {
         public UITransformComponent() : base() { }
 
-        [TSerialize(nameof(LocalTranslation))]
+        [TSerialize(nameof(Translation))]
         private EventVec3 _translation = EventVec3.Zero;
         [TSerialize(nameof(Scale))]
         private EventVec3 _scale = EventVec3.One;
@@ -26,8 +26,8 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public Vec3 ScreenTranslation
         {
-            get => Vec3.TransformPosition(WorldPoint, ComponentTransform);
-            set => LocalTranslation.Xyz = Vec3.TransformPosition(value, InverseComponentTransform);
+            get => Vec3.TransformPosition(WorldPoint, ActorRelativeTransform);
+            set => Translation.Xyz = Vec3.TransformPosition(value, InverseActorRelativeTransform);
         }
 
         [Category("Transform")]
@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
         [Category("Transform")]
-        public virtual EventVec3 LocalTranslation
+        public virtual EventVec3 Translation
         {
             get => _translation;
             set
@@ -69,8 +69,8 @@ namespace TheraEngine.Rendering.UI
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.TransformMatrix(Scale.Raw, Matrix4.Identity, LocalTranslation, Order);
-            inverseLocalTransform = Matrix4.TransformMatrix(1.0f / Scale.Raw, Matrix4.Identity, -LocalTranslation, Transform.OppositeOrder(Order));
+            localTransform = Matrix4.TransformMatrix(Scale.Raw, Matrix4.Identity, Translation, Order);
+            inverseLocalTransform = Matrix4.TransformMatrix(1.0f / Scale.Raw, Matrix4.Identity, -Translation, Transform.OppositeOrder(Order));
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace TheraEngine.Rendering.UI
             _scale.SetRawNoUpdate(new Vec3(newScale, _scale.Z));
 
             RecalcLocalTransform();
-            Resize();
+            ResizeLayout();
         }
     }
 }

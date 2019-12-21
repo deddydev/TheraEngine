@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Components;
+using Extensions;
 
 namespace TheraEngine.Rendering.UI
 {
     public class UIGridComponent : UIBoundableComponent
     {
-        private EventList<RowDefinition> _rows = new EventList<RowDefinition>();
-        private EventList<ColumnDefinition> _columns = new EventList<ColumnDefinition>();
+        private EventList<SizingDefinition> _rows = new EventList<SizingDefinition>();
+        private EventList<SizingDefinition> _columns = new EventList<SizingDefinition>();
 
         public UIGridComponent()
         {
@@ -54,11 +55,79 @@ namespace TheraEngine.Rendering.UI
                     Indices[info.Row, info.Column].Add(i);
         }
 
+        public List<IUIComponent> GetComponentsInRow(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= Rows.Count)
+                return null;
+
+            List<IUIComponent> list = new List<IUIComponent>();
+            for (int i = 0; i < Columns.Count; ++i)
+            {
+                var quadrant = Indices[rowIndex, i];
+                foreach (var index in quadrant)
+                    if (ChildComponents.IndexInRange(index))
+                        list.Add(ChildComponents[index] as IUIComponent);
+            }
+
+            return list;
+        }
+        public List<IUIComponent> GetComponentsInColumn(int colIndex)
+        {
+            if (colIndex < 0 || colIndex >= Columns.Count)
+                return null;
+
+            List<IUIComponent> list = new List<IUIComponent>();
+            for (int i = 0; i < Rows.Count; ++i)
+            {
+                var quadrant = Indices[i, colIndex];
+                foreach (var index in quadrant)
+                    if (ChildComponents.IndexInRange(index))
+                        list.Add(ChildComponents[index] as IUIComponent);
+            }
+
+            return list;
+        }
         public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
         {
+            //Sizing priority: auto, fixed, proportional
+
             var autoRows = Rows.Select(x => x.AnyAuto ? x : null).ToArray();
             var autoCols = Columns.Select(x => x.AnyAuto ? x : null).ToArray();
-            
+
+            for (int i = 0; i < Rows.Count; i++)
+            {
+                //var def = Rows[i];
+                //var comps = GetComponentsInRow(i);
+                //float rowHeight = 0.0f;
+                //foreach (var comp in comps)
+                //    if (comp is IUIBoundableComponent bc)
+                //        rowHeight = Math.Max(bc.CalcMaxHeight(), rowHeight);
+
+            }
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                //var def = Rows[i];
+                //var comps = GetComponentsInColumn(i);
+                //float colWidth = 0.0f;
+                //foreach (var comp in comps)
+                //    if (comp is IUIBoundableComponent bc)
+                //        colWidth = Math.Max(bc.CalcMaxWidth(), colWidth);
+
+            }
+
+            var allRows = Rows.ToList();
+            var allCols = Columns.ToList();
+            var childComps = ChildComponents.Where(x => x is IUIComponent).Select(x => (IUIComponent)x);
+            foreach (var row in autoRows)
+            {
+
+                allRows.Remove(row);
+            }
+            foreach (var col in autoCols)
+            {
+
+                allCols.Remove(col);
+            }
 
             float y = 0.0f;
             for (int r = 0; r < Rows.Count; ++r)
@@ -69,7 +138,8 @@ namespace TheraEngine.Rendering.UI
                 float x = 0.0f;
                 for (int c = 0; c < Columns.Count; ++c)
                 {
-                    float width = Columns[c].Width.Value;
+                    var col = Columns[c];
+                    float width = col.Value.Value;
 
                     List<int> indices = Indices[r, c];
                     foreach (var index in indices)
@@ -165,25 +235,25 @@ namespace TheraEngine.Rendering.UI
             [Category("Grid")]
             public int Row
             {
-                get => Get(ref _row);
+                get => _row;
                 set => Set(ref _row, value);
             }
             [Category("Grid")]
             public int Column
             {
-                get => Get(ref _column);
+                get => _column;
                 set => Set(ref _column, value);
             }
             [Category("Grid")]
             public int RowSpan
             {
-                get => Get(ref _rowSpan);
+                get => _rowSpan;
                 set => Set(ref _rowSpan, value);
             }
             [Category("Grid")]
             public int ColumnSpan
             {
-                get => Get(ref _columnSpan);
+                get => _columnSpan;
                 set => Set(ref _columnSpan, value);
             }
         }
@@ -200,12 +270,12 @@ namespace TheraEngine.Rendering.UI
 
             public ESizingMode Mode
             {
-                get => Get(ref _mode);
+                get => _mode;
                 set => Set(ref _mode, value);
             }
             public float Value
             {
-                get => Get(ref _value);
+                get => _value;
                 set => Set(ref _value, value);
             }
         }
@@ -222,17 +292,17 @@ namespace TheraEngine.Rendering.UI
 
             public SizingValue Value
             {
-                get => Get(ref _value);
+                get => _value;
                 set => Set(ref _value, value);
             }
             public SizingValue Min
             {
-                get => Get(ref _min);
+                get => _min;
                 set => Set(ref _min, value);
             }
             public SizingValue Max
             {
-                get => Get(ref _max);
+                get => _max;
                 set => Set(ref _max, value);
             }
         }

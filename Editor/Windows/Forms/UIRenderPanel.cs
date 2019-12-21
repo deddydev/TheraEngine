@@ -5,6 +5,7 @@ using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Input;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.UI;
 using TheraEngine.Worlds;
 
 namespace TheraEngine
@@ -37,7 +38,7 @@ namespace TheraEngine
         public override UIPawnType EditorPawn => UI;
 
         protected override IScene2D GetScene(Viewport v) => World?.Scene2D;
-        protected override ICamera GetCamera(Viewport v) => UI?.ScreenSpaceCamera;
+        protected override ICamera GetCamera(Viewport v) => (UI?.RootComponent as IUICanvasComponent)?.ScreenSpaceCamera;
 
         public UIRenderHandler() : base(ELocalPlayerIndex.One)
         {
@@ -50,7 +51,7 @@ namespace TheraEngine
             UI = new UIPawnType();
 
             v.HUD = UI;
-            v.Camera = UI.ScreenSpaceCamera;
+            v.Camera = GetCamera(null);
         }
         protected override void OnWorldManagerPreChanged()
         {

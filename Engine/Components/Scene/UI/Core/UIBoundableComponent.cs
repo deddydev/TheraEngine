@@ -9,10 +9,23 @@ namespace TheraEngine.Rendering.UI
 {
     public interface IUIBoundableComponent : IUIComponent
     {
-        EventVec2 Size { get; set; }
-        EventVec2 LocalOriginPercentage { get; set; }
-        Vec2 LocalOriginTranslation { get; set; }
-        Vec2 BottomLeftTranslation { get; set; }
+        float Width { get; set; }
+        float Height { get; set; }
+        Vec2 Size { get; set; }
+
+        float MinWidth { get; set; }
+        float MinHeight { get; set; }
+
+        float MaxWidth { get; set; }
+        float MaxHeight { get; set; }
+
+        float XOriginPercent { get; set; }
+        float YOriginPercent { get; set; }
+
+        EVerticalAlign VerticalAlignment { get; set; }
+        EHorizontalAlign HorizontalAlignment { get; set; }
+
+        Vec2 OriginTranslation { get; set; }
 
         IUIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis);
         List<IUIBoundableComponent> FindAllIntersecting(Vec2 worldPoint, bool includeThis);
@@ -21,7 +34,7 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// Only applies if the parent is a UIBoundableComponent.
     /// </summary>
-    public enum EVerticalSizingMode
+    public enum EVerticalAlign
     {
         Top,
         Center,
@@ -32,7 +45,7 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// Only applies if the parent is a UIBoundableComponent.
     /// </summary>
-    public enum EHorizontalSizingMode
+    public enum EHorizontalAlign
     {
         Left,
         Center,
@@ -46,17 +59,35 @@ namespace TheraEngine.Rendering.UI
 
         private bool _isMouseOver = false;
 
-        [TSerialize(nameof(LocalOriginPercentage))]
-        private EventVec2 _localOriginPercentage = EventVec2.Zero;
+        [TSerialize(nameof(XOriginPercent))]
+        private float _xOriginPercent = 0.0f;
+        [TSerialize(nameof(YOriginPercent))]
+        private float _yOriginPercent = 0.0f;
 
-        [TSerialize(nameof(Size))]
-        private EventVec2 _size = EventVec2.Zero;
+        [TSerialize(nameof(Width))]
+        private float _width = 0.0f;
+        [TSerialize(nameof(Height))]
+        private float _height = 0.0f;
 
-        [TSerialize(nameof(HorizontalSizingMode))]
-        private EHorizontalSizingMode _horizontalSizingMode;
+        [TSerialize(nameof(MinWidth))]
+        private float _minWidth = 0.0f;
+        [TSerialize(nameof(MinHeight))]
+        private float _minHeight = 0.0f;
 
-        [TSerialize(nameof(VerticalSizingMode))]
-        private EVerticalSizingMode _verticalSizingMode;
+        [TSerialize(nameof(MaxWidth))]
+        private float _maxWidth = 0.0f;
+        [TSerialize(nameof(MaxHeight))]
+        private float _maxHeight = 0.0f;
+
+        [TSerialize(nameof(Margins))]
+        private EventVec4 _margins = new EventVec4();
+        [TSerialize(nameof(Padding))]
+        private EventVec4 _padding = new EventVec4();
+        
+        [TSerialize(nameof(HorizontalAlignment))]
+        private EHorizontalAlign _horizontalAlign = EHorizontalAlign.Stretch;
+        [TSerialize(nameof(VerticalAlignment))]
+        private EVerticalAlign _verticalAlign = EVerticalAlign.Stretch;
 
         [Category("State")]
         public bool IsMouseOver
@@ -65,90 +96,180 @@ namespace TheraEngine.Rendering.UI
             set => Set(ref _isMouseOver, value);
         }
         [Category("Transform")]
-        public EVerticalSizingMode VerticalSizingMode
+        public EVerticalAlign VerticalAlignment
         {
-            get => _verticalSizingMode;
+            get => _verticalAlign;
             set
             {
-                if (Set(ref _verticalSizingMode, value))
-                    Resize();
+                if (Set(ref _verticalAlign, value))
+                    InvalidateLayout();
             }
         }
         [Category("Transform")]
-        public EHorizontalSizingMode HorizontalSizingMode
+        public EHorizontalAlign HorizontalAlignment
         {
-            get => _horizontalSizingMode;
+            get => _horizontalAlign;
             set
             {
-                if (Set(ref _horizontalSizingMode, value))
-                    Resize();
+                if (Set(ref _horizontalAlign, value))
+                    InvalidateLayout();
             }
         }
         [Category("Transform")]
-        public virtual EventVec2 Size
+        public virtual float Width
         {
-            get => _size;
+            get => _width;
             set
             {
-                if (Set(ref _size, value,
-                    () => _size.PropertyChanged -= SizingPropertyChanged,
-                    () => _size.PropertyChanged += SizingPropertyChanged,
-                    false))
-                    Resize();
+                if (Set(ref _width, value))
+                    InvalidateLayout();
             }
         }
-
-        private void SizingPropertyChanged(object sender, PropertyChangedEventArgs e) => Resize();
-
+        [Category("Transform")]
+        public virtual float Height
+        {
+            get => _height;
+            set
+            {
+                if (Set(ref _height, value))
+                    InvalidateLayout();
+            }
+        }
+        [Category("Transform")]
+        public virtual float MinWidth
+        {
+            get => _minWidth;
+            set
+            {
+                if (Set(ref _minWidth, value))
+                    InvalidateLayout();
+            }
+        }
+        [Category("Transform")]
+        public virtual float MinHeight
+        {
+            get => _minHeight;
+            set
+            {
+                if (Set(ref _minHeight, value))
+                    InvalidateLayout();
+            }
+        }
+        [Category("Transform")]
+        public virtual float MaxWidth
+        {
+            get => _maxWidth;
+            set
+            {
+                if (Set(ref _maxWidth, value))
+                    InvalidateLayout();
+            }
+        }
+        [Category("Transform")]
+        public virtual float MaxHeight
+        {
+            get => _maxHeight;
+            set
+            {
+                if (Set(ref _maxHeight, value))
+                    InvalidateLayout();
+            }
+        }
         [Browsable(false)]
-        public float Width 
+        public Vec2 Size
         {
-            get => _size.X;
-            set => _size.X = value;
-        }
-        [Browsable(false)]
-        public float Height
-        {
-            get => _size.Y; 
-            set => _size.Y = value;
-        }
-
-        /// <summary>
-        /// The origin of the component's rotation and scale, as a percentage.
-        /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
-        /// </summary>
-        [Category("Transform")]
-        public virtual EventVec2 LocalOriginPercentage
-        {
-            get => _localOriginPercentage;
+            get => new Vec2(Width, Height);
             set
             {
-                if (Set(ref _localOriginPercentage, value,
-                    () => _localOriginPercentage.Changed -= Resize,
-                    () => _localOriginPercentage.Changed += Resize,
-                    false))
-                    Resize();
+                Width = value.X;
+                Height = value.Y;
             }
         }
         [Category("Transform")]
-        public virtual Vec2 LocalOriginTranslation
+        public virtual float XOriginPercent
         {
-            get => LocalOriginPercentage.Raw * Size.Raw;
-            set => LocalOriginPercentage.Raw = value / Size.Raw;
+            get => _xOriginPercent;
+            set
+            {
+                if (Set(ref _xOriginPercent, value))
+                    InvalidateLayout();
+            }
         }
         [Category("Transform")]
-        public virtual Vec2 BottomLeftTranslation
+        public virtual float YOriginPercent
         {
-            get => -LocalOriginTranslation;
-            set => LocalOriginTranslation = -value;
+            get => _yOriginPercent;
+            set
+            {
+                if (Set(ref _yOriginPercent, value))
+                    InvalidateLayout();
+            }
+        }
+        [Category("Transform")]
+        public virtual EventVec4 Margins
+        {
+            get => _margins;
+            set
+            {
+                if (Set(ref _margins, value,
+                    () => _margins.PropertyChanged -= SizingPropertyChanged,
+                    () => _margins.PropertyChanged += SizingPropertyChanged))
+                    InvalidateLayout();
+            }
+        }
+        [Category("Transform")]
+        public virtual EventVec4 Padding
+        {
+            get => _padding;
+            set
+            {
+                if (Set(ref _padding, value, 
+                    () => _padding.PropertyChanged -= SizingPropertyChanged,
+                    () => _padding.PropertyChanged += SizingPropertyChanged))
+                    InvalidateLayout();
+            }
+        }
+        [Browsable(false)]
+        public Vec2 OriginPercent
+        {
+            get => new Vec2(XOriginPercent, YOriginPercent);
+            set
+            {
+                XOriginPercent = value.X;
+                YOriginPercent = value.Y;
+            }
+        }
+        [Category("Transform")]
+        public virtual float OriginX
+        {
+            get => XOriginPercent * Width;
+            set => XOriginPercent = value / Width;
+        }
+        [Category("Transform")]
+        public virtual float OriginY
+        {
+            get => YOriginPercent * Height;
+            set => YOriginPercent = value / Height;
+        }
+        [Browsable(false)]
+        public Vec2 OriginTranslation
+        {
+            get => new Vec2(XOriginPercent * Width, YOriginPercent * Height);
+            set
+            {
+                XOriginPercent = value.X / Width;
+                YOriginPercent = value.Y / Height;
+            }
         }
 
         public bool Contains(Vec2 worldPoint)
         {
-            Vec3 localPoint = worldPoint * InverseComponentTransform;
-            return Size.Raw.Contains(localPoint.Xy);
+            Vec3 localPoint = worldPoint * InverseActorRelativeTransform;
+            return Size.Contains(localPoint.Xy);
         }
 
+        private void SizingPropertyChanged(object sender, PropertyChangedEventArgs e) => InvalidateLayout();
+        
         /// <summary>
         /// Returns true if the given world point projected perpendicularly to the HUD as a 2D point is contained within this component and the Z value is within the given depth margin.
         /// </summary>
@@ -158,13 +279,17 @@ namespace TheraEngine.Rendering.UI
         public bool Contains(Vec3 worldPoint, float zMargin = 0.5f)
         {
             Vec3 localPoint = Vec3.TransformPosition(worldPoint, InverseWorldMatrix);
-            return Math.Abs(localPoint.Z) < zMargin && Size.Raw.Contains(localPoint.Xy);
+            return Math.Abs(localPoint.Z) < zMargin && Size.Contains(localPoint.Xy);
         }
 
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        protected override void OnRecalcLocalTransform(
+            out Matrix4 localTransform,
+            out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.CreateTranslation(BottomLeftTranslation);
-            inverseLocalTransform = Matrix4.CreateTranslation(-BottomLeftTranslation);
+            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
+
+            localTransform *= Matrix4.CreateTranslation(-OriginX, -OriginY, 0.0f);
+            inverseLocalTransform = Matrix4.CreateTranslation(OriginX, OriginY, 0.0f) * inverseLocalTransform;
         }
         public override void RecalcWorldTransform()
         {

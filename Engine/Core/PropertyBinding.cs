@@ -1,51 +1,122 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace TheraEngine.Core
 {
-    public class PropertyBinding
+    public class PropertyBinding : TObject
     {
-        public PropertyBinding() { }
         public PropertyBinding(
-            TObject registree,
-            TObject source,
-            string sourcePropertyName,
-            EBindingMode mode = EBindingMode.OneWay,
-            TPropertyConverter converter = null,
-            bool convertInverse = false)
+            INotifyPropertyChanged registree, INotifyPropertyChanged source,
+            string registreePropertyName, string sourcePropertyName,  
+            Func<object, object> oneWayMethod, bool toSource = false)
         {
+            Mode = toSource ? EBindingMode.OneWayToSource : EBindingMode.OneWay;
+
             Registree = registree;
             Source = source;
-            Mode = mode;
-            Converter = converter;
-            ConvertInverse = convertInverse;
+
+            Converter = toSource ? 
+                new TMethodPropertyConverter(null, oneWayMethod) : 
+                new TMethodPropertyConverter(oneWayMethod, null);
+
+            RegistreePropertyName = registreePropertyName;
             SourcePropertyName = sourcePropertyName;
+
+            RegistreeProperty = Registree.GetType().GetProperty(nameof(RegistreePropertyName));
+            SourceProperty = Source.GetType().GetProperty(nameof(SourcePropertyName));
+
+            Mode = EBindingMode.OneWay;
         }
 
-        public TObject Registree { get; set; }
-        public TObject Source { get; set; }
-        public TPropertyConverter Converter { get; set; }
-        public bool ConvertInverse { get; set; } //Applies to mode for 'to source' and converter to and back
+        public PropertyBinding() { }
+        public PropertyBinding(
+            INotifyPropertyChanged registree,
+            INotifyPropertyChanged source,
+            string registreePropertyName,
+            string sourcePropertyName,
+            EBindingMode mode = EBindingMode.OneWay,
+            TPropertyConverter converter = null)
+        {
+            Mode = mode;
+
+            Registree = registree;
+            Source = source;
+
+            Converter = converter;
+
+            RegistreePropertyName = registreePropertyName;
+            SourcePropertyName = sourcePropertyName;
+
+            RegistreeProperty = Registree.GetType().GetProperty(nameof(RegistreePropertyName));
+            SourceProperty = Source.GetType().GetProperty(nameof(SourcePropertyName));
+
+            switch (mode)
+            {
+                case EBindingMode.OneTime:
+                    TransferValue(
+                        Registree, RegistreeProperty,
+                        Source, SourceProperty,
+                        Converter is null ? null : (Func<object, object>)Converter.ConvertFromSource);
+                    break;
+                case EBindingMode.OneWay:
+                    Source.PropertyChanged += Source_PropertyChanged;
+                    break;
+                case EBindingMode.OneWayToSource:
+                    Registree.PropertyChanged += Registree_PropertyChanged;
+                    break;
+                case EBindingMode.TwoWay:
+                    Source.PropertyChanged += Source_PropertyChanged;
+                    Registree.PropertyChanged += Registree_PropertyChanged;
+                    break;
+            }
+        }
+
+        [TSerialize]
+        public INotifyPropertyChanged Registree { get; set; }
+        [TSerialize]
+        public INotifyPropertyChanged Source { get; set; }
+        [TSerialize]
         public EBindingMode Mode { get; set; }
+        [TSerialize]
         public string SourcePropertyName { get; set; }
+        [TSerialize]
+        public string RegistreePropertyName { get; set; }
 
-        public object Get()
+        //TODO: Serialize these somehow
+        public PropertyInfo RegistreeProperty { get; private set; }
+        public PropertyInfo SourceProperty { get; private set; }
+        public TPropertyConverter Converter { get; set; }
+
+        private static void TransferValue(
+            INotifyPropertyChanged from, PropertyInfo fromProp,
+            INotifyPropertyChanged to, PropertyInfo toProp,
+            Func<object, object> converter)
         {
-            var sourceObj = Source.GetType().GetProperty(SourcePropertyName).GetValue(Source);
+            var obj = fromProp?.GetValue(from);
 
-            if (Converter != null)
-                sourceObj = Converter.ConvertFromSource(sourceObj);
+            if (converter != null)
+                obj = converter(obj);
 
-            return sourceObj;
+            toProp?.SetValue(to, obj);
         }
-        public void Set<T>(T newValue)
+
+        private void Registree_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            object sourceObj = newValue;
+            if (string.Equals(e.PropertyName, RegistreePropertyName, StringComparison.InvariantCultureIgnoreCase))
+                TransferValue(
+                    Registree, RegistreeProperty,
+                    Source, SourceProperty, 
+                    Converter is null ? null : (Func<object, object>)Converter.ConvertToSource);
+        }
 
-            if (Converter != null)
-                sourceObj = Converter.ConvertToSource(sourceObj);
-
-            Source.GetType().GetProperty(SourcePropertyName).SetValue(Source, sourceObj);
+        private void Source_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (string.Equals(e.PropertyName, SourcePropertyName, StringComparison.InvariantCultureIgnoreCase))
+                TransferValue(
+                    Source, SourceProperty,
+                    Registree, RegistreeProperty,
+                    Converter is null ? null : (Func<object, object>)Converter.ConvertFromSource);
         }
     }
 

@@ -221,62 +221,52 @@ namespace TheraEditor.Windows.Forms
         {
             UICanvasComponent canvas = new UICanvasComponent()
             {
-                //DockStyle = UIDockStyle.Fill,
                 RenderTransformation = false,
             };
 
             SubViewport = new UIViewportComponent() { RenderTransformation = false };
-            SubViewport.SizeableWidth.Minimum = UIFloat.Pixels(200.0f, true, EParentBoundsInheritedValue.Width);
-            SubViewport.SizeableWidth.SetSizingPercentageOfParent(0.4f);
-            SubViewport.SizeableHeight.SetSizingProportioned(SubViewport.SizeableWidth, 9.0f / 16.0f);
-            SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f);
-            SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f);
+            SubViewport.MinWidth = 200.0f;
+            SubViewport.BindProperty(nameof(SubViewport.Width), canvas, nameof(canvas.Width), obj => (float)obj * 0.4);
+            SubViewport.BindProperty(nameof(SubViewport.Height), SubViewport, nameof(SubViewport.Width), obj => (float)obj * 9.0f / 16.0f);
+            //SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f);
+            //SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f);
             SubViewport.IsVisible = false;
             canvas.ChildComponents.Add(SubViewport);
 
             Font f = new Font("Segoe UI", 10.0f, FontStyle.Regular);
-            string t = "Selected Camera View";
-            Size s = TextRenderer.MeasureText(t, f);
-            SubViewportText = new UITextRasterComponent
-            {
-                DockStyle = EUIDockStyle.Top,
-                Height = s.Height,
-                RenderTransformation = false,
-            };
-            SubViewportText.SizeableHeight.Minimum = UIFloat.Pixels(s.Height, true, EParentBoundsInheritedValue.Height);
-            SubViewportText.SizeableWidth.Minimum = UIFloat.Pixels(s.Width, true, EParentBoundsInheritedValue.Width);
+            string t;// = "Selected Camera View";
+            Size s;// = TextRenderer.MeasureText(t, f);
+
+            //SubViewportText = new UITextRasterComponent
+            //{
+            //    VerticalAlignment = EVerticalAlign.Top,
+            //    HorizontalAlignment = EHorizontalAlign.Stretch,
+            //    Height = s.Height,
+            //    RenderTransformation = false,
+            //};
+            //SubViewportText.MinHeight = UIFloat.Pixels(s.Height, true, EParentBoundsInheritedValue.Height);
+            //SubViewportText.MinWidth = UIFloat.Pixels(s.Width, true, EParentBoundsInheritedValue.Width);
             StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip)
             {
                 //Alignment = StringAlignment.Center,
                 //LineAlignment = StringAlignment.Near
             };
-            SubViewportText.TextDrawer.Text.Add(new UIString2D(t, f, new ColorF4(1.0f), sf));
-            SubViewport.ChildComponents.Add(SubViewportText);
-            SubViewportText.IsVisible = false;
-
-            //TextOverlay = new UITextProjectionComponent()
-            //{
-            //    TexScale = new Vec2(1.0f),
-            //    DockStyle = HudDockStyle.Fill,
-            //};
-            //dock.ChildComponents.Add(TextOverlay);
+            //SubViewportText.TextDrawer.Text.Add(new UIString2D(t, f, new ColorF4(1.0f), sf));
+            //SubViewport.ChildComponents.Add(SubViewportText);
+            //SubViewportText.IsVisible = false;
 
             t = "FPS: 000";
             s = TextRenderer.MeasureText(t, f);
             UITextRasterComponent fpsComp = new UITextRasterComponent() { RenderTransformation = false };
 
             fpsComp.RenderInfo.VisibleByDefault = true;
-            fpsComp.SizeableWidth.SetSizingPixels(s.Width);
-            fpsComp.SizeableHeight.SetSizingPixels(s.Height);
+            fpsComp.Width = s.Width;
+            fpsComp.Height = s.Height;
 
-            fpsComp.SizeablePosX.ParentBoundsInherited = EParentBoundsInheritedValue.Width;
-            fpsComp.SizeablePosX.SmallerRelative = true;
-            fpsComp.SizeablePosX.SetSizingPixels(0.0f);
-
-            fpsComp.SizeablePosY.ParentBoundsInherited = EParentBoundsInheritedValue.Height;
-            fpsComp.SizeablePosY.SmallerRelative = false;
-            fpsComp.SizeablePosY.SetSizingPixels(0.0f);
-            fpsComp.SizeablePosY.Origin = fpsComp.SizeableHeight;
+            fpsComp.VerticalAlignment = EVerticalAlign.Top;
+            fpsComp.HorizontalAlignment = EHorizontalAlign.Left;
+            fpsComp.Margins.Raw = new Vec4(5.0f);
+            fpsComp.Padding.Raw = new Vec4(0.0f);
 
             fpsComp.TextureResolutionMultiplier = f.Size;
             FPSText = new UIString2D(t, f, new ColorF4(0.1f, 1.0f, 0.1f, 1.0f), sf);

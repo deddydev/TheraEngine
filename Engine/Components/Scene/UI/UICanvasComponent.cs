@@ -46,7 +46,7 @@ namespace TheraEngine.Rendering.UI
 
         private float _cameraDrawSpaceDistance = 0.1f;
         private ECanvasDrawSpace _drawSpace = ECanvasDrawSpace.Screen;
-        private Scene2D _screenSpaceUIScene;
+        private IScene2D _screenSpaceUIScene;
 
         public ECanvasDrawSpace DrawSpace
         {
@@ -96,17 +96,14 @@ namespace TheraEngine.Rendering.UI
 
         public void RenderInScreenSpace(Viewport viewport, QuadFrameBuffer fbo) 
             => ScreenSpaceUIScene?.Render(ScreenSpaceRenderPasses, ScreenSpaceCamera, viewport, fbo);
-        public void UpdateInScreenSpace(IVolume collectionVolume)
-            => ScreenSpaceUIScene?.Update(ScreenSpaceRenderPasses, collectionVolume, ScreenSpaceCamera);
+        public void UpdateInScreenSpace()
+            => ScreenSpaceUIScene?.Update(ScreenSpaceRenderPasses, null, ScreenSpaceCamera);
         public void SwapInScreenSpace()
         {
             ScreenSpaceUIScene?.GlobalSwap();
             ScreenSpaceRenderPasses.SwapBuffers();
         }
 
-        public List<I2DRenderable> FindAllIntersecting(Vec2 viewportPoint)
-        {
-
-        }
+        internal List<I2DRenderable> FindAllIntersecting(Vec2 viewportPoint) => throw new NotImplementedException();
     }
 }

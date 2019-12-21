@@ -34,7 +34,9 @@ namespace TheraEngine.Actors.Types.Pawns
 
         void SwapInScreenSpace();
         void RenderInScreenSpace(Viewport viewport, QuadFrameBuffer fbo);
-        void UpdateInScreenSpace();
+        void UpdateLayout();
+
+        void InvalidateLayout();
     }
     public class UserInterfacePawn : UserInterfacePawn<UICanvasComponent>
     {
@@ -169,12 +171,12 @@ namespace TheraEngine.Actors.Types.Pawns
         public virtual void Resize(Vec2 bounds)
         {
             Bounds.Raw = bounds;
-            RootComponent.Resize();
+            RootComponent.ResizeLayout();
         }
         protected override void PostConstruct()
         {
             base.PostConstruct();
-            RootComponent.Resize();
+            RootComponent.ResizeLayout();
         }
         //public void Render()
         //{
@@ -314,11 +316,20 @@ namespace TheraEngine.Actors.Types.Pawns
             if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)
                 RootComponent.RenderInScreenSpace(viewport, fbo);
         }
-        public void UpdateInScreenSpace(IVolume collectionVolume)
+        public void UpdateLayout()
         {
+            if (IsLayoutInvalidated)
+            {
+                IsLayoutInvalidated = false;
+                RootComponent.ResizeLayout();
+            }
+
             if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)
-                RootComponent.UpdateInScreenSpace(collectionVolume);
+                RootComponent.UpdateInScreenSpace();
         }
+
+        public bool IsLayoutInvalidated { get; private set; }
+        public void InvalidateLayout() => IsLayoutInvalidated = true;
 
         #endregion
     }

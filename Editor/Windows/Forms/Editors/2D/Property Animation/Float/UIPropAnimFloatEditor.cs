@@ -179,7 +179,7 @@ namespace TheraEditor.Windows.Forms
             //else
             {
                 //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
-                displayFPS = Bounds.XProperty / visibleAnimSecRange * Resolution;
+                displayFPS = Bounds.X / visibleAnimSecRange * Resolution;
             }
             float secondsPerFrame = 1.0f / displayFPS;
 
@@ -270,8 +270,8 @@ namespace TheraEditor.Windows.Forms
             float visibleAnimSecRange = maxSec - minSec;
             float visibleAnimValRange = maxVal - minVal;
             if (visibleAnimSecRange <= 0.0f)
-                visibleAnimSecRange = Bounds.XProperty;
-            DisplayFPS = Bounds.XProperty / visibleAnimSecRange * Resolution;
+                visibleAnimSecRange = Bounds.X;
+            DisplayFPS = Bounds.X / visibleAnimSecRange * Resolution;
             
             float secondsPerFrame = 1.0f / DisplayFPS;
 
@@ -416,15 +416,16 @@ void main()
 
             Vec2 origin = GetViewportBottomLeftWorldSpace();
 
-            _xCoord.SizeablePosX.ModificationValue = pos.X;
-            _yCoord.SizeablePosY.ModificationValue = pos.Y;
-            _xCoord.SizeablePosY.ModificationValue = origin.Y;
-            _yCoord.SizeablePosX.ModificationValue = origin.X;
+            _xCoord.Translation.X = pos.X;
+            _yCoord.Translation.Y = pos.Y;
+
+            _xCoord.Translation.Y = origin.Y;
+            _yCoord.Translation.X = origin.X;
             
             _xString.Text = pos.X.ToString("###0.0##");
             _yString.Text = pos.Y.ToString("###0.0##");
 
-            BaseTransformComponent.Resize();
+            BaseTransformComponent.ResizeLayout();
         }
         private bool _redrewLastMove = false;
         protected override void BaseWorldTransformChanged(ISceneComponent comp)
@@ -443,15 +444,15 @@ void main()
                 Vec3 pos = new Vec3(_targetAnimation.CurrentTime, GetCurrentPosition(), 0.0f);
                 AnimPositionWorld = Vec3.TransformPosition(pos, BaseTransformComponent.WorldMatrix).Xy;
 
-                _xCoord.SizeablePosX.ModificationValue = pos.X;
-                _yCoord.SizeablePosY.ModificationValue = pos.Y;
+                _xCoord.Translation.X = pos.X;
+                _yCoord.Translation.Y = pos.Y;
             }
             else
                 RenderAnimPosition = false;
 
             Vec2 origin = GetViewportBottomLeftWorldSpace();
-            _xCoord.SizeablePosY.ModificationValue = origin.Y;
-            _yCoord.SizeablePosX.ModificationValue = origin.X;
+            _xCoord.Translation.Y = origin.Y;
+            _yCoord.Translation.X = origin.X;
 
             base.BaseWorldTransformChanged(comp);
             
@@ -520,7 +521,7 @@ void main()
         protected override void OnLeftClickDown()
         {
             Vec2 v = CursorPosition();
-            if (!Bounds.Contains(v))
+            if (!Bounds.Raw.Contains(v))
                 return;
 
             if (_targetAnimation != null)
@@ -840,7 +841,7 @@ void main()
                     }
                     else
                     {
-                        float tangentScale = TangentScale / BaseTransformComponent.Scale.XProperty;
+                        float tangentScale = TangentScale / BaseTransformComponent.Scale.X;
                      
                         if (kf.Value.DraggingInTangent)
                         {
@@ -878,7 +879,7 @@ void main()
                 return;
 
             Vec2 cursorPos = CursorPositionTransformRelative();
-            float radius = SelectionRadius / BaseTransformComponent.Scale.XProperty;
+            float radius = SelectionRadius / BaseTransformComponent.Scale.X;
             ClosestPositionIndices = KeyframeInOutPosInOutTan.FindAllMatchIndices(x => x.DistanceToFast(cursorPos) < radius);
         }
         protected override void OnScrolledInput(bool down)

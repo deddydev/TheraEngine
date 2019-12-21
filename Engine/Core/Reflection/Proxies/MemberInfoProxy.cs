@@ -756,9 +756,9 @@ namespace TheraEngine.Core.Reflection
                     case DisplayNameAttribute displayName:
                         displayNameOverride = displayName.DisplayName;
                         break;
-                    case EditInPlace editInPlaceAttrib:
-                        editInPlace = true;
-                        break;
+                    //case EditInPlace editInPlaceAttrib:
+                    //    editInPlace = true;
+                    //    break;
                     case DescriptionAttribute desc:
                         description = desc.Description;
                         break;

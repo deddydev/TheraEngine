@@ -27,7 +27,7 @@ namespace TheraEditor.Windows.Forms
         public EditorUIPropAnimVec2() : base() { }
         public EditorUIPropAnimVec2(Vec2 bounds) : base(bounds) { }
         
-        protected UITransformComponent _xCoord, _yCoord;
+        protected UITextRasterComponent _xCoord, _yCoord;
         protected UIString2D _xString, _yString;
         
         private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D(ERenderPass.OnTopForward);
@@ -561,16 +561,16 @@ void main()
 
             Vec2 origin = GetViewportBottomLeftWorldSpace();
 
-            _xCoord.SizeablePosX.ModificationValue = pos.X;
-            _yCoord.SizeablePosY.ModificationValue = pos.Y;
+            _xCoord.Translation.X = pos.X;
+            _yCoord.Translation.Y = pos.Y;
 
-            _xCoord.SizeablePosY.ModificationValue = origin.Y;
-            _yCoord.SizeablePosX.ModificationValue = origin.X;
+            _xCoord.Translation.Y = origin.Y;
+            _yCoord.Translation.X = origin.X;
             
             _xString.Text = pos.X.ToString("###0.0##");
             _yString.Text = pos.Y.ToString("###0.0##");
 
-            BaseTransformComponent.Resize();
+            BaseTransformComponent.ResizeLayout();
         }
         private bool _redrewLastMove = false;
         protected override void BaseWorldTransformChanged(ISceneComponent comp)
@@ -589,15 +589,15 @@ void main()
                 Vec3 pos = new Vec3(GetCurrentPosition(), 0.0f);
                 AnimPositionWorld = Vec3.TransformPosition(pos, BaseTransformComponent.WorldMatrix).Xy;
 
-                _xCoord.SizeablePosX.ModificationValue = pos.X;
-                _yCoord.SizeablePosY.ModificationValue = pos.Y;
+                _xCoord.Translation.X = pos.X;
+                _yCoord.Translation.Y = pos.Y;
             }
             else
                 RenderAnimPosition = false;
 
             Vec2 origin = GetViewportBottomLeftWorldSpace();
-            _xCoord.SizeablePosY.ModificationValue = origin.Y;
-            _yCoord.SizeablePosX.ModificationValue = origin.X;
+            _xCoord.Translation.Y = origin.Y;
+            _yCoord.Translation.X = origin.X;
 
             base.BaseWorldTransformChanged(comp);
             

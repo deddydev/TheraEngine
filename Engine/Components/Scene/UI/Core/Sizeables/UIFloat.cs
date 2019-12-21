@@ -293,7 +293,7 @@ namespace TheraEngine.Rendering.UI
         public void SetSizingPercentageOfParent(float percentage)
         {
             SizingOption = ESizingMode.PercentageOfParent;
-            ModificationValue = percentage;
+            RelativeValue = percentage;
         }
         public static UIFloat Proportioned(UIFloat proportionalElement, float ratio, bool smallerRelative = true)
         {
@@ -308,7 +308,7 @@ namespace TheraEngine.Rendering.UI
         {
             SizingOption = ESizingMode.ProportionalToElement;
             ProportionElement = proportionalElement;
-            ModificationValue = ratio;
+            RelativeValue = ratio;
         }
         public static UIFloat Pixels(float pixels, bool smallerRelative = true)
         {
@@ -328,7 +328,7 @@ namespace TheraEngine.Rendering.UI
         public void SetSizingPixels(float pixels)
         {
             SizingOption = ESizingMode.Pixels;
-            ModificationValue = pixels;
+            RelativeValue = pixels;
         }
         //public void SetSizingIgnored()
         //{

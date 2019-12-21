@@ -88,9 +88,9 @@ namespace TheraEditor.Windows.Forms
             BaseTransformComponent = new UITransformComponent() { RenderTransformation = false };
 
             _backgroundComponent = new UIMaterialRectangleComponent(GetBackgroundMaterial()) { RenderTransformation = false };
-            _backgroundComponent.LocalTranslation.Xy = 0.0f;
-            _backgroundComponent.HorizontalSizingMode = EHorizontalSizingMode.Stretch;
-            _backgroundComponent.VerticalSizingMode = EVerticalSizingMode.Stretch;
+            _backgroundComponent.Translation.Xy = 0.0f;
+            _backgroundComponent.HorizontalAlignment = EHorizontalAlign.Stretch;
+            _backgroundComponent.VerticalAlignment = EVerticalAlign.Stretch;
             _backgroundComponent.ChildComponents.Add(BaseTransformComponent);
 
             UICanvasComponent baseUI = new UICanvasComponent() { RenderTransformation = false };
@@ -124,7 +124,7 @@ namespace TheraEditor.Windows.Forms
                 new ShaderVec3(new Vec3(0.08f, 0.08f, 0.08f), "BGColor"),
                 new ShaderFloat(BaseTransformComponent.Scale.X, "Scale"),
                 new ShaderFloat(3.0f, "LineWidth"),
-                new ShaderVec2(BaseTransformComponent.LocalTranslation.Raw.Xy, "Translation"),
+                new ShaderVec2(BaseTransformComponent.Translation.Raw.Xy, "Translation"),
                 new ShaderFloat(UnitIncrement, "XYIncrement"),
             },
             frag);
@@ -141,7 +141,7 @@ namespace TheraEditor.Windows.Forms
 
             UITextRasterComponent comp = new UITextRasterComponent() { RenderTransformation = false };
             comp.RenderInfo.VisibleByDefault = true;
-            comp.Size.Raw = new Vec2(width, height);
+            comp.Size = new Vec2(width, height);
             comp.TextureResolutionMultiplier = UIFont.Size;
 
             str = new UIString2D(initialText, UIFont, color, format);
@@ -200,11 +200,11 @@ namespace TheraEditor.Windows.Forms
                     bottomLeft *= BaseTransformComponent.Scale.Xy;
                 }
 
-                BaseTransformComponent.LocalTranslation.Raw = bottomLeft;
+                BaseTransformComponent.Translation.Raw = bottomLeft;
             }
             else
             {
-                BaseTransformComponent.LocalTranslation.Xy = Vec2.Zero;
+                BaseTransformComponent.Translation.Xy = Vec2.Zero;
                 BaseTransformComponent.Scale.Xy = TMath.Min(Bounds.X, Bounds.Y) / (UnitIncrement * InitialVisibleBoxes);
             }
 
@@ -216,13 +216,13 @@ namespace TheraEditor.Windows.Forms
             Vec2 origin = GetViewportTopRightWorldSpace();
             if (_xUnitText != null)
             {
-                float width = _xUnitText.SizeableWidth.GetResultingValue(_xUnitText.ParentBounds);
-                _xUnitText.LocalTranslation.Y = origin.X - width / BaseTransformComponent.Scale.X;
+                float width = _xUnitText.Width;
+                _xUnitText.Translation.Y = origin.X - width / BaseTransformComponent.Scale.X;
             }
             if (_yUnitText != null)
             {
-                float height = _yUnitText.SizeableHeight.GetResultingValue(_yUnitText.ParentBounds);
-                _yUnitText.LocalTranslation.Y = origin.Y - height / BaseTransformComponent.Scale.Y;
+                float height = _yUnitText.Height;
+                _yUnitText.Translation.Y = origin.Y - height / BaseTransformComponent.Scale.Y;
             }
             UpdateBackgroundMaterial();
         }
@@ -352,11 +352,11 @@ namespace TheraEditor.Windows.Forms
                     var pos = visible[key];
                     if (xCoord)
                     {
-                        comp.LocalTranslation.Xy = new Vec2(pos, 0.0f);
+                        comp.Translation.Xy = new Vec2(pos, 0.0f);
                     }
                     else
                     {
-                        comp.LocalTranslation.Xy = new Vec2(0.0f, pos);
+                        comp.Translation.Xy = new Vec2(0.0f, pos);
                     }
 
                     comp.RenderInfo.Visible = true;
@@ -376,7 +376,7 @@ namespace TheraEditor.Windows.Forms
 
             TMaterial mat = _backgroundComponent.InterfaceMaterial;
             mat.Parameter<ShaderFloat>(2).Value = BaseTransformComponent.Scale.X;
-            mat.Parameter<ShaderVec2>(4).Value = BaseTransformComponent.LocalTranslation.Xy;
+            mat.Parameter<ShaderVec2>(4).Value = BaseTransformComponent.Translation.Xy;
             mat.Parameter<ShaderFloat>(5).Value = UnitIncrement;
 
             UpdateTextIncrements();
@@ -456,7 +456,7 @@ namespace TheraEditor.Windows.Forms
             if (moveX != 0.0f || moveY != 0.0f)
             {
                 Vec2 move = new Vec2(moveX * delta, moveY * delta);
-                BaseTransformComponent.LocalTranslation += move;
+                BaseTransformComponent.Translation += move;
             }
         }
         private void ZoomOut(bool pressed)
@@ -593,7 +593,7 @@ namespace TheraEditor.Windows.Forms
             _viewDragged = true;
             Vec2 diff = GetWorldCursorDiff(CursorPosition());
             if (diff.LengthSquared > float.Epsilon)
-                BaseTransformComponent.LocalTranslation.Xy += diff;
+                BaseTransformComponent.Translation.Xy += diff;
         }
         protected override void OnScrolledInput(bool down)
         {

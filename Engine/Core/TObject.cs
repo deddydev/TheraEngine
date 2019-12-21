@@ -138,16 +138,6 @@ namespace TheraEngine
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         
-        protected virtual T Get<T>(
-           ref T fieldValue,
-           [CallerMemberName] string propertyName = null)
-        {
-            if (Bindings.ContainsKey(propertyName))
-                fieldValue = (T)Bindings[propertyName].Get();
-            
-            return fieldValue;
-        }
-
         /// <summary>
         /// Helper method to set a property's backing field.
         /// Checks if the new value is equal to the new value and cancels if true.
@@ -175,9 +165,6 @@ namespace TheraEngine
                 beforeSet?.Invoke();
 
             fieldValue = newValue;
-
-            if (Bindings.ContainsKey(propertyName))
-                Bindings[propertyName].Set(newValue);
 
             if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(newValue, default))
                 afterSet?.Invoke();
@@ -222,16 +209,40 @@ namespace TheraEngine
             return true;
         }
 
-        public ConcurrentDictionary<string, PropertyBinding> Bindings { get; private set; }
+        [Category("Object")]
+        [BrowsableIf("Bindings != null")]
+        [TSerialize]
+        public Dictionary<string, PropertyBinding> Bindings { get; private set; }
+
         public void BindProperty(string propertyName, TObject source, string sourcePropertyName, EBindingMode mode = EBindingMode.OneWay, TPropertyConverter converter = null)
         {
             if (Bindings is null)
-                Bindings = new ConcurrentDictionary<string, PropertyBinding>();
+                Bindings = new Dictionary<string, PropertyBinding>();
 
-            Bindings.TryAdd(propertyName, new PropertyBinding(this, source, sourcePropertyName, mode, converter, false));
+            Bindings.Add(propertyName, new PropertyBinding(this, source, propertyName, sourcePropertyName, mode, converter));
+        }
+        public void BindProperty(string propertyName, TObject source, string sourcePropertyName, Func<object, object> converter, bool toSource = false)
+        {
+            if (Bindings is null)
+                Bindings = new Dictionary<string, PropertyBinding>();
 
-            if (mode == EBindingMode.TwoWay)
-                source.Bindings.TryAdd(sourcePropertyName, new PropertyBinding(source, this, propertyName, mode, converter, true));
+            Bindings.Add(propertyName, new PropertyBinding(this, source, propertyName, sourcePropertyName, converter, toSource));
+        }
+        public void ClearPropertyBinding(string propertyName)
+        {
+            if (Bindings.ContainsKey(propertyName))
+                Bindings.Remove(propertyName);
+
+            if (Bindings.Count == 0)
+                Bindings = null;
+        }
+        public void ClearAllPropertyBindings(string propertyName)
+        {
+            if (Bindings.ContainsKey(propertyName))
+                Bindings.Remove(propertyName);
+
+            if (Bindings.Count == 0)
+                Bindings = null;
         }
 
         #endregion
@@ -280,10 +291,7 @@ namespace TheraEngine
         {
             get
             {
-                lock (_editorState)
-                {
-                    return _editorState ?? (_editorState = new EditorState(this));
-                }
+                return _editorState ?? (_editorState = new EditorState(this));
             }
             set
             {

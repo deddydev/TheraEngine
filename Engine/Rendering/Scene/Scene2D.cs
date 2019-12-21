@@ -63,9 +63,13 @@ namespace TheraEngine.Rendering
             //foreach (I2DRenderable r in _renderables)
             //    r.AddRenderables(_passes);
         }
+        private BoundingRectangleFStruct? VolumeToBounds(IVolume volume)
+        {
+            return null;
+        }
         public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, ICamera camera, bool shadowPass)
         {
-            RenderTree.CollectVisible(null, populatingPasses, camera);
+            RenderTree.CollectVisible(VolumeToBounds(collectionVolume), populatingPasses, camera);
             //foreach (I2DRenderable r in Renderables)
             //    if (r.RenderInfo.Visible)
             //        r.AddRenderables(populatingPasses, camera);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing.Text;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
@@ -66,7 +67,7 @@ namespace TheraEngine.Rendering.UI
 
                 NeedsRedraw = true;
                 ForceFullRedraw = true;
-                Resize();
+                ResizeLayout();
             }
         }
         public TextRenderingHint TextQuality
@@ -100,6 +101,7 @@ namespace TheraEngine.Rendering.UI
         }
         [Browsable(false)]
         public bool PreRenderEnabled => NeedsResize != null || NeedsRedraw;
+
         public void PreRenderUpdate(ICamera camera) { }
         public void PreRender(Viewport viewport, ICamera camera) { }
         public void PreRenderSwap()

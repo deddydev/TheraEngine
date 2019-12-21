@@ -101,6 +101,9 @@ namespace System
             get => _data;
             set
             {
+                if (OnPropertyChanging())
+                    return;
+
                 BeginUpdate();
                 try
                 {
@@ -110,6 +113,8 @@ namespace System
                 {
                     EndUpdate();
                 }
+
+                OnPropertyChanged();
             }
         }
         public float X

@@ -215,7 +215,6 @@ namespace TheraEditor.Windows.Forms
             {
                 editorProxy.PreWorldChanged += WorldPreChanged;
                 editorProxy.PostWorldChanged += WorldPostChanged;
-
             }
         }
         private void WorldSettingsUnloaded(WorldSettings settings)
@@ -606,20 +605,20 @@ namespace TheraEditor.Windows.Forms
         private Rectangle _prevClip;
         private void CaptureMouse(Control panel)
         {
-            CursorManager.GlobalWrapCursorWithinClip = true;
+            //CursorManager.GlobalWrapCursorWithinClip = true;
             Engine.EditorState.InEditMode = false;
             panel.Focus();
             //panel.Capture = true;
-            _prevClip = Cursor.Clip;
-            Cursor.Clip = panel.RectangleToScreen(panel.ClientRectangle);
+            //_prevClip = Cursor.Clip;
+            //Cursor.Clip = panel.RectangleToScreen(panel.ClientRectangle);
             //HideCursor();
         }
         private void ReleaseMouse()
         {
-            CursorManager.GlobalWrapCursorWithinClip = false;
+            //CursorManager.GlobalWrapCursorWithinClip = false;
             Engine.EditorState.InEditMode = true;
             //ShowCursor();
-            Cursor.Clip = _prevClip;
+            //Cursor.Clip = _prevClip;
         }
         private EEditorGameplayState _gameState = EEditorGameplayState.Editing;
         public EEditorGameplayState GameState

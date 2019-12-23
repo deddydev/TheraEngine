@@ -1116,6 +1116,9 @@ namespace System
         }
         public bool Equals(EventVec4 other)
         {
+            if (other is null)
+                return false;
+
             return
                 X == other.X &&
                 Y == other.Y &&

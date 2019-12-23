@@ -56,15 +56,17 @@ namespace TheraEngine.Rendering
             return _attribCache.GetOrAdd(name, n => Engine.Renderer.OnGetAttribLocation(bindingId, n));
         }
 
-        public bool IsValid { get; private set; } = false;
+        public bool IsValid { get; private set; } = true;
 
         public int AddShader(GLSLScript shader)
         {
             if (shader is null)
                 return -1;
+
             RenderShader rs = new RenderShader(shader) { OwningProgram = this };
             _shaders.Add(rs);
             ShaderTypeMask |= (EProgramStageMask)(int)shader.Type;
+
             Destroy();
             return _shaders.Count - 1;
         }
@@ -72,9 +74,11 @@ namespace TheraEngine.Rendering
         {
             if (shader is null)
                 return -1;
+
             shader.OwningProgram = this;
             _shaders.Add(shader);
             ShaderTypeMask |= (EProgramStageMask)(int)shader.ShaderMode;
+
             Destroy();
             return _shaders.Count - 1;
         }
@@ -82,9 +86,11 @@ namespace TheraEngine.Rendering
         {
             if (shader is null || !_shaders.Contains(shader))
                 return;
+
             shader.OwningProgram = null;
             _shaders.Remove(shader);
             ShaderTypeMask &= ~(EProgramStageMask)(int)shader.ShaderMode;
+
             Destroy();
         }
 
@@ -110,7 +116,7 @@ namespace TheraEngine.Rendering
         {
             base.Destroy();
 
-            IsValid = false;
+            IsValid = true;
 
             _attribCache.Clear();
             _uniformCache.Clear();
@@ -124,30 +130,26 @@ namespace TheraEngine.Rendering
 
             IsValid = true;
 
-            int id = Engine.Renderer.GenerateProgram(Engine.Settings.AllowShaderPipelines);
-            
             if (_shaders.Count == 0)
             {
                 IsValid = false;
                 return NullBindingId;
             }
 
-            RenderShader shader;
-            for (int i = 0; i < _shaders.Count; ++i)
+            _shaders.ForEach(x => x.Generate());
+
+            if (_shaders.Any(x => !x.IsCompiled))
             {
-                shader = _shaders[i];
-
-                if (!shader.IsActive)
-                    shader.Generate();
-
-                if (IsValid = (IsValid && shader.IsCompiled))
-                    Engine.Renderer.AttachShader(shader.BindingId, id);
-                else
-                    return NullBindingId;
+                IsValid = false;
+                return NullBindingId;
             }
 
+            int id = Engine.Renderer.GenerateProgram(Engine.Settings.AllowShaderPipelines);
+
+            _shaders.ForEach(x => Engine.Renderer.AttachShader(x.BindingId, id));
+
             bool valid = Engine.Renderer.LinkProgram(id, out string info);
-            if (!(IsValid = (IsValid && valid)))
+            if (!valid)
             {
                 //if (info.Contains("Vertex info"))
                 //{
@@ -167,16 +169,17 @@ namespace TheraEngine.Rendering
                 //    string source = s.GetSource(true);
                 //    Engine.PrintLine(source);
                 //}
+
+                IsValid = false;
+                Engine.Renderer.DeleteObject(EObjectType.Program, id);
                 return NullBindingId;
             }
 
-            //Destroy shader objects. We don't need them now.
-            for (int i = 0; i < _shaders.Count; ++i)
+            _shaders.ForEach(x =>
             {
-                shader = _shaders[i];
-                Engine.Renderer.DetachShader(shader.BindingId, id);
-                shader.Destroy();
-            }
+                Engine.Renderer.DetachShader(x.BindingId, id);
+                x.Destroy();
+            });
             
             return id;
         }

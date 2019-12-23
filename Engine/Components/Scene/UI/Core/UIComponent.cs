@@ -176,7 +176,7 @@ namespace TheraEngine.Rendering.UI
             if (IgnoreResizes)
                 return;
 
-            ParentBounds = ParentSocket is IUIBoundableComponent comp ? comp.Size : Vec2.Zero;
+            ParentBounds = ParentSocket is IUIBoundableComponent comp ? comp.Size.Raw : Vec2.Zero;
 
             ArrangeChildren(Vec2.Zero, ParentBounds);
         }
@@ -237,7 +237,7 @@ namespace TheraEngine.Rendering.UI
         /// <returns></returns>
         public Vec2 ScreenToLocal(Vec2 coordinate, bool delta = false)
         {
-            Matrix4 mtx = InverseActorRelativeTransform;
+            Matrix4 mtx = InverseActorRelativeMatrix;
             if (delta)
                 mtx = mtx.ClearTranslation();
             return (coordinate * mtx).Xy;

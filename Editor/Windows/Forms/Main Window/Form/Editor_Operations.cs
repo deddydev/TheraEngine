@@ -22,7 +22,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (InvokeRequired)
             {
-                Invoke((Action)(() => AddChangeToUI(undoStr, redoStr)));
+                BeginInvoke((Action)(() => AddChangeToUI(undoStr, redoStr)));
                 return;
             }
 
@@ -94,7 +94,6 @@ namespace TheraEditor.Windows.Forms
 
         public static EngineDomainProxyEditor DomainProxy => Engine.DomainProxy as EngineDomainProxyEditor;
 
-
         public void ShowEditor(TypeProxy editorType, IFileObject file)
         {
             //TODO: Casting TypeProxy to Type: type cannot be for a user-created form.
@@ -115,7 +114,7 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             if (t.TreeView.InvokeRequired)
-                t.TreeView.Invoke((Action)(() => t.TreeView.SelectedNode = t));
+                t.TreeView.BeginInvoke((Action)(() => t.TreeView.SelectedNode = t));
             else
                 t.TreeView.SelectedNode = t;
         }

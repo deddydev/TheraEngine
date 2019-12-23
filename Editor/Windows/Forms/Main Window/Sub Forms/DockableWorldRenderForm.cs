@@ -38,11 +38,11 @@ namespace TheraEditor.Windows.Forms
         private void Instance_DomainProxyUnset(TheraEngine.Core.EngineDomainProxy obj)
         {
             RenderPanel.UnlinkFromWorldManager();
-            ((EngineDomainProxyEditor)obj).RemoveRenderHandlerFromEditorGameMode(RenderPanel.Handle);
+            //((EngineDomainProxyEditor)obj).RemoveRenderHandlerFromEditorGameMode(RenderPanel.Handle);
         }
         private void Instance_DomainProxySet(TheraEngine.Core.EngineDomainProxy obj)
         {
-            ((EngineDomainProxyEditor)obj).AddRenderHandlerToEditorGameMode(RenderPanel.Handle);
+            //((EngineDomainProxyEditor)obj).AddRenderHandlerToEditorGameMode(RenderPanel.Handle);
             RenderPanel.LinkToWorldManager(Editor.Instance.WorldManagerId);
         }
 

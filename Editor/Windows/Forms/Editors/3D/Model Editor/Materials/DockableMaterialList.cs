@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using WeifenLuo.WinFormsUI.Docking;
+using Extensions;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -20,35 +22,8 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             HashSet<TMaterial> ids = new HashSet<TMaterial>();
-
-            var rigidMeshes = staticModel.RigidChildren;
-            for (int i = 0; i < rigidMeshes.Count; ++i)
-            {
-                for (int x = 0; x < rigidMeshes[i].LODs.Count; ++x)
-                {
-                    ILOD lod = rigidMeshes[i].LODs[x];
-
-                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File))
-                    {
-                        ids.Add(lod.MaterialRef.File);
-                        listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
-                    }
-                }
-            }
-            var softMeshes = staticModel.SoftChildren;
-            for (int i = 0; i < softMeshes.Count; ++i)
-            {
-                for (int x = 0; x < softMeshes[i].LODs.Count; ++x)
-                {
-                    ILOD lod = softMeshes[i].LODs[x];
-
-                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File))
-                    {
-                        ids.Add(lod.MaterialRef.File);
-                        listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
-                    }
-                }
-            }
+            staticModel.RigidChildren.SelectMany(x => x.LODs).ForEach(x => DisplayLOD(ids, x));
+            staticModel.SoftChildren.SelectMany(x => x.LODs).ForEach(x => DisplayLOD(ids, x));
         }
         public void DisplayMaterials(SkeletalModel skelModel)
         {
@@ -56,50 +31,33 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             HashSet<TMaterial> ids = new HashSet<TMaterial>();
-            
-            var rigidMeshes = skelModel.RigidChildren;
-            for (int i = 0; i < rigidMeshes.Count; ++i)
-            {
-                for (int x = 0; x < rigidMeshes[i].LODs.Count; ++x)
-                {
-                    ILOD lod = rigidMeshes[i].LODs[x];
+            skelModel.RigidChildren.SelectMany(x => x.LODs).ForEach(x => DisplayLOD(ids, x));
+            skelModel.SoftChildren.SelectMany(x => x.LODs).ForEach(x => DisplayLOD(ids, x));
+        }
 
-                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File))
-                    {
-                        ids.Add(lod.MaterialRef.File);
-                        listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
-                    }
-                }
-            }
-            var softMeshes = skelModel.SoftChildren;
-            for (int i = 0; i < softMeshes.Count; ++i)
+        private void DisplayLOD(HashSet<TMaterial> ids, ILOD lod)
+        {
+            var mat = lod.MaterialRef.File;
+            if (mat != null && !ids.Contains(mat))
             {
-                for (int x = 0; x < softMeshes[i].LODs.Count; ++x)
-                {
-                    ILOD lod = softMeshes[i].LODs[x];
-
-                    if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File))
-                    {
-                        ids.Add(lod.MaterialRef.File);
-                        listView1.Items.Add(new ListViewItem(lod.MaterialRef.File.Name) { Tag = lod.MaterialRef.File });
-                    }
-                }
+                ids.Add(mat);
+                listView1.Items.Add(new ListViewItem(mat.Name) { Tag = mat });
             }
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ModelEditorForm f = DockPanel.FindForm() as ModelEditorForm;
-            if (f is null)
+            if (!(DockPanel.FindForm() is ModelEditorForm form))
                 return;
+
             if (listView1.SelectedItems.Count == 0)
             {
-                f.MaterialEditor.SetMaterial(null);
+                form.MaterialEditor.SetMaterial(null);
             }
             else
             {
                 if (listView1.SelectedItems[0].Tag is TMaterial mat)
-                    f.MaterialEditor.SetMaterial(mat);
+                    form.MaterialEditor.SetMaterial(mat);
             }
         }
     }

@@ -22,9 +22,9 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _renderHandler = value;
-                TargetRenderHandlers.Clear();
-                if (_renderHandler != null)
-                    TargetRenderHandlers.Add(_renderHandler);
+                //TargetRenderHandlers.Clear();
+                //if (_renderHandler != null)
+                //    TargetRenderHandlers.Add(_renderHandler);
             }
         }
         protected override void HandleLocalPlayerJoined(ControllerType item)

@@ -18,7 +18,7 @@ namespace TheraEngine.Components.Scene.Volumes
         public DelOnOverlapLeave Left;
 
         [TSerialize]
-        public bool TrackContacts { get; set; } = false;
+        public bool TrackContacts { get; set; } = true;
 
         protected virtual void OnEntered(TCollisionObject obj) => Entered?.Invoke(obj);
         protected virtual void OnLeft(TCollisionObject obj) => Left?.Invoke(obj);

@@ -17,27 +17,27 @@ namespace TheraEngine.Actors.Types.BSP
             _manager.Render(WorldMatrix, InverseWorldMatrix.Transposed().GetRotationMatrix3());
         }
 
-        public PrimitiveManager Merge(PrimitiveManager right, IntersectionType intersection)
+        public PrimitiveManager Merge(PrimitiveManager right, EIntersectionType intersection)
         {
             PrimitiveManager m = new PrimitiveManager();
             switch (intersection)
             {
-                case IntersectionType.Union:
+                case EIntersectionType.Union:
 
                     break;
-                case IntersectionType.Intersection:
+                case EIntersectionType.Intersection:
 
                     break;
-                case IntersectionType.Subtraction:
+                case EIntersectionType.Subtraction:
 
                     break;
-                case IntersectionType.Merge:
+                case EIntersectionType.Merge:
 
                     break;
-                case IntersectionType.Attach:
+                case EIntersectionType.Attach:
 
                     break;
-                case IntersectionType.Insert:
+                case EIntersectionType.Insert:
 
                     break;
             }
@@ -49,7 +49,7 @@ namespace TheraEngine.Actors.Types.BSP
             throw new NotImplementedException();
         }
     }
-    public enum IntersectionType
+    public enum EIntersectionType
     {
         Union,
         Intersection,

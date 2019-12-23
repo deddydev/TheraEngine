@@ -101,12 +101,31 @@ namespace TheraEngine.Core.Files.Serialization
             if (Member is null)
                 return;
             if (Member.MemberType.HasFlag(MemberTypes.Field))
-                ((FieldInfoProxy)Member).SetValue(parentObject, memberObject);
+            {
+                FieldInfoProxy f = (FieldInfoProxy)Member;
+                try
+                {
+                    f.SetValue(parentObject, memberObject);
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
+            }
             else if (Member.MemberType.HasFlag(MemberTypes.Property))
             {
-                PropertyInfo p = (PropertyInfoProxy)Member;
+                PropertyInfoProxy p = (PropertyInfoProxy)Member;
                 if (p.CanWrite)
-                    p.SetValue(parentObject, memberObject);
+                {
+                    try
+                    {
+                        p.SetValue(parentObject, memberObject);
+                    }
+                    catch (Exception ex)
+                    {
+                        Engine.LogException(ex);
+                    }
+                }
                 else
                     Engine.LogWarning($"Can't set property {p.Name} in {p.DeclaringType.GetFriendlyName()}.");
             }

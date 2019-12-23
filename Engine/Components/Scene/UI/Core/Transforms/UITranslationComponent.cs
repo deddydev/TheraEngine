@@ -20,8 +20,8 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public Vec3 ScreenTranslation
         {
-            get => Vec3.TransformPosition(WorldPoint, ActorRelativeTransform);
-            set => LocalTranslation.Raw = Vec3.TransformPosition(value, InverseActorRelativeTransform);
+            get => Vec3.TransformPosition(WorldPoint, ActorRelativeMatrix);
+            set => LocalTranslation.Raw = Vec3.TransformPosition(value, InverseActorRelativeMatrix);
         }
 
         [Category("Transform")]

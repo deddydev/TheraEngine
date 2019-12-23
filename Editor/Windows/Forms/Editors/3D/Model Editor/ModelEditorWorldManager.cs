@@ -22,15 +22,27 @@ namespace TheraEditor.Windows.Forms
 {
     public class ModelEditorWorldManager : WorldManager
     {
-        private LocalFileRef<World> ModelEditorWorldRef
-            = new LocalFileRef<World>(/*Engine.Files.WorldPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
+        public ModelEditorWorldManager()
+        {
+            ModelEditorWorldRef = new LocalFileRef<World>(/*Engine.Files.WorldPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
+            ModelEditorWorldRef.Loaded += ModelEditorWorldRef_Loaded;
+            ModelEditorWorldRef.Unloaded += ModelEditorWorldRef_Unloaded;
+        }
+
+        private void ModelEditorWorldRef_Unloaded(World obj)
+        {
+            if (obj == World)
+                World = null;
+        }
+        private void ModelEditorWorldRef_Loaded(World world)
+            => World = world;
+
+        private LocalFileRef<World> ModelEditorWorldRef;
 
         private bool _viewConstraints;
         private bool _viewCollisions;
         private bool _viewCullingVolumes;
         private bool _viewBones;
-
-        public override IWorld World => ModelEditorWorldRef.File;
 
         public event Action<IActor> TargetActorLoaded;
 

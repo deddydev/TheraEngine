@@ -300,6 +300,9 @@ namespace TheraEditor.Windows.Forms
         }
         private void UpdateTextIncrements(float unitCount, Dictionary<string, (UITextRasterComponent, UIString2D)> textCache, float minimum, float increment, bool xCoord)
         {
+            if (float.IsNaN(unitCount))
+                return;
+
             var allKeys = textCache.Keys.ToList();
             var visible = Enumerable.Range(0, (int)Math.Ceiling(unitCount)).Select(x =>
             {

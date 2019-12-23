@@ -5,13 +5,27 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds
 {
+    /// <summary>
+    /// Represents a global interface for connecting a world to render handlers
+    /// related to a particular instance of work.
+    /// For example, main editor world, model editor world, a 2D UI world, etc
+    /// </summary>
     public class WorldManager : TObjectSlim
     {
         protected IWorld _targetWorld;
-        public virtual IWorld World
+        public IWorld World
         {
-            get => _targetWorld ?? Engine.World;
-            set => _targetWorld = value;
+            get => _targetWorld;
+            set
+            {
+                if (_targetWorld?.Manager == this)
+                    _targetWorld.Manager = null;
+
+                _targetWorld = value;
+
+                if (_targetWorld != null)
+                    _targetWorld.Manager = this;
+            }
         }
 
         private readonly List<RenderContext> _contexts = new List<RenderContext>();

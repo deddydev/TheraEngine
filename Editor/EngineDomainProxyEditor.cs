@@ -61,20 +61,20 @@ namespace TheraEditor
         public ConcurrentDictionary<TypeProxy, TypeProxy> FullEditorTypes { get; private set; }
         public ConcurrentDictionary<TypeProxy, TypeProxy> InPlaceEditorTypes { get; private set; }
 
-        public void AddRenderHandlerToEditorGameMode(IntPtr handle)
-        {
-            if (Contexts.ContainsKey(handle))
-                EditorGameMode.TargetRenderHandlers.Add(Contexts[handle].Handler);
-        }
+        //public void AddRenderHandlerToEditorGameMode(IntPtr handle)
+        //{
+        //    //if (Contexts.ContainsKey(handle))
+        //    //    EditorGameMode.TargetRenderHandlers.Add(Contexts[handle].Handler);
+        //}
 
         public void SaveWorld() => SaveFile(World);
         public void SaveWorldAs() => SaveFileAs(World);
 
-        public void RemoveRenderHandlerFromEditorGameMode(IntPtr handle)
-        {
-            if (Contexts.ContainsKey(handle))
-                EditorGameMode.TargetRenderHandlers.Remove(Contexts[handle].Handler);
-        }
+        //public void RemoveRenderHandlerFromEditorGameMode(IntPtr handle)
+        //{
+        //    if (Contexts.ContainsKey(handle))
+        //        EditorGameMode.TargetRenderHandlers.Remove(Contexts[handle].Handler);
+        //}
 
         /// <summary>
         /// Key is file type, Value is tree node wrapper type
@@ -259,7 +259,7 @@ namespace TheraEditor
         {
             var wrappers = ThirdPartyWrappers;
 
-            if (wrappers.TryGetValue(ext, out TypeProxy wrapperType))
+            if (wrappers != null && wrappers.TryGetValue(ext, out TypeProxy wrapperType))
                 return wrapperType.CreateInstance() as IBasePathWrapper;
 
             return null;
@@ -394,7 +394,8 @@ namespace TheraEditor
             IWorld world = Engine.World;
             if (world != null)
             {
-                CurrentGameMode = Engine.GetGameMode() ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
+                var mode = Engine.GetGameMode();
+                CurrentGameMode = mode ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
                 world.CurrentGameMode = CurrentGameMode;
             }
         }

@@ -125,9 +125,9 @@ namespace TheraEngine.Actors.Types.Pawns
             => _pitch = value * GamepadRotateSpeed;
 
         protected virtual void YawRight(bool pressed)
-            => _yaw += KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
-        protected virtual void YawLeft(bool pressed)
             => _yaw -= KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
+        protected virtual void YawLeft(bool pressed)
+            => _yaw += KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
         protected virtual void PitchDown(bool pressed)
             => _pitch -= KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
         protected virtual void PitchUp(bool pressed)

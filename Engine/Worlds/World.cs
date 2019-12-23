@@ -43,6 +43,7 @@ namespace TheraEngine.Worlds
         bool IsPlaying { get; }
         bool IsRebasingOrigin { get; }
         int SpawnedActorCount { get; }
+        WorldManager Manager { get; set; }
 
         void GlobalUpdate();
         void GlobalSwap();
@@ -239,6 +240,8 @@ namespace TheraEngine.Worlds
 
         IRenderInfo3D I3DRenderable.RenderInfo => RenderInfo3D;
         IRenderInfo2D I2DRenderable.RenderInfo => RenderInfo2D;
+
+        public WorldManager Manager { get; set; }
 
         /// <summary>
         /// Moves the origin to preserve float precision when traveling large distances from the origin.

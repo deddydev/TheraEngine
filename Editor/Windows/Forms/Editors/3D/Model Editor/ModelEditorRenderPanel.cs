@@ -17,7 +17,7 @@ namespace TheraEngine.Windows.Forms
             EditorPawn.ScrollSpeed = 0.5f;
             EditorPawn.GamepadTranslateSpeed = 15.0f;
 
-            WindowGameMode?.TargetRenderHandlers?.Add(this);
+            //WindowGameMode?.TargetRenderHandlers?.Add(this);
         }
 
         public Func<Viewport, IVolume> GetCullingVolumeOverride { get; set; }

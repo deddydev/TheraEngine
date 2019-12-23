@@ -127,7 +127,7 @@ namespace TheraEngine.GameModes
     {
         bool IsPlaying { get; }
         bool DisallowPausing { get; set; }
-        IEventList<BaseRenderHandler> TargetRenderHandlers { get; }
+        IEnumerable<BaseRenderHandler> TargetRenderHandlers { get; }
         IWorld TargetWorld { get; }
         IEventList<LocalPlayerController> LocalPlayers { get; }
 
@@ -152,8 +152,8 @@ namespace TheraEngine.GameModes
     {
         public BaseGameMode()
         {
-            TargetRenderHandlers = new EventList<BaseRenderHandler>();
-            TargetRenderHandlers.CollectionChanged += _targetRenderPanels_CollectionChanged;
+            //TargetRenderHandlers = new EventList<BaseRenderHandler>();
+            //TargetRenderHandlers.CollectionChanged += _targetRenderPanels_CollectionChanged;
         }
 
         private void _targetRenderPanels_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -201,7 +201,7 @@ namespace TheraEngine.GameModes
         /// These are the render panels that will be used for the target world's local player controllers.
         /// </summary>
         [Browsable(false)]
-        public IEventList<BaseRenderHandler> TargetRenderHandlers { get; }
+        public IEnumerable<BaseRenderHandler> TargetRenderHandlers => TargetWorld?.Manager?.AssociatedContexts?.Select(x => x.Handler);
         /// <summary>
         /// This is the world that is running this game mode.
         /// </summary>

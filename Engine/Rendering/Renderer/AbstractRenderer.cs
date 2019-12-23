@@ -465,6 +465,8 @@ namespace TheraEngine.Rendering
         public abstract EWaitSyncStatus ClientWaitSync(IntPtr sync, long timeout);
         public abstract void WaitSync(IntPtr sync, long timeout);
         public abstract IntPtr FenceSync();
+        public SynchronizationContext SyncContext { get; } = SynchronizationContext.Current;
+        public void Invoke(SendOrPostCallback del) => SyncContext.Send(del, null);
         #endregion
 
         #region Shaders

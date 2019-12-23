@@ -32,7 +32,6 @@ namespace TheraEngine.Rendering
 
         public BoundingRectangle _region;
         public BoundingRectangle _internalResolution = new BoundingRectangle();
-        public ICamera _camera;
         public SSAOInfo _ssaoInfo = new SSAOInfo();
 
         public QuadFrameBuffer SSAOFBO;
@@ -71,13 +70,26 @@ namespace TheraEngine.Rendering
         public float _bottomPercentage = 0.0f;
         public float _topPercentage = 1.0f;
 
+        public IUserInterfacePawn _hud;
+        public IUserInterfacePawn HUD
+        {
+            get => _hud;
+            set
+            {
+                _hud = value;
+                _hud?.Resize(Region.Extents);
+
+                Engine.PrintLine("Set viewport HUD: " + (_hud?.GetTypeProxy()?.GetFriendlyName() ?? "null"));
+            }
+        }
+        public ICamera _camera;
         public ICamera Camera
         {
             get => _camera;
             set
             {
                 _camera?.Viewports?.Remove(this);
-                
+
                 _camera = value;
 
                 //Engine.PrintLine("Updated viewport " + _index + " camera: " + (_worldCamera is null ? "null" : _worldCamera.GetType().GetFriendlyName()));
@@ -92,6 +104,8 @@ namespace TheraEngine.Rendering
                     if (_camera is PerspectiveCamera p)
                         p.Aspect = (float)Width / Height;
                 }
+
+                Engine.PrintLine("Set viewport camera: " + (_camera?.GetTypeProxy()?.GetFriendlyName() ?? "null"));
             }
         }
 
@@ -108,39 +122,8 @@ namespace TheraEngine.Rendering
         public bool FBOsInitialized = false;
 
         public List<LocalPlayerController> Owners { get; } = new List<LocalPlayerController>();
-
-        //{
-        //    get => _owner;
-        //    set
-        //    {
-        //        if (_owner != null)
-        //            _owner.Viewport = null;
-
-        //        _owner = value;
-
-        //        if (_owner != null)
-        //        {
-        //            _owner.Viewport = this;
-        //            Camera = _owner.CurrentCamera;
-        //        }
-        //    }
-        //}
-
         public BoundingRectangle InternalResolution => _internalResolution;
         public BaseRenderHandler RenderHandler { get; }
-
-        public IUserInterfacePawn _hud;
-        public IUserInterfacePawn HUD
-        {
-            get => _hud;
-            set
-            {
-                _hud = value;
-                _hud?.Resize(Region.Extents);
-
-                //Engine.PrintLine("Updated viewport " + _index + " HUD: " + (_hud is null ? "null" : _hud.GetType().GetFriendlyName()));
-            }
-        }
 
         public Viewport(BaseRenderHandler panel, int index)
         {
@@ -244,6 +227,7 @@ namespace TheraEngine.Rendering
             SSAOBlurFBO?.Generate();
             SSAOFBO?.Generate();
             TimeSpan span = DateTime.Now - start;
+
             Engine.PrintLine($"FBO regeneration took {span.Seconds} seconds.");
         }
 
@@ -414,20 +398,21 @@ namespace TheraEngine.Rendering
         //    _decalComp = c;
         //    DecalManager.Render(c.DecalRenderMatrix);
         //}
+        //TODO: render using instances
         internal void RenderDirLight(DirectionalLightComponent c)
         {
             _lightComp = c;
-            DirLightManager.Render(c.LightMatrix);
+            DirLightManager.Render(c.LightMatrix, Matrix3.Identity);
         }
         internal void RenderPointLight(PointLightComponent c)
         {
             _lightComp = c;
-            PointLightManager.Render(c.LightMatrix);
+            PointLightManager.Render(c.LightMatrix, Matrix3.Identity);
         }
         internal void RenderSpotLight(SpotLightComponent c)
         {
             _lightComp = c;
-            SpotLightManager.Render(c.LightMatrix);
+            SpotLightManager.Render(c.LightMatrix, Matrix3.Identity);
         }
 
         /// <summary>

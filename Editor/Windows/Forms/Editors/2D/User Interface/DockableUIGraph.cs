@@ -25,6 +25,7 @@ namespace TheraEditor.Windows.Forms
         public override bool ShouldHideCursor => false;
         public DockableUserInterfaceEditor(UserInterfacePawn ui) : this()
         {
+            ui.Bounds.Raw = new Vec2(1920, 1080);
             File = ui;
         }
         protected override bool TrySetFile(UserInterfacePawn file)

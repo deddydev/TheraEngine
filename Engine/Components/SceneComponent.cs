@@ -52,8 +52,8 @@ namespace TheraEngine.Components
         
         Matrix4 ParentMatrix { get; }
         Matrix4 InverseParentMatrix { get; }
-        Matrix4 ActorRelativeTransform { get; }
-        Matrix4 InverseActorRelativeTransform { get; }
+        Matrix4 ActorRelativeMatrix { get; }
+        Matrix4 InverseActorRelativeMatrix { get; }
         
         ISocket AttachTo(SkeletalMeshComponent mesh, string socketName);
         ISocket AttachTo(StaticMeshComponent mesh, string socketName);
@@ -493,11 +493,13 @@ namespace TheraEngine.Components
         /// <summary>
         /// Returns the world transform of the parent scene component.
         /// </summary>
+        [Browsable(false)]
         public Matrix4 ParentMatrix
             => ParentSocket is null ? Matrix4.Identity : ParentSocket.WorldMatrix;
         /// <summary>
         /// Returns the inverse of the world transform of the parent scene component.
         /// </summary>
+        [Browsable(false)]
         public Matrix4 InverseParentMatrix 
             => ParentSocket is null ? Matrix4.Identity : ParentSocket.InverseWorldMatrix;
 
@@ -505,13 +507,13 @@ namespace TheraEngine.Components
         /// Gets the transformation of this component relative to the actor's root component.
         /// </summary>
         [Browsable(false)]
-        public Matrix4 ActorRelativeTransform 
+        public Matrix4 ActorRelativeMatrix 
             => TransformRelativeTo(OwningActor?.RootComponent);
         /// <summary>
         /// Gets the inverse transformation of this component relative to the actor's root component.
         /// </summary>
         [Browsable(false)]
-        public Matrix4 InverseActorRelativeTransform 
+        public Matrix4 InverseActorRelativeMatrix 
             => InverseTransformRelativeTo(OwningActor?.RootComponent);
 
         public Matrix4 InverseTransformRelativeTo(ISceneComponent component) 

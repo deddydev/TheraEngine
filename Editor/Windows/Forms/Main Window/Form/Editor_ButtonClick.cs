@@ -285,10 +285,10 @@ namespace TheraEditor.Windows.Forms
 
                 _gameDomain = domain;
             }
-            catch (Exception ex)
-            {
-                Engine.LogException(ex);
-            }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 Engine.PrintLine("Game domain created.");

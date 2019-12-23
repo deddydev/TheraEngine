@@ -28,10 +28,14 @@ namespace TheraEngine.Physics.Bullet
         {
             List<TCollisionObject> list = new List<TCollisionObject>();
 
-            if (Body?.OverlappingPairs != null)
-                foreach (var obj in Body.OverlappingPairs)
-                    if (obj?.UserObject is TCollisionObject tobj)
-                        list.Add(tobj);
+            try
+            {
+                if (Body?.OverlappingPairs != null)
+                    foreach (var obj in Body.OverlappingPairs)
+                        if (obj?.UserObject is TCollisionObject tobj)
+                            list.Add(tobj);
+            }
+            catch { }
                 
             return list;
         }

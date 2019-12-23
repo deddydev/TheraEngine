@@ -155,7 +155,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (InvokeRequired)
             {
-                Invoke(new Action<IActor>(ActorSpawned), item);
+                BeginInvoke(new Action<IActor>(ActorSpawned), item);
                 return;
             }
 
@@ -186,7 +186,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (InvokeRequired)
             {
-                Invoke(new Action<IActor>(ActorDespawned), item);
+                BeginInvoke(new Action<IActor>(ActorDespawned), item);
                 return;
             }
 

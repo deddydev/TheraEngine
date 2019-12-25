@@ -9,6 +9,7 @@ using TheraEngine.Components;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
@@ -26,9 +27,9 @@ namespace TheraEngine.Rendering.UI
         UIParentAttachmentInfo ParentInfo { get; set; }
 
         void RegisterInputs(InputInterface input);
-        void ArrangeChildren(Vec2 translation, Vec2 parentBounds);
-        void ResizeLayout();
+        internal void ResizeLayout(BoundingRectangleF parentRegion);
         Vec2 ScreenToLocal(Vec2 coordinate, bool delta = false);
+        void InvalidateLayout();
     }
     public abstract class UIComponent : OriginRebasableComponent, IUIComponent
     {
@@ -75,8 +76,8 @@ namespace TheraEngine.Rendering.UI
             get => base.ParentSocket;
             set
             {
-                base.ParentSocket = value;
-                ResizeLayout();
+                base.ParentSocket = value; 
+                InvalidateLayout();
             }
         }
 
@@ -94,7 +95,7 @@ namespace TheraEngine.Rendering.UI
                 base.OwningActor = value as BaseActor;
 
                 //if (ParentSocket is null)
-                ResizeLayout();
+                InvalidateLayout();
             }
         }
 
@@ -148,37 +149,35 @@ namespace TheraEngine.Rendering.UI
             localTransform = Matrix4.Identity;
             inverseLocalTransform = Matrix4.Identity;
         }
-        [Browsable(false)]
-        public bool IgnoreResizes { get; set; } = false;
-        [Browsable(false)]
-        public Vec2 ParentBounds { get; protected set; }
+        protected override void OnWorldTransformChanged()
+        {
+            InvalidateLayout();
+            base.OnWorldTransformChanged();
+        }
 
-        public virtual void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
+        protected virtual void OnResizeLayout(BoundingRectangleF parentRegion)
         {
             //if (IgnoreResizes)
             //    return;
 
             //IgnoreResizes = true;
 
+            RecalcLocalTransform();
+
             foreach (ISceneComponent c in _children)
                 if (c is IUIComponent uiComp)
-                    uiComp.ArrangeChildren(translation, parentBounds);
-
-            RecalcLocalTransform();
+                    uiComp.ResizeLayout(parentRegion);
 
             //IgnoreResizes = false;
         }
         /// <summary>
         /// Resizes self depending on the parent component.
         /// </summary>
-        public void ResizeLayout()
+        void IUIComponent.ResizeLayout(BoundingRectangleF parentRegion)
+            => ResizeLayout(parentRegion);
+        internal void ResizeLayout(BoundingRectangleF parentRegion)
         {
-            if (IgnoreResizes)
-                return;
-
-            ParentBounds = ParentSocket is IUIBoundableComponent comp ? comp.Size.Raw : Vec2.Zero;
-
-            ArrangeChildren(Vec2.Zero, ParentBounds);
+            OnResizeLayout(parentRegion);
         }
         //public virtual IUIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis)
         //{
@@ -203,7 +202,7 @@ namespace TheraEngine.Rendering.UI
             {
                 c.RenderInfo.LayerIndex = RenderInfo.LayerIndex;
                 c.RenderInfo.IndexWithinLayer = RenderInfo.IndexWithinLayer + 1;
-                c.ResizeLayout();
+                c.InvalidateLayout();
             }
         }
 

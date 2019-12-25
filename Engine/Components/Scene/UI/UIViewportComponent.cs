@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using TheraEngine.Core;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -57,14 +58,14 @@ namespace TheraEngine.Rendering.UI
         [Category("Rendering")]
         public Viewport Viewport { get; private set; } = new Viewport(1, 1);
 
-        public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
+        protected override void OnResizeLayout(BoundingRectangleF parentRegion)
         {
-            base.ArrangeChildren(translation, parentBounds);
+            base.OnResizeLayout(parentRegion);
 
             int 
-                w = (int)Width.ClampMin(1.0f), 
-                h = (int)Height.ClampMin(1.0f);
-
+                w = (int)ActualWidth.ClampMin(1.0f), 
+                h = (int)ActualHeight.ClampMin(1.0f);
+            
             Viewport.Resize(w, h);
             _fbo.Resize(w, h);
         }

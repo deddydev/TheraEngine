@@ -22,25 +22,15 @@
             return count;
         }
         public static byte Clamp(this byte value, byte min, byte max)
-        {
-            return value < min ? min : value > max ? max : value;
-        }
+            => value < min ? min : value > max ? max : value;
         public static byte ClampMin(this byte value, byte min)
-        {
-            return value <= min ? min : value;
-        }
+            => value <= min ? min : value;
         public static byte ClampMax(this byte value, byte max)
-        {
-            return value >= max ? max : value;
-        }
+            => value >= max ? max : value;
         public static byte RoundDownToEven(this byte value)
-        {
-            return (byte)(value - (value % 2));
-        }
+            => (byte)(value - (value % 2));
         public static byte RoundUpToEven(this byte value)
-        {
-            return (byte)(value + (value % 2));
-        }
+            => (byte)(value + (value % 2));
         public static byte SetBit(this byte value, int bitIndex, bool set)
             => (byte)(set ? value | (1 << bitIndex) : value & ~(1 << bitIndex));
     }

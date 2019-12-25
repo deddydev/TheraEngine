@@ -494,8 +494,10 @@ void main()
             _yString.Text = pos.Y.ToString("###0.0##");
         }
         private bool _redrewLastMove = false;
-        protected override void BaseWorldTransformChanged(ISceneComponent comp)
+        protected override void ResizeLayout()
         {
+            base.ResizeLayout();
+
             Matrix4 mtx = BaseTransformComponent.WorldMatrix;
 
             _rcKfLines.WorldMatrix =
@@ -517,8 +519,10 @@ void main()
             _xCoord.Translation.Y = origin.Y;
             _yCoord.Translation.X = origin.X;
 
-            base.BaseWorldTransformChanged(comp);
-            
+
+
+
+
             Vec2 bl = GetViewportBottomLeftWorldSpace();
             Vec2 tr = GetViewportTopRightWorldSpace();
 
@@ -731,7 +735,7 @@ void main()
                         {
                             float sec = pos.X + kf.Value.SecondOffset;
                             if (SnapToUnits)
-                                sec = sec.RoundToNearestMultiple(UnitIncrement);
+                                sec = sec.RoundedToNearestMultiple(UnitIncrementX);
                             kf.Value.Keyframe.Second = sec;
 
                             if (kf.Value.DraggingInValue)
@@ -771,7 +775,7 @@ void main()
                             {
                                 float inPos = pos.Y + kf.Value.InValueOffset;
                                 if (SnapToUnits)
-                                    inPos = inPos.RoundToNearestMultiple(UnitIncrement);
+                                    inPos = inPos.RoundedToNearestMultiple(UnitIncrementX);
                                 kf.Value.Keyframe.InValue = (int)inPos;
                                 if (AutoGenerateTangents)
                                 {
@@ -782,7 +786,7 @@ void main()
                             {
                                 float outPos = pos.Y + kf.Value.OutValueOffset;
                                 if (SnapToUnits)
-                                    outPos = outPos.RoundToNearestMultiple(UnitIncrement);
+                                    outPos = outPos.RoundedToNearestMultiple(UnitIncrementX);
                                 kf.Value.Keyframe.OutValue = (int)outPos;
                                 if (AutoGenerateTangents)
                                 {
@@ -804,14 +808,14 @@ void main()
                             {
                                 float inPos = pos.Y + kf.Value.InValueOffset;
                                 if (SnapToUnits)
-                                    inPos = inPos.RoundToNearestMultiple(UnitIncrement);
+                                    inPos = inPos.RoundedToNearestMultiple(UnitIncrementX);
                                 kf.Value.Keyframe.InTangent = (int)inPos;
                             }
                             if (kf.Value.DraggingOutTangent)
                             {
                                 float outPos = pos.Y + kf.Value.OutValueOffset;
                                 if (SnapToUnits)
-                                    outPos = outPos.RoundToNearestMultiple(UnitIncrement);
+                                    outPos = outPos.RoundedToNearestMultiple(UnitIncrementX);
                                 kf.Value.Keyframe.OutTangent = (int)outPos;
                             }
                         }
@@ -824,7 +828,7 @@ void main()
                 {
                     float kfSec = pos.X + kf.Value.SecondOffset;
                     if (SnapToUnits)
-                        kfSec = kfSec.RoundToNearestMultiple(UnitIncrement);
+                        kfSec = kfSec.RoundedToNearestMultiple(UnitIncrementX);
 
                     if (kf.Value.DraggingInValue || kf.Value.DraggingOutValue)
                     {
@@ -844,7 +848,7 @@ void main()
                         {
                             float inPos = pos.Y + kf.Value.InValueOffset;
                             if (SnapToUnits)
-                                inPos = inPos.RoundToNearestMultiple(UnitIncrement);
+                                inPos = inPos.RoundedToNearestMultiple(UnitIncrementX);
                             kf.Value.Keyframe.InValue = (int)inPos;
                             if (AutoGenerateTangents)
                             {
@@ -855,7 +859,7 @@ void main()
                         {
                             float outPos = pos.Y + kf.Value.OutValueOffset;
                             if (SnapToUnits)
-                                outPos = outPos.RoundToNearestMultiple(UnitIncrement);
+                                outPos = outPos.RoundedToNearestMultiple(UnitIncrementX);
                             kf.Value.Keyframe.OutValue = (int)outPos;
                             if (AutoGenerateTangents)
                             {
@@ -879,7 +883,7 @@ void main()
                         {
                             float posY = pos.Y/* + kf.Value.InValueOffset*/;
                             if (SnapToUnits)
-                                posY = posY.RoundToNearestMultiple(UnitIncrement);
+                                posY = posY.RoundedToNearestMultiple(UnitIncrementX);
 
                             //m = y / x
                             //y = pos.Y - kf.Value.InValueInitial
@@ -891,7 +895,7 @@ void main()
                             float posY = pos.Y/* + kf.Value.OutValueOffset*/;
                             
                             if (SnapToUnits)
-                                posY = posY.RoundToNearestMultiple(UnitIncrement);
+                                posY = posY.RoundedToNearestMultiple(UnitIncrementX);
                             
                             kf.Value.Keyframe.OutTangent = (int)((posY - kf.Value.OutValueInitial) / (pos.X - kf.Value.SecondInitial));
                         }
@@ -933,7 +937,7 @@ void main()
         }
         protected override void RenderMethod()
         {
-            Vec2 wh = _backgroundComponent.Size;
+            Vec2 wh = _backgroundComponent.ActualSize;
 
             //TODO: if a keyframe is dragged past another, its index changes but these indices are not updated
             if (ClosestPositionIndices != null)

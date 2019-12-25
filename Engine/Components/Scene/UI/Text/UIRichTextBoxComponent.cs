@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI.Text
@@ -10,10 +11,10 @@ namespace TheraEngine.Rendering.UI.Text
             TextDrawer.Text.Add(_uiText);
         }
 
-        public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
+        protected override void OnResizeLayout(BoundingRectangleF parentRegion)
         {
-            base.ArrangeChildren(translation, parentBounds);
-            _uiText.Region.Extents = Size;
+            base.OnResizeLayout(parentRegion);
+            _uiText.Region.Extents = ActualSize;
         }
 
         private readonly UIString2D _uiText = new UIString2D();

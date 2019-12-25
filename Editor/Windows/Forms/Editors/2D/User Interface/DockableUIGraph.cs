@@ -4,10 +4,7 @@ using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.GameModes;
 using TheraEngine.Input;
-using TheraEngine.Worlds;
-using WeifenLuo.WinFormsUI.Docking;
 using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms
@@ -15,6 +12,7 @@ namespace TheraEditor.Windows.Forms
     [EditorFor(typeof(IUserInterfacePawn))]
     public partial class DockableUserInterfaceEditor : DockableRenderableFileEditor<UserInterfacePawn, UIGraphRenderHandler>
     {
+        public DockableUserInterfaceEditor(UserInterfacePawn ui) : this() => File = ui;
         public DockableUserInterfaceEditor()
         {
             InitializeComponent();
@@ -22,12 +20,9 @@ namespace TheraEditor.Windows.Forms
             tearOffToolStrip1.RenderMode = ToolStripRenderMode.Professional;
             tearOffToolStrip1.Renderer = new TheraToolStripRenderer();
         }
+
         public override bool ShouldHideCursor => false;
-        public DockableUserInterfaceEditor(UserInterfacePawn ui) : this()
-        {
-            ui.Bounds.Raw = new Vec2(1920, 1080);
-            File = ui;
-        }
+
         protected override bool TrySetFile(UserInterfacePawn file)
         {
             if (!base.TrySetFile(file))

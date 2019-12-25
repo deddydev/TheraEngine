@@ -171,12 +171,12 @@ namespace TheraEngine.Actors.Types.Pawns
         public virtual void Resize(Vec2 bounds)
         {
             Bounds.Raw = bounds;
-            RootComponent.ResizeLayout();
+            RootComponent.InvalidateLayout();
         }
         protected override void PostConstruct()
         {
             base.PostConstruct();
-            RootComponent.ResizeLayout();
+            RootComponent.InvalidateLayout();
         }
         //public void Render()
         //{
@@ -316,12 +316,21 @@ namespace TheraEngine.Actors.Types.Pawns
             if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)
                 RootComponent.RenderInScreenSpace(viewport, fbo);
         }
-        public void UpdateLayout()
+
+        public Action<UserInterfacePawn<T>> Resizing;
+        public Action<UserInterfacePawn<T>> Resized;
+        protected virtual void ResizeLayout() 
+            => RootComponent.ResizeLayout(new BoundingRectangleF(
+                RootComponent.Translation.Xy,
+                RootComponent.Size.Raw));
+        public virtual void UpdateLayout()
         {
             if (IsLayoutInvalidated)
             {
+                Resizing?.Invoke(this);
+                ResizeLayout();
                 IsLayoutInvalidated = false;
-                RootComponent.ResizeLayout();
+                Resized?.Invoke(this);
             }
 
             if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)

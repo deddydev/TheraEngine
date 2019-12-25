@@ -58,14 +58,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.numericInputBoxX.MinimumValue = -3.402823E+38F;
             this.numericInputBoxX.Name = "numericInputBoxX";
             this.numericInputBoxX.Nullable = false;
-            this.numericInputBoxX.NumberPrefix = "";
+            this.numericInputBoxX.NumberPrefix = "X: ";
             this.numericInputBoxX.NumberSuffix = "";
             this.numericInputBoxX.RegularColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.numericInputBoxX.Size = new System.Drawing.Size(1, 23);
             this.numericInputBoxX.SmallerIncrement = 0.1F;
             this.numericInputBoxX.SmallIncrement = 1F;
             this.numericInputBoxX.TabIndex = 0;
-            this.numericInputBoxX.Text = "0";
+            this.numericInputBoxX.Text = "X: 0";
             this.numericInputBoxX.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxX_ValueChanged);
             // 
             // numericInputBoxY
@@ -87,14 +87,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.numericInputBoxY.MinimumValue = -3.402823E+38F;
             this.numericInputBoxY.Name = "numericInputBoxY";
             this.numericInputBoxY.Nullable = false;
-            this.numericInputBoxY.NumberPrefix = "";
+            this.numericInputBoxY.NumberPrefix = "Y: ";
             this.numericInputBoxY.NumberSuffix = "";
             this.numericInputBoxY.RegularColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.numericInputBoxY.Size = new System.Drawing.Size(1, 23);
             this.numericInputBoxY.SmallerIncrement = 0.1F;
             this.numericInputBoxY.SmallIncrement = 1F;
             this.numericInputBoxY.TabIndex = 1;
-            this.numericInputBoxY.Text = "0";
+            this.numericInputBoxY.Text = "Y: 0";
             this.numericInputBoxY.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxY_ValueChanged);
             // 
             // numericInputBoxZ
@@ -116,14 +116,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.numericInputBoxZ.MinimumValue = -3.402823E+38F;
             this.numericInputBoxZ.Name = "numericInputBoxZ";
             this.numericInputBoxZ.Nullable = false;
-            this.numericInputBoxZ.NumberPrefix = "";
+            this.numericInputBoxZ.NumberPrefix = "Z: ";
             this.numericInputBoxZ.NumberSuffix = "";
             this.numericInputBoxZ.RegularColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.numericInputBoxZ.Size = new System.Drawing.Size(1, 23);
             this.numericInputBoxZ.SmallerIncrement = 0.1F;
             this.numericInputBoxZ.SmallIncrement = 1F;
             this.numericInputBoxZ.TabIndex = 2;
-            this.numericInputBoxZ.Text = "0";
+            this.numericInputBoxZ.Text = "Z: 0";
             this.numericInputBoxZ.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxZ_ValueChanged);
             // 
             // tableLayoutPanel1
@@ -131,11 +131,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.tableLayoutPanel1.AutoSize = true;
             this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tableLayoutPanel1.ColumnCount = 5;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25f));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25f));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25f));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25f));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 15F));
             this.tableLayoutPanel1.Controls.Add(this.numericInputBoxX, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.numericInputBoxY, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.numericInputBoxZ, 2, 0);
@@ -170,14 +170,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.numericInputBoxW.MinimumValue = -3.402823E+38F;
             this.numericInputBoxW.Name = "numericInputBoxW";
             this.numericInputBoxW.Nullable = false;
-            this.numericInputBoxW.NumberPrefix = "";
+            this.numericInputBoxW.NumberPrefix = "W: ";
             this.numericInputBoxW.NumberSuffix = "";
             this.numericInputBoxW.RegularColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.numericInputBoxW.Size = new System.Drawing.Size(1, 23);
             this.numericInputBoxW.SmallerIncrement = 0.1F;
             this.numericInputBoxW.SmallIncrement = 1F;
             this.numericInputBoxW.TabIndex = 4;
-            this.numericInputBoxW.Text = "0";
+            this.numericInputBoxW.Text = "W: 0";
             this.numericInputBoxW.ValueChanged += new TheraEditor.Windows.Forms.NumericInputBoxBase<float>.BoxValueChanged(this.numericInputBoxW_ValueChanged);
             // 
             // checkBox1

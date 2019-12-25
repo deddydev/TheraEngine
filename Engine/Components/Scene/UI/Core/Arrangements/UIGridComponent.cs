@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Components;
 using Extensions;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -87,7 +88,7 @@ namespace TheraEngine.Rendering.UI
 
             return list;
         }
-        public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
+        protected override void OnResizeLayout(BoundingRectangleF parentRegion)
         {
             //Sizing priority: auto, fixed, proportional
 
@@ -146,16 +147,7 @@ namespace TheraEngine.Rendering.UI
                     {
                         ISceneComponent comp = ChildComponents[index];
                         if (comp is IUIComponent uic)
-                        {
-                            if (comp is IUIBoundableComponent bc)
-                            {
-                                bc.ArrangeChildren(new Vec2(x, y), new Vec2(width, height));
-                            }
-                            else
-                            {
-
-                            }
-                        }
+                            uic.ResizeLayout(new BoundingRectangleF(x, y, width, height));
                     }
 
                     x += width;

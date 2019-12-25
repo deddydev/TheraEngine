@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Drawing.Text;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
@@ -67,7 +68,7 @@ namespace TheraEngine.Rendering.UI
 
                 NeedsRedraw = true;
                 ForceFullRedraw = true;
-                ResizeLayout();
+                InvalidateLayout();
             }
         }
         public TextRenderingHint TextQuality
@@ -86,9 +87,9 @@ namespace TheraEngine.Rendering.UI
         public IVec2? NeedsResize { get; set; } = null;
         public bool NeedsRedraw { get; set; } = false;
 
-        public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
+        protected override void OnResizeLayout(BoundingRectangleF parentRegion)
         {
-            base.ArrangeChildren(translation, parentBounds);
+            base.OnResizeLayout(parentRegion);
 
             int w = (int)(Width * TextureResolutionMultiplier.X);
             int h = (int)(Height * TextureResolutionMultiplier.Y);

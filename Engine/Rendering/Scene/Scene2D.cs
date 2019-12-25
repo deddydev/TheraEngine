@@ -63,7 +63,7 @@ namespace TheraEngine.Rendering
             //foreach (I2DRenderable r in _renderables)
             //    r.AddRenderables(_passes);
         }
-        private BoundingRectangleFStruct? VolumeToBounds(IVolume volume)
+        private BoundingRectangleF? VolumeToBounds(IVolume volume)
         {
             return null;
         }
@@ -87,12 +87,12 @@ namespace TheraEngine.Rendering
 
         public void Resize(Vec2 bounds)
         {
-            RenderTree?.Remake(new BoundingRectangleFStruct(Vec2.Zero, bounds));
+            RenderTree?.Remake(new BoundingRectangleF(Vec2.Zero, bounds));
         }
         
         public void Clear(Vec2 bounds)
         {
-            RenderTree = new Quadtree(new BoundingRectangleFStruct(new Vec2(0.0f), bounds));
+            RenderTree = new Quadtree(new BoundingRectangleF(new Vec2(0.0f), bounds));
         }
 
         public override void RegenerateTree()

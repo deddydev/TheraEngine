@@ -7,12 +7,12 @@ namespace TheraEngine.Core.Shapes
     /// <summary>
     /// Axis-aligned rectangle struct. Supports position, size, and a local origin. All translations are relative to the bottom left (0, 0), like a graph.
     /// </summary>
-    public struct BoundingRectangleFStruct
+    public struct BoundingRectangleF
     {
         /// <summary>
         /// A rectangle with a location at 0,0 (bottom left), a size of 0, and a local origin at the bottom left.
         /// </summary>
-        public static readonly BoundingRectangleFStruct Empty = new BoundingRectangleFStruct();
+        public static readonly BoundingRectangleF Empty = new BoundingRectangleF();
 
         [TSerialize("Translation")]
         private Vec2 _translation;
@@ -59,24 +59,24 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
             set => _translation = value - LocalOrigin;
         }
 
-        public BoundingRectangleFStruct(float x, float y, float width, float height, float localOriginPercentageX, float localOriginPercentageY)
+        public BoundingRectangleF(float x, float y, float width, float height, float localOriginPercentageX, float localOriginPercentageY)
             : this(new Vec2(x, y), new Vec2(width, height), new Vec2(localOriginPercentageX, localOriginPercentageY)) { }
-        public BoundingRectangleFStruct(float x, float y, float width, float height)
+        public BoundingRectangleF(float x, float y, float width, float height)
             : this(new Vec2(x, y), new Vec2(width, height)) { }
-        public BoundingRectangleFStruct(Vec2 translation, Vec2 bounds)
+        public BoundingRectangleF(Vec2 translation, Vec2 bounds)
             : this(translation, bounds, Vec2.Zero) { }
-        public BoundingRectangleFStruct(Vec2 translation, Vec2 bounds, Vec2 localOriginPercentage)
+        public BoundingRectangleF(Vec2 translation, Vec2 bounds, Vec2 localOriginPercentage)
         {
             _localOriginPercentage = localOriginPercentage;
             _bounds = bounds;
             _translation = translation - localOriginPercentage * bounds;
         }
 
-        public static BoundingRectangleFStruct FromMinMaxSides(
+        public static BoundingRectangleF FromMinMaxSides(
             float minX, float maxX,
             float minY, float maxY,
             float localOriginPercentageX, float localOriginPercentageY)
-            => new BoundingRectangleFStruct(minX, minY, maxX - minX, maxY - minY, localOriginPercentageX, localOriginPercentageY);
+            => new BoundingRectangleF(minX, minY, maxX - minX, maxY - minY, localOriginPercentageX, localOriginPercentageY);
 
         /// <summary>
         /// The horizontal translation of this rectangle's position. 0 is fully left, positive values are right.
@@ -348,14 +348,14 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// </summary>
         /// <param name="other">The other rectangle.</param>
         /// <returns>EContainment.Disjoint if not intersecting. EContainment.Intersecting if intersecting, but not fully contained. EContainment.Contains if fully contained.</returns>
-        public EContainment ContainmentWithin(BoundingRectangleFStruct other)
+        public EContainment ContainmentWithin(BoundingRectangleF other)
             => other.ContainmentOf(this);
         /// <summary>
         /// Determines if this rectangle contains another.
         /// </summary>
         /// <param name="other">The other rectangle.</param>
         /// <returns>EContainment.Disjoint if not intersecting. EContainment.Intersecting if intersecting, but not fully contained. EContainment.Contains if fully contained.</returns>
-        public EContainment ContainmentOf(BoundingRectangleFStruct other)
+        public EContainment ContainmentOf(BoundingRectangleF other)
         {
             if (Intersects(other))
                 return EContainment.Intersects;
@@ -375,7 +375,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool DisjointWith(BoundingRectangleFStruct other)
+        public bool DisjointWith(BoundingRectangleF other)
         {
             //Can't just negate contains operation, because that would also include intersection.
             return
@@ -387,7 +387,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// Returns true if full contains the given rectangle. If intersecting at all (including a same edge) or disjoint, returns false.
         /// </summary>
-        public bool Contains(BoundingRectangleFStruct other)
+        public bool Contains(BoundingRectangleF other)
         {
             return
                 other.MaxX <= MaxX &&
@@ -398,7 +398,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// <summary>
         /// Returns true if intersecting at all (including a same edge). If no edges are touching, returns false.
         /// </summary>
-        public bool Intersects(BoundingRectangleFStruct other)
+        public bool Intersects(BoundingRectangleF other)
         {
             return !Contains(other) && !DisjointWith(other);
             //MinX <= other.MaxX &&

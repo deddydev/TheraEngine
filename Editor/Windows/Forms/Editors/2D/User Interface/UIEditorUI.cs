@@ -26,12 +26,12 @@ namespace TheraEditor.Windows.Forms
             PrimitiveData data1 = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), lines);
             PrimitiveData data2 = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), lines);
             PrimitiveData data3 = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), lines);
-            
+
             GLSLScript script1 = Engine.Files.Shader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
             GLSLScript script2 = Engine.Files.Shader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
             GLSLScript script3 = Engine.Files.Shader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
 
-            TMaterial highlightMat = new TMaterial("OutlineMaterial", new ShaderVar[] 
+            TMaterial highlightMat = new TMaterial("OutlineMaterial", new ShaderVar[]
             {
                 new ShaderVec2(Vec2.Zero, "Size"),
                 new ShaderFloat(5.0f, "LineWidth"),
@@ -40,7 +40,7 @@ namespace TheraEditor.Windows.Forms
             }, script1);
             _highlightRC.Mesh = new PrimitiveManager(data1, highlightMat);
 
-            TMaterial selectedMat = new TMaterial("OutlineMaterial", new ShaderVar[] 
+            TMaterial selectedMat = new TMaterial("OutlineMaterial", new ShaderVar[]
             {
                 new ShaderVec2(Vec2.Zero, "Size"),
                 new ShaderFloat(5.0f, "LineWidth"),
@@ -49,7 +49,7 @@ namespace TheraEditor.Windows.Forms
             }, script2);
             _selectedRC.Mesh = new PrimitiveManager(data2, selectedMat);
 
-            TMaterial boundsMat = new TMaterial("OutlineMaterial", new ShaderVar[] 
+            TMaterial boundsMat = new TMaterial("OutlineMaterial", new ShaderVar[]
             {
                 new ShaderVec2(Vec2.Zero, "Size"),
                 new ShaderFloat(5.0f, "LineWidth"),
@@ -57,23 +57,23 @@ namespace TheraEditor.Windows.Forms
             }, script3);
             _uiBoundsRC.Mesh = new PrimitiveManager(data3, boundsMat);
 
-            BaseTransformComponent.WorldTransformChanged += BaseTransformComponent_WorldTransformChanged;
-
             ContextMenu = new TMenuComponent();
             ContextMenu.ChildComponents.Add(new TMenuItemComponent());
         }
-
-        private void BaseTransformComponent_WorldTransformChanged(ISceneComponent obj)
+        protected override void ResizeLayout()
         {
+            base.ResizeLayout();
+
             if (_targetHud?.RootComponent is UICanvasComponent canvas)
-            {
-                canvas.Size = _previewResolution;
-                _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size.Raw * canvas.WorldMatrix.Scale.Xy;
-            }
+                _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.ActualSize * canvas.WorldMatrix.Scale.Xy;
+            
             if (_highlightedComp is UIBoundableComponent highlightedBounds)
-                _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = highlightedBounds.Size.Raw * highlightedBounds.WorldMatrix.Scale.Xy;
+                _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = highlightedBounds.ActualSize * highlightedBounds.WorldMatrix.Scale.Xy;
+
             if (_selectedComp is UIBoundableComponent selectedBounds)
-                _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.Size.Raw * selectedBounds.WorldMatrix.Scale.Xy;
+                _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize * selectedBounds.WorldMatrix.Scale.Xy;
+
+            UpdateBackgroundMaterial();
         }
 
         private Vec2 _previewResolution = new Vec2(1920, 1080);
@@ -84,10 +84,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _previewResolution = value;
                 if (_targetHud?.RootComponent is IUICanvasComponent canvas)
-                {
-                    canvas.Size = _previewResolution;
-                    _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size.Raw * canvas.WorldMatrix.Scale.Xy;
-                }
+                    canvas.Size.Raw = _previewResolution;
             }
         }
 
@@ -110,16 +107,22 @@ namespace TheraEditor.Windows.Forms
                 {
                     BaseTransformComponent.ChildComponents.Add(_targetHud.RootComponent);
                     if (_targetHud?.RootComponent is IUICanvasComponent canvas)
-                    {
-                        canvas.Size = PreviewResolution;
-                        _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size.Raw * canvas.WorldMatrix.Scale.Xy;
-                    }
+                        InitCanvas(canvas);
                 }
                 else
                 {
 
                 }
             }
+        }
+
+        private void InitCanvas(IUICanvasComponent canvas)
+        {
+            canvas.HorizontalAlignment = EHorizontalAlign.Positional;
+            canvas.VerticalAlignment = EVerticalAlign.Positional;
+            canvas.Size.Raw = PreviewResolution;
+            canvas.Translation.Raw = Vec3.Zero;
+            canvas.Scale.Raw = Vec3.One;
         }
 
         protected override bool IsDragging => _dragComp != null;
@@ -129,10 +132,10 @@ namespace TheraEditor.Windows.Forms
 
         private IUserInterfacePawn _targetHud;
         
-        public override void RegisterInput(InputInterface input)
-        {
-            base.RegisterInput(input);
-        }
+        //public override void RegisterInput(InputInterface input)
+        //{
+        //    base.RegisterInput(input);
+        //}
         protected override void OnLeftClickDown()
         {
             var cursorPos = CursorPosition();
@@ -149,7 +152,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _selectedComp = _highlightedComp;
                 if (_selectedComp is UIBoundableComponent selectedBounds)
-                    _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.Size.Raw * selectedBounds.WorldMatrix.Scale.Xy;
+                    _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize * selectedBounds.WorldMatrix.Scale.Xy;
                 _dragComp = null;
 
                 Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = _selectedComp as object ?? TargetUI;
@@ -193,7 +196,7 @@ namespace TheraEditor.Windows.Forms
                 _highlightedComp = tc;
 
                 if (_highlightedComp is UIBoundableComponent bound)
-                    _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = bound.Size.Raw * bound.WorldMatrix.Scale.Xy;
+                    _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = bound.ActualSize * bound.WorldMatrix.Scale.Xy;
             }
             //UIComponentHighlighted?.Invoke(_highlightedComp);
         }
@@ -225,7 +228,7 @@ namespace TheraEditor.Windows.Forms
             }
 
             if (_targetHud?.RootComponent is UICanvasComponent canvas)
-                _uiBoundsRC.WorldMatrix = canvas.WorldMatrix * Matrix4.CreateScale(canvas.Size.Raw);
+                _uiBoundsRC.WorldMatrix = canvas.WorldMatrix * Matrix4.CreateScale(canvas.ActualSize);
 
             passes.Add(_uiBoundsRC);
         }

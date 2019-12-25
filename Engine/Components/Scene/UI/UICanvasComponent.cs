@@ -4,6 +4,7 @@ using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
+using Extensions;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -73,12 +74,14 @@ namespace TheraEngine.Rendering.UI
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
 
-        public override void ArrangeChildren(Vec2 translation, Vec2 parentBounds)
+        protected override void OnResizeLayout(BoundingRectangleF parentRegion)
         {
-            ScreenSpaceUIScene.Resize(parentBounds);
-            ScreenSpaceCamera.Resize(parentBounds.X, parentBounds.Y);
+            //Engine.PrintLine($"UI CANVAS: {parentBounds.X.Rounded(2)}x{parentBounds.Y.Rounded(2)}");
 
-            base.ArrangeChildren(translation, parentBounds);
+            ScreenSpaceUIScene.Resize(parentRegion.Extents);
+            ScreenSpaceCamera.Resize(parentRegion.Width, parentRegion.Height);
+
+            base.OnResizeLayout(parentRegion);
         }
 
         public void PreRenderUpdate(ICamera camera)

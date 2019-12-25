@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -16,11 +17,19 @@ namespace TheraEngine.Rendering.UI
         public UITransformComponent() : base() { }
 
         [TSerialize(nameof(Translation))]
-        private EventVec3 _translation = EventVec3.Zero;
+        protected EventVec3 _translation = EventVec3.Zero;
         [TSerialize(nameof(Scale))]
-        private EventVec3 _scale = EventVec3.One;
+        protected EventVec3 _scale = EventVec3.One;
         [TSerialize(nameof(Order))]
-        private ETransformOrder _order = ETransformOrder.TRS;
+        protected ETransformOrder _order = ETransformOrder.TRS;
+
+        protected EventVec2 _actualTranslation = new EventVec2();
+        [Browsable(false)]
+        public Vec2 ActualTranslation
+        {
+            get => _actualTranslation.Raw;
+            set => _actualTranslation.Raw = value;
+        }
 
         [Browsable(false)]
         [Category("Transform")]
@@ -37,7 +46,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _order, value))
-                    RecalcLocalTransform();
+                    InvalidateLayout();
             }
         }
         [Category("Transform")]
@@ -47,10 +56,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _translation, value,
-                    () => _translation.Changed -= RecalcLocalTransform,
-                    () => _translation.Changed += RecalcLocalTransform,
+                    () => _translation.Changed -= InvalidateLayout,
+                    () => _translation.Changed += InvalidateLayout,
                     false))
-                    RecalcLocalTransform();
+                    InvalidateLayout();
             }
         }
         [Category("Transform")]
@@ -60,17 +69,34 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _scale, value,
-                    () => _scale.Changed -= RecalcLocalTransform,
-                    () => _scale.Changed += RecalcLocalTransform,
+                    () => _scale.Changed -= InvalidateLayout,
+                    () => _scale.Changed += InvalidateLayout,
                     false))
-                    RecalcLocalTransform();
+                    InvalidateLayout();
             }
+        }
+
+        protected override void OnResizeLayout(BoundingRectangleF parentRegion)
+        {
+            ActualTranslation = Translation.Xy;
+            base.OnResizeLayout(parentRegion);
         }
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.TransformMatrix(Scale.Raw, Matrix4.Identity, Translation, Order);
-            inverseLocalTransform = Matrix4.TransformMatrix(1.0f / Scale.Raw, Matrix4.Identity, -Translation, Transform.OppositeOrder(Order));
+            Vec3 translation = new Vec3(ActualTranslation, Translation.Z);
+
+            localTransform = Matrix4.TransformMatrix(
+                Scale.Raw,
+                Matrix4.Identity,
+                translation,
+                Order);
+
+            inverseLocalTransform = Matrix4.TransformMatrix(
+                1.0f / Scale.Raw, 
+                Matrix4.Identity,
+                -translation, 
+                Transform.OppositeOrder(Order));
         }
 
         /// <summary>
@@ -110,13 +136,14 @@ namespace TheraEngine.Rendering.UI
             if (scale.DistanceTo(newScale) < 0.0001f)
                 return;
 
-            Vec2 newTranslation = _translation.Raw.Xy + (worldScreenPoint - WorldPoint.Xy) * multiplier;
+            Vec2 newTranslation = ActualTranslation + (worldScreenPoint - WorldPoint.Xy) * multiplier;
 
             _translation.SetRawNoUpdate(new Vec3(newTranslation, _translation.Z));
             _scale.SetRawNoUpdate(new Vec3(newScale, _scale.Z));
 
+            InvalidateLayout();
+
             RecalcLocalTransform();
-            ResizeLayout();
         }
     }
 }

@@ -207,10 +207,7 @@ namespace System
         public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Float;
         public int ComponentCount => 4;
         bool IBufferable.Normalize => false;
-        public void Write(VoidPtr address)
-        {
-            _data.Write(address);
-        }
+        public void Write(VoidPtr address) => _data.Write(address);
         public void Read(VoidPtr address)
         {
             BeginUpdate();
@@ -370,7 +367,7 @@ namespace System
 
         private void BeginUpdate()
         {
-            Interlocked.Increment(ref _recursiveUpdates);
+            //Interlocked.Increment(ref _recursiveUpdates);
             _oldX = X;
             _oldY = Y;
             _oldZ = Z;
@@ -378,8 +375,8 @@ namespace System
         }
         private void EndUpdate()
         {
-            if (Interlocked.Decrement(ref _recursiveUpdates) > 0)
-                return;
+            //if (Interlocked.Decrement(ref _recursiveUpdates) > 0)
+            //    return;
 
             float x = X, y = Y, z = Z, w = W;
             float ox = _oldX, oy = _oldY, oz = _oldZ, ow = _oldW;
@@ -470,42 +467,24 @@ namespace System
             }
         }
 
-        public static EventVec4 ComponentMin(EventVec4 a, EventVec4 b)
-        {
-            return new EventVec4(
+        public static EventVec4 ComponentMin(EventVec4 a, EventVec4 b) => new EventVec4(
                 a.X < b.X ? a.X : b.X,
                 a.Y < b.Y ? a.Y : b.Y,
                 a.Z < b.Z ? a.Z : b.Z,
                 a.W < b.W ? a.W : b.W);
-        }
-        public static EventVec4 ComponentMax(EventVec4 a, EventVec4 b)
-        {
-            return new EventVec4(
+        public static EventVec4 ComponentMax(EventVec4 a, EventVec4 b) => new EventVec4(
                 a.X > b.X ? a.X : b.X,
                 a.Y > b.Y ? a.Y : b.Y,
                 a.Z > b.Z ? a.Z : b.Z,
                 a.W > b.W ? a.W : b.W);
-        }
-        public static EventVec4 Clamp(EventVec4 vec, EventVec4 min, EventVec4 max)
-        {
-            return new EventVec4(
+        public static EventVec4 Clamp(EventVec4 vec, EventVec4 min, EventVec4 max) => new EventVec4(
                 vec.X < min.X ? min.X : vec.X > max.X ? max.X : vec.X,
                 vec.Y < min.Y ? min.Y : vec.Y > max.Y ? max.Y : vec.Y,
                 vec.X < min.Z ? min.Z : vec.Z > max.Z ? max.Z : vec.Z,
                 vec.Y < min.W ? min.W : vec.W > max.W ? max.W : vec.W);
-        }
-        public static float Dot(EventVec4 left, EventVec4 right)
-        {
-            return left.X * right.X + left.Y * right.Y + left.Z * right.Z + left.W * right.W;
-        }
-        public float Dot(EventVec4 right)
-        {
-            return X * right.X + Y * right.Y + Z * right.Z + W * right.W;
-        }
-        public static EventVec4 Lerp(EventVec4 a, EventVec4 b, float time)
-        {
-            return a + (b - a) * time;
-        }
+        public static float Dot(EventVec4 left, EventVec4 right) => left.X * right.X + left.Y * right.Y + left.Z * right.Z + left.W * right.W;
+        public float Dot(EventVec4 right) => X * right.X + Y * right.Y + Z * right.Z + W * right.W;
+        public static EventVec4 Lerp(EventVec4 a, EventVec4 b, float time) => a + (b - a) * time;
         /// <summary>
         /// Interpolate 3 Vectors using Barycentric coordinates
         /// </summary>
@@ -515,10 +494,7 @@ namespace System
         /// <param name="u">First Barycentric Coordinate</param>
         /// <param name="v">Second Barycentric Coordinate</param>
         /// <returns>a when u=v=0, b when u=1,v=0, c when u=0,v=1, and a linear combination of a,b,c otherwise</returns>
-        public static EventVec4 BaryCentric(EventVec4 a, EventVec4 b, EventVec4 c, float u, float v)
-        {
-            return a + u * (b - a) + v * (c - a);
-        }
+        public static EventVec4 BaryCentric(EventVec4 a, EventVec4 b, EventVec4 c, float u, float v) => a + u * (b - a) + v * (c - a);
         /// <summary>Transform a Vector by the given Matrix</summary>
         public static EventVec4 operator *(EventVec4 vec, Matrix4 mat)
         {
@@ -1077,10 +1053,22 @@ namespace System
         }
         public static bool operator ==(EventVec4 left, EventVec4 right)
         {
+            bool ln = left is null;
+            bool rn = right is null;
+            if (ln != rn)
+                return false;
+            if (left is null)
+                return true;
             return left.Equals(right);
         }
         public static bool operator !=(EventVec4 left, EventVec4 right)
         {
+            bool ln = left is null;
+            bool rn = right is null;
+            if (ln != rn)
+                return true;
+            if (left is null)
+                return false;
             return !left.Equals(right);
         }
         public static implicit operator BulletSharp.Vector4(EventVec4 v)
@@ -1091,11 +1079,8 @@ namespace System
         {
             return new EventVec4(v.X, v.Y, v.Z, v.W);
         }
-        private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
-        public override string ToString()
-        {
-            return String.Format("({0}{4} {1}{4} {2}{4} {3})", X, Y, Z, W, listSeparator);
-        }
+        private static readonly string ListSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        public override string ToString() => String.Format("({0}{4} {1}{4} {2}{4} {3})", X, Y, Z, W, ListSeparator);
         public override int GetHashCode()
         {
             unchecked
@@ -1125,14 +1110,10 @@ namespace System
                 Z == other.Z &&
                 W == other.W;
         }
-        public bool Equals(EventVec4 other, float precision)
-        {
-            return
-                Abs(X - other.X) < precision &&
+        public bool Equals(EventVec4 other, float precision) => Abs(X - other.X) < precision &&
                 Abs(Y - other.Y) < precision &&
                 Abs(Z - other.Z) < precision &&
                 Abs(W - other.W) < precision;
-        }
 
         public string WriteToString()
             => _data.WriteToString();

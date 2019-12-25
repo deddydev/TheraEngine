@@ -791,7 +791,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 case PropGridMemberInfoMethod _:
                     return "Methods";
                 default:
-                    return info?.DataType?.GetFriendlyName() ?? MiscName;
+                    return MiscName;
             }
         }
         /// <summary>

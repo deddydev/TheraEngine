@@ -81,7 +81,7 @@ namespace TheraEngine
         //protected internal bool IsDeserializing { get; set; } = false;
         //protected internal bool IsSerializing { get; set; } = false;
 
-        [BrowsableIf("_userObject != null")]
+        [BrowsableIf("UserObject != null")]
         //[Browsable(false)]
         [Category("Object")]
         public object UserObject

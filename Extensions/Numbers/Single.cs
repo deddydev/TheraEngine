@@ -119,27 +119,26 @@ namespace Extensions
             float f2 = value.Clamp(0.0f, 1.0f);
             return (byte)Math.Floor(f2 == 1.0f ? 4294967295.0f : f2 * 4294967296.0f);
         }
-        public static Single RoundToNearestMultiple(this Single value, Single multiple)
+        public static Single RoundedToNearestMultiple(this Single value, Single multiple)
         {
             double nearestMultiple = Math.Round((value / multiple), MidpointRounding.AwayFromZero) * multiple;
             return (float)nearestMultiple;
         }
-        public static Single RoundToNearest(this Single value, Single intervalBias, Single interval)
+        public static Single RoundedToNearest(this Single value, Single intervalBias, Single interval)
         {
-            float f = (value - intervalBias) / interval;
-
-            int floor = (int)f;
+            float numIntervals = (value - intervalBias) / interval;
+            
+            int floor = (int)numIntervals;
 
             //Calculate ceiling away from zero
-            int ceil = (int)(f < 0 ? f - 1.0f : f + 1.0f);
+            int ceil = (int)(numIntervals < 0 ? numIntervals - 1.0f : numIntervals + 1.0f);
 
-            float ceilDist = Math.Abs(ceil - f);
-            float floorDist = Math.Abs(f - floor);
-
-            if (floorDist < ceilDist)
-                return floor * interval + intervalBias;
-            else
-                return ceil * interval + intervalBias;
+            float ceilDist = Math.Abs(ceil - numIntervals);
+            float floorDist = Math.Abs(numIntervals - floor);
+            float val = floorDist < ceilDist ? floor : ceil;
+            return val * interval + intervalBias;
         }
+        public static Single Rounded(this Single value, int decimalPlaces, MidpointRounding roundingMode = MidpointRounding.AwayFromZero)
+            => (Single)Math.Round(value, decimalPlaces, roundingMode);
     }
 }

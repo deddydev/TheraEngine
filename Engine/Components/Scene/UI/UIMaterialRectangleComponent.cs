@@ -112,7 +112,7 @@ namespace TheraEngine.Rendering.UI
 
         protected override void OnWorldTransformChanged()
         {
-            RenderCommand.WorldMatrix = WorldMatrix * Matrix4.CreateScale(Width, Height, 1.0f);
+            RenderCommand.WorldMatrix = WorldMatrix * Matrix4.CreateScale(ActualWidth, ActualHeight, 1.0f);
             base.OnWorldTransformChanged();
         }
 

@@ -18,19 +18,19 @@ namespace System
         /// otherwise the Quadtree will not be updated.
         /// </summary>
         void ItemMoved(I2DRenderable item);
-        void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangleFStruct? f, float lineWidth);
+        void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangleF? f, float lineWidth);
         void DebugRender(Color color, float lineWidth);
     }
     public interface IQuadtree : IQuadtree<I2DRenderable>
     {
-        BoundingRectangleFStruct Bounds { get; }
+        BoundingRectangleF Bounds { get; }
 
         int ArrayLength(Vec2 halfExtents);
-        void Remake(BoundingRectangleFStruct newBounds);
+        void Remake(BoundingRectangleF newBounds);
         void Swap();
 
-        void CollectVisible(BoundingRectangleFStruct? r, RenderPasses passes, ICamera camera);
-        void DebugRender(BoundingRectangleFStruct? f, bool onlyContainingItems, float lineWidth = 0.1f);
+        void CollectVisible(BoundingRectangleF? r, RenderPasses passes, ICamera camera);
+        void DebugRender(BoundingRectangleF? f, bool onlyContainingItems, float lineWidth = 0.1f);
     }
     public interface IQuadtree<T> where T : class, I2DRenderable
     {
@@ -47,8 +47,8 @@ namespace System
     /// </summary>
     public class Quadtree : Quadtree<I2DRenderable>, IQuadtree
     {
-        public Quadtree(BoundingRectangleFStruct bounds) : base(bounds) { }
-        public Quadtree(BoundingRectangleFStruct bounds, List<I2DRenderable> items) : base(bounds, items) { }
+        public Quadtree(BoundingRectangleF bounds) : base(bounds) { }
+        public Quadtree(BoundingRectangleF bounds, List<I2DRenderable> items) : base(bounds, items) { }
     }
     /// <summary>
     /// A 3D space partitioning tree that recursively divides aabbs into 4 smaller axis-aligned rectangles depending on the items they contain.
@@ -63,14 +63,14 @@ namespace System
 
         private Node _head;
 
-        public BoundingRectangleFStruct Bounds => _head.Bounds;
+        public BoundingRectangleF Bounds => _head.Bounds;
 
-        public Quadtree(BoundingRectangleFStruct bounds)
+        public Quadtree(BoundingRectangleF bounds)
         {
             _head = new Node(bounds, 0, 0, null, this);
             //Engine.PrintLine($"Quadtree array length with {MinimumUnit} minimum unit: {ArrayLength(bounds.HalfExtents).ToString()}");
         }
-        public Quadtree(BoundingRectangleFStruct bounds, List<T> items) : this(bounds) => _head.AddHereOrSmaller(items);
+        public Quadtree(BoundingRectangleF bounds, List<T> items) : this(bounds) => _head.AddHereOrSmaller(items);
 
         /// <summary>
         /// The maximum length of an array that could store every possible octree node.
@@ -87,7 +87,7 @@ namespace System
             return (int)Math.Pow(MaxChildNodeCount, divisions);
         }
 
-        public void Remake(BoundingRectangleFStruct newBounds)
+        public void Remake(BoundingRectangleF newBounds)
         {
             List<I2DRenderable> renderables = new List<I2DRenderable>();
             _head.CollectAll(renderables);
@@ -157,7 +157,7 @@ namespace System
         //    _head.FindAll(shape, list, containment);
         //    return list;
         //}
-        public void CollectVisible(BoundingRectangleFStruct? r, RenderPasses passes, ICamera camera)
+        public void CollectVisible(BoundingRectangleF? r, RenderPasses passes, ICamera camera)
         {
             if (r != null)
                 _head.CollectVisible(r.Value, passes, camera);
@@ -199,12 +199,12 @@ namespace System
         /// <param name="f">The frustum to display intersections with. If null, does not show frustum intersections.</param>
         /// <param name="onlyContainingItems">Only renders subdivisions that contain one or more items.</param>
         /// <param name="lineWidth">The width of the bounding box lines.</param>
-        public void DebugRender(BoundingRectangleFStruct? f, bool onlyContainingItems, float lineWidth = 0.1f)
+        public void DebugRender(BoundingRectangleF? f, bool onlyContainingItems, float lineWidth = 0.1f)
             => _head.DebugRender(true, onlyContainingItems, f, lineWidth);
 
         private class Node : IQuadtreeNode
         {
-            public Node(BoundingRectangleFStruct bounds, int subDivIndex, int subDivLevel, Node parent, Quadtree<T> owner)
+            public Node(BoundingRectangleF bounds, int subDivIndex, int subDivLevel, Node parent, Quadtree<T> owner)
             {
                 _bounds = bounds;
                 //_lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
@@ -217,7 +217,7 @@ namespace System
             }
 
             protected int _subDivIndex, _subDivLevel;
-            protected BoundingRectangleFStruct _bounds;
+            protected BoundingRectangleF _bounds;
             protected List<T> _items;
             protected Node[] _subNodes;
             protected Node _parentNode;
@@ -229,13 +229,13 @@ namespace System
             public int SubDivIndex { get => _subDivIndex; set => _subDivIndex = value; }
             public int SubDivLevel { get => _subDivLevel; set => _subDivLevel = value; }
             public List<T> Items => _items;
-            public BoundingRectangleFStruct Bounds => _bounds;
+            public BoundingRectangleF Bounds => _bounds;
             public Vec2 Center => _bounds.Translation;
             public Vec2 Min => _bounds.BottomLeft;
             public Vec2 Max => _bounds.TopRight;
             public Vec2 Extents => _bounds.Extents;
             
-            public BoundingRectangleFStruct GetSubdivision(int index)
+            public BoundingRectangleF GetSubdivision(int index)
             {
                 Node node = _subNodes[index];
                 if (node != null)
@@ -245,12 +245,12 @@ namespace System
                 Vec2 min = Min;
                 switch (index)
                 {
-                    case 0: return new BoundingRectangleFStruct(min.X, min.Y, halfExtents.X, halfExtents.Y);
-                    case 1: return new BoundingRectangleFStruct(min.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
-                    case 2: return new BoundingRectangleFStruct(min.X + halfExtents.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
-                    case 3: return new BoundingRectangleFStruct(min.X + halfExtents.X, min.Y, halfExtents.X, halfExtents.Y);
+                    case 0: return new BoundingRectangleF(min.X, min.Y, halfExtents.X, halfExtents.Y);
+                    case 1: return new BoundingRectangleF(min.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
+                    case 2: return new BoundingRectangleF(min.X + halfExtents.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
+                    case 3: return new BoundingRectangleF(min.X + halfExtents.X, min.Y, halfExtents.X, halfExtents.Y);
                 }
-                return BoundingRectangleFStruct.Empty;
+                return BoundingRectangleF.Empty;
             }
 
             #region Child movement
@@ -275,7 +275,7 @@ namespace System
                     //Try subdividing
                     for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
-                        BoundingRectangleFStruct bounds = GetSubdivision(i);
+                        BoundingRectangleF bounds = GetSubdivision(i);
                         if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
                         {
                             RemoveHere(item);
@@ -317,7 +317,7 @@ namespace System
             #endregion
 
             #region Debug
-            public void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangleFStruct? f, float lineWidth)
+            public void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangleF? f, float lineWidth)
             {
                 Color color = Color.Red;
                 if (recurse)
@@ -330,7 +330,7 @@ namespace System
                 }
                 if (!onlyContainingItems || _items.Count != 0)
                 {
-                    BoundingRectangleFStruct region;
+                    BoundingRectangleF region;
                     //bool anyVisible = false;
                     for (int i = 0; i < _items.Count; ++i)
                     {
@@ -346,7 +346,7 @@ namespace System
             #endregion
 
             #region Visible collection
-            public void CollectVisible(BoundingRectangleFStruct bounds, RenderPasses passes, ICamera camera)
+            public void CollectVisible(BoundingRectangleF bounds, RenderPasses passes, ICamera camera)
             {
                 EContainment c = bounds.ContainmentOf(_bounds);
                 if (c != EContainment.Disjoint)
@@ -453,7 +453,7 @@ namespace System
                         if (i == ignoreSubNode)
                             continue;
 
-                        BoundingRectangleFStruct bounds = GetSubdivision(i);
+                        BoundingRectangleF bounds = GetSubdivision(i);
                         if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
                         {
                             CreateSubNode(bounds, i)?.AddHereOrSmaller(item);
@@ -706,7 +706,7 @@ namespace System
                         return false;
                 return true;
             }
-            private Node CreateSubNode(BoundingRectangleFStruct bounds, int index)
+            private Node CreateSubNode(BoundingRectangleF bounds, int index)
             {
                 try
                 {

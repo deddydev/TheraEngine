@@ -346,16 +346,17 @@ namespace TheraEngine.Core.Maths.Transforms
 
         private void BeginUpdate()
         {
-            Interlocked.Increment(ref _recursiveUpdates);
+            //Interlocked.Increment(ref _recursiveUpdates);
             _oldX = X;
             _oldY = Y;
             _oldZ = Z;
         }
         private void EndUpdate()
         {
-            if (Interlocked.Decrement(ref _recursiveUpdates) > 0)
-                return;
-
+            //if (Interlocked.Decrement(ref _recursiveUpdates) > 0)
+            //{
+            //    return;
+            //}
             float x = X, y = Y, z = Z;
             float ox = _oldX, oy = _oldY, oz = _oldZ;
 

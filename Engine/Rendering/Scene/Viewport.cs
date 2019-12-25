@@ -298,7 +298,7 @@ namespace TheraEngine.Rendering
             OnRender(scene, camera, target);
             Engine.PopRenderingViewport();
         }
-        private RenderPasses _renderPasses = new RenderPasses();
+        private readonly RenderPasses _renderPasses = new RenderPasses();
         protected virtual void OnRender(IScene scene, ICamera camera, FrameBuffer target)
         {
             if (!FBOsInitialized)

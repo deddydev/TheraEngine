@@ -570,11 +570,13 @@ void main()
             _xString.Text = pos.X.ToString("###0.0##");
             _yString.Text = pos.Y.ToString("###0.0##");
 
-            BaseTransformComponent.ResizeLayout();
+            BaseTransformComponent.InvalidateLayout();
         }
         private bool _redrewLastMove = false;
-        protected override void BaseWorldTransformChanged(ISceneComponent comp)
+        protected override void ResizeLayout()
         {
+            base.ResizeLayout();
+
             Matrix4 mtx = BaseTransformComponent.WorldMatrix;
 
             _rcKfLines.WorldMatrix =
@@ -599,8 +601,10 @@ void main()
             _xCoord.Translation.Y = origin.Y;
             _yCoord.Translation.X = origin.X;
 
-            base.BaseWorldTransformChanged(comp);
-            
+
+
+
+
             Vec2 bl = GetViewportBottomLeftWorldSpace();
             Vec2 tr = GetViewportTopRightWorldSpace();
 
@@ -843,7 +847,7 @@ void main()
                         {
                             float sec = pos.X + kf.Value.SecondOffset;
                             if (SnapToUnits)
-                                sec = sec.RoundToNearestMultiple(UnitIncrement);
+                                sec = sec.RoundedToNearestMultiple(UnitIncrementX);
                             kf.Value.Keyframe.Second = sec;
 
                             if (kf.Value.DraggingInValue)
@@ -884,8 +888,8 @@ void main()
                                 Vec2 inPos = pos.Xy + kf.Value.InValueOffset;
                                 if (SnapToUnits)
                                 {
-                                    inPos.X = inPos.X.RoundToNearestMultiple(UnitIncrement);
-                                    inPos.Y = inPos.Y.RoundToNearestMultiple(UnitIncrement);
+                                    inPos.X = inPos.X.RoundedToNearestMultiple(UnitIncrementX);
+                                    inPos.Y = inPos.Y.RoundedToNearestMultiple(UnitIncrementX);
                                 }
                                 kf.Value.Keyframe.InValue = inPos;
                                 if (AutoGenerateTangents)
@@ -898,8 +902,8 @@ void main()
                                 Vec2 outPos = pos.Xy + kf.Value.OutValueOffset;
                                 if (SnapToUnits)
                                 {
-                                    outPos.X = outPos.X.RoundToNearestMultiple(UnitIncrement);
-                                    outPos.Y = outPos.Y.RoundToNearestMultiple(UnitIncrement);
+                                    outPos.X = outPos.X.RoundedToNearestMultiple(UnitIncrementX);
+                                    outPos.Y = outPos.Y.RoundedToNearestMultiple(UnitIncrementX);
                                 }
                                 kf.Value.Keyframe.OutValue = outPos;
                                 if (AutoGenerateTangents)
@@ -923,8 +927,8 @@ void main()
                                 Vec2 inPos = pos.Xy + kf.Value.InValueOffset;
                                 if (SnapToUnits)
                                 {
-                                    inPos.X = inPos.X.RoundToNearestMultiple(UnitIncrement);
-                                    inPos.Y = inPos.Y.RoundToNearestMultiple(UnitIncrement);
+                                    inPos.X = inPos.X.RoundedToNearestMultiple(UnitIncrementX);
+                                    inPos.Y = inPos.Y.RoundedToNearestMultiple(UnitIncrementX);
                                 }
                                 kf.Value.Keyframe.InTangent = inPos;
                             }
@@ -933,8 +937,8 @@ void main()
                                 Vec2 outPos = pos.Xy + kf.Value.OutValueOffset;
                                 if (SnapToUnits)
                                 {
-                                    outPos.X = outPos.X.RoundToNearestMultiple(UnitIncrement);
-                                    outPos.Y = outPos.Y.RoundToNearestMultiple(UnitIncrement);
+                                    outPos.X = outPos.X.RoundedToNearestMultiple(UnitIncrementX);
+                                    outPos.Y = outPos.Y.RoundedToNearestMultiple(UnitIncrementX);
                                 }
                                 kf.Value.Keyframe.OutTangent = outPos;
                             }
@@ -948,7 +952,7 @@ void main()
                 {
                     float kfSec = pos.X + kf.Value.SecondOffset;
                     if (SnapToUnits)
-                        kfSec = kfSec.RoundToNearestMultiple(UnitIncrement);
+                        kfSec = kfSec.RoundedToNearestMultiple(UnitIncrementX);
 
                     if (kf.Value.DraggingInValue || kf.Value.DraggingOutValue)
                     {
@@ -969,8 +973,8 @@ void main()
                             Vec2 inPos = pos.Xy + kf.Value.InValueOffset;
                             if (SnapToUnits)
                             {
-                                inPos.X = inPos.X.RoundToNearestMultiple(UnitIncrement);
-                                inPos.Y = inPos.Y.RoundToNearestMultiple(UnitIncrement);
+                                inPos.X = inPos.X.RoundedToNearestMultiple(UnitIncrementX);
+                                inPos.Y = inPos.Y.RoundedToNearestMultiple(UnitIncrementX);
                             }
                             kf.Value.Keyframe.InValue = inPos;
                             if (AutoGenerateTangents)
@@ -983,8 +987,8 @@ void main()
                             Vec2 outPos = pos.Xy + kf.Value.OutValueOffset;
                             if (SnapToUnits)
                             {
-                                outPos.X = outPos.X.RoundToNearestMultiple(UnitIncrement);
-                                outPos.Y = outPos.Y.RoundToNearestMultiple(UnitIncrement);
+                                outPos.X = outPos.X.RoundedToNearestMultiple(UnitIncrementX);
+                                outPos.Y = outPos.Y.RoundedToNearestMultiple(UnitIncrementX);
                             }
                             kf.Value.Keyframe.OutValue = outPos;
                             if (AutoGenerateTangents)
@@ -1010,8 +1014,8 @@ void main()
                             Vec2 valuePos = pos.Xy/* + kf.Value.InValueOffset*/;
                             if (SnapToUnits)
                             {
-                                valuePos.X = valuePos.X.RoundToNearestMultiple(UnitIncrement);
-                                valuePos.Y = valuePos.Y.RoundToNearestMultiple(UnitIncrement);
+                                valuePos.X = valuePos.X.RoundedToNearestMultiple(UnitIncrementX);
+                                valuePos.Y = valuePos.Y.RoundedToNearestMultiple(UnitIncrementX);
                             }
 
                             //m = y / x
@@ -1024,8 +1028,8 @@ void main()
                             Vec2 valuePos = pos.Xy/* + kf.Value.OutValueOffset*/;
                             if (SnapToUnits)
                             {
-                                valuePos.X = valuePos.X.RoundToNearestMultiple(UnitIncrement);
-                                valuePos.Y = valuePos.Y.RoundToNearestMultiple(UnitIncrement);
+                                valuePos.X = valuePos.X.RoundedToNearestMultiple(UnitIncrementX);
+                                valuePos.Y = valuePos.Y.RoundedToNearestMultiple(UnitIncrementX);
                             }
 
                             kf.Value.Keyframe.OutTangent = (valuePos - kf.Value.OutValueInitial) / (pos.X - kf.Value.SecondInitial);
@@ -1072,7 +1076,7 @@ void main()
         }
         protected override void RenderMethod()
         {
-            Vec2 wh = _backgroundComponent.Size;
+            Vec2 wh = _backgroundComponent.ActualSize;
 
             //TODO: if a keyframe is dragged past another, its index changes but these indices are not updated
             if (ClosestPositionIndices != null)

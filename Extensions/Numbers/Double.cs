@@ -6,9 +6,23 @@ namespace Extensions
     {
         public const Double ZeroTolerance = 1e-6;
 
-        public static double RoundToNearestMultiple(this double value, double multiple)
+        public static Double RoundedToNearestMultiple(this Double value, Double multiple)
             => Math.Round((value / multiple), MidpointRounding.AwayFromZero) * multiple;
-        public static double Round(this double value, int digits = 0, MidpointRounding midpointRounding = MidpointRounding.AwayFromZero)
+        public static Double RoundedToNearest(this Double value, Double intervalBias, Double interval)
+        {
+            double numIntervals = (value - intervalBias) / interval;
+
+            int floor = (int)numIntervals;
+
+            //Calculate ceiling away from zero
+            int ceil = (int)(numIntervals < 0 ? numIntervals - 1.0f : numIntervals + 1.0f);
+
+            double ceilDist = Math.Abs(ceil - numIntervals);
+            double floorDist = Math.Abs(numIntervals - floor);
+            double val = floorDist < ceilDist ? floor : ceil;
+            return val * interval + intervalBias;
+        }
+        public static double Rounded(this double value, int digits = 0, MidpointRounding midpointRounding = MidpointRounding.AwayFromZero)
             => Math.Round(value, digits, midpointRounding);
 
         public static bool IsZero(this Double value, double tolerance = ZeroTolerance)

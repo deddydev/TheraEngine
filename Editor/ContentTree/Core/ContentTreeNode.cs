@@ -205,8 +205,12 @@ namespace TheraEditor.Wrappers
             if (menu is null)
                 return;
 
-            foreach (ITMenuItem item in menu)
-                AddItemToCollection(item, coll);
+            try
+            {
+                foreach (ITMenuItem item in menu)
+                    AddItemToCollection(item, coll);
+            }
+            catch { }
         }
 
         private static void AddItemToCollection(ITMenuItem item, ToolStripItemCollection coll)

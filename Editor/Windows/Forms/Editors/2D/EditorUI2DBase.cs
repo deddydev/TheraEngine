@@ -43,10 +43,11 @@ namespace TheraEditor.Windows.Forms
         private readonly RenderCommandMethod2D _rcMethod;
 
         public IRenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
-        public BoundingRectangleFStruct AxisAlignedRegion { get; } = new BoundingRectangleFStruct();
+        public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
         public IQuadtreeNode QuadtreeNode { get; set; }
 
-        public float UnitIncrement { get; set; } = 1.0f;
+        public float UnitIncrementX { get; set; } = 1.0f;
+        public float UnitIncrementY { get; set; } = 1.0f;
 
         [TSerialize]
         public float MaxIncrementExclusive { get; set; } = 10.0f;
@@ -87,7 +88,8 @@ namespace TheraEditor.Windows.Forms
         {
             BaseTransformComponent = new UITransformComponent() { RenderTransformation = false };
 
-            _backgroundComponent = new UIMaterialRectangleComponent(GetBackgroundMaterial()) { RenderTransformation = false };
+            TMaterial bgmat = GetBackgroundMaterial();
+            _backgroundComponent = new UIMaterialRectangleComponent(bgmat) { RenderTransformation = false };
             _backgroundComponent.Translation.Xy = 0.0f;
             _backgroundComponent.HorizontalAlignment = EHorizontalAlign.Stretch;
             _backgroundComponent.VerticalAlignment = EVerticalAlign.Stretch;
@@ -96,7 +98,7 @@ namespace TheraEditor.Windows.Forms
             UICanvasComponent baseUI = new UICanvasComponent() { RenderTransformation = false };
             baseUI.ChildComponents.Add(_backgroundComponent);
 
-            BaseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
+            BaseTransformComponent.WorldTransformChanged += BaseTransformComponent_WorldTransformChanged;
 
             _originText = ConstructText(new ColorF4(0.3f), "0", "0", out UIString2D originStr);
             if (!string.IsNullOrWhiteSpace(XUnitString))
@@ -106,6 +108,7 @@ namespace TheraEditor.Windows.Forms
 
             return baseUI;
         }
+
         public Vec2 GetViewportBottomLeftWorldSpace()
             => Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
         public Vec2 GetViewportTopRightWorldSpace()
@@ -124,8 +127,8 @@ namespace TheraEditor.Windows.Forms
                 new ShaderVec3(new Vec3(0.08f, 0.08f, 0.08f), "BGColor"),
                 new ShaderFloat(BaseTransformComponent.Scale.X, "Scale"),
                 new ShaderFloat(3.0f, "LineWidth"),
-                new ShaderVec2(BaseTransformComponent.Translation.Raw.Xy, "Translation"),
-                new ShaderFloat(UnitIncrement, "XYIncrement"),
+                new ShaderVec2(BaseTransformComponent.ActualTranslation, "Translation"),
+                new ShaderFloat(UnitIncrementX, "XYIncrement"),
             },
             frag);
         }
@@ -165,9 +168,9 @@ namespace TheraEditor.Windows.Forms
                 Vec2 bottomLeft = -min;
 
                 if (xBound == 0.0f)
-                    xBound = UnitIncrement * InitialVisibleBoxes;
+                    xBound = UnitIncrementX * InitialVisibleBoxes;
                 if (yBound == 0.0f)
-                    yBound = UnitIncrement * InitialVisibleBoxes;
+                    yBound = UnitIncrementY * InitialVisibleBoxes;
 
                 float xScale = Bounds.X / xBound;
                 float yScale = Bounds.Y / yBound;
@@ -205,13 +208,10 @@ namespace TheraEditor.Windows.Forms
             else
             {
                 BaseTransformComponent.Translation.Xy = Vec2.Zero;
-                BaseTransformComponent.Scale.Xy = TMath.Min(Bounds.X, Bounds.Y) / (UnitIncrement * InitialVisibleBoxes);
+                BaseTransformComponent.Scale.Xy = TMath.Min(Bounds.X, Bounds.Y) / (UnitIncrementX * InitialVisibleBoxes);
             }
-
-            UpdateBackgroundMaterial();
-            UpdateTextScale();
         }
-        protected virtual void BaseWorldTransformChanged(ISceneComponent comp)
+        private void BaseTransformComponent_WorldTransformChanged(ISceneComponent obj)
         {
             Vec2 origin = GetViewportTopRightWorldSpace();
             if (_xUnitText != null)
@@ -224,30 +224,38 @@ namespace TheraEditor.Windows.Forms
                 float height = _yUnitText.Height;
                 _yUnitText.Translation.Y = origin.Y - height / BaseTransformComponent.Scale.Y;
             }
-            UpdateBackgroundMaterial();
+            UpdateTextScale();
+            UpdateIntervals();
+            UpdateTextIncrements();
         }
-        public override void Resize(Vec2 bounds)
+        protected override void ResizeLayout()
         {
-            base.Resize(bounds);
-            UpdateBackgroundMaterial();
+            base.ResizeLayout();
+
             //TODO: zoom extents of the previous bounds with no scale instead of the target's bounds
             ZoomExtents(false);
         }
-        public void UpdateLineIncrement()
+        public void UpdateIntervals()
         {
             if (BaseTransformComponent.Scale.X.EqualTo(0.0f, 0.00001f))
                 return;
 
             Vec2 visibleAnimRange = Bounds.Raw / BaseTransformComponent.Scale.Xy;
-            float range = TMath.Min(visibleAnimRange.X, visibleAnimRange.Y);
-            if (range == 0.0f || float.IsInfinity(range) || float.IsNaN(range))
-                return;
 
-            float invMax = 1.0f / MaxIncrementExclusive;
+            UnitIncrementX = CalcInterval(visibleAnimRange.X, MaxIncrementExclusive, IncrementsRange);
+            UnitIncrementY = CalcInterval(visibleAnimRange.Y, MaxIncrementExclusive, IncrementsRange);
+        }
+
+        private static float CalcInterval(float range, float maxIncrementExclusive, float[] incrementsRange)
+        {
+            if (range == 0.0f || float.IsInfinity(range) || float.IsNaN(range))
+                return 1.0f;
+
+            float invMax = 1.0f / maxIncrementExclusive;
 
             int divs = 0;
             int mults = 0;
-            while (range >= MaxIncrementExclusive)
+            while (range >= maxIncrementExclusive)
             {
                 ++divs;
                 range *= invMax;
@@ -255,11 +263,11 @@ namespace TheraEditor.Windows.Forms
             while (range < 1.0f)
             {
                 ++mults;
-                range *= MaxIncrementExclusive;
+                range *= maxIncrementExclusive;
             }
 
-            float[] dists = IncrementsRange.Select(x => Math.Abs(range - x)).ToArray();
-            float minDist = MaxIncrementExclusive;
+            float[] dists = incrementsRange.Select(x => Math.Abs(range - x)).ToArray();
+            float minDist = maxIncrementExclusive;
             int minDistIndex = 0;
             for (int i = 0; i < dists.Length; ++i)
             {
@@ -270,119 +278,120 @@ namespace TheraEditor.Windows.Forms
                 }
             }
 
-            float inc = IncrementsRange[minDistIndex];
+            float inc = incrementsRange[minDistIndex];
             if (divs > 0)
-                inc *= (float)Math.Pow(MaxIncrementExclusive, divs);
+                inc *= (float)Math.Pow(maxIncrementExclusive, divs);
             if (mults > 0)
                 inc *= (float)Math.Pow(invMax, mults);
 
-            inc /= MaxIncrementExclusive;
+            inc /= maxIncrementExclusive;
             inc *= 0.5f; //half the result
-            if (inc != UnitIncrement)
-                UnitIncrement = inc;
+
+            return inc;
         }
 
         private void UpdateTextIncrements()
         {
-            BaseTransformComponent.IgnoreResizes = true;
-            float inc = UnitIncrement * 2.0f;
+            float incX = UnitIncrementX * 2.0f;
+            float incY = UnitIncrementY * 2.0f;
 
             Vec2 min = Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
-            min.X = min.X.RoundToNearestMultiple(inc);
-            min.Y = min.Y.RoundToNearestMultiple(inc);
+            min.X = min.X.RoundedToNearestMultiple(incX);
+            min.Y = min.Y.RoundedToNearestMultiple(incY);
 
-            Vec2 unitCounts = Bounds.Raw / (inc * BaseTransformComponent.Scale.Xy) + Vec2.One;
+            Vec2 unitCounts = Bounds.Raw / (new Vec2(incX, incY) * BaseTransformComponent.Scale.Xy) + Vec2.One;
 
-            UpdateTextIncrements(unitCounts.X, _textCacheX, min.X, inc, true);
-            UpdateTextIncrements(unitCounts.Y, _textCacheY, min.Y, inc, false);
-
-            BaseTransformComponent.IgnoreResizes = false;
+            UpdateTextIncrements(unitCounts.X, _textCacheX, min.X, incX, true);
+            UpdateTextIncrements(unitCounts.Y, _textCacheY, min.Y, incY, false);
         }
         private void UpdateTextIncrements(float unitCount, Dictionary<string, (UITextRasterComponent, UIString2D)> textCache, float minimum, float increment, bool xCoord)
         {
-            if (float.IsNaN(unitCount))
+            if (float.IsNaN(unitCount) || float.IsNaN(minimum))
                 return;
 
-            var allKeys = textCache.Keys.ToList();
-            var visible = Enumerable.Range(0, (int)Math.Ceiling(unitCount)).Select(x =>
+            try
             {
-                var value = minimum + x * increment;
-                var vstr = value.ToString("###0.0##");
-                if (!allKeys.Contains(vstr))
-                    allKeys.Add(vstr);
-                return (value, vstr);
-            }).ToDictionary(x => x.vstr, x => x.value);
-
-            bool isUsed(string key) => visible.ContainsKey(key);
-
-            UITextRasterComponent comp;
-            UIString2D str;
-
-            foreach (var key in allKeys)
-            {
-                if (isUsed(key))
+                var allKeys = textCache.Keys.ToList();
+                var visible = Enumerable.Range(0, (int)Math.Ceiling(unitCount)).Select(x =>
                 {
-                    //Visible, and in cache?
-                    if (textCache.ContainsKey(key))
+                    var value = minimum + x * increment;
+                    var vstr = value.ToString("###0.0##");
+                    if (!allKeys.Contains(vstr))
+                        allKeys.Add(vstr);
+                    return (value, vstr);
+                }).ToDictionary(x => x.vstr, x => x.value);
+
+                bool isUsed(string key) => visible.ContainsKey(key);
+
+                UITextRasterComponent comp;
+                UIString2D str;
+
+                foreach (var key in allKeys)
+                {
+                    if (isUsed(key))
                     {
-                        //Show it
-                        var cache = textCache[key];
-                        comp = cache.Item1;
-                        str = cache.Item2;
-                    }
-                    else
-                    {
-                        //Not in cache, find an unused cache item
-                        var unusedKey = textCache.FirstOrDefault(x => !isUsed(x.Key)).Key;
-                        if (unusedKey != null)
+                        //Visible, and in cache?
+                        if (textCache.ContainsKey(key))
                         {
-                            var value = textCache[unusedKey];
-                            textCache.Remove(unusedKey);
-                            comp = value.Item1;
-                            str = value.Item2;
-                            str.Text = key;
-                            textCache.Add(key, value);
+                            //Show it
+                            var cache = textCache[key];
+                            comp = cache.Item1;
+                            str = cache.Item2;
                         }
                         else
                         {
-                            //Not in cache, none unused
-                            //Need more cached text components
-                            comp = ConstructText(new ColorF3(0.4f), "0", "-0000.000", out str);
-                            textCache.Add(key, (comp, str));
+                            //Not in cache, find an unused cache item
+                            var unusedKey = textCache.FirstOrDefault(x => !isUsed(x.Key)).Key;
+                            if (unusedKey != null)
+                            {
+                                var value = textCache[unusedKey];
+                                textCache.Remove(unusedKey);
+                                comp = value.Item1;
+                                str = value.Item2;
+                                str.Text = key;
+                                textCache.Add(key, value);
+                            }
+                            else
+                            {
+                                //Not in cache, none unused
+                                //Need more cached text components
+                                comp = ConstructText(new ColorF3(0.4f), "0", "-0000.000", out str);
+                                textCache.Add(key, (comp, str));
+                            }
                         }
-                    }
 
-                    var pos = visible[key];
-                    if (xCoord)
-                    {
-                        comp.Translation.Xy = new Vec2(pos, 0.0f);
+                        var pos = visible[key];
+                        if (xCoord)
+                        {
+                            comp.Translation.Xy = new Vec2(pos, 0.0f);
+                        }
+                        else
+                        {
+                            comp.Translation.Xy = new Vec2(0.0f, pos);
+                        }
+
+                        comp.RenderInfo.Visible = true;
                     }
                     else
                     {
-                        comp.Translation.Xy = new Vec2(0.0f, pos);
+                        //Not visible, but exists in cache? Hide it
+                        textCache[key].Item1.RenderInfo.Visible = false;
+                        continue;
                     }
+                }
+            }
+            catch
+            {
 
-                    comp.RenderInfo.Visible = true;
-                }
-                else
-                {
-                    //Not visible, but exists in cache? Hide it
-                    textCache[key].Item1.RenderInfo.Visible = false;
-                    continue;
-                }
             }
         }
 
-        private void UpdateBackgroundMaterial()
+        protected void UpdateBackgroundMaterial()
         {
-            UpdateLineIncrement();
-
             TMaterial mat = _backgroundComponent.InterfaceMaterial;
             mat.Parameter<ShaderFloat>(2).Value = BaseTransformComponent.Scale.X;
-            mat.Parameter<ShaderVec2>(4).Value = BaseTransformComponent.Translation.Xy;
-            mat.Parameter<ShaderFloat>(5).Value = UnitIncrement;
-
-            UpdateTextIncrements();
+            mat.Parameter<ShaderVec2>(4).Value = BaseTransformComponent.ActualTranslation;
+            mat.Parameter<ShaderFloat>(5).Value = UnitIncrementX;
         }
         protected override void OnSpawnedPostComponentSpawn()
         {
@@ -609,9 +618,6 @@ namespace TheraEditor.Windows.Forms
         {
             Vec3 worldPoint = CursorPositionWorld();
             BaseTransformComponent.Zoom(BaseTransformComponent.Scale.X * increment, worldPoint.Xy, new Vec2(0.1f, 0.1f), new Vec2(3000.0f, 3000.0f));
-
-            UpdateBackgroundMaterial();
-            UpdateTextScale();
         }
         protected virtual void UpdateTextScale()
         {
@@ -640,7 +646,7 @@ namespace TheraEditor.Windows.Forms
         protected virtual void RenderMethod()
         {
             Vec2 pos = CursorPositionWorld();
-            Vec2 wh = _backgroundComponent.Size;
+            Vec2 wh = _backgroundComponent.ActualSize;
 
             //Cursor
             Engine.Renderer.RenderCircle(pos + AbstractRenderer.UIPositionBias, AbstractRenderer.UIRotation, SelectionRadius, false, Editor.TurquoiseColor, 10.0f);

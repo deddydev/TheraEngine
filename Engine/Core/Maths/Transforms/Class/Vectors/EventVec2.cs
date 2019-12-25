@@ -241,14 +241,14 @@ namespace System
 
         private void BeginUpdate()
         {
-            Interlocked.Increment(ref _recursiveUpdates);
+            //Interlocked.Increment(ref _recursiveUpdates);
             _oldX = X;
             _oldY = Y;
         }
         private void EndUpdate()
         {
-            if (Interlocked.Decrement(ref _recursiveUpdates) > 0)
-                return;
+            //if (Interlocked.Decrement(ref _recursiveUpdates) > 0)
+            //    return;
 
             float x = X, y = Y;
             float ox = _oldX, oy = _oldY;

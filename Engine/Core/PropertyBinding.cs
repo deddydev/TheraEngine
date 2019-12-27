@@ -23,8 +23,11 @@ namespace TheraEngine.Core
             RegistreePropertyName = registreePropertyName;
             SourcePropertyName = sourcePropertyName;
 
-            RegistreeProperty = Registree.GetType().GetProperty(nameof(RegistreePropertyName));
-            SourceProperty = Source.GetType().GetProperty(nameof(SourcePropertyName));
+            Type rType = Registree.GetType();
+            Type sType = Source.GetType();
+
+            RegistreeProperty = rType.GetProperty(RegistreePropertyName);
+            SourceProperty = sType.GetProperty(SourcePropertyName);
 
             Mode = EBindingMode.OneWay;
         }
@@ -48,8 +51,11 @@ namespace TheraEngine.Core
             RegistreePropertyName = registreePropertyName;
             SourcePropertyName = sourcePropertyName;
 
-            RegistreeProperty = Registree.GetType().GetProperty(nameof(RegistreePropertyName));
-            SourceProperty = Source.GetType().GetProperty(nameof(SourcePropertyName));
+            Type rType = Registree.GetType();
+            Type sType = Source.GetType();
+
+            RegistreeProperty = rType.GetProperty(RegistreePropertyName);
+            SourceProperty = sType.GetProperty(SourcePropertyName);
 
             switch (mode)
             {

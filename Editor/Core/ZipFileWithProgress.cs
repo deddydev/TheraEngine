@@ -37,7 +37,9 @@ namespace TheraEngine.Core
                             new BasicProgress<int>(i =>
                             {
                                 currentBytes += i;
-                                progress.Report(currentBytes / totalBytes);
+                                float percent = currentBytes / totalBytes;
+                                progress?.Report(percent);
+                                Engine.PrintLine($"{(int)(percent * 100.0f)}% zipped...");
                             }), null);
 
                         progressStream.CopyTo(outputStream);
@@ -65,7 +67,9 @@ namespace TheraEngine.Core
                             new BasicProgress<int>(i =>
                             {
                                 currentBytes += i;
-                                progress.Report(currentBytes / totalBytes);
+                                float percent = currentBytes / totalBytes;
+                                progress?.Report(percent);
+                                Engine.PrintLine($"{percent * 100.0f}% unzipped...");
                             }));
 
                         inputStream.CopyTo(progressStream);

@@ -1,9 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Attributes;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
+    public interface IUIRotationComponent : IUIComponent
+    {
+        float RotationAngle { get; set; }
+    }
     public class UIRotationComponent : UIComponent
     {
         [TSerialize(nameof(RotationAngle))]
@@ -23,7 +28,11 @@ namespace TheraEngine.Rendering.UI
                     RecalcLocalTransform();
             }
         }
-
+        protected override void OnResizeLayout(BoundingRectangleF parentBounds)
+        {
+            RecalcLocalTransform();
+            OnResizeChildComponents(parentBounds);
+        }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             localTransform = Matrix4.CreateRotationZ(RotationAngle);

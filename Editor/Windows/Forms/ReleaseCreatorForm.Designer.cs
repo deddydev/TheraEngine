@@ -186,6 +186,7 @@
             this.rdx64.TabStop = true;
             this.rdx64.Text = "x64";
             this.rdx64.UseVisualStyleBackColor = true;
+            this.rdx64.CheckedChanged += Rdx64_CheckedChanged;
             // 
             // rdx86
             // 
@@ -197,6 +198,7 @@
             this.rdx86.TabIndex = 0;
             this.rdx86.Text = "x86";
             this.rdx86.UseVisualStyleBackColor = true;
+            this.rdx86.CheckedChanged += Rdx86_CheckedChanged;
             // 
             // chkEngine
             // 
@@ -381,7 +383,6 @@
             this.ResumeLayout(false);
 
         }
-
         #endregion
 
         private System.Windows.Forms.SplitContainer splitContainer1;

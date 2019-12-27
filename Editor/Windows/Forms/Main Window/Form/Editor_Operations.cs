@@ -126,7 +126,7 @@ namespace TheraEditor.Windows.Forms
                 Instance.BeginInvoke((Action<TProject.EngineBuildLogger>)ShowErrorForm, logger);
                 return;
             }
-            Instance.ErrorListForm.Show(Instance.DockPanel, WeifenLuo.WinFormsUI.Docking.DockState.DockBottom);
+            Instance.ErrorListForm.Show(Instance.DockPanel, DockState.DockBottom);
             Instance.ErrorListForm.SetLog(logger);
         }
 

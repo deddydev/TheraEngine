@@ -54,7 +54,7 @@ namespace TheraEngine.Rendering
 
                 if (Scene is null)
                     return;
-
+                
                 if (value)
                     Scene.RenderTree.Add(Owner);
                 else

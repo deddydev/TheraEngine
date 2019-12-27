@@ -489,24 +489,28 @@
             // btnManageExtensions
             // 
             this.btnManageExtensions.Name = "btnManageExtensions";
+            this.btnManageExtensions.Visible = false;
             resources.ApplyResources(this.btnManageExtensions, "btnManageExtensions");
             this.btnManageExtensions.Click += new System.EventHandler(this.extensionsToolStripMenuItem_Click);
             // 
             // btnCubemapEditor
             // 
             this.btnCubemapEditor.Name = "btnCubemapEditor";
+            this.btnCubemapEditor.Visible = false;
             resources.ApplyResources(this.btnCubemapEditor, "btnCubemapEditor");
             this.btnCubemapEditor.Click += new System.EventHandler(this.cubeMapEditorToolStripMenuItem_Click);
             // 
             // btnTextureGenerator
             // 
             this.btnTextureGenerator.Name = "btnTextureGenerator";
+            this.btnTextureGenerator.Visible = false;
             resources.ApplyResources(this.btnTextureGenerator, "btnTextureGenerator");
             this.btnTextureGenerator.Click += new System.EventHandler(this.textureGeneratorToolStripMenuItem_Click);
             // 
             // btnVREdit
             // 
             this.btnVREdit.Name = "btnVREdit";
+            this.btnVREdit.Visible = false;
             resources.ApplyResources(this.btnVREdit, "btnVREdit");
             // 
             // btnPackageNewRelease

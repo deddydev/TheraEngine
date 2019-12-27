@@ -34,6 +34,8 @@ using TheraEngine.Core.Files.XML;
 using static TheraEngine.ThirdParty.MSBuild.Item;
 using System.Runtime.Remoting;
 using TheraEngine.Components;
+using TheraEngine.Input.Devices;
+using System.Drawing;
 
 namespace TheraEditor
 {
@@ -273,39 +275,42 @@ namespace TheraEditor
 
             //Try to find wrapper for type or any inherited type, in order
             var wrappers = Wrappers;
-            TypeProxy currentType = type;
-            while (!(currentType is null) && wrapper is null)
+            if (wrappers != null)
             {
-                if (wrappers.TryGetValue(currentType, out TypeProxy wrapperType))
-                    wrapper = wrapperType.CreateInstance() as IBasePathWrapper;
-                else
+                TypeProxy currentType = type;
+                while (!(currentType is null) && wrapper is null)
                 {
-                    TypeProxy[] interfaces = currentType.GetInterfaces();
-                    var validInterfaces = interfaces.Where(interfaceType => wrappers.Keys.Any(wrapperKeyType => wrapperKeyType == interfaceType)).ToArray();
-                    if (validInterfaces.Length > 0)
+                    if (wrappers.TryGetValue(currentType, out TypeProxy wrapperType))
+                        wrapper = wrapperType.CreateInstance() as IBasePathWrapper;
+                    else
                     {
-                        TypeProxy interfaceType;
-
-                        //TODO: find best interface to use if multiple matches?
-                        if (validInterfaces.Length > 1)
+                        TypeProxy[] interfaces = currentType.GetInterfaces();
+                        var validInterfaces = interfaces.Where(interfaceType => wrappers.Keys.Any(wrapperKeyType => wrapperKeyType == interfaceType)).ToArray();
+                        if (validInterfaces.Length > 0)
                         {
-                            int[] numAssignableTo = validInterfaces.Select(match => validInterfaces.Count(other => other != match && other.IsAssignableTo(match))).ToArray();
-                            int min = numAssignableTo.Min();
-                            int[] mins = numAssignableTo.FindAllMatchIndices(x => x == min);
-                            string msg = "File of type " + type.GetFriendlyName() + " has multiple valid interface wrappers: " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName());
-                            msg += ". Narrowed down wrappers to " + mins.Select(x => validInterfaces[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
-                            Engine.PrintLine(msg);
-                            interfaceType = validInterfaces[mins[0]];
+                            TypeProxy interfaceType;
+
+                            //TODO: find best interface to use if multiple matches?
+                            if (validInterfaces.Length > 1)
+                            {
+                                int[] numAssignableTo = validInterfaces.Select(match => validInterfaces.Count(other => other != match && other.IsAssignableTo(match))).ToArray();
+                                int min = numAssignableTo.Min();
+                                int[] mins = numAssignableTo.FindAllMatchIndices(x => x == min);
+                                string msg = "File of type " + type.GetFriendlyName() + " has multiple valid interface wrappers: " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName());
+                                msg += ". Narrowed down wrappers to " + mins.Select(x => validInterfaces[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
+                                Engine.PrintLine(msg);
+                                interfaceType = validInterfaces[mins[0]];
+                            }
+                            else
+                                interfaceType = validInterfaces[0];
+
+                            if (wrappers.TryGetValue(interfaceType, out wrapperType))
+                                wrapper = wrapperType.CreateInstance() as IBasePathWrapper;
                         }
-                        else
-                            interfaceType = validInterfaces[0];
-
-                        if (wrappers.TryGetValue(interfaceType, out wrapperType))
-                            wrapper = wrapperType.CreateInstance() as IBasePathWrapper;
                     }
-                }
 
-                currentType = currentType.BaseType;
+                    currentType = currentType.BaseType;
+                }
             }
 
             if (wrapper is null)
@@ -722,5 +727,204 @@ namespace TheraEditor
                     Progress.ProgressChanged -= Progress_ProgressChanged;
             }
         }
+
+        #region Game Mode
+        private void RegisterInput(InputInterface input)
+        {
+            input.RegisterKeyEvent(EKey.Escape, EButtonInputType.Pressed, EndGameplay, EInputPauseType.TickAlways);
+        }
+        private Rectangle _prevClip;
+        private void CaptureMouse(Control panel)
+        {
+            //CursorManager.GlobalWrapCursorWithinClip = true;
+            Engine.EditorState.InEditMode = false;
+            panel.Focus();
+            //panel.Capture = true;
+            //_prevClip = Cursor.Clip;
+            //Cursor.Clip = panel.RectangleToScreen(panel.ClientRectangle);
+            //HideCursor();
+        }
+        private void ReleaseMouse()
+        {
+            //CursorManager.GlobalWrapCursorWithinClip = false;
+            Engine.EditorState.InEditMode = true;
+            //ShowCursor();
+            //Cursor.Clip = _prevClip;
+        }
+        private EEditorGameplayState _gameState = EEditorGameplayState.Editing;
+        public EEditorGameplayState GameState
+        {
+            get => _gameState;
+            set
+            {
+                if (_gameState == value)
+                    return;
+
+                switch (value)
+                {
+                    case EEditorGameplayState.Attached: SetAttachedGameState(); break;
+                    case EEditorGameplayState.Detached: SetDetachedGameState(); break;
+                    case EEditorGameplayState.Editing: SetEditingGameState(); break;
+                }
+
+                _gameState = value;
+            }
+        }
+        private void SetEditingGameState()
+        {
+            //if (InvokeRequired)
+            //{
+            //    BeginInvoke((Action)SetEditingGameState);
+            //    return;
+            //}
+
+            //btnPlay.Text = "Play";
+            //btnPlayDetached.Text = "Play Detached";
+
+            var world = World;
+            if (world is null)
+                return;
+
+            if (_gameState == EEditorGameplayState.Attached)
+            {
+                //Attached -> Editing
+
+                ReleaseMouse();
+            }
+            else //Detached
+            {
+                //Detached -> Editing
+
+                world.DespawnActor(FlyingCameraDetachedPawn);
+
+                //Mouse is already released
+            }
+
+            //Both attached and detached use gameplay mode and are unpaused
+            world.EndPlay();
+
+            SetEditorGameMode();
+            InputInterface.GlobalRegisters.Remove(RegisterInput);
+            //ActorTreeForm.ClearMaps();
+
+            world.BeginPlay();
+            Engine.Pause(ELocalPlayerIndex.One, true);
+
+            GameplayPawn = null;
+        }
+        public IPawn GameplayPawn { get; set; }
+        public FlyingCameraPawn FlyingCameraDetachedPawn { get; } = new FlyingCameraPawn();
+        private void SetDetachedGameState()
+        {
+            //if (InvokeRequired)
+            //{
+            //    BeginInvoke((Action)SetDetachedGameState);
+            //    return;
+            //}
+
+            //btnPlay.Text = "Stop";
+            //btnPlayDetached.Text = "Play Attached";
+
+            var world = World;
+            if (world is null)
+                return;
+
+            if (_gameState == EEditorGameplayState.Attached)
+            {
+                //Attached -> Detached
+
+                ReleaseMouse();
+            }
+            else //Editing
+            {
+                //Editing -> Detached
+
+                //Mouse already released in edit mode
+                world.EndPlay();
+
+                SetGameplayMode();
+                InputInterface.GlobalRegisters.Add(RegisterInput);
+                //ActorTreeForm.ClearMaps();
+
+                world.BeginPlay();
+                Engine.Unpause(ELocalPlayerIndex.One, true);
+            }
+
+            if (world.CurrentGameMode.LocalPlayers.Count > 0)
+                GameplayPawn = world.CurrentGameMode.LocalPlayers[0].ControlledPawn;
+
+            FlyingCameraDetachedPawn.EditorState.DisplayInActorTree = false;
+            world.SpawnActor(FlyingCameraDetachedPawn);
+            FlyingCameraDetachedPawn.ForcePossessionBy(ELocalPlayerIndex.One);
+        }
+        private void SetAttachedGameState()
+        {
+            var world = World;
+            if (world is null)
+                return;
+
+            //if (InvokeRequired)
+            //{
+            //    BeginInvoke((Action)SetAttachedGameState);
+            //    return;
+            //}
+
+            //btnPlay.Text = "Stop";
+            //btnPlayDetached.Text = "Play Detached";
+
+            //BaseRenderPanel renderPanel = (ActiveRenderForm as DockableWorldRenderPanel)?.RenderPanel ?? FocusViewport(0).RenderPanel;
+
+            //Mouse is released in edit mode and detached mode
+            //CaptureMouse(renderPanel);
+
+            if (_gameState == EEditorGameplayState.Editing)
+            {
+                //Editing -> Attached
+
+                world.EndPlay();
+
+                SetGameplayMode();
+                InputInterface.GlobalRegisters.Add(RegisterInput);
+                //ActorTreeForm.ClearMaps();
+
+                world.BeginPlay();
+                Engine.Unpause(ELocalPlayerIndex.One, true);
+
+                if (world.CurrentGameMode.LocalPlayers.Count > 0)
+                    GameplayPawn = world.CurrentGameMode.LocalPlayers[0].ControlledPawn;
+            }
+            else //Detached
+            {
+                //Detached -> Attached
+
+                GameplayPawn?.ForcePossessionBy(ELocalPlayerIndex.One);
+                World.DespawnActor(FlyingCameraDetachedPawn);
+            }
+        }
+        private void EndGameplay()
+        {
+            if (GameState == EEditorGameplayState.Detached)
+                GameState = EEditorGameplayState.Editing;
+            else
+                GameState = EEditorGameplayState.Detached;
+        }
+        #endregion
+    }
+    public enum EEditorGameplayState
+    {
+        /// <summary>
+        /// Gameplay is not simulating. Purely in edit mode.
+        /// </summary>
+        Editing,
+        /// <summary>
+        /// Gameplay is simulating, but the user is viewing from a third person flying camera.
+        /// Editing is allowed.
+        /// </summary>
+        Detached,
+        /// <summary>
+        /// Gameplay is simulating and the user is playing it as it should be experienced.
+        /// Editing is not allowed.
+        /// </summary>
+        Attached,
     }
 }

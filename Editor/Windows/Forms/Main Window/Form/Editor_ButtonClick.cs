@@ -133,16 +133,9 @@ namespace TheraEditor.Windows.Forms
         }
 
         private void BtPlay_Click(object sender, EventArgs e)
-            => GameState = GameState != EEditorGameplayState.Editing ? EEditorGameplayState.Editing : EEditorGameplayState.Attached;
+            => DomainProxy.GameState = DomainProxy.GameState != EEditorGameplayState.Editing ? EEditorGameplayState.Editing : EEditorGameplayState.Attached;
         private void btnPlayDetached_Click(object sender, EventArgs e)
-            => GameState = GameState != EEditorGameplayState.Attached ? EEditorGameplayState.Attached : EEditorGameplayState.Detached;
-        private void EndGameplay()
-        {
-            if (GameState == EEditorGameplayState.Detached)
-                GameState = EEditorGameplayState.Editing;
-            else
-                GameState = EEditorGameplayState.Detached;
-        }
+            => DomainProxy.GameState = DomainProxy.GameState != EEditorGameplayState.Attached ? EEditorGameplayState.Attached : EEditorGameplayState.Detached;
 
         private void BtnProjectSettings_Click(object sender, EventArgs e)
             => PropertyGridForm.PropertyGrid.TargetObject = Project;

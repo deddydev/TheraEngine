@@ -1608,6 +1608,7 @@
     <Folder Include="Windows\Forms\Editors\2D\Model Animation State Machine\" />
     <Folder Include="Windows\Forms\Editors\3D\Cutscene Editor\" />
     <Folder Include="Windows\Forms\Editors\3D\Model Animation Editor\" />
+    <Folder Include="Windows\TheraUI\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\PythonIcon.png" />

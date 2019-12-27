@@ -12,13 +12,19 @@ namespace TheraEngine.Components.Scene.Volumes
         public GravityVolumeComponent() : this(Vec3.Half) { }
         public GravityVolumeComponent(Vec3 halfExtents) : base(halfExtents) { }
 
-        public void OnOverlapEntered(TRigidBody obj)
+        protected override void OnEntered(TCollisionObject obj)
         {
-            obj.Gravity = Gravity;
+            if (obj is TRigidBody rb)
+                rb.Gravity = Gravity;
+
+            base.OnEntered(obj);
         }
-        public void OnOverlapLeft(TRigidBody obj)
+        protected override void OnLeft(TCollisionObject obj)
         {
-            obj.Gravity = Engine.World.Settings.Gravity;
+            if (obj is TRigidBody rb)
+                rb.Gravity = Engine.World.Settings.Gravity;
+
+            base.OnLeft(obj);
         }
     }
 }

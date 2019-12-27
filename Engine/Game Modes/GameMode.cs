@@ -170,7 +170,7 @@ namespace TheraEngine.GameModes
 
             item.Viewport?.UnregisterController(item);
             
-            var panel = TargetRenderHandlers.FirstOrDefault(x => x.Context.Handler.ValidPlayerIndices.Contains(item.LocalPlayerIndex));
+            var panel = TargetRenderHandlers?.FirstOrDefault(x => x.Context.Handler.ValidPlayerIndices.Contains(item.LocalPlayerIndex));
             if (panel != null)
             {
                 Viewport v = panel.GetOrAddViewport(item.LocalPlayerIndex);

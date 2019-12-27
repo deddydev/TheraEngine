@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using TheraEngine.Animation;
 using TheraEngine.Core;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
 using TheraEngine.Input.Devices;
@@ -19,6 +20,7 @@ namespace TheraEngine
         string Name { get; set; }
         object UserObject { get; set; }
         bool ConstructedProgrammatically { get; set; }
+        Guid Guid { get; set; }
 
 #if EDITOR
         bool HasEditorState { get; }
@@ -43,7 +45,6 @@ namespace TheraEngine
 
         #region Animation
         IEventList<AnimationTree> Animations { get; set; }
-        Guid Guid { get; set; }
 
         //void AddAnimation(
         //    AnimationTree anim,
@@ -67,8 +68,8 @@ namespace TheraEngine
         [TSerialize]
         private object _userObject = null;
 
-        [Browsable(false)]
-        //[TSerialize(NodeType = ENodeType.Attribute)]
+        //[Browsable(false)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public Guid Guid { get; set; } = Guid.NewGuid();
 
         /// <summary>
@@ -289,10 +290,7 @@ namespace TheraEngine
         [Browsable(false)]
         public EditorState EditorState
         {
-            get
-            {
-                return _editorState ?? (_editorState = new EditorState(this));
-            }
+            get => _editorState ?? (_editorState = new EditorState(this));
             set
             {
                 _editorState = value;
@@ -330,29 +328,28 @@ namespace TheraEngine
         #region Animation
 
         [TSerialize(nameof(Animations))]
-        public IEventList<AnimationTree> _animations = null;
+        private IEventList<AnimationTree> _animations = null;
 
         [Category("Object")]
-        [BrowsableIf("_animations != null")]
+        [BrowsableIf("Animations != null")]
         public IEventList<AnimationTree> Animations
         {
             get => _animations;
-            set
-            {
-                if (_animations != null)
+            set => Set(ref _animations, value,
+                () =>
                 {
                     _animations.PostAnythingAdded -= AnimationAdded;
                     _animations.PostAnythingRemoved -= AnimationRemoved;
-                }
-
-                _animations = value;
-
-                if (_animations != null)
+                    foreach (var anim in _animations)
+                        AnimationRemoved(anim);
+                },
+                () =>
                 {
                     _animations.PostAnythingAdded += AnimationAdded;
                     _animations.PostAnythingRemoved += AnimationRemoved;
-                }
-            }
+                    foreach (var anim in _animations)
+                        AnimationAdded(anim);
+                });
         }
 
         private void AnimationAdded(AnimationTree item)
@@ -360,20 +357,38 @@ namespace TheraEngine
             if (item is null)
                 return;
 
+            item.PropertyChanged += AnimTree_PropertyChanged;
+
             if (item.RemoveOnEnd)
                 item.AnimationEnded += RemoveAnimationSelf;
 
             item.Owners.Add(this);
         }
-        private void AnimationRemoved(AnimationTree item)
+        private void AnimationRemoved(AnimationTree animTree)
         {
-            if (item is null)
+            if (animTree is null)
                 return;
 
-            if (item.RemoveOnEnd)
-                item.AnimationEnded -= RemoveAnimationSelf;
+            animTree.PropertyChanged -= AnimTree_PropertyChanged;
 
-            item.Owners.Remove(this);
+            if (animTree.RemoveOnEnd)
+                animTree.AnimationEnded -= RemoveAnimationSelf;
+
+            animTree.Owners.Remove(this);
+        }
+
+        private void AnimTree_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (!(sender is AnimationTree animTree))
+                return;
+            
+            if (e.PropertyName.EqualsInvariant(nameof(AnimationTree.RemoveOnEnd)))
+            {
+                if (animTree.RemoveOnEnd)
+                    animTree.AnimationEnded += RemoveAnimationSelf;
+                else
+                    animTree.AnimationEnded -= RemoveAnimationSelf;
+            }
         }
 
         /// <summary>
@@ -419,6 +434,19 @@ namespace TheraEngine
         //}
         private void RemoveAnimationSelf(BaseAnimation anim)
             => _animations.Remove((AnimationTree)anim);
+
+        public delegate float DelAnimateFloat(float value, float time);
+        public void AnimateProperty(string name, float seconds, PropAnimMethod<float>.DelGetValue interp)
+        {
+            //TODO: pool these animation trees?
+            PropAnimMethod<float> anim = new PropAnimMethod<float>(seconds, false, interp);
+            AnimationTree tree = new AnimationTree("AnimatePropertyMethod", name, anim)
+            {
+                RemoveOnEnd = true
+            };
+            Animations.Add(tree);
+        }
+
         #endregion
     }
 

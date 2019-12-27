@@ -476,7 +476,7 @@ namespace TheraEngine.Core.Files.Serialization
                 throw new Exception();
 
             if (Owner != null && 
-                Object is TObject tobj && 
+                Object is IObject tobj && 
                 tobj.Guid != Guid.Empty &&
                 Owner.WritingSharedObjectIndices.ContainsKey(tobj.Guid) &&
                 Owner.WritingSharedObjectIndices[tobj.Guid] > 1)

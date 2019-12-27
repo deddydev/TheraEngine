@@ -65,13 +65,13 @@ namespace TheraEditor.Windows.Forms
             base.ResizeLayout();
 
             if (_targetHud?.RootComponent is UICanvasComponent canvas)
-                _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.ActualSize * canvas.WorldMatrix.Scale.Xy;
+                _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.ActualSize.Raw * canvas.WorldMatrix.Scale.Xy;
             
             if (_highlightedComp is UIBoundableComponent highlightedBounds)
-                _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = highlightedBounds.ActualSize * highlightedBounds.WorldMatrix.Scale.Xy;
+                _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = highlightedBounds.ActualSize.Raw * highlightedBounds.WorldMatrix.Scale.Xy;
 
             if (_selectedComp is UIBoundableComponent selectedBounds)
-                _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize * selectedBounds.WorldMatrix.Scale.Xy;
+                _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize.Raw * selectedBounds.WorldMatrix.Scale.Xy;
 
             UpdateBackgroundMaterial();
         }
@@ -152,7 +152,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _selectedComp = _highlightedComp;
                 if (_selectedComp is UIBoundableComponent selectedBounds)
-                    _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize * selectedBounds.WorldMatrix.Scale.Xy;
+                    _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize.Raw * selectedBounds.WorldMatrix.Scale.Xy;
                 _dragComp = null;
 
                 Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = _selectedComp as object ?? TargetUI;
@@ -196,7 +196,7 @@ namespace TheraEditor.Windows.Forms
                 _highlightedComp = tc;
 
                 if (_highlightedComp is UIBoundableComponent bound)
-                    _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = bound.ActualSize * bound.WorldMatrix.Scale.Xy;
+                    _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = bound.ActualSize.Raw * bound.WorldMatrix.Scale.Xy;
             }
             //UIComponentHighlighted?.Invoke(_highlightedComp);
         }
@@ -228,7 +228,7 @@ namespace TheraEditor.Windows.Forms
             }
 
             if (_targetHud?.RootComponent is UICanvasComponent canvas)
-                _uiBoundsRC.WorldMatrix = canvas.WorldMatrix * Matrix4.CreateScale(canvas.ActualSize);
+                _uiBoundsRC.WorldMatrix = canvas.WorldMatrix * Matrix4.CreateScale(canvas.ActualSize.Raw);
 
             passes.Add(_uiBoundsRC);
         }

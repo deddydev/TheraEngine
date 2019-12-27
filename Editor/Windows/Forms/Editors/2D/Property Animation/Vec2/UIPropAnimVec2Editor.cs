@@ -1076,7 +1076,7 @@ void main()
         }
         protected override void RenderMethod()
         {
-            Vec2 wh = _backgroundComponent.ActualSize;
+            Vec2 wh = _backgroundComponent.ActualSize.Raw;
 
             //TODO: if a keyframe is dragged past another, its index changes but these indices are not updated
             if (ClosestPositionIndices != null)

@@ -1266,8 +1266,11 @@ namespace TheraEditor.Windows.Forms
                         else
                         {
                             int ii = item.Title.LastIndexOf(' ');
-                            item.Title = item.Title.Substring(ii).Trim();
-                            item.Type = EExplorerItemType.Property;
+                            if (ii >= 0 && ii < item.Title.Length)
+                            {
+                                item.Title = item.Title.Substring(ii).Trim();
+                                item.Type = EExplorerItemType.Property;
+                            }
                         }
                         list.Add(item);
                     }

@@ -127,7 +127,7 @@ namespace TheraEditor.Windows.Forms
                 new ShaderVec3(new Vec3(0.08f, 0.08f, 0.08f), "BGColor"),
                 new ShaderFloat(BaseTransformComponent.Scale.X, "Scale"),
                 new ShaderFloat(3.0f, "LineWidth"),
-                new ShaderVec2(BaseTransformComponent.ActualTranslation, "Translation"),
+                new ShaderVec2(BaseTransformComponent.ActualTranslation.Raw, "Translation"),
                 new ShaderFloat(UnitIncrementX, "XYIncrement"),
             },
             frag);
@@ -144,7 +144,7 @@ namespace TheraEditor.Windows.Forms
 
             UITextRasterComponent comp = new UITextRasterComponent() { RenderTransformation = false };
             comp.RenderInfo.VisibleByDefault = true;
-            comp.Size = new Vec2(width, height);
+            comp.Size.Raw = new Vec2(width, height);
             comp.TextureResolutionMultiplier = UIFont.Size;
 
             str = new UIString2D(initialText, UIFont, color, format);
@@ -154,7 +154,7 @@ namespace TheraEditor.Windows.Forms
             comp.TextDrawer.Text.Add(str);
 
             BaseTransformComponent.ChildComponents.Add(comp);
-            comp.Scale = 1.0f / BaseTransformComponent.Scale * TextScale;
+            comp.Scale.Raw = 1.0f / BaseTransformComponent.Scale * TextScale;
 
             return comp;
         }
@@ -228,9 +228,9 @@ namespace TheraEditor.Windows.Forms
             UpdateIntervals();
             UpdateTextIncrements();
         }
-        protected override void ResizeLayout()
+        public override void Resize(Vec2 bounds)
         {
-            base.ResizeLayout();
+            base.Resize(bounds);
 
             //TODO: zoom extents of the previous bounds with no scale instead of the target's bounds
             ZoomExtents(false);
@@ -390,7 +390,7 @@ namespace TheraEditor.Windows.Forms
         {
             TMaterial mat = _backgroundComponent.InterfaceMaterial;
             mat.Parameter<ShaderFloat>(2).Value = BaseTransformComponent.Scale.X;
-            mat.Parameter<ShaderVec2>(4).Value = BaseTransformComponent.ActualTranslation;
+            mat.Parameter<ShaderVec2>(4).Value = BaseTransformComponent.ActualTranslation.Raw;
             mat.Parameter<ShaderFloat>(5).Value = UnitIncrementX;
         }
         protected override void OnSpawnedPostComponentSpawn()
@@ -468,7 +468,7 @@ namespace TheraEditor.Windows.Forms
             if (moveX != 0.0f || moveY != 0.0f)
             {
                 Vec2 move = new Vec2(moveX * delta, moveY * delta);
-                BaseTransformComponent.Translation += move;
+                BaseTransformComponent.Translation.Xy += move;
             }
         }
         private void ZoomOut(bool pressed)
@@ -646,7 +646,7 @@ namespace TheraEditor.Windows.Forms
         protected virtual void RenderMethod()
         {
             Vec2 pos = CursorPositionWorld();
-            Vec2 wh = _backgroundComponent.ActualSize;
+            Vec2 wh = _backgroundComponent.ActualSize.Raw;
 
             //Cursor
             Engine.Renderer.RenderCircle(pos + AbstractRenderer.UIPositionBias, AbstractRenderer.UIRotation, SelectionRadius, false, Editor.TurquoiseColor, 10.0f);

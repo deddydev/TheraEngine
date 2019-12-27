@@ -319,10 +319,12 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public Action<UserInterfacePawn<T>> Resizing;
         public Action<UserInterfacePawn<T>> Resized;
+
         protected virtual void ResizeLayout() 
             => RootComponent.ResizeLayout(new BoundingRectangleF(
                 RootComponent.Translation.Xy,
                 RootComponent.Size.Raw));
+
         public virtual void UpdateLayout()
         {
             if (IsLayoutInvalidated)
@@ -337,6 +339,7 @@ namespace TheraEngine.Actors.Types.Pawns
                 RootComponent.UpdateInScreenSpace();
         }
 
+        [Browsable(false)]
         public bool IsLayoutInvalidated { get; private set; }
         public void InvalidateLayout() => IsLayoutInvalidated = true;
 

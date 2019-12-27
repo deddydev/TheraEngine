@@ -453,18 +453,20 @@ namespace TheraEngine.Core.Files.XML
             CancellationToken cancel)
         {
             long currentBytes = 0L;
-            using ProgressStream stream = new ProgressStream(new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None), null, null);
-            using XmlWriter writer = XmlWriter.Create(stream, settings);
-            if (progress != null)
+            using (ProgressStream stream = new ProgressStream(new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None), null, null))
+            using (XmlWriter writer = XmlWriter.Create(stream, settings))
             {
-                float length = stream.Length;
-                stream.SetWriteProgress(new BasicProgress<int>(i =>
+                if (progress != null)
                 {
-                    currentBytes += i;
-                    progress.Report(currentBytes / length);
-                }));
+                    float length = stream.Length;
+                    stream.SetWriteProgress(new BasicProgress<int>(i =>
+                    {
+                        currentBytes += i;
+                        progress.Report(currentBytes / length);
+                    }));
+                }
+                await ExportAsync(file, writer, cancel);
             }
-            await ExportAsync(file, writer, cancel);
         }
         private static async Task ExportAsync(T file, XmlWriter writer, CancellationToken cancel)
         {

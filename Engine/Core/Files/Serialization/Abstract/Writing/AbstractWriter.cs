@@ -40,6 +40,10 @@ namespace TheraEngine.Core.Files.Serialization
             protected abstract Task WriteTreeAsync();
             public async Task WriteObjectAsync()
             {
+                IFileObject fo = RootNode.Object as IFileObject;
+                if (fo != null)
+                    fo.IsSerializing = true;
+
                 RootNode.SerializeTreeFromObject();
 
                 if (WritingSharedObjectIndices.Count > 0)
@@ -58,6 +62,9 @@ namespace TheraEngine.Core.Files.Serialization
                 }
 
                 await WriteTreeAsync();
+
+                if (fo != null)
+                    fo.IsSerializing = false;
             }
         }
     }

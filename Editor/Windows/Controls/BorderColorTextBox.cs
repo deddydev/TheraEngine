@@ -11,10 +11,10 @@ namespace System.Windows.Forms
         [DllImport("user32.dll")]
         private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
         [DllImport("user32.dll")]
-        public static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, RedrawWindowFlags flags);
+        public static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, ERedrawWindowFlags flags);
 
         [Flags()]
-        public enum RedrawWindowFlags : uint
+        public enum ERedrawWindowFlags : uint
         {
             Invalidate      = 0x001,
             InternalPaint   = 0x002,
@@ -125,6 +125,6 @@ namespace System.Windows.Forms
             Redraw();
         }
         private void Redraw()
-            => RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RedrawWindowFlags.Frame | RedrawWindowFlags.EraseNow | RedrawWindowFlags.UpdateNow | RedrawWindowFlags.Invalidate);
+            => RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, ERedrawWindowFlags.Frame | ERedrawWindowFlags.EraseNow | ERedrawWindowFlags.UpdateNow | ERedrawWindowFlags.Invalidate);
     }
 }

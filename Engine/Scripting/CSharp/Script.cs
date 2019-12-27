@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace TheraEngine.Scripting
 {
-    [TFile3rdPartyExt("csx")]
+    [TFile3rdPartyExt("cs", "csx")]
     [TFileDef("C# Script")]
     public class ScriptCSharp : ScriptFile
     {

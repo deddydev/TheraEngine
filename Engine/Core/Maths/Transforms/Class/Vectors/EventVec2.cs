@@ -79,7 +79,11 @@ namespace System
                 BeginUpdate();
                 try
                 {
+                    OnPropertyChanging(nameof(X));
+                    OnPropertyChanging(nameof(Y));
                     Set(ref _data, value);
+                    OnPropertyChanged(nameof(X));
+                    OnPropertyChanged(nameof(Y));
                 }
                 finally
                 {

@@ -803,23 +803,26 @@ namespace TheraEngine.Rendering
                     new Vec3(-1.0f, 1.0f, -0.5f),
                     false, false).ToTriangles();
 
-            using MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat);
-            fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
-
-            using PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), tris);
-            using PrimitiveManager quad = new PrimitiveManager(data, mat);
-            
-            BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
-
-            //Now render the texture to the FBO using the quad
-            fbo.Bind(EFramebufferTarget.DrawFramebuffer);
-            Engine.Renderer.PushRenderArea(region);
+            using (MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat))
             {
-                Engine.Renderer.Clear(EFBOTextureType.Color);
-                quad.Render();
+                fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
+
+                using (PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), tris))
+                using (PrimitiveManager quad = new PrimitiveManager(data, mat))
+                {
+                    BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
+
+                    //Now render the texture to the FBO using the quad
+                    fbo.Bind(EFramebufferTarget.DrawFramebuffer);
+                    Engine.Renderer.PushRenderArea(region);
+                    {
+                        Engine.Renderer.Clear(EFBOTextureType.Color);
+                        quad.Render();
+                    }
+                    Engine.Renderer.PopRenderArea();
+                    fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
+                }
             }
-            Engine.Renderer.PopRenderArea();
-            fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
         
         /// <summary>

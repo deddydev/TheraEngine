@@ -107,7 +107,15 @@ namespace System
                 BeginUpdate();
                 try
                 {
+                    OnPropertyChanging(nameof(X));
+                    OnPropertyChanging(nameof(Y));
+                    OnPropertyChanging(nameof(Z));
+                    OnPropertyChanging(nameof(W));
                     Set(ref _data, value);
+                    OnPropertyChanged(nameof(X));
+                    OnPropertyChanged(nameof(Y));
+                    OnPropertyChanged(nameof(Z));
+                    OnPropertyChanged(nameof(W));
                 }
                 finally
                 {

@@ -295,28 +295,43 @@ namespace TheraEngine.Physics
         public override bool RayTrace(RayTrace trace)
         {
             trace.Reset();
+
+            if (_dynamicsWorld is null)
+                return false;
+
             _rayCallback.Handler = trace;
             _dynamicsWorld.RayTest(trace.StartPointWorld, trace.EndPointWorld, _rayCallback);
+
             return trace.HasHit;
         }
         private TConvexResultCallback _convexCallback = new TConvexResultCallback(null);
         public override bool ShapeTrace(ShapeTrace trace)
         {
             trace.Reset();
+
+            if (_dynamicsWorld is null)
+                return false;
+
             _convexCallback.Handler = trace;
             if (trace.AllowedCcdPenetration >= 0.0f)
                 _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, _convexCallback, trace.AllowedCcdPenetration);
             else
                 _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, _convexCallback);
+            
             return trace.HasHit;
         }
         private TContactResultCallback _contactCallback = new TContactResultCallback(null);
         public override bool ContactTest(ContactTest test)
         {
             test.Reset();
+
+            if (_dynamicsWorld is null)
+                return false;
+
             _contactCallback.Handler = test;
-            _dynamicsWorld.ComputeOverlappingPairs();
+            //_dynamicsWorld.ComputeOverlappingPairs();
             _dynamicsWorld.ContactTest(((IBulletCollisionObject)test.Object).CollisionObject, _contactCallback);
+
             return test.HasContact;
         }
         public override void AddConstraint(TConstraint constraint)

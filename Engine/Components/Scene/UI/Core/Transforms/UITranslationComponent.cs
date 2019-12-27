@@ -1,47 +1,69 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
     public interface IUITranslationComponent : IUIComponent
     {
         Vec3 ScreenTranslation { get; }
-        EventVec3 LocalTranslation { get; set; }
+        EventVec3 Translation { get; set; }
     }
     public class UITranslationComponent : UIComponent, IUITranslationComponent
     {
-        public UITranslationComponent() : base() { }
+        public UITranslationComponent() : base()
+        {
+            Translation = EventVec3.Zero;
+        }
 
-        [TSerialize(nameof(LocalTranslation))]
-        protected EventVec3 _translation = EventVec3.Zero;
+        protected EventVec3 _translation;
+
+        protected EventVec2 _actualTranslation = new EventVec2();
+        [Browsable(false)]
+        public EventVec2 ActualTranslation
+        {
+            get => _actualTranslation;
+            set => _actualTranslation = value;
+        }
 
         [Browsable(false)]
         [Category("Transform")]
         public Vec3 ScreenTranslation
         {
             get => Vec3.TransformPosition(WorldPoint, ActorRelativeMatrix);
-            set => LocalTranslation.Raw = Vec3.TransformPosition(value, InverseActorRelativeMatrix);
+            set => Translation.Xyz = Vec3.TransformPosition(value, InverseActorRelativeMatrix);
         }
 
+        [TSerialize]
         [Category("Transform")]
-        public virtual EventVec3 LocalTranslation
+        public virtual EventVec3 Translation
         {
             get => _translation;
             set
             {
                 if (Set(ref _translation, value,
-                    () => _translation.Changed -= RecalcLocalTransform,
-                    () => _translation.Changed += RecalcLocalTransform,
+                    () => _translation.Changed -= InvalidateLayout,
+                    () => _translation.Changed += InvalidateLayout,
                     false))
-                    RecalcLocalTransform();
+                    InvalidateLayout();
             }
         }
-
+        protected virtual void OnResizeActual(BoundingRectangleF parentBounds)
+        {
+            ActualTranslation.Raw = Translation.Xy;
+        }
+        protected override void OnResizeLayout(BoundingRectangleF parentBounds)
+        {
+            OnResizeActual(parentBounds);
+            RecalcLocalTransform();
+            var bounds = new BoundingRectangleF(ActualTranslation.Raw, parentBounds.Extents);
+            OnResizeChildComponents(bounds);
+        }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.CreateTranslation(LocalTranslation);
-            inverseLocalTransform = Matrix4.CreateTranslation(-LocalTranslation);
+            localTransform = Matrix4.CreateTranslation(Translation);
+            inverseLocalTransform = Matrix4.CreateTranslation(-Translation);
         }
     }
 }

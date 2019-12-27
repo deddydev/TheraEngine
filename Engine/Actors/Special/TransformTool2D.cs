@@ -54,6 +54,8 @@ namespace TheraEngine.Actors.Types
         private const float _scaleHalf1LDist = 0.8f;
         private const float _scaleHalf2LDist = 1.2f;
 
+        protected override void OnResizeLayout(BoundingRectangleF parentRegion) => throw new NotImplementedException();
+
         public bool UpdateCursorRay(Ray cursor, Camera camera, bool pressed)
         {
             bool clamp = true, snapFound = false;

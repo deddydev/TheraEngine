@@ -27,7 +27,7 @@ namespace TheraEngine.Rendering.UI
         UIParentAttachmentInfo ParentInfo { get; set; }
 
         void RegisterInputs(InputInterface input);
-        internal void ResizeLayout(BoundingRectangleF parentRegion);
+        void ResizeLayout(BoundingRectangleF parentRegion);
         Vec2 ScreenToLocal(Vec2 coordinate, bool delta = false);
         void InvalidateLayout();
     }
@@ -128,9 +128,16 @@ namespace TheraEngine.Rendering.UI
         /// <param name="input"></param>
         internal protected virtual void RegisterInputs(InputInterface input)
         {
-            foreach (ISceneComponent comp in ChildComponents)
-                if (comp is IUIComponent uiComp)
-                    uiComp.RegisterInputs(input);
+            try
+            {
+                foreach (ISceneComponent comp in ChildComponents)
+                    if (comp is IUIComponent uiComp)
+                        uiComp.RegisterInputs(input);
+            }
+            catch (Exception ex) 
+            {
+                Engine.LogException(ex);
+            }
         }
         public override void OnSpawned()
         {
@@ -155,20 +162,12 @@ namespace TheraEngine.Rendering.UI
             base.OnWorldTransformChanged();
         }
 
-        protected virtual void OnResizeLayout(BoundingRectangleF parentRegion)
+        protected abstract void OnResizeLayout(BoundingRectangleF parentRegion);
+        protected virtual void OnResizeChildComponents(BoundingRectangleF parentRegion)
         {
-            //if (IgnoreResizes)
-            //    return;
-
-            //IgnoreResizes = true;
-
-            RecalcLocalTransform();
-
             foreach (ISceneComponent c in _children)
                 if (c is IUIComponent uiComp)
                     uiComp.ResizeLayout(parentRegion);
-
-            //IgnoreResizes = false;
         }
         /// <summary>
         /// Resizes self depending on the parent component.

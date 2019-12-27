@@ -11,7 +11,7 @@ using TheraEngine.Rendering.Models.Materials;
 namespace TheraEngine.Rendering.Text
 {
     public delegate void DelTextRedraw(bool forceFullRedraw);
-    public class TextRasterizer
+    public class TextRasterizer : TObjectSlim
     {
         public class TextSort : IComparer<UIString2D>
         {

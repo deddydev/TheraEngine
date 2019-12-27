@@ -90,7 +90,7 @@ namespace TheraEngine.Worlds
             get => _gameModeOverrideRef;
             set
             {
-                IGameMode oldMode = _gameModeOverrideRef.File;
+                IGameMode oldMode = _gameModeOverrideRef?.File;
                 _gameModeOverrideRef = value;
                 OnGameModeOverrideChanged(oldMode);
             }

@@ -141,18 +141,22 @@ namespace TheraEngine.Actors.Types.Pawns
         }
         public override void RegisterInput(InputInterface input)
         {
-            input.Mouse.WrapCursorWithinClip = input.IsRegistering;
+            //input.Mouse.WrapCursorWithinClip = input.IsRegistering;
             input.RegisterMouseMove(Look, EMouseMoveType.Relative);
 
             input.RegisterAxisUpdate(EGamePadAxis.LeftThumbstickX, MoveRight, true);
             input.RegisterAxisUpdate(EGamePadAxis.LeftThumbstickY, MoveForward, true);
+
             input.RegisterAxisUpdate(EGamePadAxis.RightThumbstickX, LookRight, true);
             input.RegisterAxisUpdate(EGamePadAxis.RightThumbstickY, LookUp, true);
+
             input.RegisterButtonEvent(EGamePadButton.FaceDown, EButtonInputType.Pressed, Jump);
+
             input.RegisterKeyPressed(EKey.W, MoveForward);
             input.RegisterKeyPressed(EKey.A, MoveLeft);
             input.RegisterKeyPressed(EKey.S, MoveBackward);
             input.RegisterKeyPressed(EKey.D, MoveRight);
+
             input.RegisterKeyEvent(EKey.Space, EButtonInputType.Pressed, Jump);
         }
         

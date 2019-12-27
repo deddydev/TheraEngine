@@ -20,7 +20,7 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             var world = ActiveRenderForm?.World;
-            if (world != null)
+            if (world != null && world.CurrentGameMode != ActiveRenderForm?.GameMode)
                 world.CurrentGameMode = null;
             
             ActiveRenderForm = control;

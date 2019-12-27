@@ -132,7 +132,7 @@ namespace TheraEditor.Wrappers
             EngineDomainProxyEditor proxy = Engine.DomainProxy as EngineDomainProxyEditor;
             var editorTypes = proxy.FullEditorTypes;
 
-            if (TypeProxy.AnyBaseTypeMatches(fileType, type => editorTypes.ContainsKey(type), out TypeProxy match, true))
+            if (editorTypes != null && TypeProxy.AnyBaseTypeMatches(fileType, type => editorTypes.ContainsKey(type), out TypeProxy match, true))
                 return editorTypes[match];
 
             return null;

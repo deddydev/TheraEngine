@@ -97,6 +97,11 @@ namespace TheraEngine.Core.Files
             bool import3rdParty = false, 
             bool export3rdParty = false)
             => GetFilter(GetType(), proprietary, thirdParty, import3rdParty, export3rdParty);
+        
+        [Browsable(false)]
+        public bool IsSerializing { get; set; }
+        [Browsable(false)]
+        public bool IsDeserializing { get; set; }
 
         #region Export Sync
 
@@ -595,7 +600,9 @@ namespace TheraEngine.Core.Files
         /// Returns the file object that serves as the owner of this one.
         /// </summary>
         IFileObject RootFile { get; set; }
-
+        bool IsSerializing { get; set; }
+        bool IsDeserializing { get; set; }
+        
         void Unload();
 
         string GetFilePath(string dir, string name, EProprietaryFileFormat format);

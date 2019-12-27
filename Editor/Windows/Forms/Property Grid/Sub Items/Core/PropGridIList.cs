@@ -193,8 +193,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            int i = List.Count;
-            object value = Editor.UserCreateInstanceOf(_elementType, true, this);
+            object value = Editor.DomainProxy.UserCreateInstanceOf(_elementType, true);
+
             if (value is null)
                 return;
 

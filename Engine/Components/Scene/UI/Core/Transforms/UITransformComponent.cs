@@ -14,21 +14,22 @@ namespace TheraEngine.Rendering.UI
     }
     public class UITransformComponent : UIComponent, IUITransformComponent
     {
-        public UITransformComponent() : base() { }
+        public UITransformComponent() : base()
+        {
+            Translation = EventVec3.Zero;
+            Scale = EventVec3.One;
+        }
 
-        [TSerialize(nameof(Translation))]
-        protected EventVec3 _translation = EventVec3.Zero;
-        [TSerialize(nameof(Scale))]
-        protected EventVec3 _scale = EventVec3.One;
-        [TSerialize(nameof(Order))]
+        protected EventVec3 _translation;
+        protected EventVec3 _scale;
         protected ETransformOrder _order = ETransformOrder.TRS;
 
         protected EventVec2 _actualTranslation = new EventVec2();
         [Browsable(false)]
-        public Vec2 ActualTranslation
+        public EventVec2 ActualTranslation
         {
-            get => _actualTranslation.Raw;
-            set => _actualTranslation.Raw = value;
+            get => _actualTranslation;
+            set => _actualTranslation = value;
         }
 
         [Browsable(false)]
@@ -39,6 +40,7 @@ namespace TheraEngine.Rendering.UI
             set => Translation.Xyz = Vec3.TransformPosition(value, InverseActorRelativeMatrix);
         }
 
+        [TSerialize]
         [Category("Transform")]
         public ETransformOrder Order
         {
@@ -49,6 +51,7 @@ namespace TheraEngine.Rendering.UI
                     InvalidateLayout();
             }
         }
+        [TSerialize]
         [Category("Transform")]
         public virtual EventVec3 Translation
         {
@@ -62,6 +65,7 @@ namespace TheraEngine.Rendering.UI
                     InvalidateLayout();
             }
         }
+        [TSerialize]
         [Category("Transform")]
         public virtual EventVec3 Scale
         {
@@ -75,16 +79,21 @@ namespace TheraEngine.Rendering.UI
                     InvalidateLayout();
             }
         }
-
-        protected override void OnResizeLayout(BoundingRectangleF parentRegion)
+        protected virtual void OnResizeActual(BoundingRectangleF parentBounds)
         {
-            ActualTranslation = Translation.Xy;
-            base.OnResizeLayout(parentRegion);
+            ActualTranslation.Raw = Translation.Xy;
+        }
+        protected override void OnResizeLayout(BoundingRectangleF parentBounds)
+        {
+            OnResizeActual(parentBounds);
+            RecalcLocalTransform();
+            var bounds = new BoundingRectangleF(ActualTranslation.Raw, parentBounds.Extents);
+            OnResizeChildComponents(bounds);
         }
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            Vec3 translation = new Vec3(ActualTranslation, Translation.Z);
+            Vec3 translation = new Vec3(ActualTranslation.Raw, Translation.Z);
 
             localTransform = Matrix4.TransformMatrix(
                 Scale.Raw,
@@ -136,7 +145,7 @@ namespace TheraEngine.Rendering.UI
             if (scale.DistanceTo(newScale) < 0.0001f)
                 return;
 
-            Vec2 newTranslation = ActualTranslation + (worldScreenPoint - WorldPoint.Xy) * multiplier;
+            Vec2 newTranslation = ActualTranslation.Raw + (worldScreenPoint - WorldPoint.Xy) * multiplier;
 
             _translation.SetRawNoUpdate(new Vec3(newTranslation, _translation.Z));
             _scale.SetRawNoUpdate(new Vec3(newScale, _scale.Z));

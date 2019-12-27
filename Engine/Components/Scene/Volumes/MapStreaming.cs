@@ -19,6 +19,7 @@ namespace TheraEngine.Components.Scene.Volumes
         {
             base.OnEntered(obj);
 
+            //TODO: check if obj is linked to pawn, and if player is allowed to trigger map streaming
             var map = await MapToLoad.GetInstanceAsync();
             OwningWorld.SpawnMap(map);
         }

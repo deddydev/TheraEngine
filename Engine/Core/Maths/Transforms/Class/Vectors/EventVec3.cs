@@ -92,7 +92,13 @@ namespace TheraEngine.Core.Maths.Transforms
                 BeginUpdate();
                 try
                 {
+                    OnPropertyChanging(nameof(X));
+                    OnPropertyChanging(nameof(Y));
+                    OnPropertyChanging(nameof(Z));
                     Set(ref _data, value);
+                    OnPropertyChanged(nameof(X));
+                    OnPropertyChanged(nameof(Y));
+                    OnPropertyChanged(nameof(Z));
                 }
                 finally
                 {

@@ -526,7 +526,7 @@ namespace TheraEngine
         {
             TickList currentList = TickLists[CurrentTickList = index];
 
-            currentList.ExecuteSequential(delta);
+            currentList.ExecuteParallel(delta);
 
             CurrentTickList = -1;
         }
@@ -662,7 +662,10 @@ namespace TheraEngine
         {
 #if DEBUG || EDITOR
 
-            if (verbosity > Settings.OutputVerbosity)
+            EngineSettings settings = Settings;
+            AppDomainHelper.Sponsor(settings);
+
+            if (verbosity > settings.OutputVerbosity)
                 return;
 
             if (args.Length > 0)
@@ -722,7 +725,7 @@ namespace TheraEngine
         public static void LogWarning(string message, int lineIgnoreCount = 0, int includedLineCount = 1)
         {
 #if DEBUG || EDITOR
-            PrintLine(EOutputVerbosity.Verbose, true, false, false, true, 4 + lineIgnoreCount, includedLineCount, message);
+            PrintLine(EOutputVerbosity.Normal, true, false, false, true, 4 + lineIgnoreCount, includedLineCount, message);
 #endif
         }
 

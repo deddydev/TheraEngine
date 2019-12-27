@@ -300,7 +300,13 @@ namespace TheraEngine
                 EngineDataFolder = string.Format("C:{0}Users{0}dnedd{0}source{0}repos{0}TheraEngine{0}Build{0}Engine{0}", Path.DirectorySeparatorChar);
             }
             else
+            {
+#if DEBUG
                 EngineDataFolder = startupPath + string.Format("{0}..{0}..{0}..{0}Engine{0}", Path.DirectorySeparatorChar);
+#else
+                EngineDataFolder = startupPath + string.Format("{0}Engine{0}", Path.DirectorySeparatorChar);
+#endif
+            }
 
             ShadersFolder = EngineDataFolder + "Shaders" + Path.DirectorySeparatorChar;
             TexturesFolder = EngineDataFolder + "Textures" + Path.DirectorySeparatorChar;

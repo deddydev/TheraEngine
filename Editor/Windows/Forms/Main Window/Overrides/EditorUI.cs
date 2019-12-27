@@ -226,11 +226,24 @@ namespace TheraEditor.Windows.Forms
 
             SubViewport = new UIViewportComponent() { RenderTransformation = false };
             SubViewport.MinWidth = 200.0f;
-            SubViewport.BindProperty(nameof(SubViewport.Width), canvas, nameof(canvas.Width), obj => (float)obj * 0.4);
-            SubViewport.BindProperty(nameof(SubViewport.Height), SubViewport, nameof(SubViewport.Width), obj => (float)obj * 9.0f / 16.0f);
-            //SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f);
-            //SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f);
             SubViewport.IsVisible = false;
+
+            SubViewport.Size.BindProperty("X", 
+                canvas.ActualSize, "X",
+                obj => (float)obj * 0.4);
+
+            SubViewport.Size.BindProperty("Y", 
+                SubViewport.ActualSize, "X",
+                obj => (float)obj * 9.0f / 16.0f);
+
+            SubViewport.Translation.BindProperty("X",
+                canvas.ActualSize, "X",
+                obj => (float)obj * 0.02f);
+
+            SubViewport.Translation.BindProperty("Y",
+                canvas.ActualSize, "Y",
+                obj => (float)obj * 0.02f);
+
             canvas.ChildComponents.Add(SubViewport);
 
             Font f = new Font("Segoe UI", 10.0f, FontStyle.Regular);

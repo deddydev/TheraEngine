@@ -32,7 +32,9 @@ namespace TheraEngine.Rendering.UI
         float OriginTranslationY { get; set; }
         Vec2 OriginTranslation { get; set; }
         
-        Vec2 ActualSize { get; }
+        float ActualWidth { get; }
+        float ActualHeight { get; }
+        EventVec2 ActualSize { get; }
 
         IUIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis);
         List<IUIBoundableComponent> FindAllIntersecting(Vec2 worldPoint, bool includeThis);
@@ -62,31 +64,27 @@ namespace TheraEngine.Rendering.UI
     }
     public abstract class UIBoundableComponent : UITransformComponent, IUIBoundableComponent, IEnumerable<IUIComponent>
     {
-        public UIBoundableComponent() : base() { }
+        public UIBoundableComponent() : base() 
+        {
+            OriginPercent = new EventVec2();
+            Size = new EventVec2();
+            MinSize = new EventVec2();
+            MaxSize = new EventVec2();
+            Margins = new EventVec4();
+            Padding = new EventVec4();
+        }
 
         private bool _isMouseOver = false;
 
-        [TSerialize(nameof(OriginPercent))]
-        private EventVec2 _originPercent = new EventVec2();
-
-        [TSerialize(nameof(Size))]
-        private EventVec2 _size = new EventVec2();
-
-        [TSerialize(nameof(MinSize))]
-        private EventVec2 _minSize = new EventVec2();
-
-        [TSerialize(nameof(MaxSize))]
-        private EventVec2 _maxSize = new EventVec2();
-
-        [TSerialize(nameof(Margins))]
-        private EventVec4 _margins = new EventVec4();
-
-        [TSerialize(nameof(Padding))]
-        private EventVec4 _padding = new EventVec4();
+        private EventVec2 _originPercent;
+        private EventVec2 _size;
+        private EventVec2 _minSize;
+        private EventVec2 _maxSize;
+        private EventVec4 _margins;
+        private EventVec4 _padding;
         
         [TSerialize(nameof(HorizontalAlignment))]
         private EHorizontalAlign _horizontalAlign = EHorizontalAlign.Positional;
-
         [TSerialize(nameof(VerticalAlignment))]
         private EVerticalAlign _verticalAlign = EVerticalAlign.Positional;
 
@@ -128,6 +126,7 @@ namespace TheraEngine.Rendering.UI
             get => _size.Y;
             set => _size.Y = value;
         }
+        [TSerialize]
         [Browsable(false)]
         public EventVec2 Size
         {
@@ -135,18 +134,32 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _size, value,
-                    () => _size.PropertyChanged -= SizingPropertyChanged,
-                    () => _size.PropertyChanged += SizingPropertyChanged))
+                    () =>
+                    {
+                        _size.Changed -= InvalidateLayout;
+
+                        OnPropertyChanging(nameof(Width));
+                        OnPropertyChanging(nameof(Height));
+                    },
+                    () =>
+                    {
+                        _size.Changed += InvalidateLayout;
+
+                        OnPropertyChanged(nameof(Width));
+                        OnPropertyChanged(nameof(Height));
+                    }))
+                {
                     InvalidateLayout();
+                }
             }
         }
 
         protected EventVec2 _actualSize = new EventVec2();
         [Browsable(false)]
-        public Vec2 ActualSize
+        public EventVec2 ActualSize
         {
-            get => _actualSize.Raw;
-            set => _actualSize.Raw = value;
+            get => _actualSize;
+            set => _actualSize = value;
         }
         [Browsable(false)]
         public float ActualWidth => ActualSize.X;
@@ -165,6 +178,7 @@ namespace TheraEngine.Rendering.UI
             get => _minSize.Y;
             set => _minSize.Y = value;
         }
+        [TSerialize]
         [Browsable(false)]
         public EventVec2 MinSize
         {
@@ -172,8 +186,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _minSize, value,
-                    () => _minSize.PropertyChanged -= SizingPropertyChanged,
-                    () => _minSize.PropertyChanged += SizingPropertyChanged))
+                    () => _minSize.Changed -= InvalidateLayout,
+                    () => _minSize.Changed += InvalidateLayout))
                     InvalidateLayout();
             }
         }
@@ -189,6 +203,7 @@ namespace TheraEngine.Rendering.UI
             get => _maxSize.Y;
             set => _maxSize.Y = value;
         }
+        [TSerialize]
         [Browsable(false)]
         public EventVec2 MaxSize
         {
@@ -196,8 +211,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _maxSize, value,
-                    () => _maxSize.PropertyChanged -= SizingPropertyChanged,
-                    () => _maxSize.PropertyChanged += SizingPropertyChanged))
+                    () => _maxSize.Changed -= InvalidateLayout,
+                    () => _maxSize.Changed += InvalidateLayout))
                     InvalidateLayout();
             }
         }
@@ -213,6 +228,7 @@ namespace TheraEngine.Rendering.UI
             get => _originPercent.Y;
             set => _originPercent.Y = value;
         }
+        [TSerialize]
         [Browsable(false)]
         public EventVec2 OriginPercent
         {
@@ -220,11 +236,12 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _originPercent, value,
-                    () => _originPercent.PropertyChanged -= SizingPropertyChanged,
-                    () => _originPercent.PropertyChanged += SizingPropertyChanged))
+                    () => _originPercent.Changed -= InvalidateLayout,
+                    () => _originPercent.Changed += InvalidateLayout))
                     InvalidateLayout();
             }
         }
+        [TSerialize]
         [Category("Transform")]
         public virtual EventVec4 Margins
         {
@@ -232,11 +249,12 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _margins, value,
-                    () => _margins.PropertyChanged -= SizingPropertyChanged,
-                    () => _margins.PropertyChanged += SizingPropertyChanged))
+                    () => _margins.Changed -= InvalidateLayout,
+                    () => _margins.Changed += InvalidateLayout))
                     InvalidateLayout();
             }
         }
+        [TSerialize]
         [Category("Transform")]
         public virtual EventVec4 Padding
         {
@@ -244,8 +262,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _padding, value,
-                    () => _padding.PropertyChanged -= SizingPropertyChanged,
-                    () => _padding.PropertyChanged += SizingPropertyChanged))
+                    () => _padding.Changed -= InvalidateLayout,
+                    () => _padding.Changed += InvalidateLayout))
                     InvalidateLayout();
             }
         }
@@ -264,18 +282,16 @@ namespace TheraEngine.Rendering.UI
         [Browsable(false)]
         public Vec2 OriginTranslation
         {
-            get => OriginPercent.Raw * ActualSize;
-            set => OriginPercent.Raw = value / ActualSize;
+            get => OriginPercent.Raw * ActualSize.Raw;
+            set => OriginPercent.Raw = value / ActualSize.Raw;
         }
 
         public bool Contains(Vec2 worldPoint)
         {
             Vec3 localPoint = worldPoint * InverseActorRelativeMatrix;
-            return ActualSize.Contains(localPoint.Xy);
+            return ActualSize.Raw.Contains(localPoint.Xy);
         }
 
-        private void SizingPropertyChanged(object sender, PropertyChangedEventArgs e) => InvalidateLayout();
-        
         /// <summary>
         /// Returns true if the given world point projected perpendicularly to the HUD as a 2D point is contained within this component and the Z value is within the given depth margin.
         /// </summary>
@@ -285,7 +301,7 @@ namespace TheraEngine.Rendering.UI
         public bool Contains(Vec3 worldPoint, float zMargin = 0.5f)
         {
             Vec3 localPoint = Vec3.TransformPosition(worldPoint, InverseWorldMatrix);
-            return Math.Abs(localPoint.Z) < zMargin && ActualSize.Contains(localPoint.Xy);
+            return Math.Abs(localPoint.Z) < zMargin && ActualSize.Raw.Contains(localPoint.Xy);
         }
 
         protected override void OnRecalcLocalTransform(
@@ -297,31 +313,26 @@ namespace TheraEngine.Rendering.UI
             localTransform *= Matrix4.CreateTranslation(-OriginTranslationX, -OriginTranslationY, 0.0f);
             inverseLocalTransform = Matrix4.CreateTranslation(OriginTranslationX, OriginTranslationY, 0.0f) * inverseLocalTransform;
         }
-        public override void RecalcWorldTransform()
-        {
-            base.RecalcWorldTransform();
-            RemakeAxisAlignedRegion();
-        }
-        protected override void OnResizeLayout(BoundingRectangleF parentBounds)
+        protected override void OnResizeActual(BoundingRectangleF parentBounds)
         {
             switch (HorizontalAlignment)
             {
                 case EHorizontalAlign.Stretch:
                     _actualSize.X = parentBounds.Width;
-                    _actualTranslation.X = parentBounds.Translation.X;
+                    _actualTranslation.X = 0.0f;
                     break;
                 case EHorizontalAlign.Left:
                     _actualSize.X = Width;
-                    _actualTranslation.X = parentBounds.Translation.X;
+                    _actualTranslation.X = 0.0f;
                     break;
                 case EHorizontalAlign.Right:
                     _actualSize.X = Width;
-                    _actualTranslation.X = parentBounds.Translation.X + parentBounds.X - Width;
+                    _actualTranslation.X = parentBounds.Width - Width;
                     break;
                 case EHorizontalAlign.Center:
                     _actualSize.X = Width;
-                    float extra = parentBounds.X - Width;
-                    _actualTranslation.X = parentBounds.Translation.X + extra * 0.5f;
+                    float extra = parentBounds.Width - Width;
+                    _actualTranslation.X = extra * 0.5f;
                     break;
                 case EHorizontalAlign.Positional:
                     _actualSize.X = Width;
@@ -333,29 +344,33 @@ namespace TheraEngine.Rendering.UI
             {
                 case EVerticalAlign.Stretch:
                     _actualSize.Y = parentBounds.Height;
-                    _actualTranslation.Y = parentBounds.Translation.Y;
+                    _actualTranslation.Y = 0.0f;
                     break;
                 case EVerticalAlign.Bottom:
                     _actualSize.Y = Height;
-                    _actualTranslation.X = parentBounds.Translation.Y;
+                    _actualTranslation.Y = 0.0f;
                     break;
                 case EVerticalAlign.Top:
                     _actualSize.Y = Height;
-                    _actualTranslation.Y = parentBounds.Translation.Y + parentBounds.Y - Height;
+                    _actualTranslation.Y = parentBounds.Height - Height;
                     break;
                 case EVerticalAlign.Center:
                     _actualSize.Y = Height;
-                    float extra = parentBounds.Y - Height;
-                    _actualTranslation.Y = parentBounds.Translation.Y + extra * 0.5f;
+                    float extra = parentBounds.Height - Height;
+                    _actualTranslation.Y = extra * 0.5f;
                     break;
                 case EVerticalAlign.Positional:
                     _actualSize.Y = Height;
                     _actualTranslation.Y = _translation.Y;
                     break;
             }
-
-            base.OnResizeLayout(new BoundingRectangleF(ActualTranslation, ActualSize));
-
+        }
+        protected override void OnResizeLayout(BoundingRectangleF parentBounds)
+        {
+            OnResizeActual(parentBounds);
+            RecalcLocalTransform();
+            var bounds = new BoundingRectangleF(ActualTranslation.Raw, ActualSize.Raw);
+            OnResizeChildComponents(bounds);
             RemakeAxisAlignedRegion();
         }
         protected virtual void RemakeAxisAlignedRegion()

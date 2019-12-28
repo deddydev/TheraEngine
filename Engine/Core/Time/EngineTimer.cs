@@ -235,38 +235,40 @@ namespace TheraEngine.Timers
         }
         private void DispatchUpdate()
         {
-            int runningSlowlyRetries = 4;
+            //int runningSlowlyRetries = 4;
             float timestamp = (float)_watch.Elapsed.TotalSeconds;
             float elapsed = (timestamp - _updateTimestamp).Clamp(0.0f, 1.0f);
-            while (elapsed > 0 && elapsed + _updateEpsilon >= TargetUpdatePeriod)
-            {
+            if (elapsed > 0 && elapsed >= TargetUpdatePeriod)
                 RaiseUpdateFrame(elapsed, ref timestamp);
+            //while (elapsed > 0 && elapsed + _updateEpsilon >= TargetUpdatePeriod)
+            //{
+            //    RaiseUpdateFrame(elapsed, ref timestamp);
 
-                // Calculate difference (positive or negative) between
-                // actual elapsed time and target elapsed time. We must
-                // compensate for this difference.
-                _updateEpsilon += elapsed - TargetUpdatePeriod;
+            //    // Calculate difference (positive or negative) between
+            //    // actual elapsed time and target elapsed time. We must
+            //    // compensate for this difference.
+            //    _updateEpsilon += elapsed - TargetUpdatePeriod;
 
-                // Prepare for next loop
-                elapsed = (timestamp - _updateTimestamp).Clamp(0.0f, 1.0f);
+            //    // Prepare for next loop
+            //    elapsed = (timestamp - _updateTimestamp).Clamp(0.0f, 1.0f);
 
-                if (TargetUpdatePeriod <= float.Epsilon)
-                {
-                    // According to the TargetUpdatePeriod documentation,
-                    // a TargetUpdatePeriod of zero means we will raise
-                    // UpdateFrame events as fast as possible (one event
-                    // per ProcessEvents() call)
-                    break;
-                }
+            //    if (TargetUpdatePeriod <= float.Epsilon)
+            //    {
+            //        // According to the TargetUpdatePeriod documentation,
+            //        // a TargetUpdatePeriod of zero means we will raise
+            //        // UpdateFrame events as fast as possible (one event
+            //        // per ProcessEvents() call)
+            //        break;
+            //    }
 
-                _isRunningSlowly = _updateEpsilon >= TargetUpdatePeriod;
-                if (_isRunningSlowly && --runningSlowlyRetries == 0)
-                {
-                    // If UpdateFrame consistently takes longer than TargetUpdateFrame
-                    // stop raising events to avoid hanging inside the UpdateFrame loop.
-                    break;
-                }
-            }
+            //    _isRunningSlowly = _updateEpsilon >= TargetUpdatePeriod;
+            //    if (_isRunningSlowly && --runningSlowlyRetries == 0)
+            //    {
+            //        // If UpdateFrame consistently takes longer than TargetUpdateFrame
+            //        // stop raising events to avoid hanging inside the UpdateFrame loop.
+            //        break;
+            //    }
+            //}
         }
         private void RaiseUpdateFrame(float elapsed, ref float timestamp)
         {
@@ -403,12 +405,12 @@ namespace TheraEngine.Timers
                 else if (value < MaxFrequency)
                 {
                     _targetUpdatePeriod = 1.0f / value;
-                    Debug.Print("Target update frequency set to {0}Hz.", value);
+                    Engine.PrintLine("Target update frequency set to {0}Hz.", value);
                 }
                 else
                 {
                     _targetUpdatePeriod = 1.0f / MaxFrequency;
-                    Debug.Print("Target update frequency clamped to {0}Hz.", MaxFrequency);
+                    Engine.PrintLine("Target update frequency clamped to {0}Hz.", MaxFrequency);
                 }
             }
         }
@@ -428,17 +430,17 @@ namespace TheraEngine.Timers
                 if (value < 1.0f / MaxFrequency)
                 {
                     _targetUpdatePeriod = 0.0f;
-                    Debug.Print("Target update frequency set to unrestricted.");
+                    Engine.PrintLine("Target update frequency set to unrestricted.");
                 }
                 else if (value < 1.0)
                 {
                     _targetUpdatePeriod = value;
-                    Debug.Print("Target update frequency set to {0}Hz.", TargetUpdateFrequency);
+                    Engine.PrintLine("Target update frequency set to {0}Hz.", TargetUpdateFrequency);
                 }
                 else
                 {
                     _targetUpdatePeriod = 1.0f;
-                    Debug.Print("Target update frequency clamped to 1Hz.");
+                    Engine.PrintLine("Target update frequency clamped to 1Hz.");
                 }
             }
         }

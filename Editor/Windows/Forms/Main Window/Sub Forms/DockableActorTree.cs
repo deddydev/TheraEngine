@@ -2,6 +2,7 @@
 using Extensions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using TheraEngine;
@@ -9,6 +10,7 @@ using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
@@ -49,7 +51,7 @@ namespace TheraEditor.Windows.Forms
 
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (!Editor.Instance.PropertyGridFormActive)
+            if (IsSuspended || !Editor.Instance.PropertyGridFormActive)
                 return;
 
             if (ActorTree.SelectedNode is null)
@@ -72,7 +74,7 @@ namespace TheraEditor.Windows.Forms
                             Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = actor;
                             break;
                         }
-                    case IComponent component:
+                    case TheraEngine.Components.IComponent component:
                         {
                             component.EditorState.Selected = true;
                             if (component is ISceneComponent sceneComp)
@@ -88,17 +90,28 @@ namespace TheraEditor.Windows.Forms
                         }
                 }
         }
-        public void UnlinkWorld(IWorld world)
+        public void UnlinkWorld()
         {
-            bool worldExists = world != null;
+            bool worldExists = World != null;
             if (worldExists)
             {
-                world.State.SpawnedActors.PostAnythingAdded -= ActorSpawned;
-                world.State.SpawnedActors.PostAnythingRemoved -= ActorDespawned;
+                World.PropertyChanged -= World_PropertyChanged;
+                UnlinkSettings();
+
+                var actors = World.State.SpawnedActors;
+                actors.ForEach(ActorDespawned);
+                actors.PostAnythingAdded -= ActorSpawned;
+                actors.PostAnythingRemoved -= ActorDespawned;
+
+                World.PreBeginPlay -= World_PreBeginPlay;
+                World.PostBeginPlay -= World_PostBeginPlay;
+                World.PreEndPlay -= World_PreEndPlay;
+                World.PostEndPlay -= World_PostEndPlay;
             }
             Clear();
         }
 
+        private IWorld World { get; set; }
         public void LinkWorld(IWorld world)
         {
             if (InvokeRequired)
@@ -109,38 +122,236 @@ namespace TheraEditor.Windows.Forms
 
             Clear();
 
-            if (world is null || Engine.ShuttingDown)
+            World = world;
+            if (World is null || Engine.ShuttingDown)
                 return;
 
-            TreeNode node = new TreeNode(world.Name ?? "World") { Tag = world };
+            TreeNode node = new TreeNode(World.Name ?? "World") { Tag = World };
             ActorTree.Nodes.Add(node);
 
-            world.Settings.Maps.ForEach(x => CacheMap(x.Value.File));
-            world.State.SpawnedActors.ForEach(ActorSpawned);
+            World.PropertyChanged += World_PropertyChanged;
+            LinkSettings(World.Settings);
 
-            var actors = world.State.SpawnedActors;
+            var actors = World.State.SpawnedActors;
+            
+            //ActorTree.SuspendLayout();
+            //actors.ForEach(ActorSpawned);
+            //ActorTree.ResumeLayout();
+
             actors.PostAnythingAdded += ActorSpawned;
             actors.PostAnythingRemoved += ActorDespawned;
+
+            World.PreBeginPlay += World_PreBeginPlay;
+            World.PostBeginPlay += World_PostBeginPlay;
+            World.PreEndPlay += World_PreEndPlay;
+            World.PostEndPlay += World_PostEndPlay;
         }
-        internal TreeNode CacheMap(IMap map)
+
+        private bool IsSuspended { get; set; } = false;
+        private void World_PreEndPlay()
         {
+            Engine.PrintLine("ActorTreeForm : Suspending layout.");
+            ActorTree.SuspendLayout();
+            IsSuspended = true;
+        }
+        private void World_PostEndPlay()
+        {
+            Engine.PrintLine("ActorTreeForm : Resuming layout.");
+            ActorTree.ResumeLayout(true);
+            IsSuspended = false;
+        }
+        private void World_PreBeginPlay()
+        {
+            Engine.PrintLine("ActorTreeForm : Suspending layout.");
+            ActorTree.SuspendLayout();
+            IsSuspended = true;
+        }
+        private void World_PostBeginPlay()
+        {
+            Engine.PrintLine("ActorTreeForm : Resuming layout.");
+            ActorTree.ResumeLayout(true);
+            IsSuspended = false;
+        }
+
+        private void MapRefRemoved(string key, LocalFileRef<IMap> value)
+        {
+            if (value is null)
+                return;
+
+            if (value.IsLoaded)
+                MapUnloaded(value.File);
+
+            Engine.PrintLine("ActorTreeForm : Map ref removed.");
+
+            value.Loaded -= MapLoaded;
+            value.Unloaded -= MapUnloaded;
+        }
+        private void MapRefAdded(string key, LocalFileRef<IMap> value)
+        {
+            if (value is null)
+                return;
+
+            Engine.PrintLine("ActorTreeForm : Map ref added.");
+
+            value.Loaded += MapLoaded;
+            value.Unloaded += MapUnloaded;
+        }
+
+        private void MapUnloaded(IMap map)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<IMap>(MapUnloaded), map);
+                return;
+            }
+            Engine.PrintLine("ActorTreeForm : Map unloaded.");
+            FindAndRemoveMapNode(map);
+        }
+        private void MapLoaded(IMap map)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<IMap>(MapLoaded), map);
+                return;
+            }
+            Engine.PrintLine("ActorTreeForm : Map loaded.");
+            FindOrCreateMapNode(map);
+        }
+
+        private void World_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (!(sender is IWorld world))
+                return;
+
+            if (e.PropertyName.EqualsInvariant(nameof(IWorld.Settings)))
+            {
+                Engine.PrintLine("ActorTreeForm : World settings property changed.");
+                LinkSettings(world.Settings);
+            }
+        }
+        private void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (!(sender is IWorldSettings settings))
+                return;
+
+            if (e.PropertyName.EqualsInvariant(nameof(IWorldSettings.Maps)))
+            {
+                Engine.PrintLine("ActorTreeForm : Maps property changed.");
+                LinkMapsList(settings.Maps);
+            }
+        }
+
+        private WorldSettings CurrentSettings { get; set; }
+        private void LinkSettings(WorldSettings settings)
+        {
+            UnlinkSettings();
+
+            Engine.PrintLine("ActorTreeForm : Linking settings.");
+
+            CurrentSettings = settings;
+            if (CurrentSettings is null)
+                return;
+
+            var maps = CurrentSettings.Maps;
+            LinkMapsList(maps);
+            CurrentSettings.PropertyChanged += Settings_PropertyChanged;
+        }
+        private void UnlinkSettings()
+        {
+            if (CurrentSettings is null)
+                return;
+
+            Engine.PrintLine("ActorTreeForm : Unlinking settings.");
+
+            CurrentSettings.PropertyChanged -= Settings_PropertyChanged;
+            UnlinkMapsList();
+
+            CurrentSettings = null;
+        }
+
+        private EventDictionary<string, LocalFileRef<IMap>> Maps { get; set; }
+        private void UnlinkMapsList()
+        {
+            if (Maps is null)
+                return;
+
+            Engine.PrintLine($"ActorTreeForm : Unlinking maps list, {Maps.Count} maps.");
+
+            ActorTree.SuspendLayout();
+            Maps.ForEach(x => MapRefRemoved(x.Key, x.Value));
+            ActorTree.ResumeLayout();
+
+            Maps.Added -= MapRefAdded;
+            Maps.Removed -= MapRefRemoved;
+            Maps = null;
+        }
+        private void LinkMapsList(EventDictionary<string, LocalFileRef<IMap>> maps)
+        {
+            UnlinkMapsList();
+
+            Maps = maps;
+            if (Maps is null)
+                return;
+
+            Engine.PrintLine($"ActorTreeForm : Linking maps list, {Maps.Count} maps.");
+
+            ActorTree.SuspendLayout();
+            Maps.ForEach(x => MapRefAdded(x.Key, x.Value));
+            ActorTree.ResumeLayout();
+
+            Maps.Added += MapRefAdded;
+            Maps.Removed += MapRefRemoved;
+        }
+
+        private void FindAndRemoveMapNode(IMap map)
+        {
+            if (ActorTree.Nodes.Count == 0 || map is null)
+                return;
+
+            var worldNode = ActorTree.Nodes[0];
+            if (worldNode is null)
+                return;
+
+            Engine.PrintLine("ActorTreeForm : Attempting to remove map node.");
+            if (_mapTreeNodes.ContainsKey(map.Guid))
+            {
+                TreeNode mapNode = _mapTreeNodes[map.Guid];
+                worldNode.Nodes.Remove(mapNode);
+                _mapTreeNodes.Remove(map.Guid);
+                map.Renamed -= MapRenamed;
+
+                Engine.PrintLine("ActorTreeForm : Successfully removed map node.");
+            }
+        }
+        internal TreeNode FindOrCreateMapNode(IMap map)
+        {
+            if (ActorTree.Nodes.Count == 0)
+                return null;
+
+            var worldNode = ActorTree.Nodes[0];
+            if (worldNode is null)
+                return null;
+
             TreeNode mapNode;
             if (map is null)
             {
                 if (_dynamicActorsMapNode is null)
                 {
                     _dynamicActorsMapNode = new TreeNode("Dynamic Actors");
-                    ActorTree.Nodes[0].Nodes.Insert(0, _dynamicActorsMapNode);
+                    worldNode.Nodes.Insert(0, _dynamicActorsMapNode);
                 }
                 mapNode = _dynamicActorsMapNode;
             }
             else if (!_mapTreeNodes.ContainsKey(map.Guid))
             {
+                Engine.PrintLine("ActorTreeForm : Creating map node.");
+
                 AppDomainHelper.Sponsor(map);
                 mapNode = new TreeNode(map.Name) { Tag = map };
-                ActorTree.Nodes[0].Nodes.Add(mapNode);
+                worldNode.Nodes.Add(mapNode);
                 _mapTreeNodes.Add(map.Guid, mapNode);
-                map.Renamed += Map_Renamed;
+                map.Renamed += MapRenamed;
+                OnDisplayMapNode(map, mapNode);
             }
             else
                 mapNode = _mapTreeNodes[map.Guid];
@@ -148,66 +359,105 @@ namespace TheraEditor.Windows.Forms
             return mapNode;
         }
 
-        private void Map_Renamed(TObject node, string oldName)
-            => _mapTreeNodes[node.Guid].Text = node.Name;
+        private void MapRenamed(TObject node, string oldName)
+        {
+            if (_mapTreeNodes.ContainsKey(node.Guid))
+            {
+                var treeNode = _mapTreeNodes[node.Guid];
+                if (treeNode != null)
+                    treeNode.Text = node.Name;
+            }
+        }
 
-        internal void ActorSpawned(IActor item)
+        private void OnDisplayMapNode(IMap map, TreeNode node)
+        {
+            var actors = World?.State?.SpawnedActors;
+            if (actors is null)
+                return;
+
+            var mapActors = actors.Where(x => x.MapAttachment == map).ToArray();
+            if (mapActors.Length == 0)
+                return;
+
+            ActorsSpawned(mapActors);
+        }
+
+        private void ActorsSpawned(IEnumerable<IActor> actors)
         {
             if (InvokeRequired)
             {
-                BeginInvoke(new Action<IActor>(ActorSpawned), item);
+                Invoke(new Action<IEnumerable<IActor>>(ActorsSpawned), actors);
                 return;
             }
 
-            if (item?.OwningWorld is null || Engine.ShuttingDown)
+            Engine.PrintLine("ActorTreeForm : Spawning multiple actors.");
+
+            ActorTree.SuspendLayout();
+            actors.ForEach(ActorSpawned);
+            ActorTree.ResumeLayout();
+        }
+
+        internal void ActorSpawned(IActor actor)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<IActor>(ActorSpawned), actor);
+                return;
+            }
+
+            if (actor?.OwningWorld is null || Engine.ShuttingDown)
                 return;
 
-            if (item.HasEditorState && !item.EditorState.DisplayInActorTree)
+            if (actor.HasEditorState && !actor.EditorState.DisplayInActorTree)
                 return;
 
-            IMap map = item.MapAttachment;
-            TreeNode mapNode = CacheMap(map);
+            AppDomainHelper.Sponsor(actor);
+            IMap map = actor.MapAttachment;
+            TreeNode mapNode = FindOrCreateMapNode(map);
 
-            AppDomainHelper.Sponsor(item);
-            TreeNode node = new TreeNode(item.ToString()) { Tag = item };
+            TreeNode node = new TreeNode(actor.ToString()) { Tag = actor };
+
+            //Add node for the root scene component
             node.Nodes.Add(new TreeNode());
 
-            item.EditorState.TreeNode = node;
+            actor.EditorState.TreeNode = node;
             mapNode.Nodes.Add(node);
             node.EnsureVisible();
 
-            item.SceneComponentCacheRegenerated += Editor.Instance.Item_SceneComponentCacheRegenerated;
-            item.LogicComponentsChanged += Editor.Instance.Item_LogicComponentsChanged;
+            Editor.Instance.Item_LogicComponentsChanged(actor);
+            Editor.Instance.Item_SceneComponentCacheRegenerated(actor);
 
-            Editor.Instance.Item_LogicComponentsChanged(item);
-            Editor.Instance.Item_SceneComponentCacheRegenerated(item);
+            actor.SceneComponentCacheRegenerated += Editor.Instance.Item_SceneComponentCacheRegenerated;
+            actor.LogicComponentsChanged += Editor.Instance.Item_LogicComponentsChanged;
+
+            Engine.PrintLine("ActorTreeForm : Spawned actor.");
         }
-        internal void ActorDespawned(IActor item)
+        internal void ActorDespawned(IActor actor)
         {
             if (InvokeRequired)
             {
-                BeginInvoke(new Action<IActor>(ActorDespawned), item);
+                Invoke(new Action<IActor>(ActorDespawned), actor);
                 return;
             }
 
-            if (item is null || Engine.ShuttingDown)
+            if (actor is null || Engine.ShuttingDown)
                 return;
 
-            if (item.HasEditorState)
+            if (actor.HasEditorState)
             {
-                item.EditorState.TreeNode?.Remove();
-                item.EditorState.TreeNode = null;
+                actor.EditorState.TreeNode?.Remove();
+                actor.EditorState.TreeNode = null;
             }
 
-            item.SceneComponentCacheRegenerated -= Editor.Instance.Item_SceneComponentCacheRegenerated;
-            item.LogicComponentsChanged -= Editor.Instance.Item_LogicComponentsChanged;
+            actor.SceneComponentCacheRegenerated -= Editor.Instance.Item_SceneComponentCacheRegenerated;
+            actor.LogicComponentsChanged -= Editor.Instance.Item_LogicComponentsChanged;
         }
 
         public void Clear()
         {
             if (InvokeRequired)
             {
-                BeginInvoke((Action)Clear);
+                Invoke((Action)Clear);
                 return;
             }
             _dynamicActorsMapNode = null;
@@ -222,12 +472,12 @@ namespace TheraEditor.Windows.Forms
                 node.TreeView.SelectedNode = node;
         }
 
-        private void ctxActorTree_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        private void ctxActorTree_Opening(object sender, CancelEventArgs e)
         {
             TreeNode node = ActorTree.SelectedNode;
             bool programmatic = !(node.Tag is IObject tobj) || tobj.ConstructedProgrammatically;
 
-            btnMoveUp.Visible = btnMoveDown.Visible = node?.Tag is IComponent;
+            btnMoveUp.Visible = btnMoveDown.Visible = node?.Tag is TheraEngine.Components.IComponent;
             btnMoveDown.Enabled = btnMoveAsChildToSibNext.Enabled = node?.NextNode != null && !programmatic;
             btnMoveUp.Enabled = btnMoveAsChildToSibPrev.Enabled = node?.PrevNode != null && !programmatic;
 
@@ -398,7 +648,7 @@ namespace TheraEditor.Windows.Forms
             }
 
             var map = settings.FindOrCreateMap("Map" + settings.Maps.Count);
-            TreeNode node = CacheMap(map);
+            TreeNode node = FindOrCreateMapNode(map);
             ActorTree.LabelEdit = true;
             node.BeginEdit();
         }

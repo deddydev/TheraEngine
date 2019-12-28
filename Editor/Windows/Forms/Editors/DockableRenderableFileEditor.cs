@@ -40,6 +40,8 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnShown(EventArgs e)
         {
+            RenderPanel.RenderHandler.FormShown();
+
             base.OnShown(e);
 
             Engine.Instance.DomainProxyCreated += Instance_ProxySet;
@@ -47,11 +49,11 @@ namespace TheraEditor.Windows.Forms
             Instance_ProxySet(Engine.DomainProxy);
 
             RenderPanel.LinkToWorldManager(WorldManagerId);
-            RenderPanel.RenderHandler.FormShown();
         }
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             RenderPanel.RenderHandler.FormClosed();
+
             RenderPanel.UnlinkFromWorldManager();
 
             Engine.Instance.DomainProxyCreated -= Instance_ProxySet;

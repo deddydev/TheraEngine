@@ -199,44 +199,47 @@ namespace TheraEngine.Worlds
         public EventDictionary<string, LocalFileRef<IMap>> Maps
         {
             get => _maps;
-            set
-            {
-                if (_maps != null)
+            set => Set(ref _maps, value ?? new EventDictionary<string, LocalFileRef<IMap>>(),
+                () =>
                 {
-                    _maps.Added -= _maps_Added;
-                    _maps.Removed -= _maps_Removed;
-                    _maps.Set -= _maps_Set;
-                }
+                    _maps.Added -= MapAdded;
+                    _maps.Removed -= MapRemoved;
+                    _maps.Set -= MapSet;
 
-                _maps = value ?? new EventDictionary<string, LocalFileRef<IMap>>();
+                    foreach (var mapRef in _maps)
+                        MapRemoved(mapRef.Key, mapRef.Value);
+                },
+                () =>
+                {
+                    _maps.Added += MapAdded;
+                    _maps.Removed += MapRemoved;
+                    _maps.Set += MapSet;
 
-                _maps.Added += _maps_Added;
-                _maps.Removed += _maps_Removed;
-                _maps.Set += _maps_Set;
-
-                foreach (var mapRef in _maps)
-                    _maps_Added(mapRef.Key, mapRef.Value);
-            }
+                    foreach (var mapRef in _maps)
+                        MapAdded(mapRef.Key, mapRef.Value);
+                });
         }
 
-        private void _maps_Set(string key, LocalFileRef<IMap> oldValue, LocalFileRef<IMap> newValue)
+        private void MapSet(string key, LocalFileRef<IMap> oldValue, LocalFileRef<IMap> newValue)
         {
-            _maps_Removed(key, oldValue);
-            _maps_Added(key, newValue);
+            MapRemoved(key, oldValue);
+            MapAdded(key, newValue);
         }
-        private void _maps_Removed(string key, LocalFileRef<IMap> value)
-        {
-            if (value is null)
-                return;
-            value.Loaded -= (MapLoaded);
-            value.Unloaded -= (MapUnloaded);
-        }
-        private void _maps_Added(string key, LocalFileRef<IMap> value)
+        private void MapRemoved(string key, LocalFileRef<IMap> value)
         {
             if (value is null)
                 return;
-            value.Loaded += (MapLoaded);
-            value.Unloaded += (MapUnloaded);
+
+            value.Loaded -= MapLoaded;
+            value.Unloaded -= MapUnloaded;
+        }
+        private void MapAdded(string key, LocalFileRef<IMap> value)
+        {
+            if (value is null)
+                return;
+
+            value.Loaded += MapLoaded;
+            value.Unloaded += MapUnloaded;
         }
 
         public IMap FindOrCreateMap(string name)

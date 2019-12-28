@@ -445,7 +445,7 @@ namespace TheraEngine
         private static void EngineTick(object sender, FrameEventArgs e)
         {
             ClearMarkers();
-            //Network?.RecievePackets();
+            Network?.RecievePackets();
             
             float delta = e.Time * TimeDilation;
 
@@ -459,7 +459,7 @@ namespace TheraEngine
             //Collect renderables
             OnUpdate(sender, e);
 
-            //Network?.UpdatePacketQueue(e.Time);
+            Network?.UpdatePacketQueue(e.Time);
 
             //SteamAPI.RunCallbacks();
             PrintMarkers();
@@ -522,14 +522,8 @@ namespace TheraEngine
         /// <summary>
         /// Ticks the list of items at the given index (created by adding the tick group, order and pause type together).
         /// </summary>
-        public static void ExecuteTickList(int index, float delta)
-        {
-            TickList currentList = TickLists[CurrentTickList = index];
-
-            currentList.ExecuteParallel(delta);
-
-            CurrentTickList = -1;
-        }
+        public static void ExecuteTickList(int index, float delta) 
+            => TickLists[index].ExecuteSequential(delta);
         /// <summary>
         /// Tells the engine to play in a new world.
         /// </summary>
@@ -676,29 +670,29 @@ namespace TheraEngine
 
             DateTime now = DateTime.Now;
 
-            double recentness = Settings.AllowedOutputRecentnessSeconds;
-            if (recentness > 0.0)
-            {
-                List<string> removeKeys = new List<string>();
-                RecentMessageCache.ForEach(x =>
-                {
-                    TimeSpan span = now - x.Value;
-                    if (span.TotalSeconds >= recentness)
-                        removeKeys.Add(x.Key);
-                });
-                removeKeys.ForEach(x => RecentMessageCache.TryRemove(x, out _));
+            //double recentness = Settings.AllowedOutputRecentnessSeconds;
+            //if (recentness > 0.0)
+            //{
+            //    List<string> removeKeys = new List<string>();
+            //    RecentMessageCache.ForEach(x =>
+            //    {
+            //        TimeSpan span = now - x.Value;
+            //        if (span.TotalSeconds >= recentness)
+            //            removeKeys.Add(x.Key);
+            //    });
+            //    removeKeys.ForEach(x => RecentMessageCache.TryRemove(x, out _));
 
-                if (RecentMessageCache.ContainsKey(message))
-                {
-                    //Messages already cleaned above, just return here
+            //    if (RecentMessageCache.ContainsKey(message))
+            //    {
+            //        //Messages already cleaned above, just return here
 
-                    //TimeSpan span = now - RecentMessages[message];
-                    //if (span.TotalSeconds <= AllowedOutputRecentness)
-                    return;
-                }
-                else
-                    RecentMessageCache.TryAdd(message, now);
-            }
+            //        //TimeSpan span = now - RecentMessages[message];
+            //        //if (span.TotalSeconds <= AllowedOutputRecentness)
+            //        return;
+            //    }
+            //    else
+            //        RecentMessageCache.TryAdd(message, now);
+            //}
 
             bool printDomain = printAppDomain || Settings.PrintAppDomainInOutput;
 

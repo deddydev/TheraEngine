@@ -479,16 +479,32 @@ namespace TheraEngine
                 CreateFileIfNonExistent = true
             };
 
+        private static bool SettingsLoading { get; set; } = false;
         public static EngineSettings Settings 
         {
-            get => _settings ?? (_settings = GetBestSettings());
+            get
+            {
+                if (SettingsLoading)
+                    return _defaultEngineSettings.Value;
+
+                if (_settings is null)
+                {
+                    SettingsLoading = true;
+                    _settings = LinkSettings(GetBestSettings());
+                    SettingsLoading = false;
+                }
+
+                return _settings;
+            }
             private set => _settings = value;
         }
 
         public static void SettingsSourcesChanged()
         {
+            SettingsLoading = true;
             UnlinkSettings();
             _settings = LinkSettings(GetBestSettings());
+            SettingsLoading = false;
         }
 
         private static EngineSettings LinkSettings(EngineSettings settings)
@@ -522,10 +538,27 @@ namespace TheraEngine
         /// Returns settings from the game, from the engine override settings, or the default hardcoded settings.
         /// </summary>
         /// <returns></returns>
-        public static EngineSettings GetBestSettings() =>
-            Game?.EngineSettingsOverrideRef?.File ?? //Game overrides engine settings?
-            DefaultEngineSettingsOverrideRef?.File ?? //User overrides engine settings?
-            _defaultEngineSettings.Value; //Fall back to truly default engine settings
+        public static EngineSettings GetBestSettings()
+        {
+            //string domainName = AppDomain.CurrentDomain.FriendlyName;
+
+            var gameSettings = Game?.EngineSettingsOverrideRef?.File;
+            if (gameSettings != null)
+            {
+                //Console.WriteLine($"[{domainName}] Loading game settings.");
+                return gameSettings;
+            }
+
+            var defaultOverrideSettings = DefaultEngineSettingsOverrideRef?.File;
+            if (defaultOverrideSettings != null)
+            {
+                //Console.WriteLine($"[{domainName}] Loading default override settings.");
+                return defaultOverrideSettings;
+            }
+
+            //Console.WriteLine($"[{domainName}] Loading default settings.");
+            return _defaultEngineSettings.Value;
+        }
 
         /// <summary>
         /// Returns settings from the game, from the engine override settings, or the default hardcoded settings.
@@ -533,14 +566,31 @@ namespace TheraEngine
         /// <returns></returns>
         public static async Task<EngineSettings> GetBestSettingsAsync()
         {
+            //string domainName = AppDomain.CurrentDomain.FriendlyName;
+
             var ref1 = Game?.EngineSettingsOverrideRef;
             if (ref1 != null)
-                return await ref1.GetInstanceAsync();
+            {
+                var settings = await ref1.GetInstanceAsync();
+                if (settings != null)
+                {
+                    //Console.WriteLine($"[{domainName}] Loading game settings.");
+                    return settings;
+                }
+            }
 
             var ref2 = DefaultEngineSettingsOverrideRef;
             if (ref2 != null)
-                return await ref2.GetInstanceAsync();
+            {
+                var settings = await ref2.GetInstanceAsync();
+                if (settings != null)
+                {
+                    //Console.WriteLine($"[{domainName}] Loading default override settings.");
+                    return settings;
+                }
+            }
 
+            //Console.WriteLine($"[{domainName}] Loading default settings.");
             return _defaultEngineSettings.Value;
         }
 

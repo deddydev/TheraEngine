@@ -250,7 +250,7 @@ namespace TheraEngine.Physics
         }
         public override void StepSimulation(float delta)
         {
-            _dynamicsWorld.StepSimulation(delta, 2, Engine.RenderPeriod * Engine.TimeDilation);
+            _dynamicsWorld?.StepSimulation(delta, 7, Engine.RenderPeriod * Engine.TimeDilation);
         }
         //private class CustomOverlappingPair : OverlappingPairCallback
         //{

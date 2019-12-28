@@ -1302,7 +1302,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             string path = null;
             using (SaveFileDialog sfd = new SaveFileDialog
             {
-                Filter = file.GetFilter()
+                Filter = file.CreateFilter()
             })
             {
                 if (sfd.ShowDialog(this) == DialogResult.OK)

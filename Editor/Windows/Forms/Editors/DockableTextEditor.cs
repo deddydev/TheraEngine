@@ -1776,7 +1776,7 @@ namespace TheraEditor.Windows.Forms
         {
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = TFileObject.GetFilter<TextFile>(true, true, false, false) + "|All files (*.*)|*.*",
+                Filter = TFileObject.CreateFilter<TextFile>(true, true, false, false) + "|All files (*.*)|*.*",
                 Multiselect = true
             })
             {
@@ -1797,7 +1797,7 @@ namespace TheraEditor.Windows.Forms
             if (TargetFile is null)
                 return;
 
-            string filter = TargetFile.GetFilter(true, true, false, false);
+            string filter = TargetFile.CreateFilter(true, true, false, false);
             using (SaveFileDialog sfd = new SaveFileDialog()
             {
                 Filter = filter + "|All files (*.*)|*.*",

@@ -1,27 +1,14 @@
-﻿using Extensions;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Threading.Tasks;
+﻿using System;
 using TheraEngine;
-using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Animation;
-using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Text;
-using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
 {
     public partial class EditorUIPropAnimFloat : EditorUI2DBase, I2DRenderable, IPreRendered
     {
-
         private float GetAcceleration(FloatKeyframe kf, bool inAcc)
         {
             float acc = kf.Interpolate(kf.Second + (inAcc ? -0.0001f : 0.0001f), EVectorInterpValueType.Acceleration);

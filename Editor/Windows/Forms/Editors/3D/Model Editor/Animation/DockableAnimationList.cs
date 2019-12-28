@@ -48,7 +48,7 @@ namespace TheraEditor.Windows.Forms
         {
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = TFileObject.GetFilter<SkeletalAnimation>(),
+                Filter = TFileObject.CreateFilter<SkeletalAnimation>(),
                 Multiselect = true
             })
             {

@@ -115,7 +115,7 @@ namespace TheraEditor.Windows.Forms
             if (File is null)
                 return;
 
-            string filter = File.GetFilter();
+            string filter = File.CreateFilter();
             bool ok;
             string filePath;
 

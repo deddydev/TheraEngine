@@ -4,7 +4,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Lifetime;
@@ -84,14 +86,22 @@ namespace TheraEngine.Core.Reflection
 
         public static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
-            string name = args.LoadedAssembly.GetName().Name;
-            if (!args.LoadedAssembly.IsDynamic)
+            Assembly asm = args.LoadedAssembly;
+            if (asm is null || asm.IsDynamic)
+                return;
+
+            string loadedPath = Path.GetFullPath(asm.Location);
+            string gameDirPath = Engine.Game?.DirectoryPath;
+
+            if (!string.IsNullOrWhiteSpace(gameDirPath))
             {
-                string path = args.LoadedAssembly.Location;
-                if (AppDomain.CurrentDomain.FriendlyName == "TheraEditor.exe" && name == "Puyo")
-                    throw new Exception();
-                Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] LOADED {name} FROM {path}");
+                gameDirPath = Path.GetFullPath(gameDirPath);
+                if (IsPrimaryDomain && Directory.Exists(gameDirPath) && loadedPath.StartsWith(gameDirPath))
+                    throw new InvalidOperationException("Loaded game assembly in UI domain.");
             }
+
+            string name = asm.GetName().Name;
+            Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] LOADED {name} FROM {loadedPath}");
         }
 
         /// <summary>

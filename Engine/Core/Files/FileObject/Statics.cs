@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
 
@@ -118,32 +117,82 @@ namespace TheraEngine.Core.Files
         /// <param name="format">The format the data is written in.</param>
         /// <param name="fileType">The type of file object.</param>
         /// <returns>An absolute path to the file.</returns>
-        public static string GetFilePath(string dir, string name, EProprietaryFileFormat format, TypeProxy fileType)
-            => Path.Combine(dir, GetFileName(name, format, fileType));
-        public static string GetFileName(string name, EProprietaryFileFormat format, TypeProxy fileType)
-            => name + "." + GetFileExtension(format, fileType);
-        public static string GetFileExtension(EProprietaryFileFormat format, TypeProxy fileType)
+        public static string CreateFilePath(string dir, string name, EProprietaryFileFormat format, TypeProxy fileType)
+            => Path.Combine(dir, CreateFileName(name, format, fileType));
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="format"></param>
+        /// <param name="fileType"></param>
+        /// <returns></returns>
+        public static string CreateFileName(string name, EProprietaryFileFormat format, TypeProxy fileType)
+            => name + "." + CreateFileExtension(format, fileType);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="fileType"></param>
+        /// <returns></returns>
+        public static string CreateFileExtension(EProprietaryFileFormat format, TypeProxy fileType)
             => GetFileExtension(fileType)?.GetFullExtension(format) ?? throw new InvalidOperationException();
 
-        public static string GetFilePath<T>(string dir, string name, EProprietaryFileFormat format) where T : class, IFileObject
-            => Path.Combine(dir, GetFileName<T>(name, format));
-        public static string GetFileName<T>(string name, EProprietaryFileFormat format) where T : class, IFileObject
-            => name + "." + GetFileExtension<T>(format);
-        public static string GetFileExtension<T>(EProprietaryFileFormat format) where T : class, IFileObject
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="dir"></param>
+        /// <param name="name"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static string CreateFilePath<T>(string dir, string name, EProprietaryFileFormat format) where T : class, IFileObject
+            => Path.Combine(dir, CreateFileName<T>(name, format));
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static string CreateFileName<T>(string name, EProprietaryFileFormat format) where T : class, IFileObject
+            => name + "." + CreateFileExtension<T>(format);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static string CreateFileExtension<T>(EProprietaryFileFormat format) where T : class, IFileObject
             => GetFileExtension<T>().GetFullExtension(format);
 
-        public static string GetFilePath(string dir, string name, string thirdPartyExtension)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <param name="name"></param>
+        /// <param name="thirdPartyExtension"></param>
+        /// <returns></returns>
+        public static string CreateFilePath(string dir, string name, string thirdPartyExtension)
         {
             if (thirdPartyExtension[0] != '.')
                 thirdPartyExtension = "." + thirdPartyExtension;
             return Path.Combine(dir, name + thirdPartyExtension);
         }
-        public static string GetFilter<T>(
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="proprietary"></param>
+        /// <param name="thirdParty"></param>
+        /// <param name="import3rdParty"></param>
+        /// <param name="export3rdParty"></param>
+        /// <returns></returns>
+        public static string CreateFilter<T>(
             bool proprietary = true,
             bool thirdParty = true,
             bool import3rdParty = false,
             bool export3rdParty = false) where T : class, IFileObject
-            => GetFilter(typeof(T), proprietary, thirdParty, import3rdParty, export3rdParty);
+            => CreateFilter(typeof(T), proprietary, thirdParty, import3rdParty, export3rdParty);
         /// <summary>
         /// Returns the filter for all extensions related to this format.
         /// </summary>
@@ -152,13 +201,16 @@ namespace TheraEngine.Core.Files
         /// <param name="import3rdParty">Add any importable 3rd party file formats</param>
         /// <param name="export3rdParty">Add any exportable 3rd party file formats</param>
         /// <returns>The filter to be used in open file dialog, save file dialog, etc</returns>
-        public static string GetFilter(
+        public static string CreateFilter(
             Type classType,
             bool proprietary = true,
             bool thirdParty = true,
             bool import3rdParty = false,
             bool export3rdParty = false)
         {
+            if (classType is null)
+                return "File (*.*)|*.*";
+            
             string allTypes = "";
             string eachType = "";
             bool first = true;

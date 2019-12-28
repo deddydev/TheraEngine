@@ -28,7 +28,7 @@ namespace TheraEditor.Windows.Forms
 
         public LocalFileRef<EditorSettings> DefaultSettingsRef { get; set; } 
             = new LocalFileRef<EditorSettings>(
-                TFileObject.GetFilePath<EditorSettings>(
+                TFileObject.CreateFilePath<EditorSettings>(
                     Application.StartupPath,
                     ConfigFileName,
                     EProprietaryFileFormat.XML))

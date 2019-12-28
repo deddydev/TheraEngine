@@ -192,7 +192,7 @@ namespace TheraEngine.Components.Scene.Mesh
             if (model is null)
                 return;
 
-            Engine.PrintLine("Static Model : OnModelLoaded");
+            //Engine.PrintLine("Static Model : OnModelLoaded");
 
             model.RigidChildren.PostAnythingAdded += RigidChildren_PostAnythingAdded;
             model.RigidChildren.PostAnythingRemoved += RigidChildren_PostAnythingRemoved;
@@ -220,7 +220,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
         private void AddRenderMesh(IStaticSubMesh subMesh)
         {
-            Engine.PrintLine("Static Model : AddRenderMesh");
+            //Engine.PrintLine("Static Model : AddRenderMesh");
 
             StaticRenderableMesh m = new StaticRenderableMesh(subMesh, this);
             if (IsSpawned)
@@ -229,7 +229,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         private void RemoveRenderMesh(IStaticSubMesh subMesh)
         {
-            Engine.PrintLine("Static Model : RemoveRenderMesh");
+            //Engine.PrintLine("Static Model : RemoveRenderMesh");
 
             int match = Meshes.FindIndex(x => x.Mesh == subMesh);
             if (Meshes.IndexInRange(match))

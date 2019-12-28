@@ -165,52 +165,58 @@ namespace TheraEngine.Core.Files
         public T File
         {
             get => GetInstance();
-            set
+            set => Set(ref _file, value, PreFileSet, PostFileSet, true);
+        }
+
+        private void PreFileSet()
+        {
+            var temp = _file;
+            _file = null;
+            //if (_file != null)
+            //{
+            //    //if (_file.References.Contains(this))
+            //    //    _file.References.Remove(this);
+
+            //}
+            if (temp != null)
+                Unloaded?.Invoke(temp);
+        }
+        private void PostFileSet()
+        {
+            if (_file != null)
             {
-                //if (_file == value)
-                //    return;
+                AppDomainHelper.Sponsor(_file);
 
-                if (_file != null)
+                string path = _file.FilePath;
+                if (!string.IsNullOrEmpty(path) && path.IsExistingDirectoryPath() == false)
                 {
-                    //if (_file.References.Contains(this))
-                    //    _file.References.Remove(this);
-                    Unloaded?.Invoke(_file);
-                }
-
-                _file = value;
-
-                if (_file != null)
-                {
-                    AppDomainHelper.Sponsor(_file);
-
-                    string path = _file.FilePath;
-                    if (!string.IsNullOrEmpty(path) && path.IsExistingDirectoryPath() == false)
-                    {
-                        Path.Path = path;
-                    }
-                    else
-                    {
-                        //Path.Absolute = null;// Path.DirectorySeparatorChar.ToString();
-                    }
-                    //if (!_file.References.Contains(this))
-                    //    _file.References.Add(this);
-                    //LoadAttempted = true;
-                    OnLoaded(_file);
+                    Path.Path = path;
                 }
                 else
                 {
-                    //Path.Absolute = null;
+                    //Path.Absolute = null;// Path.DirectorySeparatorChar.ToString();
                 }
-                RegisterInstance();
+                //if (!_file.References.Contains(this))
+                //    _file.References.Add(this);
+                //LoadAttempted = true;
+                OnLoaded(_file);
             }
+            else
+            {
+                //Path.Absolute = null;
+            }
+            RegisterInstance();
         }
-
         protected abstract void RegisterInstance();
 
+        /// <summary>
+        /// 
+        /// </summary>
         public event Action<T> Unloaded;
 
         /// <summary>
-        /// Event called when the file this reference points to becomes (or currently is) available.
+        /// Event called when the file this reference points to becomes available.
+        /// NOTE: Event is fired on subscribe if the item is currently loaded!
         /// </summary>
         public override event Action<T> Loaded
         {

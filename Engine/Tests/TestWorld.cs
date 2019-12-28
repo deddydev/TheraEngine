@@ -18,7 +18,7 @@ namespace TheraEngine.Tests
 {
     public class TestWorld : World
     {
-        public override async void BeginPlay()
+        protected override async void OnBeginPlay()
         {
             Settings = new WorldSettings("TestWorld")
             {
@@ -259,7 +259,10 @@ namespace TheraEngine.Tests
             //Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
 
             Settings.DefaultGameModeRef = new TestGameMode();// new GameMode<FlyingCameraPawn>();
-            Settings.Maps.Add("DefaultMap", new Map(true, Vec3.Zero, actors));
+
+            string mapName = "DefaultMap";
+            Settings.Maps.Add(mapName, new Map(true, Vec3.Zero, actors) { Name = mapName });
+
             //Settings.Maps[0].File.Settings.StaticActors.AddRange(array);
 
             //Export(Engine.ContentFolderAbs, "TestWorld", FileFormat.XML);
@@ -283,7 +286,7 @@ namespace TheraEngine.Tests
             //    SpawnActor(testActor);
             //});
 
-            base.BeginPlay();
+            base.OnBeginPlay();
         }
 
         private void OnBoxHit(TCollisionObject @this, TCollisionObject other, TContactInfo info, bool thisIsA)

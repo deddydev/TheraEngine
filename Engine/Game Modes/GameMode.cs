@@ -230,20 +230,24 @@ namespace TheraEngine.GameModes
         protected virtual void OnBeginGameplay() { }
         public void BeginGameplay(IWorld world)
         {
+            string modeName = GetType().GetFriendlyName();
+            Engine.PrintLine("Game mode {0} is beginning play.", modeName);
             TargetWorld = world;
-            Engine.PrintLine("Game mode {0} has begun play.", GetType().GetFriendlyName());
             CreateLocalPlayerControllers();
             OnBeginGameplay();
             IsPlaying = true;
+            Engine.PrintLine("Game mode {0} has finished beginning play.", modeName);
         }
         protected virtual void OnEndGameplay() { }
         public void EndGameplay()
         {
+            string modeName = GetType().GetFriendlyName();
+            Engine.PrintLine("Game mode {0} is ending play.", modeName);
             IsPlaying = false;
             DestroyLocalPlayerControllers();
             OnEndGameplay();
-            Engine.PrintLine("Game mode {0} has ended play.", GetType().GetFriendlyName());
             TargetWorld = null;
+            Engine.PrintLine("Game mode {0} has finished ending play.", modeName);
         }
         protected virtual void OnAbortGameplay() { }
         public void AbortGameplay()

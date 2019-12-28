@@ -101,36 +101,36 @@ namespace TheraEngine.Worlds
         public GlobalFileRef<WorldSettings> SettingsRef
         {
             get => _settingsRef;
-            set
-            {
-                if (_settingsRef != null)
+            set => Set(ref _settingsRef, value ?? new GlobalFileRef<WorldSettings>(),
+                () =>
                 {
                     _settingsRef.Loaded -= SettingsLoaded;
                     _settingsRef.Unloaded -= SettingsUnloaded;
-                }
-
-                _settingsRef = value ?? new GlobalFileRef<WorldSettings>();
-
-                _settingsRef.Loaded += SettingsLoaded;
-                _settingsRef.Unloaded += SettingsUnloaded;
-            }
+                },
+                () =>
+                {
+                    _settingsRef.Loaded += SettingsLoaded;
+                    _settingsRef.Unloaded += SettingsUnloaded;
+                });
         }
 
         private void SettingsLoaded(WorldSettings obj)
         {
             obj.OwningWorld = this;
+            OnPropertyChanged(nameof(Settings));
         }
         private void SettingsUnloaded(WorldSettings obj)
         {
             if (obj.OwningWorld == this)
                 obj.OwningWorld = null;
+            OnPropertyChanged(nameof(Settings));
         }
 
         //[TSerialize(State = true)]
         public GlobalFileRef<WorldState> StateRef
         {
             get => _stateRef;
-            set => _stateRef = value ?? new GlobalFileRef<WorldState>();
+            set => Set(ref _stateRef, value ?? new GlobalFileRef<WorldState>());
         }
 
         public WorldSettings Settings
@@ -299,10 +299,16 @@ namespace TheraEngine.Worlds
         public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => State.SpawnedActors.GetEnumerator();
 
-        public virtual void BeginPlay()
+        public void BeginPlay()
         {
+            Engine.PrintLine("World : Beginning play.");
             PreBeginPlay?.Invoke();
-
+            OnBeginPlay();
+            PostBeginPlay?.Invoke();
+            Engine.PrintLine("World : Finished beginning play.");
+        }
+        protected virtual void OnBeginPlay()
+        {
             if (Settings.TwoDimensional)
             {
                 State.Scene = new Scene2D(Settings.Bounds.HalfExtents.Xy);
@@ -339,8 +345,6 @@ namespace TheraEngine.Worlds
             string cut = Settings.CutsceneToPlayOnBeginPlay;
             if (!string.IsNullOrWhiteSpace(cut) && Settings.Cutscenes.ContainsKey(cut))
                 Settings.Cutscenes[cut]?.Start();
-
-            PostBeginPlay?.Invoke();
         }
 
         public void SpawnMap(IMap value)
@@ -352,6 +356,7 @@ namespace TheraEngine.Worlds
                 value.BeginPlay(this);
 
             State.SpawnedMaps.Add(value);
+            Engine.PrintLine("World : Spawned map.");
         }
         public void DespawnMap(IMap value)
         {
@@ -362,12 +367,19 @@ namespace TheraEngine.Worlds
                 value.EndPlay();
 
             State.SpawnedMaps.Remove(value);
+            Engine.PrintLine("World : Despawned map.");
         }
 
-        public virtual void EndPlay()
+        public void EndPlay()
         {
+            Engine.PrintLine("World : Ending play.");
             PreEndPlay?.Invoke();
-
+            OnEndPlay();
+            PostEndPlay?.Invoke();
+            Engine.PrintLine("World : Finished ending play.");
+        }
+        protected virtual void OnEndPlay()
+        {
             foreach (var m in State.SpawnedMaps)
                 if (m.IsVisible)
                     m.EndPlay();
@@ -382,7 +394,6 @@ namespace TheraEngine.Worlds
 
             CurrentGameMode?.EndGameplay();
             IsPlaying = false;
-            PostEndPlay?.Invoke();
         }
 
         private readonly RenderCommandMethod3D _rc3D;

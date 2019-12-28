@@ -443,7 +443,7 @@ namespace TheraEditor
             if (file is null)
                 return;
 
-            string filter = TFileObject.GetFilter(file.GetType(), true, true, false, true);
+            string filter = TFileObject.CreateFilter(file.GetType(), true, true, false, true);
             using (SaveFileDialog sfd = new SaveFileDialog() { Filter = filter })
             {
                 if (sfd.ShowDialog(Editor.Instance) == DialogResult.OK)
@@ -482,7 +482,7 @@ namespace TheraEditor
             }
 
             string path, name;
-            string filter = TFileObject.GetFilter((Type)fileType, true, true, true, false);
+            string filter = TFileObject.CreateFilter((Type)fileType, true, true, true, false);
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
                 Filter = filter,

@@ -109,6 +109,12 @@ namespace TheraEditor.Windows.Forms
             return baseUI;
         }
 
+        protected override void ResizeLayout()
+        {
+            base.ResizeLayout();
+            UpdateBackgroundMaterial();
+        }
+
         public Vec2 GetViewportBottomLeftWorldSpace()
             => Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
         public Vec2 GetViewportTopRightWorldSpace()
@@ -306,7 +312,8 @@ namespace TheraEditor.Windows.Forms
         }
         private void UpdateTextIncrements(float unitCount, Dictionary<string, (UITextRasterComponent, UIString2D)> textCache, float minimum, float increment, bool xCoord)
         {
-            if (float.IsNaN(unitCount) || float.IsNaN(minimum))
+            if (float.IsNaN(unitCount) || float.IsNaN(minimum) ||
+                float.IsInfinity(unitCount) || float.IsInfinity(minimum))
                 return;
 
             try

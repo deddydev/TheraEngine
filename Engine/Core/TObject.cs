@@ -4,6 +4,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using TheraEngine.Animation;
 using TheraEngine.Core;
 using TheraEngine.Core.Maths;
@@ -68,7 +70,7 @@ namespace TheraEngine
         [TSerialize]
         private object _userObject = null;
 
-        //[Browsable(false)]
+        [Browsable(false)]
         [TSerialize(NodeType = ENodeType.Attribute)]
         public Guid Guid { get; set; } = Guid.NewGuid();
 
@@ -122,6 +124,37 @@ namespace TheraEngine
 
         #region Property Management
 
+        [Serializable]
+        public class SerializablePropertyChangedEventArgs : PropertyChangedEventArgs, ISerializable
+        {
+            public SerializablePropertyChangedEventArgs(string propertyName) : base(propertyName) { }
+            protected SerializablePropertyChangedEventArgs(SerializationInfo info, StreamingContext context)
+                : base((string)info.GetValue(nameof(PropertyName), typeof(string))) { }
+
+            [SecurityPermission(SecurityAction.LinkDemand, 
+                Flags = SecurityPermissionFlag.SerializationFormatter)]
+            void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+                => info.AddValue(nameof(PropertyName), PropertyName);
+        }
+        [Serializable]
+        public class SerializableCancellablePropertyChangingEventArgs : PropertyChangingEventArgs, ISerializable
+        {
+            public bool Cancel { get; set; } = false;
+
+            public SerializableCancellablePropertyChangingEventArgs(string propertyName) : base(propertyName) { }
+            protected SerializableCancellablePropertyChangingEventArgs(SerializationInfo info, StreamingContext context)
+                : base((string)info.GetValue(nameof(PropertyName), typeof(string)))
+                => Cancel = (bool)info.GetValue(nameof(Cancel), typeof(bool));
+
+            [SecurityPermission(SecurityAction.LinkDemand,
+                Flags = SecurityPermissionFlag.SerializationFormatter)]
+            void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+            {
+                info.AddValue(nameof(PropertyName), PropertyName);
+                info.AddValue(nameof(Cancel), Cancel);
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         public event PropertyChangingEventHandler PropertyChanging;
 
@@ -132,12 +165,12 @@ namespace TheraEngine
         /// <returns></returns>
         protected virtual bool OnPropertyChanging([CallerMemberName] string propertyName = null)
         {
-            var args = new CancellablePropertyChangingEventArgs(propertyName);
+            var args = new SerializableCancellablePropertyChangingEventArgs(propertyName);
             PropertyChanging?.Invoke(this, args);
             return args.Cancel;
         }
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            => PropertyChanged?.Invoke(this, new SerializablePropertyChangedEventArgs(propertyName));
         
         /// <summary>
         /// Helper method to set a property's backing field.
@@ -451,11 +484,4 @@ namespace TheraEngine
     }
 
     public delegate void RenamedEventHandler(TObject node, string oldName);
-
-    public class CancellablePropertyChangingEventArgs : PropertyChangingEventArgs
-    {
-        public CancellablePropertyChangingEventArgs(string propertyName) : base(propertyName) { }
-
-        public bool Cancel { get; set; } = false;
-    }
 }

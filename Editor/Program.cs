@@ -39,10 +39,12 @@ namespace TheraEditor
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            //AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            //Application.ThreadException += Application_ThreadException;
-            //Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-            //TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+#if !DEBUG
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            Application.ThreadException += Application_ThreadException;
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+#endif
             AppDomain.CurrentDomain.AssemblyLoad += AppDomainHelper.CurrentDomain_AssemblyLoad;
 
             Engine.Instance.SetDomainProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null, null);

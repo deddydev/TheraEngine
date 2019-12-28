@@ -1,12 +1,9 @@
 ﻿using AppDomainToolkit;
-using Extensions;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
@@ -73,12 +70,12 @@ namespace TheraEditor.Windows.Forms
         {
 
         }
-        public void Compile()
+        public async void Compile()
         {
             if (Project is null)
                 return;
 
-            Project.CompileAsync();
+            await Project.CompileAsync();
             //RunOperationAsync2(null,
             //    "Compiling project...",
             //    "Finished compiling project.",
@@ -152,30 +149,47 @@ namespace TheraEditor.Windows.Forms
 
         internal void Item_LogicComponentsChanged(IActor actor)
         {
-            Invoke((Action)(() =>
+            if (InvokeRequired)
             {
-                TreeNode node = actor.EditorState.TreeNode;
-                for (int i = 1; i < node.Nodes.Count; ++i)
-                    node.Nodes[i].Remove();
+                Invoke((Action<IActor>)Item_LogicComponentsChanged, actor);
+                return;
+            }
 
-                foreach (ILogicComponent comp in actor.LogicComponents)
-                {
-                    AppDomainHelper.Sponsor(comp);
-                    TreeNode childNode = new TreeNode(comp.ToString()) { Tag = comp };
-                    node.Nodes.Add(childNode);
-                }
-            }));
+            TreeNode node = actor.EditorState.TreeNode;
+
+            node.TreeView?.SuspendLayout();
+
+            for (int i = 1; i < node.Nodes.Count; ++i)
+                node.Nodes[i].Remove();
+
+            foreach (ILogicComponent comp in actor.LogicComponents)
+            {
+                AppDomainHelper.Sponsor(comp);
+                TreeNode childNode = new TreeNode(comp.ToString()) { Tag = comp };
+                node.Nodes.Add(childNode);
+            }
+
+            node.TreeView?.ResumeLayout();
         }
 
         internal void Item_SceneComponentCacheRegenerated(IActor actor)
         {
-            Invoke((Action)(() =>
+            if (InvokeRequired)
             {
-                TreeNode node = actor.EditorState.TreeNode;
-                if (node.Nodes.Count > 0)
-                    node.Nodes[0].Nodes.Clear();
-                RecursiveAddSceneComp(node.Nodes[0], actor.RootComponent);
-            }));
+                Invoke((Action<IActor>)Item_SceneComponentCacheRegenerated, actor);
+                return;
+            }
+
+            TreeNode node = actor.EditorState.TreeNode;
+
+            node.TreeView?.SuspendLayout();
+
+            if (node.Nodes.Count > 0)
+                node.Nodes[0].Nodes.Clear();
+
+            RecursiveAddSceneComp(node.Nodes[0], actor.RootComponent);
+
+            node.TreeView?.ResumeLayout();
         }
 
         private static void RecursiveAddSceneComp(TreeNode node, ISocket comp)

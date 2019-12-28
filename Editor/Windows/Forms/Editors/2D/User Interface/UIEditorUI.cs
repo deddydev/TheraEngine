@@ -72,8 +72,6 @@ namespace TheraEditor.Windows.Forms
 
             if (_selectedComp is UIBoundableComponent selectedBounds)
                 _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize.Raw * selectedBounds.WorldMatrix.Scale.Xy;
-
-            UpdateBackgroundMaterial();
         }
 
         private Vec2 _previewResolution = new Vec2(1920, 1080);

@@ -430,6 +430,20 @@ void main()
         private bool _redrewLastMove = false;
         protected override void ResizeLayout()
         {
+            Vec3 animPos;
+            if (_targetAnimation != null)
+            {
+                RenderAnimPosition = true;
+                animPos = new Vec3(_targetAnimation.CurrentTime, GetCurrentPosition(), 0.0f);
+                _xCoord.Translation.X = animPos.X;
+                _yCoord.Translation.Y = animPos.Y;
+            }
+            else
+            {
+                RenderAnimPosition = false;
+                animPos = Vec3.Zero;
+            }
+
             base.ResizeLayout();
 
             Matrix4 mtx = BaseTransformComponent.WorldMatrix;
@@ -439,25 +453,12 @@ void main()
             _rcKeyframeInOutPositions.WorldMatrix =
             _rcTangentPositions.WorldMatrix = mtx;
 
-            if (_targetAnimation != null)
-            {
-                RenderAnimPosition = true;
-
-                Vec3 pos = new Vec3(_targetAnimation.CurrentTime, GetCurrentPosition(), 0.0f);
-                AnimPositionWorld = Vec3.TransformPosition(pos, BaseTransformComponent.WorldMatrix).Xy;
-
-                _xCoord.Translation.X = pos.X;
-                _yCoord.Translation.Y = pos.Y;
-            }
-            else
-                RenderAnimPosition = false;
+            if (RenderAnimPosition)
+                AnimPositionWorld = Vec3.TransformPosition(animPos, mtx).Xy;
 
             Vec2 origin = GetViewportBottomLeftWorldSpace();
             _xCoord.Translation.Y = origin.Y;
             _yCoord.Translation.X = origin.X;
-
-
-
 
             Vec2 bl = GetViewportBottomLeftWorldSpace();
             Vec2 tr = GetViewportTopRightWorldSpace();

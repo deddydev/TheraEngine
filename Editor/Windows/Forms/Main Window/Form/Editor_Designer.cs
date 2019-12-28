@@ -217,20 +217,20 @@ namespace TheraEditor.Windows.Forms
                 editorProxy.PostWorldChanged += WorldPostChanged;
             }
         }
-        private void WorldSettingsUnloaded(WorldSettings settings)
-        {
-            if (settings != null)
-                settings.Maps.Changed -= Maps_Changed;
-        }
-        private void WorldSettingsLoaded(WorldSettings settings)
-        {
-            if (settings != null)
-                settings.Maps.Changed += Maps_Changed;
-        }
-        private void Maps_Changed()
-        {
-            ActorTreeForm.Clear();
-        }
+        //private void WorldSettingsUnloaded(WorldSettings settings)
+        //{
+        //    if (settings != null)
+        //        settings.Maps.Changed -= Maps_Changed;
+        //}
+        //private void WorldSettingsLoaded(WorldSettings settings)
+        //{
+        //    if (settings != null)
+        //        settings.Maps.Changed += Maps_Changed;
+        //}
+        //private void Maps_Changed()
+        //{
+        //    ActorTreeForm.Clear();
+        //}
 
 #region World Management
         internal void TrySetWorld(FileRef<World> worldRef)
@@ -240,20 +240,19 @@ namespace TheraEditor.Windows.Forms
         }
         private void WorldPreChanged()
         {
-            IWorld world = DomainProxy.World;
-            ActorTreeForm.UnlinkWorld(world);
+            ActorTreeForm.UnlinkWorld();
         }
         private void WorldPostChanged()
         {
             IWorld world = DomainProxy.World;
             bool worldExists = world != null;
 
-            var sref = world?.SettingsRef;
-            if (sref != null)
-            {
-                sref.Loaded += (WorldSettingsLoaded);
-                sref.Unloaded += (WorldSettingsUnloaded);
-            }
+            //var sref = world?.SettingsRef;
+            //if (sref != null)
+            //{
+            //    sref.Loaded += (WorldSettingsLoaded);
+            //    sref.Unloaded += (WorldSettingsUnloaded);
+            //}
 
             if (InvokeRequired)
                 Invoke((Action)(() => { btnWorldSettings.Enabled = btnSaveWorld.Enabled = btnSaveWorldAs.Enabled = worldExists; }));
@@ -286,7 +285,7 @@ namespace TheraEditor.Windows.Forms
 
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = TFileObject.GetFilter<World>(),
+                Filter = TFileObject.CreateFilter<World>(),
                 Multiselect = false
             })
             {
@@ -433,7 +432,7 @@ namespace TheraEditor.Windows.Forms
 
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = TFileObject.GetFilter<TProject>(),
+                Filter = TFileObject.CreateFilter<TProject>(),
             })
             {
                 if (ofd.ShowDialog(this) == DialogResult.OK)

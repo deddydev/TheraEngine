@@ -10,7 +10,8 @@ using static TheraEditor.Windows.Forms.TheraForm;
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(IUserInterfacePawn))]
-    public partial class DockableUserInterfaceEditor : DockableRenderableFileEditor<UserInterfacePawn, UIGraphRenderHandler>
+    public partial class DockableUserInterfaceEditor 
+        : DockableRenderableFileEditor<UserInterfacePawn, UIGraphRenderHandler>
     {
         public DockableUserInterfaceEditor(UserInterfacePawn ui) : this() => File = ui;
         public DockableUserInterfaceEditor()
@@ -33,16 +34,6 @@ namespace TheraEditor.Windows.Forms
                 Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = file;
 
             return true;
-        }
-        protected override void OnShown(EventArgs e)
-        {
-            RenderPanel.RenderHandler.FormShown();
-            base.OnShown(e);
-        }
-        protected override void OnClosed(EventArgs e)
-        {
-            RenderPanel.RenderHandler.FormClosed();
-            base.OnClosed(e);
         }
         //private void newUIElementToolStripMenuItem_Click(object sender, EventArgs e)
         //{

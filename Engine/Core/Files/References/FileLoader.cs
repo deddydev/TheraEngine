@@ -95,7 +95,7 @@ namespace TheraEngine.Core.Files
         }
 
         public FileLoader(string dir, string name, EProprietaryFileFormat format) 
-            : this(GetFilePath(dir, name, format, typeof(T))) { }
+            : this(CreateFilePath(dir, name, format, typeof(T))) { }
 
         #endregion
 

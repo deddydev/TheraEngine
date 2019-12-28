@@ -178,7 +178,7 @@ namespace TheraEngine.Components.Scene.Mesh
             if (model is null)
                 return;
 
-            Engine.PrintLine("Skeletal Model : OnModelLoaded");
+            //Engine.PrintLine("Skeletal Model : OnModelLoaded");
 
             model.RigidChildren.PostAnythingAdded += RigidChildren_PostAnythingAdded;
             model.RigidChildren.PostAnythingRemoved += RigidChildren_PostAnythingRemoved;
@@ -246,7 +246,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
         private void AddRenderMesh(ISkeletalSubMesh subMesh)
         {
-            Engine.PrintLine("Skeletal Model : AddRenderMesh");
+            //Engine.PrintLine("Skeletal Model : AddRenderMesh");
 
             SkeletalRenderableMesh renderMesh = new SkeletalRenderableMesh(subMesh, TargetSkeleton, this);
             if (IsSpawned)
@@ -255,7 +255,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         private void RemoveRenderMesh(ISkeletalSubMesh subMesh)
         {
-            Engine.PrintLine("Skeletal Model : RemoveRenderMesh");
+            //Engine.PrintLine("Skeletal Model : RemoveRenderMesh");
 
             int match = Meshes.FindIndex(x => x.Mesh == subMesh);
             if (Meshes.IndexInRange(match))

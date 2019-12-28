@@ -50,7 +50,7 @@ namespace TheraEditor.Windows.Forms
             if (File is null)
                 return;
 
-            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = File.GetFilter() })
+            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = File.CreateFilter() })
             {
                 if (sfd.ShowDialog(this) == DialogResult.OK)
                     await File.ExportAsync(sfd.FileName, ESerializeFlags.Default);

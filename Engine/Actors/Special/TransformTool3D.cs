@@ -42,7 +42,12 @@ namespace TheraEngine.Actors.Types
     public class TransformTool3D : Actor<SkeletalMeshComponent>, I3DRenderable
     {
         public static TransformTool3D Instance => _currentInstance.Value;
-        private static Lazy<TransformTool3D> _currentInstance = new Lazy<TransformTool3D>(() => new TransformTool3D());
+        private static readonly Lazy<TransformTool3D> _currentInstance = new Lazy<TransformTool3D>(() =>
+        {
+            var node = new TransformTool3D();
+            node.EditorState.DisplayInActorTree = false;
+            return node;
+        });
 
         public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
 

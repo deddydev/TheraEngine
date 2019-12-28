@@ -291,7 +291,7 @@ namespace TheraEditor
         public void SetDirectoryDefaults(string directory)
         {
             MakePaths(directory);
-            FilePath = GetFilePath<TProject>(directory, Name, EProprietaryFileFormat.XML);
+            FilePath = CreateFilePath<TProject>(directory, Name, EProprietaryFileFormat.XML);
 
             void Update<T>(ref LocalFileRef<T> gref, string defaultName) where T : TFileObject, new()
             {
@@ -302,7 +302,7 @@ namespace TheraEditor
                 }
                 else
                 {
-                    gref.Path.Path = GetFilePath<T>(
+                    gref.Path.Path = CreateFilePath<T>(
                         directory, gref.File?.Name ?? defaultName, EProprietaryFileFormat.XML);
                 }
             }
@@ -317,7 +317,7 @@ namespace TheraEditor
             }
             else
             {
-                Game.UserSettingsRef.Path.Path = GetFilePath<UserSettings>(
+                Game.UserSettingsRef.Path.Path = CreateFilePath<UserSettings>(
                     directory, Game.UserSettingsRef.File?.Name ?? nameof(UserSettings), EProprietaryFileFormat.XML);
             }
 
@@ -328,7 +328,7 @@ namespace TheraEditor
             }
             else
             {
-                Game.EngineSettingsOverrideRef.Path.Path = GetFilePath<EngineSettings>(
+                Game.EngineSettingsOverrideRef.Path.Path = CreateFilePath<EngineSettings>(
                     directory, Game.EngineSettingsOverrideRef.File?.Name ?? nameof(EngineSettings), EProprietaryFileFormat.XML);
             }
         }
@@ -424,7 +424,7 @@ namespace TheraEditor
                 }),
 
                 FilePath
-                    = GetFilePath<TProject>(directory, name,
+                    = CreateFilePath<TProject>(directory, name,
                     EProprietaryFileFormat.XML),
 
                 ProjectStateRef

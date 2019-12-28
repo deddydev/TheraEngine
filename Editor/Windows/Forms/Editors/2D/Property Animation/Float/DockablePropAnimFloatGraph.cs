@@ -10,8 +10,10 @@ using static TheraEditor.Windows.Forms.TheraForm;
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(PropAnimFloat))]
-    public partial class DockablePropAnimFloatGraph : DockableRenderableFileEditor<PropAnimFloat, PropAnimFloatGraphRenderHandler>
+    public partial class DockablePropAnimFloatGraph
+        : DockableRenderableFileEditor<PropAnimFloat, PropAnimFloatGraphRenderHandler>
     {
+        public DockablePropAnimFloatGraph(PropAnimFloat anim) : this() => File = anim;
         public DockablePropAnimFloatGraph()
         {
             InitializeComponent();
@@ -19,9 +21,8 @@ namespace TheraEditor.Windows.Forms
             tsPropAnimFloat.RenderMode = ToolStripRenderMode.Professional;
             tsPropAnimFloat.Renderer = new TheraToolStripRenderer();
         }
-        public DockablePropAnimFloatGraph(PropAnimFloat anim) : this() => File = anim;
 
-        public override bool ShouldHideCursor => true;
+        public override bool ShouldHideCursor => false;
 
         protected override bool TrySetFile(PropAnimFloat file)
         {

@@ -89,14 +89,14 @@ namespace TheraEngine.Core.Files
         /// <param name="name">The name of the file.</param>
         /// <param name="format">The format the data is written in.</param>
         /// <returns>An absolute path to the file.</returns>
-        public string GetFilePath(string dir, string name, EProprietaryFileFormat format)
-            => GetFilePath(dir, name, format, GetType());
-        public string GetFilter(
+        public string CreateFilePath(string dir, string name, EProprietaryFileFormat format)
+            => CreateFilePath(dir, name, format, GetType());
+        public string CreateFilter(
             bool proprietary = true,
             bool thirdParty = true,
             bool import3rdParty = false, 
             bool export3rdParty = false)
-            => GetFilter(GetType(), proprietary, thirdParty, import3rdParty, export3rdParty);
+            => CreateFilter(GetType(), proprietary, thirdParty, import3rdParty, export3rdParty);
         
         [Browsable(false)]
         public bool IsSerializing { get; set; }
@@ -605,8 +605,8 @@ namespace TheraEngine.Core.Files
         
         void Unload();
 
-        string GetFilePath(string dir, string name, EProprietaryFileFormat format);
-        string GetFilter(bool proprietary = true, bool thirdParty = true, bool import3rdParty = false, bool export3rdParty = false);
+        string CreateFilePath(string dir, string name, EProprietaryFileFormat format);
+        string CreateFilter(bool proprietary = true, bool thirdParty = true, bool import3rdParty = false, bool export3rdParty = false);
 
         Task ManualWrite3rdPartyAsync(string filePath);
         Task ManualRead3rdPartyAsync(string filePath);

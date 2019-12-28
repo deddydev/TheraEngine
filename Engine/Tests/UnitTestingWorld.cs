@@ -70,7 +70,7 @@ namespace TheraEngine.Tests
             //long meshMs = _watch.ElapsedMilliseconds;
             //Engine.PrintLine($"{loopMs} loop, {meshMs} update");
         }
-        public override async void BeginPlay()
+        protected override async void OnBeginPlay()
         {
             bool testDeferredDecal = true;
             bool testShapeTracer = false;
@@ -401,7 +401,7 @@ namespace TheraEngine.Tests
                 EnableOriginRebasing = false,
             };
 
-            base.BeginPlay();
+            base.OnBeginPlay();
 
             //RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickLandscape, EInputPauseType.TickOnlyWhenUnpaused);
         }

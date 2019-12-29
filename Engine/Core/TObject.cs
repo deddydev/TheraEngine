@@ -480,6 +480,23 @@ namespace TheraEngine
             Animations.Add(tree);
         }
 
+        protected void StartAllAnimations(bool beginOnSpawnOnly)
+        {
+            Animations?.ForEach(anim =>
+            {
+                if (anim.State == EAnimationState.Stopped && (!beginOnSpawnOnly || anim.BeginOnSpawn))
+                    anim.Start();
+            });
+        }
+        protected void StopAllAnimations()
+        {
+            Animations?.ForEach(anim =>
+            {
+                if (anim.State != EAnimationState.Stopped)
+                    anim.Stop();
+            });
+        }
+
         #endregion
     }
 

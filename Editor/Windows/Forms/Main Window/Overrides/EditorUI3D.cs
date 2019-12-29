@@ -79,9 +79,9 @@ namespace TheraEditor.Windows.Forms
         TRigidBody _pickedBody;
         TPointPointConstraint _currentConstraint;
         private float _toolSize = 1.2f;
-        private static ConcurrentDictionary<int, StencilTest>
-            _highlightedMaterials = new ConcurrentDictionary<int, StencilTest>(),
-            _selectedMaterials = new ConcurrentDictionary<int, StencilTest>();
+        private static ConcurrentDictionary<Guid, StencilTest>
+            _highlightedMaterials = new ConcurrentDictionary<Guid, StencilTest>(),
+            _selectedMaterials = new ConcurrentDictionary<Guid, StencilTest>();
         internal bool MouseDown { get; set; }//=> OwningPawn.LocalPlayerController.Input.Mouse.LeftClick.IsPressed;
 
         public bool UseTransformTool => _transformType != TransformType.DragDrop;
@@ -97,14 +97,14 @@ namespace TheraEditor.Windows.Forms
 
                 if (value is null && HighlightedComponent != null)
                 {
-                    if (TransformTool3D.Instance is null || (TransformTool3D.Instance != null && HighlightedComponent != TransformTool3D.Instance.RootComponent))
+                    if (TransformTool3D.Instance is null ||  HighlightedComponent != TransformTool3D.Instance.RootComponent)
                         _highlightPoint.RenderInfo.Visible = false;
                     //BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
                     //p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Default));
                 }
                 else if (value != null && HighlightedComponent is null)
                 {
-                    if (TransformTool3D.Instance is null || (TransformTool3D.Instance != null && value != TransformTool3D.Instance.RootComponent))
+                    if (TransformTool3D.Instance is null || value != TransformTool3D.Instance.RootComponent)
                         _highlightPoint.RenderInfo.Visible = true;
                     //BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
                     //p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Hand));
@@ -128,37 +128,37 @@ namespace TheraEditor.Windows.Forms
         }
         private void HighlightedComponentChanged(bool highlighted)
         {
-            //if (HighlightedComponent is StaticMeshComponent staticMesh)
-            //{
-            //    var meshes = staticMesh.Meshes;
-            //    if (meshes != null)
-            //        foreach (StaticRenderableMesh m in staticMesh.Meshes)
-            //            if (m != null)
-            //                foreach (var lod in m.LODs)
-            //                {
-            //                    var tris = lod.Manager.Data.Triangles;
-            //                    if (tris != null && tris.Count > 0)
-            //                        UpdateMatHighlight(lod.Manager.Material, highlighted);
-            //                }
-            //}
-            //else if (HighlightedComponent is SkeletalMeshComponent skeletalMesh)
-            //{
-            //    var meshes = skeletalMesh.Meshes;
-            //    if (meshes != null)
-            //        foreach (SkeletalRenderableMesh m in skeletalMesh.Meshes)
-            //            if (m != null)
-            //                foreach (var lod in m.LODs)
-            //                {
-            //                    var tris = lod.Manager.Data.Triangles;
-            //                    if (tris != null && tris.Count > 0)
-            //                        UpdateMatHighlight(lod.Manager.Material, highlighted);
-            //                }
-                    
-            //}
-            //else if (HighlightedComponent is LandscapeComponent landscape)
-            //{
-            //    UpdateMatHighlight(landscape.Material, highlighted);
-            //}
+            if (HighlightedComponent is StaticMeshComponent staticMesh)
+            {
+                var meshes = staticMesh.Meshes;
+                if (meshes != null)
+                    foreach (StaticRenderableMesh m in staticMesh.Meshes)
+                        if (m != null)
+                            foreach (var lod in m.LODs)
+                            {
+                                var tris = lod.Manager.Data.Triangles;
+                                if (tris != null && tris.Count > 0)
+                                    UpdateMatHighlight(lod.Manager.Material, highlighted);
+                            }
+            }
+            else if (HighlightedComponent is SkeletalMeshComponent skeletalMesh)
+            {
+                var meshes = skeletalMesh.Meshes;
+                if (meshes != null)
+                    foreach (SkeletalRenderableMesh m in skeletalMesh.Meshes)
+                        if (m != null)
+                            foreach (var lod in m.LODs)
+                            {
+                                var tris = lod.Manager.Data.Triangles;
+                                if (tris != null && tris.Count > 0)
+                                    UpdateMatHighlight(lod.Manager.Material, highlighted);
+                            }
+
+            }
+            else if (HighlightedComponent is LandscapeComponent landscape)
+            {
+                UpdateMatHighlight(landscape.Material, highlighted);
+            }
         }
         private void UpdateMatHighlight(TMaterial m, bool highlighted)
         {
@@ -167,26 +167,26 @@ namespace TheraEditor.Windows.Forms
 
             if (highlighted)
             {
-                //if (_highlightedMaterials.ContainsKey(m.UniqueID))
-                //{
-                //    //m.RenderParams.StencilTest.BackFace.Ref |= 1;
-                //    //m.RenderParams.StencilTest.FrontFace.Ref |= 1;
-                //    return;
-                //}
-                //_highlightedMaterials.TryAdd(m.UniqueID, m.RenderParams.StencilTest);
+                if (_highlightedMaterials.ContainsKey(m.Guid))
+                {
+                    m.RenderParams.StencilTest.BackFace.Ref |= 1;
+                    m.RenderParams.StencilTest.FrontFace.Ref |= 1;
+                    return;
+                }
+                _highlightedMaterials.TryAdd(m.Guid, m.RenderParams.StencilTest);
                 m.RenderParams.StencilTest = OutlinePassStencil;
             }
             else
             {
-                //if (!_highlightedMaterials.ContainsKey(m.UniqueID))
-                //{
-                //    //m.RenderParams.StencilTest.BackFace.Ref &= ~1;
-                //    //m.RenderParams.StencilTest.FrontFace.Ref &= ~1;
-                //    return;
-                //}
-                //StencilTest t = _highlightedMaterials[m.UniqueID];
-                //_highlightedMaterials.TryRemove(m.UniqueID, out StencilTest value);
-                //m.RenderParams.StencilTest = _selectedMaterials.ContainsKey(m.UniqueID) ? _selectedMaterials[m.UniqueID] : t;
+                if (!_highlightedMaterials.ContainsKey(m.Guid))
+                {
+                    m.RenderParams.StencilTest.BackFace.Ref &= ~1;
+                    m.RenderParams.StencilTest.FrontFace.Ref &= ~1;
+                    return;
+                }
+                StencilTest t = _highlightedMaterials[m.Guid];
+                _highlightedMaterials.TryRemove(m.Guid, out StencilTest value);
+                m.RenderParams.StencilTest = _selectedMaterials.ContainsKey(m.Guid) ? _selectedMaterials[m.Guid] : t;
             }
         }
         public static StencilTest OutlinePassStencil = new StencilTest()

@@ -67,6 +67,7 @@ namespace TheraEngine.Actors.Types.Pawns
         float _mouseYLookInputMultiplier = 0.5f;
         float _gamePadXLookInputMultiplier = 1.0f;
         float _gamePadYLookInputMultiplier = 1.0f;
+
         protected Vec2 _keyboardMovementInput = Vec2.Zero;
         protected Vec2 _gamepadMovementInput = Vec2.Zero;
         
@@ -78,6 +79,38 @@ namespace TheraEngine.Actors.Types.Pawns
                 _firstPerson = value;
             }
         }
+
+        public float KeyboardMovementInputMultiplier 
+        {
+            get => _keyboardMovementInputMultiplier; 
+            set => Set(ref _keyboardMovementInputMultiplier, value);
+        }
+        public float GamePadMovementInputMultiplier 
+        { 
+            get => _gamePadMovementInputMultiplier;
+            set => Set(ref _gamePadMovementInputMultiplier, value);
+        }
+        public float MouseXLookInputMultiplier
+        {
+            get => _mouseXLookInputMultiplier;
+            set => Set(ref _mouseXLookInputMultiplier, value);
+        }
+        public float MouseYLookInputMultiplier 
+        {
+            get => _mouseYLookInputMultiplier; 
+            set => Set(ref _mouseYLookInputMultiplier, value);
+        }
+        public float GamePadXLookInputMultiplier
+        {
+            get => _gamePadXLookInputMultiplier;
+            set => Set(ref _gamePadXLookInputMultiplier, value);
+        }
+        public float GamePadYLookInputMultiplier 
+        {
+            get => _gamePadYLookInputMultiplier;
+            set => Set(ref _gamePadYLookInputMultiplier, value);
+        }
+
         public virtual void Kill(ICharacterPawn instigator, IActor killer)
         {
             ICharacterGameMode mode = OwningWorld?.CurrentGameMode as ICharacterGameMode;
@@ -116,7 +149,7 @@ namespace TheraEngine.Actors.Types.Pawns
             UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, TickMovementInput);
             base.OnDespawned();
         }
-        protected void TickMovementInput(float delta)
+        protected virtual void TickMovementInput(float delta)
         {
             Vec3 forward = Vec3.TransformVector(Vec3.Forward, _tpCameraBoom.Rotation.GetYawMatrix());
             Vec3 right = forward ^ Vec3.Up;
@@ -129,12 +162,12 @@ namespace TheraEngine.Actors.Types.Pawns
             {
                 input = forward * _keyboardMovementInput.Y + right * _keyboardMovementInput.X;
                 input.NormalizeFast();
-                _movement.AddMovementInput(input * delta * _keyboardMovementInputMultiplier);
+                _movement.AddMovementInput(input * delta * KeyboardMovementInputMultiplier);
             }
             if (gamepadMovement)
             {
                 input = forward * _gamepadMovementInput.Y + right * _gamepadMovementInput.X;
-                _movement.AddMovementInput(input * delta * _gamePadMovementInputMultiplier);
+                _movement.AddMovementInput(input * delta * GamePadMovementInputMultiplier);
             }
             if (gamepadMovement || keyboardMovement)
                 _meshComp.Rotation.Yaw = _movement.FrameInputDirection.LookatAngles().Yaw + 180.0f;
@@ -160,26 +193,26 @@ namespace TheraEngine.Actors.Types.Pawns
             input.RegisterKeyEvent(EKey.Space, EButtonInputType.Pressed, Jump);
         }
         
-        private void MoveForward(bool pressed)
+        protected virtual void MoveForward(bool pressed)
             => _keyboardMovementInput.Y += pressed ? 1.0f : -1.0f;
-        private void MoveLeft(bool pressed)
+        protected virtual void MoveLeft(bool pressed)
             => _keyboardMovementInput.X += pressed ? -1.0f : 1.0f;
-        private void MoveRight(bool pressed)
+        protected virtual void MoveRight(bool pressed)
             => _keyboardMovementInput.X += pressed ? 1.0f : -1.0f;
-        private void MoveBackward(bool pressed)
+        protected virtual void MoveBackward(bool pressed)
             => _keyboardMovementInput.Y += pressed ? -1.0f : 1.0f;
 
-        private void Jump()
+        protected virtual void Jump()
             => _movement.Jump();
-        private void MoveRight(float value)
+        protected virtual void MoveRight(float value)
             => _gamepadMovementInput.X = value;
-        private void MoveForward(float value)
+        protected virtual void MoveForward(float value)
             => _gamepadMovementInput.Y = value;
 
-        private void Look(float x, float y)
+        protected virtual void Look(float x, float y)
         {
-            _viewRotation.Pitch += y * _mouseYLookInputMultiplier;
-            _viewRotation.Yaw -= x * _mouseXLookInputMultiplier;
+            _viewRotation.Pitch += y * MouseYLookInputMultiplier;
+            _viewRotation.Yaw -= x * MouseXLookInputMultiplier;
 
             //float yaw = _viewRotation.Yaw.RemapToRange(0.0f, 360.0f);
             //if (yaw < 45.0f || yaw >= 315.0f)
@@ -201,18 +234,19 @@ namespace TheraEngine.Actors.Types.Pawns
 
             //_fpCameraComponent.Camera.AddRotation(y, 0.0f);
         }
-        private void LookRight(float value)
+        protected virtual void LookRight(float value)
         {
-            _viewRotation.Yaw -= value * _gamePadXLookInputMultiplier;
+            _viewRotation.Yaw -= value * GamePadXLookInputMultiplier;
         }
-        private void LookUp(float value)
+        protected virtual void LookUp(float value)
         {
-            _viewRotation.Pitch += value * _gamePadYLookInputMultiplier;
+            _viewRotation.Pitch += value * GamePadYLookInputMultiplier;
         }
         protected override void PreConstruct()
         {
             _movement = Activator.CreateInstance<MovementClass>();
             _animationStateMachine = new AnimStateMachineComponent();
+            LogicComponents.Clear();
             LogicComponents.Add(_movement);
             LogicComponents.Add(_animationStateMachine);
         }

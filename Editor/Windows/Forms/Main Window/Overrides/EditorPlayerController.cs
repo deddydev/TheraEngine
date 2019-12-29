@@ -6,12 +6,9 @@ namespace TheraEditor
 {
     public class EditorPlayerController : LocalPlayerController
     {
-        public EditorPlayerController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null) : base(index, possessionQueue)
-        {
-            InheritControlledPawnCamera = true;
-            InheritControlledPawnHUD = true;
-        }
-        public EditorPlayerController(ELocalPlayerIndex index) : base(index)
+        public EditorPlayerController() : this(ELocalPlayerIndex.One) { }
+        public EditorPlayerController(ELocalPlayerIndex index) : this(index, null) { }
+        public EditorPlayerController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue) : base(index, possessionQueue)
         {
             InheritControlledPawnCamera = true;
             InheritControlledPawnHUD = true;

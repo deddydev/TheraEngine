@@ -4,7 +4,7 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Components.Logic.Animation
 {
-    public class SkelAnimDirectPose : SkelAnimPoseGenBase
+    public class SkelAnimDirectPose : PoseGenBase
     {
         [TSerialize]
         public GlobalFileRef<SkeletalAnimation> Animation { get; set; } = null;

@@ -52,7 +52,7 @@ namespace TheraEngine.Rendering.UI
         [TSerialize(nameof(TextQuality))]
         private TextRenderingHint _textQuality = TextRenderingHint.AntiAlias;
         [TSerialize(nameof(TextureResolutionMultiplier))]
-        private Vec2 _texRes = new Vec2(3.0f);
+        private Vec2 _texRes = new Vec2(1.0f);
         [TSerialize(nameof(TextDrawer))]
         private TextRasterizer _textDrawer;
 
@@ -91,8 +91,8 @@ namespace TheraEngine.Rendering.UI
         {
             base.OnResizeLayout(parentRegion);
 
-            int w = (int)(Width * TextureResolutionMultiplier.X);
-            int h = (int)(Height * TextureResolutionMultiplier.Y);
+            int w = (int)(ActualWidth * TextureResolutionMultiplier.X);
+            int h = (int)(ActualHeight * TextureResolutionMultiplier.Y);
             if (w != TextTexture.Width || h != TextTexture.Height)
             {
                 NeedsResize = new IVec2(w, h);

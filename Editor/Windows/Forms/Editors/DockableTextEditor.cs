@@ -1142,14 +1142,14 @@ namespace TheraEditor.Windows.Forms
         {
             ThreadPool.QueueUserWorkItem((o) => ReBuildObjectExplorer(TextBox.Text));
 
-            if (Mode == ETextEditorMode.GLSL)
-            {
-                var (Success, Output) = CompileGLSL();
-                if (!Success)
-                {
-                    Engine.PrintLine(Output);
-                }
-            }
+            //if (Mode == ETextEditorMode.GLSL)
+            //{
+            //    var (Success, Output) = CompileGLSL();
+            //    if (!Success)
+            //    {
+            //        Engine.PrintLine(Output);
+            //    }
+            //}
 
             //if (Mode == ETextEditorMode.GLSL)
             //{

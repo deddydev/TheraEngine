@@ -12,6 +12,7 @@ using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
 using Extensions;
 using static TheraEngine.Components.SceneComponent;
+using System.Diagnostics;
 
 namespace TheraEngine.Components
 {
@@ -74,7 +75,7 @@ namespace TheraEngine.Components
         void OnGotAudioListener();
 
         void RemovedFromParent();
-        void AddedToParent(ISocket parent, bool isParentSpawned);
+        void AddedToParent(ISocket parent);
     }
 
     /// <summary>
@@ -750,7 +751,7 @@ namespace TheraEngine.Components
         }
         protected virtual void OnChildAdded(ISceneComponent item)
         {
-            item.AddedToParent(this, IsSpawned);
+            item.AddedToParent(this);
         }
         void ISocket.SetParentInternal(ISocket parent) => _parent = parent;
         #endregion
@@ -935,29 +936,17 @@ namespace TheraEngine.Components
 
         public void RemovedFromParent()
         {
-            if (IsSpawned)
-                OnDespawned();
-
             ((ISocket)this).SetParentInternal(null);
             OwningActor = null;
             RecalcWorldTransform();
         }
 
-        public void AddedToParent(ISocket parent, bool isParentSpawned)
+        public void AddedToParent(ISocket parent)
         {
-            bool spawnedMismatch = isParentSpawned != IsSpawned;
-
+            Trace.WriteLine($"Added {this} to parent {parent}.");
             ((ISocket)this).SetParentInternal(parent);
             OwningActor = parent.OwningActor;
             RecalcWorldTransform();
-
-            if (spawnedMismatch)
-            {
-                if (isParentSpawned)
-                    OnSpawned();
-                else
-                    OnDespawned();
-            }
         }
     }
 }

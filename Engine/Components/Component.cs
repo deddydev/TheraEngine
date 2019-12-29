@@ -51,19 +51,11 @@ namespace TheraEngine.Components
         /// </summary>
         public virtual void OnSpawned()
         {
-            Animations?.ForEach(anim =>
-            {
-                if (anim.BeginOnSpawn)
-                    anim.Start();
-            });
+            StartAllAnimations(true);
         }
         public virtual void OnDespawned()
         {
-            Animations?.ForEach(anim =>
-            {
-                if (anim.State != Animation.EAnimationState.Stopped)
-                    anim.Stop();
-            });
+            StopAllAnimations();
         }
     }
 }

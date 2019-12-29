@@ -568,7 +568,7 @@
     </Compile>
     <Compile Include="Windows\Forms\Main Window\Overrides\EditorGameMode.cs" />
     <Compile Include="Windows\Forms\Main Window\Overrides\EditorPlayerController.cs" />
-    <Compile Include="Windows\Forms\Main Window\Overrides\EditorCameraPawn.cs" />
+    <Compile Include="Windows\Forms\Main Window\Overrides\WorldEditorCameraPawn.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -1244,7 +1244,7 @@
     <Compile Include="Windows\Forms\Main Window\Form\Editor_Designer.Designer.cs">
       <DependentUpon>Editor_Designer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Overrides\EditorUI.cs" />
+    <Compile Include="Windows\Forms\Main Window\Overrides\EditorUI3D.cs" />
     <Compile Include="EditorSettings.cs" />
     <Compile Include="Windows\Forms\Borderless Form\BorderlessFormBase.cs">
       <SubType>Form</SubType>
@@ -1269,7 +1269,7 @@
     <Compile Include="ContentTree\Controls\ResourceTree.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Overrides\EditorWorldRenderPanel.cs" />
+    <Compile Include="Windows\Forms\Main Window\Overrides\EditorWorldRenderHandler.cs" />
     <Compile Include="Windows\Forms\Main Window\Misc\UndoManager.cs" />
     <Compile Include="Windows\Forms\Editors\Texture Viewer\TextureViewerForm.cs">
       <SubType>Form</SubType>

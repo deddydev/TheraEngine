@@ -7,7 +7,7 @@ namespace TheraEngine.Core.Shapes
     /// <summary>
     /// Axis-aligned rectangle struct. Supports position, size, and a local origin. All translations are relative to the bottom left (0, 0), like a graph.
     /// </summary>
-    public class EventBoundingRectangleF
+    public class EventBoundingRectangleF : TObject
     {
         [TSerialize(nameof(Raw))]
         private BoundingRectangleF _raw;
@@ -15,12 +15,9 @@ namespace TheraEngine.Core.Shapes
         public BoundingRectangleF Raw
         {
             get => _raw;
-            set
-            {
-                _raw = value;
-            }
+            set => Set(ref _raw, value);
         }
-        
+
         /// <summary>
         /// The relative translation of the origin from the bottom left, as a percentage.
         /// 0,0 is bottom left, 0.5,0.5 is center, 1,1 is top right.

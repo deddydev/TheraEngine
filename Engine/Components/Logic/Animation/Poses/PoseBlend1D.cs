@@ -5,7 +5,7 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Components.Logic.Animation
 {
-    public class SkelAnimPoseBlend1D : SkelAnimPoseGenBase
+    public class SkelAnimPoseBlend1D : PoseGenBase
     {
         private class SkelAnimKeyframe : Keyframe
         {

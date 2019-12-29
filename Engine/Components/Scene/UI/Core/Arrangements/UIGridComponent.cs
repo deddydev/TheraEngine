@@ -10,12 +10,13 @@ namespace TheraEngine.Rendering.UI
 {
     public class UIGridComponent : UIBoundableComponent
     {
-        private EventList<SizingDefinition> _rows = new EventList<SizingDefinition>();
-        private EventList<SizingDefinition> _columns = new EventList<SizingDefinition>();
+        private EventList<SizingDefinition> _rows;
+        private EventList<SizingDefinition> _columns;
 
         public UIGridComponent()
         {
-
+            Rows = new EventList<SizingDefinition>();
+            Columns = new EventList<SizingDefinition>();
         }
 
         //Jagged array indexed by (row,col) of int lists.
@@ -97,22 +98,22 @@ namespace TheraEngine.Rendering.UI
 
             for (int i = 0; i < Rows.Count; i++)
             {
-                //var def = Rows[i];
-                //var comps = GetComponentsInRow(i);
-                //float rowHeight = 0.0f;
-                //foreach (var comp in comps)
-                //    if (comp is IUIBoundableComponent bc)
-                //        rowHeight = Math.Max(bc.CalcMaxHeight(), rowHeight);
+                var def = Rows[i];
+                var comps = GetComponentsInRow(i);
+                float rowHeight = 0.0f;
+                foreach (var comp in comps)
+                    if (comp is IUIBoundableComponent bc)
+                        rowHeight = Math.Max(bc.ActualHeight, rowHeight);
 
             }
             for (int i = 0; i < Columns.Count; i++)
             {
-                //var def = Rows[i];
-                //var comps = GetComponentsInColumn(i);
-                //float colWidth = 0.0f;
-                //foreach (var comp in comps)
-                //    if (comp is IUIBoundableComponent bc)
-                //        colWidth = Math.Max(bc.CalcMaxWidth(), colWidth);
+                var def = Rows[i];
+                var comps = GetComponentsInColumn(i);
+                float colWidth = 0.0f;
+                foreach (var comp in comps)
+                    if (comp is IUIBoundableComponent bc)
+                        colWidth = Math.Max(bc.ActualWidth, colWidth);
 
             }
 

@@ -74,15 +74,15 @@ namespace TheraEditor.Windows.Forms
                 _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize.Raw * selectedBounds.WorldMatrix.Scale.Xy;
         }
 
-        private Vec2 _previewResolution = new Vec2(1920, 1080);
-        public Vec2 PreviewResolution
+        private Vec2 _designSize = new Vec2(1920, 1080);
+        public Vec2 DesignSize
         {
-            get => _previewResolution;
+            get => _designSize;
             set
             {
-                _previewResolution = value;
+                _designSize = value;
                 if (_targetHud?.RootComponent is IUICanvasComponent canvas)
-                    canvas.Size.Raw = _previewResolution;
+                    canvas.Size.Raw = _designSize;
             }
         }
 
@@ -118,7 +118,7 @@ namespace TheraEditor.Windows.Forms
         {
             canvas.HorizontalAlignment = EHorizontalAlign.Positional;
             canvas.VerticalAlignment = EVerticalAlign.Positional;
-            canvas.Size.Raw = PreviewResolution;
+            canvas.Size.Raw = DesignSize;
             canvas.Translation.Raw = Vec3.Zero;
             canvas.Scale.Raw = Vec3.One;
         }
@@ -176,7 +176,7 @@ namespace TheraEditor.Windows.Forms
             else
             {
                 min = Vec2.Zero;
-                max = PreviewResolution;
+                max = DesignSize;
             }
             return true;
         }
@@ -185,13 +185,17 @@ namespace TheraEditor.Windows.Forms
             if (IsDragging)
                 return;
 
-            IUIComponent target = (_targetHud?.RootComponent as UICanvasComponent)?.FindDeepestComponent(CursorPositionWorld(), false);
+            UICanvasComponent canvas = _targetHud?.RootComponent as UICanvasComponent;
+            Vec2 pos = CursorPositionWorld();
+            IUIComponent target = canvas?.FindDeepestComponent(pos, false);
             if (target != _highlightedComp)
             {
                 //Engine.PrintLine(target?.Name ?? "Nothing selected");
 
                 if (target is UITransformComponent tc)
-                _highlightedComp = tc;
+                    _highlightedComp = tc;
+                else
+                    _highlightedComp = null;
 
                 if (_highlightedComp is UIBoundableComponent bound)
                     _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = bound.ActualSize.Raw * bound.WorldMatrix.Scale.Xy;
@@ -201,7 +205,8 @@ namespace TheraEditor.Windows.Forms
 
         protected override void HandleDragItem()
         {
-            Vec2 diff = GetWorldCursorDiff(CursorPosition());
+            Vec2 pos = CursorPosition();
+            Vec2 diff = GetWorldCursorDiff(pos);
             _dragComp.Translation.Raw += _dragComp.ScreenToLocal(diff, true);
         }
         protected override void AddRenderables(RenderPasses passes)

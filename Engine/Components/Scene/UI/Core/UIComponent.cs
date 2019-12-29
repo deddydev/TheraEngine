@@ -81,27 +81,29 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
+        public IUserInterfacePawn OwningUserInterface => OwningActor as IUserInterfacePawn;
+
         [Browsable(false)]
-        public new IUserInterfacePawn OwningActor
+        public override IActor OwningActor
         {
-            get => (IUserInterfacePawn)base.OwningActor;
+            get => base.OwningActor;
             set
             {
-                if (IsSpawned && this is I2DRenderable r)
-                {
-                    OwningActor?.RemoveRenderableComponent(r);
-                    value?.AddRenderableComponent(r);
-                }
-                base.OwningActor = value as BaseActor;
+                if (IsSpawned)
+                    OnDespawned();
+                
+                base.OwningActor = value as IActor;
 
-                //if (ParentSocket is null)
+                if (IsSpawned)
+                    OnSpawned();
+
                 InvalidateLayout();
             }
         }
 
         public void InvalidateLayout()
         {
-            OwningActor?.InvalidateLayout();
+            OwningUserInterface?.InvalidateLayout();
         }
 
         [Category("Rendering")]
@@ -143,23 +145,18 @@ namespace TheraEngine.Rendering.UI
         {
             base.OnSpawned();
             if (this is I2DRenderable r)
-                OwningActor?.AddRenderableComponent(r);
+                OwningUserInterface?.AddRenderableComponent(r);
         }
         public override void OnDespawned()
         {
             if (this is I2DRenderable r)
-                OwningActor?.RemoveRenderableComponent(r);
+                OwningUserInterface?.RemoveRenderableComponent(r);
             base.OnDespawned();
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             localTransform = Matrix4.Identity;
             inverseLocalTransform = Matrix4.Identity;
-        }
-        protected override void OnWorldTransformChanged()
-        {
-            InvalidateLayout();
-            base.OnWorldTransformChanged();
         }
 
         protected abstract void OnResizeLayout(BoundingRectangleF parentRegion);
@@ -270,8 +267,8 @@ namespace TheraEngine.Rendering.UI
             Engine.Renderer.RenderPoint(endPoint, ColorF4.White);
 
             //Vec3 scale = WorldMatrix.Scale;
-            Vec3 up = WorldMatrix.UpVec.NormalizedFast() * 50.0f;
-            Vec3 right = WorldMatrix.RightVec.NormalizedFast() * 50.0f;
+            Vec3 up = WorldMatrix.UpVec * 50.0f;
+            Vec3 right = WorldMatrix.RightVec * 50.0f;
 
             Engine.Renderer.RenderLine(endPoint, endPoint + up, Color.Green);
             Engine.Renderer.RenderLine(endPoint, endPoint + right, Color.Red);

@@ -5,16 +5,6 @@
     /// </summary>
     public class InteractableComponent : LogicComponent
     {
-        public struct Nothing
-        {
-            public int Whatever;
 
-            public int WhateverProp
-            {
-                get => Whatever;
-                set => Whatever = value;
-            }
-        }
-        public Nothing Thing { get; set; }
     }
 }

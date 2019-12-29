@@ -150,20 +150,20 @@ namespace TheraEngine.Actors
 
         private void HudUnloaded(IUserInterfacePawn obj)
         {
-            if (IsSpawned  && obj is BaseActor actor && actor.OwningWorld == OwningWorld)
+            if (IsSpawned  && obj is IActor actor && actor.OwningWorld == OwningWorld)
                 actor.Despawned();
             obj.OwningPawn = null;
         }
         private void HudLoaded(IUserInterfacePawn obj)
         {
             obj.OwningPawn = this;
-            if (IsSpawned && OwningWorld != null && obj is BaseActor actor)
+            if (IsSpawned && OwningWorld != null && obj is IActor actor)
                 actor.Spawned(OwningWorld);
         }
 
         protected override void OnSpawnedPreComponentSpawn()
         {
-            if (HUD?.File is BaseActor actor)
+            if (HUD?.File is IActor actor)
                 actor.Spawned(OwningWorld);
         }
         protected override void OnSpawnedPostComponentSpawn()

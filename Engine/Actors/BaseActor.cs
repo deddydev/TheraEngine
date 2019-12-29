@@ -196,14 +196,9 @@ namespace TheraEngine.Actors
             OnSpawnedPostComponentSpawn();
 
             //OnSpawned is called just after the actor is added to the actor list
-            _spawnIndex = world.SpawnedActorCount - 1;
+            _spawnIndex = world.SpawnedActorCount;
 
-            if (Animations != null && Animations.Count > 0)
-                Animations.ForEach(anim =>
-                {
-                    if (anim.BeginOnSpawn)
-                        anim.Start();
-                });
+            StartAllAnimations(true);
 
             SpawnTime = DateTime.Now;
             if (_lifeSpan > 0.0f)
@@ -212,11 +207,14 @@ namespace TheraEngine.Actors
                 RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             }
         }
+
         void IActor.Despawned() => Despawned();
         internal void Despawned()
         {
             if (!IsSpawned)
                 return;
+
+            StopAllAnimations();
 
             if (this is IPreRendered r)
                 OwningScene?.RemovePreRenderedObject(r);

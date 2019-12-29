@@ -6,7 +6,7 @@ namespace TheraEngine.Components.Logic.Animation
     /// <summary>
     /// Used to retrieve a final skeletal animation pose.
     /// </summary>
-    public abstract class SkelAnimPoseGenBase : TFileObject
+    public abstract class PoseGenBase : TFileObject
     {
         public AnimStateMachineComponent Owner { get; internal set; }
 

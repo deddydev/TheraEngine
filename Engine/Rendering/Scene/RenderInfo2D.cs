@@ -32,7 +32,8 @@ namespace TheraEngine.Rendering
         public I2DRenderable Owner { get; set; }
         [Browsable(false)]
         public IScene2D Scene { get; set; }
-
+        public bool IsAttachedToScene => Scene != null;
+        
         /// <summary>
         /// The axis-aligned bounding box for this UI component.
         /// </summary>

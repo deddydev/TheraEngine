@@ -151,7 +151,7 @@ namespace TheraEditor.Windows.Forms
             UITextRasterComponent comp = new UITextRasterComponent() { RenderTransformation = false };
             comp.RenderInfo.VisibleByDefault = true;
             comp.Size.Raw = new Vec2(width, height);
-            comp.TextureResolutionMultiplier = UIFont.Size;
+            //comp.TextureResolutionMultiplier = UIFont.Size;
 
             str = new UIString2D(initialText, UIFont, color, format);
             str.Region.Width = width;
@@ -223,7 +223,7 @@ namespace TheraEditor.Windows.Forms
             if (_xUnitText != null)
             {
                 float width = _xUnitText.Width;
-                _xUnitText.Translation.Y = origin.X - width / BaseTransformComponent.Scale.X;
+                _xUnitText.Translation.X = origin.X - width / BaseTransformComponent.Scale.X;
             }
             if (_yUnitText != null)
             {
@@ -310,7 +310,12 @@ namespace TheraEditor.Windows.Forms
             UpdateTextIncrements(unitCounts.X, _textCacheX, min.X, incX, true);
             UpdateTextIncrements(unitCounts.Y, _textCacheY, min.Y, incY, false);
         }
-        private void UpdateTextIncrements(float unitCount, Dictionary<string, (UITextRasterComponent, UIString2D)> textCache, float minimum, float increment, bool xCoord)
+        private void UpdateTextIncrements(
+            float unitCount,
+            Dictionary<string, (UITextRasterComponent, UIString2D)> textCache,
+            float minimum, 
+            float increment,
+            bool xCoord)
         {
             if (float.IsNaN(unitCount) || float.IsNaN(minimum) ||
                 float.IsInfinity(unitCount) || float.IsInfinity(minimum))

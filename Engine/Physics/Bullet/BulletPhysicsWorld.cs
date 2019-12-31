@@ -302,6 +302,9 @@ namespace TheraEngine.Physics
             _rayCallback.Handler = trace;
             _dynamicsWorld.RayTest(trace.StartPointWorld, trace.EndPointWorld, _rayCallback);
 
+            if (trace.DebugDraw)
+                PopulatingRayTraces.Enqueue(trace);
+
             return trace.HasHit;
         }
         private TConvexResultCallback _convexCallback = new TConvexResultCallback(null);
@@ -317,7 +320,10 @@ namespace TheraEngine.Physics
                 _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, _convexCallback, trace.AllowedCcdPenetration);
             else
                 _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, _convexCallback);
-            
+
+            if (trace.DebugDraw)
+                PopulatingShapeTraces.Enqueue(trace);
+
             return trace.HasHit;
         }
         private TContactResultCallback _contactCallback = new TContactResultCallback(null);

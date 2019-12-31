@@ -23,6 +23,8 @@ namespace TheraEngine.Core.Files
     }
     public interface IFileRef<T> : IFileLoader<T> where T : class, IFileObject
     {
+        event Action<T> Unloaded;
+
         bool IsLoaded { get; set; }
         bool StoredInternally { get; }
         bool LoadAttempted { get; }

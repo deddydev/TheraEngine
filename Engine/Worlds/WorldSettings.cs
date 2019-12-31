@@ -152,6 +152,9 @@ namespace TheraEngine.Worlds
         public float OriginRebaseRadius { get; set; } = 500.0f;
         [TSerialize]
         [Category("Editor Traits")]
+        public bool PreviewWorldBounds { get; set; } = true;
+        [TSerialize]
+        [Category("Editor Traits")]
         public bool PreviewOctrees { get; set; } = false;
         [TSerialize]
         [Category("Editor Traits")]

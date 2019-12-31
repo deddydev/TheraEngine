@@ -71,6 +71,7 @@ namespace TheraEngine.Animation
         public void Progress(float delta)
             => _tracks.Progress(delta);
         
+        //TODO: pool bone frames
         public BoneFrame GetFrame()
             => new BoneFrame(Name, _tracks.GetValues(), _tracks.EulerOrder);
         public BoneFrame GetFrame(float second)

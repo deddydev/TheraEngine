@@ -15,6 +15,7 @@ namespace TheraEngine
     {
         OpenGL,
         Direct3D11,
+        Vulkan,
     }
     public enum EAudioLibrary
     {

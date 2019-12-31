@@ -145,7 +145,7 @@ namespace TheraEngine.Rendering.Models
         //        Enabled = false,
         //    },
         //};
-        public void Render()
+        public void Render(bool shadowPass)
         {
             //_cullingVolume.Render();
             foreach (IBone b in BoneNameCache.Values)

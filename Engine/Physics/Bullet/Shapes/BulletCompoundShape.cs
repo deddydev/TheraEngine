@@ -1,6 +1,7 @@
 ﻿using System;
 using BulletSharp;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Physics.Bullet.Shapes
 {
@@ -50,5 +51,10 @@ namespace TheraEngine.Physics.Bullet.Shapes
         public override Vec3 CalculateLocalInertia(float mass)
             => Shape.CalculateLocalInertia(mass);
         #endregion
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+            
+        }
     }
 }

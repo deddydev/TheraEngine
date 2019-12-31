@@ -170,7 +170,7 @@ namespace TheraEngine.Actors.Types.Pawns
                 _movement.AddMovementInput(input * delta * GamePadMovementInputMultiplier);
             }
             if (gamepadMovement || keyboardMovement)
-                _meshComp.Rotation.Yaw = _movement.FrameInputDirection.LookatAngles().Yaw + 180.0f;
+                _meshComp.Rotation.Yaw = _movement.TargetFrameInputDirection.LookatAngles().Yaw + 180.0f;
         }
         public override void RegisterInput(InputInterface input)
         {

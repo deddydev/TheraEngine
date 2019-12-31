@@ -208,7 +208,7 @@ namespace TheraEngine.Core.Shapes
         public override BoundingBox GetAABB()
             => new BoundingBox(Radius, Center);
         
-        public override void Render()
+        public override void Render(bool shadowPass)
             => Engine.Renderer.RenderSphere(Center, Radius, RenderSolid, Color.Red);
 
         public override void SetTransformMatrix(Matrix4 matrix) 

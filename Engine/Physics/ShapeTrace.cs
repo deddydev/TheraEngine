@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
 
 namespace TheraEngine.Physics.ShapeTracing
@@ -9,7 +11,7 @@ namespace TheraEngine.Physics.ShapeTracing
     /// <summary>
     /// Provides information about a ray intersection.
     /// </summary>
-    public class ShapeCollisionResult
+    public class ShapeCollisionResult : TObjectSlim
     {
         public TCollisionObject CollisionObject { get; internal set; }
         public float HitFraction { get; internal set; }
@@ -35,7 +37,7 @@ namespace TheraEngine.Physics.ShapeTracing
             TriangleIndex = triangleIndex;
         }
     }
-    public abstract class ShapeTrace
+    public abstract class ShapeTrace : TObjectSlim
     {
         public TCollisionShape Shape { get; set; }
         public Matrix4 Start { get; set; }
@@ -45,6 +47,8 @@ namespace TheraEngine.Physics.ShapeTracing
         public TCollisionObject[] Ignored { get; set; }
         public float AllowedCcdPenetration { get; set; } = -1.0f;
         public abstract bool HasHit { get; }
+        public bool DebugDraw { get; set; } = true;
+        public ColorF4 DebugColor { get; set; } = Color.Magenta;
 
         public ShapeTrace(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)
         {
@@ -74,6 +78,7 @@ namespace TheraEngine.Physics.ShapeTracing
             => Engine.ShapeTrace(this, world);
         
         internal abstract void Reset();
+        public abstract void Render();
     }
 
     public abstract class ShapeTraceSingle : ShapeTrace
@@ -92,6 +97,12 @@ namespace TheraEngine.Physics.ShapeTracing
 
         public ShapeTraceSingle(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)
             : base(shape, start, end, collisionGroup, collidesWith, ignored) { }
+
+        public override void Render()
+        {
+            Shape.Render(Start, DebugColor, false);
+            Shape.Render(End, DebugColor, false);
+        }
     }
 
     public class ShapeTraceMulti : ShapeTrace
@@ -113,6 +124,12 @@ namespace TheraEngine.Physics.ShapeTracing
                 hitNormal = Vec3.TransformNormal(hitNormal, obj.WorldTransform);
             
             Results.Add(new ShapeCollisionResult(obj, hitFraction, hitNormal, hitPointWorld, shapePart, triangleIndex));
+        }
+
+        public override void Render()
+        {
+            Shape.Render(Start, DebugColor, false);
+            Shape.Render(End, DebugColor, false);
         }
     }
 

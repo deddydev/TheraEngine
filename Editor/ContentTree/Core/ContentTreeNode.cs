@@ -108,7 +108,7 @@ namespace TheraEditor.Wrappers
             get => _wrapper;
             protected set
             {
-                if (!RemotingServices.IsTransparentProxy(value) && AppDomainHelper.AppDomains.Length > 1)
+                if (value != null && !RemotingServices.IsTransparentProxy(value) && AppDomainHelper.AppDomains.Length > 1)
                     throw new InvalidOperationException("Content tree wrappers must exist in the other domain.");
 
                 _wrapper = value;

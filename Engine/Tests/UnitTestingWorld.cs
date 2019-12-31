@@ -469,7 +469,7 @@ namespace TheraEngine.Tests
         protected override void OnSpawnedPreComponentSpawn()
         {
             float length = 1.0f / RotationsPerSecond;
-            _methodAnim = new PropAnimMethod<Vec3>(1.0f / RotationsPerSecond, true, AnimTick);
+            _methodAnim = new PropAnimMethod<Vec3>(length, true, AnimTick);
             _animTree = new AnimationTree("RotationTrace", "Translation.Raw", _methodAnim);
             RootComponent.Animations = new EventList<AnimationTree>();
             _animTree.Group = ETickGroup.PostPhysics;
@@ -512,7 +512,7 @@ namespace TheraEngine.Tests
             }
         }
 
-        public void Render()
+        public void Render(bool shadowPass)
         {
             ColorF4 color = _hasHit ? Color.LimeGreen : Color.Red;
             Engine.Renderer.RenderLine(RootComponent.Translation, _drawPoint, color);

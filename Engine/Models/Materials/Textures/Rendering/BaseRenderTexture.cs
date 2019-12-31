@@ -57,12 +57,12 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         /// If true, this texture's data has been updated and needs to be pushed to the GPU.
         /// </summary>
         /// <returns></returns>
-        public bool RedrawQueued { get; private set; } = true;
+        public bool IsInvalidated { get; private set; } = true;
         /// <summary>
         /// Informs the renderer that this texture's data has been updated and needs to be pushed to the GPU.
         /// </summary>
         /// <returns></returns>
-        public bool QueueRedraw() => RedrawQueued = true;
+        public bool Invalidate() => IsInvalidated = true;
 
         public virtual void Bind()
         {
@@ -72,9 +72,9 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
                 if (id != NullBindingId)
                 {
                     Engine.Renderer.BindTexture(TextureTarget, id);
-                    if (RedrawQueued)
+                    if (IsInvalidated)
                     {
-                        RedrawQueued = false;
+                        IsInvalidated = false;
                         PushData();
                     }
                 }

@@ -71,7 +71,13 @@ namespace Extensions
         }
         public static void AddRange<T>(this IList<T> list, params T[] values)
         {
-            list.AddRange(values);
+            foreach (var item in values)
+                list.Add(item);
+        }
+        public static void AddRange<T>(this IList<T> list, IEnumerable<T> values)
+        {
+            foreach (var item in values)
+                list.Add(item);
         }
         public static IList<T> FillWith<T>(this IList<T> list, T value)
         {

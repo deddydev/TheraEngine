@@ -10,10 +10,10 @@ namespace TheraEngine.Worlds
     /// related to a particular instance of work.
     /// For example, main editor world, model editor world, a 2D UI world, etc
     /// </summary>
-    public class WorldManager : TObjectSlim
+    public class WorldManager : TObject
     {
         protected IWorld _targetWorld;
-        public IWorld World
+        public IWorld TargetWorld
         {
             get => _targetWorld;
             set
@@ -45,13 +45,13 @@ namespace TheraEngine.Worlds
         public int ID { get; internal set; }
 
         public async void LoadWorldFromPath(string filePath) 
-            => World = await TFileObject.LoadAsync<World>(filePath);
+            => TargetWorld = await TFileObject.LoadAsync<World>(filePath);
         public void UseEngineWorld() 
-            => World = null;
+            => TargetWorld = null;
 
-        public void GlobalUpdate() => World?.GlobalUpdate();
-        public void GlobalPreRender() => World?.GlobalPreRender();
-        public void GlobalSwap() => World?.GlobalSwap();
+        public void GlobalUpdate() => TargetWorld?.GlobalUpdate();
+        public void GlobalPreRender() => TargetWorld?.GlobalPreRender();
+        public void GlobalSwap() => TargetWorld?.GlobalSwap();
 
         public void AddContext(RenderContext ctx) => _contextAddQueue.Enqueue(ctx);
         public void RemoveContext(RenderContext ctx) => _contextRemoveQueue.Enqueue(ctx);

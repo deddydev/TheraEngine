@@ -78,6 +78,7 @@ namespace TheraEngine.Rendering.Text
             Region.SizeInt = size;
         }
 
+        public Vec2 ActualTextSize { get; private set; }
         public EventBoundingRectangleF Region { get; } = new EventBoundingRectangleF();
         internal SolidBrush Brush { get; private set; } = new SolidBrush(Color.White);
         internal TextRasterizer Parent { get; set; }
@@ -93,7 +94,7 @@ namespace TheraEngine.Rendering.Text
             set
             {
                 _text = value ?? string.Empty;
-                //Region.Extents = TextRenderer.MeasureText(_text, _font);
+                ActualTextSize = TextRenderer.MeasureText(_text, _font);
                 Parent?.TextChanged(this);
             }
         }

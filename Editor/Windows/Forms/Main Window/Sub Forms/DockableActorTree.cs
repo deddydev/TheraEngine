@@ -252,6 +252,8 @@ namespace TheraEditor.Windows.Forms
             if (CurrentSettings is null)
                 return;
 
+            AppDomainHelper.Sponsor(CurrentSettings);
+
             var maps = CurrentSettings.Maps;
             LinkMapsList(maps);
             CurrentSettings.PropertyChanged += Settings_PropertyChanged;
@@ -292,6 +294,8 @@ namespace TheraEditor.Windows.Forms
             Maps = maps;
             if (Maps is null)
                 return;
+
+            AppDomainHelper.Sponsor(Maps);
 
             Engine.PrintLine($"ActorTreeForm : Linking maps list, {Maps.Count} maps.");
 
@@ -475,7 +479,7 @@ namespace TheraEditor.Windows.Forms
         private void ctxActorTree_Opening(object sender, CancelEventArgs e)
         {
             TreeNode node = ActorTree.SelectedNode;
-            bool programmatic = !(node.Tag is IObject tobj) || tobj.ConstructedProgrammatically;
+            bool programmatic = !(node?.Tag is IObject tobj) || tobj.ConstructedProgrammatically;
 
             btnMoveUp.Visible = btnMoveDown.Visible = node?.Tag is TheraEngine.Components.IComponent;
             btnMoveDown.Enabled = btnMoveAsChildToSibNext.Enabled = node?.NextNode != null && !programmatic;

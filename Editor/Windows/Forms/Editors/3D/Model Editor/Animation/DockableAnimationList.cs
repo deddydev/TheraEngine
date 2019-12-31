@@ -40,7 +40,7 @@ namespace TheraEditor.Windows.Forms
             AnimStateMachineComponent machine = form.WorldManager?.TargetActor?.FindFirstLogicComponentOfType<AnimStateMachineComponent>();
             if (machine is null)
                 return;
-            machine.InitialState = new AnimState(new GlobalFileRef<PoseGenBase>(new SkelAnimDirectPose(anim)));
+            machine.InitialState = new AnimState(new GlobalFileRef<PoseGenBase>(new PoseDirect(anim)));
             theraPropertyGrid1.TargetObject = anim;
         }
 

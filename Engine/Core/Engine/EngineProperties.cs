@@ -636,7 +636,14 @@ namespace TheraEngine
                 if (proxy is null)
                     return;
 
-                DomainProxyDestroying?.Invoke(proxy);
+                try
+                {
+                    DomainProxyDestroying?.Invoke(proxy);
+                }
+                catch
+                {
+                    SafePrintLine($"{nameof(DomainProxyDestroying)} event threw an exception.");
+                }
                 proxy.Stop();
                 proxy.Stopped -= DomainProxy_Stopped;
 

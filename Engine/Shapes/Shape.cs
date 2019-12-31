@@ -127,7 +127,7 @@ namespace TheraEngine.Core.Shapes
         /// </summary>
         public abstract Matrix4 GetTransformMatrix();
         public abstract TShape HardCopy();
-        public abstract void Render();
+        public abstract void Render(bool shadowPass);
 
         private readonly RenderCommandMethod3D _rc;
         public void AddRenderables(RenderPasses passes, ICamera camera) 

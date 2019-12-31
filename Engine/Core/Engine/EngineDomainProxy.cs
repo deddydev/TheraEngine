@@ -550,7 +550,7 @@ namespace TheraEngine.Core
 
             Type t = typeof(T);
             var handler = Activator.CreateInstance(t, handlerArgs) as BaseRenderHandler;
-            Trace.WriteLine("CREATED RENDER HANDLER : " + t.GetFriendlyName());
+            Engine.PrintLine("CREATED RENDER HANDLER : " + t.GetFriendlyName());
 
             RenderContext ctx;
             switch (handler.RenderLibrary)

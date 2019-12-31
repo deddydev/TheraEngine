@@ -597,7 +597,7 @@ namespace TheraEngine.Core.Shapes
             => Collision.ClosestPointAABBPoint(Minimum, Maximum, point);
         public override TCollisionShape GetCollisionShape()
             => TCollisionBox.New(HalfExtents);
-        public override void Render()
+        public override void Render(bool shadowPass)
             => Engine.Renderer.RenderAABB(HalfExtents, Translation, RenderSolid, Color.Blue);
         public override BoundingBox GetAABB() => this;
         #endregion

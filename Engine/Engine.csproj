@@ -520,8 +520,9 @@
     <Compile Include="Animation\Property\Core\PropAnimVector.cs" />
     <Compile Include="Audio\AudioInstance.cs" />
     <Compile Include="Audio\OggFile.cs" />
+    <Compile Include="Components\Logic\Animation\Poses\PoseBlend.cs" />
     <Compile Include="Components\Logic\Animation\Poses\PoseBlend1D.cs" />
-    <Compile Include="Components\Logic\Animation\Poses\DirectPose.cs" />
+    <Compile Include="Components\Logic\Animation\Poses\PoseDirect.cs" />
     <Compile Include="Components\Logic\Animation\Poses\PoseGenBase.cs" />
     <Compile Include="Components\Logic\Animation\StateMachine\AnimState.cs" />
     <Compile Include="Components\Logic\Animation\StateMachine\AnimStateTransition.cs" />

@@ -25,19 +25,17 @@ namespace TheraEditor.Windows.Forms
         public ModelEditorWorldManager()
         {
             ModelEditorWorldRef = new LocalFileRef<World>(/*Engine.Files.WorldPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
-            ModelEditorWorldRef.Loaded += ModelEditorWorldRef_Loaded;
-            ModelEditorWorldRef.Unloaded += ModelEditorWorldRef_Unloaded;
         }
 
         private void ModelEditorWorldRef_Unloaded(World obj)
         {
-            if (obj == World)
-                World = null;
+            if (obj == TargetWorld)
+                TargetWorld = null;
         }
         private void ModelEditorWorldRef_Loaded(World world)
-            => World = world;
+            => TargetWorld = world;
 
-        private LocalFileRef<World> ModelEditorWorldRef;
+        private LocalFileRef<World> _modelEditorWorldRef;
 
         private bool _viewConstraints;
         private bool _viewCollisions;
@@ -56,7 +54,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _viewConstraints = value;
 
-                var physics = World?.PhysicsWorld3D;
+                var physics = TargetWorld?.PhysicsWorld3D;
                 if (physics != null)
                 {
                     physics.DrawConstraints = _viewConstraints;
@@ -121,6 +119,14 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
+        public LocalFileRef<World> ModelEditorWorldRef
+        {
+            get => _modelEditorWorldRef;
+            set => SetRef<World, LocalFileRef<World>>(
+                ref _modelEditorWorldRef, value,
+                ModelEditorWorldRef_Loaded, ModelEditorWorldRef_Unloaded);
+        }
+
         public async Task InitWorldAsync()
         {
             //bool fileDoesNotExist = !ModelEditorWorld.FileExists;
@@ -172,7 +178,7 @@ namespace TheraEditor.Windows.Forms
             FormTitleText = actor?.FilePath ?? actor?.Name ?? string.Empty;
 
             TargetActor = actor;
-            World.SpawnActor(TargetActor);
+            TargetWorld.SpawnActor(TargetActor);
             TargetActorLoaded?.Invoke(TargetActor);
         }
         public async void LoadModel(FileRef<StaticModel> staticModelRef)
@@ -192,7 +198,7 @@ namespace TheraEditor.Windows.Forms
 
             StaticMeshComponent comp = new StaticMeshComponent(stm);
             TargetActor = new Actor<StaticMeshComponent>(comp);
-            World.SpawnActor(TargetActor);
+            TargetWorld.SpawnActor(TargetActor);
             TargetActorLoaded?.Invoke(TargetActor);
         }
         public async void LoadModel(FileRef<SkeletalModel> skeletalModelRef)
@@ -215,7 +221,7 @@ namespace TheraEditor.Windows.Forms
             TargetActor = new Actor<SkeletalMeshComponent>(comp);
             AnimStateMachineComponent machine = new AnimStateMachineComponent(skm.SkeletonRef?.File);
             TargetActor.LogicComponents.Add(machine);
-            World.SpawnActor(TargetActor);
+            TargetWorld.SpawnActor(TargetActor);
             TargetActorLoaded?.Invoke(TargetActor);
         }
         public async void SetAnim(PropAnimVec3 vec3anim)
@@ -227,18 +233,18 @@ namespace TheraEditor.Windows.Forms
 
             Spline3DComponent comp = new Spline3DComponent(vec3anim);
             TargetActor = new Actor<Spline3DComponent>(comp);
-            World.SpawnActor(TargetActor);
+            TargetWorld.SpawnActor(TargetActor);
             TargetActorLoaded?.Invoke(TargetActor);
         }
         private async Task UsageChecksAsync()
         {
-            if (World is null)
+            if (TargetWorld is null)
                 await InitWorldAsync();
         }
         private void Shutdown()
         {
             if (TargetActor != null && TargetActor.IsSpawned)
-                World.DespawnActor(TargetActor);
+                TargetWorld.DespawnActor(TargetActor);
         }
 
         public void OnShown() { }

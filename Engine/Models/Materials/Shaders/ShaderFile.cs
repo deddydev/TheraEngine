@@ -41,40 +41,38 @@ namespace TheraEngine.Rendering.Models.Materials
             Type = type;
             Text = source;
         }
-        public override void ManualRead3rdParty(string filePath)
+        public static EGLSLType ResolveType(string extension)
         {
-            base.ManualRead3rdParty(filePath);
-            string ext = Path.GetExtension(filePath).ToLowerInvariant();
-            if (ext.StartsWith("."))
-                ext = ext.Substring(1);
-            switch (ext)
+            extension = extension.ToLowerInvariant();
+            if (extension.StartsWith("."))
+                extension = extension.Substring(1);
+            switch (extension)
             {
                 default:
                 case "fs":
                 case "frag":
-                    Type = EGLSLType.Fragment;
-                    break;
+                    return EGLSLType.Fragment;
                 case "vs":
                 case "vert":
-                    Type = EGLSLType.Vertex;
-                    break;
+                    return EGLSLType.Vertex;
                 case "gs":
                 case "geom":
-                    Type = EGLSLType.Geometry;
-                    break;
+                    return EGLSLType.Geometry;
                 case "tcs":
                 case "tesc":
-                    Type = EGLSLType.TessControl;
-                    break;
+                    return EGLSLType.TessControl;
                 case "tes":
                 case "tese":
-                    Type = EGLSLType.TessEvaluation;
-                    break;
+                    return EGLSLType.TessEvaluation;
                 case "cs":
                 case "comp":
-                    Type = EGLSLType.Compute;
-                    break;
+                    return EGLSLType.Compute;
             }
+        }
+        public override void ManualRead3rdParty(string filePath)
+        {
+            base.ManualRead3rdParty(filePath);
+            Type = ResolveType(Path.GetExtension(filePath));
         }
         #endregion
     }

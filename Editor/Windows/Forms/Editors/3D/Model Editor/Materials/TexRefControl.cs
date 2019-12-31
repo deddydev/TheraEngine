@@ -21,7 +21,7 @@ namespace TheraEditor.Windows.Forms
                 if (tref2d.Mipmaps != null &&
                     tref2d.Mipmaps.Length > 0 &&
                     tref2d.Mipmaps[0] != null)
-                    tref2d.Mipmaps[0].Loaded += (OnMipLoaded);
+                    tref2d.Mipmaps[0].Loaded += OnMipLoaded;
                 else
                     texThumbnail.Image = null;
 

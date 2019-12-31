@@ -14,11 +14,11 @@ namespace TheraEditor
 
         private void PreWorldChanged()
         {
-            World = null;
+            TargetWorld = null;
         }
         private void PostWorldChanged()
         {
-            World = Engine.World;
+            TargetWorld = Engine.World;
         }
     }
 }

@@ -31,7 +31,6 @@ namespace TheraEditor.Windows.Forms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.RenderPanel = new RenderPanel<PropAnimFloatGraphRenderHandler>();
             this.dockingHostToolStripPanel1 = new TheraEditor.Windows.Forms.DockingHostToolStripPanel();
             this.tsPropAnimFloat = new TheraEditor.Windows.Forms.TearOffToolStrip();
             this.toolStripDropDownButton2 = new System.Windows.Forms.ToolStripDropDownButton();
@@ -46,14 +45,6 @@ namespace TheraEditor.Windows.Forms
             this.dockingHostToolStripPanel1.SuspendLayout();
             this.tsPropAnimFloat.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // RenderPanel
-            // 
-            this.RenderPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.RenderPanel.Location = new System.Drawing.Point(0, 25);
-            this.RenderPanel.Name = "RenderPanel";
-            this.RenderPanel.Size = new System.Drawing.Size(667, 383);
-            this.RenderPanel.TabIndex = 0;
             // 
             // dockingHostToolStripPanel1
             // 
@@ -186,7 +177,6 @@ namespace TheraEditor.Windows.Forms
 
         #endregion
 
-        private RenderPanel<PropAnimFloatGraphRenderHandler> RenderPanel;
         private DockingHostToolStripPanel dockingHostToolStripPanel1;
         private TearOffToolStrip tsPropAnimFloat;
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton2;

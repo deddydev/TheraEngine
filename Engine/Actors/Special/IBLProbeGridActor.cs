@@ -241,7 +241,7 @@ namespace TheraEngine.Actors
         {
             passes.Add(_rc);
         }
-        private void Render()
+        private void Render(bool shadowPass)
         {
             if (_cells is null)
                 return;

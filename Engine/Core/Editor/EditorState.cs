@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine.Components.Scene;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
@@ -55,6 +56,12 @@ namespace TheraEngine.Editor
 
         //Contains information about the default value for each member.
         public Dictionary<string, object> MemberDefaults { get; set; }
+
+        /// <summary>
+        /// The object that this object in the world originates from.
+        /// Can be used to reset object values to default.
+        /// </summary>
+        public IFileObject ReferenceObject { get; set; }
 
         public IObject Object { get; internal set; }
         public bool HasChanges => _changedProperties.Count > 0;

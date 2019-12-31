@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Physics
 {
@@ -27,6 +28,8 @@ namespace TheraEngine.Physics
         public abstract Vec3 CalculateLocalInertia(float mass);
 
         public abstract void Dispose();
+
+        public abstract void Render(Matrix4 worldTransform, ColorF4 color, bool solid);
     }
     public abstract class TCollisionSphere : TCollisionShape
     {
@@ -34,6 +37,11 @@ namespace TheraEngine.Physics
 
         public static TCollisionSphere New(float radius)
             => Engine.Physics.NewSphere(radius);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+            Engine.Renderer.RenderSphere(worldTransform.Translation, Radius, solid, color);
+        }
     }
     public abstract class TCollisionBox : TCollisionShape
     {
@@ -43,6 +51,11 @@ namespace TheraEngine.Physics
             => New(new Vec3(halfExtentsX, halfExtentsY, halfExtentsZ));
         public static TCollisionBox New(Vec3 halfExtents)
             => Engine.Physics.NewBox(halfExtents);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+            Engine.Renderer.RenderBox(HalfExtents, worldTransform, solid, color);
+        }
     }
 
     #region Cone
@@ -53,6 +66,11 @@ namespace TheraEngine.Physics
         
         public static TCollisionConeX New(float radius, float height)
             => Engine.Physics.NewConeX(radius, height);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+
+        }
     }
     public abstract class TCollisionConeY : TCollisionShape
     {
@@ -61,6 +79,11 @@ namespace TheraEngine.Physics
 
         public static TCollisionConeY New(float radius, float height)
             => Engine.Physics.NewConeY(radius, height);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+
+        }
     }
     public abstract class TCollisionConeZ : TCollisionShape
     {
@@ -69,6 +92,11 @@ namespace TheraEngine.Physics
 
         public static TCollisionConeZ New(float radius, float height)
             => Engine.Physics.NewConeZ(radius, height);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+
+        }
     }
     #endregion
 
@@ -80,6 +108,11 @@ namespace TheraEngine.Physics
 
         public static TCollisionCylinderX New(float radius, float height)
             => Engine.Physics.NewCylinderX(radius, height);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+
+        }
     }
     public abstract class TCollisionCylinderY : TCollisionShape
     {
@@ -88,6 +121,11 @@ namespace TheraEngine.Physics
 
         public static TCollisionCylinderY New(float radius, float height)
             => Engine.Physics.NewCylinderY(radius, height);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+
+        }
     }
     public abstract class TCollisionCylinderZ : TCollisionShape
     {
@@ -96,6 +134,11 @@ namespace TheraEngine.Physics
         
         public static TCollisionCylinderZ New(float radius, float height)
             => Engine.Physics.NewCylinderZ(radius, height);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+
+        }
     }
     #endregion
 
@@ -119,6 +162,11 @@ namespace TheraEngine.Physics
         /// <returns>A new capsule with height aligned to the X axis.</returns>
         public static TCollisionCapsuleX New(float radius, float height)
             => Engine.Physics.NewCapsuleX(radius, height);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+
+        }
     }
     public abstract class TCollisionCapsuleY : TCollisionShape
     {
@@ -139,6 +187,11 @@ namespace TheraEngine.Physics
         /// <returns>A new capsule with height aligned to the Y axis.</returns>
         public static TCollisionCapsuleY New(float radius, float height)
             => Engine.Physics.NewCapsuleY(radius, height);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+            Engine.Renderer.RenderCapsule(worldTransform, Vec3.UnitY, Radius, Height * 0.5f, solid, color);
+        }
     }
     public abstract class TCollisionCapsuleZ : TCollisionShape
     {
@@ -159,6 +212,11 @@ namespace TheraEngine.Physics
         /// <returns>A new capsule with height aligned to the Z axis.</returns>
         public static TCollisionCapsuleZ New(float radius, float height)
             => Engine.Physics.NewCapsuleZ(radius, height);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+
+        }
     }
     #endregion
 
@@ -171,6 +229,11 @@ namespace TheraEngine.Physics
     {
         public static TCollisionConvexHull New(IEnumerable<Vec3> points)
             => Engine.Physics.NewConvexHull(points);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+
+        }
     }
 
     public abstract class TCollisionHeightField : TCollisionShape
@@ -205,5 +268,10 @@ namespace TheraEngine.Physics
                 upAxis,
                 heightDataType,
                 flipQuadEdges);
+
+        public override void Render(Matrix4 worldTransform, ColorF4 color, bool solid)
+        {
+
+        }
     }
 }

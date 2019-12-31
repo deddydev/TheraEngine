@@ -85,53 +85,45 @@ namespace TheraEditor.Windows.Forms
             get => _targetAnimation;
             set
             {
-                if (_targetAnimation != null)
+                if (Set(ref _targetAnimation, value,
+                    () =>
+                    {
+                        _targetAnimation.Keyframes.Changed -= OnChanged;
+                        //_targetAnimation.SpeedChanged -= OnSpeedChanged;
+                        _targetAnimation.ConstrainKeyframedFPSChanged -= OnConstrainKeyframedFPSChanged;
+                        _targetAnimation.BakedFPSChanged -= OnBakedFPSChanged;
+                        _targetAnimation.LengthChanged -= _position_LengthChanged;
+                        _targetAnimation.CurrentPositionChanged -= OnCurrentPositionChanged;
+                    },
+                    () =>
+                    {
+                        _targetAnimation.Keyframes.Changed += OnChanged;
+                        //_targetAnimation.SpeedChanged += OnSpeedChanged;
+                        _targetAnimation.ConstrainKeyframedFPSChanged += OnConstrainKeyframedFPSChanged;
+                        _targetAnimation.BakedFPSChanged += OnBakedFPSChanged;
+                        _targetAnimation.LengthChanged += _position_LengthChanged;
+                        _targetAnimation.CurrentPositionChanged += OnCurrentPositionChanged;
+                        _targetAnimation.TickSelf = true;
+                        _targetAnimation.Progress(0.0f);
+                    }))
                 {
-                    _targetAnimation.Keyframes.Changed -= OnChanged;
-                    //_targetAnimation.SpeedChanged -= OnSpeedChanged;
-                    _targetAnimation.ConstrainKeyframedFPSChanged -= OnConstrainKeyframedFPSChanged;
-                    _targetAnimation.BakedFPSChanged -= OnBakedFPSChanged;
-                    _targetAnimation.LengthChanged -= _position_LengthChanged;
-                    _targetAnimation.CurrentPositionChanged -= OnCurrentPositionChanged;
-                }
-                _targetAnimation = value;
-                if (_targetAnimation != null)
-                {
-                    _targetAnimation.Keyframes.Changed += OnChanged;
-                    //_targetAnimation.SpeedChanged += OnSpeedChanged;
-                    _targetAnimation.ConstrainKeyframedFPSChanged += OnConstrainKeyframedFPSChanged;
-                    _targetAnimation.BakedFPSChanged += OnBakedFPSChanged;
-                    _targetAnimation.LengthChanged += _position_LengthChanged;
-                    _targetAnimation.CurrentPositionChanged += OnCurrentPositionChanged;
-                    _targetAnimation.TickSelf = true;
-                    _targetAnimation.Progress(0.0f);
-
                     ZoomExtents();
+                    RegenerateSplinePrimitive();
                 }
-                RegenerateSplinePrimitive();
             }
         }
 
         private async void OnBakedFPSChanged(BasePropAnimBakeable obj)
-        {
-            await RegenerateSplinePrimitiveAsync();
-        }
+            => await RegenerateSplinePrimitiveAsync();
         private async void _position_LengthChanged(BaseAnimation obj)
-        {
-            await RegenerateSplinePrimitiveAsync();
-        }
+            => await RegenerateSplinePrimitiveAsync();
         private async void OnConstrainKeyframedFPSChanged(PropAnimVector<float, FloatKeyframe> obj)
-        {
-            await RegenerateSplinePrimitiveAsync();
-        }
-        private void OnChanged(BaseKeyframeTrack obj)
-        {
-            UpdateSplinePrimitive();
-        }
+            => await RegenerateSplinePrimitiveAsync();
+        private void OnChanged(BaseKeyframeTrack obj) 
+            => UpdateSplinePrimitive();
         private void OnSpeedChanged(BaseAnimation obj)
-        {
-            UpdateSplinePrimitive();
-        }
+            => UpdateSplinePrimitive();
+
         const float Resolution = 1.0f;
         private float MinSec { get; set; }
         private float VisibleSecRange { get; set; }
@@ -243,8 +235,6 @@ namespace TheraEditor.Windows.Forms
             => await Task.Run((Action)RegenerateSplinePrimitive);
         public void RegenerateSplinePrimitive()
         {
-            //while (_regenerating) { }
-            
             _regenerating = true;
             _rcKeyframeInOutPositions.Mesh?.Dispose();
             _rcKeyframeInOutPositions.Mesh = null;
@@ -428,24 +418,8 @@ void main()
             BaseTransformComponent.InvalidateLayout();
         }
         private bool _redrewLastMove = false;
-        protected override void ResizeLayout()
+        protected override void BaseTransformComponent_WorldTransformChanged(ISceneComponent obj)
         {
-            Vec3 animPos;
-            if (_targetAnimation != null)
-            {
-                RenderAnimPosition = true;
-                animPos = new Vec3(_targetAnimation.CurrentTime, GetCurrentPosition(), 0.0f);
-                _xCoord.Translation.X = animPos.X;
-                _yCoord.Translation.Y = animPos.Y;
-            }
-            else
-            {
-                RenderAnimPosition = false;
-                animPos = Vec3.Zero;
-            }
-
-            base.ResizeLayout();
-
             Matrix4 mtx = BaseTransformComponent.WorldMatrix;
 
             _rcKfLines.WorldMatrix =
@@ -453,8 +427,19 @@ void main()
             _rcKeyframeInOutPositions.WorldMatrix =
             _rcTangentPositions.WorldMatrix = mtx;
 
-            if (RenderAnimPosition)
+            if (RenderAnimPosition = _targetAnimation != null)
+            {
+                Vec3 animPos = new Vec3(_targetAnimation.CurrentTime, GetCurrentPosition(), 0.0f);
+                _xCoord.Translation.X = animPos.X;
+                _yCoord.Translation.Y = animPos.Y;
                 AnimPositionWorld = Vec3.TransformPosition(animPos, mtx).Xy;
+            }
+            else
+            {
+                _xCoord.Translation.X = 0.0f;
+                _yCoord.Translation.Y = 0.0f;
+                AnimPositionWorld = mtx.TranslationXy;
+            }
 
             Vec2 origin = GetViewportBottomLeftWorldSpace();
             _xCoord.Translation.Y = origin.Y;
@@ -469,7 +454,14 @@ void main()
                 UpdateSplinePrimitive();
                 _redrewLastMove = shouldRedraw;
             }
+
+            base.BaseTransformComponent_WorldTransformChanged(obj);
         }
+        //protected override void ResizeLayout()
+        //{
+        //    base.ResizeLayout();
+
+        //}
 
         protected float _moveTimeLeft = 0.0f;
         protected float _moveTimeRight = 0.0f;
@@ -617,7 +609,7 @@ void main()
 
                     if (!nullTrack)
                     {
-                        var prevKf = track.GetKeyBefore(sec, false, false);
+                        var prevKf = track.GetKeyBefore(sec);
                         var nextKf = prevKf?.Next;
                         if (prevKf != null && prevKf.Second.EqualTo(sec, 0.01f))
                         {

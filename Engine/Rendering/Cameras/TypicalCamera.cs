@@ -255,9 +255,9 @@ namespace TheraEngine.Rendering.Cameras
             program.Uniform(EEngineUniform.CameraFarZ, FarZ);
         }
         
-        public override void Render()
+        public override void Render(bool shadowPass)
         {
-            base.Render();
+            base.Render(shadowPass);
             if (_viewTarget != null)
                 Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Raw, Color.DarkGray, false, 1.0f);
         }

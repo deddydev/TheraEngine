@@ -59,7 +59,7 @@ namespace TheraEngine.Core.Shapes
         public float GetTotalTopHeight() => _topHeight + _topRadius;
         public float GetTotalBottomHeight() => _bottomHeight + _bottomRadius;
         public float GetTotalHeight() => GetTotalTopHeight() + GetTotalBottomHeight();
-        public override void Render()
+        public override void Render(bool shadowPass)
         {
             //Engine.Renderer.RenderCapsule(_center, _upAxis, _topHeight, _topRadius, _bottomHeight, _bottomRadius, Matrix4.Identity, _renderSolid);
         }

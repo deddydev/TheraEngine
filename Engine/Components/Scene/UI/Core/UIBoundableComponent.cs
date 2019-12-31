@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Components;
@@ -39,6 +40,9 @@ namespace TheraEngine.Rendering.UI
         IUIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis);
         List<IUIBoundableComponent> FindAllIntersecting(Vec2 worldPoint, bool includeThis);
         void FindAllIntersecting(Vec2 worldPoint, bool includeThis, List<IUIBoundableComponent> results);
+
+        float GetHeight();
+        float GetWidth();
     }
     /// <summary>
     /// Only applies if the parent is a UIBoundableComponent.
@@ -425,5 +429,11 @@ namespace TheraEngine.Rendering.UI
             if (item is IUIComponent c)
                 c.RenderInfo.LayerIndex = RenderInfo.LayerIndex;
         }
+
+        public virtual float GetHeight()
+            => Height.Clamp(MinHeight, MaxHeight);
+
+        public virtual float GetWidth()
+            => Width.Clamp(MinWidth, MaxWidth);
     }
 }

@@ -943,7 +943,7 @@ namespace TheraEngine.Components
 
         public void AddedToParent(ISocket parent)
         {
-            Trace.WriteLine($"Added {this} to parent {parent}.");
+            //Trace.WriteLine($"Added {this} to parent {parent}.");
             ((ISocket)this).SetParentInternal(parent);
             OwningActor = parent.OwningActor;
             RecalcWorldTransform();

@@ -28,7 +28,7 @@ namespace TheraEngine
         /// <summary>
         /// The self-contained world for items displayed by this render panel.
         /// </summary>
-        public override IWorld World => WorldManager?.World;
+        public override IWorld World => WorldManager?.TargetWorld;
         public override UIGameModeType GameMode { get; }
         public UIPawnType UI { get; }
 

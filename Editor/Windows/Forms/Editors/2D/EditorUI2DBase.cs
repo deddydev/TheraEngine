@@ -109,12 +109,6 @@ namespace TheraEditor.Windows.Forms
             return baseUI;
         }
 
-        protected override void ResizeLayout()
-        {
-            base.ResizeLayout();
-            UpdateBackgroundMaterial();
-        }
-
         public Vec2 GetViewportBottomLeftWorldSpace()
             => Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
         public Vec2 GetViewportTopRightWorldSpace()
@@ -126,13 +120,13 @@ namespace TheraEditor.Windows.Forms
         }
         protected virtual TMaterial GetBackgroundMaterial()
         {
-            GLSLScript frag = Engine.Files.Shader("MaterialEditorGraphBG.fs", EGLSLType.Fragment);
+            GLSLScript frag = Engine.Files.Shader("MaterialEditorGraphBG.fs");
             return new TMaterial("MatEditorGraphBG", new ShaderVar[]
             {
                 new ShaderVec3(new Vec3(0.15f, 0.15f, 0.15f), "LineColor"),
                 new ShaderVec3(new Vec3(0.08f, 0.08f, 0.08f), "BGColor"),
                 new ShaderFloat(BaseTransformComponent.Scale.X, "Scale"),
-                new ShaderFloat(3.0f, "LineWidth"),
+                new ShaderFloat(2.0f, "LineWidth"),
                 new ShaderVec2(BaseTransformComponent.ActualTranslation.Raw, "Translation"),
                 new ShaderFloat(UnitIncrementX, "XYIncrement"),
             },
@@ -217,7 +211,7 @@ namespace TheraEditor.Windows.Forms
                 BaseTransformComponent.Scale.Xy = TMath.Min(Bounds.X, Bounds.Y) / (UnitIncrementX * InitialVisibleBoxes);
             }
         }
-        private void BaseTransformComponent_WorldTransformChanged(ISceneComponent obj)
+        protected virtual void BaseTransformComponent_WorldTransformChanged(ISceneComponent obj)
         {
             Vec2 origin = GetViewportTopRightWorldSpace();
             if (_xUnitText != null)
@@ -231,8 +225,9 @@ namespace TheraEditor.Windows.Forms
                 _yUnitText.Translation.Y = origin.Y - height / BaseTransformComponent.Scale.Y;
             }
             UpdateTextScale();
-            UpdateIntervals();
-            UpdateTextIncrements();
+            CalcIntervals();
+            DisplayIntervals();
+            UpdateBackgroundMaterial();
         }
         public override void Resize(Vec2 bounds)
         {
@@ -241,7 +236,7 @@ namespace TheraEditor.Windows.Forms
             //TODO: zoom extents of the previous bounds with no scale instead of the target's bounds
             ZoomExtents(false);
         }
-        public void UpdateIntervals()
+        public void CalcIntervals()
         {
             if (BaseTransformComponent.Scale.X.EqualTo(0.0f, 0.00001f))
                 return;
@@ -296,26 +291,42 @@ namespace TheraEditor.Windows.Forms
             return inc;
         }
 
-        private void UpdateTextIncrements()
+        private void DisplayIntervals()
         {
             float incX = UnitIncrementX * 2.0f;
             float incY = UnitIncrementY * 2.0f;
 
-            Vec2 min = Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
-            min.X = min.X.RoundedToNearestMultiple(incX);
-            min.Y = min.Y.RoundedToNearestMultiple(incY);
+            GetViewportBoundsWorldSpace(out Vec2 viewMin, out Vec2 viewMax);
+            Vec2 intervalStart = new Vec2(
+                viewMin.X.RoundedToNearestMultiple(incX), 
+                viewMin.Y.RoundedToNearestMultiple(incY));
 
             Vec2 unitCounts = Bounds.Raw / (new Vec2(incX, incY) * BaseTransformComponent.Scale.Xy) + Vec2.One;
 
-            UpdateTextIncrements(unitCounts.X, _textCacheX, min.X, incX, true);
-            UpdateTextIncrements(unitCounts.Y, _textCacheY, min.Y, incY, false);
+            UpdateTextIncrements(
+                unitCounts.X, 
+                _textCacheX, 
+                intervalStart.X, 
+                incX, true, 
+                viewMin.Y * BaseTransformComponent.Scale.X, 
+                viewMax.Y * BaseTransformComponent.Scale.X);
+
+            UpdateTextIncrements(
+                unitCounts.Y, 
+                _textCacheY, 
+                intervalStart.Y,
+                incY, false, 
+                viewMin.X * BaseTransformComponent.Scale.X,
+                viewMax.X * BaseTransformComponent.Scale.X);
         }
         private void UpdateTextIncrements(
             float unitCount,
             Dictionary<string, (UITextRasterComponent, UIString2D)> textCache,
             float minimum, 
             float increment,
-            bool xCoord)
+            bool xCoord,
+            float minView,
+            float maxView)
         {
             if (float.IsNaN(unitCount) || float.IsNaN(minimum) ||
                 float.IsInfinity(unitCount) || float.IsInfinity(minimum))
@@ -333,14 +344,14 @@ namespace TheraEditor.Windows.Forms
                     return (value, vstr);
                 }).ToDictionary(x => x.vstr, x => x.value);
 
-                bool isUsed(string key) => visible.ContainsKey(key);
+                bool IsVisible(string key) => visible.ContainsKey(key);
 
                 UITextRasterComponent comp;
                 UIString2D str;
 
                 foreach (var key in allKeys)
                 {
-                    if (isUsed(key))
+                    if (IsVisible(key))
                     {
                         //Visible, and in cache?
                         if (textCache.ContainsKey(key))
@@ -353,7 +364,7 @@ namespace TheraEditor.Windows.Forms
                         else
                         {
                             //Not in cache, find an unused cache item
-                            var unusedKey = textCache.FirstOrDefault(x => !isUsed(x.Key)).Key;
+                            var unusedKey = textCache.FirstOrDefault(x => !IsVisible(x.Key)).Key;
                             if (unusedKey != null)
                             {
                                 var value = textCache[unusedKey];
@@ -367,7 +378,7 @@ namespace TheraEditor.Windows.Forms
                             {
                                 //Not in cache, none unused
                                 //Need more cached text components
-                                comp = ConstructText(new ColorF3(0.4f), "0", "-0000.000", out str);
+                                comp = ConstructText(new ColorF3(0.4f), key, "-0000.000", out str);
                                 textCache.Add(key, (comp, str));
                             }
                         }
@@ -375,13 +386,24 @@ namespace TheraEditor.Windows.Forms
                         var pos = visible[key];
                         if (xCoord)
                         {
-                            comp.Translation.Xy = new Vec2(pos, 0.0f);
+                            float y = 0.0f;
+                            if (y < minView)
+                                y = minView / BaseTransformComponent.Scale.X;
+                            float height = comp.TextDrawer.Text[0].ActualTextSize.Y;
+                            if (y + height > maxView)
+                                y = (maxView - height) / BaseTransformComponent.Scale.X;
+                            comp.Translation.Xy = new Vec2(pos, y);
                         }
                         else
                         {
-                            comp.Translation.Xy = new Vec2(0.0f, pos);
+                            float x = 0.0f;
+                            if (x < minView)
+                                x = minView / BaseTransformComponent.Scale.X;
+                            float width = comp.TextDrawer.Text[0].ActualTextSize.X;
+                            if (x + width > maxView)
+                                x = (maxView - width) / BaseTransformComponent.Scale.X;
+                            comp.Translation.Xy = new Vec2(x, pos);
                         }
-
                         comp.RenderInfo.Visible = true;
                     }
                     else

@@ -45,7 +45,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         public BoomComponent() : base() { _rc = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render); }
 
-        private void Render()
+        private void Render(bool shadowPass)
         {
             Engine.Renderer.RenderSphere(WorldPoint, _traceShape.Radius, false, Color.Black);
             Engine.Renderer.RenderLine(ParentMatrix.Translation, WorldPoint, Color.Black);

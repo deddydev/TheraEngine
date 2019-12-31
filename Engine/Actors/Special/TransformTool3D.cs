@@ -968,7 +968,7 @@ namespace TheraEngine.Actors.Types
 
         //UIString2D _xText, _yText, _zText;
 
-        private void Render()
+        private void Render(bool shadowPass)
         {
             //if (_hiCam || _hiSphere || _hiAxis.Any)
             //{

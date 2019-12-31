@@ -21,7 +21,7 @@ namespace TheraEngine.Core.Shapes
         public Sphere GetBottomSphere()
             => new Sphere(Radius, GetBottomCenterPoint());
 
-        public override void Render()
+        public override void Render(bool shadowPass)
         {
             Engine.Renderer.RenderCapsule(_center.AsTranslationMatrix(), _upAxis, _radius, _halfHeight, RenderSolid, Color.Red);
         }

@@ -2,9 +2,7 @@
 using System.Drawing;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
@@ -215,7 +213,7 @@ namespace TheraEditor.Windows.Forms
             {
                 Matrix4 mtx = _selectedComp.WorldMatrix;
                 if (_selectedComp is UIBoundableComponent bound)
-                    mtx = mtx * Matrix4.CreateScale(bound.Width, bound.Height, 0.0f);
+                    mtx = mtx * Matrix4.CreateScale(bound.ActualWidth, bound.ActualHeight, 0.0f);
 
                 _selectedRC.WorldMatrix = mtx;
                 passes.Add(_selectedRC);
@@ -224,7 +222,7 @@ namespace TheraEditor.Windows.Forms
             {
                 Matrix4 mtx = _highlightedComp.WorldMatrix;
                 if (_highlightedComp is UIBoundableComponent bound)
-                    mtx = mtx * Matrix4.CreateScale(bound.Width, bound.Height, 0.0f);
+                    mtx = mtx * Matrix4.CreateScale(bound.ActualWidth, bound.ActualHeight, 0.0f);
 
                 _highlightRC.WorldMatrix = mtx;
                 passes.Add(_highlightRC);

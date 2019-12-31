@@ -185,9 +185,9 @@ namespace TheraEngine.Rendering.Cameras
             base.UpdateTransformedFrustum();
             //_transformedFrustum.SetSubFrustums(_transformedFrustumCascade);
         }
-        public override void Render()
+        public override void Render(bool shadowPass)
         {
-            _transformedFrustum.Render();
+            _transformedFrustum.Render(shadowPass);
             //foreach (Frustum f in _transformedFrustumCascade)
             //    f.Render();
 

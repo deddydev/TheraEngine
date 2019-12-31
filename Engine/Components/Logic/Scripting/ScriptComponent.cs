@@ -13,17 +13,19 @@ namespace TheraEngine.Components.Logic.Scripting
         public GlobalFileRef<T> ScriptFileRef
         {
             get => _scriptRef;
-            set
-            {
-                if (_scriptRef != null)
+            set => Set(ref _scriptRef, value ?? new GlobalFileRef<T>(),
+                () =>
                 {
-                    _scriptRef.Loaded -= (OnLoaded);
-                    _scriptRef.Unloaded -= (OnUnloaded);
-                }
-                _scriptRef = value ?? new GlobalFileRef<T>();
-                _scriptRef.Loaded += (OnLoaded);
-                _scriptRef.Unloaded += (OnUnloaded);
-            }
+                    _scriptRef.Loaded -= OnLoaded;
+                    _scriptRef.Unloaded -= OnUnloaded;
+                    if (_scriptRef.IsLoaded)
+                        OnUnloaded(_scriptRef.File);
+                },
+                () =>
+                {
+                    _scriptRef.Loaded += OnLoaded;
+                    _scriptRef.Unloaded += OnUnloaded;
+                });
         }
         [Browsable(false)]
         public T ScriptFile

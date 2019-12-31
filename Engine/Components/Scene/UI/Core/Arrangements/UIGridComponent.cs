@@ -15,12 +15,16 @@ namespace TheraEngine.Rendering.UI
 
         public UIGridComponent()
         {
-            Rows = new EventList<SizingDefinition>();
-            Columns = new EventList<SizingDefinition>();
+            _rows = new EventList<SizingDefinition>();
+            _rows.CollectionChanged += CollectionChanged;
+
+            _columns = new EventList<SizingDefinition>();
+            _columns.CollectionChanged += CollectionChanged;
         }
 
         //Jagged array indexed by (row,col) of int lists.
         //Each int list contains indices of child UI components that reside in the cell specified by (row,col).
+        [Browsable(false)]
         public List<int>[,] Indices { get; set; }
         public bool InvertY { get; set; }
 
@@ -46,7 +50,8 @@ namespace TheraEngine.Rendering.UI
                     RegenerateIndices();
             }
         }
-        private void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) => RegenerateIndices();
+        private void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+            => RegenerateIndices();
         private void RegenerateIndices()
         {
             Indices = new List<int>[Rows.Count, Columns.Count];
@@ -55,6 +60,8 @@ namespace TheraEngine.Rendering.UI
             for (int i = 0; i < ChildComponents.Count; ++i)
                 if (ChildComponents[i] is IUIComponent uic && uic.ParentInfo is GridPlacementInfo info)
                     Indices[info.Row, info.Column].Add(i);
+
+            InvalidateLayout();
         }
 
         public List<IUIComponent> GetComponentsInRow(int rowIndex)
@@ -89,31 +96,47 @@ namespace TheraEngine.Rendering.UI
 
             return list;
         }
+        private float GetRowAutoHeight(IEnumerable<IUIComponent> comps)
+        {
+            float height = 0.0f;
+            foreach (var comp in comps)
+                if (comp is IUIBoundableComponent bc)
+                    height = Math.Max(bc.GetHeight(), height);
+            return height;
+        }
+        private float GetColAutoWidth(IEnumerable<IUIComponent> comps)
+        {
+            float width = 0.0f;
+            foreach (var comp in comps)
+                if (comp is IUIBoundableComponent bc)
+                    width = Math.Max(bc.GetWidth(), width);
+            return width;
+
+        }
         protected override void OnResizeLayout(BoundingRectangleF parentRegion)
         {
             //Sizing priority: auto, fixed, proportional
+
+            float xSize = parentRegion.Width;
+            float ySize = parentRegion.Height;
 
             var autoRows = Rows.Select(x => x.AnyAuto ? x : null).ToArray();
             var autoCols = Columns.Select(x => x.AnyAuto ? x : null).ToArray();
 
             for (int i = 0; i < Rows.Count; i++)
             {
-                var def = Rows[i];
-                var comps = GetComponentsInRow(i);
-                float rowHeight = 0.0f;
-                foreach (var comp in comps)
-                    if (comp is IUIBoundableComponent bc)
-                        rowHeight = Math.Max(bc.ActualHeight, rowHeight);
+                var row = Rows[i];
+                if (row.AnyAuto)
+                    GetRowAutoHeight(GetComponentsInRow(i));
+
 
             }
             for (int i = 0; i < Columns.Count; i++)
             {
-                var def = Rows[i];
-                var comps = GetComponentsInColumn(i);
-                float colWidth = 0.0f;
-                foreach (var comp in comps)
-                    if (comp is IUIBoundableComponent bc)
-                        colWidth = Math.Max(bc.ActualWidth, colWidth);
+                var col = Columns[i];
+                if (col.AnyAuto)
+                    GetColAutoWidth(GetComponentsInColumn(i));
+
 
             }
 
@@ -278,6 +301,7 @@ namespace TheraEngine.Rendering.UI
             private SizingValue _min = null;
             private SizingValue _max = null;
 
+            [Browsable(false)]
             public bool AnyAuto =>
                 _value != null && _value.Mode == ESizingMode.Auto ||
                 _min != null && _min.Mode == ESizingMode.Auto ||

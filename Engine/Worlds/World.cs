@@ -13,6 +13,8 @@ using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using Extensions;
+using TheraEngine.Physics.RayTracing;
+using TheraEngine.Physics.ShapeTracing;
 
 namespace TheraEngine.Worlds
 {
@@ -399,21 +401,29 @@ namespace TheraEngine.Worlds
         private readonly RenderCommandMethod3D _rc3D;
         private readonly RenderCommandMethod2D _rc2D;
 
-        private void Render3D()
+        private void Render3D(bool shadowPass)
         {
-#if EDITOR
-            if (!(Engine.EditorState?.InEditMode ?? false))
-                return;
-#endif
-
-            Engine.Renderer.RenderBox(Settings.Bounds.HalfExtents, Settings.Bounds.Translation.AsTranslationMatrix(), false, Color.Green);
+            if (Settings.PreviewWorldBounds)
+                Engine.Renderer.RenderBox(Settings.Bounds.HalfExtents, Settings.Bounds.Translation.AsTranslationMatrix(), false, Color.Green);
+            
             if (Settings.EnableOriginRebasing)
                 Engine.Renderer.RenderSphere(Vec3.Zero, Settings.OriginRebaseRadius, false, Color.Aqua);
+
             IFrustum frustum = Engine.Renderer.CurrentCamera?.Frustum;
             if (Settings.PreviewOctrees && frustum != null)
                 Scene3D?.RenderTree?.DebugRender(frustum, true);
+
             if (Settings.PreviewPhysics)
                 PhysicsWorld3D?.DrawDebugWorld();
+
+            if (!shadowPass)
+            {
+                while (PhysicsWorld3D.ConsumingRayTraces.TryDequeue(out RayTrace trace))
+                    trace.Render();
+
+                while (PhysicsWorld3D.ConsumingShapeTraces.TryDequeue(out ShapeTrace trace))
+                    trace.Render();
+            }
         }
         private void Render2D()
         {
@@ -426,10 +436,22 @@ namespace TheraEngine.Worlds
                 Scene2D?.RenderTree?.DebugRender(null, true);
         }
 
-        void I3DRenderable.AddRenderables(RenderPasses passes, ICamera camera) 
-            => passes.Add(_rc3D);
+        void I3DRenderable.AddRenderables(RenderPasses passes, ICamera camera)
+        {
+#if EDITOR
+            if (!(Engine.EditorState?.InEditMode ?? false))
+                return;
+#endif
+            passes.Add(_rc3D);
+        }
         void I2DRenderable.AddRenderables(RenderPasses passes, ICamera camera)
-            => passes.Add(_rc2D);
+        {
+#if EDITOR
+            if (!(Engine.EditorState?.InEditMode ?? false))
+                return;
+#endif
+            passes.Add(_rc2D);
+        }
 
         void IWorld.GlobalUpdate()
         {
@@ -438,6 +460,7 @@ namespace TheraEngine.Worlds
         void IWorld.GlobalSwap()
         {
             Scene?.GlobalSwap();
+            PhysicsWorld3D?.Swap();
         }
         void IWorld.GlobalPreRender()
         {

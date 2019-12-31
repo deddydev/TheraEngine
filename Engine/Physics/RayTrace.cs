@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
 
 namespace TheraEngine.Physics.RayTracing
@@ -46,6 +48,8 @@ namespace TheraEngine.Physics.RayTracing
         public ushort CollidesWith { get; set; }
         public TCollisionObject[] Ignored { get; set; }
         public abstract bool HasHit { get; }
+        public bool DebugDraw { get; set; } = true;
+        public ColorF4 DebugColor { get; set; } = Color.Magenta;
 
         public RayTrace(
             Vec3 startPointWorld,
@@ -92,6 +96,7 @@ namespace TheraEngine.Physics.RayTracing
             => Engine.RayTrace(this, world);
 
         internal abstract void Reset();
+        public abstract void Render();
     }
 
     /// <summary>
@@ -113,6 +118,13 @@ namespace TheraEngine.Physics.RayTracing
 
         public RayTraceSingle(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored)
             : base(start, end, collisionGroupFlags, collidesWithFlags, ignored) { }
+
+        public override void Render()
+        {
+            Vec3 end = HasHit ? Result.HitPointWorld : EndPointWorld;
+            Engine.Renderer.RenderLine(StartPointWorld, end, DebugColor, false);
+            Engine.Renderer.RenderPoint(end, HasHit ? new ColorF4(1.0f, 0.0f, 0.0f) : DebugColor, false);
+        }
     }
 
     /// <summary>
@@ -137,6 +149,16 @@ namespace TheraEngine.Physics.RayTracing
                 hitNormal = Vec3.TransformVector(hitNormal, obj.WorldTransform);
 
             Results.Add(new RayCollisionResult(obj, hitFraction, hitNormal, Vec3.Lerp(StartPointWorld, EndPointWorld, hitFraction), shapePart, triangleIndex));
+        }
+
+        public override void Render()
+        {
+            Engine.Renderer.RenderLine(StartPointWorld, EndPointWorld, DebugColor, false);
+            if (Results.Count == 0)
+                Engine.Renderer.RenderPoint(EndPointWorld, DebugColor, false);
+            else
+                foreach (var result in Results)
+                    Engine.Renderer.RenderPoint(result.HitPointWorld, new ColorF4(1.0f, 0.0f, 0.0f), false);
         }
     }
 

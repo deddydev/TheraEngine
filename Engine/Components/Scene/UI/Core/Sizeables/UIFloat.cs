@@ -128,7 +128,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
-                    SetBackingField2(ref _propElem, value, UnReg, Reg);
+                    SetExplicit(ref _propElem, value, UnReg, Reg);
             }
         }
         public UIFloat Minimum
@@ -137,7 +137,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
-                    SetBackingField2(ref _minSize, value, UnReg, Reg);
+                    SetExplicit(ref _minSize, value, UnReg, Reg);
             }
         }
         public UIFloat Maximum
@@ -146,7 +146,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
-                    SetBackingField2(ref _maxSize, value, UnReg, Reg);
+                    SetExplicit(ref _maxSize, value, UnReg, Reg);
             }
         }
         public UIFloat Origin
@@ -155,7 +155,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
-                    SetBackingField2(ref _origin, value, UnReg, Reg);
+                    SetExplicit(ref _origin, value, UnReg, Reg);
             }
         }
         public UIFloat Range
@@ -164,7 +164,7 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
-                    SetBackingField2(ref _valueRange, value, UnReg, Reg);
+                    SetExplicit(ref _valueRange, value, UnReg, Reg);
             }
         }
 

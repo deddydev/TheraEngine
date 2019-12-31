@@ -77,8 +77,8 @@ namespace TheraEngine.Core.Shapes
         //EContainment Contains(Cylinder cylinder);
         //EContainment Contains(Cone cone);
         EContainment Contains(Capsule capsule);
-        void Render();
-        void Render(Color NearColor, Color FarColor, Color SideColor, float LineSize, bool RenderSphere);
+        void Render(bool shadowPass);
+        void Render(bool shadowPass, Color NearColor, Color FarColor, Color SideColor, float LineSize, bool RenderSphere);
         IFrustum HardCopy();
         void UpdatePoints(
              Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
@@ -644,11 +644,11 @@ namespace TheraEngine.Core.Shapes
         public IEnumerator<Plane> GetEnumerator() => ((IEnumerable<Plane>)Planes).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Plane>)Planes).GetEnumerator();
 
-        public void Render() => Render(Color.Orange, Color.DarkRed, Color.LightGreen, 1.0f, false);
-        public void Render(Color NearColor, Color FarColor, Color SideColor, float LineSize, bool RenderSphere)
+        public void Render(bool shadowPass) => Render(shadowPass, Color.Orange, Color.DarkRed, Color.LightGreen, 1.0f, false);
+        public void Render(bool shadowPass, Color NearColor, Color FarColor, Color SideColor, float LineSize, bool RenderSphere)
         {
             if (RenderSphere)
-                _boundingSphere.Render();
+                _boundingSphere.Render(shadowPass);
             
             //TODO: use PrimitiveManager; render translucent planes
             Engine.Renderer.RenderLine(NearTopLeft, FarTopLeft, SideColor, true, LineSize);

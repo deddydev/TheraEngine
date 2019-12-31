@@ -12,7 +12,7 @@ namespace TheraEditor.Windows.Forms
     {
         public UIWorldManager()
         {
-            World = new World(new WorldSettings() { TwoDimensional = true });
+            TargetWorld = new World(new WorldSettings() { TwoDimensional = true });
         }
     }
     public abstract class DockableRenderableFileEditor<TFile, TRenderHandler> : DockableFileEditor<TFile>

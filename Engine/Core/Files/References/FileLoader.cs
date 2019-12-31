@@ -38,6 +38,8 @@ namespace TheraEngine.Core.Files
     }
     public interface IFileLoader<T> : IFileObject where T : class, IFileObject
     {
+        event Action<T> Loaded;
+
         PathReference Path { get; set; }
         TypeProxy FileType { get; set; }
         bool CreateFileIfNonExistent { get; set; }

@@ -79,10 +79,9 @@ namespace TheraEngine.Rendering.Models.Materials
                 string path = mipMapPaths[i];
                 if (path.StartsWith("file://"))
                     path = path.Substring(7);
+
                 GlobalFileRef<TextureFile2D> tref = new GlobalFileRef<TextureFile2D>(path);
-                tref.Loaded += (OnMipLoaded);
-                tref.Unloaded += (OnMipUnloaded);
-                _mipmaps[i] = tref;
+                SetRef<TextureFile2D, GlobalFileRef<TextureFile2D>>(ref _mipmaps[i], tref, OnMipLoaded, OnMipUnloaded);
             }
         }
         public TexRef2D(string name, params TextureFile2D[] mipmaps)
@@ -91,11 +90,8 @@ namespace TheraEngine.Rendering.Models.Materials
             _mipmaps = new GlobalFileRef<TextureFile2D>[mipmaps.Length];
             for (int i = 0; i < mipmaps.Length; ++i)
             {
-                TextureFile2D mip = mipmaps[i];
-                GlobalFileRef<TextureFile2D> tref = new GlobalFileRef<TextureFile2D>(mip);
-                tref.Loaded += (OnMipLoaded);
-                tref.Unloaded += (OnMipUnloaded);
-                _mipmaps[i] = tref;
+                GlobalFileRef<TextureFile2D> tref = new GlobalFileRef<TextureFile2D>(mipmaps[i]);
+                SetRef<TextureFile2D, GlobalFileRef<TextureFile2D>>(ref _mipmaps[i], tref, OnMipLoaded, OnMipUnloaded);
             }
             DetermineTextureFormat();
         }
@@ -114,25 +110,29 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 if (_mipmaps != null)
                 {
-                    for (int i = 0; i < Mipmaps.Length; ++i)
+                    for (int i = 0; i < _mipmaps.Length; ++i)
                     {
-                        var fileRef = Mipmaps[i];
-                        if (fileRef is null)
-                            Mipmaps[i] = fileRef = new GlobalFileRef<TextureFile2D>();
-
-                        fileRef.Loaded -= (OnMipLoaded);
-                        fileRef.Unloaded -= (OnMipUnloaded);
+                        var mipRef = _mipmaps[i];
+                        if (mipRef != null)
+                        {
+                            mipRef.Loaded -= OnMipLoaded;
+                            mipRef.Unloaded -= OnMipUnloaded;
+                            if (mipRef.IsLoaded)
+                                OnMipUnloaded(mipRef.File);
+                        }
                     }
                 }
                 _mipmaps = value;
                 if (_mipmaps != null)
                 {
-                    foreach (var fileRef in Mipmaps)
+                    foreach (var mipRef in _mipmaps)
                     {
-                        if (fileRef != null)
+                        if (mipRef != null)
                         {
-                            fileRef.Loaded += (OnMipLoaded);
-                            fileRef.Unloaded += (OnMipUnloaded);
+                            if (mipRef.IsLoaded)
+                                OnMipLoaded(mipRef.File);
+                            mipRef.Loaded += OnMipLoaded;
+                            mipRef.Unloaded += OnMipUnloaded;
                         }
                     }
                 }
@@ -176,7 +176,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (_texture != null)
                 {
                     _texture.PixelFormat = _pixelFormat;
-                    _texture.QueueRedraw();
+                    _texture.Invalidate();
                 }
             }
         }
@@ -190,7 +190,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (_texture != null)
                 {
                     _texture.PixelType = _pixelType;
-                    _texture.QueueRedraw();
+                    _texture.Invalidate();
                 }
             }
         }
@@ -204,7 +204,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (_texture != null)
                 {
                     _texture.InternalFormat = _internalFormat;
-                    _texture.QueueRedraw();
+                    _texture.Invalidate();
                 }
             }
         }

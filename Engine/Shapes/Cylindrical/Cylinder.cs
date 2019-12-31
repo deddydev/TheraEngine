@@ -95,7 +95,7 @@ namespace TheraEngine.Core.Shapes
         }
         public float GetTotalHalfHeight() => _halfHeight + _radius;
         public float GetTotalHeight() => GetTotalHalfHeight() * 2.0f;
-        public override void Render()
+        public override void Render(bool shadowPass)
         {
             Engine.Renderer.RenderCylinder(_center.AsTranslationMatrix(), _upAxis, _radius, _halfHeight, RenderSolid, Color.Black);
         }

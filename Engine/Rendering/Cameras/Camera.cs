@@ -66,7 +66,7 @@ namespace TheraEngine.Rendering.Cameras
         Vec3 GetPointAtDepth(Vec2 screenPoint, float depth);
         Vec3 GetPointAtDistance(Vec2 screenPoint, float distance);
 
-        void Render();
+        void Render(bool shadowPass);
         Plane GetScreenPlane();
         Vec3 GetScreenPlaneOriginDistance();
         float DistanceFromScreenPlane(Vec3 point);
@@ -399,9 +399,9 @@ namespace TheraEngine.Rendering.Cameras
         public Vec3 GetPointAtDistance(Vec2 screenPoint, float distance)
             => GetWorldSegment(screenPoint).PointAtLineDistance(distance);
 
-        public virtual void Render()
+        public virtual void Render(bool shadowPass)
         {
-            _transformedFrustum.Render();
+            _transformedFrustum.Render(shadowPass);
         }
         public Plane GetScreenPlane()
             => new Plane(WorldPoint, ForwardVector);

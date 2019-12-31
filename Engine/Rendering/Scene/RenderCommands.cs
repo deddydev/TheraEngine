@@ -77,10 +77,11 @@ namespace TheraEngine.Rendering
     {
         //public RenderCommandMethod3D() { }
         //public RenderCommandMethod3D(Action render) : base() => Rendered = render;
-        public RenderCommandMethod3D(ERenderPass renderPass, Action render) : base(renderPass) => Rendered = render;
+        public RenderCommandMethod3D(ERenderPass renderPass, DelRender render) : base(renderPass) => Rendered = render;
 
-        public Action Rendered { get; set; }
-        public override void Render(bool shadowPass) => Rendered?.Invoke();
+        public delegate void DelRender(bool shadowPass);
+        public DelRender Rendered { get; set; }
+        public override void Render(bool shadowPass) => Rendered?.Invoke(shadowPass);
     }
     public class RenderCommandMesh3D : RenderCommand3D
     {

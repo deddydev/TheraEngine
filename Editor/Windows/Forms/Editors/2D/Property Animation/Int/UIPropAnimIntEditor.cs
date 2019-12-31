@@ -650,7 +650,7 @@ void main()
 
                     if (!nullTrack)
                     {
-                        var prevKf = track.GetKeyBefore(sec, false, false);
+                        var prevKf = track.GetKeyBefore(sec);
                         var nextKf = prevKf?.Next;
                         if (prevKf != null && prevKf.Second.EqualTo(sec, 0.01f))
                         {

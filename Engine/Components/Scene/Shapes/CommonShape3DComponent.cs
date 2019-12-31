@@ -66,7 +66,7 @@ namespace TheraEngine.Components.Scene.Shapes
             }
         }
 
-        protected virtual void Render() => _shape?.Render();
+        protected virtual void Render(bool shadowPass) => _shape?.Render(shadowPass);
         protected override RenderCommand3D GetRenderCommand() => RenderCommand;
 
         protected override void OnWorldTransformChanged()

@@ -50,6 +50,7 @@ namespace TheraEngine.Components.Logic.Movement
         public float JumpSpeed { get; set; } = 8.0f;
         [TNumericPrefixSuffix("", "m/s")]
         public float FallingMovementSpeed { get; set; } = 10.0f;
+        public bool AlignInputToGround { get; set; } = true;
         public bool IsCrouched { get; set; } = false;
         public Quat UpToGroundNormalRotation { get; set; } = Quat.Identity;
         public float AllowJumpTimeDelta { get; set; }
@@ -130,26 +131,26 @@ namespace TheraEngine.Components.Logic.Movement
             }
             CurrentWalkingSurface = null;
             _subUpdateTick = TickFalling;
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, MainUpdateTick);
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Input, MainUpdateTick);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             _subUpdateTick = null;
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, MainUpdateTick);
+            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Input, MainUpdateTick);
             base.OnDespawned();
         }
         private void FloorTransformChanged(ISceneComponent floor)
         {
             //TODO: change to falling if ground accelerates down with gravity faster than the character
-            ISceneComponent comp = (ISceneComponent)_currentWalkingSurface.Owner;
-            Matrix4 transformDelta = comp.PreviousInverseWorldMatrix * comp.WorldMatrix;
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
-            Matrix4 moved = root.WorldMatrix * comp.PreviousInverseWorldMatrix * comp.WorldMatrix;
-            Vec3 point = moved.Translation;
+            ISceneComponent comp = (ISceneComponent)_currentWalkingSurface.Owner;
+            //Matrix4 transformDelta = comp.PreviousInverseWorldMatrix * comp.WorldMatrix;
+            root.WorldMatrix = root.WorldMatrix * comp.PreviousInverseWorldMatrix * comp.WorldMatrix;
+            //Vec3 point = newWorldMatrix.Translation;
 
-            root.Translation = point;
-            root.Rotation.Yaw += transformDelta.ExtractRotation(true).ToYawPitchRoll().Yaw;
+            //root.Translation = point;
+            //root.Rotation.Yaw += transformDelta.ExtractRotation(true).ToYawPitchRoll().Yaw;
         }
         private void MainUpdateTick(float delta)
         {
@@ -183,7 +184,7 @@ namespace TheraEngine.Components.Logic.Movement
 
             //Add input
 
-            Quat groundRot = UpToGroundNormalRotation;
+            Quat groundRot = AlignInputToGround ? UpToGroundNormalRotation : Quat.Identity;
 
             _closestTrace.Shape = shape;
 
@@ -267,22 +268,28 @@ namespace TheraEngine.Components.Logic.Movement
 
             #region Ground Test
 
-            float groundTestDist = CurrentWalkingSurface.CollisionShape.Margin + body.CollisionShape.Margin + 0.1f;
+            float centerToGroundDist = root.Shape.HalfHeight + root.Shape.Radius;
+            float marginDist = CurrentWalkingSurface.CollisionShape.Margin + body.CollisionShape.Margin;
+            float groundTestDist = 2.0f;// centerToGroundDist + marginDist;
             down *= groundTestDist;
             inputTransform = down.AsTranslationMatrix();
 
             _closestTrace.Start = stepUpMatrix * root.WorldMatrix;
             _closestTrace.End = stepUpMatrix * inputTransform * root.WorldMatrix;
 
-            if (!_closestTrace.Trace(OwningActor?.OwningWorld) || !IsSurfaceNormalWalkable(_closestTrace.HitNormalWorld))
+            bool traceSuccess = _closestTrace.Trace(OwningActor?.OwningWorld);
+            bool walkSuccess = traceSuccess && IsSurfaceNormalWalkable(_closestTrace.HitNormalWorld);
+            if (!walkSuccess)
             {
+                Engine.PrintLine(traceSuccess ? "walk surface failed" : "walk trace failed");
+
                 CurrentMovementMode = EMovementMode.Falling;
                 return;
             }
 
             _worldGroundContactPoint = _closestTrace.HitPointWorld;
-            Vec3 diff = Vec3.Lerp(stepUpVector, down, _closestTrace.HitFraction);
-            root.Translation.Raw += diff;
+            //Vec3 diff = Vec3.Lerp(stepUpVector, down, _closestTrace.HitFraction);
+            root.Translation.Y = _worldGroundContactPoint.Y + centerToGroundDist;
 
             GroundNormal = _closestTrace.HitNormalWorld;
             CurrentWalkingSurface = _closestTrace.CollisionObject as TRigidBody;
@@ -320,13 +327,12 @@ namespace TheraEngine.Components.Logic.Movement
                 return;
 
             //Get root component of the character
-            IRigidBodyCollidable root = OwningActor.RootComponent as IRigidBodyCollidable;
-            TRigidBody chara = root?.RigidBodyCollision;
+            IGenericCollidable root = OwningActor.RootComponent as IGenericCollidable;
 
             //If the root has no rigid body, the player can't jump
-            if (chara is null)
+            if (!(root?.CollisionObject is TRigidBody chara))
                 return;
-            
+
             _postWalkAllowJump = false;
             _justJumped = true;
             
@@ -340,11 +346,12 @@ namespace TheraEngine.Components.Logic.Movement
                 _velocity.Y = 0.0f;
             }
 
-            root.RigidBodyCollision.SimulatingPhysics = true;
+            chara.SimulatingPhysics = true;
             _subUpdateTick = TickFalling;
 
             if (_currentWalkingSurface != null)
-                chara.Translate(up * _currentWalkingSurface.CollisionShape.Margin);
+                chara.Translate(up * 2.0f);
+
             chara.LinearVelocity = _velocity;
 
             if (_currentWalkingSurface != null && 
@@ -373,7 +380,7 @@ namespace TheraEngine.Components.Logic.Movement
                 chara.ApplyCentralImpulse(up * (JumpSpeed * chara.Mass));
             }
 
-            _currentMovementMode = EMovementMode.Falling;
+            CurrentMovementMode = EMovementMode.Falling;
             CurrentWalkingSurface = null;
         }
         public void EndJump()

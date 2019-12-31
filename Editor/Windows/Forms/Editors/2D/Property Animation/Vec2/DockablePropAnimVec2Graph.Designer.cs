@@ -159,13 +159,12 @@ namespace TheraEditor.Windows.Forms
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(667, 408);
-            this.Controls.Add(this.RenderPanel);
             this.Controls.Add(this.dockingHostToolStripPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
-            this.Name = "DockablePropAnimFloatGraph";
+            this.Name = "DockablePropAnimVec2Graph";
             this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.Document;
-            this.Text = "Float Animation Editor";
+            this.Text = "Vec2 Animation Editor";
             this.dockingHostToolStripPanel1.ResumeLayout(false);
             this.dockingHostToolStripPanel1.PerformLayout();
             this.tsPropAnimVec2.ResumeLayout(false);

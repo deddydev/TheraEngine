@@ -156,9 +156,9 @@ namespace TheraEngine.Components.Scene.Volumes
             }
         }
 
-        protected override void Render()
+        protected override void Render(bool shadowPass)
         {
-            base.Render();
+            base.Render(shadowPass);
 
             if (!TrackContacts)
                 return;

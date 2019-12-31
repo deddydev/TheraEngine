@@ -56,7 +56,7 @@ namespace TheraEngine.Core.Shapes
             set => _localUpAxis = value;
         }
         
-        public override void Render()
+        public override void Render(bool shadowPass)
             => Engine.Renderer.RenderCone(_center.AsTranslationMatrix(), _localUpAxis, _radius, _height, RenderSolid, Color.Magenta);
 
         public static PrimitiveData WireMesh(Vec3 center, Vec3 up, float height, float radius, int sides)

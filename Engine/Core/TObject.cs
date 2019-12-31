@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using TheraEngine.Animation;
 using TheraEngine.Core;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
@@ -58,6 +59,24 @@ namespace TheraEngine
         //bool RemoveAnimation(AnimationTree anim);
         #endregion
     }
+    public interface IObjectExtension
+    {
+        IObject Owner { get; set; }
+    }
+    /// <summary>
+    /// Base engine object with support for custom functionality.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class TObjectExt<T> : TObject where T : IObjectExtension, new()
+    {
+        public TObjectExt()
+            => Ext = new T() { Owner = this };
+
+        public T Ext { get; }
+    }
+    /// <summary>
+    /// Base engine object. Supports name, guid, user object, property bindings, ticking, animations, etc.
+    /// </summary>
     public abstract class TObject : TObjectSlim, IObject
     {
         public TObject()
@@ -216,7 +235,7 @@ namespace TheraEngine
         /// <param name="fieldValue"></param>
         /// <param name="newValue"></param>
         /// <param name="propertyName"></param>
-        protected virtual bool SetBackingField2<T>(
+        protected virtual bool SetExplicit<T>(
             ref T fieldValue,
             T newValue,
             Action<T> beforeSet = null,
@@ -237,6 +256,55 @@ namespace TheraEngine
 
             if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(newValue, default))
                 afterSet?.Invoke(newValue);
+
+            OnPropertyChanged(propertyName);
+
+            return true;
+        }
+        protected virtual bool SetRef<T, TRef>(
+            ref TRef fieldValue,
+            TRef newValue,
+            Action<T> onLoaded = null,
+            Action<T> onUnloaded = null,
+            bool allowNullRef = false,
+            [CallerMemberName] string propertyName = null)
+            where T : class, IFileObject
+            where TRef : IFileRef<T>, new()
+        {
+            if (Equals(fieldValue, newValue))
+                return false;
+
+            if (OnPropertyChanging(propertyName))
+                return false;
+
+            if (fieldValue != null)
+            {
+                if (onLoaded != null)
+                    fieldValue.Loaded -= onLoaded;
+                if (onUnloaded != null)
+                {
+                    fieldValue.Unloaded -= onUnloaded;
+                    if (fieldValue.IsLoaded)
+                        onUnloaded(fieldValue.File);
+                }
+            }
+
+            if (!allowNullRef && newValue is null)
+                newValue = new TRef();
+
+            fieldValue = newValue;
+
+            if (fieldValue != null)
+            {
+                if (onLoaded != null)
+                {
+                    if (fieldValue.IsLoaded)
+                        onLoaded(fieldValue.File);
+                    fieldValue.Loaded += onLoaded;
+                }
+                if (onUnloaded != null)
+                    fieldValue.Unloaded += onUnloaded;
+            }
 
             OnPropertyChanged(propertyName);
 

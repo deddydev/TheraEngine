@@ -873,6 +873,11 @@ namespace TheraEngine
                 => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);
             public static GLSLScript Shader(string fileName, EGLSLType mode)
                 => new GLSLScript(ShaderPath(fileName), mode);
+            public static GLSLScript Shader(string fileName)
+            {
+                EGLSLType type = GLSLScript.ResolveType(Path.GetExtension(fileName));
+                return Shader(fileName, type);
+            }
 
             public static string FontPath(string fileName)
                 => Path.Combine(Settings.FontsFolder ?? string.Empty, fileName);

@@ -109,7 +109,7 @@ namespace TheraEngine.Core.Shapes
             BoundingBox.GetCorners(_halfExtents, Transform.Matrix, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
-        public override void Render()
+        public override void Render(bool shadowPass)
         {
             Engine.Renderer.RenderBox(_halfExtents, _transform.Matrix, RenderSolid, Color.Black);
         }

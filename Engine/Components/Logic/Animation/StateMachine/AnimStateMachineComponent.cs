@@ -19,19 +19,21 @@ namespace TheraEngine.Components.Logic.Animation
         public EventList<AnimState> States
         {
             get => _states;
-            set
-            {
-                if (_states != null)
+            set => Set(ref _states, value,
+                () =>
                 {
-                    _states.PostAnythingAdded -= _states_PostAnythingAdded;
-                    _states.PostAnythingRemoved -= _states_PostAnythingRemoved;
-                }
-                _states = value;
-                _states.PostAnythingAdded += _states_PostAnythingAdded;
-                _states.PostAnythingRemoved += _states_PostAnythingRemoved;
-                foreach (AnimState state in _states)
-                    _states_PostAnythingAdded(state);
-            }
+                    _states.PostAnythingAdded -= StateAdded;
+                    _states.PostAnythingRemoved -= StateRemoved;
+                    foreach (AnimState state in _states)
+                        StateRemoved(state);
+                },
+                () =>
+                {
+                    foreach (AnimState state in _states)
+                        StateAdded(state);
+                    _states.PostAnythingAdded += StateAdded;
+                    _states.PostAnythingRemoved += StateRemoved;
+                });
         }
         [TSerialize("Animations")]
         internal ConcurrentDictionary<string, SkeletalAnimation> AnimationTable { get; set; }
@@ -107,12 +109,12 @@ namespace TheraEngine.Components.Logic.Animation
             }
             _blendManager?.Tick(delta, Skeleton?.File);
         }
-        private void _states_PostAnythingRemoved(AnimState item)
+        private void StateRemoved(AnimState item)
         {
             if (item.Owner == this)
                 item.Owner = null;
         }
-        private void _states_PostAnythingAdded(AnimState item)
+        private void StateAdded(AnimState item)
         {
             item.Owner = this;
         }

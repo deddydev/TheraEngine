@@ -24,7 +24,7 @@ namespace TheraEngine.Windows.Forms
         public bool IsEditView { get; set; }
         public EditorGameMode WindowGameMode { get; set; } = new EditorGameMode();
 
-        public override IWorld World => WorldManager?.World;
+        public override IWorld World => WorldManager?.TargetWorld;
         public override IGameMode GameMode => WindowGameMode;
         protected override void OnWorldManagerPreChanged()
         {

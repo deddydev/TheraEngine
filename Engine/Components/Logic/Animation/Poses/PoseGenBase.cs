@@ -12,6 +12,5 @@ namespace TheraEngine.Components.Logic.Animation
 
         public abstract SkeletalAnimationPose GetPose();
         public abstract void Tick(float delta);
-        public abstract GlobalFileRef<SkeletalAnimation>[] GetAnimations();
     }
 }

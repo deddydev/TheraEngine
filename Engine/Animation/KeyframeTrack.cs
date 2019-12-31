@@ -300,25 +300,27 @@ namespace TheraEngine.Animation
                 temp.Remove();
             }
         }
-        public T GetKeyBefore(float second, bool returnLastBeforeFirst, bool returnLastBeforeAnimEnd)
+        public T GetKeyBefore(float second)
         {
             T bestKey = null;
             foreach (T key in this)
-                if (second >= key.Second)
+                if (key.Second <= second)
                     bestKey = key;
                 else
                     break;
-            if (returnLastBeforeFirst)
-            {
-                if (bestKey != null)
-                    return bestKey;
-                else if (returnLastBeforeAnimEnd)
-                    return GetKeyBefore(LengthInSeconds, false, false);
-                else
-                    return Last;
-            }
-            else
+
+            //if (bestKey != null)
                 return bestKey;
+
+            //if (returnLastBeforeFirst)
+            //{
+            //    if (returnLastBeforeAnimEnd)
+            //        return GetKeyBefore(LengthInSeconds, false, false);
+            //    else
+            //        return Last;
+            //}
+            //else
+            //    return bestKey;
         }
         public override IEnumerator<Keyframe> GetEnumerator()
         {

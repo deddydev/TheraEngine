@@ -38,7 +38,7 @@ namespace TheraEngine.Animation
             => _baked[frameIndex];
         public bool GetValueKeyframed(float second)
         {
-            BoolKeyframe key = _keyframes.GetKeyBefore(second, true, true);
+            BoolKeyframe key = _keyframes.GetKeyBefore(second);
             if (key != null)
                 return key.Value;
             return DefaultValue;

@@ -290,7 +290,7 @@ namespace TheraEngine.Animation
             }
 
             if (_prevKeyframe is null)
-                _prevKeyframe = Keyframes.GetKeyBefore(_currentTime, true, true);
+                _prevKeyframe = Keyframes.GetKeyBefore(_currentTime);
 
             if (Keyframes.Count == 0)
             {

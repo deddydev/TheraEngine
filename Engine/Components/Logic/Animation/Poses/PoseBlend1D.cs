@@ -2,39 +2,73 @@
 using System.ComponentModel;
 using TheraEngine.Animation;
 using TheraEngine.Core.Files;
+using Extensions;
+using System.Collections.Generic;
 
 namespace TheraEngine.Components.Logic.Animation
 {
-    public class SkelAnimPoseBlend1D : PoseGenBase
+    public class PoseBlend1D : PoseGenBase
     {
-        private class SkelAnimKeyframe : Keyframe
+        public PoseBlend1D() { }
+        public PoseBlend1D(params SkelAnimKeyframe[] keyframes)
+            => _poses.AddRange(keyframes);
+        public PoseBlend1D(IEnumerable<SkelAnimKeyframe> keyframes)
+            => _poses.AddRange(keyframes);
+
+        private KeyframeTrack<SkelAnimKeyframe> _poses = new KeyframeTrack<SkelAnimKeyframe>();
+        private float _interpValue = 0.0f;
+
+        public float InterpValue 
         {
+            get => _interpValue; 
+            set => Set(ref _interpValue, value);
+        }
+        public KeyframeTrack<SkelAnimKeyframe> Poses 
+        {
+            get => _poses;
+            set => Set(ref _poses, value);
+        }
+
+        public override SkeletalAnimationPose GetPose()
+        {
+            SkelAnimKeyframe kf = Poses.GetKeyBefore(InterpValue);
+            if (kf is null)
+                return null;
+
+            SkeletalAnimationPose frame = kf.AnimationRef?.File?.GetFrame();
+            if (kf.Next is SkelAnimKeyframe kf2)
+            {
+                SkeletalAnimationPose frame2 = kf2.AnimationRef?.File?.GetFrame();
+                if (frame2 != null)
+                {
+                    float diff = InterpValue - kf.Second;
+                    float span = kf2.Second - kf.Second;
+                    float weight = span < float.Epsilon ? 0.0f : diff / span;
+                    return frame?.BlendedWith(frame2, weight);
+                }
+            }
+            return frame;
+        }
+        public override void Tick(float delta)
+        {
+            foreach (SkelAnimKeyframe pose in Poses)
+                pose?.AnimationRef?.File?.Tick(delta);
+        }
+        public class SkelAnimKeyframe : Keyframe
+        {
+            [TSerialize]
+            public GlobalFileRef<SkeletalAnimation> AnimationRef { get; set; } = null;
+
             [Browsable(false)]
             public override Type ValueType => throw new NotImplementedException();
             public override void ReadFromString(string str)
             {
-                throw new NotImplementedException();
+
             }
             public override string WriteToString()
             {
-                throw new NotImplementedException();
+                return null;
             }
-        }
-        private KeyframeTrack<SkelAnimKeyframe> _poses;
-        
-        public SkelAnimPoseBlend1D() { }
-        
-        public override SkeletalAnimationPose GetPose()
-        {
-            return null;
-        }
-        public override void Tick(float delta)
-        {
-
-        }
-        public override GlobalFileRef<SkeletalAnimation>[] GetAnimations()
-        {
-            return new GlobalFileRef<SkeletalAnimation>[] { };
         }
     }
 }

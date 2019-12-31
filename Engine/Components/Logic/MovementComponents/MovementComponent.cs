@@ -1,4 +1,5 @@
-﻿using TheraEngine.Core.Maths.Transforms;
+﻿using TheraEngine.Core.Maths;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Logic.Movement
 {
@@ -6,7 +7,8 @@ namespace TheraEngine.Components.Logic.Movement
     {
         private Vec3 _frameInputDirection = Vec3.Zero;
 
-        public Vec3 FrameInputDirection => _frameInputDirection;
+        public Vec3 CurrentFrameInputDirection { get; private set; } = Vec3.Zero;
+        public Vec3 TargetFrameInputDirection => _frameInputDirection;
         public Vec3 ConstantInputDirection { get; set; } = Vec3.Zero;
 
         public void AddMovementInput(Vec3 offset)
@@ -19,9 +21,9 @@ namespace TheraEngine.Components.Logic.Movement
         }
         public virtual Vec3 ConsumeInput()
         {
-            Vec3 temp = _frameInputDirection;
+            CurrentFrameInputDirection = Interp.Lerp(CurrentFrameInputDirection, _frameInputDirection, 0.1f);
             _frameInputDirection = Vec3.Zero;
-            return ConstantInputDirection + temp;
+            return ConstantInputDirection + CurrentFrameInputDirection;
         }
     }
 }

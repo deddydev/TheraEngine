@@ -81,6 +81,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
+        [Browsable(false)]
         public IUserInterfacePawn OwningUserInterface => OwningActor as IUserInterfacePawn;
 
         [Browsable(false)]

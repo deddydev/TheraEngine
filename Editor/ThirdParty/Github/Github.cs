@@ -131,10 +131,10 @@ namespace TheraEditor
                 if (File.Exists(zipFilePath))
                     File.Delete(zipFilePath);
 
-                //await Editor.RunOperationAsync(
-                //    "Creating update zip file...", "Update zip file created successfully.",
-                //    async (p, c) => await Task.Run(() => 
-                ZipFileWithProgress.CreateFromDirectory(tempFolderPath, zipFilePath, null);//));
+                await Editor.RunOperationAsync(
+                    "Creating update zip file...", "Update zip file created successfully.",
+                    async (p, c) => await Task.Run(() =>
+                    ZipFileWithProgress.CreateFromDirectory(tempFolderPath, zipFilePath, null)));
 
                 DeleteDirectory(tempFolderPath);
 
@@ -153,11 +153,11 @@ namespace TheraEditor
                     
                     Release release = await client.Repository.Release.Create(RepoOwner, RepoName, newRelease);
 
-                    //await Editor.RunOperationAsync(
-                    //    "Uploading zip file...", 
-                    //    "Zip file uploaded successfully.",
-                    //    async (p, c) =>
-                    //{
+                    await Editor.RunOperationAsync(
+                        "Uploading zip file...",
+                        "Zip file uploaded successfully.",
+                        async (p, c) =>
+                    {
                         long currentBytes = 0L;
                         using (ProgressStream archiveContents = new ProgressStream(File.OpenRead(zipFilePath), null, null))
                         {
@@ -165,7 +165,7 @@ namespace TheraEditor
                             archiveContents.SetReadProgress(new BasicProgress<int>(i =>
                             {
                                 currentBytes += i;
-                                //p.Report(currentBytes / length);
+                                p.Report(currentBytes / length);
                             }));
 
                             ReleaseAssetUpload assetUpload = new ReleaseAssetUpload(
@@ -176,7 +176,7 @@ namespace TheraEditor
 
                             await client.Repository.Release.UploadAsset(release, assetUpload);
                         }
-                    //});
+                    });
 
                     ReleaseUpdate updateRelease = release.ToUpdate();
                     updateRelease.Draft = false;
@@ -351,7 +351,7 @@ namespace TheraEditor
                             
                         Repository repo = await client.Repository.Get(RepoOwner, RepoName);
                         ReleaseAsset asset = (await client.Repository.Release.GetAllAssets(RepoOwner, repo.Name, newestRelease.Id))[0];
-                                        
+
                         string exeDir = Application.StartupPath;
                         string zipDir = Path.Combine(exeDir, newestRelease.TagName);
                         Directory.CreateDirectory(exeDir);
@@ -369,22 +369,22 @@ namespace TheraEditor
                             webClient.Headers.Add(HttpRequestHeader.UserAgent, BotUsername);
                             webClient.Headers.Add(HttpRequestHeader.Authorization, "Basic " + credentials);
                             webClient.Headers.Add(HttpRequestHeader.Accept, "application/octet-stream");
-                            
-                            //await Editor.RunOperationAsync(
-                            //    "Downloading zip file...", "Zip file download completed.",
-                            //    async (p, c) =>
-                            //    {
-                            void downloadFileProgressChanged(object sender, DownloadProgressChangedEventArgs args)
-                            {
-                                float percent = (float)args.BytesReceived / args.TotalBytesToReceive;
-                                Engine.PrintLine($"{percent * 100.0f}% downloaded...");
-                                //p.Report(percent);
-                            }
+
+                            await Editor.RunOperationAsync(
+                                "Downloading zip file...", "Zip file download completed.",
+                                async (p, c) =>
+                                {
+                                    void downloadFileProgressChanged(object sender, DownloadProgressChangedEventArgs args)
+                                    {
+                                        float percent = (float)args.BytesReceived / args.TotalBytesToReceive;
+                                        Engine.PrintLine($"{percent * 100.0f}% downloaded...");
+                                        p.Report(percent);
+                                    }
 
                                     webClient.DownloadProgressChanged += downloadFileProgressChanged;
                                     await webClient.DownloadFileTaskAsync(zipUrl, localUpdateZipPath);
                                     webClient.DownloadProgressChanged -= downloadFileProgressChanged;
-                                //});
+                                });
                         }
 
                         Engine.PrintLine("Success! Starting install...");
@@ -412,10 +412,10 @@ namespace TheraEditor
             private static async Task ExtractZipAsync(string zipFilePath, string destinationDirectoryPath)
             {
                 Directory.CreateDirectory(destinationDirectoryPath);
-                //await Editor.RunOperationAsync(
-                //    "Extracting new update...", "Update extracted successfully.", 
-                //    async (p, c) => await Task.Run(() => 
-                ZipFileWithProgress.ExtractToDirectory(zipFilePath, destinationDirectoryPath, null);//));
+                await Editor.RunOperationAsync(
+                    "Extracting new update...", "Update extracted successfully.",
+                    async (p, c) => await Task.Run(() =>
+                    ZipFileWithProgress.ExtractToDirectory(zipFilePath, destinationDirectoryPath, null)));
             }
 
             private static void Overwrite(string localUpdateUnzipPath, string exeDir)

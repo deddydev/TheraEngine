@@ -47,7 +47,7 @@ namespace TheraEditor.Windows.Forms
         /// <typeparam name="T">The object type to create.</typeparam>
         /// <returns>A newly created instance of T.</returns>
         public static T UserCreateInstanceOf<T>(bool allowDerivedTypes = true, IWin32Window window = null)
-            => (T)UserCreateInstanceOf(TypeProxy.TypeOf<T>(), allowDerivedTypes, window);
+            => (T)UserCreateInstanceOf(DomainProxy.GetTypeFor<T>(), allowDerivedTypes, window);
         /// <summary>
         /// Creates an instance of elementType using user-chosen derived type, constructor and parameters.
         /// </summary>
@@ -61,26 +61,32 @@ namespace TheraEditor.Windows.Forms
             //if (type == typeof(string))
             //    return string.Empty;
 
-            if (type.IsGenericTypeDefinition)
+            if (AppDomainHelper.IsPrimaryDomain && DomainProxy != null)
+                return DomainProxy.UserCreateInstanceOf(type, allowDerivedTypes);
+            else
             {
-                using (GenericsSelector gs = new GenericsSelector(type))
+                if (type.IsGenericTypeDefinition)
                 {
-                    if (gs.ShowDialog(window ?? Instance) == DialogResult.OK)
-                        type = gs.FinalClassType;
-                    else
-                        return null;
+                    using (GenericsSelector gs = new GenericsSelector(type))
+                    {
+                        if (gs.ShowDialog(window ?? Instance) == DialogResult.OK)
+                            type = gs.FinalClassType;
+                        else
+                            return null;
+                    }
                 }
-            }
 
-            using (ObjectCreator creator = new ObjectCreator())
-            {
-                if (creator.Initialize(type, allowDerivedTypes))
-                    creator.ShowDialog(window ?? Instance);
+                using (ObjectCreator creator = new ObjectCreator())
+                {
+                    if (creator.Initialize(type, allowDerivedTypes))
+                        creator.ShowDialog(window ?? Instance);
 
-                object o = creator.ConstructedObject;
-                if (o is IObject iobj)
-                    iobj.ConstructedProgrammatically = false;
-                return o;
+                    object o = creator.ConstructedObject;
+                    if (o is IObject iobj)
+                        iobj.ConstructedProgrammatically = false;
+
+                    return o;
+                }
             }
         }
         public static void SetPropertyGridObject(IFileObject obj)
@@ -111,19 +117,7 @@ namespace TheraEditor.Windows.Forms
             Cursor.Hide();
             //while (ShowCursor(false) >= 0) ;
         }
-        
-        private static async void CheckUpdates()
-        {
-            try
-            {
-                AssemblyName editorVer = Assembly.GetExecutingAssembly().GetName();
-                //AssemblyName engineVer = typeof(Engine).Assembly.GetName();
-                await Github.Updater.TryInstallUpdate(editorVer);
-            }
-            catch (Exception ex)
-            {
-                Engine.LogException(ex);
-            }
-        }
+
+        private static void CheckUpdates() => DomainProxy?.CheckUpdates();
     }
 }

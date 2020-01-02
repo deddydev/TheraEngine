@@ -13,12 +13,38 @@ namespace TheraEngine.Core.Memory
             Big = 1,
         }
 
-        public static EOrder SerializeOrder = EOrder.Big;
-        public static bool SerializeBig => SerializeOrder == EOrder.Big;
-        public static bool SerializeLittle => SerializeOrder == EOrder.Little;
+        /// <summary>
+        /// This is the endian that the engine de/serializer will write files and expect files to be written in.
+        /// </summary>
+        public static EOrder SerializeOrder { get; set; } = EOrder.Big;
+        /// <summary>
+        /// <see langword="true"/> if the de/serializer will read/write with big endian.
+        /// </summary>
+        public static bool SerializeBig
+        {
+            get => SerializeOrder == EOrder.Big;
+            set => SerializeOrder = value ? EOrder.Big : EOrder.Little;
+        }
+        /// <summary>
+        /// <see langword="true"/> if the de/serializer will read/write with little endian.
+        /// </summary>
+        public static bool SerializeLittle
+        {
+            get => SerializeOrder == EOrder.Little;
+            set => SerializeOrder = value ? EOrder.Little : EOrder.Big;
+        }
 
+        /// <summary>
+        /// This is the endian of the host OS.
+        /// </summary>
         public static readonly EOrder SystemOrder;
+        /// <summary>
+        /// <see langword="true"/> if the host OS endian is big.
+        /// </summary>
         public static bool SystemBig => SystemOrder == EOrder.Big;
+        /// <summary>
+        /// <see langword="true"/> if the host OS endian is little.
+        /// </summary>
         public static bool SystemLittle => SystemOrder == EOrder.Little;
         
         static Endian()
@@ -27,6 +53,7 @@ namespace TheraEngine.Core.Memory
             unsafe { SystemOrder = *((byte*)&intValue) == 1 ? EOrder.Little : EOrder.Big; }
         }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct bshort
     {
@@ -47,6 +74,7 @@ namespace TheraEngine.Core.Memory
 
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct bushort
     {
@@ -67,6 +95,7 @@ namespace TheraEngine.Core.Memory
 
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct bint
     {
@@ -92,6 +121,7 @@ namespace TheraEngine.Core.Memory
         }
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct buint
     {
@@ -117,6 +147,7 @@ namespace TheraEngine.Core.Memory
         }
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct bfloat
     {
@@ -137,6 +168,7 @@ namespace TheraEngine.Core.Memory
 
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct bdouble
     {
@@ -157,6 +189,7 @@ namespace TheraEngine.Core.Memory
 
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct blong
     {
@@ -184,6 +217,7 @@ namespace TheraEngine.Core.Memory
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
     }
 
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct bulong
     {
@@ -210,6 +244,7 @@ namespace TheraEngine.Core.Memory
 
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct BUInt24
     {
@@ -261,6 +296,7 @@ namespace TheraEngine.Core.Memory
 
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct BInt24
     {
@@ -309,6 +345,7 @@ namespace TheraEngine.Core.Memory
 
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BVec2
     {
@@ -325,6 +362,7 @@ namespace TheraEngine.Core.Memory
         public static implicit operator BVec2(Vec2 v) { return new BVec2(v.X, v.Y); }
     }
 
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BVec3
     {
@@ -345,6 +383,7 @@ namespace TheraEngine.Core.Memory
         public static implicit operator BVec3(Vec4 v) { return new BVec3(v.X / v.W, v.Y / v.W, v.Z / v.W); }
     }
 
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BVec4
     {
@@ -361,6 +400,7 @@ namespace TheraEngine.Core.Memory
         public static implicit operator BVec4(Vec4 v) { return new BVec4(v.X, v.Y, v.Z, v.W); }
     }
 
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct BMatrix43
     {
@@ -455,6 +495,7 @@ namespace TheraEngine.Core.Memory
         }
     }
 
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct BMatrix4
     {

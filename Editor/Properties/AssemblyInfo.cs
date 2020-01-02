@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Thera Engine WinForms Editor")]
+[assembly: AssemblyTitle("Thera Engine Editor")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("TheraDev")]
-[assembly: AssemblyProduct("Thera Engine WinForms Editor")]
-[assembly: AssemblyCopyright("Copyright © David Eddy 2018")]
+[assembly: AssemblyProduct("Thera Engine Editor")]
+[assembly: AssemblyCopyright("Copyright © David Eddy 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

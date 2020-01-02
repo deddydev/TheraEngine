@@ -28,9 +28,27 @@ namespace TheraEngine.ThirdParty
             public string Name { get; set; }
             public string RelativePath { get; set; }
             public Guid[] Dependencies { get; set; }
+            public Dictionary<string, (string config, string platform)> ActiveCfg { get; set; } = new Dictionary<string, (string config, string platform)>();
+            public Dictionary<string, (string config, string platform)> Build0 { get; set; } = new Dictionary<string, (string config, string platform)>();
 
             public string GetLine()
                 => $"Project(\"{TypeGuid.ToString("B")}\") = \"{Name}\", \"{RelativePath}\", \"{Guid.ToString("B")}\"";
+
+            public void GetConfigPlatform(
+                string globalConfiguration, string globalPlatform,
+                out string localConfiguration, out string localPlatform)
+            {
+                string query = $"{globalConfiguration}|{globalPlatform}";
+                if (ActiveCfg.ContainsKey(query))
+                {
+                    (localConfiguration, localPlatform) = ActiveCfg[query];
+                }
+                else
+                {
+                    localConfiguration = globalConfiguration;
+                    localPlatform = globalPlatform;
+                }
+            }
         }
 
         public string PathForProject(Project project)
@@ -77,37 +95,65 @@ namespace TheraEngine.ThirdParty
                                     switch (sectionType)
                                     {
                                         case "SolutionConfigurationPlatforms": //preSolution
+                                            {
+                                                int lineIndex = line.IndexOf('|');
 
-                                            int lineIndex = line.IndexOf('|');
+                                                string config = line.Substring(0, lineIndex).Trim();
+                                                configs.Add(config);
 
-                                            string config = line.Substring(0, lineIndex).Trim();
-                                            configs.Add(config);
-
-                                            string plat = line.Substring(lineIndex + 1, line.IndexOf('=') - lineIndex - 1).Trim();
-                                            platforms.Add(plat);
-
+                                                string plat = line.Substring(lineIndex + 1, line.IndexOf('=') - lineIndex - 1).Trim();
+                                                platforms.Add(plat);
+                                            }
                                             break;
                                         case "ProjectConfigurationPlatforms": //postSolution
+                                            {
+                                                int guidEndIndex = line.IndexOf('.');
+                                                var guid = Guid.Parse(line.Substring(0, guidEndIndex));
+                                                Project proj = projects.FirstOrDefault(x => x.Guid == guid);
+                                                line = line.Substring(guidEndIndex + 1);
 
+                                                int globalCfgEndIndex = line.IndexOf('.');
+                                                string globalCfg = line.Substring(0, globalCfgEndIndex);
+                                                //string[] globalCfgParts = globalCfg.Split('|');
+                                                line = line.Substring(globalCfgEndIndex + 1);
+
+                                                int cfgTypeIndex = line.IndexOf('=');
+                                                string cfgType = line.Substring(0, cfgTypeIndex).Trim();
+
+                                                string localCfg = line.Substring(cfgTypeIndex + 1).Trim();
+                                                string[] localCfgParts = localCfg.Split('|');
+                                                var localCfgTuple = (localCfgParts[0], localCfgParts[1]);
+
+                                                switch (cfgType)
+                                                {
+                                                    case "ActiveCfg":
+                                                        proj.ActiveCfg.Add(globalCfg, localCfgTuple);
+                                                        break;
+                                                    case "Build.0":
+                                                        proj.Build0.Add(globalCfg, localCfgTuple);
+                                                        break;
+                                                }
+                                            }
                                             break;
                                         case "SolutionProperties": //preSolution
-
-                                            if (line.StartsWith("HideSolutionNode", StringComparison.InvariantCulture))
                                             {
-                                                int startIndex = line.IndexOf('=') + 1;
-                                                string valueStr = line.Substring(startIndex).Trim();
-                                                HideSolutionNode = bool.Parse(valueStr);
+                                                if (line.StartsWith("HideSolutionNode", StringComparison.InvariantCulture))
+                                                {
+                                                    int startIndex = line.IndexOf('=') + 1;
+                                                    string valueStr = line.Substring(startIndex).Trim();
+                                                    HideSolutionNode = bool.Parse(valueStr);
+                                                }
                                             }
-
                                             break;
                                         case "ExtensibilityGlobals": //postSolution
-
-                                            if (line.StartsWith("SolutionGuid", StringComparison.InvariantCulture))
                                             {
-                                                int startIndex = line.IndexOf('=') + 1;
-                                                string guidStr = line.Substring(startIndex).Trim();
-                                                Guid guid = new Guid(guidStr);
-                                                SolutionGuid = guid;
+                                                if (line.StartsWith("SolutionGuid", StringComparison.InvariantCulture))
+                                                {
+                                                    int startIndex = line.IndexOf('=') + 1;
+                                                    string guidStr = line.Substring(startIndex).Trim();
+                                                    Guid guid = new Guid(guidStr);
+                                                    SolutionGuid = guid;
+                                                }
                                             }
 
                                             break;

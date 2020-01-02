@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Discord
 {
-    class Program
+    public class Program
     {
         private const string BotToken = "NjYwNjMzNzY0Mjg4MDA0MTEx.Xgfyrg.mwcIhDZ3tRxWrBqrY1qD-Mv68g0";
 

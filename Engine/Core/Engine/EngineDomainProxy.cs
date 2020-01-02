@@ -432,17 +432,8 @@ namespace TheraEngine.Core
 
         public TypeProxy GetTypeFor(object o) => o.GetType();
 
-        public TypeProxy GetTypeFor<T>()
-        {
-            TypeProxy proxy = typeof(T);
-            return proxy;
-        }
-        public TypeProxy GetTypeFor(string typeName)
-        {
-            //Engine.PrintLine("Getting type proxy for " + typeName);
-            TypeProxy proxy = Type.GetType(typeName);
-            return proxy;
-        }
+        public TypeProxy GetTypeFor<T>() => typeof(T);
+        public TypeProxy GetTypeFor(string typeName) => Type.GetType(typeName);
 
         public void ExportFile(IFileObject file, string dir, EProprietaryFileFormat format)
         {

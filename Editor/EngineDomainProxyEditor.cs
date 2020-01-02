@@ -1,4 +1,9 @@
 ﻿using Extensions;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Download;
+using Google.Apis.Drive.v3;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,6 +11,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -126,6 +132,19 @@ namespace TheraEditor
             //    throw new InvalidOperationException($"{nameof(NodeWrapperAttribute)} must be an attribute on a class that inherits from {nameof(FileWrapper<IFileObject>)} or {nameof(ThirdPartyFileWrapper)}.");
         }
 
+        public async void CheckUpdates()
+        {
+            try
+            {
+                AssemblyName editorVer = Assembly.GetExecutingAssembly().GetName();
+                await Github.Updater.TryInstallUpdate(editorVer);
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
+        }
+
         public async void NewFile(TypeProxy type, string dirPath)
         {
             object o = Editor.UserCreateInstanceOf(type, true);
@@ -214,6 +233,91 @@ namespace TheraEditor
                 Console.WriteLine($"{editorType.GetFriendlyName()} is the full editor for {varType.GetFriendlyName()}.");
                 //else
                 //    throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
+            }
+        }
+
+        private string GetPlatform(bool x86) => x86 ? "x86" : "x64";
+        //TODO: read sln and csproj files to get exact directory
+        //in case build config changes in the future
+        private string ResolveEnginePath(bool x86, string slnDir)
+            => Path.Combine(slnDir, "Build", "Release", "Game", GetPlatform(x86), "TheraEngine.dll");
+        private string ResolveEditorPath(bool x86, string slnDir)
+            => Path.Combine(slnDir, "Build", "Release", "Editor", GetPlatform(x86), "TheraEditor.exe");
+
+        public async void PostNewReleases(
+            bool editor, bool engine, bool x86, string slnDir, string editorMsg, string engineMsg)
+        {
+            List<Task> tasks = new List<Task>();
+
+            Github.ReleaseCreator creator = new Github.ReleaseCreator();
+            string platform = x86 ? "x86" : "x64";
+
+            if (editor)
+            {
+                string path = ResolveEditorPath(x86, slnDir);
+                bool? check = CheckBuild(path, true);
+                if (check != null && (check == true || ReleaseCreatorForm.Build("ReleaseEditor", platform, Path.Combine(slnDir, "Thera.sln"))))
+                    tasks.Add(creator.New(path, editorMsg));
+            }
+
+            //if (engine)
+            //{
+            //    string path = ResolveEnginePath(x86, slnDir);
+            //    bool? check = CheckBuild(path, false);
+            //    if (check != null && (check == true || ReleaseCreatorForm.Build("ReleaseGame", platform, Path.Combine(slnDir, "Thera.sln"))))
+            //        tasks.Add(creator.New(path, engineMsg));
+            //}
+
+            if (tasks.Count > 0)
+                await Task.WhenAll(tasks);
+            else
+                MessageBox.Show("Nothing was posted.");
+        }
+        private bool? CheckBuild(string path, bool isEditor)
+        {
+            if (File.Exists(path))
+            {
+                Type type = isEditor ? typeof(Editor) : typeof(Engine);
+
+                FileVersionInfo fileInfo = FileVersionInfo.GetVersionInfo(path);
+                string fileVersion = fileInfo.ProductVersion;
+
+                string thisVersion = type.Assembly.GetName().Version.ToString();
+
+                if (!string.Equals(fileVersion, thisVersion, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    DialogResult result = MessageBox.Show(
+                        $"File version {fileVersion} does not match current version {thisVersion}. Build before posting?",
+                        "Build needed", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                    switch (result)
+                    {
+                        default:
+                        case DialogResult.Cancel:
+                            return null;
+                        case DialogResult.Yes:
+                            return false;
+                        case DialogResult.No:
+                            return true;
+                    }
+                }
+
+                return true;
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show(
+                        $"Build does not exist. Build before posting?",
+                        "Build needed", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                switch (result)
+                {
+                    default:
+                    case DialogResult.Cancel:
+                        return null;
+                    case DialogResult.Yes:
+                        return false;
+                    case DialogResult.No:
+                        return true;
+                }
             }
         }
 

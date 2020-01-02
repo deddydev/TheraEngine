@@ -41,7 +41,7 @@ namespace TheraEngine.Networking
             switch (message)
             {
                 case EConnectionMessage.Request:
-                    Engine.PrintLine($"Recieved connection request from {endPoint.ToString()}.");
+                    Engine.PrintLine($"Received connection request from {endPoint.ToString()}.");
                     NetworkClient client = FindConnectedClient(endPoint);
                     if (client is null)
                     {

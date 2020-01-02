@@ -146,16 +146,15 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.PopRenderArea();
             Engine.Renderer.MeshMaterialOverride = null;
         }
-        public static EPixelInternalFormat GetShadowDepthMapFormat(EDepthPrecision precision)
-        {
-            switch (precision)
+
+        public static EPixelInternalFormat GetShadowDepthMapFormat(EDepthPrecision precision) 
+            => precision switch
             {
-                case EDepthPrecision.Int16: return EPixelInternalFormat.DepthComponent16;
-                case EDepthPrecision.Int24: return EPixelInternalFormat.DepthComponent24;
-                case EDepthPrecision.Int32: return EPixelInternalFormat.DepthComponent32;
-            }
-            return EPixelInternalFormat.DepthComponent32f;
-        }
+                EDepthPrecision.Int16 => EPixelInternalFormat.DepthComponent16,
+                EDepthPrecision.Int24 => EPixelInternalFormat.DepthComponent24,
+                EDepthPrecision.Int32 => EPixelInternalFormat.DepthComponent32,
+                _ => EPixelInternalFormat.DepthComponent32f,
+            };
 
 #if EDITOR
 

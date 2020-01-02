@@ -15,6 +15,7 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Evaluation;
 using static TheraEditor.TProject;
 using System.Diagnostics;
+using Microsoft.Build.Locator;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -64,17 +65,19 @@ namespace TheraEditor.Windows.Forms
             string engineName = typeof(Engine).Assembly.GetName().Name;
             string editorName = Assembly.GetExecutingAssembly().GetName().Name;
 
-            var engine64Newer = CheckIfNewerBuild(engineName, "ReleaseGame", true);
-            var editor64Newer = CheckIfNewerBuild(editorName, "Release", true);
-            var engine86Newer = CheckIfNewerBuild(engineName, "ReleaseGame", false);
-            var editor86Newer = CheckIfNewerBuild(editorName, "Release", false);
+            //var engine64Newer = CheckIfNewerBuild(engineName, "ReleaseGame", true);
+            var editor64Newer = CheckIfNewerBuild(editorName, "ReleaseEditor", true);
+            //var engine86Newer = CheckIfNewerBuild(engineName, "ReleaseGame", false);
+            //var editor86Newer = CheckIfNewerBuild(editorName, "ReleaseEditor", false);
 
-            await Task.WhenAll(engine64Newer, editor64Newer, engine86Newer, editor86Newer);
+            await Task.WhenAll(editor64Newer);
 
-            Engine64IsNewer = engine64Newer.Result;
+            //await Task.WhenAll(engine64Newer, editor64Newer, engine86Newer, editor86Newer);
+
+            //Engine64IsNewer = engine64Newer.Result;
             Editor64IsNewer = editor64Newer.Result;
-            Engine86IsNewer = engine86Newer.Result;
-            Editor86IsNewer = editor86Newer.Result;
+            //Engine86IsNewer = engine86Newer.Result;
+            //Editor86IsNewer = editor86Newer.Result;
 
             if (!Engine64IsNewer && !Editor64IsNewer && !Engine86IsNewer && !Editor86IsNewer)
             {
@@ -117,12 +120,18 @@ namespace TheraEditor.Windows.Forms
         private void Rdx64_CheckedChanged(object sender, EventArgs e) => SetEnabled();
         private void Rdx86_CheckedChanged(object sender, EventArgs e) => SetEnabled();
 
-        public async Task<bool> CheckIfNewerBuild(string name, string configuration, bool x64)
+        public async Task<bool> CheckIfNewerBuild(string name, string globalConfiguration, bool x64)
         {
-            string platform = x64 ? "x64" : "x86";
+            string globalPlatform = x64 ? "x64" : "x86";
             foreach (var project in Sln.Projects)
             {
                 //var project = Sln.Projects.FirstOrDefault(x => x.Name.EqualsInvariantIgnoreCase(name));
+                project.GetConfigPlatform(
+                    globalConfiguration, 
+                    globalPlatform,
+                    out string localConfiguration,
+                    out string localPlatform);
+
                 var msbuild = await Sln.ReadProjectAsync(project);
                 //msbuild.Variables["Configuration"] = configuration;
                 //msbuild.Variables["Platform"] = platform;
@@ -150,7 +159,7 @@ namespace TheraEditor.Windows.Forms
                     }
                 }
 
-                var testGrps = pGrps.Where(pGrp => ConfigConditionMatches(pGrp, configuration, platform));
+                var testGrps = pGrps.Where(pGrp => ConfigConditionMatches(pGrp, localConfiguration, localPlatform));
                 foreach (var pGrp in testGrps)
                 {
                     var outputPathProp = pGrp.PropertyElements.FirstOrDefault(prop =>
@@ -171,7 +180,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         if (!File.Exists(path))
                         {
-                            Build(configuration, platform, Sln.PathForProject(project));
+                            Build(globalConfiguration, globalPlatform, Sln.PathForProject(project));
                         }
                         if (File.Exists(path))
                         {
@@ -188,8 +197,10 @@ namespace TheraEditor.Windows.Forms
             return false;
         }
 
-        private bool Build(string configuration, string platform, string projectPath)
+        public static bool Build(string configuration, string platform, string projectPath)
         {
+            //var instances = MSBuildLocator.QueryVisualStudioInstances().ToArray();
+
             Dictionary<string, string> props = new Dictionary<string, string>
             {
                 { "Configuration",  configuration  },
@@ -202,7 +213,7 @@ namespace TheraEditor.Windows.Forms
             {
                 Loggers = new ILogger[] { logger }
             };
-            var result = BuildManager.DefaultBuildManager.Build(buildParams, request);
+            BuildResult result = BuildManager.DefaultBuildManager.Build(buildParams, request);
             if (logger.Errors.Count > 0)
                 logger.Display();
 
@@ -242,7 +253,7 @@ namespace TheraEditor.Windows.Forms
             Close();
         }
 
-        private async void BtnPost_Click(object sender, EventArgs e)
+        private void BtnPost_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show(this, 
                 "This will upload to Github and be distributed to all users. Is all information correct?", 
@@ -253,30 +264,13 @@ namespace TheraEditor.Windows.Forms
 
             if (result == DialogResult.Yes)
             {
-                List<Task> tasks = new List<Task>();
-
-                Github.ReleaseCreator creator = new Github.ReleaseCreator();
-                string platform = rdx86.Checked ? "x86" : "x64";
-                if (chkEditor.Checked)
-                {
-                    string path = ResolveEditorPath(rdx86.Checked);
-                    bool? check = CheckBuild(path, true);
-                    if (check != null && (check == true || Build("ReleaseEditor", platform, Path.Combine(SlnDir, "Thera.sln"))))
-                        tasks.Add(creator.New(path, txtEditorNotes.Text));
-                }
-
-                if (chkEngine.Checked)
-                {
-                    string path = ResolveEnginePath(rdx86.Checked);
-                    bool? check = CheckBuild(path, false);
-                    if (check != null && (check == true || Build("ReleaseGame", platform, Path.Combine(SlnDir, "Thera.sln"))))
-                        tasks.Add(creator.New(path, txtEngineNotes.Text));
-                }
-
-                if (tasks.Count > 0)
-                    await Task.WhenAll(tasks);
-                else
-                    MessageBox.Show("Nothing was posted.");
+                Editor.DomainProxy.PostNewReleases(
+                    chkEditor.Checked,
+                    chkEngine.Checked,
+                    rdx86.Checked,
+                    SlnDir,
+                    txtEditorNotes.Text,
+                    txtEngineNotes.Text);
 
                 DialogResult = DialogResult.OK;
                 Close();
@@ -284,67 +278,11 @@ namespace TheraEditor.Windows.Forms
             DialogResult = DialogResult.Cancel;
         }
 
-        private bool? CheckBuild(string path, bool isEditor)
-        {
-            if (File.Exists(path))
-            {
-                Type type = isEditor ? typeof(Editor) : typeof(Engine);
-
-                FileVersionInfo fileInfo = FileVersionInfo.GetVersionInfo(path);
-                string fileVersion = fileInfo.ProductVersion;
-
-                string thisVersion = type.Assembly.GetName().Version.ToString();
-
-                if (!string.Equals(fileVersion, thisVersion, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    DialogResult result = MessageBox.Show(
-                        $"File version {fileVersion} does not match current version {thisVersion}. Build before posting?",
-                        "Build needed", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-                    switch (result)
-                    {
-                        default:
-                        case DialogResult.Cancel:
-                            return null;
-                        case DialogResult.Yes:
-                            return false;
-                        case DialogResult.No:
-                            return true;
-                    }
-                }
-
-                return true;
-            }
-            else
-            {
-                DialogResult result = MessageBox.Show(
-                        $"Build does not exist. Build before posting?",
-                        "Build needed", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-                switch (result)
-                {
-                    default:
-                    case DialogResult.Cancel:
-                        return null;
-                    case DialogResult.Yes:
-                        return false;
-                    case DialogResult.No:
-                        return true;
-                }
-            }
-        }
-
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             base.OnFormClosed(e);
             Instance = null;
         }
-
-        private string GetPlatform(bool x86) => x86 ? "x86" : "x64";
-        //TODO: read sln and csproj files to get exact directory
-        //in case build config changes in the future
-        private string ResolveEnginePath(bool x86)
-            => Path.Combine(SlnDir, "Build", "Release", "Game", GetPlatform(x86), "TheraEngine.dll");
-        private string ResolveEditorPath(bool x86)
-            => Path.Combine(SlnDir, "Build", "Release", "Editor", GetPlatform(x86), "TheraEditor.exe");
 
         public static ReleaseCreatorForm Instance { get; private set; }
         public static void ShowInstance()

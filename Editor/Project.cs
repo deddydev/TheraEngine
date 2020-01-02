@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Core;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.XML;
 using TheraEngine.Core.Reflection.Attributes;
@@ -199,7 +200,7 @@ namespace TheraEditor
                 _referencedAssemblies.CollectionChanged += _referencedAssemblies_CollectionChanged;
             }
         }
-        private void _referencedAssemblies_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void _referencedAssemblies_CollectionChanged(object sender, TCollectionChangedEventArgs<PathReference> e)
         {
 
         }

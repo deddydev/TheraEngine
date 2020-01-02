@@ -67,9 +67,12 @@ namespace TheraEngine.Core
 
         public event Action Stopped;
         public event Action Started;
-        public event Action<string> DebugOutput;
+        //public event Action<string> DebugOutput;
 
         public event Action<bool> ReloadTypeCaches;
+
+        protected virtual void OnStarted() => Started?.Invoke();
+        protected virtual void OnStopped() => Stopped?.Invoke();
 
         public string GetVersionInfo() =>
 
@@ -119,14 +122,17 @@ namespace TheraEngine.Core
         //}
         public async virtual void Start(string gamePath, bool isUIDomain)
         {
-            Trace.WriteLine($"Starting self.");
+            Engine.UncacheSettings(true);
+
+            Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Starting self.");
+
+            AppDomainHelper.ResetCaches();
+            ResetTypeCaches();
+
             AppDomain.CurrentDomain.AssemblyLoad += AppDomainHelper.CurrentDomain_AssemblyLoad;
 
             Engine.InputAwaiter = null;
             Engine.InputLibrary = EInputLibrary.OpenTK;
-
-            AppDomainHelper.ResetCaches();
-            ResetTypeCaches();
 
             Engine.Initialize();
             Engine.Run();
@@ -157,22 +163,19 @@ namespace TheraEngine.Core
         public static ConcurrentDictionary<string, IFileObject> GlobalFileInstances { get; }
             = new ConcurrentDictionary<string, IFileObject>();
 
-        protected virtual void OnStarted() => Started?.Invoke();
         public virtual void Stop()
         {
-            Engine.PrintLine($"Stopping self.");
+            Console.WriteLine($"Stopping self.");
             AppDomain.CurrentDomain.AssemblyLoad -= AppDomainHelper.CurrentDomain_AssemblyLoad;
 
-            SetRenderTicking(false);
-            Engine.Stop();
-
-            ResetTypeCaches(false);
             Engine.ShutDown();
+            SetRenderTicking(false);
+            ResetTypeCaches(false);
+
             Sponsor?.Release();
 
             OnStopped();
         }
-        protected virtual void OnStopped() => Stopped?.Invoke();
 
         public bool IsRenderTicking { get; private set; }
         public void SetRenderTicking(bool isRendering)
@@ -287,7 +290,7 @@ namespace TheraEngine.Core
 
             ReloadTypeCaches?.Invoke(reloadNow);
 
-            Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Done {(reloadNow ? "regenerating" : "clearing")} type caches.");
+            Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Done {(reloadNow ? "regenerating" : "clearing")} type caches.");
         }
 
         public Delegate Get3rdPartyLoader(TypeProxy fileType, string extension)
@@ -422,7 +425,7 @@ namespace TheraEngine.Core
                 }
                 catch
                 {
-                    Engine.LogWarning($"Cannot use {m.GetFriendlyName()} as a third party loader for {m.DeclaringType.GetFriendlyName()}.");
+                    Console.WriteLine($"Cannot use {m.GetFriendlyName()} as a third party loader for {m.DeclaringType.GetFriendlyName()}.");
                 }
             }
         }

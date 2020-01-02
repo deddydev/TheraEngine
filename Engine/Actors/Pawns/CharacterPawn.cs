@@ -74,12 +74,8 @@ namespace TheraEngine.Actors.Types.Pawns
         public bool FirstPerson
         {
             get => _firstPerson;
-            set
-            {
-                _firstPerson = value;
-            }
+            set => Set(ref _firstPerson, value);
         }
-
         public float KeyboardMovementInputMultiplier 
         {
             get => _keyboardMovementInputMultiplier; 
@@ -118,26 +114,22 @@ namespace TheraEngine.Actors.Types.Pawns
             mode?.OnCharacterKilled(this, instigator, killer);
         }
         public void QueueRespawn(float respawnTimeInSeconds = 0)
-        {
-            _respawnTimer.StartSingleFire(WantsRespawn, respawnTimeInSeconds);
-        }
+            => _respawnTimer.StartSingleFire(WantsRespawn, respawnTimeInSeconds);
         protected virtual void WantsRespawn()
-        {
-            _respawnTimer.StartMultiFire(AttemptSpawn, 0.0f);
-        }
+            => _respawnTimer.StartMultiFire(AttemptSpawn, 0.1f);
         private void AttemptSpawn(float totalElapsed, int fireNumber)
         {
             ICharacterGameMode mode = OwningWorld?.CurrentGameMode as ICharacterGameMode;
-            if (mode.FindSpawnPoint(Controller, out Matrix4 transform))
-            {
-                _respawnTimer.Stop();
+            if (!mode.FindSpawnPoint(Controller, out Matrix4 transform))
+                return;
+            
+            _respawnTimer.Stop();
 
-                if (IsSpawned)
-                    Engine.World.DespawnActor(this);
+            if (IsSpawned)
+                Engine.World.DespawnActor(this);
 
-                RootComponent.WorldMatrix = transform;
-                Engine.World.SpawnActor(this);
-            }
+            RootComponent.WorldMatrix = transform;
+            Engine.World.SpawnActor(this);
         }
         protected override void OnSpawnedPostComponentSpawn()
         {

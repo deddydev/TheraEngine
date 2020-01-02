@@ -361,14 +361,14 @@ namespace TheraEngine
             get
             {
                 var ctx = RenderContext.Captured;
-                if (ctx is null)
-                {
-                    //string domain = AppDomain.CurrentDomain.FriendlyName;
-                    throw new InvalidOperationException("No render library set.");
-                }
+                //if (ctx is null)
+                //{
+                //    //string domain = AppDomain.CurrentDomain.FriendlyName;
+                //    throw new InvalidOperationException("No render library set.");
+                //}
                 //if (MainThreadID != Thread.CurrentThread.ManagedThreadId)
                 //    throw new Exception("Cannot make render calls off the main thread. Invoke the method containing the calls with RenderPanel.CapturedPanel beforehand.");
-                return ctx.Renderer;
+                return ctx?.Renderer;
             }
         }
         /// <summary>
@@ -479,6 +479,7 @@ namespace TheraEngine
                 CreateFileIfNonExistent = true
             };
 
+        private static bool AllowSettingsCache { get; set; } = false;
         private static bool SettingsLoading { get; set; } = false;
         public static EngineSettings Settings 
         {
@@ -487,51 +488,61 @@ namespace TheraEngine
                 if (SettingsLoading)
                     return _defaultEngineSettings.Value;
 
-                if (_settings is null)
+                var obj = SettingsRouter.Object;
+                if (obj is null)
                 {
-                    SettingsLoading = true;
-                    _settings = LinkSettings(GetBestSettings());
-                    SettingsLoading = false;
+                    var cache = GetBestSettings();
+                    if (AllowSettingsCache)
+                        CacheSettings(cache);
+                    return cache;
                 }
-
-                return _settings;
+                
+                return obj;
             }
-            private set => _settings = value;
+            private set => CacheSettings(value);
         }
 
         public static void SettingsSourcesChanged()
+            => CacheSettings(GetBestSettings());
+
+        public static void CacheSettings(EngineSettings settings)
         {
             SettingsLoading = true;
-            UnlinkSettings();
-            _settings = LinkSettings(GetBestSettings());
+            UncacheSettings(true);
+            SettingsRouter.Object = settings;
             SettingsLoading = false;
         }
 
-        private static EngineSettings LinkSettings(EngineSettings settings)
+        private static PropertyChangedRouter<EngineSettings> SettingsRouter { get; } 
+            = new PropertyChangedRouter<EngineSettings>(null, 
+                (nameof(EngineSettings.SingleThreaded), Settings_SingleThreadedChanged),
+                (nameof(EngineSettings.CapFPS), Settings_FramesPerSecondChanged),
+                (nameof(EngineSettings.TargetFPS), Settings_FramesPerSecondChanged),
+                (nameof(EngineSettings.CapUPS), Settings_UpdatePerSecondChanged),
+                (nameof(EngineSettings.TargetUPS), Settings_UpdatePerSecondChanged));
+
+        public static void UncacheSettings(bool allowCaching)
         {
-            if (settings is null)
-                return null;
+            AllowSettingsCache = allowCaching;
+            _defaultEngineSettingsOverrideRef?.Unload();
+            Game?.EngineSettingsOverrideRef?.Unload();
 
-            settings.SingleThreadedChanged += Settings_SingleThreadedChanged;
-            settings.FramesPerSecondChanged += Settings_FramesPerSecondChanged;
-            settings.UpdatePerSecondChanged += Settings_UpdatePerSecondChanged;
-
-            Settings_SingleThreadedChanged(settings);
-            Settings_FramesPerSecondChanged(settings);
-            Settings_UpdatePerSecondChanged(settings);
-
-            return settings;
-        }
-
-        private static void UnlinkSettings()
-        {
-            if (_settings is null)
+            var obj = SettingsRouter.Object;
+            if (obj is null)
                 return;
 
-            var value = _settings;
-            value.SingleThreadedChanged -= Settings_SingleThreadedChanged;
-            value.FramesPerSecondChanged -= Settings_FramesPerSecondChanged;
-            value.UpdatePerSecondChanged -= Settings_UpdatePerSecondChanged;
+            try
+            {
+                AppDomainHelper.ReleaseSponsor(obj);
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                SettingsRouter.Object = null;
+            }
         }
 
         /// <summary>
@@ -606,7 +617,6 @@ namespace TheraEngine
 
         public static AbstractAudioManager _audioManager;
         public static AbstractPhysicsInterface _physicsInterface;
-        private static EngineSettings _settings;
 
         public static Viewport CurrentlyRenderingViewport
         {
@@ -626,7 +636,7 @@ namespace TheraEngine
         /// </summary>
         public partial class InternalEnginePersistentSingleton : MarshalByRefObject
         {
-            private void SafePrintLine(string str)
+            internal void SafePrintLine(string str)
             {
                 Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}]" + str);
             }
@@ -636,24 +646,34 @@ namespace TheraEngine
                 if (proxy is null)
                     return;
 
-                try
-                {
+                //try
+                //{
                     DomainProxyDestroying?.Invoke(proxy);
-                }
-                catch
-                {
-                    SafePrintLine($"{nameof(DomainProxyDestroying)} event threw an exception.");
-                }
+                //}
+                //catch
+                //{
+                //    SafePrintLine($"{nameof(DomainProxyDestroying)} event threw an exception.");
+                //}
+                UncacheSettings(AllowSettingsCache);
                 proxy.Stop();
-                proxy.Stopped -= DomainProxy_Stopped;
+                //proxy.Stopped -= DomainProxy_Stopped;
 
                 SafePrintLine($"DomainProxy stopped for accessing {proxy.Domain.FriendlyName}.");
             }
             private void StartProxy(EngineDomainProxy proxy, string gamePath, bool isUIDomain)
             {
+                UncacheSettings(true);
                 proxy.Start(gamePath, isUIDomain);
-                proxy.Stopped += DomainProxy_Stopped;
-                DomainProxyCreated?.Invoke(proxy);
+                //proxy.Stopped += DomainProxy_Stopped;
+
+                try
+                {
+                    DomainProxyCreated?.Invoke(proxy);
+                }
+                catch
+                {
+                    SafePrintLine($"{nameof(DomainProxyCreated)} event threw an exception.");
+                }
 
                 SafePrintLine($"DomainProxy started for accessing {(isUIDomain ? "this domain" : proxy.Domain.FriendlyName)}.");
             }
@@ -701,10 +721,10 @@ namespace TheraEngine
                 SafePrintLine("Active domains after destroy: " + AppDomainHelper.AppDomainStringList);
             }
 
-            private void DomainProxy_Stopped()
-            {
-                SafePrintLine($"DomainProxy stopped.");
-            }
+            //private void DomainProxy_Stopped()
+            //{
+            //    SafePrintLine($"DomainProxy stopped.");
+            //}
 
             //private Type TypeCreationFailed(string typeDeclaration)
             //    => DomainProxy.CreateType(typeDeclaration);

@@ -382,12 +382,7 @@ namespace TheraEngine.Worlds
         }
         protected virtual void OnEndPlay()
         {
-            foreach (var m in State.SpawnedMaps)
-                if (m.IsVisible)
-                    m.EndPlay();
-
-            State.SpawnedMaps.Clear();
-            State.SpawnedActors.Clear();
+            State.EndPlay();
 
             if (Settings.TwoDimensional)
                 RenderInfo2D.UnlinkScene();

@@ -746,7 +746,7 @@ namespace FastColoredTextBoxNS
         public void SetStyle(Style style, string regexPattern)
         {
             //search code for style
-            StyleIndex layer = ToStyleIndex(tb.GetOrSetStyleLayerIndex(style));
+            EStyleIndex layer = ToStyleIndex(tb.GetOrSetStyleLayerIndex(style));
             SetStyle(layer, regexPattern, RegexOptions.None);
         }
 
@@ -756,7 +756,7 @@ namespace FastColoredTextBoxNS
         public void SetStyle(Style style, Regex regex)
         {
             //search code for style
-            StyleIndex layer = ToStyleIndex(tb.GetOrSetStyleLayerIndex(style));
+            EStyleIndex layer = ToStyleIndex(tb.GetOrSetStyleLayerIndex(style));
             SetStyle(layer, regex);
         }
 
@@ -767,14 +767,14 @@ namespace FastColoredTextBoxNS
         public void SetStyle(Style style, string regexPattern, RegexOptions options)
         {
             //search code for style
-            StyleIndex layer = ToStyleIndex(tb.GetOrSetStyleLayerIndex(style));
+            EStyleIndex layer = ToStyleIndex(tb.GetOrSetStyleLayerIndex(style));
             SetStyle(layer, regexPattern, options);
         }
 
         /// <summary>
         /// Set style for given regex pattern
         /// </summary>
-        public void SetStyle(StyleIndex styleLayer, string regexPattern, RegexOptions options)
+        public void SetStyle(EStyleIndex styleLayer, string regexPattern, RegexOptions options)
         {
             if (Math.Abs(Start.iLine - End.iLine) > 1000)
                 options |= SyntaxHighlighter.RegexCompiledOption;
@@ -788,7 +788,7 @@ namespace FastColoredTextBoxNS
         /// <summary>
         /// Set style for given regex pattern
         /// </summary>
-        public void SetStyle(StyleIndex styleLayer, Regex regex)
+        public void SetStyle(EStyleIndex styleLayer, Regex regex)
         {
             foreach (var range in GetRanges(regex))
                 range.SetStyle(styleLayer);
@@ -799,7 +799,7 @@ namespace FastColoredTextBoxNS
         /// <summary>
         /// Appends style to chars of range
         /// </summary>
-        public void SetStyle(StyleIndex styleIndex)
+        public void SetStyle(EStyleIndex styleIndex)
         {
             //set code to chars
             int fromLine = Math.Min(End.iLine, Start.iLine);
@@ -1029,7 +1029,7 @@ namespace FastColoredTextBoxNS
         /// <summary>
         /// Clear styles of range
         /// </summary>
-        public void ClearStyle(StyleIndex styleIndex)
+        public void ClearStyle(EStyleIndex styleIndex)
         {
             //set code to chars
             int fromLine = Math.Min(End.iLine, Start.iLine);
@@ -1207,6 +1207,7 @@ namespace FastColoredTextBoxNS
         /// Get fragment of text around Start place. Returns maximal matched to given Style.
         /// </summary>
         /// <param name="style">Allowed style for fragment</param>
+        /// <param name="allowLineBreaks"></param>
         /// <returns>Range of found fragment</returns>
         public Range GetFragment(Style style, bool allowLineBreaks)
         {
@@ -1399,9 +1400,9 @@ namespace FastColoredTextBoxNS
             OnSelectionChanged();
         }
 
-        public static StyleIndex ToStyleIndex(int i)
+        public static EStyleIndex ToStyleIndex(int i)
         {
-            return (StyleIndex)(1 << i);
+            return (EStyleIndex)(1 << i);
         }
 
         public RangeRect Bounds

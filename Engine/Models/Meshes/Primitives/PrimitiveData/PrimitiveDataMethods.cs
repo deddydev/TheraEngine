@@ -117,8 +117,8 @@ namespace TheraEngine.Rendering.Models
 
             AddBuffer(binormals, new VertexAttribInfo(EBufferType.Binormal));
             AddBuffer(tangents, new VertexAttribInfo(EBufferType.Tangent));
-            _bufferInfo._hasBinormals = true;
-            _bufferInfo._hasTangents = true;
+            _bufferInfo.HasBinormals = true;
+            _bufferInfo.HasTangents = true;
             OnBufferInfoChanged();
         }
         protected void OnBufferInfoChanged() => BufferInfoChanged?.Invoke();

@@ -4,6 +4,9 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
+    /// <summary>
+    /// Generates a typical vertex shader for use with most models.
+    /// </summary>
     public class VertexShaderGenerator : MaterialGenerator
     {
         public const string FragPosName = "FragPos";
@@ -12,6 +15,7 @@ namespace TheraEngine.Rendering
         public const string FragTanName = "FragTan";
         public const string FragColorName = "FragColor{0}";
         public const string FragUVName = "FragUV{0}";
+
         public const int FragPosBaseLoc = 0;
         public const int FragNormBaseLoc = 1;
         public const int FragTanBaseLoc = 2;
@@ -21,7 +25,7 @@ namespace TheraEngine.Rendering
 
         private bool _morphsAllowed, _useMorphMultiRig;
         private VertexShaderDesc _info;
-        private bool UseMorphs => _morphsAllowed && _info._morphCount > 0;
+        private bool UseMorphs => _morphsAllowed && _info.MorphCount > 0;
         private bool MultiRig => UseMorphs && _useMorphMultiRig;
         private TMaterial Material { get; set; }
 
@@ -73,9 +77,9 @@ namespace TheraEngine.Rendering
             else
                 WriteStaticPNBT();
 
-            for (int i = 0; i < _info._colorCount; ++i)
+            for (int i = 0; i < _info.ColorCount; ++i)
                 Line("{0} = {2}{1};", string.Format(FragColorName, i), i, EBufferType.Color.ToString());
-            for (int i = 0; i < _info._texcoordCount; ++i)
+            for (int i = 0; i < _info.TexcoordCount; ++i)
                 Line("{0} = {2}{1};", string.Format(FragUVName, i), i, EBufferType.TexCoord.ToString());
 
             string source = EndMain();
@@ -84,7 +88,7 @@ namespace TheraEngine.Rendering
         }
         private void WriteBuffers()
         {
-            int meshCount = UseMorphs ? _info._morphCount + 1 : 1;
+            int meshCount = UseMorphs ? _info.MorphCount + 1 : 1;
             bool weighted = Engine.Settings.SkinOnGPU && _info.IsWeighted;
             int location = 0;
 
@@ -140,14 +144,14 @@ namespace TheraEngine.Rendering
 
             #region Colors
             type = EBufferType.Color;
-            for (int i = 0; i < _info._colorCount; ++i)
+            for (int i = 0; i < _info.ColorCount; ++i)
                 WriteInVar(location + i, EShaderVarType._vec4, VertexAttribInfo.GetAttribName(EBufferType.Color, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
             #region TexCoords
             type = EBufferType.TexCoord;
-            for (int i = 0; i < _info._texcoordCount; ++i)
+            for (int i = 0; i < _info.TexcoordCount; ++i)
                 WriteInVar(location + i, EShaderVarType._vec2, VertexAttribInfo.GetAttribName(EBufferType.TexCoord, i));
             //location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
@@ -165,11 +169,11 @@ namespace TheraEngine.Rendering
                 if (Engine.Settings.SkinOnGPU)
                 {
                     StartUniformBlock("Bones");
-                    WriteUniform(EShaderVarType._mat4, Uniform.BoneTransformsName + "[" + (_info._boneCount + 1) + "]");
+                    WriteUniform(EShaderVarType._mat4, Uniform.BoneTransformsName + "[" + (_info.BoneCount + 1) + "]");
                     EndUniformBlock("BoneDef");
                 }
                 if (UseMorphs)
-                    WriteUniform(EShaderVarType._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
+                    WriteUniform(EShaderVarType._mat4, Uniform.MorphWeightsName + "[" + _info.MorphCount + "]");
             }
         }
 
@@ -189,10 +193,10 @@ namespace TheraEngine.Rendering
             if (_info.HasTangents)
                 WriteOutVar(3, EShaderVarType._vec3, FragTanName);
 
-            for (int i = 0; i < _info._colorCount; ++i)
+            for (int i = 0; i < _info.ColorCount; ++i)
                 WriteOutVar(4 + i, EShaderVarType._vec4, string.Format(FragColorName, i));
 
-            for (int i = 0; i < _info._texcoordCount; ++i)
+            for (int i = 0; i < _info.TexcoordCount; ++i)
                 WriteOutVar(6 + i, EShaderVarType._vec2, string.Format(FragUVName, i));
         }
 
@@ -262,7 +266,7 @@ namespace TheraEngine.Rendering
             else
             {
                 Line("float totalWeight = 0.0f;");
-                Line($"for (int i = 0; i < {_info._morphCount}; ++i)");
+                Line($"for (int i = 0; i < {_info.MorphCount}; ++i)");
                 Line("totalWeight += MorphWeights[i];");
                 Line();
                 Line("float baseWeight = 1.0f - totalWeight;");
@@ -278,7 +282,7 @@ namespace TheraEngine.Rendering
                 Line();
 
                 OpenLoop(4);
-                for (int i = 0; i < _info._morphCount; ++i)
+                for (int i = 0; i < _info.MorphCount; ++i)
                 {
                     Line("finalPosition += BoneDef.{0}[{1}{3}[i]] * vec4(Position{5}, 1.0f) * {2}{3}[i] * {4}[i];", Uniform.BoneTransformsName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasNormals)
@@ -287,7 +291,7 @@ namespace TheraEngine.Rendering
                         Line("finalBinorm += (mat3(BoneDef.{0}[{1}{3}[i]]) * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneTransformsName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasTangents)
                         Line("finalTangent += (mat3(BoneDef.{0}[{1}{3}[i]]) * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneTransformsName, EBufferType.MatrixIds, EBufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
-                    if (i + 1 != _info._morphCount)
+                    if (i + 1 != _info.MorphCount)
                         Line();
                 }
                 CloseBracket();
@@ -319,7 +323,7 @@ namespace TheraEngine.Rendering
             if (UseMorphs)
             {
                 Line("float totalWeight = 0.0f;");
-                OpenLoop(_info._morphCount);
+                OpenLoop(_info.MorphCount);
                 Line($"totalWeight += {Uniform.MorphWeightsName}[i];");
                 CloseBracket();
 
@@ -336,7 +340,7 @@ namespace TheraEngine.Rendering
                     Line("tangent *= baseWeight;");
                 Line();
 
-                for (int i = 0; i < _info._morphCount; ++i)
+                for (int i = 0; i < _info.MorphCount; ++i)
                 {
                     Line($"position += vec4(Position{i + 1}, 1.0f) * MorphWeights[{i}];");
                     if (_info.HasNormals)

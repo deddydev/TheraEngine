@@ -85,10 +85,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         public abstract bool CanWriteAsString(TypeProxy type);
 
-        static BaseObjectSerializer()
-        {
-            ClearObjectSerializerCache();
-        }
+        static BaseObjectSerializer() => ClearObjectSerializerCache();
 
         public static Lazy<Dictionary<ObjectSerializerFor, TypeProxy>> ObjectSerializers { get; set; }
         /// <summary>
@@ -103,7 +100,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             if (objectType is null)
             {
-                Engine.LogWarning("Unable to create object serializer for null type.");
+                Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Unable to create object serializer for null type.");
                 return null;
             }
 
@@ -133,7 +130,7 @@ namespace TheraEngine.Core.Files.Serialization
                         int[] mins = counts.FindAllMatchIndices(x => x == min);
                         string msg = "Type " + objectType.GetFriendlyName() + " has multiple valid object serializers: " + types.ToStringList(", ", " and ", x => x.GetFriendlyName());
                         msg += ". Narrowed down to " + mins.Select(x => types[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
-                        Engine.PrintLine(msg);
+                        Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] {msg}");
                         serType = types[mins[0]];
                         break;
                     }
@@ -145,7 +142,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
         private static Dictionary<ObjectSerializerFor, TypeProxy> GetObjectSerializers()
         {
-            Engine.PrintLine($"Reloading object serializer cache.");
+            Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Reloading object serializer cache.");
             Type baseObjSerType = typeof(BaseObjectSerializer);
             IEnumerable<TypeProxy> typeList = AppDomainHelper.FindTypes(type =>
                 type.IsAssignableTo(baseObjSerType) &&
@@ -158,12 +155,12 @@ namespace TheraEngine.Core.Files.Serialization
                 if (!serializers.ContainsKey(attrib))
                     serializers.Add(attrib, type);
             }
-            Engine.PrintLine("Done loading object serializer cache.");
+            Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Done loading object serializer cache.");
             return serializers;
         }
         public static void ClearObjectSerializerCache()
         {
-            Engine.PrintLine("Clearing object serializer cache.");
+            Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Clearing object serializer cache.");
             ObjectSerializers = new Lazy<Dictionary<ObjectSerializerFor, TypeProxy>>(GetObjectSerializers, LazyThreadSafetyMode.PublicationOnly);
         }
 

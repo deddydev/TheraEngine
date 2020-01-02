@@ -68,16 +68,13 @@ namespace TheraEditor.Wrappers
             return await FileRefGeneric.GetInstanceAsync(progress, cancel);
         }
 
-        private TypeProxy _fileType;
         public TypeProxy FileType 
         {
-            get => _fileType ?? (_fileType = TFileObject.DetermineType(FilePath, out _));
+            get => FileRefGeneric?.FileType;
             set
             {
-                _fileType = value;
-
                 if (FileRefGeneric != null)
-                    FileRefGeneric.FileType = _fileType;
+                    FileRefGeneric.FileType = value;
             }
         }
 
@@ -88,14 +85,10 @@ namespace TheraEditor.Wrappers
             set
             {
                 _filePath = value;
-                _fileType = TFileObject.DetermineType(FilePath, out _);
+                FileType = TFileObject.DetermineType(FilePath, out _);
                 var fref = FileRefGeneric;
-                if (fref != null)
-                {
-                    fref.FileType = _fileType;
-                    if (fref.Path != null)
-                        fref.Path.Path = value;
-                }
+                if (fref?.Path != null)
+                    fref.Path.Path = value;
             }
         }
 
@@ -104,8 +97,6 @@ namespace TheraEditor.Wrappers
         public virtual async void Edit()
         {
             var file = await GetFileGenericAsync();
-
-            _fileType = file?.GetTypeProxy();
 
             if (file is null)
                 Engine.PrintLine($"Can't open file at {FilePath}.");

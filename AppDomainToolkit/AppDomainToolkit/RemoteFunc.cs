@@ -297,7 +297,7 @@
         /// <summary>
         /// Invokes the target function.
         /// </summary>
-        /// <param name="arg1">
+        /// <param name="arg">
         /// The first argument.
         /// </param>
         /// <param name="toInvoke">

@@ -726,7 +726,7 @@ namespace FastColoredTextBoxNS
             foreach (Range r in range.GetRanges(@"^\s*///.*$", RegexOptions.Multiline))
             {
                 //remove C# highlighting from this fragment
-                r.ClearStyle(StyleIndex.All);
+                r.ClearStyle(EStyleIndex.All);
                 //do XML highlighting
                 if (HTMLTagRegex is null)
                     InitHTMLRegex();
@@ -735,13 +735,13 @@ namespace FastColoredTextBoxNS
                 //tags
                 foreach (Range rr in r.GetRanges(HTMLTagContentRegex))
                 {
-                    rr.ClearStyle(StyleIndex.All);
+                    rr.ClearStyle(EStyleIndex.All);
                     rr.SetStyle(CommentTagStyle);
                 }
                 //prefix '///'
                 foreach (Range rr in r.GetRanges(@"^\s*///", RegexOptions.Multiline))
                 {
-                    rr.ClearStyle(StyleIndex.All);
+                    rr.ClearStyle(EStyleIndex.All);
                     rr.SetStyle(CommentTagStyle);
                 }
             }

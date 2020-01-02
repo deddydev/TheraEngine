@@ -38,10 +38,10 @@ namespace FastColoredTextBoxNS
         public string GetRtf(Range r)
         {
             this.tb = r.tb;
-            var styles = new Dictionary<StyleIndex, object>();
+            var styles = new Dictionary<EStyleIndex, object>();
             var sb = new StringBuilder();
             var tempSB = new StringBuilder();
-            var currentStyleId = StyleIndex.None;
+            var currentStyleId = EStyleIndex.None;
             r.Normalize();
             int currentLine = r.Start.iLine;
             styles[currentStyleId] = null;
@@ -123,7 +123,7 @@ namespace FastColoredTextBoxNS
             return sb.ToString();
         }
 
-        private RTFStyleDescriptor GetRtfDescriptor(StyleIndex styleIndex)
+        private RTFStyleDescriptor GetRtfDescriptor(EStyleIndex styleIndex)
         {
             List<Style> styles = new List<Style>();
             //find text renderer
@@ -171,7 +171,7 @@ namespace FastColoredTextBoxNS
             return string.Format(@"\red{0}\green{1}\blue{2}", color.R, color.G, color.B);
         }
 
-        private void Flush(StringBuilder sb, StringBuilder tempSB, StyleIndex currentStyle)
+        private void Flush(StringBuilder sb, StringBuilder tempSB, EStyleIndex currentStyle)
         {
             //find textRenderer
             if (tempSB.Length == 0)

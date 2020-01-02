@@ -48,8 +48,7 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public static event DelContextsChanged BoundContextsChanged;
-        public static List<RenderContext> BoundContexts = new List<RenderContext>();
+        public static EventList<RenderContext> BoundContexts = new EventList<RenderContext>();
 
         private EVSyncMode _vsyncMode = EVSyncMode.Adaptive;
 
@@ -126,7 +125,6 @@ namespace TheraEngine.Rendering
             //if (_handle != null)
             //    _handle.Resize += OnResized;
             BoundContexts.Add(this);
-            BoundContextsChanged?.Invoke(this, true);
         }
 
         private void OnResized(object sender, EventArgs e)
@@ -135,11 +133,16 @@ namespace TheraEngine.Rendering
             //_control.Invalidate();
         }
 
-        protected void GetCurrentSubContext()
+        protected void GetCurrentSubContext(bool allowContextCreation)
         {
             int id = Thread.CurrentThread.ManagedThreadId;
             if (!_subContexts.ContainsKey(id))
+            {
+                if (!allowContextCreation)
+                    return;
+
                 CreateContextForThread();
+            }
             _currentSubContext = _subContexts[id];
             _currentSubContext.SetCurrent(true);
         }
@@ -191,7 +194,7 @@ namespace TheraEngine.Rendering
         public void Render()
         {
             Capture();
-            GetCurrentSubContext();
+            GetCurrentSubContext(true);
             CheckSize();
             PreRender();
             Handler.Render();
@@ -216,17 +219,17 @@ namespace TheraEngine.Rendering
 
         public bool IsCurrent()
         {
-            GetCurrentSubContext();
-            return _currentSubContext.IsCurrent();
+            GetCurrentSubContext(false);
+            return _currentSubContext?.IsCurrent() ?? false;
         }
         public bool IsContextDisposed()
         {
-            GetCurrentSubContext();
+            GetCurrentSubContext(false);
             return _currentSubContext?.IsContextDisposed() ?? true;
         }
         protected void OnSwapBuffers()
         {
-            GetCurrentSubContext();
+            GetCurrentSubContext(true);
             try
             {
                 if (!IsContextDisposed())
@@ -239,8 +242,8 @@ namespace TheraEngine.Rendering
         }
         public void SetCurrent(bool current)
         {
-            GetCurrentSubContext();
-            _currentSubContext.SetCurrent(current);
+            GetCurrentSubContext(false);
+            _currentSubContext?.SetCurrent(current);
         }
 
         public abstract void ErrorCheck();
@@ -253,12 +256,20 @@ namespace TheraEngine.Rendering
                 if (force)
                     Captured = null;
                 Captured = this;
+                DestroyQueued();
                 if (!IsInitialized)
                     Initialize();
             }
             //}
             //catch { Reset(); }
         }
+
+        private void DestroyQueued()
+        {
+            while (DeletionQueue.TryDequeue(out BaseRenderObject obj))
+                obj?.Delete();
+        }
+
         public void Release()
         {
             //try
@@ -271,6 +282,10 @@ namespace TheraEngine.Rendering
             //}
             //catch { Reset(); }
         }
+
+        private ConcurrentQueue<BaseRenderObject> DeletionQueue { get; } = new ConcurrentQueue<BaseRenderObject>();
+        public void QueueDelete(BaseRenderObject obj) => DeletionQueue.Enqueue(obj);
+
         public void Swap()
         {
             Capture();
@@ -333,14 +348,15 @@ namespace TheraEngine.Rendering
                 {
                     //Capture();
                     //Unbind();
+
                     foreach (BaseRenderObject.ContextBind state in States)
                         state.Destroy();
+
                     States.Clear();
+
                     if (BoundContexts.Contains(this))
-                    {
                         BoundContexts.Remove(this);
-                        BoundContextsChanged?.Invoke(this, false);
-                    }
+                    
                     Release();
                     //_handle.Resize -= OnResized;
                     //_handle = null;

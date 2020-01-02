@@ -237,7 +237,7 @@ namespace TheraEditor.Windows.Forms
                 foreach (var editorDLLPath in editorDLLPaths)
                 {
                     string editorDLLName = Path.GetFileName(editorDLLPath);
-                    string[] compiledDirDLLS = Directory.GetFiles(compiledDLLDir);
+                    //string[] compiledDirDLLS = Directory.GetFiles(compiledDLLDir);
 
                     //if (!compiledDirDLLS.Any(path => Path.GetFileName(path).EqualsInvariantIgnoreCase(editorDLLName)))
                     //{

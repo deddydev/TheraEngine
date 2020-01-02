@@ -13,31 +13,27 @@ namespace TheraEngine.Rendering.Models
 
         public event Action Changed;
 
-        [TSerialize("MorphCount", IsAttribute = true)]
-        public int _morphCount = 0;
-        [TSerialize("TexCoordCount", IsAttribute = true)]
-        public int _texcoordCount = 0;
-        [TSerialize("ColorCount", IsAttribute = true)]
-        public int _colorCount = 0;
-        [TSerialize("BoneCount", IsAttribute = true)]
-        public int _boneCount = 0;
-        [TSerialize("HasNormals", IsAttribute = true)]
-        public bool _hasNormals = false;
-        [TSerialize("HasBinormals", IsAttribute = true)]
-        public bool _hasBinormals = false;
-        [TSerialize("HasTangents", IsAttribute = true)]
-        public bool _hasTangents = false;
+        [TSerialize(nameof(MorphCount), IsAttribute = true)]
+        private int _morphCount = 0;
+        [TSerialize(nameof(TexcoordCount), IsAttribute = true)]
+        private int _texcoordCount = 0;
+        [TSerialize(nameof(ColorCount), IsAttribute = true)]
+        private int _colorCount = 0;
+        [TSerialize(nameof(BoneCount), IsAttribute = true)]
+        private int _boneCount = 0;
+        [TSerialize(nameof(HasNormals), IsAttribute = true)]
+        private bool _hasNormals = false;
+        [TSerialize(nameof(HasBinormals), IsAttribute = true)]
+        private bool _hasBinormals = false;
+        [TSerialize(nameof(HasTangents), IsAttribute = true)]
+        private bool _hasTangents = false;
 
         //Note: if there's only one bone, we can just multiply the model matrix by the bone's frame matrix. No need for weighting.
-        public bool IsWeighted => _boneCount > 1;
-        public bool IsSingleBound => _boneCount == 1;
-        public bool HasSkinning => _boneCount > 0;
-
-        public bool HasNormals => _hasNormals;
-        public bool HasBinormals => _hasBinormals;
-        public bool HasTangents => _hasTangents;
-        public bool HasTexCoords => _texcoordCount > 0;
-        public bool HasColors => _colorCount > 0;
+        public bool IsWeighted => BoneCount > 1;
+        public bool IsSingleBound => BoneCount == 1;
+        public bool HasSkinning => BoneCount > 0;
+        public bool HasTexCoords => TexcoordCount > 0;
+        public bool HasColors => ColorCount > 0;
 
         private ETransformFlags _billboardMode = ETransformFlags.None;
         public ETransformFlags BillboardMode
@@ -50,23 +46,59 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
+        public int MorphCount
+        {
+            get => _morphCount;
+            set => _morphCount = value;
+        }
+        public int TexcoordCount 
+        {
+            get => _texcoordCount;
+            set => _texcoordCount = value;
+        }
+        public int ColorCount
+        {
+            get => _colorCount;
+            set => _colorCount = value;
+        }
+        public int BoneCount
+        {
+            get => _boneCount;
+            set => _boneCount = value;
+        }
+        public bool HasNormals
+        {
+            get => _hasNormals;
+            set => _hasNormals = value; 
+        }
+        public bool HasBinormals
+        {
+            get => _hasBinormals;
+            set => _hasBinormals = value;
+        }
+        public bool HasTangents 
+        {
+            get => _hasTangents;
+            set => _hasTangents = value;
+        }
+
         public VertexShaderDesc() { }
 
         public static VertexShaderDesc PosColor(int colorCount = 1)
         {
-            return new VertexShaderDesc() { _colorCount = colorCount };
+            return new VertexShaderDesc() { ColorCount = colorCount };
         }
         public static VertexShaderDesc PosTex(int texCoordCount = 1)
         {
-            return new VertexShaderDesc() { _texcoordCount = texCoordCount };
+            return new VertexShaderDesc() { TexcoordCount = texCoordCount };
         }
         public static VertexShaderDesc PosNormTex(int texCoordCount = 1)
         {
-            return new VertexShaderDesc() { _texcoordCount = texCoordCount, _hasNormals = true };
+            return new VertexShaderDesc() { TexcoordCount = texCoordCount, HasNormals = true };
         }
         public static VertexShaderDesc PosNorm()
         {
-            return new VertexShaderDesc() { _hasNormals = true };
+            return new VertexShaderDesc() { HasNormals = true };
         }
         public static VertexShaderDesc JustPositions()
         {

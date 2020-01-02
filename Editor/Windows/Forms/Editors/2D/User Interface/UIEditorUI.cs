@@ -96,12 +96,12 @@ namespace TheraEditor.Windows.Forms
                     return;
                 else if (_targetHud != null)
                 {
-                    BaseTransformComponent.ChildComponents.Remove(_targetHud.RootComponent);
+                    OriginTransformComponent.ChildComponents.Remove(_targetHud.RootComponent);
                 }
                 _targetHud = value;
                 if (_targetHud != null)
                 {
-                    BaseTransformComponent.ChildComponents.Add(_targetHud.RootComponent);
+                    OriginTransformComponent.ChildComponents.Add(_targetHud.RootComponent);
                     if (_targetHud?.RootComponent is IUICanvasComponent canvas)
                         InitCanvas(canvas);
                 }
@@ -168,8 +168,8 @@ namespace TheraEditor.Windows.Forms
         {
             if (_selectedComp != null)
             {
-                min = Vec3.TransformPosition(_selectedComp.RenderInfo.AxisAlignedRegion.Min, BaseTransformComponent.InverseLocalMatrix).Xy;
-                max = Vec3.TransformPosition(_selectedComp.RenderInfo.AxisAlignedRegion.Max, BaseTransformComponent.InverseLocalMatrix).Xy;
+                min = Vec3.TransformPosition(_selectedComp.RenderInfo.AxisAlignedRegion.Min, OriginTransformComponent.InverseLocalMatrix).Xy;
+                max = Vec3.TransformPosition(_selectedComp.RenderInfo.AxisAlignedRegion.Max, OriginTransformComponent.InverseLocalMatrix).Xy;
             }
             else
             {

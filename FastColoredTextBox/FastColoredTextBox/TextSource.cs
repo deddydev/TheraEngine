@@ -92,7 +92,7 @@ namespace FastColoredTextBoxNS
             linesAccessor = new LinesAccessor(this);
             Manager = new CommandManager(this);
 
-            if (Enum.GetUnderlyingType(typeof(StyleIndex)) == typeof(UInt32))
+            if (Enum.GetUnderlyingType(typeof(EStyleIndex)) == typeof(UInt32))
                 Styles = new Style[32];
             else
                 Styles = new Style[16];

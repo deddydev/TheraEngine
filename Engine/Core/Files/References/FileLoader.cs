@@ -105,14 +105,32 @@ namespace TheraEngine.Core.Files
         [Browsable(false)]
         public TypeProxy FileType
         {
-            get => _fileType ?? (_fileType = Engine.DomainProxy?.GetTypeFor<T>() ?? typeof(T));
+            get
+            {
+                TypeProxy type = null;
+                if (_fileType != null && !_fileType.TryGetTarget(out type))
+                    type = null;
+
+                if (type is null)
+                {
+                    type = Engine.DomainProxy?.GetTypeFor<T>() ?? typeof(T);
+                    _fileType = new WeakReference<TypeProxy>(type);
+                }
+
+                return type;
+            }
             set
             {
-                if (!(value is null) && value.IsAssignableTo(typeof(T)))
-                    _fileType = value;
+                if (value is null)
+                {
+                    TypeProxy type = Engine.DomainProxy?.GetTypeFor<T>() ?? typeof(T);
+                    _fileType = new WeakReference<TypeProxy>(type);
+                }
+                else if (value.IsAssignableTo(typeof(T)))
+                    _fileType = new WeakReference<TypeProxy>(value);
             }
         }
-        private TypeProxy _fileType = null;
+        private WeakReference<TypeProxy> _fileType = null;
 
         protected bool _updating;
         private PathReference _path;

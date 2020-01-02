@@ -53,7 +53,7 @@ namespace TheraEngine.Tests
             //float temp;
             Parallel.For(0, _landscapeWH * _landscapeWH, i =>
             {
-                *(data + i) = _noise.GetPerlin(i % _landscapeWH, i / _landscapeWH, _time) * 100.0f;
+                *(data + i) = _noise.GetPerlin(i % _landscapeWH, i / _landscapeWH, _time) * 50.0f;
             });
             //for (int r = 0; r < _landscapeWH; ++r)
             //    for (int x = 0; x < _landscapeWH; ++x)
@@ -289,7 +289,7 @@ namespace TheraEngine.Tests
                     for (int r = 0; r < wh; ++r)
                         for (int x = 0; x < wh; ++x)
                         {
-                            temp = noise.GetPerlin(x, r, 0.0f) * 100.0f;
+                            temp = noise.GetPerlin(x, r, 0.0f) * 50.0f;
                             *data++ = temp;
                         }
                 }

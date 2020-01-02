@@ -50,7 +50,7 @@ namespace FastColoredTextBoxNS
         /// <summary>
         /// Clears style of chars, delete folding markers
         /// </summary>
-        public void ClearStyle(StyleIndex styleIndex)
+        public void ClearStyle(EStyleIndex styleIndex)
         {
             FoldingStartMarker = null;
             FoldingEndMarker = null;

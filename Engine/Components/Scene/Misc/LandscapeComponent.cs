@@ -244,12 +244,6 @@ namespace TheraEngine.Components.Scene
 
             _rc.Mesh?.Dispose();
             _rc.Mesh = new PrimitiveManager(data, material);
-
-            string desktopPath = Tests.TestDefaults.DesktopPath;
-            SaveHeightMap(
-                desktopPath + "test.png",
-                FREE_IMAGE_FORMAT.FIF_PNG,
-                FREE_IMAGE_SAVE_FLAGS.PNG_Z_NO_COMPRESSION);
         }
 
         /// <summary>

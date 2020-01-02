@@ -93,35 +93,35 @@ namespace TheraEngine.Rendering.Models
             if (info.HasSkinning)
                 SetInfluences(firstAppearanceArray.Select(x => vertices[x].Influence).ToArray());
 
-            for (int i = 0; i < info._morphCount + 1; ++i)
+            for (int i = 0; i < info.MorphCount + 1; ++i)
             {
                 var data = firstAppearanceArray.Select(x => vertices[x].Position).ToList();
                 AddBuffer(data, new VertexAttribInfo(EBufferType.Position, i));
             }
             if (info.HasNormals)
-                for (int i = 0; i < info._morphCount + 1; ++i)
+                for (int i = 0; i < info.MorphCount + 1; ++i)
                 {
                     var data = firstAppearanceArray.Select(x => vertices[x].Normal).ToList();
                     AddBuffer(data, new VertexAttribInfo(EBufferType.Normal, i));
                 }
             if (info.HasBinormals)
-                for (int i = 0; i < info._morphCount + 1; ++i)
+                for (int i = 0; i < info.MorphCount + 1; ++i)
                 {
                     var data = firstAppearanceArray.Select(x => vertices[x].Binormal).ToList();
                     AddBuffer(data, new VertexAttribInfo(EBufferType.Binormal, i));
                 }
             if (info.HasTangents)
-                for (int i = 0; i < info._morphCount + 1; ++i)
+                for (int i = 0; i < info.MorphCount + 1; ++i)
                 {
                     var data = firstAppearanceArray.Select(x => vertices[x].Tangent).ToList();
                     AddBuffer(data, new VertexAttribInfo(EBufferType.Tangent, i));
                 }
-            for (int i = 0; i < info._colorCount; ++i)
+            for (int i = 0; i < info.ColorCount; ++i)
             {
                 var data = firstAppearanceArray.Select(x => vertices[x].Color).ToList();
                 AddBuffer(data, new VertexAttribInfo(EBufferType.Color, i));
             }
-            for (int i = 0; i < info._texcoordCount; ++i)
+            for (int i = 0; i < info.TexcoordCount; ++i)
             {
                 var data = firstAppearanceArray.Select(x => vertices[x].TexCoord).ToList();
                 AddBuffer(data, new VertexAttribInfo(EBufferType.TexCoord, i));

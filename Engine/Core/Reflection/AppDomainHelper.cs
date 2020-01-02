@@ -281,9 +281,11 @@ namespace TheraEngine.Core.Reflection
         public static void ReleaseSponsors()
         {
             while (SponsoredObjects.TryTake(out ISponsorableMarshalByRefObject sobj))
-                sobj.Sponsor.Release();
+                try { sobj.Sponsor.Release(); } catch { }
+            
             foreach (var sponsor in ExternalSponsoredObjects.Values)
-                sponsor.Release();
+                try { sponsor.Release(); } catch { }
+
             ExternalSponsoredObjects.Clear();
         }
 

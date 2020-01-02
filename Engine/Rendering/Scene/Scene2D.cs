@@ -115,7 +115,7 @@ namespace TheraEngine.Rendering
 
         }
 
-        public void DoRender(RenderPasses renderingPasses, ICamera camera, Viewport viewport, FrameBuffer target)
+        public void DoRender(RenderPasses passes, ICamera camera, Viewport viewport, FrameBuffer target)
         {
             Engine.Renderer.PushCamera(camera);
             Engine.Renderer.PushCurrent2DScene(this);
@@ -132,18 +132,18 @@ namespace TheraEngine.Rendering
                         Engine.Renderer.EnableDepthTest(true);
                         Engine.Renderer.ClearDepth(1.0f);
                         Engine.Renderer.Clear(EFBOTextureType.Color | EFBOTextureType.Depth);
-                        renderingPasses.ClearRendering(ERenderPass.OpaqueDeferredLit);
+                        passes.ClearRendering(ERenderPass.OpaqueDeferredLit);
 
                         Engine.Renderer.AllowDepthWrite(false);
-                        renderingPasses.Render(ERenderPass.Background);
+                        passes.Render(ERenderPass.Background);
 
                         Engine.Renderer.AllowDepthWrite(true);
-                        renderingPasses.Render(ERenderPass.OpaqueForward);
-                        renderingPasses.Render(ERenderPass.TransparentForward);
+                        passes.Render(ERenderPass.OpaqueForward);
+                        passes.Render(ERenderPass.TransparentForward);
 
                         //Disable depth fail for objects on top
                         Engine.Renderer.DepthFunc(EComparison.Always);
-                        renderingPasses.Render(ERenderPass.OnTopForward);
+                        passes.Render(ERenderPass.OnTopForward);
 
                         //Engine.Renderer.EnableDepthTest(false);
                         //RenderTree.DebugRender(v.Region, false, 0.1f);
@@ -160,18 +160,18 @@ namespace TheraEngine.Rendering
 
                     Engine.Renderer.Clear(EFBOTextureType.Color | EFBOTextureType.Depth);
 
-                    renderingPasses.ClearRendering(ERenderPass.OpaqueDeferredLit);
+                    passes.ClearRendering(ERenderPass.OpaqueDeferredLit);
 
                     Engine.Renderer.AllowDepthWrite(false);
-                    renderingPasses.Render(ERenderPass.Background);
+                    passes.Render(ERenderPass.Background);
 
                     Engine.Renderer.AllowDepthWrite(true);
-                    renderingPasses.Render(ERenderPass.OpaqueForward);
-                    renderingPasses.Render(ERenderPass.TransparentForward);
+                    passes.Render(ERenderPass.OpaqueForward);
+                    passes.Render(ERenderPass.TransparentForward);
 
                     //Disable depth fail for objects on top
                     Engine.Renderer.DepthFunc(EComparison.Always);
-                    renderingPasses.Render(ERenderPass.OnTopForward);
+                    passes.Render(ERenderPass.OnTopForward);
 
                     target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }

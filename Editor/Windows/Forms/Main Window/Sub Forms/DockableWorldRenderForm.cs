@@ -82,7 +82,7 @@ namespace TheraEditor.Windows.Forms
             if (!(fileTreeNode.Wrapper is IBaseFileWrapper wrapper))
                 return;
 
-            var type = wrapper.FileType.GetFriendlyName();
+            //var type = wrapper.FileType.GetFriendlyName();
             IFileObject instance = _dragInstance ?? (_dragInstance = wrapper.FileRefGeneric.LoadNewInstance());
             if (!(instance is IActor actor))
                 return;

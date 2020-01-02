@@ -96,7 +96,7 @@ namespace TheraEngine.Rendering.OpenGL
         public unsafe override void Initialize()
         {
             IsInitialized = true;
-            GetCurrentSubContext();
+            GetCurrentSubContext(true);
             
             GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.TextureCubeMapSeamless);
@@ -128,7 +128,7 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public unsafe override void BeginDraw()
         {
-            GetCurrentSubContext();
+            GetCurrentSubContext(true);
 
             //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             //GL.ClearColor(Control.BackColor.R, Control.BackColor.G, Control.BackColor.B, 0.0f);
@@ -140,7 +140,7 @@ namespace TheraEngine.Rendering.OpenGL
         
         public override void Flush()
         {
-            GetCurrentSubContext();
+            GetCurrentSubContext(true);
             GL.Flush();
         }
 

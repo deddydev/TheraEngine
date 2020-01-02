@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using TheraEngine.Rendering;
 using WeifenLuo.WinFormsUI.Docking;
@@ -22,10 +23,12 @@ namespace TheraEditor.Windows.Forms
             lstRenderObjects.Columns.Add(new ColumnHeader() { Text = "Binding ID" });
             lstRenderObjects.Columns.Add(new ColumnHeader() { Text = "Context Index" });
             lstRenderObjects.Columns.Add(new ColumnHeader() { Text = "Generation Time" });
-            RenderContext.BoundContextsChanged += RenderContext_BoundContextsChanged;
-            for (int r = 0; r < RenderContext.BoundContexts.Count; ++r)
+
+            EventList<RenderContext> ctx = Editor.DomainProxy.BoundContexts;
+            ctx.CollectionChanged += Ctx_CollectionChanged1;
+            for (int r = 0; r < ctx.Count; ++r)
             {
-                var states = RenderContext.BoundContexts[r].States;
+                var states = ctx[r].States;
                 for (int i = 0; i < states.Count; ++i)
                 {
                     BaseRenderObject.ContextBind bind = states[i];
@@ -43,11 +46,10 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        private void RenderContext_BoundContextsChanged(RenderContext context, bool added)
+        private void Ctx_CollectionChanged1(object sender, TheraEngine.Core.TCollectionChangedEventArgs<RenderContext> e)
         {
 
         }
-
         private void lstRenderObjects_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
             var bind = e.Item.Tag as BaseRenderObject.ContextBind;

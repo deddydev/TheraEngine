@@ -594,6 +594,7 @@
     <Compile Include="Core\Data Structures\ConcurrentHashSet.cs" />
     <Compile Include="Core\Data Structures\Lists\ConsistentIndexList.cs" />
     <Compile Include="Core\Data Structures\Lists\EventArray.cs" />
+    <Compile Include="Core\Data Structures\Lists\TCollectionChangedEventArgs.cs" />
     <Compile Include="Core\Data Structures\ProgressStream.cs" />
     <Compile Include="Core\Editor\StateChange.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />
@@ -638,6 +639,7 @@
     <Compile Include="Core\Maths\Half.cs" />
     <Compile Include="Core\Memory\Int24.cs" />
     <Compile Include="Core\PropertyBinding.cs" />
+    <Compile Include="Core\PropertyChangedRouter.cs" />
     <Compile Include="Core\Reflection\AppDomainHelper.cs" />
     <Compile Include="Core\Reflection\Attributes\GridCallable.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\TFileExt.cs" />
@@ -894,7 +896,6 @@
     <Compile Include="Components\Scene\Misc\ParticleEmitterComponent.cs" />
     <Compile Include="Rendering\Scene\Scene.cs" />
     <Compile Include="Rendering\Scene\Scene2D.cs" />
-    <Compile Include="Tests\TestDefaults.cs" />
     <Compile Include="Components\Logic\Animation\StateMachine\AnimStateMachineComponent.cs" />
     <Compile Include="Animation\BaseAnimation.cs" />
     <Compile Include="Animation\Functions\Logic\IfFunction.cs" />
@@ -1237,7 +1238,6 @@
     <Compile Include="Worlds\EventDictionary.cs" />
     <Compile Include="Worlds\Maps\Map.cs" />
     <Compile Include="Worlds\Maps\MapState.cs" />
-    <Compile Include="Tests\TestGameMode.cs" />
     <Compile Include="Tests\TestWorld.cs" />
     <Compile Include="Worlds\World.cs" />
     <Compile Include="Core\Maths\Transforms\Class\Transforms\Transform.cs" />

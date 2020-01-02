@@ -259,11 +259,7 @@ namespace TheraEditor.Windows.Forms
             //};
             //SubViewportText.MinHeight = UIFloat.Pixels(s.Height, true, EParentBoundsInheritedValue.Height);
             //SubViewportText.MinWidth = UIFloat.Pixels(s.Width, true, EParentBoundsInheritedValue.Width);
-            StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip)
-            {
-                //Alignment = StringAlignment.Center,
-                //LineAlignment = StringAlignment.Near
-            };
+
             //SubViewportText.TextDrawer.Text.Add(new UIString2D(t, f, new ColorF4(1.0f), sf));
             //SubViewport.ChildComponents.Add(SubViewportText);
             //SubViewportText.IsVisible = false;
@@ -282,7 +278,8 @@ namespace TheraEditor.Windows.Forms
             fpsComp.Padding.Raw = new Vec4(0.0f);
 
             fpsComp.TextureResolutionMultiplier = f.Size;
-            FPSText = new UIString2D(t, f, new ColorF4(0.1f, 1.0f, 0.1f, 1.0f), sf);
+            TextFormatFlags flags = TextFormatFlags.NoClipping | TextFormatFlags.SingleLine;
+            FPSText = new UIString2D(t, f, new ColorF4(0.1f, 1.0f, 0.1f, 1.0f), flags);
             fpsComp.TextDrawer.Text.Add(FPSText);
             canvas.ChildComponents.Add(fpsComp);
 

@@ -73,38 +73,62 @@ namespace TheraEngine
     [TFileDef("Engine Settings")]
     public class EngineSettings : TSettings
     {
-        public event Action<EngineSettings> SingleThreadedChanged;
-        public event Action<EngineSettings> UpdatePerSecondChanged;
-        public event Action<EngineSettings> FramesPerSecondChanged;
-
         private bool _singleThreaded = false;
         private bool _capUPS = false;
         private bool _capFPS = false;
         private float _targetFPS;
         private float _targetUPS;
+        private bool _skinOnGPU;
+        private bool _useIntegerWeightingIds;
+        private bool _allowShaderPipelines;
+        private bool _enableDeferredPass;
+        private EOutputVerbosity _outputVerbosity;
+        private double _allowedOutputRecencySeconds;
+        private string texturesFolder;
+        private bool _printAppDomainInOutput;
+        private string fontsFolder;
+        private string engineDataFolder;
+        private string modelsFolder;
+        private string shadersFolder;
+        private string worldsFolder;
+        private string scriptsFolder;
+        private float doubleClickInputDelay;
+        private float holdInputDelay;
 
         [Category("Performance")]
         [TSerialize]
-        public bool SkinOnGPU { get; set; }
+        public bool SkinOnGPU
+        {
+            get => _skinOnGPU;
+            set => Set(ref _skinOnGPU, value);
+        }
         [Category("Performance")]
         [TSerialize]
-        public bool UseIntegerWeightingIds { get; set; }
+        public bool UseIntegerWeightingIds
+        {
+            get => _useIntegerWeightingIds;
+            set => Set(ref _useIntegerWeightingIds, value);
+        }
         [Category("Performance")]
         [TSerialize]
-        public bool AllowShaderPipelines { get; set; }
+        public bool AllowShaderPipelines
+        {
+            get => _allowShaderPipelines;
+            set => Set(ref _allowShaderPipelines, value);
+        }
         [Category("Performance")]
         [TSerialize]
-        public bool EnableDeferredPass { get; set; }
+        public bool EnableDeferredPass
+        {
+            get => _enableDeferredPass;
+            set => Set(ref _enableDeferredPass, value);
+        }
         [Category("Performance")]
         [TSerialize]
         public bool SingleThreaded
         {
             get => _singleThreaded;
-            set
-            {
-                _singleThreaded = value;
-                SingleThreadedChanged?.Invoke(this);
-            }
+            set => Set(ref _singleThreaded, value);
         }
 
         /// <summary>
@@ -117,11 +141,7 @@ namespace TheraEngine
         public bool CapFPS
         {
             get => _capFPS;
-            set
-            {
-                _capFPS = value;
-                FramesPerSecondChanged?.Invoke(this);
-            }
+            set => Set(ref _capFPS, value);
         }
         /// <summary>
         /// How many frames are expected to be rendered per second.
@@ -133,11 +153,7 @@ namespace TheraEngine
         public float TargetFPS
         {
             get => _targetFPS;
-            set
-            {
-                _targetFPS = value;
-                FramesPerSecondChanged?.Invoke(this);
-            }
+            set => Set(ref _targetFPS, value);
         }
 
         /// <summary>
@@ -150,11 +166,7 @@ namespace TheraEngine
         public bool CapUPS
         {
             get => _capUPS;
-            set
-            {
-                _capUPS = value;
-                UpdatePerSecondChanged?.Invoke(this);
-            }
+            set => Set(ref _capUPS, value);
         }
         /// <summary>
         /// How many internal engine tick update calls are expected to be made per second. This is not the same as the render frequency.
@@ -166,11 +178,7 @@ namespace TheraEngine
         public float TargetUPS
         {
             get => _targetUPS;
-            set
-            {
-                _targetUPS = value;
-                UpdatePerSecondChanged?.Invoke(this);
-            }
+            set => Set(ref _targetUPS, value);
         }
 
         /// <summary>
@@ -179,14 +187,22 @@ namespace TheraEngine
         [Description("How many seconds the user has to hold a button for it to register as a hold event.")]
         [Category("Input")]
         [TSerialize]
-        public float HoldInputDelay { get; set; }
+        public float HoldInputDelay
+        {
+            get => holdInputDelay;
+            set => Set(ref holdInputDelay, value);
+        }
         /// <summary>
         /// How many seconds the user has between pressing the same button twice for it to register as a double click event.
         /// </summary>
         [Description("How many seconds the user has between pressing the same button twice for it to register as a double click event.")]
         [Category("Input")]
         [TSerialize]
-        public float DoubleClickInputDelay { get; set; }
+        public float DoubleClickInputDelay
+        {
+            get => doubleClickInputDelay;
+            set => Set(ref doubleClickInputDelay, value);
+        }
 
         /// <summary>
         /// The path to the folder containing premade engine shaders.
@@ -194,7 +210,11 @@ namespace TheraEngine
         [Description("The path to the folder containing premade engine scripts.")]
         [Category("Paths")]
         [TSerialize]
-        public string ScriptsFolder { get; set; }
+        public string ScriptsFolder
+        {
+            get => scriptsFolder;
+            set => Set(ref scriptsFolder, value);
+        }
 
         /// <summary>
         /// The path to the folder containing premade engine worlds.
@@ -202,15 +222,23 @@ namespace TheraEngine
         [Description("The path to the folder containing premade engine worlds.")]
         [Category("Paths")]
         [TSerialize]
-        public string WorldsFolder { get; set; }
-        
+        public string WorldsFolder
+        {
+            get => worldsFolder;
+            set => Set(ref worldsFolder, value);
+        }
+
         /// <summary>
         /// The path to the folder containing premade engine shaders.
         /// </summary>
         [Description("The path to the folder containing premade engine shaders.")]
         [Category("Paths")]
         [TSerialize]
-        public string ShadersFolder { get; set; }
+        public string ShadersFolder
+        {
+            get => shadersFolder;
+            set => Set(ref shadersFolder, value);
+        }
 
         /// <summary>
         /// The path to the folder containing premade engine models.
@@ -218,7 +246,11 @@ namespace TheraEngine
         [Description("The path to the folder containing premade engine models.")]
         [Category("Paths")]
         [TSerialize]
-        public string ModelsFolder { get; set; }
+        public string ModelsFolder
+        {
+            get => modelsFolder;
+            set => Set(ref modelsFolder, value);
+        }
 
         /// <summary>
         /// The path to the folder containing default engine files.
@@ -226,7 +258,11 @@ namespace TheraEngine
         [Description("The path to the folder containing default engine files.")]
         [Category("Paths")]
         [TSerialize]
-        public string EngineDataFolder { get; set; }
+        public string EngineDataFolder
+        {
+            get => engineDataFolder;
+            set => Set(ref engineDataFolder, value);
+        }
 
         /// <summary>
         /// The path to the folder containing custom engine fonts.
@@ -234,7 +270,11 @@ namespace TheraEngine
         [Description("The path to the folder containing custom engine fonts.")]
         [Category("Paths")]
         [TSerialize]
-        public string FontsFolder { get; set; }
+        public string FontsFolder
+        {
+            get => fontsFolder;
+            set => Set(ref fontsFolder, value);
+        }
 
         /// <summary>
         /// The path to the folder containing premade engine textures.
@@ -242,7 +282,11 @@ namespace TheraEngine
         [Description("The path to the folder containing premade engine textures.")]
         [Category("Paths")]
         [TSerialize]
-        public string TexturesFolder { get; set; }
+        public string TexturesFolder
+        {
+            get => texturesFolder;
+            set => Set(ref texturesFolder, value);
+        }
 
         /// <summary>
         /// If true, prepends the currently executing AppDomain to console output.
@@ -250,21 +294,33 @@ namespace TheraEngine
         [Description("If true, prepends the currently executing AppDomain to console output.")]
         [Category("Debug")]
         [TSerialize]
-        public bool PrintAppDomainInOutput { get; set; }
+        public bool PrintAppDomainInOutput
+        {
+            get => _printAppDomainInOutput;
+            set => Set(ref _printAppDomainInOutput, value);
+        }
         /// <summary>
         /// How often the same message is allowed to be printed to output. Reduces output spam.
         /// </summary>
         [Description("How often the same message is allowed to be printed to output. Reduces output spam.")]
         [Category("Debug")]
         [TSerialize]
-        public double AllowedOutputRecentnessSeconds { get; set; }
+        public double AllowedOutputRecencySeconds
+        {
+            get => _allowedOutputRecencySeconds;
+            set => Set(ref _allowedOutputRecencySeconds, value);
+        }
         /// <summary>
         /// How specific the debug output will be.
         /// </summary>
         [Description("How specific the debug output will be.")]
         [Category("Debug")]
         [TSerialize]
-        public EOutputVerbosity OutputVerbosity { get; set; }
+        public EOutputVerbosity OutputVerbosity
+        {
+            get => _outputVerbosity;
+            set => Set(ref _outputVerbosity, value);
+        }
 
         public EngineSettings()
         {
@@ -274,7 +330,7 @@ namespace TheraEngine
             AllowShaderPipelines = true;
             PrintAppDomainInOutput = true;
             OutputVerbosity = EOutputVerbosity.Normal;
-            AllowedOutputRecentnessSeconds = 2.0;
+            AllowedOutputRecencySeconds = 2.0;
 
             CapFPS = false;
             TargetFPS = 60.0f;

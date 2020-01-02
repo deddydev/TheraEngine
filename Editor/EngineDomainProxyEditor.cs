@@ -1,41 +1,30 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Concurrent;
-using System.Reflection;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
+using TheraEditor.Wrappers;
 using TheraEngine;
 using TheraEngine.Actors;
-using TheraEngine.Core;
-using TheraEngine.Core.Reflection;
-using Extensions;
-using TheraEditor.Wrappers;
-using System.Diagnostics;
-using TheraEngine.Core.Files;
-using TheraEngine.Worlds;
-using TheraEngine.GameModes;
 using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Input;
-using System.Threading;
-using System.Collections.Generic;
-using TheraEngine.Core.Maths;
-using TheraEngine.Timers;
-using System.Linq;
-using TheraEngine.Core.Files.Serialization;
-using System.IO;
-using Microsoft.Build.Execution;
-using Microsoft.Build.Evaluation;
-using static TheraEditor.TProject;
-using Microsoft.Build.Framework;
-using TheraEngine.ThirdParty;
-using static TheraEngine.ThirdParty.MSBuild;
-using TheraEngine.Core.Files.XML;
-using static TheraEngine.ThirdParty.MSBuild.Item;
-using System.Runtime.Remoting;
 using TheraEngine.Components;
+using TheraEngine.Core;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths;
+using TheraEngine.Core.Reflection;
+using TheraEngine.GameModes;
+using TheraEngine.Input;
 using TheraEngine.Input.Devices;
-using System.Drawing;
+using TheraEngine.Rendering;
+using TheraEngine.Worlds;
 
 namespace TheraEditor
 {
@@ -101,13 +90,13 @@ namespace TheraEditor
             {
                 Stopwatch watch = Stopwatch.StartNew();
 
-                Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Loading file wrappers.");
+                Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Loading file wrappers.");
 
                 await Task.Run(() => AppDomainHelper.ExportedTypes.ForEachParallelArray(EvaluateType));
                 
                 watch.Stop();
 
-                Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] File wrappers loaded in {Math.Round((watch.ElapsedMilliseconds / 1000.0), 2).ToString()} seconds.");
+                Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] File wrappers loaded in {Math.Round((watch.ElapsedMilliseconds / 1000.0), 2).ToString()} seconds.");
             }
         }
         private void EvaluateType(TypeProxy asmType)
@@ -125,7 +114,7 @@ namespace TheraEditor
                     if (!string.IsNullOrWhiteSpace(ext))
                         ThirdPartyWrappers[ext] = asmType;
                     else
-                        Engine.LogWarning($"{asmType.GetFriendlyName()} is derived from '{nameof(FileWrapper)}' and needs to specify a '{nameof(TreeFileTypeAttribute)}' attribute with {nameof(TreeFileTypeAttribute.ThirdPartyExtension)} set to a valid extension.");
+                        Console.WriteLine($"{asmType.GetFriendlyName()} is derived from '{nameof(FileWrapper)}' and needs to specify a '{nameof(TreeFileTypeAttribute)}' attribute with {nameof(TreeFileTypeAttribute.ThirdPartyExtension)} set to a valid extension.");
                 }
                 else
                 {
@@ -174,12 +163,12 @@ namespace TheraEditor
 
             if (reloadNow)
             {
-                Engine.PrintLine(EOutputVerbosity.Verbose, "Loading all editor types for property grid.");
+                Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Loading all editor types for property grid.");
                 Stopwatch watch = Stopwatch.StartNew();
                 Task propEditorsTask = Task.Run(AddPropControlEditorTypes);
                 Task fullEditorsTask = Task.Run(AddFullEditorTypes);
                 Task.WhenAll(propEditorsTask, fullEditorsTask).ContinueWith(t =>
-                    Engine.PrintLine(EOutputVerbosity.Verbose, $"Finished loading all editor types for property grid in {Math.Round(watch.ElapsedMilliseconds / 1000.0, 2).ToString()} seconds."));
+                     Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Finished loading all editor types for property grid in {Math.Round(watch.ElapsedMilliseconds / 1000.0, 2).ToString()} seconds."));
             }
         }
         private void AddPropControlEditorTypes()
@@ -200,7 +189,7 @@ namespace TheraEditor
                 {
                     //if (!_inPlaceEditorTypes.ContainsKey(varType))
                     InPlaceEditorTypes.AddOrUpdate(varType, propControlType, (x, y) => propControlType);
-                    Engine.PrintLine(EOutputVerbosity.Verbose, $"{propControlType.GetFriendlyName()} is the editor for {varType.GetFriendlyName()}.");
+                    Console.WriteLine($"{propControlType.GetFriendlyName()} is the prop grid editor for {varType.GetFriendlyName()}.");
                     //else
                     //    throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
                 }
@@ -222,6 +211,7 @@ namespace TheraEditor
             {
                 //if (!_fullEditorTypes.ContainsKey(varType))
                 FullEditorTypes.AddOrUpdate(varType, editorType, (x, y) => editorType);
+                Console.WriteLine($"{editorType.GetFriendlyName()} is the full editor for {varType.GetFriendlyName()}.");
                 //else
                 //    throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
             }
@@ -326,7 +316,7 @@ namespace TheraEditor
 
         public override void ResetTypeCaches(bool reloadNow = true)
         {
-            Trace.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] {(reloadNow ? "Regenerating" : "Clearing")} type caches");
+            Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] {(reloadNow ? "Regenerating" : "Clearing")} type caches");
 
             ReloadNodeWrapperTypes(reloadNow);
             ReloadEditorTypes(reloadNow);
@@ -812,8 +802,14 @@ namespace TheraEditor
 
             GameplayPawn = null;
         }
+
         public IPawn GameplayPawn { get; set; }
-        public FlyingCameraPawn FlyingCameraDetachedPawn { get; } = new FlyingCameraPawn();
+
+        private FlyingCameraPawn _flyingCameraPawn;
+        public FlyingCameraPawn FlyingCameraDetachedPawn => _flyingCameraPawn ?? (_flyingCameraPawn = new FlyingCameraPawn());
+
+        public EventList<RenderContext> BoundContexts => RenderContext.BoundContexts;
+
         private void SetDetachedGameState()
         {
             //if (InvokeRequired)

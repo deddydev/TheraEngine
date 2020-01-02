@@ -76,7 +76,7 @@ namespace TheraEditor.Windows.Forms
             if (func is null)
                 return;
 
-            BaseTransformComponent.ChildComponents.Add(func);
+            OriginTransformComponent.ChildComponents.Add(func);
             _materialFuncCache.Add(func);
         }
         public void RemoveMaterialFunction(MaterialFunction func)
@@ -258,7 +258,7 @@ namespace TheraEditor.Windows.Forms
             _cursorBezier.StartPoint = start;
             _cursorBezier.EndPoint = end;
         }
-        public float BoxDim() => (BaseFuncArg.ConnectionBoxDims * 0.5f) * BaseTransformComponent.Scale.X;
+        public float BoxDim() => (BaseFuncArg.ConnectionBoxDims * 0.5f) * OriginTransformComponent.Scale.X;
         public float BezierTangentDist { get; set; } = 100.0f;
 
         protected override bool IsDragging => _draggedArg != null || _draggedFunc != null;
@@ -300,7 +300,7 @@ namespace TheraEditor.Windows.Forms
         private void DrawBezier(Vec2 start, Vec2 end, ColorF4 color)
         {
             float dist = start.DistanceToFast(end).ClampMax(BezierTangentDist);
-            Vec2 diff = new Vec2(dist * BaseTransformComponent.Scale.X, 0.0f);
+            Vec2 diff = new Vec2(dist * OriginTransformComponent.Scale.X, 0.0f);
             Vec2[] points = Interp.GetBezierPoints(start, start + diff, end - diff, end, 20);
             for (int i = 1; i < points.Length; ++i)
                 Engine.Renderer.RenderLine(points[i - 1], points[i], color, true, 1.0f);

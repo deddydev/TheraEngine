@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Text;
 
@@ -28,16 +29,10 @@ namespace TheraEngine.Rendering.UI.Text
         public bool AllowHorizontalScroll { get; set; } = false;
         public bool AllowVerticalScroll { get; set; } = true;
 
-        public bool WordWrap 
+        public TextFormatFlags TextFlags 
         {
-            get => (_uiText.Format.FormatFlags & System.Drawing.StringFormatFlags.NoWrap) == 0;
-            set
-            {
-                if (value)
-                    _uiText.Format.FormatFlags &= ~System.Drawing.StringFormatFlags.NoWrap;
-                else
-                    _uiText.Format.FormatFlags |= System.Drawing.StringFormatFlags.NoWrap;
-            }
+            get => _uiText.Format;
+            set => _uiText.Format = value;
         }
     }
 }

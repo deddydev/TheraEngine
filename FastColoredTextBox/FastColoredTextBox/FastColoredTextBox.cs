@@ -119,7 +119,7 @@ namespace FastColoredTextBoxNS
         private Range updatingRange;
         private Range visibleRange;
         private bool wordWrap;
-        private WordWrapMode wordWrapMode = WordWrapMode.WordWrapControlWidth;
+        private EWordWrapMode wordWrapMode = EWordWrapMode.WordWrapControlWidth;
         private int reservedCountOfLineNumberChars = 1;
         private int zoom = 100;
         private Size localAutoScrollMinSize;
@@ -188,7 +188,7 @@ namespace FastColoredTextBoxNS
             DisabledColor = Color.FromArgb(100, 180, 180, 180);
             needRecalcFoldingLines = true;
             AllowDrop = true;
-            FindEndOfFoldingBlockStrategy = FindEndOfFoldingBlockStrategy.Strategy1;
+            FindEndOfFoldingBlockStrategy = EFindEndOfFoldingBlockStrategy.Strategy1;
             VirtualSpace = false;
             bookmarks = new Bookmarks(this);
             BookmarkColor = Color.PowderBlue;
@@ -347,9 +347,9 @@ namespace FastColoredTextBoxNS
         /// <summary>
         /// Strategy of search of end of folding block
         /// </summary>
-        [DefaultValue(FindEndOfFoldingBlockStrategy.Strategy1)]
+        [DefaultValue(EFindEndOfFoldingBlockStrategy.Strategy1)]
         [Description("Strategy of search of end of folding block.")]
-        public FindEndOfFoldingBlockStrategy FindEndOfFoldingBlockStrategy { get; set; }
+        public EFindEndOfFoldingBlockStrategy FindEndOfFoldingBlockStrategy { get; set; }
 
         /// <summary>
         /// Indicates if tab characters are accepted as input
@@ -1265,9 +1265,9 @@ namespace FastColoredTextBoxNS
         /// WordWrap mode.
         /// </summary>
         [Browsable(true)]
-        [DefaultValue(typeof (WordWrapMode), "WordWrapControlWidth")]
+        [DefaultValue(typeof (EWordWrapMode), "WordWrapControlWidth")]
         [Description("WordWrap mode.")]
-        public WordWrapMode WordWrapMode
+        public EWordWrapMode WordWrapMode
         {
             get { return wordWrapMode; }
             set
@@ -1535,7 +1535,7 @@ namespace FastColoredTextBoxNS
                     if (!base.AutoScroll)
                         base.AutoScroll = true;
                     Size newSize = value;
-                    if (WordWrap && WordWrapMode != FastColoredTextBoxNS.WordWrapMode.Custom)
+                    if (WordWrap && WordWrapMode != FastColoredTextBoxNS.EWordWrapMode.Custom)
                     {
                         int maxWidth = GetMaxLineWordWrapedWidth();
                         newSize = new Size(Math.Min(newSize.Width, maxWidth), newSize.Height);
@@ -2677,7 +2677,7 @@ namespace FastColoredTextBoxNS
         /// <summary>
         /// Clear style of all text
         /// </summary>
-        public void ClearStyle(StyleIndex styleIndex)
+        public void ClearStyle(EStyleIndex styleIndex)
         {
             foreach (Line line in lines)
                 line.ClearStyle(styleIndex);
@@ -2859,9 +2859,9 @@ namespace FastColoredTextBoxNS
         /// </summary>
         /// <param name="styles"></param>
         /// <returns>StyleIndex mask of given styles</returns>
-        public StyleIndex GetStyleIndexMask(Style[] styles)
+        public EStyleIndex GetStyleIndexMask(Style[] styles)
         {
-            StyleIndex mask = StyleIndex.None;
+            EStyleIndex mask = EStyleIndex.None;
             foreach (Style style in styles)
             {
                 int i = GetStyleIndex(style);
@@ -3097,15 +3097,15 @@ namespace FastColoredTextBoxNS
             if (wordWrap)
                 switch (WordWrapMode)
                 {
-                    case WordWrapMode.WordWrapControlWidth:
-                    case WordWrapMode.CharWrapControlWidth:
+                    case EWordWrapMode.WordWrapControlWidth:
+                    case EWordWrapMode.CharWrapControlWidth:
                         maxLineLength = Math.Min(maxLineLength,
                                                  (ClientSize.Width - LeftIndent - Paddings.Left - Paddings.Right)/
                                                  CharWidth);
                         minWidth = 0;
                         break;
-                    case WordWrapMode.WordWrapPreferredWidth:
-                    case WordWrapMode.CharWrapPreferredWidth:
+                    case EWordWrapMode.WordWrapPreferredWidth:
+                    case EWordWrapMode.CharWrapPreferredWidth:
                         maxLineLength = Math.Min(maxLineLength, PreferredLineWidth);
                         minWidth = LeftIndent + PreferredLineWidth*CharWidth + 2 + Paddings.Left + Paddings.Right;
                         break;
@@ -3158,11 +3158,11 @@ namespace FastColoredTextBoxNS
             if (wordWrap)
                 switch (wordWrapMode)
                 {
-                    case WordWrapMode.WordWrapControlWidth:
-                    case WordWrapMode.CharWrapControlWidth:
+                    case EWordWrapMode.WordWrapControlWidth:
+                    case EWordWrapMode.CharWrapControlWidth:
                         return ClientSize.Width;
-                    case WordWrapMode.WordWrapPreferredWidth:
-                    case WordWrapMode.CharWrapPreferredWidth:
+                    case EWordWrapMode.WordWrapPreferredWidth:
+                    case EWordWrapMode.CharWrapPreferredWidth:
                         return LeftIndent + PreferredLineWidth*CharWidth + 2 + Paddings.Left + Paddings.Right;
                 }
 
@@ -3178,17 +3178,17 @@ namespace FastColoredTextBoxNS
 
             switch (WordWrapMode)
             {
-                case WordWrapMode.WordWrapControlWidth:
+                case EWordWrapMode.WordWrapControlWidth:
                     maxCharsPerLine = (ClientSize.Width - LeftIndent - Paddings.Left - Paddings.Right)/CharWidth;
                     break;
-                case WordWrapMode.CharWrapControlWidth:
+                case EWordWrapMode.CharWrapControlWidth:
                     maxCharsPerLine = (ClientSize.Width - LeftIndent - Paddings.Left - Paddings.Right)/CharWidth;
                     charWrap = true;
                     break;
-                case WordWrapMode.WordWrapPreferredWidth:
+                case EWordWrapMode.WordWrapPreferredWidth:
                     maxCharsPerLine = PreferredLineWidth;
                     break;
-                case WordWrapMode.CharWrapPreferredWidth:
+                case EWordWrapMode.CharWrapPreferredWidth:
                     maxCharsPerLine = PreferredLineWidth;
                     charWrap = true;
                     break;
@@ -3205,7 +3205,7 @@ namespace FastColoredTextBoxNS
 
                         li.wordWrapIndent = WordWrapAutoIndent ? lines[iLine].StartSpacesCount + WordWrapIndent : WordWrapIndent;
 
-                        if (WordWrapMode == WordWrapMode.Custom)
+                        if (WordWrapMode == EWordWrapMode.Custom)
                         {
                             if (WordWrapNeeded != null)
                                 WordWrapNeeded(this, new WordWrapNeededEventArgs(li.CutOffPositions, ImeAllowed, lines[iLine]));
@@ -5365,12 +5365,12 @@ namespace FastColoredTextBoxNS
             else
             {
                 //render by custom styles
-                StyleIndex currentStyleIndex = StyleIndex.None;
+                EStyleIndex currentStyleIndex = EStyleIndex.None;
                 int iLastFlushedChar = firstChar - 1;
 
                 for (int iChar = firstChar; iChar <= lastChar; iChar++)
                 {
-                    StyleIndex style = line[from + iChar].style;
+                    EStyleIndex style = line[from + iChar].style;
                     if (currentStyleIndex != style)
                     {
                         FlushRendering(gr, currentStyleIndex,
@@ -5399,7 +5399,7 @@ namespace FastColoredTextBoxNS
             }
         }
 
-        private void FlushRendering(Graphics gr, StyleIndex styleIndex, Point pos, Range range)
+        private void FlushRendering(Graphics gr, EStyleIndex styleIndex, Point pos, Range range)
         {
             if (range.End > range.Start)
             {
@@ -6479,7 +6479,7 @@ namespace FastColoredTextBoxNS
 
             switch (FindEndOfFoldingBlockStrategy)
             {
-                case FindEndOfFoldingBlockStrategy.Strategy1:
+                case EFindEndOfFoldingBlockStrategy.Strategy1:
                     for (i = iStartLine /*+1*/; i < LinesCount; i++)
                     {
                         if (lines.LineHasFoldingStartMarker(i))
@@ -6499,7 +6499,7 @@ namespace FastColoredTextBoxNS
                     }
                     break;
 
-                case FindEndOfFoldingBlockStrategy.Strategy2:
+                case EFindEndOfFoldingBlockStrategy.Strategy2:
                     for (i = iStartLine /*+1*/; i < LinesCount; i++)
                     {
                         if (lines.LineHasFoldingEndMarker(i))
@@ -8298,12 +8298,30 @@ window.status = ""#print"";
         public bool Cancel { get; set; }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class WordWrapNeededEventArgs : EventArgs
     {
-        public List<int> CutOffPositions { get; private set;}
-        public bool ImeAllowed { get; private set;}
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<int> CutOffPositions { get; private set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool ImeAllowed { get; private set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public Line Line { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cutOffPositions"></param>
+        /// <param name="imeAllowed"></param>
+        /// <param name="line"></param>
         public WordWrapNeededEventArgs(List<int> cutOffPositions, bool imeAllowed, Line line)
         {
             this.CutOffPositions = cutOffPositions;
@@ -8312,7 +8330,10 @@ window.status = ""#print"";
         }
     }
 
-    public enum WordWrapMode
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum EWordWrapMode
     {
         /// <summary>
         /// Word wrapping by control width
@@ -8435,7 +8456,7 @@ window.status = ""#print"";
     /// <summary>
     /// Strategy of search of end of folding block
     /// </summary>
-    public enum FindEndOfFoldingBlockStrategy
+    public enum EFindEndOfFoldingBlockStrategy
     {
         Strategy1,
         Strategy2
@@ -8581,7 +8602,7 @@ window.status = ""#print"";
     /// Style index mask (16 styles)
     /// </summary>
     [Flags]
-    public enum StyleIndex : ushort
+    public enum EStyleIndex : ushort
     {
         None = 0,
         Style0 = 0x1,

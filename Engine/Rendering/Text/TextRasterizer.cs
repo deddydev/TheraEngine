@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Linq;
+using System.Windows.Forms;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Text
@@ -146,7 +147,7 @@ namespace TheraEngine.Rendering.Text
                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
                     //Get drawing bounds
-                    RectangleF rect = new RectangleF(0, 0, b.Width, b.Height);
+                    Rectangle rect = new Rectangle(0, 0, b.Width, b.Height);
 
                     if (forceFullRedraw)
                     {
@@ -168,7 +169,7 @@ namespace TheraEngine.Rendering.Text
                             g.RotateTransformAt(text.Rotation, originPos);
                             g.ScaleTransformAt(texScale.X, texScale.Y, originPos);
 
-                            g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
+                            TextRenderer.DrawText(g, text.Text, text.Font, rect, text.TextColor.Color, text.Format);
                         }
                     }
                     else
@@ -205,7 +206,7 @@ namespace TheraEngine.Rendering.Text
                             g.RotateTransformAt(text.Rotation, originPos);
                             g.ScaleTransformAt(texScale.X, texScale.Y, originPos);
 
-                            g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
+                            TextRenderer.DrawText(g, text.Text, text.Font, rect, text.TextColor.Color, text.Format);
                         }
                     }
 

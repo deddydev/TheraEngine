@@ -32,18 +32,18 @@ namespace TheraEngine.GameModes
         
         public virtual bool FindSpawnPoint(PawnController c, out Matrix4 transform)
         {
-            foreach (IActor a in Engine.World.StateRef.File.SpawnedActors)
+            var spawned = Engine.World.StateRef.File.SpawnedActors;
+            foreach (IActor a in spawned)
                 if (a is CharacterSpawnPointActor p && p.CanSpawnPlayer(c))
                 {
                     transform = p.RootComponent.WorldMatrix;
                     return true;
                 }
+
             transform = Matrix4.Identity;
             return false;
         }
         public virtual void OnCharacterKilled(ICharacterPawn killed, ICharacterPawn instigator, IActor killer)
-        {
-            killed.QueueRespawn(((CharacterPlayerController)killed.LocalPlayerController).RespawnTime);
-        }
+            => killed.QueueRespawn(((CharacterPlayerController)killed.LocalPlayerController).RespawnTime);
     }
 }

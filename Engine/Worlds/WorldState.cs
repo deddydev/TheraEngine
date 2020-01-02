@@ -97,5 +97,23 @@ namespace TheraEngine.Worlds
         }
         public IEnumerable<IActor> GetSpawnedActorsOfType(Type actorType)
             => _actorTypeMap.ContainsKey(actorType) ? _actorTypeMap[actorType].Select(x => SpawnedActors[x]) : null;
+
+        public void EndPlay()
+        {
+            int lastCount;
+            while ((lastCount = SpawnedActors.Count) > 0)
+            {
+                var actor = SpawnedActors[0];
+                actor?.Despawn();
+                if (SpawnedActors.Count == lastCount)
+                    SpawnedActors.RemoveAt(0);
+            }
+            SpawnedActors.Clear();
+
+            foreach (var m in SpawnedMaps)
+                if (m.IsVisible)
+                    m.EndPlay();
+            SpawnedMaps.Clear();
+        }
     }
 }

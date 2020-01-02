@@ -306,14 +306,14 @@ namespace TheraEngine
         public static bool ShuttingDown { get; private set; }
 
         /// <summary>
-        /// Call this to stop the engine and dispose of all allocated data.
+        /// Stops the engine and disposes of all allocated data.
         /// </summary>
         public static void ShutDown()
         {
             ShuttingDown = true;
 
             //SteamAPI.Shutdown();
-            //Stop();
+            Stop();
             SetCurrentWorld(null);
 
             //IEnumerable<IFileObject>
@@ -327,7 +327,8 @@ namespace TheraEngine
             var contexts = new List<RenderContext>(RenderContext.BoundContexts);
             foreach (RenderContext c in contexts)
                 c?.Dispose();
-            
+
+            UncacheSettings(false);
             ShuttingDown = false;
         }
         #endregion
@@ -352,8 +353,7 @@ namespace TheraEngine
         }
         private static void Settings_SingleThreadedChanged(EngineSettings settings)
         {
-            //if (Timer.IsRunning)
-                Timer.IsSingleThreaded = settings.SingleThreaded;
+            Timer.IsSingleThreaded = settings.SingleThreaded;
         }
 
         /// <summary>
@@ -367,10 +367,6 @@ namespace TheraEngine
         /// </summary>
         public static void Stop()
         {
-            EngineSettings settings = Settings;
-            settings.SingleThreadedChanged -= Settings_SingleThreadedChanged;
-            settings.FramesPerSecondChanged -= Settings_FramesPerSecondChanged;
-            settings.UpdatePerSecondChanged -= Settings_UpdatePerSecondChanged;
             Timer.Stop();
         }
 
@@ -670,29 +666,29 @@ namespace TheraEngine
 
             DateTime now = DateTime.Now;
 
-            //double recentness = Settings.AllowedOutputRecentnessSeconds;
-            //if (recentness > 0.0)
-            //{
-            //    List<string> removeKeys = new List<string>();
-            //    RecentMessageCache.ForEach(x =>
-            //    {
-            //        TimeSpan span = now - x.Value;
-            //        if (span.TotalSeconds >= recentness)
-            //            removeKeys.Add(x.Key);
-            //    });
-            //    removeKeys.ForEach(x => RecentMessageCache.TryRemove(x, out _));
+            double recentness = Settings.AllowedOutputRecencySeconds;
+            if (recentness > 0.0)
+            {
+                List<string> removeKeys = new List<string>();
+                RecentMessageCache.ForEach(x =>
+                {
+                    TimeSpan span = now - x.Value;
+                    if (span.TotalSeconds >= recentness)
+                        removeKeys.Add(x.Key);
+                });
+                removeKeys.ForEach(x => RecentMessageCache.TryRemove(x, out _));
 
-            //    if (RecentMessageCache.ContainsKey(message))
-            //    {
-            //        //Messages already cleaned above, just return here
+                if (RecentMessageCache.ContainsKey(message))
+                {
+                    //Messages already cleaned above, just return here
 
-            //        //TimeSpan span = now - RecentMessages[message];
-            //        //if (span.TotalSeconds <= AllowedOutputRecentness)
-            //        return;
-            //    }
-            //    else
-            //        RecentMessageCache.TryAdd(message, now);
-            //}
+                    //TimeSpan span = now - RecentMessages[message];
+                    //if (span.TotalSeconds <= AllowedOutputRecentness)
+                    return;
+                }
+                else
+                    RecentMessageCache.TryAdd(message, now);
+            }
 
             bool printDomain = printAppDomain || Settings.PrintAppDomainInOutput;
 

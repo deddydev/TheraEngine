@@ -434,7 +434,7 @@ namespace TheraEditor.Windows.Forms
             actor.SceneComponentCacheRegenerated += Editor.Instance.Item_SceneComponentCacheRegenerated;
             actor.LogicComponentsChanged += Editor.Instance.Item_LogicComponentsChanged;
 
-            Engine.PrintLine("ActorTreeForm : Spawned actor.");
+            //Engine.PrintLine("ActorTreeForm : Spawned actor.");
         }
         internal void ActorDespawned(IActor actor)
         {

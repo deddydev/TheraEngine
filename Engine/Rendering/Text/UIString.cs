@@ -50,11 +50,11 @@ namespace TheraEngine.Rendering.Text
         {
 
         }
-        public UIString2D(string text, Font font, ColorF4 color, StringFormat format, int order = 0)
+        public UIString2D(string text, Font font, ColorF4 color, TextFormatFlags format = TextFormatFlags.Default, int order = 0)
         {
             _text = text;
             _font = font;
-            _format = format;
+            _flags = format;
             _order = order;
 
             _color = color;
@@ -67,7 +67,8 @@ namespace TheraEngine.Rendering.Text
         private Font _font = new Font("Segoe UI", 9.0f, FontStyle.Regular);
         private int _order = 0;
         private ColorF4 _color = new ColorF4(1.0f);
-        private StringFormat _format = new StringFormat();
+        //private StringFormat _format = new StringFormat();
+        private TextFormatFlags _flags = TextFormatFlags.Default;
 
         private Vec2 _scale = Vec2.One;
         private float _rotation = 0.0f;
@@ -76,6 +77,7 @@ namespace TheraEngine.Rendering.Text
         {
             Size size = TextRenderer.MeasureText(text, Font);
             Region.SizeInt = size;
+            ActualTextSize = new Vec2(size.Width, size.Height);
         }
 
         public Vec2 ActualTextSize { get; private set; }
@@ -94,7 +96,7 @@ namespace TheraEngine.Rendering.Text
             set
             {
                 _text = value ?? string.Empty;
-                ActualTextSize = TextRenderer.MeasureText(_text, _font);
+                ActualTextSize = TextRenderer.MeasureText(_text, _font, Region.SizeInt, _flags);
                 Parent?.TextChanged(this);
             }
         }
@@ -198,17 +200,27 @@ namespace TheraEngine.Rendering.Text
         /// <summary>
         /// Quality and alignment settings.
         /// </summary>
+        //[Category("UI String")]
+        //public StringFormat Format
+        //{
+        //    get => _format;
+        //    set
+        //    {
+        //        _format = value;
+        //        Parent?.TextChanged(this);
+        //    }
+        //}
         [Category("UI String")]
-        public StringFormat Format
+        public TextFormatFlags Format
         {
-            get => _format;
+            get => _flags;
             set
             {
-                _format = value;
+                _flags = value;
                 Parent?.TextChanged(this);
             }
         }
-        
+
         public override int GetHashCode()
         {
             return base.GetHashCode();

@@ -107,9 +107,9 @@ namespace TheraEngine.Rendering.Models
                 if (_data != null)
                 {
                     BufferInfo = _data.BufferInfo;
-                    _data.BufferInfoChanged += _data_BufferInfoChanged;
-                    BufferInfo.Changed += _data_BufferInfoChanged;
-                    _data_BufferInfoChanged();
+                    _data.BufferInfoChanged += OnBufferInfoChanged;
+                    BufferInfo.Changed += OnBufferInfoChanged;
+                    OnBufferInfoChanged();
                     
                     IndexBuffer = new DataBuffer("FaceIndices", EBufferTarget.ElementArrayBuffer, true);
                     //TODO: primitive restart will use MaxValue for restart id
@@ -134,9 +134,10 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
-        private void _data_BufferInfoChanged()
+        private VertexShaderGenerator VtxShaderGen { get; } = new VertexShaderGenerator();
+        private void OnBufferInfoChanged()
         {
-            _vertexShader = new VertexShaderGenerator().Generate(BufferInfo, Material, false, false, false);
+            _vertexShader = VtxShaderGen.Generate(BufferInfo, Material, false, false, false);
             if (Engine.Settings.AllowShaderPipelines)
             {
                 if (_vertexProgram != null && _vertexProgram.IsActive)

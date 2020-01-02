@@ -216,7 +216,7 @@ namespace TheraEngine.Rendering.Models
                         bones.Add(inf.Weights[i].Bone);
                 boneCount = bones.Count;
             }
-            info._boneCount = boneCount;
+            info.BoneCount = boneCount;
 
             var m = geo.MeshElement;
             if (m is null)
@@ -269,24 +269,24 @@ namespace TheraEngine.Rendering.Models
                     }
                 }
                 
-                info._morphCount    = 0; //Morphs are stored in separate geometry entries, so they need to be combined later
-                info._hasNormals    = semanticCounts.ContainsKey(ESemantic.NORMAL) && semanticCounts[ESemantic.NORMAL] > 0;
+                info.MorphCount    = 0; //Morphs are stored in separate geometry entries, so they need to be combined later
+                info.HasNormals    = semanticCounts.ContainsKey(ESemantic.NORMAL) && semanticCounts[ESemantic.NORMAL] > 0;
 
                 bool hasTexBinormal = semanticCounts.ContainsKey(ESemantic.TEXBINORMAL) && semanticCounts[ESemantic.TEXBINORMAL] > 0;
                 bool hasBinormal    = semanticCounts.ContainsKey(ESemantic.BINORMAL) && semanticCounts[ESemantic.BINORMAL] > 0;
-                info._hasBinormals  = hasTexBinormal || hasBinormal;
+                info.HasBinormals  = hasTexBinormal || hasBinormal;
 
                 bool hasTexTangent  = semanticCounts.ContainsKey(ESemantic.TEXTANGENT) && semanticCounts[ESemantic.TEXTANGENT] > 0;
                 bool hasTangent     = semanticCounts.ContainsKey(ESemantic.TANGENT) && semanticCounts[ESemantic.TANGENT] > 0;
-                info._hasTangents   = hasTexTangent || hasTangent;
+                info.HasTangents   = hasTexTangent || hasTangent;
 
-                info._colorCount    = semanticCounts.ContainsKey(ESemantic.COLOR) ? semanticCounts[ESemantic.COLOR] : 0;
-                info._texcoordCount = semanticCounts.ContainsKey(ESemantic.TEXCOORD) ? semanticCounts[ESemantic.TEXCOORD] : 0;
+                info.ColorCount    = semanticCounts.ContainsKey(ESemantic.COLOR) ? semanticCounts[ESemantic.COLOR] : 0;
+                info.TexcoordCount = semanticCounts.ContainsKey(ESemantic.TEXCOORD) ? semanticCounts[ESemantic.TEXCOORD] : 0;
                 
                 int maxSets = TMath.Max(
-                    info._morphCount + 1,
-                    info._colorCount,
-                    info._texcoordCount);
+                    info.MorphCount + 1,
+                    info.ColorCount,
+                    info.TexcoordCount);
                 
                 Vertex[][] vertices = new Vertex[prim.PointCount][];
                 int[] indices = prim?.IndicesElement?.StringContent?.Values;

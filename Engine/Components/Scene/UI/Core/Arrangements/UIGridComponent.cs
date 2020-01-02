@@ -5,6 +5,7 @@ using System.Linq;
 using TheraEngine.Components;
 using Extensions;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Core;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -50,7 +51,7 @@ namespace TheraEngine.Rendering.UI
                     RegenerateIndices();
             }
         }
-        private void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void CollectionChanged(object sender, TCollectionChangedEventArgs<SizingDefinition> e)
             => RegenerateIndices();
         private void RegenerateIndices()
         {

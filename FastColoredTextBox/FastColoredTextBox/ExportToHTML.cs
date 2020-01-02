@@ -58,10 +58,10 @@ namespace FastColoredTextBoxNS
         public string GetHtml(Range r)
         {
             this.tb = r.tb;
-            Dictionary<StyleIndex, object> styles = new Dictionary<StyleIndex, object>();
+            Dictionary<EStyleIndex, object> styles = new Dictionary<EStyleIndex, object>();
             StringBuilder sb = new StringBuilder();
             StringBuilder tempSB = new StringBuilder();
-            StyleIndex currentStyleId = StyleIndex.None;
+            EStyleIndex currentStyleId = EStyleIndex.None;
             r.Normalize();
             int currentLine = r.Start.iLine;
             styles[currentStyleId] = null;
@@ -142,7 +142,7 @@ namespace FastColoredTextBoxNS
             return sb.ToString();
         }
 
-        private string GetCss(StyleIndex styleIndex)
+        private string GetCss(EStyleIndex styleIndex)
         {
             List<Style> styles = new List<Style>();
             //find text renderer
@@ -195,12 +195,12 @@ namespace FastColoredTextBoxNS
             return string.Format("#{0:x2}{1:x2}{2:x2}", color.R, color.G, color.B);
         }
 
-        string GetStyleName(StyleIndex styleIndex)
+        string GetStyleName(EStyleIndex styleIndex)
         {
             return styleIndex.ToString().Replace(" ", "").Replace(",", "");
         }
 
-        private void Flush(StringBuilder sb, StringBuilder tempSB, StyleIndex currentStyle)
+        private void Flush(StringBuilder sb, StringBuilder tempSB, EStyleIndex currentStyle)
         {
             //find textRenderer
             if (tempSB.Length == 0)

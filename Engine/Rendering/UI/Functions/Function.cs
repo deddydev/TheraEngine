@@ -74,14 +74,13 @@ namespace TheraEngine.Rendering.UI.Functions
                 VerticalAlignment = EVerticalAlign.Top,
                 Height = TextRenderer.MeasureText(FunctionName, _headerFont).Height + HeaderPadding * 2,
             };
-            _headerText.TextDrawer.Text.Add(_headerString = new UIString2D()
+            _headerString = new UIString2D()
             {
                 Text = FunctionName,
                 Font = _headerFont,
-                Format = new StringFormat(
-                    StringFormatFlags.NoClip |
-                    StringFormatFlags.NoWrap)
-            });
+                Format = TextFormatFlags.NoClipping | TextFormatFlags.SingleLine
+            };
+            _headerText.TextDrawer.Text.Add(_headerString);
             ChildComponents.Add(_headerText);
         }
 
@@ -97,7 +96,7 @@ namespace TheraEngine.Rendering.UI.Functions
             ChildComponents.Add(arg);
 
             UITextRasterComponent text = new UITextRasterComponent { Name = arg.Name + " Text", };
-            text.TextDrawer.Text.Add(new UIString2D(arg.Name, _paramFont, Color.White, new StringFormat(StringFormatFlags.NoClip | StringFormatFlags.NoWrap)));
+            text.TextDrawer.Text.Add(new UIString2D(arg.Name, _paramFont, Color.White, TextFormatFlags.NoClipping | TextFormatFlags.SingleLine));
             ChildComponents.Add(text);
 
             if (arg is IFuncExecInput || arg is IFuncValueInput)

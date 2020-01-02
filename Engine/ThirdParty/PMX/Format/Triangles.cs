@@ -14,41 +14,33 @@ namespace TheraEngine.ThirdParty.PMX
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
         public uint GetVertexIndex(int index, byte vertexIndexSize)
         {
-            switch (vertexIndexSize)
+            return vertexIndexSize switch
             {
-                case 1:
-                    return *(byte*)(Address + index);
-                case 2:
-                    return *(ushort*)(Address + index * 2);
-                default:
-                case 4:
-                    return *(uint*)(Address + index * 4);
-            }
+                1 => *(byte*)(Address + index),
+                2 => *(ushort*)(Address + index * 2),
+                _ => *(uint*)(Address + index * 4),
+            };
         }
         public UVec3 GetTriangleVertexIndices(int index, byte vertexIndexSize)
         {
             int vtx1 = index * 3;
             int vtx2 = vtx1 + 1;
             int vtx3 = vtx2 + 1;
-            switch (vertexIndexSize)
+            return vertexIndexSize switch
             {
-                case 1:
-                    return new UVec3(
-                        *(byte*)(Address + vtx1),
-                        *(byte*)(Address + vtx2),
-                        *(byte*)(Address + vtx3));
-                case 2:
-                    return new UVec3(
-                        *(ushort*)(Address + vtx1 * 2),
-                        *(ushort*)(Address + vtx2 * 2),
-                        *(ushort*)(Address + vtx3 * 2));
-                default:
-                case 4:
-                    return new UVec3(
-                        *(uint*)(Address + vtx1 * 4),
-                        *(uint*)(Address + vtx2 * 4),
-                        *(uint*)(Address + vtx3 * 4));
-            }
+                1 => new UVec3(
+                    *(byte*)(Address + vtx1),
+                    *(byte*)(Address + vtx2),
+                    *(byte*)(Address + vtx3)),
+                2 => new UVec3(
+                    *(ushort*)(Address + vtx1 * 2),
+                    *(ushort*)(Address + vtx2 * 2),
+                    *(ushort*)(Address + vtx3 * 2)),
+                _ => new UVec3(
+                    *(uint*)(Address + vtx1 * 4),
+                    *(uint*)(Address + vtx2 * 4),
+                    *(uint*)(Address + vtx3 * 4)),
+            };
         }
         public int GetSize(byte vertexIndexSize) => 4 + vertexIndexSize * _count * 3;
     }

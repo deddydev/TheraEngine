@@ -21,7 +21,7 @@ namespace TheraEngine.ThirdParty
         public Project[] Projects { get; set; }
         public bool HideSolutionNode { get; set; }
         
-        public class Project
+        public class Project : TObjectSlim
         {
             public Guid TypeGuid { get; set; }
             public Guid Guid { get; set; }

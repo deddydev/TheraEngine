@@ -14,12 +14,11 @@ namespace TheraEngine.Rendering
         {
             //internal bool _generatedFailSafe = false;
             internal int _bindingId = NullBindingId;
-            internal RenderContext _context = null;
 
             internal ContextBind(RenderContext context, BaseRenderObject parentState, int contextIndex)
             {
                 ParentState = parentState;
-                _context = context;
+                Context = context;
                 ContextIndex = contextIndex;
                 context?.States.Add(this);
             }
@@ -44,6 +43,7 @@ namespace TheraEngine.Rendering
             }
 
             public BaseRenderObject ParentState { get; }
+            internal RenderContext Context { get; set; } = null;
 
             public void Destroy() => ParentState.DestroyContextBind(ContextIndex);
             public override string ToString() => ParentState.ToString();
@@ -114,10 +114,10 @@ namespace TheraEngine.Rendering
                 //throw new Exception("No context bound.");
                 return false;
             }
-            else if (_currentBind is null || _currentBind._context != RenderContext.Captured)
+            else if (_currentBind is null || _currentBind.Context != RenderContext.Captured)
             {
                 //This part is very important; switches contexts based on captured context for different render panels
-                int index = _owners.FindIndex(x => x._context == RenderContext.Captured);
+                int index = _owners.FindIndex(x => x.Context == RenderContext.Captured);
                 if (index >= 0)
                     _currentBind = _owners[index];
                 else
@@ -164,15 +164,15 @@ namespace TheraEngine.Rendering
         /// Removes this render object from the current context.
         /// Call after capturing a context.
         /// </summary>
-        protected void Delete()
+        internal protected void Delete()
         {
             if (RenderContext.Captured is null)
                 return;
 
             //Remove current bind from owners list
-            if (_currentBind is null || _currentBind._context != RenderContext.Captured)
+            if (_currentBind is null || _currentBind.Context != RenderContext.Captured)
             {
-                int index = _owners.FindIndex(x => x._context == RenderContext.Captured);
+                int index = _owners.FindIndex(x => x.Context == RenderContext.Captured);
                 if (index >= 0)
                 {
                     _currentBind = _owners[index];
@@ -196,7 +196,7 @@ namespace TheraEngine.Rendering
             Engine.Renderer.DeleteObject(Type, _currentBind._bindingId);
 
             _currentBind._bindingId = 0;
-            _currentBind._context = null;
+            _currentBind.Context = null;
             _currentBind.GenerationStackTrace = null;
             _currentBind.GenerationTime = null;
             PostDeleted();
@@ -224,28 +224,20 @@ namespace TheraEngine.Rendering
         /// </summary>
         public virtual void Destroy()
         {
-            //if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Destroy, BaseRenderPanel.EPanelType.Rendering))
-                return;
-
             ContextBind b;
-            int prevCount;
-            while ((prevCount = _owners.Count) > 0)
+            while (_owners.Count > 0)
             {
                 b = _owners[0];
-                if (b._context != null && !b._context.IsContextDisposed())
-                {
-                    b._context.Capture();
-                    Delete();
-                    if (prevCount == _owners.Count)
-                        _owners.RemoveAt(0);
-                }
-                else
-                    _owners.RemoveAt(0);
+
+                if (b.Context != null && !b.Context.IsContextDisposed())
+                    b.Context.QueueDelete(this);
+                                
+                _owners.RemoveAt(0);
             }
         }
 
         public override int GetHashCode() => ToString().GetHashCode();
-        public override string ToString() => Type.ToString() + BindingId;
+        public override string ToString() => $"{Type.ToString()} [{CurrentBind?.BindingId ?? -1}]";
         public override bool Equals(object obj) => obj != null && ToString().Equals(obj.ToString());
         
         #region IDisposable Support

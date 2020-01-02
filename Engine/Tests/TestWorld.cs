@@ -4,10 +4,12 @@ using System.Drawing;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.ComponentActors.Shapes;
+using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.GameModes;
 using TheraEngine.Physics;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
@@ -258,7 +260,7 @@ namespace TheraEngine.Tests
             //ModelScene gunScene = dae.Models[0];
             //Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
 
-            Settings.DefaultGameModeRef = new TestGameMode();// new GameMode<FlyingCameraPawn>();
+            Settings.DefaultGameModeRef = new CharacterGameMode<CharacterPawn, CharacterPlayerController>();
 
             string mapName = "DefaultMap";
             Settings.Maps.Add(mapName, new Map(true, Vec3.Zero, actors) { Name = mapName });

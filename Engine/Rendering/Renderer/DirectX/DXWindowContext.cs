@@ -231,7 +231,7 @@ namespace TheraEngine.Rendering.DirectX
 
         public override void ErrorCheck()
         {
-            GetCurrentSubContext();
+            GetCurrentSubContext(false);
             //ErrorCode code = GL.GetError();
             //if (code != ErrorCode.NoError && _control != null)
             //    _control.Reset();
@@ -240,13 +240,13 @@ namespace TheraEngine.Rendering.DirectX
         public unsafe override void Initialize()
         {
             IsInitialized = true;
-            GetCurrentSubContext();
+            GetCurrentSubContext(true);
             
             //Set up constant rendering parameters
         }
         public unsafe override void BeginDraw()
         {
-            GetCurrentSubContext();
+            GetCurrentSubContext(true);
 
             //Device.ImmediateContext.OutputMerger.SetRenderTargets(TargetView);
             //Device.ImmediateContext.ClearRenderTargetView(TargetView, new RawColor4(0.2f, 0.4f, 0.5f, 1.0f));
@@ -257,7 +257,7 @@ namespace TheraEngine.Rendering.DirectX
         }
         public override void Flush()
         {
-            GetCurrentSubContext();
+            GetCurrentSubContext(true);
             //GL.Flush();
         }
 

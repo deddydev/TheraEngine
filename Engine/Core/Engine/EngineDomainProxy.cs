@@ -261,6 +261,9 @@ namespace TheraEngine.Core
 
         private void RenderTick(object sender, FrameEventArgs e)
         {
+            while (Engine.DisposingRenderContexts.TryDequeue(out RenderContext ctx))
+                ctx?.Dispose();
+
             foreach (WorldManager m in WorldManagers)
             {
                 if (m is null || m.AssociatedContexts.Count == 0)
@@ -540,7 +543,7 @@ namespace TheraEngine.Core
             where T : class, IRenderHandler
         {
             if (Contexts.ContainsKey(handle))
-                Contexts[handle]?.Dispose();
+                Contexts[handle]?.QueueDisposeSelf();
 
             Type t = typeof(T);
             var handler = Activator.CreateInstance(t, handlerArgs) as BaseRenderHandler;
@@ -569,7 +572,9 @@ namespace TheraEngine.Core
                 return;
             
             Contexts.TryRemove(handle, out var ctx);
-            ctx?.Dispose();
+            ctx?.QueueDisposeSelf();
+
+            Engine.PrintLine("Unregistered render panel.");
         }
         public void RenderPanelResized(IntPtr handle, int width, int height)
         {

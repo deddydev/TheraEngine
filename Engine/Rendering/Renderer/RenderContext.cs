@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Rendering
 {
@@ -29,7 +30,7 @@ namespace TheraEngine.Rendering
 
         public delegate void ContextChangedEventHandler(bool isCurrent);
         public event ContextChangedEventHandler ContextChanged;
-        public event EventHandler ResetOccured;
+        //public event EventHandler ResetOccured;
 
         public abstract AbstractRenderer Renderer { get; }
 
@@ -78,7 +79,16 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public List<BaseRenderObject.ContextBind> States { get; } = new List<BaseRenderObject.ContextBind>();
+        public void Removed(WorldManager manager)
+        {
+
+        }
+        public void Added(WorldManager manager)
+        {
+
+        }
+
+        public List<BaseRenderObject.ContextBind> States { get; private set; } = new List<BaseRenderObject.ContextBind>();
 
         public EVSyncMode VSyncMode
         {
@@ -346,16 +356,17 @@ namespace TheraEngine.Rendering
             {
                 if (disposing)
                 {
-                    //Capture();
+                    IsInitialized = true;
+                    Capture();
                     //Unbind();
 
                     foreach (BaseRenderObject.ContextBind state in States)
                         state.Destroy();
 
                     States.Clear();
+                    States = null;
 
-                    if (BoundContexts.Contains(this))
-                        BoundContexts.Remove(this);
+                    BoundContexts.Remove(this);
                     
                     Release();
                     //_handle.Resize -= OnResized;
@@ -369,6 +380,11 @@ namespace TheraEngine.Rendering
         {
             var control = Control.FromHandle(Handle) as IRenderPanel;
             control?.CreateContext();
+        }
+
+        public void QueueDisposeSelf()
+        {
+            Engine.DisposingRenderContexts.Enqueue(this);
         }
 
         // This code added to correctly implement the disposable pattern.

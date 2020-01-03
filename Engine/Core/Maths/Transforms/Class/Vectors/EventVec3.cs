@@ -111,6 +111,9 @@ namespace TheraEngine.Core.Maths.Transforms
             get => _data.X;
             set
             {
+                if (value == _data.X)
+                    return;
+
                 if (OnPropertyChanging())
                     return;
 
@@ -132,6 +135,9 @@ namespace TheraEngine.Core.Maths.Transforms
             get => _data.Y;
             set
             {
+                if (value == _data.Y)
+                    return;
+
                 if (OnPropertyChanging())
                     return;
 
@@ -153,6 +159,9 @@ namespace TheraEngine.Core.Maths.Transforms
             get => _data.Z;
             set
             {
+                if (value == _data.Z)
+                    return;
+
                 if (OnPropertyChanging())
                     return;
 

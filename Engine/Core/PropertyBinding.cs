@@ -29,7 +29,7 @@ namespace TheraEngine.Core
             RegistreeProperty = rType.GetProperty(RegistreePropertyName);
             SourceProperty = sType.GetProperty(SourcePropertyName);
 
-            Mode = EBindingMode.OneWay;
+            RegisterEvents();
         }
 
         public PropertyBinding() { }
@@ -57,7 +57,12 @@ namespace TheraEngine.Core
             RegistreeProperty = rType.GetProperty(RegistreePropertyName);
             SourceProperty = sType.GetProperty(SourcePropertyName);
 
-            switch (mode)
+            RegisterEvents();
+        }
+
+        public void RegisterEvents()
+        {
+            switch (Mode)
             {
                 case EBindingMode.OneTime:
                     TransferValue(

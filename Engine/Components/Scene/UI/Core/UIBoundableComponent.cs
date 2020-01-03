@@ -137,7 +137,7 @@ namespace TheraEngine.Rendering.UI
             get => _size;
             set
             {
-                if (Set(ref _size, value,
+                if (Set(ref _size, value ?? new EventVec2(),
                     () =>
                     {
                         _size.Changed -= InvalidateLayout;
@@ -163,7 +163,7 @@ namespace TheraEngine.Rendering.UI
         public EventVec2 ActualSize
         {
             get => _actualSize;
-            set => _actualSize = value;
+            set => Set(ref _actualSize, value ?? new EventVec2());
         }
         [Browsable(false)]
         public float ActualWidth => ActualSize.X;

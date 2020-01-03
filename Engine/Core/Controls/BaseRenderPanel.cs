@@ -49,24 +49,24 @@ namespace TheraEngine
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);
-            Engine.DomainProxy.RenderPanelResized(Handle, Width, Height);
-            Engine.DomainProxy.UpdateScreenLocation(Handle, PointToScreen(Point.Empty));
+            Engine.DomainProxy.RenderPanelResized(_cachedHandle, Width, Height);
+            Engine.DomainProxy.UpdateScreenLocation(_cachedHandle, PointToScreen(Point.Empty));
         }
 
         protected override void OnClientSizeChanged(EventArgs e)
         {
             base.OnClientSizeChanged(e);
-            Engine.DomainProxy.RenderPanelResized(Handle, Width, Height);
-            Engine.DomainProxy.UpdateScreenLocation(Handle, PointToScreen(Point.Empty));
+            Engine.DomainProxy.RenderPanelResized(_cachedHandle, Width, Height);
+            Engine.DomainProxy.UpdateScreenLocation(_cachedHandle, PointToScreen(Point.Empty));
         }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            Engine.DomainProxy.RenderPanelResized(Handle, Width, Height);
-            Engine.DomainProxy.UpdateScreenLocation(Handle, PointToScreen(Point.Empty));
+            Engine.DomainProxy.RenderPanelResized(_cachedHandle, Width, Height);
+            Engine.DomainProxy.UpdateScreenLocation(_cachedHandle, PointToScreen(Point.Empty));
         }
         private void UpdateScreenLocation(object sender, EventArgs e)
-            => Engine.DomainProxy.UpdateScreenLocation(Handle, PointToScreen(Point.Empty));
+            => Engine.DomainProxy.UpdateScreenLocation(_cachedHandle, PointToScreen(Point.Empty));
         protected override void OnParentChanged(EventArgs e)
         {
             Control parent = this;
@@ -96,35 +96,60 @@ namespace TheraEngine
             base.OnMove(e);
             UpdateScreenLocation(this, e);
         }
+        protected IntPtr _cachedHandle;
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            //Engine.PrintLine(nameof(OnHandleCreated));
+            _cachedHandle = Handle;
+        }
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            base.OnHandleDestroyed(e);
+            //Engine.PrintLine(nameof(OnHandleDestroyed));
+
+            Engine.DomainProxy.UnregisterRenderPanel(_cachedHandle);
+        }
+        protected override void CreateHandle()
+        {
+            base.CreateHandle();
+            //Engine.PrintLine(nameof(CreateHandle));
+        }
         protected override void DestroyHandle()
         {
-            Engine.DomainProxy.UnregisterRenderPanel(Handle);
             base.DestroyHandle();
+            //Engine.PrintLine(nameof(DestroyHandle));
+        }
+        protected override void Dispose(bool disposing)
+        {
+            //Engine.PrintLine(nameof(Dispose));
+            //DestroyHandle();
+            base.Dispose(disposing);
         }
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
-            Engine.DomainProxy.MouseEnter(Handle);
+            Engine.DomainProxy.MouseEnter(_cachedHandle);
         }
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            Engine.DomainProxy.MouseLeave(Handle);
+            Engine.DomainProxy.MouseLeave(_cachedHandle);
         }
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
-            Engine.DomainProxy.GotFocus(Handle);
+            Engine.DomainProxy.GotFocus(_cachedHandle);
         }
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-            Engine.DomainProxy.LostFocus(Handle);
+            Engine.DomainProxy.LostFocus(_cachedHandle);
         }
         public void LinkToWorldManager(int worldManagerId)
-            => Engine.DomainProxy.LinkRenderPanelToWorldManager(Handle, worldManagerId);
+            => Engine.DomainProxy.LinkRenderPanelToWorldManager(_cachedHandle, worldManagerId);
         public void UnlinkFromWorldManager()
-            => Engine.DomainProxy.UnlinkRenderPanelFromWorldManager(Handle);
+            => Engine.DomainProxy.UnlinkRenderPanelFromWorldManager(_cachedHandle);
     }
     public class RenderPanel<T> : BaseRenderPanel where T : class, IRenderHandler
     {
@@ -133,14 +158,14 @@ namespace TheraEngine
             _renderHandlerCache = new Lazy<T>(() => MarshalRenderHandler(true), System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
         }
 
-        private bool IsHandleCreated { get; set; } = false;
+        //private bool IsHandleCreated { get; set; } = false;
 
         protected override void OnHandleCreated(EventArgs e)
         {
-            if (IsHandleCreated)
-                return;
+            //if (IsHandleCreated)
+            //    return;
 
-            IsHandleCreated = true;
+            //IsHandleCreated = true;
 
             base.OnHandleCreated(e);
 
@@ -150,15 +175,15 @@ namespace TheraEngine
         }
         protected override void DestroyHandle()
         {
-            if (!IsHandleCreated)
-                return;
-
-            IsHandleCreated = false;
+            //if (!IsHandleCreated)
+            //    return;
 
             Engine.Instance.DomainProxyCreated -= Instance_DomainProxySet;
             Engine.Instance.DomainProxyDestroying -= Instance_DomainProxyUnset;
 
             base.DestroyHandle();
+
+            //IsHandleCreated = false;
         }
 
         /// <summary>
@@ -174,11 +199,11 @@ namespace TheraEngine
 
         private void Instance_DomainProxyUnset(Core.EngineDomainProxy proxy)
         {
-            proxy?.UnregisterRenderPanel(Handle);
+            proxy?.UnregisterRenderPanel(_cachedHandle);
         }
         private void Instance_DomainProxySet(Core.EngineDomainProxy proxy)
         {
-            proxy?.RegisterRenderPanel<T>(Handle, HandlerArgs);
+            proxy?.RegisterRenderPanel<T>(_cachedHandle, HandlerArgs);
         }
 
         /// <summary>
@@ -205,7 +230,7 @@ namespace TheraEngine
             if (InvokeRequired)
                 return (T)Invoke((Func<bool, T>)MarshalRenderHandler, cache);
             
-            T handler = (T)Engine.DomainProxy.MarshalRenderHandler(Handle);
+            T handler = (T)Engine.DomainProxy.MarshalRenderHandler(_cachedHandle);
             if (cache)
                 AppDomainHelper.Sponsor(handler);
             

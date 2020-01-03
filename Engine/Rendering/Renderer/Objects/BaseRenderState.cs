@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 
 namespace TheraEngine.Rendering
@@ -15,18 +16,16 @@ namespace TheraEngine.Rendering
             //internal bool _generatedFailSafe = false;
             internal int _bindingId = NullBindingId;
 
-            internal ContextBind(RenderContext context, BaseRenderObject parentState, int contextIndex)
+            internal ContextBind(RenderContext context, BaseRenderObject parentState)
             {
                 ParentState = parentState;
                 Context = context;
-                ContextIndex = contextIndex;
                 context?.States.Add(this);
             }
 
             public int ThreadID { get; set; }
             public DateTime? GenerationTime { get; internal set; } = null;
             public string GenerationStackTrace { get; internal set; }
-            public int ContextIndex { get; internal set; }
 
             public bool Active => BindingId > NullBindingId/* || _generatedFailSafe*/;
             public int BindingId
@@ -45,7 +44,7 @@ namespace TheraEngine.Rendering
             public BaseRenderObject ParentState { get; }
             internal RenderContext Context { get; set; } = null;
 
-            public void Destroy() => ParentState.DestroyContextBind(ContextIndex);
+            public void Destroy() => ParentState.DestroyContextBind(this);
             public override string ToString() => ParentState.ToString();
         }
 
@@ -59,6 +58,7 @@ namespace TheraEngine.Rendering
             }
         }
         public bool IsActive => CurrentBind.Active;
+        [Browsable(false)]
         public int BindingId
         {
             get
@@ -78,7 +78,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// List of all render contexts this object has been generated on.
         /// </summary>
-        private List<ContextBind> _owners = new List<ContextBind>();
+        private readonly List<ContextBind> _owners = new List<ContextBind>();
         /// <summary>
         /// The last context that this object has been bound to or called the binding id from.
         /// </summary>
@@ -94,23 +94,20 @@ namespace TheraEngine.Rendering
             PostGenerated();
         }
 
-        private void DestroyContextBind(int index)
+        private void DestroyContextBind(ContextBind bind)
         {
-            if (_currentBind != null && _currentBind.ContextIndex == index)
+            if (_currentBind != null && _currentBind == bind)
                 _currentBind = null;
-            if (index >= 0 && index < _owners.Count)
-            {
-                _owners.RemoveAt(index);
-                for (int i = index; i < _owners.Count; ++i)
-                    --_owners[i].ContextIndex;
-            }
+            _owners.Remove(bind);
+            Delete();
         }
 
         protected bool GetCurrentBind()
         {
             if (RenderContext.Captured is null)
             {
-                _currentBind = new ContextBind(null, this, -1);
+                if (_currentBind is null || _currentBind.Context != null)
+                    _currentBind = new ContextBind(null, this);
                 //throw new Exception("No context bound.");
                 return false;
             }
@@ -121,7 +118,7 @@ namespace TheraEngine.Rendering
                 if (index >= 0)
                     _currentBind = _owners[index];
                 else
-                    _owners.Add(_currentBind = new ContextBind(RenderContext.Captured, this, _owners.Count));
+                    _owners.Add(_currentBind = new ContextBind(RenderContext.Captured, this));
             }
             return true;
         }
@@ -161,47 +158,6 @@ namespace TheraEngine.Rendering
         }
 
         /// <summary>
-        /// Removes this render object from the current context.
-        /// Call after capturing a context.
-        /// </summary>
-        internal protected void Delete()
-        {
-            if (RenderContext.Captured is null)
-                return;
-
-            //Remove current bind from owners list
-            if (_currentBind is null || _currentBind.Context != RenderContext.Captured)
-            {
-                int index = _owners.FindIndex(x => x.Context == RenderContext.Captured);
-                if (index >= 0)
-                {
-                    _currentBind = _owners[index];
-                    _owners.RemoveAt(index);
-                }
-                else
-                    return; //This state was never generated on this context in the first place
-            }
-            else
-            {
-                int index = _currentBind.ContextIndex;
-                if (index >= 0 && index < _owners.Count)
-                    _owners.RemoveAt(index);
-            }
-
-            if (!IsActive)
-                return;
-
-            PreDeleted();
-
-            Engine.Renderer.DeleteObject(Type, _currentBind._bindingId);
-
-            _currentBind._bindingId = 0;
-            _currentBind.Context = null;
-            _currentBind.GenerationStackTrace = null;
-            _currentBind.GenerationTime = null;
-            PostDeleted();
-        }
-        /// <summary>
         /// Do not call. Override if special generation necessary.
         /// </summary>
         /// <returns>The handle to the object.</returns>
@@ -224,16 +180,57 @@ namespace TheraEngine.Rendering
         /// </summary>
         public virtual void Destroy()
         {
-            ContextBind b;
+            ContextBind bind;
             while (_owners.Count > 0)
             {
-                b = _owners[0];
+                bind = _owners[0];
 
-                if (b.Context != null && !b.Context.IsContextDisposed())
-                    b.Context.QueueDelete(this);
+                if (bind.Context != null && !bind.Context.IsContextDisposed())
+                    bind.Context.QueueDelete(this);
                                 
-                _owners.RemoveAt(0);
+                _owners.Remove(bind);
             }
+        }
+        /// <summary>
+        /// Removes this render object from the current context (RenderPanel).
+        /// Call after capturing a context.
+        /// </summary>
+        internal protected void Delete()
+        {
+            if (RenderContext.Captured is null)
+                return;
+
+            //Remove current bind from owners list
+            if (_currentBind is null || _currentBind.Context != RenderContext.Captured)
+            {
+                //Get current bind manually so it isn't created if it never existed in the first place
+                int index = _owners.FindIndex(x => x.Context == RenderContext.Captured);
+                if (index >= 0)
+                {
+                    _currentBind = _owners[index];
+                    _owners.RemoveAt(index);
+                }
+                else
+                    return; //This state was never generated on this context in the first place
+            }
+            else
+            {
+                _owners.Remove(_currentBind);
+            }
+
+            if (!IsActive)
+                return;
+
+            PreDeleted();
+
+            Engine.Renderer.DeleteObject(Type, _currentBind._bindingId);
+
+            _currentBind._bindingId = 0;
+            _currentBind.Context = null;
+            _currentBind.GenerationStackTrace = null;
+            _currentBind.GenerationTime = null;
+            _currentBind.Destroy();
+            PostDeleted();
         }
 
         public override int GetHashCode() => ToString().GetHashCode();

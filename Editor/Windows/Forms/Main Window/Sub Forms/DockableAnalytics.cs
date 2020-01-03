@@ -47,7 +47,6 @@ namespace TheraEditor.Windows.Forms
                 {
                     state.Type.ToString(),
                     bind.BindingId.ToString(),
-                    bind.ContextIndex.ToString(),
                     bind.GenerationTime.ToString()
                 };
                 ListViewItem item = new ListViewItem(cols) { Tag = bind };

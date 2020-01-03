@@ -230,9 +230,9 @@ namespace TheraEditor.Windows.Forms
 
             SubViewport.Size.BindProperty("X", 
                 canvas.ActualSize, "X",
-                obj => (float)obj * 0.4);
+                obj => (float)obj * 0.4f);
 
-            SubViewport.Size.BindProperty("Y", 
+            SubViewport.Size.BindProperty("Y",
                 SubViewport.ActualSize, "X",
                 obj => (float)obj * 9.0f / 16.0f);
 

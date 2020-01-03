@@ -191,6 +191,11 @@ namespace TheraEngine.Rendering
 
         public virtual void Bind(EFramebufferTarget type)
         {
+            //if (Width <= 0 || Height <= 0)
+            //{
+            //    Engine.LogWarning("Can't bind an FBO with no area.");
+            //    return;
+            //}
             Engine.Renderer.BindFrameBuffer(type, BindingId);
             CurrentlyBound = this;
         }

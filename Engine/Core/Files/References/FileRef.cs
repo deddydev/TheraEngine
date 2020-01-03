@@ -270,8 +270,8 @@ namespace TheraEngine.Core.Files
         IFileObject IFileRef.GetInstance() => GetInstance();
         public T GetInstance()
         {
-            if (RootFile?.IsSerializing ?? false)
-                return null;
+            if (RootFile?.IsSerializing ?? false && !StoredInternally)
+                return _file;
 
             if (IsLoading || IsLoaded)
                 return _file;

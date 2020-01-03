@@ -37,9 +37,15 @@ namespace TheraEngine.Worlds
         public virtual void SwapBuffers()
         {
             while (_contextRemoveQueue.TryDequeue(out RenderContext ctx))
+            {
                 _contexts.Remove(ctx);
+                ctx.Removed(this);
+            }
             while (_contextAddQueue.TryDequeue(out RenderContext ctx))
+            {
                 _contexts.Add(ctx);
+                ctx.Added(this);
+            }
         }
 
         public int ID { get; internal set; }

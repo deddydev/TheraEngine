@@ -628,6 +628,8 @@ namespace TheraEngine
             }
         }
 
+        public static ConcurrentQueue<RenderContext> DisposingRenderContexts { get; } = new ConcurrentQueue<RenderContext>();
+
         /// <summary>
         /// This singleton represents the engine for all AppDomains, 
         /// residing in the UI domain and marshalled to all others.

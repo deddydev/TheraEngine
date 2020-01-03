@@ -62,6 +62,9 @@ namespace TheraEngine.Core.Files
             if (string.IsNullOrEmpty(path))
                 return;
 
+            if (file.Domain == AppDomain.CurrentDomain && AppDomainHelper.IsPrimaryDomain)
+                throw new Exception();
+
             Engine.DomainProxy?.AddGlobalFile(path, file);
         }
         internal static void RemoveGlobalFileInstance(string path)

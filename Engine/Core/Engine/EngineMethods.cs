@@ -712,7 +712,7 @@ namespace TheraEngine
             PrintLine(EOutputVerbosity.Verbose, false, ex.ToString());
 #endif
         }
-        public static void LogWarning(string message, int lineIgnoreCount = 0, int includedLineCount = 1)
+        public static void LogWarning(string message, int lineIgnoreCount = 1, int includedLineCount = 5)
         {
 #if DEBUG || EDITOR
             PrintLine(EOutputVerbosity.Normal, true, false, false, true, 4 + lineIgnoreCount, includedLineCount, message);

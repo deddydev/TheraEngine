@@ -34,6 +34,8 @@ namespace TheraEngine.Rendering
 
         void RegisterController(LocalPlayerController controller);
         void UnregisterController(LocalPlayerController controller);
+
+        void Closed();
     }
     /// <summary>
     /// A render handler is what handles processing a visuals
@@ -176,5 +178,7 @@ namespace TheraEngine.Rendering
             foreach (Viewport v in Viewports.Values)
                 v.Resize(Width, Height, true);
         }
+
+        public virtual void Closed() { }
     }
 }

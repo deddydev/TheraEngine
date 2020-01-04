@@ -62,6 +62,11 @@ namespace TheraEditor.Windows.Forms
             Engine.PreWorldChanged += PreWorldChanged;
             Engine.PostWorldChanged += PostWorldChanged;
         }
+        protected virtual void UnlinkEngineWorldChangeEvents()
+        {
+            Engine.PreWorldChanged -= PreWorldChanged;
+            Engine.PostWorldChanged -= PostWorldChanged;
+        }
         public override void Resize(int width, int height)
         {
             base.Resize(width, height);
@@ -97,7 +102,13 @@ namespace TheraEditor.Windows.Forms
         }
         private void World_PreEndPlay() => World.DespawnActor(EditorPawn);
         private void World_PostBeginPlay() => World.SpawnActor(EditorPawn);
+        public override void Closed()
+        {
+            base.Closed();
 
+            PreWorldChanged();
+            UnlinkEngineWorldChangeEvents();
+        }
         public void AlignView(BoundingBox aabb)
         {
             //Get aspect of the front plane of the aabb

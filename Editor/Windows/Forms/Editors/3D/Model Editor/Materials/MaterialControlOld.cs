@@ -164,7 +164,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         public void HandleChange(params LocalValueChange[] changes)
-            => Editor.DomainProxy.UndoManager.AddChange(Material.EditorState, changes);
+            => Editor.DomainProxy.UndoManager.AddGlobalChange(Material.EditorState, changes);
 
         //public void HandleChange(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
         //{

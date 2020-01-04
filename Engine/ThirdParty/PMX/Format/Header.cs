@@ -8,12 +8,20 @@ namespace TheraEngine.ThirdParty.PMX
     {
         public fixed byte _magic[4]; //PMX 
         public float _version; //2.0, 2.1
-        public byte _globalsCount; //8
-        
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        public byte* Globals => (byte*)(Address + 9);
 
-        public EStringEncoding StringEncoding { get => (EStringEncoding)(Globals[0]); set => Globals[0] = (byte)value; }
+        public byte _globalsCount; //8
+        public byte _textType; //0/1, 0 = utf16, 1 = utf8
+        public byte _addUVCount; //0-4
+
+        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+        public byte* Globals => (byte*)(Address + 11);
+
+        public EStringEncoding StringEncoding 
+        {
+            get => (EStringEncoding)_textType;
+            set => _textType = (byte)value;
+        }
+
         public byte ExtraVec4Count { get => Globals[1]; set => Globals[1] = value; } //0-4
         public byte VertexIndexSize { get => Globals[2]; set => Globals[2] = value; }
         public byte TextureIndexSize { get => Globals[3]; set => Globals[3] = value; }

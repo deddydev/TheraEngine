@@ -25,8 +25,8 @@ namespace TheraEngine.Rendering.UI
         float MaxHeight { get; set; }
         EventVec2 MaxSize { get; set; }
         
-        float XOriginPercent { get; set; }
-        float YOriginPercent { get; set; }
+        float OriginPercentX { get; set; }
+        float OriginPercentY { get; set; }
         EventVec2 OriginPercent { get; set; }
         
         float OriginTranslationX { get; set; }
@@ -140,22 +140,25 @@ namespace TheraEngine.Rendering.UI
                 if (Set(ref _size, value ?? new EventVec2(),
                     () =>
                     {
-                        _size.Changed -= InvalidateLayout;
+                        _size.Changed -= SizeChanged;
 
-                        OnPropertyChanging(nameof(Width));
-                        OnPropertyChanging(nameof(Height));
+                        //OnPropertyChanging(nameof(Width));
+                        //OnPropertyChanging(nameof(Height));
                     },
                     () =>
                     {
-                        _size.Changed += InvalidateLayout;
-
-                        OnPropertyChanged(nameof(Width));
-                        OnPropertyChanged(nameof(Height));
+                        _size.Changed += SizeChanged;
                     }))
                 {
-                    InvalidateLayout();
+                    SizeChanged();
                 }
             }
+        }
+
+        private void SizeChanged()
+        {
+            OnPropertiesChanged(nameof(Width), nameof(Height));
+            InvalidateLayout();
         }
 
         protected EventVec2 _actualSize = new EventVec2();
@@ -190,11 +193,19 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _minSize, value,
-                    () => _minSize.Changed -= InvalidateLayout,
-                    () => _minSize.Changed += InvalidateLayout))
-                    InvalidateLayout();
+                    () => _minSize.Changed -= MinSizeChanged,
+                    () => _minSize.Changed += MinSizeChanged))
+                    MinSizeChanged();
             }
         }
+
+        private void MinSizeChanged()
+        {
+            OnPropertyChanged(nameof(MinWidth));
+            OnPropertyChanged(nameof(MaxWidth));
+            InvalidateLayout();
+        }
+
         [Category("Transform")]
         public virtual float MaxWidth
         {
@@ -215,19 +226,27 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _maxSize, value,
-                    () => _maxSize.Changed -= InvalidateLayout,
-                    () => _maxSize.Changed += InvalidateLayout))
-                    InvalidateLayout();
+                    () => _maxSize.Changed -= MaxSizeChanged,
+                    () => _maxSize.Changed += MaxSizeChanged))
+                    MaxSizeChanged();
             }
         }
+
+        private void MaxSizeChanged()
+        {
+            OnPropertyChanged(nameof(MaxWidth));
+            OnPropertyChanged(nameof(MaxHeight));
+            InvalidateLayout();
+        }
+
         [Category("Transform")]
-        public virtual float XOriginPercent
+        public virtual float OriginPercentX
         {
             get => _originPercent.X;
             set => _originPercent.X = value;
         }
         [Category("Transform")]
-        public virtual float YOriginPercent
+        public virtual float OriginPercentY
         {
             get => _originPercent.Y;
             set => _originPercent.Y = value;
@@ -240,11 +259,21 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (Set(ref _originPercent, value,
-                    () => _originPercent.Changed -= InvalidateLayout,
-                    () => _originPercent.Changed += InvalidateLayout))
-                    InvalidateLayout();
+                    () => _originPercent.Changed -= OriginPercentChanged,
+                    () => _originPercent.Changed += OriginPercentChanged))
+                    OriginPercentChanged();
             }
         }
+
+        private void OriginPercentChanged()
+        {
+            OnPropertyChanged(nameof(OriginPercentX));
+            OnPropertyChanged(nameof(OriginPercentY));
+            OnPropertyChanged(nameof(OriginTranslationX));
+            OnPropertyChanged(nameof(OriginTranslationY));
+            InvalidateLayout();
+        }
+
         [TSerialize]
         [Category("Transform")]
         public virtual EventVec4 Margins
@@ -274,14 +303,14 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public virtual float OriginTranslationX
         {
-            get => XOriginPercent * ActualWidth;
-            set => XOriginPercent = value / ActualWidth;
+            get => OriginPercentX * ActualWidth;
+            set => OriginPercentX = value / ActualWidth;
         }
         [Category("Transform")]
         public virtual float OriginTranslationY
         {
-            get => YOriginPercent * ActualHeight;
-            set => YOriginPercent = value / ActualHeight;
+            get => OriginPercentY * ActualHeight;
+            set => OriginPercentY = value / ActualHeight;
         }
         [Browsable(false)]
         public Vec2 OriginTranslation

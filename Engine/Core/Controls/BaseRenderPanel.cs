@@ -217,6 +217,9 @@ namespace TheraEngine
             if (_renderHandlerCache.IsValueCreated)
                 _renderHandlerCache.Value?.Sponsor?.Release();
 
+            var handler = MarshalRenderHandler(false);
+            handler?.Closed();
+
             base.OnHandleDestroyed(e);
         }
 

@@ -31,9 +31,11 @@ namespace TheraEngine.Core.Files
         /// </summary>
         GameRelative,
     }
-    [TFileDef("Path Reference", "Stores a path relative to a certain origin.")]
+    /// <summary>
+    /// Stores a file/folder path relative to a certain origin.
+    /// </summary>
+    [TFileDef("Path Reference", "Stores a file/folder path relative to a certain origin.")]
     [TFileExt("path")]
-    [Serializable]
     public class PathReference : TFileObject
     {
         public delegate void DelPathChange(string oldPath, string newPath);
@@ -41,15 +43,13 @@ namespace TheraEngine.Core.Files
         public void OnAbsolutePathChanged(string oldPath)
             => AbsolutePathChanged?.Invoke(oldPath, Path);
 
-        [TSerialize("Type", Order = 0, NodeType = ENodeType.Attribute)]
+        [TSerialize(nameof(Type), Order = 0, NodeType = ENodeType.Attribute)]
         public EPathType _type = EPathType.FileRelative;
-        [TSerialize("Path", Order = 1, NodeType = ENodeType.Attribute)]
+
+        [TSerialize(nameof(Path), Order = 1, NodeType = ENodeType.Attribute)]
         public string _path;
 
-        public PathReference()
-        {
-
-        }
+        public PathReference() { }
         public PathReference(string path, EPathType type)
         {
             Path = path;
@@ -63,7 +63,8 @@ namespace TheraEngine.Core.Files
             set => _type = value;
         }
 
-        [CustomMemberSerializeMethod("Path")]
+        [CustomMemberSerializeMethod(nameof(Path))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "Used by reflection.")]
         private object SerializePath()
         {
             string path = Path;
@@ -95,7 +96,8 @@ namespace TheraEngine.Core.Files
             }
             return path;
         }
-        [CustomMemberDeserializeMethod("Path")]
+        [CustomMemberDeserializeMethod(nameof(Path))]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Code Quality", "IDE0051:Remove unused private members", Justification = "Used by reflection.")]
         private void DeserializePath(SerializeAttribute node)
         {
             try
@@ -149,7 +151,7 @@ namespace TheraEngine.Core.Files
             }
             catch (Exception ex)
             {
-                //Engine.LogException(ex);
+                Engine.LogException(ex);
                 _path = null;
             }
         }

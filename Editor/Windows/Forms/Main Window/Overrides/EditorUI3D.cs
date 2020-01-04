@@ -46,7 +46,7 @@ namespace TheraEditor.Windows.Forms
             if (TransformTool3D.Instance.PrevRootWorldMatrix == socket.WorldMatrix)
                 return;
             
-            Editor.DomainProxy.UndoManager.AddChange(
+            Editor.DomainProxy.UndoManager.AddGlobalChange(
                 ((IObject)socket).EditorState,
                 new LocalValueChangeProperty(
                     TransformTool3D.Instance.PrevRootWorldMatrix,
@@ -391,7 +391,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _transformType = value;
                 if (UseTransformTool)
-                    TransformTool3D.Instance.TransformMode = _transformType;
+                    TransformTool3D.GetInstance(OwningWorld, SelectedComponent, _transformType);
                 else
                     TransformTool3D.DestroyInstance();
             }
@@ -578,7 +578,8 @@ namespace TheraEditor.Windows.Forms
             }
             
             ISceneComponent comp = viewport.PickScene(
-                viewportPoint, true, true, true,
+                viewportPoint,
+                true, true, true,
                 out _hitNormal,
                 out _hitPoint,
                 out _hitDistance);
@@ -662,7 +663,7 @@ namespace TheraEditor.Windows.Forms
             if (DragComponent != null)
             {
                 LocalValueChangeProperty change = new LocalValueChangeProperty(_prevDragMatrix, DragComponent.WorldMatrix, DragComponent, DragComponent.GetType().GetProperty(nameof(DragComponent.WorldMatrix)));
-                Editor.DomainProxy.UndoManager.AddChange(DragComponent.EditorState, change);
+                Editor.DomainProxy.UndoManager.AddGlobalChange(DragComponent.EditorState, change);
                 //_selectedComponent = null;
                 DragComponent = null;
             }
@@ -683,8 +684,8 @@ namespace TheraEditor.Windows.Forms
             if (fromActorTree)
                 return;
             
-            TreeNode t = ((TheraEngine.Components.IComponent)SelectedComponent)?.OwningActor?.EditorState?.TreeNode;
-            Editor.Instance.SetSelectedTreeNode(t);
+            TreeNode node = ((TheraEngine.Components.IComponent)SelectedComponent)?.OwningActor?.EditorState?.TreeNode;
+            Editor.Instance.SetSelectedTreeNode(node);
         }
         private void PreSelectedComponentChanged(bool selectedByViewport)
         {

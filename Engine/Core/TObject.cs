@@ -16,7 +16,7 @@ using TheraEngine.Input.Devices;
 
 namespace TheraEngine
 {
-    public interface IObject : IObjectSlim, INotifyPropertyChanged, INotifyPropertyChanging
+    public interface IObject : IObjectSlim, INotifyPropertyChanged
     {
         event RenamedEventHandler Renamed;
 
@@ -175,21 +175,23 @@ namespace TheraEngine
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public event PropertyChangingEventHandler PropertyChanging;
+        //public event PropertyChangingEventHandler PropertyChanging;
 
-        /// <summary>
-        /// Returns true if cancelled.
-        /// </summary>
-        /// <param name="propertyName"></param>
-        /// <returns></returns>
-        protected virtual bool OnPropertyChanging([CallerMemberName] string propertyName = null)
-        {
-            var args = new SerializableCancellablePropertyChangingEventArgs(propertyName);
-            PropertyChanging?.Invoke(this, args);
-            return args.Cancel;
-        }
+        ///// <summary>
+        ///// Returns true if cancelled.
+        ///// </summary>
+        ///// <param name="propertyName"></param>
+        ///// <returns></returns>
+        //protected virtual bool OnPropertyChanging([CallerMemberName] string propertyName = null)
+        //{
+        //    var args = new SerializableCancellablePropertyChangingEventArgs(propertyName);
+        //    PropertyChanging?.Invoke(this, args);
+        //    return args.Cancel;
+        //}
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new SerializablePropertyChangedEventArgs(propertyName));
+        protected void OnPropertiesChanged(params string[] propertyNames)
+            => propertyNames.ForEach(x => OnPropertyChanged(x));
         
         /// <summary>
         /// Helper method to set a property's backing field.
@@ -211,8 +213,8 @@ namespace TheraEngine
             if (Equals(fieldValue, newValue))
                 return false;
 
-            if (OnPropertyChanging(propertyName))
-                return false;
+            //if (OnPropertyChanging(propertyName))
+            //    return false;
 
             if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(fieldValue, default))
                 beforeSet?.Invoke();
@@ -246,8 +248,8 @@ namespace TheraEngine
             if (Equals(fieldValue, newValue))
                 return false;
 
-            if (OnPropertyChanging(propertyName))
-                return false;
+            //if (OnPropertyChanging(propertyName))
+            //    return false;
 
             if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(fieldValue, default))
                 beforeSet?.Invoke(fieldValue);
@@ -274,8 +276,8 @@ namespace TheraEngine
             if (Equals(fieldValue, newValue))
                 return false;
 
-            if (OnPropertyChanging(propertyName))
-                return false;
+            //if (OnPropertyChanging(propertyName))
+            //    return false;
 
             if (fieldValue != null)
             {

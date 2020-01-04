@@ -25,7 +25,12 @@ namespace TheraEditor.Windows.Forms
             while (Changes.Count > _maxChanges)
                 Changes.PopFront().DestroySelf();
         }
-        public void AddChange(EditorState state, params LocalValueChange[] changes)
+        /// <summary>
+        /// Adds a collection of local data changes as one overall change that can be undone and redone.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="changes"></param>
+        public void AddGlobalChange(EditorState state, params LocalValueChange[] changes)
         {
             GlobalChange globalChange = state.AddChanges(changes);
             OnChangeAdded(globalChange);

@@ -432,6 +432,10 @@ namespace TheraEngine.Actors.Types
             }
         }
 
+        public static void DestroyInstance()
+        {
+            Instance.Despawn();
+        }
         public static TransformTool3D GetInstance(IWorld world, ISocket comp, TransformType transformType)
         {
             if (world is null)
@@ -461,10 +465,6 @@ namespace TheraEngine.Actors.Types
             }
         }
 
-        public static void DestroyInstance()
-        {
-            Instance.Despawn();
-        }
         //public override void OnSpawnedPreComponentSetup()
         //{
         //    //OwningWorld.Scene.Add(this);

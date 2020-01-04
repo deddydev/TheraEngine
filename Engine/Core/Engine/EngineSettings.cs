@@ -1,8 +1,12 @@
-﻿using System;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using Extensions;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine
 {
@@ -13,6 +17,117 @@ namespace TheraEngine
     [TFileExt("set", "txt")]
     public abstract class TSettings : TFileObject
     {
+        private PathReference _liveUpdateCsvPath;
+        private bool _liveUpdateFromCSV = false;
+
+        public TSettings()
+        {
+            LiveUpdateCsvPath = new PathReference();
+        }
+
+        private FileSystemWatcher CsvWatcher { get; set; }
+        
+        public Configuration CSVConfigurationOverride { get; set; }
+        private Configuration CSVConfiguration { get; set; }
+
+        [TSerialize]
+        [Category("Settings")]
+        public bool LiveUpdateFromCSV
+        {
+            get => _liveUpdateFromCSV;
+            set
+            {
+                if (Set(ref _liveUpdateFromCSV, value))
+                    LiveUpdateCsvPath_AbsolutePathChanged(null, _liveUpdateFromCSV ? _liveUpdateCsvPath?.Path : null);
+            }
+        }
+        [TSerialize]
+        [BrowsableIf(nameof(LiveUpdateFromCSV))]
+        [Category("Settings")]
+        public PathReference LiveUpdateCsvPath
+        {
+            get => _liveUpdateCsvPath;
+            set
+            {
+                if (Set(ref _liveUpdateCsvPath, value,
+                    () => _liveUpdateCsvPath.AbsolutePathChanged -= LiveUpdateCsvPath_AbsolutePathChanged,
+                    () => _liveUpdateCsvPath.AbsolutePathChanged += LiveUpdateCsvPath_AbsolutePathChanged))
+                    LiveUpdateCsvPath_AbsolutePathChanged(null, _liveUpdateCsvPath?.Path);
+            }
+        }
+
+        private void LiveUpdateCsvPath_AbsolutePathChanged(string oldPath, string newPath)
+        {
+            if (newPath?.IsAbsolutePath() ?? false)
+            {
+                string dir = Path.GetDirectoryName(newPath);
+                string name = Path.GetFileName(newPath);
+
+                if (CsvWatcher is null)
+                {
+                    CSVConfiguration = CSVConfigurationOverride ?? GetCSVConfiguration() ?? new Configuration();
+
+                    CsvWatcher = new FileSystemWatcher(dir, name) { EnableRaisingEvents = true };
+                    CsvWatcher.Changed += CsvWatcher_Changed;
+                }
+                else
+                {
+                    CsvWatcher.Path = dir;
+                    CsvWatcher.Filter = name;
+                }
+            }
+            else if (CsvWatcher != null)
+            {
+                CsvWatcher.EnableRaisingEvents = false;
+                CsvWatcher.Changed -= CsvWatcher_Changed;
+                CsvWatcher = null;
+                CSVConfiguration = null;
+            }
+        }
+
+        protected virtual Configuration GetCSVConfiguration()
+        {
+            return new Configuration();
+        }
+        
+        private void CsvWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            string csvPath = e.FullPath;
+            if (!File.Exists(csvPath))
+                return;
+            
+            using (StreamReader stream = File.OpenText(csvPath))
+            using (CsvReader parser = new CsvReader(stream, CSVConfiguration ?? new Configuration()))
+            {
+                var props = GetType().GetProperties();
+                foreach (var prop in props)
+                    if (parser.TryGetField(prop.PropertyType, prop.Name, out object obj))
+                        prop.SetValue(this, obj);
+                    else
+                        Engine.PrintLine($"Could not read {prop.PropertyType.GetFriendlyName()} {prop.Name} from CSV.");
+            }
+        }
+
+        public void WriteToCSV(string path)
+        {
+            using (StreamWriter stream = File.CreateText(path))
+            using (CsvWriter parser = new CsvWriter(stream, CSVConfiguration ?? new Configuration()))
+            {
+                var props = GetType().GetProperties();
+                foreach (var prop in props)
+                {
+                    //var obj = prop.GetValue(this);
+                    //if (parser.WriteRecord(obj))
+                    //else
+                    //            Engine.PrintLine($"Could not read {prop.PropertyType.GetFriendlyName()} {prop.Name} from CSV.");
+                }
+            }
+        }
+        protected virtual void ParseCSVRecords(string[] records)
+        {
+
+        }
+
         //public override void ManualRead3rdParty(string filePath)
         //{
         //    //string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
@@ -84,16 +199,16 @@ namespace TheraEngine
         private bool _enableDeferredPass;
         private EOutputVerbosity _outputVerbosity;
         private double _allowedOutputRecencySeconds;
-        private string texturesFolder;
+        private string _texturesFolder;
         private bool _printAppDomainInOutput;
-        private string fontsFolder;
-        private string engineDataFolder;
-        private string modelsFolder;
-        private string shadersFolder;
-        private string worldsFolder;
-        private string scriptsFolder;
-        private float doubleClickInputDelay;
-        private float holdInputDelay;
+        private string _fontsFolder;
+        private string _engineDataFolder;
+        private string _modelsFolder;
+        private string _shadersFolder;
+        private string _worldsFolder;
+        private string _scriptsFolder;
+        private float _doubleClickInputDelay;
+        private float _holdInputDelay;
 
         [Category("Performance")]
         [TSerialize]
@@ -189,8 +304,8 @@ namespace TheraEngine
         [TSerialize]
         public float HoldInputDelay
         {
-            get => holdInputDelay;
-            set => Set(ref holdInputDelay, value);
+            get => _holdInputDelay;
+            set => Set(ref _holdInputDelay, value);
         }
         /// <summary>
         /// How many seconds the user has between pressing the same button twice for it to register as a double click event.
@@ -200,8 +315,8 @@ namespace TheraEngine
         [TSerialize]
         public float DoubleClickInputDelay
         {
-            get => doubleClickInputDelay;
-            set => Set(ref doubleClickInputDelay, value);
+            get => _doubleClickInputDelay;
+            set => Set(ref _doubleClickInputDelay, value);
         }
 
         /// <summary>
@@ -212,8 +327,8 @@ namespace TheraEngine
         [TSerialize]
         public string ScriptsFolder
         {
-            get => scriptsFolder;
-            set => Set(ref scriptsFolder, value);
+            get => _scriptsFolder;
+            set => Set(ref _scriptsFolder, value);
         }
 
         /// <summary>
@@ -224,8 +339,8 @@ namespace TheraEngine
         [TSerialize]
         public string WorldsFolder
         {
-            get => worldsFolder;
-            set => Set(ref worldsFolder, value);
+            get => _worldsFolder;
+            set => Set(ref _worldsFolder, value);
         }
 
         /// <summary>
@@ -236,8 +351,8 @@ namespace TheraEngine
         [TSerialize]
         public string ShadersFolder
         {
-            get => shadersFolder;
-            set => Set(ref shadersFolder, value);
+            get => _shadersFolder;
+            set => Set(ref _shadersFolder, value);
         }
 
         /// <summary>
@@ -248,8 +363,8 @@ namespace TheraEngine
         [TSerialize]
         public string ModelsFolder
         {
-            get => modelsFolder;
-            set => Set(ref modelsFolder, value);
+            get => _modelsFolder;
+            set => Set(ref _modelsFolder, value);
         }
 
         /// <summary>
@@ -260,8 +375,8 @@ namespace TheraEngine
         [TSerialize]
         public string EngineDataFolder
         {
-            get => engineDataFolder;
-            set => Set(ref engineDataFolder, value);
+            get => _engineDataFolder;
+            set => Set(ref _engineDataFolder, value);
         }
 
         /// <summary>
@@ -272,8 +387,8 @@ namespace TheraEngine
         [TSerialize]
         public string FontsFolder
         {
-            get => fontsFolder;
-            set => Set(ref fontsFolder, value);
+            get => _fontsFolder;
+            set => Set(ref _fontsFolder, value);
         }
 
         /// <summary>
@@ -284,8 +399,8 @@ namespace TheraEngine
         [TSerialize]
         public string TexturesFolder
         {
-            get => texturesFolder;
-            set => Set(ref texturesFolder, value);
+            get => _texturesFolder;
+            set => Set(ref _texturesFolder, value);
         }
 
         /// <summary>

@@ -84,16 +84,12 @@ namespace TheraEngine.ThirdParty.PMX
                 public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
                 public int GetBoneIndex(byte boneIndexSize)
                 {
-                    switch (boneIndexSize)
+                    return boneIndexSize switch
                     {
-                        default:
-                        case 1:
-                            return *(sbyte*)Address;
-                        case 2:
-                            return *(short*)Address;
-                        case 4:
-                            return *(int*)Address;
-                    }
+                        2 => *(short*)Address,
+                        4 => *(int*)Address,
+                        _ => *(sbyte*)Address,
+                    };
                 }
                 public int GetSize(byte boneIndexSize) => boneIndexSize;
             }
@@ -103,29 +99,21 @@ namespace TheraEngine.ThirdParty.PMX
                 public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
                 public int GetBoneIndex1(byte boneIndexSize)
                 {
-                    switch (boneIndexSize)
+                    return boneIndexSize switch
                     {
-                        default:
-                        case 1:
-                            return *(sbyte*)Address;
-                        case 2:
-                            return *(short*)Address;
-                        case 4:
-                            return *(int*)Address;
-                    }
+                        2 => *(short*)Address,
+                        4 => *(int*)Address,
+                        _ => *(sbyte*)Address,
+                    };
                 }
                 public int GetBoneIndex2(byte boneIndexSize)
                 {
-                    switch (boneIndexSize)
+                    return boneIndexSize switch
                     {
-                        default:
-                        case 1:
-                            return *(sbyte*)(Address + boneIndexSize);
-                        case 2:
-                            return *(short*)(Address + boneIndexSize);
-                        case 4:
-                            return *(int*)(Address + boneIndexSize);
-                    }
+                        2 => *(short*)(Address + boneIndexSize),
+                        4 => *(int*)(Address + boneIndexSize),
+                        _ => *(sbyte*)(Address + boneIndexSize),
+                    };
                 }
                 public float Bone1Weight(byte boneIndexSize) => *(float*)(Address + boneIndexSize * 2);
                 public float Bone2Weight(byte boneIndexSize) => 1.0f - Bone1Weight(boneIndexSize);
@@ -137,55 +125,39 @@ namespace TheraEngine.ThirdParty.PMX
                 public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
                 public int GetBoneIndex1(byte boneIndexSize)
                 {
-                    switch (boneIndexSize)
+                    return boneIndexSize switch
                     {
-                        default:
-                        case 1:
-                            return *(sbyte*)Address;
-                        case 2:
-                            return *(short*)Address;
-                        case 4:
-                            return *(int*)Address;
-                    }
+                        2 => *(short*)Address,
+                        4 => *(int*)Address,
+                        _ => *(sbyte*)Address,
+                    };
                 }
                 public int GetBoneIndex2(byte boneIndexSize)
                 {
-                    switch (boneIndexSize)
+                    return boneIndexSize switch
                     {
-                        default:
-                        case 1:
-                            return *(sbyte*)(Address + boneIndexSize);
-                        case 2:
-                            return *(short*)(Address + boneIndexSize);
-                        case 4:
-                            return *(int*)(Address + boneIndexSize);
-                    }
+                        2 => *(short*)(Address + boneIndexSize),
+                        4 => *(int*)(Address + boneIndexSize),
+                        _ => *(sbyte*)(Address + boneIndexSize),
+                    };
                 }
                 public int GetBoneIndex3(byte boneIndexSize)
                 {
-                    switch (boneIndexSize)
+                    return boneIndexSize switch
                     {
-                        default:
-                        case 1:
-                            return *(sbyte*)(Address + boneIndexSize * 2);
-                        case 2:
-                            return *(short*)(Address + boneIndexSize * 2);
-                        case 4:
-                            return *(int*)(Address + boneIndexSize * 2);
-                    }
+                        2 => *(short*)(Address + boneIndexSize * 2),
+                        4 => *(int*)(Address + boneIndexSize * 2),
+                        _ => *(sbyte*)(Address + boneIndexSize * 2),
+                    };
                 }
                 public int GetBoneIndex4(byte boneIndexSize)
                 {
-                    switch (boneIndexSize)
+                    return boneIndexSize switch
                     {
-                        default:
-                        case 1:
-                            return *(sbyte*)(Address + boneIndexSize * 3);
-                        case 2:
-                            return *(short*)(Address + boneIndexSize * 3);
-                        case 4:
-                            return *(int*)(Address + boneIndexSize * 3);
-                    }
+                        2 => *(short*)(Address + boneIndexSize * 3),
+                        4 => *(int*)(Address + boneIndexSize * 3),
+                        _ => *(sbyte*)(Address + boneIndexSize * 3),
+                    };
                 }
                 public Vec4 GetWeights(byte boneIndexSize) => *(Vec4*)(Address + boneIndexSize * 4);
                 public int GetSize(byte boneIndexSize) => boneIndexSize * 4 + 16;
@@ -196,29 +168,21 @@ namespace TheraEngine.ThirdParty.PMX
                 public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
                 public int GetBoneIndex1(byte boneIndexSize)
                 {
-                    switch (boneIndexSize)
+                    return boneIndexSize switch
                     {
-                        default:
-                        case 1:
-                            return *(sbyte*)Address;
-                        case 2:
-                            return *(short*)Address;
-                        case 4:
-                            return *(int*)Address;
-                    }
+                        2 => *(short*)Address,
+                        4 => *(int*)Address,
+                        _ => *(sbyte*)Address,
+                    };
                 }
                 public int GetBoneIndex2(byte boneIndexSize)
                 {
-                    switch (boneIndexSize)
+                    return boneIndexSize switch
                     {
-                        default:
-                        case 1:
-                            return *(sbyte*)(Address + boneIndexSize);
-                        case 2:
-                            return *(short*)(Address + boneIndexSize);
-                        case 4:
-                            return *(int*)(Address + boneIndexSize);
-                    }
+                        2 => *(short*)(Address + boneIndexSize),
+                        4 => *(int*)(Address + boneIndexSize),
+                        _ => *(sbyte*)(Address + boneIndexSize),
+                    };
                 }
                 public float Bone1Weight(byte boneIndexSize) => *(float*)(Address + boneIndexSize * 2);
                 public float Bone2Weight(byte boneIndexSize) => 1.0f - Bone1Weight(boneIndexSize);

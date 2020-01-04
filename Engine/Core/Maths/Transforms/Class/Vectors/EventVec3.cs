@@ -92,13 +92,11 @@ namespace TheraEngine.Core.Maths.Transforms
                 BeginUpdate();
                 try
                 {
-                    OnPropertyChanging(nameof(X));
-                    OnPropertyChanging(nameof(Y));
-                    OnPropertyChanging(nameof(Z));
+                //    OnPropertyChanging(nameof(X));
+                //    OnPropertyChanging(nameof(Y));
+                //    OnPropertyChanging(nameof(Z));
                     Set(ref _data, value);
-                    OnPropertyChanged(nameof(X));
-                    OnPropertyChanged(nameof(Y));
-                    OnPropertyChanged(nameof(Z));
+                    OnPropertiesChanged(nameof(X), nameof(Y), nameof(Z));
                 }
                 finally
                 {
@@ -114,8 +112,8 @@ namespace TheraEngine.Core.Maths.Transforms
                 if (value == _data.X)
                     return;
 
-                if (OnPropertyChanging())
-                    return;
+                //if (OnPropertyChanging())
+                //    return;
 
                 BeginUpdate();
                 try
@@ -138,8 +136,8 @@ namespace TheraEngine.Core.Maths.Transforms
                 if (value == _data.Y)
                     return;
 
-                if (OnPropertyChanging())
-                    return;
+                //if (OnPropertyChanging())
+                //    return;
 
                 BeginUpdate();
                 try
@@ -162,8 +160,8 @@ namespace TheraEngine.Core.Maths.Transforms
                 if (value == _data.Z)
                     return;
 
-                if (OnPropertyChanging())
-                    return;
+                //if (OnPropertyChanging())
+                //    return;
 
                 BeginUpdate();
                 try

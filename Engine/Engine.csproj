@@ -1221,6 +1221,7 @@
     <Compile Include="Core\Maths\TMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThirdParty\openvr_api.cs" />
+    <Compile Include="ThirdParty\PMX\Importer.cs" />
     <Compile Include="ThirdParty\PMX\Exporter.cs" />
     <Compile Include="ThirdParty\PMX\Format\Strings.cs" />
     <Compile Include="ThirdParty\PMX\Format\Header.cs" />

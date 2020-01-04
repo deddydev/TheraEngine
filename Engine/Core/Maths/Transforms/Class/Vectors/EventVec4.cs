@@ -101,21 +101,18 @@ namespace System
             get => _data;
             set
             {
-                if (OnPropertyChanging())
-                    return;
+                //if (OnPropertyChanging())
+                //    return;
 
                 BeginUpdate();
                 try
                 {
-                    OnPropertyChanging(nameof(X));
-                    OnPropertyChanging(nameof(Y));
-                    OnPropertyChanging(nameof(Z));
-                    OnPropertyChanging(nameof(W));
-                    Set(ref _data, value);
-                    OnPropertyChanged(nameof(X));
-                    OnPropertyChanged(nameof(Y));
-                    OnPropertyChanged(nameof(Z));
-                    OnPropertyChanged(nameof(W));
+                    //OnPropertyChanging(nameof(X));
+                    //OnPropertyChanging(nameof(Y));
+                    //OnPropertyChanging(nameof(Z));
+                    //OnPropertyChanging(nameof(W));
+                    if (Set(ref _data, value))
+                        OnPropertiesChanged(nameof(X), nameof(Y), nameof(Z), nameof(W));
                 }
                 finally
                 {
@@ -133,8 +130,8 @@ namespace System
                 if (value == _data.X)
                     return;
 
-                if (OnPropertyChanging())
-                    return;
+                //if (OnPropertyChanging())
+                //    return;
 
                 BeginUpdate();
                 try
@@ -157,8 +154,8 @@ namespace System
                 if (value == _data.Y)
                     return;
 
-                if (OnPropertyChanging())
-                    return;
+                //if (OnPropertyChanging())
+                //    return;
 
                 BeginUpdate();
                 try
@@ -181,8 +178,8 @@ namespace System
                 if (value == _data.Z)
                     return;
 
-                if (OnPropertyChanging())
-                    return;
+                //if (OnPropertyChanging())
+                //    return;
 
                 BeginUpdate();
                 try
@@ -205,8 +202,8 @@ namespace System
                 if (value == _data.W)
                     return;
 
-                if (OnPropertyChanging())
-                    return;
+                //if (OnPropertyChanging())
+                //    return;
 
                 BeginUpdate();
                 try

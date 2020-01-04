@@ -144,7 +144,7 @@ namespace TheraEngine.Rendering.Models
             foreach (IBone b in ChildBones)
                 b.CollectChildBones(owner);
         }
-        
+
         public void LinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Add(m);
         public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Remove(m);
 
@@ -156,7 +156,7 @@ namespace TheraEngine.Rendering.Models
         internal Dictionary<int, Tuple<IPrimitiveManager, List<int>>> _influencedVertices = new Dictionary<int, Tuple<IPrimitiveManager, List<int>>>();
         internal List<CPUSkinInfo.LiveInfluence> _influencedInfluences = new List<CPUSkinInfo.LiveInfluence>();
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
-        
+
         Dictionary<int, Tuple<IPrimitiveManager, List<int>>> IBone.InfluencedVertices => _influencedVertices;
         List<CPUSkinInfo.LiveInfluence> IBone.InfluencedInfluences => _influencedInfluences;
 
@@ -295,6 +295,8 @@ namespace TheraEngine.Rendering.Models
         //public bool ChildFrameMatrixChanged => _childFrameMatrixChanged;
 
         public IEventList<ISceneComponent> _childComponents = new EventList<ISceneComponent>();
+        private float _distanceScaleScreenSize = 1.0f;
+
         [TSerialize]
         [Category("Bone")]
         [Browsable(false)]
@@ -352,35 +354,52 @@ namespace TheraEngine.Rendering.Models
         public TRigidBody RigidBodyCollision
         {
             get => _rigidBodyCollision;
-            set
+            set => Set(ref _rigidBodyCollision, value, BeforeRigidBodySet, AfterRigidBodySet);
+        }
+        private void BeforeRigidBodySet()
+        {
+            if (_parentConstraint != null)
+                _rigidBodyCollision?.Constraints?.Remove(_parentConstraint);
+
+            SkeletalMeshComponent comp = Skeleton?.OwningComponent;
+            if (comp != null)
             {
-                if (_rigidBodyCollision == value)
-                    return;
-                SkeletalMeshComponent comp = Skeleton?.OwningComponent;
-                if (_rigidBodyCollision != null)
-                {
-                    if (comp != null)
-                    {
-                        if (comp.IsSpawned)
-                            comp.OwningWorld.PhysicsWorld3D?.RemoveCollisionObject(_rigidBodyCollision);
-                    }
-                    _rigidBodyCollision.Owner = null;
-                    _rigidBodyCollision.TransformChanged -= _rigidBodyCollision_TransformChanged;
-                    Skeleton?.RemovePhysicsBone(this);
-                }
-                _rigidBodyCollision = value;
-                if (_rigidBodyCollision != null)
-                {
-                    Skeleton?.AddPhysicsBone(this);
-                    _rigidBodyCollision.Owner = this;
-                    _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged;
-                    if (comp != null)
-                    {
-                        if (comp.IsSpawned)
-                            comp.OwningWorld.PhysicsWorld3D?.AddCollisionObject(_rigidBodyCollision);
-                    }
-                }
+                if (comp.IsSpawned)
+                    comp.OwningWorld.PhysicsWorld3D?.RemoveCollisionObject(_rigidBodyCollision);
             }
+
+            _rigidBodyCollision.Owner = null;
+            _rigidBodyCollision.TransformChanged -= _rigidBodyCollision_TransformChanged;
+
+            Skeleton?.RemovePhysicsBone(this);
+        }
+        private void AfterRigidBodySet()
+        {
+            Skeleton?.AddPhysicsBone(this);
+
+            _rigidBodyCollision.Owner = this;
+            _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged;
+
+            if (_parentConstraint != null)
+                _rigidBodyCollision?.Constraints?.Add(_parentConstraint);
+
+            SkeletalMeshComponent comp = Skeleton?.OwningComponent;
+            if (comp != null)
+            {
+                if (comp.IsSpawned)
+                    comp.OwningWorld.PhysicsWorld3D?.AddCollisionObject(_rigidBodyCollision);
+            }
+        }
+
+        private void PreUsesCameraChange()
+        {
+            if (UsesCamera)
+                Skeleton?.RemoveCameraBone(this);
+        }
+        private void PostUsesCameraChange()
+        {
+            if (UsesCamera)
+                Skeleton?.AddCameraBone(this);
         }
 
         [Category("Bone")]
@@ -389,16 +408,8 @@ namespace TheraEngine.Rendering.Models
             get => _billboardType;
             set
             {
-                if (_billboardType == value)
-                    return;
-
-                if (UsesCamera)
-                    Skeleton?.RemoveCameraBone(this);
-
-                _billboardType = value;
-
-                if (UsesCamera)
-                    Skeleton?.AddCameraBone(this);
+                if (Set(ref _billboardType, value, PreUsesCameraChange, PostUsesCameraChange))
+                    OnPropertyChanged(nameof(UsesCamera));
             }
         }
         [Category("Bone")]
@@ -407,24 +418,21 @@ namespace TheraEngine.Rendering.Models
             get => _scaleByDistance;
             set
             {
-                if (_scaleByDistance == value)
-                    return;
-
-                if (UsesCamera)
-                    Skeleton?.RemoveCameraBone(this);
-
-                _scaleByDistance = value;
-
-                if (UsesCamera)
-                    Skeleton?.AddCameraBone(this);
+                if (Set(ref _scaleByDistance, value, PreUsesCameraChange, PostUsesCameraChange))
+                    OnPropertyChanged(nameof(UsesCamera));
             }
         }
+
         [Category("Bone")]
-        public float DistanceScaleScreenSize { get; set; } = 1.0f;
+        public float DistanceScaleScreenSize
+        {
+            get => _distanceScaleScreenSize;
+            set => Set(ref _distanceScaleScreenSize, value);
+        }
 
         public Matrix4 WorldToLocalMatrix(Matrix4 worldMatrix)
             => (Parent is null ? (OwningComponent is null ? Matrix4.Identity : OwningComponent.InverseWorldMatrix) : Parent.InverseWorldMatrix) * worldMatrix;
-        
+
         public void HandleTranslation(Vec3 delta)
         {
 
@@ -479,7 +487,7 @@ namespace TheraEngine.Rendering.Models
                     if (BillboardType != EBillboardType.None)
                     {
                         //Align rotation using camera
-                        HandleBillboarding(parentMatrix, inverseParentMatrix, camera); 
+                        HandleBillboarding(parentMatrix, inverseParentMatrix, camera);
                     }
                     else
                     {
@@ -502,7 +510,7 @@ namespace TheraEngine.Rendering.Models
                     _frameMatrix = parentMatrix * FrameState.Matrix;
                     _inverseFrameMatrix = FrameState.InverseMatrix * inverseParentMatrix;
                 }
-                
+
                 //Precalculate vertex/normal weighting matrices
                 _vtxPosMtx = FrameMatrix * InverseBindMatrix;
                 //_vtxNrmMtx = (BindMatrix * InverseFrameMatrix).Transposed().GetRotationMatrix4();
@@ -534,7 +542,7 @@ namespace TheraEngine.Rendering.Models
 
             FrameMatrixChanged = false;
         }
-        
+
         public void CalcBindMatrix(bool updateMesh)
         {
             CalcBindMatrix(Matrix4.Identity, Matrix4.Identity, updateMesh);
@@ -543,9 +551,9 @@ namespace TheraEngine.Rendering.Models
         {
             _bindMatrix = parentMatrix * _bindState.Matrix;
             _inverseBindMatrix = _bindState.InverseMatrix * inverseParentMatrix;
-            
+
             TriggerFrameMatrixUpdate();
-            
+
             foreach (Bone b in _childBones)
                 b.CalcBindMatrix(_bindMatrix, _inverseBindMatrix, updateMesh);
         }
@@ -738,12 +746,12 @@ namespace TheraEngine.Rendering.Models
                     angles = new Matrix4(
                         new Vec4(forward3 ^ up3, 0.0f),
                         new Vec4(up3, 0.0f),
-                        new Vec4(forward3, 0.0f), 
+                        new Vec4(forward3, 0.0f),
                         Vec4.UnitW);
 
                     invAngles = new Matrix4(
                         new Vec4(up3 ^ forward3, 0.0f),
-                        new Vec4(-up3, 0.0f), 
+                        new Vec4(-up3, 0.0f),
                         new Vec4(-forward3, 0.0f),
                         Vec4.UnitW);
 

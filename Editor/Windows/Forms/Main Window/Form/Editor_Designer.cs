@@ -492,7 +492,7 @@ namespace TheraEditor.Windows.Forms
             _project = project;
 
             bool projectOpened = _project != null;
-            btnEngineSettings.Enabled =
+            btnProjectEngineSettings.Enabled =
             btnProjectSettings.Enabled =
             btnUserSettings.Enabled =
             btnPlay.Enabled =

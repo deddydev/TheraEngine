@@ -1,5 +1,4 @@
-﻿using Extensions;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -199,16 +198,16 @@ namespace TheraEngine.Rendering
                 value?.Dispose();
             }
         }
-        public void Update() => Handler.Update();
+        public void PreRender() => Handler.PreRender();
         public void SwapBuffers() => Handler.SwapBuffers();
         public void Render()
         {
             Capture();
             GetCurrentSubContext(true);
             CheckSize();
-            PreRender();
+            BeforeRender();
             Handler.Render();
-            PostRender();
+            AfterRender();
             Swap();
             ErrorCheck();
         }
@@ -302,8 +301,8 @@ namespace TheraEngine.Rendering
             OnSwapBuffers();
         }
 
-        internal abstract void PreRender();
-        internal abstract void PostRender();
+        internal abstract void BeforeRender();
+        internal abstract void AfterRender();
 
         //public void Reset()
         //{

@@ -16,11 +16,11 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class Editor
     {
-        private void btnLanguage_Click(object sender, EventArgs e)
+        private void BtnLanguage_Click(object sender, EventArgs e)
         {
 
         }
-        private void btnCancelOp_ButtonClick(object sender, EventArgs e)
+        private void BtnCancelOp_ButtonClick(object sender, EventArgs e)
         {
             int num = DomainProxy.OperationCount;
             DomainProxy.CancelOperations();
@@ -44,31 +44,31 @@ namespace TheraEditor.Windows.Forms
             => OpenWorld();
         private void BtnSaveWorld_Click(object sender, EventArgs e)
             => DomainProxy.SaveWorld();
-        private void saveAsToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void SaveAsToolStripMenuItem1_Click(object sender, EventArgs e)
             => DomainProxy.SaveWorldAs();
-        private void extensionsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ExtensionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            
+        }
+        private void CubeMapEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
         }
-        private void cubeMapEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        private void TextureGeneratorToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
         }
-        private void textureGeneratorToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-        private void btnCloseProject_Click(object sender, EventArgs e)
+        private void BtnCloseProject_Click(object sender, EventArgs e)
             => TryCloseProject();
-        private void btnCloseWorld_Click(object sender, EventArgs e)
+        private void BtnCloseWorld_Click(object sender, EventArgs e)
             => TryCloseWorld();
-        private void btnUndo_Click(object sender, EventArgs e)
+        private void BtnUndo_Click(object sender, EventArgs e)
             => DomainProxy.Undo();
-        private void btnRedo_Click(object sender, EventArgs e)
+        private void BtnRedo_Click(object sender, EventArgs e)
             => DomainProxy.Redo();
-        private void btnViewTools_Click(object sender, EventArgs e)
+        private void BtnViewTools_Click(object sender, EventArgs e)
         {
-
+            
         }
         public async void Compile()
         {
@@ -82,8 +82,8 @@ namespace TheraEditor.Windows.Forms
             //    async (p, c, a) => await ((TProject)a[0]).CompileAsync(),
             //    Project);
         }
-        private void btnCompile_Click(object sender, EventArgs e) => Compile();
-        private void visualStudioToolStripMenuItem_Click(object sender, EventArgs e)
+        private void BtnCompile_Click(object sender, EventArgs e) => Compile();
+        private void VisualStudioToolStripMenuItem_Click(object sender, EventArgs e)
         {
             EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
             if (dte is null)
@@ -97,13 +97,13 @@ namespace TheraEditor.Windows.Forms
             dte.UserControl = true;
             VisualStudioManager.VSInstanceClosed();
         }
-        private void btnContact_Click(object sender, EventArgs e) 
+        private void BtnContact_Click(object sender, EventArgs e) 
             => Process.Start(ContactURL);
-        private void btnDocumentation_Click(object sender, EventArgs e) 
+        private void BtnDocumentation_Click(object sender, EventArgs e) 
             => Process.Start(DocumentationURL);
-        private void btnCheckForUpdates_Click(object sender, EventArgs e) 
+        private void BtnCheckForUpdates_Click(object sender, EventArgs e) 
             => CheckUpdates();
-        private void btnAbout_Click(object sender, EventArgs e)
+        private void BtnAbout_Click(object sender, EventArgs e)
         {
             AboutForm about = new AboutForm();
             about.ShowDialog(this);
@@ -112,32 +112,34 @@ namespace TheraEditor.Windows.Forms
             => ActorTreeForm.Focus();
         private void Viewport1ToolStripMenuItem_Click(object sender, EventArgs e) 
             => RenderForm1.Focus();
-        private void viewport2ToolStripMenuItem_Click(object sender, EventArgs e) 
+        private void Viewport2ToolStripMenuItem_Click(object sender, EventArgs e) 
             => RenderForm2.Focus();
-        private void viewport3ToolStripMenuItem_Click(object sender, EventArgs e) 
+        private void Viewport3ToolStripMenuItem_Click(object sender, EventArgs e) 
             => RenderForm3.Focus();
-        private void viewport4ToolStripMenuItem_Click(object sender, EventArgs e) 
+        private void Viewport4ToolStripMenuItem_Click(object sender, EventArgs e) 
             => RenderForm4.Focus();
-        private void btnViewFileTree_Click(object sender, EventArgs e) 
+        private void BtnViewFileTree_Click(object sender, EventArgs e) 
             => FileTreeForm.Focus();
-        private void btnViewPropertyGrid_Click(object sender, EventArgs e) 
+        private void BtnViewPropertyGrid_Click(object sender, EventArgs e) 
             => PropertyGridForm.Focus();
-        private void btnViewOutput_Click(object sender, EventArgs e) 
+        private void BtnViewOutput_Click(object sender, EventArgs e) 
             => OutputForm.Focus();
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            
         }
 
         private void BtPlay_Click(object sender, EventArgs e)
             => DomainProxy.GameState = DomainProxy.GameState != EEditorGameplayState.Editing ? EEditorGameplayState.Editing : EEditorGameplayState.Attached;
-        private void btnPlayDetached_Click(object sender, EventArgs e)
+        private void BtnPlayDetached_Click(object sender, EventArgs e)
             => DomainProxy.GameState = DomainProxy.GameState != EEditorGameplayState.Attached ? EEditorGameplayState.Attached : EEditorGameplayState.Detached;
-
+        
         private void BtnProjectSettings_Click(object sender, EventArgs e)
             => PropertyGridForm.PropertyGrid.TargetObject = Project;
-        private void BtnEngineSettings_Click(object sender, EventArgs e) 
+        private void BtnProjectEngineSettings_Click(object sender, EventArgs e) 
             => PropertyGridForm.PropertyGrid.TargetObject = Project?.Game?.EngineSettingsOverrideRef;
+        private void BtnDefaultEngineSettings_Click(object sender, EventArgs e)
+            => PropertyGridForm.PropertyGrid.TargetObject = Engine.Instance.DefaultEngineSettingsOverrideRef;
         private void BtnEditorSettings_Click(object sender, EventArgs e)
             => PropertyGridForm.PropertyGrid.TargetObject = DefaultSettingsRef;
         private void BtnUserSettings_Click(object sender, EventArgs e) 

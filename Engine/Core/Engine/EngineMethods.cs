@@ -94,7 +94,6 @@ namespace TheraEngine
         }
         static Engine()
         {
-            Debug.Listeners.Add(new EngineTraceListener());
             //PrintLine("Constructing static engine class.");
 
             //TODO: change tick order to int. 
@@ -103,12 +102,14 @@ namespace TheraEngine
             TickLists.FillWith(i => new TickList());
 
             Timer.UpdateFrame += EngineTick;
-            Timer.SwapBuffers += SwapBuffers;
+            Timer.SwapRenderBuffers += SwapRenderBuffers;
 
             RenderLibraryChanged();
             RetrieveAudioManager();
             //InputLibraryChanged();
             RetrievePhysicsInterface();
+
+            Debug.Listeners.Add(new EngineTraceListener());
         }
 
         /// <summary>
@@ -359,7 +360,7 @@ namespace TheraEngine
         /// <summary>
         /// The index of the currently ticking list of functions (group + order + pause)
         /// </summary>
-        private static int CurrentTickList = -1;
+        //private static int CurrentTickList = -1;
         private static readonly TickList[] TickLists;
 
         /// <summary>
@@ -370,37 +371,34 @@ namespace TheraEngine
             Timer.Stop();
         }
 
-        /// <summary>
-        /// Registers the given function to be called every update tick.
-        /// </summary>
-        public static void RegisterTick(
+        public static void RegisterRenderTick(
             EventHandler<FrameEventArgs> render,
-            EventHandler<FrameEventArgs> update,
+            EventHandler<FrameEventArgs> collectVisible,
             Action swapBuffers)
         {
             if (render != null)
                 Timer.RenderFrame += render;
 
-            if (update != null)
-                Update += update;
+            if (collectVisible != null)
+                Timer.PreRenderFrame += collectVisible;
 
             if (swapBuffers != null)
-                Timer.SwapBuffers += swapBuffers;
+                Timer.SwapRenderBuffers += swapBuffers;
         }
         /// <summary>
         /// Registers the given function to be called every render tick.
         /// </summary>
-        public static void UnregisterTick(
+        public static void UnregisterRenderTick(
             EventHandler<FrameEventArgs> render,
-            EventHandler<FrameEventArgs> update,
+            EventHandler<FrameEventArgs> collectVisible,
             Action swapBuffers)
         {
             if (render != null)
                 Timer.RenderFrame -= render;
-            if (update != null)
-                Update -= update;
+            if (collectVisible != null)
+                Timer.PreRenderFrame -= collectVisible;
             if (swapBuffers != null)
-                Timer.SwapBuffers -= swapBuffers;
+                Timer.SwapRenderBuffers -= swapBuffers;
         }
         /// <summary>
         /// Registers a method to execute in a specific order every update tick.
@@ -432,8 +430,6 @@ namespace TheraEngine
         private static TickList GetTickList(ETickGroup group, ETickOrder order, EInputPauseType pausedBehavior)
             => TickLists[(int)group + (int)order + (int)pausedBehavior];
 
-        public static event EventHandler<FrameEventArgs> Update;
-
         /// <summary>
         /// Ticks the before, during, and after physics groups. Also steps the physics simulation during the during physics tick group.
         /// Does not tick physics if paused.
@@ -451,9 +447,6 @@ namespace TheraEngine
                 World?.StepSimulation(delta);
 
             TickGroup(ETickGroup.PostPhysics, delta);
-
-            //Collect renderables
-            OnUpdate(sender, e);
 
             Network?.UpdatePacketQueue(e.Time);
 
@@ -480,9 +473,6 @@ namespace TheraEngine
         {
             Sequences.Clear();
         }
-
-        private static void OnUpdate(object sender, FrameEventArgs e) 
-            => Update?.Invoke(sender, e);
 
         //TODO: Allow user to customize ticking groups
         /// <summary>
@@ -551,7 +541,7 @@ namespace TheraEngine
         {
             World?.CurrentGameMode?.FoundInput(device);
         }
-        public static void SwapBuffers()
+        public static void SwapRenderBuffers()
         {
             THelpers.Swap(ref RebaseWorldsProcessing, ref RebaseWorldsQueue);
             RebaseWorldsProcessing.ForEach(x => x.Key.RebaseOrigin(x.Value));
@@ -971,30 +961,29 @@ namespace TheraEngine
             public void OnGotFocus() => GotFocus?.Invoke();
             public void OnLostFocus() => LostFocus?.Invoke();
 
-            public InternalEnginePersistentSingleton()
-            {
-                Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Constructing new engine singleton.");
+            //public InternalEnginePersistentSingleton()
+            //{
+            //    Console.WriteLine($"[{AppDomain.CurrentDomain.FriendlyName}] Constructing new engine singleton.");
 
-                LoadCustomFonts().Wait();
-            }
+            //}
 
-            public async Task<EngineSettings> GetSettingsAsync()
-            {
-                EngineSettings settings;
-                if (Game?.EngineSettingsOverrideRef != null)
-                {
-                    settings = await Game.EngineSettingsOverrideRef.GetInstanceAsync();
-                    if (settings != null)
-                        return settings;
-                }
-                if (DefaultEngineSettingsOverrideRef != null)
-                {
-                    settings = await DefaultEngineSettingsOverrideRef.GetInstanceAsync();
-                    if (settings != null)
-                        return settings;
-                }
-                return _defaultEngineSettings.Value;
-            }
+            //public async Task<EngineSettings> GetSettingsAsync()
+            //{
+            //    EngineSettings settings;
+            //    if (Game?.EngineSettingsOverrideRef != null)
+            //    {
+            //        settings = await Game.EngineSettingsOverrideRef.GetInstanceAsync();
+            //        if (settings != null)
+            //            return settings;
+            //    }
+            //    if (DefaultEngineSettingsOverrideRef != null)
+            //    {
+            //        settings = await DefaultEngineSettingsOverrideRef.GetInstanceAsync();
+            //        if (settings != null)
+            //            return settings;
+            //    }
+            //    return _defaultEngineSettings.Value;
+            //}
             #region Fonts
             /// <summary>
             /// Creates a new font object given the font's name and parameters.
@@ -1022,36 +1011,58 @@ namespace TheraEngine
             {
                 if (!File.Exists(path))
                     return;
+
                 string ext = Path.GetExtension(path).ToLowerInvariant().Substring(1);
                 if (!(ext.Equals("ttf") || ext.Equals("otf")))
                     return;
-                _fontIndexMatching?.Add(fontFamilyName?.ToLowerInvariant(), _fontCollection?.Families?.Length ?? 0);
-                _fontCollection?.AddFontFile(path);
+
+                FontIndexMatching?.Add(fontFamilyName?.ToLowerInvariant(), FontCollection?.Families?.Length ?? 0);
+                FontCollection?.AddFontFile(path);
             }
             /// <summary>
             /// Gets a custom font family using its name.
             /// </summary>
             /// <param name="fontFamilyName">The name of the font family.</param>
             public FontFamily GetCustomFontFamily(string fontFamilyName)
-                => _fontIndexMatching.ContainsKey(fontFamilyName.ToLowerInvariant()) ? GetCustomFontFamily(_fontIndexMatching[fontFamilyName]) : null;
+                => FontIndexMatching.ContainsKey(fontFamilyName.ToLowerInvariant()) ? GetCustomFontFamily(FontIndexMatching[fontFamilyName]) : null;
             /// <summary>
             /// Gets a custom font family using its load index.
             /// </summary>
             /// <param name="fontFamilyIndex">The index of the font, in the order it was loaded in.</param>
             public FontFamily GetCustomFontFamily(int fontFamilyIndex)
-                => _fontCollection.Families.IndexInRange(fontFamilyIndex) ? _fontCollection.Families[fontFamilyIndex] : null;
+                => FontCollection.Families.IndexInRange(fontFamilyIndex) ? FontCollection.Families[fontFamilyIndex] : null;
 
-            private Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
-            private PrivateFontCollection _fontCollection = new PrivateFontCollection();
+            public Dictionary<string, int> FontIndexMatching
+            {
+                get
+                {
+                    if (_fontIndexMatching is null)
+                        LoadCustomFonts();
+                    return _fontIndexMatching;
+                }
+            }
+            public PrivateFontCollection FontCollection
+            {
+                get
+                {
+                    if (_fontCollection is null)
+                        LoadCustomFonts();
+                    return _fontCollection;
+                }
+            }
 
-            private async Task LoadCustomFonts()
+            private Dictionary<string, int> _fontIndexMatching = null;
+            private PrivateFontCollection _fontCollection = null;
+
+            private void LoadCustomFonts()
             {
                 //if (DesignMode)
                 //    return;
 
-                FontsLoaded = true;
-
-                EngineSettings s = await GetSettingsAsync();
+                _fontIndexMatching = new Dictionary<string, int>();
+                _fontCollection = new PrivateFontCollection();
+                
+                EngineSettings s = GetBestSettings();
                 string folder = Path.GetFullPath(s.FontsFolder);
 
                 string[] ttf = Directory.GetFiles(folder, "*.ttf");
@@ -1061,6 +1072,8 @@ namespace TheraEngine
                 string[] otf = Directory.GetFiles(folder, "*.otf");
                 foreach (string path in otf) 
                     LoadCustomFont(path);
+
+                FontsLoaded = true;
             }
 
             public void OnPauseChanged(bool isPaused, ELocalPlayerIndex toggler)

@@ -47,7 +47,7 @@ namespace TheraEngine.Worlds
         int SpawnedActorCount { get; }
         WorldManager Manager { get; set; }
 
-        void GlobalUpdate();
+        void GlobalCollectVisible();
         void GlobalSwap();
         void GlobalPreRender();
 
@@ -448,9 +448,9 @@ namespace TheraEngine.Worlds
             passes.Add(_rc2D);
         }
 
-        void IWorld.GlobalUpdate()
+        void IWorld.GlobalCollectVisible()
         {
-            Scene?.GlobalUpdate();
+            Scene?.GlobalCollectVisible();
         }
         void IWorld.GlobalSwap()
         {

@@ -442,42 +442,10 @@ namespace TheraEngine
         /// </summary>
         public static event Action<string> DebugOutput;
 
-        private static readonly Lazy<EngineSettings> _defaultEngineSettings = new Lazy<EngineSettings>(() => new EngineSettings(), LazyThreadSafetyMode.ExecutionAndPublication);
-
         public static NetworkConnection Network { get; set; }
         public static Server ServerConnection => Network as Server;
         public static Client ClientConnection => Network as Client;
         public static EngineSingleton Singleton { get; set; }
-
-        public static LocalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef
-        {
-            get => _defaultEngineSettingsOverrideRef;
-            set
-            {
-                if (_defaultEngineSettingsOverrideRef == value)
-                    return;
-
-                if (_defaultEngineSettingsOverrideRef != null)
-                    _defaultEngineSettingsOverrideRef.Loaded -= _defaultEngineSettingsOverrideRef_Loaded;
-
-                _defaultEngineSettingsOverrideRef = value;
-
-                if (_defaultEngineSettingsOverrideRef != null)
-                    _defaultEngineSettingsOverrideRef.Loaded += _defaultEngineSettingsOverrideRef_Loaded;
-
-                SettingsSourcesChanged();
-            }
-        }
-
-        private static void _defaultEngineSettingsOverrideRef_Loaded(EngineSettings obj)
-            => SettingsSourcesChanged();
-
-        private static LocalFileRef<EngineSettings> _defaultEngineSettingsOverrideRef
-            = new LocalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset"))
-            {
-                AllowDynamicConstruction = true,
-                CreateFileIfNonExistent = true
-            };
 
         private static bool AllowSettingsCache { get; set; } = false;
         private static bool SettingsLoading { get; set; } = false;
@@ -486,7 +454,7 @@ namespace TheraEngine
             get
             {
                 if (SettingsLoading)
-                    return _defaultEngineSettings.Value;
+                    return Instance.DefaultEngineSettings.Value;
 
                 var obj = SettingsRouter.Object;
                 if (obj is null)
@@ -524,7 +492,8 @@ namespace TheraEngine
         public static void UncacheSettings(bool allowCaching)
         {
             AllowSettingsCache = allowCaching;
-            _defaultEngineSettingsOverrideRef?.Unload();
+
+            Instance.DefaultEngineSettingsOverrideRef?.Unload();
             Game?.EngineSettingsOverrideRef?.Unload();
 
             var obj = SettingsRouter.Object;
@@ -560,7 +529,7 @@ namespace TheraEngine
                 return gameSettings;
             }
 
-            var defaultOverrideSettings = DefaultEngineSettingsOverrideRef?.File;
+            var defaultOverrideSettings = Instance.DefaultEngineSettingsOverrideRef?.File;
             if (defaultOverrideSettings != null)
             {
                 //Console.WriteLine($"[{domainName}] Loading default override settings.");
@@ -568,7 +537,7 @@ namespace TheraEngine
             }
 
             //Console.WriteLine($"[{domainName}] Loading default settings.");
-            return _defaultEngineSettings.Value;
+            return Instance.DefaultEngineSettings.Value;
         }
 
         /// <summary>
@@ -590,7 +559,7 @@ namespace TheraEngine
                 }
             }
 
-            var ref2 = DefaultEngineSettingsOverrideRef;
+            var ref2 = Instance.DefaultEngineSettingsOverrideRef;
             if (ref2 != null)
             {
                 var settings = await ref2.GetInstanceAsync();
@@ -602,7 +571,7 @@ namespace TheraEngine
             }
 
             //Console.WriteLine($"[{domainName}] Loading default settings.");
-            return _defaultEngineSettings.Value;
+            return Instance.DefaultEngineSettings.Value;
         }
 
         /// <summary>
@@ -736,6 +705,39 @@ namespace TheraEngine
 
             [Browsable(false)]
             public EngineDomainProxy DomainProxy { get; private set; } = null;
+
+            public Lazy<EngineSettings> DefaultEngineSettings { get; }
+                = new Lazy<EngineSettings>(() => new EngineSettings(), LazyThreadSafetyMode.ExecutionAndPublication);
+
+            private LocalFileRef<EngineSettings> _defaultEngineSettingsOverrideRef;
+
+            public LocalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef
+            {
+                get => _defaultEngineSettingsOverrideRef ?? (_defaultEngineSettingsOverrideRef =
+                    new LocalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset"))
+                    {
+                        AllowDynamicConstruction = true,
+                        CreateFileIfNonExistent = true
+                    });
+                set
+                {
+                    if (_defaultEngineSettingsOverrideRef == value)
+                        return;
+
+                    if (_defaultEngineSettingsOverrideRef != null)
+                        _defaultEngineSettingsOverrideRef.Loaded -= DefaultEngineSettingsOverrideRef_Loaded;
+
+                    _defaultEngineSettingsOverrideRef = value;
+
+                    if (_defaultEngineSettingsOverrideRef != null)
+                        _defaultEngineSettingsOverrideRef.Loaded += DefaultEngineSettingsOverrideRef_Loaded;
+
+                    SettingsSourcesChanged();
+                }
+            }
+
+            private static void DefaultEngineSettingsOverrideRef_Loaded(EngineSettings obj)
+                => SettingsSourcesChanged();
 
             //#if EDITOR
             //            public EngineEditorState EditorState { get; } = new EngineEditorState();

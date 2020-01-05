@@ -302,12 +302,15 @@ namespace TheraEditor.Windows.Forms
             float incX = UnitIncrementX * 2.0f;
             float incY = UnitIncrementY * 2.0f;
 
-            GetViewportBounds(out Vec2 viewMin, out Vec2 viewMax);
+            GetViewportBounds(
+                out Vec2 viewMin,
+                out Vec2 viewMax);
+
             Vec2 intervalStart = new Vec2(
                 viewMin.X.RoundedToNearestMultiple(incX), 
                 viewMin.Y.RoundedToNearestMultiple(incY));
 
-            Vec2 unitCounts = Bounds.Raw / (new Vec2(incX, incY) * OriginTransformComponent.Scale.Xy) + Vec2.One;
+            Vec2 unitCounts = Vec2.One + Bounds.Raw / (new Vec2(incX, incY) * OriginTransformComponent.Scale.Xy);
 
             UpdateTextIncrements(
                 unitCounts.X, 

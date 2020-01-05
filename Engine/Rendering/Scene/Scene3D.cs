@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering
         IBLProbeGridActor IBLProbeActor { get; set; }
         IEventList<I3DRenderable> Renderables { get; }
 
-        void UpdateShadowMaps();
+        void CollectShadowMaps();
         void RenderShadowMaps();
         void Voxelize(bool clearVoxelization = true);
         void Clear(BoundingBoxStruct sceneBounds);
@@ -89,7 +89,7 @@ namespace TheraEngine.Rendering
         private void Renderables_PostAnythingAdded(I3DRenderable item) => RenderTree.Add(item);
         private void Renderables_PostAnythingRemoved(I3DRenderable item) => RenderTree.Remove(item);
 
-        public void UpdateShadowMaps() => Lights?.UpdateShadowMaps(this);
+        public void CollectShadowMaps() => Lights?.CollectShadowMaps(this);
         public void RenderShadowMaps() => Lights?.RenderShadowMaps(this);
         public void Voxelize(bool clearVoxelization = true)
         {
@@ -155,9 +155,9 @@ namespace TheraEngine.Rendering
             //    _queueRemake = false;
             //}
         }
-        public override void GlobalUpdate()
+        public override void GlobalCollectVisible()
         {
-            UpdateShadowMaps();
+            CollectShadowMaps();
         }
         /// <summary>
         /// Clears all items from the scene and sets the bounds.

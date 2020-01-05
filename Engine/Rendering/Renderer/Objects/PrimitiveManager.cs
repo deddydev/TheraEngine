@@ -464,11 +464,8 @@ namespace TheraEngine.Rendering.Models
                             boneIndex = _boneRemap[i];
                             vtxMtx = _utilizedBones[boneIndex].VertexMatrix;
 
-                            //Increment the bone index for all subsequent data calculations 
-                            //to account for the identity matrix at index 0
-                            ++boneIndex;
-
-                            _boneMatrixBuffer.Set(boneIndex, vtxMtx);
+                            //Increment the bone index to account for the identity matrix at index 0
+                            _boneMatrixBuffer.Set(boneIndex + 1, vtxMtx);
                         }
                         //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
                     }

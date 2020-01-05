@@ -49,7 +49,8 @@
             this.btnRedo = new System.Windows.Forms.ToolStripMenuItem();
             this.btnEditProjectSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnEditorSettings = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnEngineSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnProjectEngineSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnDefaultEngineSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnProjectSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnUserSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnWorldSettings = new System.Windows.Forms.ToolStripMenuItem();
@@ -162,7 +163,7 @@
             this.btnFile.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnFile.Name = "btnFile";
             resources.ApplyResources(this.btnFile, "btnFile");
-            this.btnFile.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
+            this.btnFile.Click += new System.EventHandler(this.FileToolStripMenuItem_Click);
             // 
             // btnProject
             // 
@@ -203,7 +204,7 @@
             // 
             this.btnCloseProject.Name = "btnCloseProject";
             resources.ApplyResources(this.btnCloseProject, "btnCloseProject");
-            this.btnCloseProject.Click += new System.EventHandler(this.btnCloseProject_Click);
+            this.btnCloseProject.Click += new System.EventHandler(this.BtnCloseProject_Click);
             // 
             // btnWorld
             // 
@@ -238,19 +239,20 @@
             // 
             this.btnSaveWorldAs.Name = "btnSaveWorldAs";
             resources.ApplyResources(this.btnSaveWorldAs, "btnSaveWorldAs");
-            this.btnSaveWorldAs.Click += new System.EventHandler(this.saveAsToolStripMenuItem1_Click);
+            this.btnSaveWorldAs.Click += new System.EventHandler(this.SaveAsToolStripMenuItem1_Click);
             // 
             // btnCloseWorld
             // 
             this.btnCloseWorld.Name = "btnCloseWorld";
             resources.ApplyResources(this.btnCloseWorld, "btnCloseWorld");
-            this.btnCloseWorld.Click += new System.EventHandler(this.btnCloseWorld_Click);
+            this.btnCloseWorld.Click += new System.EventHandler(this.BtnCloseWorld_Click);
             // 
             // btnEdit
             // 
             this.btnEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnUndo,
             this.btnRedo,
+            this.btnDefaultEngineSettings,
             this.btnEditProjectSettings,
             this.btnWorldSettings,
             this.btnEditEditorSettings});
@@ -262,19 +264,19 @@
             // 
             resources.ApplyResources(this.btnUndo, "btnUndo");
             this.btnUndo.Name = "btnUndo";
-            this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
+            this.btnUndo.Click += new System.EventHandler(this.BtnUndo_Click);
             // 
             // btnRedo
             // 
             resources.ApplyResources(this.btnRedo, "btnRedo");
             this.btnRedo.Name = "btnRedo";
-            this.btnRedo.Click += new System.EventHandler(this.btnRedo_Click);
+            this.btnRedo.Click += new System.EventHandler(this.BtnRedo_Click);
             // 
             // btnEditProjectSettings
             // 
             this.btnEditProjectSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnEditorSettings,
-            this.btnEngineSettings,
+            this.btnProjectEngineSettings,
             this.btnProjectSettings,
             this.btnUserSettings});
             this.btnEditProjectSettings.Name = "btnEditProjectSettings";
@@ -286,11 +288,17 @@
             resources.ApplyResources(this.btnEditorSettings, "btnEditorSettings");
             this.btnEditorSettings.Click += new System.EventHandler(this.BtnEditorSettings_Click);
             // 
-            // btnEngineSettings
+            // btnProjectEngineSettings
             // 
-            resources.ApplyResources(this.btnEngineSettings, "btnEngineSettings");
-            this.btnEngineSettings.Name = "btnEngineSettings";
-            this.btnEngineSettings.Click += new System.EventHandler(this.BtnEngineSettings_Click);
+            resources.ApplyResources(this.btnProjectEngineSettings, "btnProjectEngineSettings");
+            this.btnProjectEngineSettings.Name = "btnProjectEngineSettings";
+            this.btnProjectEngineSettings.Click += new System.EventHandler(this.BtnProjectEngineSettings_Click);
+            // 
+            // btnDefaultEngineSettings
+            // 
+            resources.ApplyResources(this.btnDefaultEngineSettings, "btnDefaultEngineSettings");
+            this.btnDefaultEngineSettings.Name = "btnDefaultEngineSettings";
+            this.btnDefaultEngineSettings.Click += new System.EventHandler(this.BtnDefaultEngineSettings_Click);
             // 
             // btnProjectSettings
             // 
@@ -351,19 +359,19 @@
             // 
             this.viewport2ToolStripMenuItem.Name = "viewport2ToolStripMenuItem";
             resources.ApplyResources(this.viewport2ToolStripMenuItem, "viewport2ToolStripMenuItem");
-            this.viewport2ToolStripMenuItem.Click += new System.EventHandler(this.viewport2ToolStripMenuItem_Click);
+            this.viewport2ToolStripMenuItem.Click += new System.EventHandler(this.Viewport2ToolStripMenuItem_Click);
             // 
             // viewport3ToolStripMenuItem
             // 
             this.viewport3ToolStripMenuItem.Name = "viewport3ToolStripMenuItem";
             resources.ApplyResources(this.viewport3ToolStripMenuItem, "viewport3ToolStripMenuItem");
-            this.viewport3ToolStripMenuItem.Click += new System.EventHandler(this.viewport3ToolStripMenuItem_Click);
+            this.viewport3ToolStripMenuItem.Click += new System.EventHandler(this.Viewport3ToolStripMenuItem_Click);
             // 
             // viewport4ToolStripMenuItem
             // 
             this.viewport4ToolStripMenuItem.Name = "viewport4ToolStripMenuItem";
             resources.ApplyResources(this.viewport4ToolStripMenuItem, "viewport4ToolStripMenuItem");
-            this.viewport4ToolStripMenuItem.Click += new System.EventHandler(this.viewport4ToolStripMenuItem_Click);
+            this.viewport4ToolStripMenuItem.Click += new System.EventHandler(this.Viewport4ToolStripMenuItem_Click);
             // 
             // btnViewActorTree
             // 
@@ -375,25 +383,25 @@
             // 
             resources.ApplyResources(this.btnViewFileTree, "btnViewFileTree");
             this.btnViewFileTree.Name = "btnViewFileTree";
-            this.btnViewFileTree.Click += new System.EventHandler(this.btnViewFileTree_Click);
+            this.btnViewFileTree.Click += new System.EventHandler(this.BtnViewFileTree_Click);
             // 
             // btnViewTools
             // 
             resources.ApplyResources(this.btnViewTools, "btnViewTools");
             this.btnViewTools.Name = "btnViewTools";
-            this.btnViewTools.Click += new System.EventHandler(this.btnViewTools_Click);
+            this.btnViewTools.Click += new System.EventHandler(this.BtnViewTools_Click);
             // 
             // btnViewPropertyGrid
             // 
             resources.ApplyResources(this.btnViewPropertyGrid, "btnViewPropertyGrid");
             this.btnViewPropertyGrid.Name = "btnViewPropertyGrid";
-            this.btnViewPropertyGrid.Click += new System.EventHandler(this.btnViewPropertyGrid_Click);
+            this.btnViewPropertyGrid.Click += new System.EventHandler(this.BtnViewPropertyGrid_Click);
             // 
             // btnViewOutput
             // 
             resources.ApplyResources(this.btnViewOutput, "btnViewOutput");
             this.btnViewOutput.Name = "btnViewOutput";
-            this.btnViewOutput.Click += new System.EventHandler(this.btnViewOutput_Click);
+            this.btnViewOutput.Click += new System.EventHandler(this.BtnViewOutput_Click);
             // 
             // btnViewAnalytics
             // 
@@ -405,7 +413,7 @@
             // 
             this.btnOpenVisualStudio.Name = "btnOpenVisualStudio";
             resources.ApplyResources(this.btnOpenVisualStudio, "btnOpenVisualStudio");
-            this.btnOpenVisualStudio.Click += new System.EventHandler(this.visualStudioToolStripMenuItem_Click);
+            this.btnOpenVisualStudio.Click += new System.EventHandler(this.VisualStudioToolStripMenuItem_Click);
             // 
             // btnGame
             // 
@@ -428,13 +436,13 @@
             // 
             this.btnPlayDetached.Name = "btnPlayDetached";
             resources.ApplyResources(this.btnPlayDetached, "btnPlayDetached");
-            this.btnPlayDetached.Click += new System.EventHandler(this.btnPlayDetached_Click);
+            this.btnPlayDetached.Click += new System.EventHandler(this.BtnPlayDetached_Click);
             // 
             // btnCompile
             // 
             this.btnCompile.Name = "btnCompile";
             resources.ApplyResources(this.btnCompile, "btnCompile");
-            this.btnCompile.Click += new System.EventHandler(this.btnCompile_Click);
+            this.btnCompile.Click += new System.EventHandler(this.BtnCompile_Click);
             // 
             // networkingToolStripMenuItem
             // 
@@ -491,21 +499,21 @@
             this.btnManageExtensions.Name = "btnManageExtensions";
             this.btnManageExtensions.Visible = false;
             resources.ApplyResources(this.btnManageExtensions, "btnManageExtensions");
-            this.btnManageExtensions.Click += new System.EventHandler(this.extensionsToolStripMenuItem_Click);
+            this.btnManageExtensions.Click += new System.EventHandler(this.ExtensionsToolStripMenuItem_Click);
             // 
             // btnCubemapEditor
             // 
             this.btnCubemapEditor.Name = "btnCubemapEditor";
             this.btnCubemapEditor.Visible = false;
             resources.ApplyResources(this.btnCubemapEditor, "btnCubemapEditor");
-            this.btnCubemapEditor.Click += new System.EventHandler(this.cubeMapEditorToolStripMenuItem_Click);
+            this.btnCubemapEditor.Click += new System.EventHandler(this.CubeMapEditorToolStripMenuItem_Click);
             // 
             // btnTextureGenerator
             // 
             this.btnTextureGenerator.Name = "btnTextureGenerator";
             this.btnTextureGenerator.Visible = false;
             resources.ApplyResources(this.btnTextureGenerator, "btnTextureGenerator");
-            this.btnTextureGenerator.Click += new System.EventHandler(this.textureGeneratorToolStripMenuItem_Click);
+            this.btnTextureGenerator.Click += new System.EventHandler(this.TextureGeneratorToolStripMenuItem_Click);
             // 
             // btnVREdit
             // 
@@ -536,25 +544,25 @@
             // 
             this.btnContact.Name = "btnContact";
             resources.ApplyResources(this.btnContact, "btnContact");
-            this.btnContact.Click += new System.EventHandler(this.btnContact_Click);
+            this.btnContact.Click += new System.EventHandler(this.BtnContact_Click);
             // 
             // btnDocumentation
             // 
             this.btnDocumentation.Name = "btnDocumentation";
             resources.ApplyResources(this.btnDocumentation, "btnDocumentation");
-            this.btnDocumentation.Click += new System.EventHandler(this.btnDocumentation_Click);
+            this.btnDocumentation.Click += new System.EventHandler(this.BtnDocumentation_Click);
             // 
             // btnLanguage
             // 
             this.btnLanguage.Name = "btnLanguage";
             resources.ApplyResources(this.btnLanguage, "btnLanguage");
-            this.btnLanguage.Click += new System.EventHandler(this.btnLanguage_Click);
+            this.btnLanguage.Click += new System.EventHandler(this.BtnLanguage_Click);
             // 
             // btnCheckForUpdates
             // 
             this.btnCheckForUpdates.Name = "btnCheckForUpdates";
             resources.ApplyResources(this.btnCheckForUpdates, "btnCheckForUpdates");
-            this.btnCheckForUpdates.Click += new System.EventHandler(this.btnCheckForUpdates_Click);
+            this.btnCheckForUpdates.Click += new System.EventHandler(this.BtnCheckForUpdates_Click);
             // 
             // btnViewChangeLog
             // 
@@ -565,7 +573,7 @@
             // 
             this.btnAbout.Name = "btnAbout";
             resources.ApplyResources(this.btnAbout, "btnAbout");
-            this.btnAbout.Click += new System.EventHandler(this.btnAbout_Click);
+            this.btnAbout.Click += new System.EventHandler(this.BtnAbout_Click);
             // 
             // TheraEngineText
             // 
@@ -651,7 +659,7 @@
             this.btnCancelOp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             resources.ApplyResources(this.btnCancelOp, "btnCancelOp");
             this.btnCancelOp.Name = "btnCancelOp";
-            this.btnCancelOp.ButtonClick += new System.EventHandler(this.btnCancelOp_ButtonClick);
+            this.btnCancelOp.ButtonClick += new System.EventHandler(this.BtnCancelOp_ButtonClick);
             // 
             // Editor
             // 
@@ -683,7 +691,8 @@
         private System.Windows.Forms.ToolStripMenuItem btnEdit;
         private System.Windows.Forms.ToolStripMenuItem btnView;
         private System.Windows.Forms.ToolStripMenuItem btnEditorSettings;
-        private System.Windows.Forms.ToolStripMenuItem btnEngineSettings;
+        private System.Windows.Forms.ToolStripMenuItem btnProjectEngineSettings;
+        private System.Windows.Forms.ToolStripMenuItem btnDefaultEngineSettings;
         private System.Windows.Forms.ToolStripMenuItem btnProjectSettings;
         private System.Windows.Forms.ToolStripMenuItem btnUserSettings;
         private System.Windows.Forms.ToolStripMenuItem btnGame;

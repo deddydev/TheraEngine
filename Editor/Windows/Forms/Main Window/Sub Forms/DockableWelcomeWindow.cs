@@ -185,7 +185,7 @@ namespace TheraEditor.Windows.Forms
             LastMousePosition = Cursor.Position;
             Dragging = true;
 
-            Engine.UnregisterTick(null, LocEvent, null);
+            Engine.UnregisterRenderTick(null, LocEvent, null);
             LocEvent = null;
         }
         private void label2_MouseUp(object sender, MouseEventArgs e)

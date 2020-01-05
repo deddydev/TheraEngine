@@ -316,10 +316,10 @@ namespace TheraEngine.Rendering
             _renderPasses.SwapBuffers();
             HUD?.SwapInScreenSpace();
         }
-        public void Update(IScene scene, ICamera camera, IVolume cullingVolume)
+        public void PreRender(IScene scene, ICamera camera, IVolume cullingVolume)
         {
             HUD?.UpdateLayout();
-            scene?.Update(_renderPasses, cullingVolume, camera);
+            scene?.PreRender(_renderPasses, cullingVolume, camera);
         }
 
         /// <summary>

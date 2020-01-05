@@ -676,6 +676,7 @@
     <Compile Include="Input\Devices\DirectX\DXGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\OpenTK\TKGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\ScrollWheelManager.cs" />
+    <Compile Include="Models\Skeleton\BoneMatrices.cs" />
     <Compile Include="Physics\Bullet\Collision Bodies\BulletGhostBody.cs" />
     <Compile Include="Physics\Bullet\TContactResultCallback.cs" />
     <Compile Include="Physics\Collision Bodies\TGhostBody.cs" />
@@ -683,7 +684,7 @@
     <Compile Include="Physics\ContactTest.cs" />
     <Compile Include="Rendering\Cameras\BlendableCamera.cs" />
     <Compile Include="Rendering\Cameras\TypicalCamera.cs" />
-    <Compile Include="Rendering\Renderer\RenderHandler.cs" />
+    <Compile Include="Rendering\Renderer\BaseRenderHandler.cs" />
     <Compile Include="Rendering\Scene\RenderInfo3D.cs" />
     <Compile Include="Rendering\Scene\RenderInfo2D.cs" />
     <Compile Include="Rendering\UI\TMenuComponent.cs" />
@@ -1100,7 +1101,7 @@
     <Compile Include="Core\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="Core\Files\FileObject\FileObject.cs" />
     <Compile Include="Core\Time\EngineTimer.cs" />
-    <Compile Include="Core\Controls\RenderPanel.cs" />
+    <Compile Include="Rendering\Renderer\RenderHandler.cs" />
     <Compile Include="Core\Controls\RenderForm.cs">
       <SubType>Form</SubType>
     </Compile>

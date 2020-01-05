@@ -83,7 +83,7 @@ namespace TheraEngine.Rendering.UI
 
             IScene scene = c.OwningComponent?.OwningScene;
             scene?.PreRenderUpdate(c);
-            Viewport.Update(scene, c, c.Frustum);
+            Viewport.PreRender(scene, c, c.Frustum);
 
             _updating = false;
         }

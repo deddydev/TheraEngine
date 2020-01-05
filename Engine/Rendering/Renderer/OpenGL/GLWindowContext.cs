@@ -144,12 +144,12 @@ namespace TheraEngine.Rendering.OpenGL
             GL.Flush();
         }
 
-        internal override void PreRender()
+        internal override void BeforeRender()
         {
 
         }
 
-        internal override void PostRender()
+        internal override void AfterRender()
         {
 
         }

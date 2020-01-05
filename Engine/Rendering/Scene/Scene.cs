@@ -144,7 +144,7 @@ namespace TheraEngine.Rendering
         DelRender Render { get; }
 
         void CollectVisible(RenderPasses passes, IVolume collectionVolume, ICamera camera, bool shadowPass);
-        void Update(RenderPasses passes, IVolume collectionVolume, ICamera camera);
+        void PreRender(RenderPasses passes, IVolume collectionVolume, ICamera camera);
 
         void PreRenderUpdate(ICamera camera);
         void PreRenderSwap();
@@ -155,7 +155,7 @@ namespace TheraEngine.Rendering
 
         void RegenerateTree();
         void GlobalPreRender();
-        void GlobalUpdate();
+        void GlobalCollectVisible();
         void GlobalSwap();
     }
     public abstract class BaseScene : TObjectSlim, IScene
@@ -195,7 +195,7 @@ namespace TheraEngine.Rendering
         /// <param name="passes"></param>
         /// <param name="collectionVolume"></param>
         /// <param name="camera"></param>
-        public void Update(RenderPasses passes, IVolume collectionVolume, ICamera camera)
+        public void PreRender(RenderPasses passes, IVolume collectionVolume, ICamera camera)
         {
             CollectVisible(passes, collectionVolume, camera, false);
             PreRenderUpdate(camera);
@@ -252,7 +252,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Occurs before any individual viewport processing.
         /// </summary>
-        public abstract void GlobalUpdate();
+        public abstract void GlobalCollectVisible();
         /// <summary>
         /// Swaps all render pass buffers and processes render trees.
         /// Occurs before any individual viewport processing.

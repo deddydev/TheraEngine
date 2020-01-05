@@ -14,24 +14,28 @@ namespace TheraEngine.Timers
     {
         const float MaxFrequency = 500.0f; // Frequency cap for Update/RenderFrame events
 
-        public event EventHandler<FrameEventArgs> RenderFrame;
         public event EventHandler<FrameEventArgs> UpdateFrame;
-        public event Action SwapBuffers;
+        public event EventHandler<FrameEventArgs> PreRenderFrame;
+        public event EventHandler<FrameEventArgs> RenderFrame;
+
+        public event Action SwapRenderBuffers;
 
         private bool _isSingleThreaded = false;
         private float _targetUpdatePeriod, _targetRenderPeriod;
-        private float _updateTimestamp; // timestamp of last UpdateFrame event
-        private float _renderTimestamp; // timestamp of last RenderFrame event
-
+        private float _lastUpdateTimestamp; // timestamp of last UpdateFrame event
+        private float _lastRenderTimestamp; // timestamp of last RenderFrame event
+        private float _lastPreRenderTimestamp;
+        
         private float _updateEpsilon = 0.0f; // quantization error for UpdateFrame events
         private bool _isRunningSlowly; // true, when UpdatePeriod cannot reach TargetUpdatePeriod
 
         private readonly FrameEventArgs _updateArgs = new FrameEventArgs();
         private readonly FrameEventArgs _renderArgs = new FrameEventArgs();
+        private readonly FrameEventArgs _preRenderArgs = new FrameEventArgs();
         private readonly Stopwatch _watch = new Stopwatch();
 
-        private ManualResetEventSlim _commandsReady;
-        private ManualResetEventSlim _commandsSwappedForRender;
+        private ManualResetEventSlim _renderStarted;
+        private ManualResetEventSlim _preRenderDone;
         private ManualResetEventSlim _renderDone;
 
         public bool IsRunning { get; private set; } = false;
@@ -68,141 +72,158 @@ namespace TheraEngine.Timers
             Engine.PrintLine($"Started {(singleThreaded ? "single" : "multi")}-threaded game loop.");
 
             IsSingleThreaded = singleThreaded;
-            IsRunning = true;
-            _watch.Start();
 
-            InitiateLoop(singleThreaded);
+            InitiateLoop();
         }
         private void MakeManualResetEvents()
         {
-            _commandsReady = new ManualResetEventSlim(false);
-            _commandsSwappedForRender = new ManualResetEventSlim(false);
+            _preRenderDone = new ManualResetEventSlim(false);
+            _renderStarted = new ManualResetEventSlim(false);
             _renderDone = new ManualResetEventSlim(true);
         }
+
         private Task UpdateTask = null;
+        private Task PreRenderTask = null;
         private Task RenderTask = null;
         private Task SingleTask = null;
-        private void InitiateLoop(bool singleThreaded)
+
+        private void InitiateLoop()
         {
+            IsRunning = true;
+            _watch.Start();
+
             if (AppDomainHelper.IsPrimaryDomain)
             {
-                if (singleThreaded)
-                    Application.Idle += Application_Idle_SingleThread;
+                if (IsSingleThreaded)
+                    Application.Idle += UIDomainSingleThreadLoop;
                 else
                 {
                     MakeManualResetEvents();
 
-                    UpdateTask = Task.Run(RunUpdateMultiThreadInternal);
-
-                    Application.Idle += Application_Idle_MultiThread;
+                    UpdateTask = Task.Run(UpdateThread);
+                    PreRenderTask = Task.Run(PreRenderThread);
+                    Application.Idle += UIDomainRenderLoop;
                 }
             }
             else
             {
-                if (singleThreaded)
-                {
+                if (IsSingleThreaded)
                     SingleTask = Task.Run(GameDomainSingleThreadLoop);
-                }
                 else
                 {
                     MakeManualResetEvents();
 
-                    UpdateTask = Task.Run(RunUpdateMultiThreadInternal);
-                    RenderTask = Task.Run(RunRenderMultiThreadInternal);
+                    UpdateTask = Task.Run(UpdateThread);
+                    PreRenderTask = Task.Run(PreRenderThread);
+                    RenderTask = Task.Run(RenderThread);
                 }
             }
         }
 
-        #region Game Domain Loop
+        private bool IsApplicationIdle() => NativeMethods.PeekMessage(out _, IntPtr.Zero, 0, 0, 0) == 0;
+        private void UIDomainSingleThreadLoop(object sender, EventArgs e)
+        {
+            while (IsApplicationIdle() && IsSingleThreadActive)
+                SingleThreadLoop();
+        }
+        private void UIDomainRenderLoop(object sender, EventArgs e)
+        {
+            while (IsApplicationIdle() && IsMultiThreadActive)
+                MultiThreadRenderLoop();
+        }
+
         private void GameDomainSingleThreadLoop()
         {
-            while (IsSingleThreaded && IsRunning)
-            {
+            while (IsSingleThreadActive)
+                SingleThreadLoop();
+        }
+
+        private void UpdateThread()
+        {
+            while (IsMultiThreadActive)
                 DispatchUpdate();
-                SwapBuffers?.Invoke();
-                DispatchRender();
-            }
         }
-        private void RunRenderMultiThreadInternal()
+        private void PreRenderThread()
         {
-            while (IsRunning && !IsSingleThreaded)
-            {
-                _commandsReady.Wait(); //Wait for the update thread to finish
-                _commandsReady.Reset();
-
-                //Swap command buffers
-                //Update commands will be consumed by the render pass
-                //And new update commands will be issued for the next render
-                SwapBuffers?.Invoke();
-                _commandsSwappedForRender.Set();
-
-                DispatchRender();
-                _renderDone.Set(); //Signal the update thread that rendering is done
-            }
+            while (IsMultiThreadActive)
+                MultiThreadPreRenderLoop();
         }
-        #endregion
-
-        #region UI Domain Loop
-        private bool IsApplicationIdle() => NativeMethods.PeekMessage(out _, IntPtr.Zero, 0, 0, 0) == 0;
-        private void Application_Idle_SingleThread(object sender, EventArgs e)
+        private void RenderThread()
         {
-            while (IsApplicationIdle() && IsSingleThreaded)
-            {
-                DispatchUpdate();
-                SwapBuffers?.Invoke();
-                DispatchRender();
-            }
+            while (IsMultiThreadActive)
+                MultiThreadRenderLoop();
         }
-        private void Application_Idle_MultiThread(object sender, EventArgs e)
+
+        private void SingleThreadLoop()
         {
-            while (IsRunning && IsApplicationIdle())
-            {
-                _commandsReady.Wait(); //Wait for the update thread to finish
-                _commandsReady.Reset();
-                    
-                //Swap command buffers
-                //Update commands will be consumed by the render pass
-                //And new update commands will be issued for the next render
-                SwapBuffers?.Invoke();
-                _commandsSwappedForRender.Set();
-                    
-                DispatchRender();
-                _renderDone.Set(); //Signal the update thread that rendering is done
-            }
+            DispatchUpdate();
+            DispatchPreRender();
+            OnSwapBuffers();
+            DispatchRender();
         }
-        #endregion
-
-        //This method is commonly used by both loop types
-        private void RunUpdateMultiThreadInternal()
+        private void MultiThreadPreRenderLoop()
         {
-            while (IsRunning && !IsSingleThreaded)
-            {
-                //Updating populates the command buffer while render consumes the previous buffer
-                DispatchUpdate();
-
-                //Wait for the previous frame render to complete
-                _renderDone.Wait();
-                _renderDone.Reset();
-
-                //Signal the render thread that the update is done
-                _commandsReady.Set();
-
-                //Wait until the render thread has swapped and is now rendering
-                _commandsSwappedForRender.Wait();
-                _commandsSwappedForRender.Reset();
-            }
+            DispatchPreRender();
+            WaitRenderDone();
+            OnSwapBuffers();
+            SetPreRenderDone();
+            WaitRenderStarted();
         }
+        private void MultiThreadRenderLoop()
+        {
+            SetRenderDone();
+            WaitPreRenderDone();
+            SetRenderStarted();
+            while (!DispatchRender()) ;
+        }
+
+        private void OnSwapBuffers()
+            => SwapRenderBuffers?.Invoke();
+
+        private void SetRenderStarted()
+        {
+            _renderStarted.Set();
+        }
+        private void SetPreRenderDone()
+        {
+            _preRenderDone.Set();
+        }
+        private void SetRenderDone()
+        {
+            _renderDone.Set();
+        }
+        private void WaitRenderStarted()
+        {
+            _renderStarted.Wait();
+            _renderStarted.Reset();
+        }
+        private void WaitPreRenderDone()
+        {
+            _preRenderDone.Wait();
+            _preRenderDone.Reset();
+        }
+        private void WaitRenderDone()
+        {
+            _renderDone.Wait();
+            _renderDone.Reset();
+        }
+
+        public bool IsSingleThreadActive => IsRunning && IsSingleThreaded;
+        public bool IsMultiThreadActive => IsRunning && !IsSingleThreaded;
 
         public void Stop()
         {
             IsRunning = false;
 
             _renderDone?.Set();
-            _commandsSwappedForRender?.Set();
-            _commandsReady?.Set();
+            _preRenderDone?.Set();
+            _renderStarted?.Set();
 
             UpdateTask?.Wait();
             UpdateTask = null;
+
+            PreRenderTask?.Wait();
+            PreRenderTask = null;
 
             RenderTask?.Wait();
             RenderTask = null;
@@ -212,63 +233,74 @@ namespace TheraEngine.Timers
 
             if (AppDomainHelper.IsPrimaryDomain)
             {
-                if (_commandsReady != null)
-                    Application.Idle -= Application_Idle_MultiThread;
+                if (_renderStarted != null)
+                    Application.Idle -= UIDomainRenderLoop;
                 else
-                    Application.Idle -= Application_Idle_SingleThread;
+                    Application.Idle -= UIDomainSingleThreadLoop;
             }
 
             _watch.Stop();
 
-            _commandsSwappedForRender = null;
-            _commandsReady = null;
+            _preRenderDone = null;
+            _renderStarted = null;
             _renderDone = null;
 
             Engine.PrintLine("Game loop ended.");
         }
-        private void DispatchRender()
+        private bool DispatchRender()
         {
             float timestamp = (float)_watch.Elapsed.TotalSeconds;
-            float elapsed = (timestamp - _renderTimestamp).Clamp(0.0f, 1.0f);
-            if (elapsed > 0 && elapsed >= TargetRenderPeriod)
+            float elapsed = (timestamp - _lastRenderTimestamp).Clamp(0.0f, 1.0f);
+            bool dispatch = elapsed > 0 && elapsed >= TargetRenderPeriod;
+            if (dispatch)
                 RaiseRenderFrame(elapsed, ref timestamp);
+            return dispatch;
+        }
+        private void DispatchPreRender()
+        {
+            float timestamp = (float)_watch.Elapsed.TotalSeconds;
+            float elapsed = (timestamp - _lastPreRenderTimestamp).Clamp(0.0f, 1.0f);
+            RaisePreRenderFrame(elapsed, ref timestamp);
         }
         private void DispatchUpdate()
         {
-            //int runningSlowlyRetries = 4;
+            int runningSlowlyRetries = 4;
+
             float timestamp = (float)_watch.Elapsed.TotalSeconds;
-            float elapsed = (timestamp - _updateTimestamp).Clamp(0.0f, 1.0f);
-            if (elapsed > 0 && elapsed >= TargetUpdatePeriod)
-                RaiseUpdateFrame(elapsed, ref timestamp);
-            //while (elapsed > 0 && elapsed + _updateEpsilon >= TargetUpdatePeriod)
-            //{
+            float elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0f, 1.0f);
+
+            //if (elapsed > 0 && elapsed >= TargetUpdatePeriod)
             //    RaiseUpdateFrame(elapsed, ref timestamp);
 
-            //    // Calculate difference (positive or negative) between
-            //    // actual elapsed time and target elapsed time. We must
-            //    // compensate for this difference.
-            //    _updateEpsilon += elapsed - TargetUpdatePeriod;
+            while (elapsed > 0 && elapsed + _updateEpsilon >= TargetUpdatePeriod)
+            {
+                RaiseUpdateFrame(elapsed, ref timestamp);
 
-            //    // Prepare for next loop
-            //    elapsed = (timestamp - _updateTimestamp).Clamp(0.0f, 1.0f);
+                // Calculate difference (positive or negative) between
+                // actual elapsed time and target elapsed time. We must
+                // compensate for this difference.
+                _updateEpsilon += elapsed - TargetUpdatePeriod;
 
-            //    if (TargetUpdatePeriod <= float.Epsilon)
-            //    {
-            //        // According to the TargetUpdatePeriod documentation,
-            //        // a TargetUpdatePeriod of zero means we will raise
-            //        // UpdateFrame events as fast as possible (one event
-            //        // per ProcessEvents() call)
-            //        break;
-            //    }
+                // Prepare for next loop
+                elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0f, 1.0f);
 
-            //    _isRunningSlowly = _updateEpsilon >= TargetUpdatePeriod;
-            //    if (_isRunningSlowly && --runningSlowlyRetries == 0)
-            //    {
-            //        // If UpdateFrame consistently takes longer than TargetUpdateFrame
-            //        // stop raising events to avoid hanging inside the UpdateFrame loop.
-            //        break;
-            //    }
-            //}
+                if (TargetUpdatePeriod <= float.Epsilon)
+                {
+                    // According to the TargetUpdatePeriod documentation,
+                    // a TargetUpdatePeriod of zero means we will raise
+                    // UpdateFrame events as fast as possible (one event
+                    // per ProcessEvents() call)
+                    break;
+                }
+
+                _isRunningSlowly = _updateEpsilon >= TargetUpdatePeriod;
+                if (_isRunningSlowly && --runningSlowlyRetries == 0)
+                {
+                    // If UpdateFrame consistently takes longer than TargetUpdateFrame
+                    // stop raising events to avoid hanging inside the UpdateFrame loop.
+                    break;
+                }
+            }
         }
         private void RaiseUpdateFrame(float elapsed, ref float timestamp)
         {
@@ -280,9 +312,9 @@ namespace TheraEngine.Timers
             UpdatePeriod = elapsed;
 
             // Update UpdateTime property
-            _updateTimestamp = timestamp;
+            _lastUpdateTimestamp = timestamp;
             timestamp = (float)_watch.Elapsed.TotalSeconds/* * TimeDilation*/;
-            UpdateTime = timestamp - _updateTimestamp;
+            UpdateTime = timestamp - _lastUpdateTimestamp;
         }
         void RaiseRenderFrame(float elapsed, ref float timestamp)
         {
@@ -294,11 +326,19 @@ namespace TheraEngine.Timers
             RenderPeriod = elapsed;
 
             // Update RenderTime property
-            _renderTimestamp = timestamp;
+            _lastRenderTimestamp = timestamp;
             timestamp = (float)_watch.Elapsed.TotalSeconds;
-            RenderTime = timestamp - _renderTimestamp;
+            RenderTime = timestamp - _lastRenderTimestamp;
+        }
+        void RaisePreRenderFrame(float elapsed, ref float timestamp)
+        {
+            // Raise RenderFrame event
+            _preRenderArgs.Time = elapsed;
+            OnPreRenderFrameInternal(_preRenderArgs);
+            _lastPreRenderTimestamp = timestamp;
         }
 
+        private void OnPreRenderFrameInternal(FrameEventArgs e) => PreRenderFrame?.Invoke(this, e);
         private void OnRenderFrameInternal(FrameEventArgs e) => RenderFrame?.Invoke(this, e);
         private void OnUpdateFrameInternal(FrameEventArgs e) => UpdateFrame?.Invoke(this, e);
         
@@ -468,10 +508,10 @@ namespace TheraEngine.Timers
 
                 if (IsRunning)
                 {
-                    if (_commandsReady != null)
-                        Application.Idle -= Application_Idle_MultiThread;
+                    if (_renderStarted != null)
+                        Application.Idle -= UIDomainRenderLoop;
                     else
-                        Application.Idle -= Application_Idle_SingleThread;
+                        Application.Idle -= UIDomainSingleThreadLoop;
                 }
 
                 _isSingleThreaded = value;
@@ -479,14 +519,14 @@ namespace TheraEngine.Timers
                 if (IsRunning)
                 {
                     if (_isSingleThreaded)
-                        Application.Idle += Application_Idle_SingleThread;
+                        Application.Idle += UIDomainSingleThreadLoop;
                     else
                     {
                         MakeManualResetEvents();
 
-                        Task.Factory.StartNew(RunUpdateMultiThreadInternal, TaskCreationOptions.LongRunning);
+                        Task.Factory.StartNew(UpdateThread, TaskCreationOptions.LongRunning);
 
-                        Application.Idle += Application_Idle_MultiThread;
+                        Application.Idle += UIDomainRenderLoop;
                     }
                 }
             }

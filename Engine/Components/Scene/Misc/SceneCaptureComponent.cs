@@ -123,7 +123,7 @@ namespace TheraEngine.Components.Scene
             if (scene is null)
                 return;
 
-            scene.UpdateShadowMaps();
+            scene.CollectShadowMaps();
             scene.Lights.SwapBuffers();
             scene.RenderShadowMaps();
 
@@ -131,7 +131,7 @@ namespace TheraEngine.Components.Scene
             {
                 Camera camera = RenderFBO.Cameras[i];
 
-                _viewport.Update(scene, camera, camera.Frustum);
+                _viewport.PreRender(scene, camera, camera.Frustum);
 
                 scene.PreRenderSwap();
                 _viewport.SwapBuffers();

@@ -140,7 +140,7 @@ namespace TheraEditor.Windows.Forms
 
             if (firstOperationAdded)
             {
-                Engine.RegisterTick(null, TickOperationProgressBar, null);
+                Engine.RegisterRenderTick(null, TickOperationProgressBar, null);
                 toolStripProgressBar1.Value = 0;
             }
 
@@ -169,7 +169,7 @@ namespace TheraEditor.Windows.Forms
 
             btnCancelOp.Visible = false;
             toolStripProgressBar1.Visible = false;
-            Engine.UnregisterTick(null, TickOperationProgressBar, null);
+            Engine.UnregisterRenderTick(null, TickOperationProgressBar, null);
         }
 
         internal void SetOperationMessage(string message)

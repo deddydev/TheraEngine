@@ -110,7 +110,7 @@ namespace TheraEngine.Rendering
             RenderTree.Swap();
         }
 
-        public override void GlobalUpdate()
+        public override void GlobalCollectVisible()
         {
 
         }

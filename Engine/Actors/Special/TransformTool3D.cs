@@ -80,7 +80,7 @@ namespace TheraEngine.Actors.Types
             };
             Bone screen = new Bone(screenBoneName)
             {
-                BillboardType = EBillboardType.RotationXYZ
+                BillboardType = EBillboardType.OrthographicXYZ
             };
             root.ChildBones.Add(screen);
             Skeleton skel = new Skeleton(root);

@@ -15,11 +15,14 @@ namespace TheraEngine.Rendering.Models
     public enum EBillboardType
     {
         None,
-        RotationY,
+
+        OrthographicY,
         PerspectiveY,
-        RotationXY,
+
+        OrthographicXY,
         PerspectiveXY,
-        RotationXYZ,
+
+        OrthographicXYZ,
         PerspectiveXYZ,
     }
     public interface IBone : IFileObject, IRigidBodyCollidable, ISocket
@@ -77,9 +80,10 @@ namespace TheraEngine.Rendering.Models
     }
     [TFileExt("bone")]
     [TFileDef("Bone")]
-    public class Bone : TFileObject, IBone
+    public partial class Bone : TFileObject, IBone
     {
-        //TODO: culling volumes for each skinned bone; cull mesh if all influence bones are culled
+        //TODO: culling volumes for each skinned bone;
+        //cull mesh if all influence bones are culled
 
         public Bone(Skeleton owner) : this()
             => Skeleton = owner;
@@ -118,7 +122,7 @@ namespace TheraEngine.Rendering.Models
         }
 
         public int Index => _index;
-        private void _rigidBodyCollision_TransformChanged(Matrix4 transform)
+        private void RigidBodyCollision_TransformChanged(Matrix4 transform)
         {
             FrameMatrixChanged = true;
         }
@@ -145,8 +149,10 @@ namespace TheraEngine.Rendering.Models
                 b.CollectChildBones(owner);
         }
 
-        public void LinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Add(m);
-        public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Remove(m);
+        public void LinkSingleBindMesh(SkeletalRigidSubMesh m)
+            => _singleBoundMeshes.Add(m);
+        public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m)
+            => _singleBoundMeshes.Remove(m);
 
         [TSerialize(nameof(BillboardType), NodeType = ENodeType.Attribute)]
         private EBillboardType _billboardType = EBillboardType.None;
@@ -369,7 +375,7 @@ namespace TheraEngine.Rendering.Models
             }
 
             _rigidBodyCollision.Owner = null;
-            _rigidBodyCollision.TransformChanged -= _rigidBodyCollision_TransformChanged;
+            _rigidBodyCollision.TransformChanged -= RigidBodyCollision_TransformChanged;
 
             Skeleton?.RemovePhysicsBone(this);
         }
@@ -378,7 +384,7 @@ namespace TheraEngine.Rendering.Models
             Skeleton?.AddPhysicsBone(this);
 
             _rigidBodyCollision.Owner = this;
-            _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged;
+            _rigidBodyCollision.TransformChanged += RigidBodyCollision_TransformChanged;
 
             if (_parentConstraint != null)
                 _rigidBodyCollision?.Constraints?.Add(_parentConstraint);
@@ -462,86 +468,7 @@ namespace TheraEngine.Rendering.Models
         public bool UsesCamera => BillboardType != EBillboardType.None || ScaleByDistance;
 
         public void CalcFrameMatrix(ICamera camera, bool force = false)
-        {
-            CalcFrameMatrix(camera, _parent.FrameMatrix, _parent.InverseFrameMatrix, force);
-        }
-        public void CalcFrameMatrix(ICamera camera, Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool force = false)
-        {
-            //WorldMatrix = _rigidBodyCollision.WorldTransform;
-
-            bool usesCamera = UsesCamera;
-            bool needsUpdate = FrameMatrixChanged || force || usesCamera;
-            if (needsUpdate)
-            {
-                if (_rigidBodyCollision != null)
-                {
-                    Matrix4 bodyMtx = _rigidBodyCollision.WorldTransform;
-                    bodyMtx = bodyMtx.ClearScale();
-                    Matrix4 worldMatrix = bodyMtx * _rigidBodyLocalTransform.InverseMatrix;
-                    Matrix4 frameMatrix = worldMatrix * OwningComponent.InverseWorldMatrix;
-                    Matrix4 localMatrix = inverseParentMatrix * frameMatrix;
-                    FrameState.Matrix = localMatrix;
-                }
-                if (usesCamera)
-                {
-                    if (BillboardType != EBillboardType.None)
-                    {
-                        //Align rotation using camera
-                        HandleBillboarding(parentMatrix, inverseParentMatrix, camera);
-                    }
-                    else
-                    {
-                        //Regular parent-child transformation
-                        _frameMatrix = parentMatrix * FrameState.Matrix;
-                        _inverseFrameMatrix = FrameState.InverseMatrix * inverseParentMatrix;
-                    }
-
-                    if (ScaleByDistance && camera != null)
-                    {
-                        float scale = camera.DistanceScale(WorldMatrix.Translation, DistanceScaleScreenSize);
-                        //Engine.PrintLine(scale.ToString());
-                        _frameMatrix *= Matrix4.CreateScale(scale);
-                        _inverseFrameMatrix = Matrix4.CreateScale(1.0f / scale) * _inverseFrameMatrix;
-                    }
-                }
-                else
-                {
-                    //Regular parent-child transformation
-                    _frameMatrix = parentMatrix * FrameState.Matrix;
-                    _inverseFrameMatrix = FrameState.InverseMatrix * inverseParentMatrix;
-                }
-
-                //Precalculate vertex/normal weighting matrices
-                _vtxPosMtx = FrameMatrix * InverseBindMatrix;
-                //_vtxNrmMtx = (BindMatrix * InverseFrameMatrix).Transposed().GetRotationMatrix4();
-
-                //Process skinning information dealing with this bone
-                if (Engine.Settings.SkinOnGPU)
-                {
-                    foreach (var m in _influencedVertices.Values)
-                        m.Item1.ModifiedBoneIndicesUpdating.Add(_index);
-                }
-                else
-                {
-                    foreach (var m in _influencedVertices.Values)
-                        m.Item1.ModifiedVertexIndicesUpdating.UnionWith(m.Item2);
-                    _influencedInfluences.ForEach(x => x._hasChanged = true);
-                }
-
-                //Recalculate child component transforms
-                foreach (SceneComponent comp in ChildComponents)
-                    comp.RecalcWorldTransform();
-
-                //Inform subscribers that the bone's transform has changed
-                SocketTransformChanged?.Invoke(this);
-            }
-
-            //Recalculate child bone transforms
-            foreach (Bone b in _childBones)
-                b.CalcFrameMatrix(camera, _frameMatrix, _inverseFrameMatrix, needsUpdate);
-
-            FrameMatrixChanged = false;
-        }
+            => CalcFrameMatrix(camera, _parent.FrameMatrix, _parent.InverseFrameMatrix, force);
 
         public void CalcBindMatrix(bool updateMesh)
         {
@@ -591,6 +518,12 @@ namespace TheraEngine.Rendering.Models
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
             item.TriggerFrameMatrixUpdate();
         }
+        private void SingleChildBoneRemoved(IBone item)
+        {
+            item.SetParentInternal(null);
+            item.CalcBindMatrix(false);
+            item.TriggerFrameMatrixUpdate();
+        }
         private void ChildBoneAdded(IBone item)
         {
             SingleChildBoneAdded(item);
@@ -603,20 +536,6 @@ namespace TheraEngine.Rendering.Models
                 SingleChildBoneAdded(item);
 
             Skeleton?.RegenerateBoneCache();
-        }
-        private void ChildBoneInserted(IBone item, int index)
-        {
-            ChildBoneAdded(item);
-        }
-        private void ChildBonesInsertedRange(IEnumerable<IBone> items, int index)
-        {
-            ChildBonesAddedRange(items);
-        }
-        private void SingleChildBoneRemoved(IBone item)
-        {
-            item.SetParentInternal(null);
-            item.CalcBindMatrix(false);
-            item.TriggerFrameMatrixUpdate();
         }
         private void ChildBonesRemoved(IBone item)
         {
@@ -631,6 +550,8 @@ namespace TheraEngine.Rendering.Models
 
             Skeleton?.RegenerateBoneCache();
         }
+        private void ChildBoneInserted(IBone item, int index) => ChildBoneAdded(item);
+        private void ChildBonesInsertedRange(IEnumerable<IBone> items, int index) => ChildBonesAddedRange(items);
         #endregion
 
         #region Child Component List Events
@@ -661,114 +582,6 @@ namespace TheraEngine.Rendering.Models
                 ChildComponentsRemoved(item);
         }
         #endregion
-
-        private void HandleBillboarding(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, ICamera camera)
-        {
-            if (camera is null)
-                return;
-
-            //Apply local translation component to parent matrix
-            Matrix4 frameTrans = parentMatrix * FrameState.Translation.Raw.AsTranslationMatrix();
-            Matrix4 invFramTrans = (-FrameState.Translation.Raw).AsTranslationMatrix() * inverseParentMatrix;
-
-            //Reset rotation for billboard
-            frameTrans = parentMatrix.ClearRotation();
-            invFramTrans = inverseParentMatrix.ClearRotation();
-
-            //Calculate angles from current position to camera
-            Matrix4 angles = Matrix4.Identity, invAngles = Matrix4.Identity;
-            switch (BillboardType)
-            {
-                case EBillboardType.PerspectiveXYZ:
-
-                    Vec3 componentPoint = camera.WorldPoint * OwningComponent.InverseWorldMatrix;
-                    Vec3 diff = frameTrans.Translation - componentPoint;
-                    Rotator r = diff.LookatAngles();
-
-                    angles = r.GetMatrix();
-                    invAngles = r.GetInverseMatrix();
-
-                    break;
-
-                case EBillboardType.PerspectiveXY:
-
-                    break;
-
-                case EBillboardType.PerspectiveY:
-
-                    break;
-
-                case EBillboardType.RotationXYZ:
-
-                    Vec3 up1 = camera.UpVector;
-                    Vec3 forward1 = camera.ForwardVector;
-
-                    angles = new Matrix4(
-                        new Vec4(forward1 ^ up1, 0.0f),
-                        new Vec4(up1, 0.0f),
-                        new Vec4(forward1, 0.0f),
-                        Vec4.UnitW);
-
-                    invAngles = new Matrix4(
-                        new Vec4(up1 ^ forward1, 0.0f),
-                        new Vec4(-up1, 0.0f),
-                        new Vec4(-forward1, 0.0f),
-                        Vec4.UnitW);
-
-                    break;
-
-                case EBillboardType.RotationXY:
-
-                    Vec3 forward2 = camera.ForwardVector;
-                    Vec3 right2 = camera.RightVector;
-                    right2.Y = 0.0f;
-
-                    angles = new Matrix4(
-                        new Vec4(right2, 0.0f),
-                        new Vec4(right2 ^ forward2, 0.0f),
-                        new Vec4(forward2, 0.0f),
-                        Vec4.UnitW);
-
-                    invAngles = new Matrix4(
-                        new Vec4(-right2, 0.0f),
-                        new Vec4(forward2 ^ right2, 0.0f),
-                        new Vec4(-forward2, 0.0f),
-                        Vec4.UnitW);
-
-                    break;
-
-                case EBillboardType.RotationY:
-
-                    Vec3 up3 = Vec3.TransformNormalInverse(Vec3.UnitY, inverseParentMatrix); //Up is related to parent
-                    Vec3 forward3 = camera.ForwardVector;
-                    forward3.Y = 0.0f;
-
-                    angles = new Matrix4(
-                        new Vec4(forward3 ^ up3, 0.0f),
-                        new Vec4(up3, 0.0f),
-                        new Vec4(forward3, 0.0f),
-                        Vec4.UnitW);
-
-                    invAngles = new Matrix4(
-                        new Vec4(up3 ^ forward3, 0.0f),
-                        new Vec4(-up3, 0.0f),
-                        new Vec4(-forward3, 0.0f),
-                        Vec4.UnitW);
-
-                    break;
-            }
-
-            //Fix rotation in relation to parent component
-            if (OwningComponent != null)
-            {
-                angles = OwningComponent.InverseWorldMatrix.GetRotationMatrix4() * angles;
-                invAngles *= OwningComponent.WorldMatrix.GetRotationMatrix4();
-            }
-
-            //Multiply translation, rotation and scale parts together
-            _frameMatrix = frameTrans * angles * FrameState.Scale.Raw.AsScaleMatrix();
-            _inverseFrameMatrix = (1.0f / FrameState.Scale).AsScaleMatrix() * invAngles * invFramTrans;
-        }
 
         public void SetParentInternal(ISocket socket) => _parent = socket as Bone;
 

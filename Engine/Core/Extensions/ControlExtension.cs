@@ -21,7 +21,7 @@ namespace Extensions
             float totalTime = 0.0f;
             if (fadeMethod != null)
             {
-                Engine.UnregisterTick(null, fadeMethod, null);
+                Engine.UnregisterRenderTick(null, fadeMethod, null);
                 fadeMethod = null;
             }
             if (timeModifier != null)
@@ -32,12 +32,12 @@ namespace Extensions
                     control.InvokeIfNecessary((Action)(() => control.Location = Interp.Lerp(startPoint, point, timeModifier(totalTime / seconds))), null);
                     if (totalTime >= seconds)
                     {
-                        Engine.UnregisterTick(null, method, null);
+                        Engine.UnregisterRenderTick(null, method, null);
                         onComplete?.Invoke();
                     }
                 }
                 fadeMethod = method;
-                Engine.RegisterTick(null, method, null);
+                Engine.RegisterRenderTick(null, method, null);
             }
             else
             {
@@ -46,10 +46,10 @@ namespace Extensions
                     totalTime += args.Time;
                     control.Location = Interp.Lerp(startPoint, point, totalTime / seconds);
                     if (totalTime >= seconds)
-                        Engine.UnregisterTick(null, method, null);
+                        Engine.UnregisterRenderTick(null, method, null);
                 }
                 fadeMethod = method;
-                Engine.RegisterTick(null, method, null);
+                Engine.RegisterRenderTick(null, method, null);
             }
         }
         public static void FadeBackColor(this Control control, Color color, float seconds, ref EventHandler<FrameEventArgs> fadeMethod, Func<float, float> timeModifier = null)
@@ -58,7 +58,7 @@ namespace Extensions
             float totalTime = 0.0f;
             if (fadeMethod != null)
             {
-                Engine.UnregisterTick(null, fadeMethod, null);
+                Engine.UnregisterRenderTick(null, fadeMethod, null);
                 fadeMethod = null;
             }
             if (timeModifier != null)
@@ -68,10 +68,10 @@ namespace Extensions
                     totalTime += args.Time;
                     control.BackColor = Interp.Lerp(startColor, color, timeModifier(totalTime / seconds));
                     if (totalTime >= seconds)
-                        Engine.UnregisterTick(null, method, null);
+                        Engine.UnregisterRenderTick(null, method, null);
                 }
                 fadeMethod = method;
-                Engine.RegisterTick(null, method, null);
+                Engine.RegisterRenderTick(null, method, null);
             }
             else
             {
@@ -80,10 +80,10 @@ namespace Extensions
                     totalTime += args.Time;
                     control.BackColor = Interp.Lerp(startColor, color, totalTime / seconds);
                     if (totalTime >= seconds)
-                        Engine.UnregisterTick(null, method, null);
+                        Engine.UnregisterRenderTick(null, method, null);
                 }
                 fadeMethod = method;
-                Engine.RegisterTick(null, method, null);
+                Engine.RegisterRenderTick(null, method, null);
             }
         }
         public static void FadeForeColor(this Control control, Color color, float seconds, ref EventHandler<FrameEventArgs> fadeMethod, Func<float, float> timeModifier = null)
@@ -92,7 +92,7 @@ namespace Extensions
             float totalTime = 0.0f;
             if (fadeMethod != null)
             {
-                Engine.UnregisterTick(null, fadeMethod, null);
+                Engine.UnregisterRenderTick(null, fadeMethod, null);
                 fadeMethod = null;
             }
             if (timeModifier != null)
@@ -102,10 +102,10 @@ namespace Extensions
                     totalTime += args.Time;
                     control.ForeColor = Interp.Lerp(startColor, color, timeModifier(totalTime / seconds));
                     if (totalTime >= seconds)
-                        Engine.UnregisterTick(null, method, null);
+                        Engine.UnregisterRenderTick(null, method, null);
                 }
                 fadeMethod = method;
-                Engine.RegisterTick(null, method, null);
+                Engine.RegisterRenderTick(null, method, null);
             }
             else
             {
@@ -114,10 +114,10 @@ namespace Extensions
                     totalTime += args.Time;
                     control.ForeColor = Interp.Lerp(startColor, color, totalTime / seconds);
                     if (totalTime >= seconds)
-                        Engine.UnregisterTick(null, method, null);
+                        Engine.UnregisterRenderTick(null, method, null);
                 }
                 fadeMethod = method;
-                Engine.RegisterTick(null, method, null);
+                Engine.RegisterRenderTick(null, method, null);
             }
         }
     }

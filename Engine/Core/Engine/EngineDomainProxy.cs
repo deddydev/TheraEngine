@@ -183,12 +183,12 @@ namespace TheraEngine.Core
             if (isRendering && !IsRenderTicking)
             {
                 IsRenderTicking = true;
-                Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
+                Engine.RegisterRenderTick(RenderTick, CollectVisibleTick, SwapBuffersTick);
             }
             else if (!isRendering && IsRenderTicking)
             {
                 IsRenderTicking = false;
-                Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
+                Engine.UnregisterRenderTick(RenderTick, CollectVisibleTick, SwapBuffersTick);
             }
         }
         //public void Render(RenderContext ctx)
@@ -217,7 +217,7 @@ namespace TheraEngine.Core
             };
         }
 
-        private void UpdateTick(object sender, FrameEventArgs e)
+        private void CollectVisibleTick(object sender, FrameEventArgs e)
         {
             foreach (WorldManager m in WorldManagers)
             {
@@ -226,9 +226,9 @@ namespace TheraEngine.Core
 
                 try
                 {
-                    m.GlobalUpdate();
+                    m.GlobalCollectVisible();
                     foreach (var ctx in m.AssociatedContexts)
-                        ctx.Update();
+                        ctx.PreRender();
                 }
                 catch { }
             }
@@ -236,7 +236,7 @@ namespace TheraEngine.Core
 
         public IFileObject LoadRef(IFileRef fref) => fref.GetInstance();
 
-        private void SwapBuffers()
+        private void SwapBuffersTick()
         {
             foreach (WorldManager m in WorldManagers)
             {

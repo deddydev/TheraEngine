@@ -51,16 +51,16 @@ namespace TheraEngine.Rendering
             foreach (PointLightComponent l in PointLights)
                 l.SwapBuffers();
         }
-        public void UpdateShadowMaps(Scene3D scene)
+        public void CollectShadowMaps(Scene3D scene)
         {
             foreach (DirectionalLightComponent l in DirectionalLights)
-                l.UpdateShadowMap(scene);
+                l.CollectShadowMap(scene);
 
             foreach (SpotLightComponent l in SpotLights)
-                l.UpdateShadowMap(scene);
+                l.CollectShadowMap(scene);
 
             foreach (PointLightComponent l in PointLights)
-                l.UpdateShadowMap(scene);
+                l.CollectShadowMap(scene);
         }
         public void RenderShadowMaps(Scene3D scene)
         {

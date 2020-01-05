@@ -112,7 +112,10 @@ namespace TheraEditor.Windows.Forms
         public void AlignView(BoundingBox aabb)
         {
             //Get aspect of the front plane of the aabb
-            aabb.GetCorners(out _, out _, out Vec3 TFL, out Vec3 TFR, out _, out _, out _, out Vec3 BFR);
+            aabb.GetCorners(
+                out _, out _, out Vec3 TFL, out Vec3 TFR,
+                out _, out _, out _,        out Vec3 BFR);
+
             float w = Math.Abs(TFR.X - TFL.X);
             float h = Math.Abs(TFR.Y - BFR.Y);
             float boxAspect = w / h;
@@ -130,7 +133,9 @@ namespace TheraEditor.Windows.Forms
                 float camAspect = pcam.Width / pcam.Height;
 
                 //Move the camera back to show all of the front plane rectangle
-                pos.Z += boxAspect > camAspect ? pcam.FrustumDistanceAtWidth(w) : pcam.FrustumDistanceAtHeight(h);
+                pos.Z += boxAspect > camAspect ?
+                    pcam.FrustumDistanceAtWidth(w) : 
+                    pcam.FrustumDistanceAtHeight(h);
             }
             else if (cam is OrthographicCamera ocam)
             {

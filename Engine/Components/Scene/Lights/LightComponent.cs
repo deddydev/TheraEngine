@@ -116,7 +116,7 @@ namespace TheraEngine.Components.Scene.Lights
         protected virtual IVolume GetShadowVolume() => ShadowCamera?.Frustum;
         public abstract TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32);
         //private bool _renderPass, _lastPassRendered;
-        public void UpdateShadowMap(BaseScene scene)
+        public void CollectShadowMap(BaseScene scene)
         {
             //if (!CastsShadows)
             //    return;

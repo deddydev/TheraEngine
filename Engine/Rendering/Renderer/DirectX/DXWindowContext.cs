@@ -261,12 +261,12 @@ namespace TheraEngine.Rendering.DirectX
             //GL.Flush();
         }
 
-        internal override void PreRender()
+        internal override void BeforeRender()
         {
 
         }
 
-        internal override void PostRender()
+        internal override void AfterRender()
         {
 
         }

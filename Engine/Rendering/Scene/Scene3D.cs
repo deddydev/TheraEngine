@@ -140,7 +140,7 @@ namespace TheraEngine.Rendering
         {
 
         }
-        public override void GlobalPreRender()
+        public override void GlobalRender()
         {
             //Voxelize();
             RenderShadowMaps();

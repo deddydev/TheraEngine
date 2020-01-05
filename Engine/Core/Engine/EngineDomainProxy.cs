@@ -270,7 +270,7 @@ namespace TheraEngine.Core
                     continue;
 
                 m.AssociatedContexts[0].Capture(true);
-                m.GlobalPreRender();
+                m.GlobalPreRender(e.Time);
 
                 try
                 {

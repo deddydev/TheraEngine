@@ -227,9 +227,9 @@ namespace TheraEngine.Actors.Types
                 //_invDragMatrix = RootComponent.InverseWorldMatrix;
 
                 if (_transformSpace == ESpace.Screen)
-                    RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, UpdateScreenSpace);
+                    RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Logic, UpdateScreenSpace);
                 else
-                    UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, UpdateScreenSpace);
+                    UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Logic, UpdateScreenSpace);
             }
         }
 

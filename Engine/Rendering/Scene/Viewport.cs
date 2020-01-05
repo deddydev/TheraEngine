@@ -298,6 +298,7 @@ namespace TheraEngine.Rendering
             OnRender(scene, camera, target);
             Engine.PopRenderingViewport();
         }
+        private bool _captured = false;
         private readonly RenderPasses _renderPasses = new RenderPasses();
         protected virtual void OnRender(IScene scene, ICamera camera, FrameBuffer target)
         {
@@ -308,8 +309,11 @@ namespace TheraEngine.Rendering
 
             scene.Render(_renderPasses, camera, this, target);
 
-            if (scene is Scene3D s3d)
+            if (scene is Scene3D s3d && !_captured)
+            {
                 s3d.IBLProbeActor?.InitAndCaptureAll(512);
+                _captured = true;
+            }
         }
         internal protected virtual void SwapBuffers()
         {

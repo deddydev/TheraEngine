@@ -45,8 +45,8 @@ namespace TheraEngine.Timers
             Reset();
             _isRunning = false;
 
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickMulti);
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickSingle);
+            UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Timers, TickMulti);
+            UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Timers, TickSingle);
         }
         /// <summary>
         /// Executes a method once after the given time period.
@@ -68,7 +68,7 @@ namespace TheraEngine.Timers
                 _singleMethod = method;
                 _currentSecondsBetweenFires = seconds;
 
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickSingle);
+                RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Timers, TickSingle);
             }
         }
         /// <summary>
@@ -95,7 +95,7 @@ namespace TheraEngine.Timers
             _currentSecondsBetweenFires = startSeconds;
             _isRunning = true;
 
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickMulti);
+            RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Timers, TickMulti);
         }
         /// Executes a single method multiple times with a given interval of time between each execution.
         /// </summary>
@@ -120,7 +120,7 @@ namespace TheraEngine.Timers
             _currentSecondsBetweenFires = startSeconds;
             _isRunning = true;
 
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickMulti);
+            RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Timers, TickMulti);
         }
         private void TickMulti(float delta)
         {

@@ -121,7 +121,7 @@ namespace TheraEngine.Physics.RayTracing
 
         public override void Render()
         {
-            Vec3 end = HasHit ? Result.HitPointWorld : EndPointWorld;
+            Vec3 end = Result?.HitPointWorld ?? EndPointWorld;
             Engine.Renderer.RenderLine(StartPointWorld, end, DebugColor, false);
             Engine.Renderer.RenderPoint(end, HasHit ? new ColorF4(1.0f, 0.0f, 0.0f) : DebugColor, false);
         }

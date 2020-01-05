@@ -101,7 +101,7 @@ namespace TheraEngine
             TickLists = new TickList[45];
             TickLists.FillWith(i => new TickList());
 
-            Timer.UpdateFrame += EngineTick;
+            //Timer.UpdateFrame += EngineTick;
             Timer.SwapRenderBuffers += SwapRenderBuffers;
 
             RenderLibraryChanged();
@@ -218,11 +218,13 @@ namespace TheraEngine
             {
                 TargetFramesPerSecond = engineSet.CapFPS ? engineSet.TargetFPS.ClampMin(1.0f) : 0.0f;
                 TargetUpdatesPerSecond = engineSet.CapUPS ? engineSet.TargetUPS.ClampMin(1.0f) : 0.0f;
+                Timer.IsSingleThreaded = engineSet.SingleThreaded;
             }
             else
             {
                 TargetFramesPerSecond = 0.0f;
                 TargetUpdatesPerSecond = 0.0f;
+                Timer.IsSingleThreaded = false;
             }
 
             if (Game != null)
@@ -341,7 +343,8 @@ namespace TheraEngine
         public static void Run()
         {
             EngineSettings settings = Settings;
-            Timer.Run(settings?.SingleThreaded ?? false);
+            Timer.IsSingleThreaded = settings?.SingleThreaded ?? false;
+            Timer.Run();
         }
 
         private static void Settings_UpdatePerSecondChanged(EngineSettings settings)
@@ -434,25 +437,22 @@ namespace TheraEngine
         /// Ticks the before, during, and after physics groups. Also steps the physics simulation during the during physics tick group.
         /// Does not tick physics if paused.
         /// </summary>
-        private static void EngineTick(object sender, FrameEventArgs e)
-        {
-            ClearMarkers();
-            Network?.RecievePackets();
+        //private static void EngineTick(object sender, FrameEventArgs e)
+        //{
+        //    ClearMarkers();
+        //    Network?.RecievePackets();
             
-            float delta = e.Time * TimeDilation;
+        //    float delta = e.Time;
 
-            TickGroup(ETickGroup.PrePhysics, delta);
+        //    TickGroup(ETickGroup.PrePhysics, delta);
+        //    TickGroup(ETickGroup.DuringPhysics, delta);
+        //    TickGroup(ETickGroup.PostPhysics, delta);
 
-            if (!IsPaused)
-                World?.StepSimulation(delta);
+        //    Network?.UpdatePacketQueue(delta);
 
-            TickGroup(ETickGroup.PostPhysics, delta);
-
-            Network?.UpdatePacketQueue(e.Time);
-
-            //SteamAPI.RunCallbacks();
-            PrintMarkers();
-        }
+        //    //SteamAPI.RunCallbacks();
+        //    PrintMarkers();
+        //}
 
         private static Dictionary<int, List<string>> Sequences { get; } = new Dictionary<int, List<string>>();
         public static void SequenceMarker(int id, [CallerMemberName]string name = "")
@@ -480,7 +480,7 @@ namespace TheraEngine
         /// Goes through timers, input, animation, logic and scene ticks in that order,
         /// and executes methods based on whether the engine is paused or not (or regardless).
         /// </summary>
-        private static void TickGroup(ETickGroup group, float delta)
+        public static void TickGroup(ETickGroup group, float delta)
         {
             //Groups need to be processed in order
 
@@ -509,7 +509,7 @@ namespace TheraEngine
         /// Ticks the list of items at the given index (created by adding the tick group, order and pause type together).
         /// </summary>
         public static void ExecuteTickList(int index, float delta) 
-            => TickLists[index].ExecuteSequential(delta);
+            => TickLists[index].ExecuteParallel(delta);
         /// <summary>
         /// Tells the engine to play in a new world.
         /// </summary>
@@ -573,9 +573,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="toggler">The player that's pausing the game.</param>
         public static void TogglePause(ELocalPlayerIndex toggler)
-        {
-            SetPaused(!IsPaused, toggler);
-        }
+            => SetPaused(!IsPaused, toggler);
         /// <summary>
         /// Sets the pause state regardless of what it is currently.
         /// </summary>
@@ -588,7 +586,8 @@ namespace TheraEngine
 
             IsPaused = wantsPause;
             Instance.OnPauseChanged(IsPaused, toggler);
-            PrintLine("Engine{0}paused.", IsPaused ? " " : " un");
+
+            PrintLine($"Engine {(IsPaused ? "paused" : "unpaused")}.");
         }
         public static void Pause(ELocalPlayerIndex toggler, bool force = false)
             => SetPaused(true, toggler, force);

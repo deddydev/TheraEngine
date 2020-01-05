@@ -472,7 +472,7 @@ namespace TheraEngine.Tests
             _methodAnim = new PropAnimMethod<Vec3>(length, true, AnimTick);
             _animTree = new AnimationTree("RotationTrace", "Translation.Raw", _methodAnim);
             RootComponent.Animations = new EventList<AnimationTree>();
-            _animTree.Group = ETickGroup.PostPhysics;
+            _animTree.Group = ETickGroup.PrePhysics;
             _animTree.Order = ETickOrder.Animation;
             _animTree.PausedBehavior = EInputPauseType.TickAlways;
             _animTree.BeginOnSpawn = true;

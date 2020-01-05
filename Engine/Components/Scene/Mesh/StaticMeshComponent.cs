@@ -44,7 +44,11 @@ namespace TheraEngine.Components.Scene.Mesh
         public event Action ModelLoaded;
 
         private void RigidBodyTransformUpdated(Matrix4 transform)
-            => WorldMatrix = _rigidBodyCollision.WorldTransform;
+        {
+            _readingPhysicsTransform = true;
+            WorldMatrix = _rigidBodyCollision.InterpolationWorldTransform;
+            _readingPhysicsTransform = false;
+        }
         //private void ThisTransformUpdated()
         //    => _rigidBodyCollision.WorldTransform = WorldMatrix;
 

@@ -88,14 +88,14 @@ namespace TheraEngine.Components.Logic.Animation
             {
                 _currentState = InitialState;
                 _blendManager = new BlendManager(InitialState);
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick);
+                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
             }
         }
         public override void OnDespawned()
         {
             if (States.IndexInRange(InitialStateIndex))
             {
-                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick);
+                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
                 _blendManager = null;
             }
         }

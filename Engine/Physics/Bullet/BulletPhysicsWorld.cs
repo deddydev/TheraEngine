@@ -92,14 +92,14 @@ namespace TheraEngine.Physics
                 }
             };
 
-            //_dynamicsWorld.DispatchInfo.DispatchFunction = DispatcherInfo.DispatchFunc.Discrete;
+            //_dynamicsWorld.DispatchInfo.DispatchFunction = DispatcherInfo.DispatchFunc.Continuous;
             //_dynamicsWorld.DispatchInfo.UseContinuous = true;
             //_dynamicsWorld.DispatchInfo.AllowedCcdPenetration = 0.1f;
-            //_dynamicsWorld.PairCache.SetInternalGhostPairCallback(new CustomOverlappingPair());
+
             //_dynamicsWorld.PairCache.SetOverlapFilterCallback(new CustomOverlapFilter());
             _dynamicsWorld.PairCache.SetInternalGhostPairCallback(new GhostPairCallback());
             //_dynamicsWorld.ApplySpeculativeContactRestitution = true;
-            //_dynamicsWorld.SetInternalTickCallback(CustomTickCallback);
+            _dynamicsWorld.SetInternalTickCallback(PreSimTick, _dynamicsWorld.WorldUserInfo, true);
 
             PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
             PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;
@@ -110,29 +110,15 @@ namespace TheraEngine.Physics
         {
             CollisionDispatcher.DefaultNearCallback(collisionPair, dispatcher, dispatchInfo);
         }
-        public void CustomTickCallback(DynamicsWorld world, float timeStep)
+        private void PostSimTick(DynamicsWorld world, float timeStep)
         {
-            return;
-
-            //int numManifolds = world.Dispatcher.NumManifolds;
-            //for (int i = 0; i < numManifolds; i++)
-            //{
-            //    PersistentManifold contactManifold = world.Dispatcher.GetManifoldByIndexInternal(i);
-            //    CollisionObject body0 = contactManifold.Body0;
-            //    CollisionObject body1 = contactManifold.Body1;
-
-            //    int numContacts = contactManifold.NumContacts;
-            //    for (int j = 0; j < numContacts; j++)
-            //    {
-            //        ManifoldPoint pt = contactManifold.GetContactPoint(j);
-            //        if (pt.Distance < 0.0f)
-            //        {
-            //            Vector3 ptA = pt.PositionWorldOnA;
-            //            Vector3 ptB = pt.PositionWorldOnB;
-            //            Vector3 normalOnB = pt.NormalWorldOnB;
-            //        }
-            //    }
-            //}
+            Engine.Timer.PostSimulationTick(timeStep);
+            _dynamicsWorld.SetInternalTickCallback(PreSimTick, _dynamicsWorld.WorldUserInfo, true);
+        }
+        public void PreSimTick(DynamicsWorld world, float timeStep)
+        {
+            Engine.Timer.PreSimulationTick(timeStep);
+            _dynamicsWorld.SetInternalTickCallback(PostSimTick, _dynamicsWorld.WorldUserInfo, false);
         }
         private bool CompoundChildShapeCallback(CollisionShape pShape0, CollisionShape pShape)
         {
@@ -250,7 +236,9 @@ namespace TheraEngine.Physics
         }
         public override void StepSimulation(float delta)
         {
-            _dynamicsWorld?.StepSimulation(delta, 3, Engine.RenderPeriod * Engine.TimeDilation);
+            //Engine.Timer.PreSimulationTick(Engine.Timer.TargetUpdatePeriod);
+            _dynamicsWorld?.StepSimulation(delta, 10, Engine.Timer.TargetUpdatePeriod);
+            //Engine.Timer.PostSimulationTick(Engine.Timer.TargetUpdatePeriod);
         }
         //private class CustomOverlappingPair : OverlappingPairCallback
         //{
@@ -302,8 +290,8 @@ namespace TheraEngine.Physics
             _rayCallback.Handler = trace;
             _dynamicsWorld.RayTest(trace.StartPointWorld, trace.EndPointWorld, _rayCallback);
 
-            if (trace.DebugDraw)
-                PopulatingRayTraces.Enqueue(trace);
+            //if (trace.DebugDraw)
+            //    PopulatingRayTraces.Enqueue(trace);
 
             return trace.HasHit;
         }
@@ -321,8 +309,8 @@ namespace TheraEngine.Physics
             else
                 _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, _convexCallback);
 
-            if (trace.DebugDraw)
-                PopulatingShapeTraces.Enqueue(trace);
+            //if (trace.DebugDraw)
+            //    PopulatingShapeTraces.Enqueue(trace);
 
             return trace.HasHit;
         }

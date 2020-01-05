@@ -72,13 +72,13 @@ namespace TheraEngine.Actors
                 if (_lifeSpan > 0.0f)
                 {
                     if (IsSpawned)
-                        UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
+                        UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
                 }
                 _lifeSpan = value;
                 if (_lifeSpan > 0.0f)
                 {
                     if (IsSpawned)
-                        RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
+                        RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
                 }
             }
         }
@@ -204,7 +204,7 @@ namespace TheraEngine.Actors
             if (_lifeSpan > 0.0f)
             {
                 CurrentLife = _lifeSpan;
-                RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
+                RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             }
         }
 
@@ -239,7 +239,7 @@ namespace TheraEngine.Actors
             CurrentLife -= delta;
             if (CurrentLife > 0.0f)
                 return;
-            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
+            UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             OnLifeSpanOver();
         }
         /// <summary>

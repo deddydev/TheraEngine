@@ -115,9 +115,9 @@ namespace TheraEngine.Components.Scene
         }
 
         private void StartSimulating()
-            => RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Update);
+            => RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Scene, Update);
         private void StopSimulating()
-            => UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Update);
+            => UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Scene, Update);
 
         protected virtual int FindUnusedParticleIndex()
         {

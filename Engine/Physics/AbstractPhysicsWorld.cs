@@ -13,10 +13,10 @@ namespace TheraEngine.Physics
         public virtual Vec3 Gravity { get; set; } = new Vec3(0.0f, -9.81f, 0.0f);
         public bool AllowIndividualAabbUpdates { get; set; } = true;
 
-        internal ConcurrentQueue<RayTrace> PopulatingRayTraces = new ConcurrentQueue<RayTrace>();
-        internal ConcurrentQueue<ShapeTrace> PopulatingShapeTraces = new ConcurrentQueue<ShapeTrace>();
-        internal ConcurrentQueue<RayTrace> ConsumingRayTraces = new ConcurrentQueue<RayTrace>();
-        internal ConcurrentQueue<ShapeTrace> ConsumingShapeTraces = new ConcurrentQueue<ShapeTrace>();
+        //internal ConcurrentQueue<RayTrace> PopulatingRayTraces = new ConcurrentQueue<RayTrace>();
+        //internal ConcurrentQueue<ShapeTrace> PopulatingShapeTraces = new ConcurrentQueue<ShapeTrace>();
+        //internal ConcurrentQueue<RayTrace> ConsumingRayTraces = new ConcurrentQueue<RayTrace>();
+        //internal ConcurrentQueue<ShapeTrace> ConsumingShapeTraces = new ConcurrentQueue<ShapeTrace>();
 
         public abstract bool DrawConstraints { get; set; }
         public abstract bool DrawConstraintLimits { get; set; }
@@ -83,8 +83,8 @@ namespace TheraEngine.Physics
 
         internal void Swap()
         {
-            THelpers.Swap(ref PopulatingRayTraces, ref ConsumingRayTraces);
-            THelpers.Swap(ref PopulatingShapeTraces, ref ConsumingShapeTraces);
+            //THelpers.Swap(ref PopulatingRayTraces, ref ConsumingRayTraces);
+            //THelpers.Swap(ref PopulatingShapeTraces, ref ConsumingShapeTraces);
         }
     }
 }

@@ -49,7 +49,7 @@ namespace TheraEngine.Worlds
 
         void GlobalCollectVisible();
         void GlobalSwap();
-        void GlobalPreRender();
+        void GlobalPreRender(float delta);
 
         void SpawnActor(IActor item);
         void SpawnActor(IActor actor, Vec3 position);
@@ -398,6 +398,9 @@ namespace TheraEngine.Worlds
 
         private void Render3D(bool shadowPass)
         {
+            if (Settings is null)
+                return;
+
             if (Settings.PreviewWorldBounds)
                 Engine.Renderer.RenderBox(Settings.Bounds.HalfExtents, Settings.Bounds.Translation.AsTranslationMatrix(), false, Color.Green);
             
@@ -411,14 +414,14 @@ namespace TheraEngine.Worlds
             if (Settings.PreviewPhysics)
                 PhysicsWorld3D?.DrawDebugWorld();
 
-            if (!shadowPass)
-            {
-                while (PhysicsWorld3D.ConsumingRayTraces.TryDequeue(out RayTrace trace))
-                    trace.Render();
+            //if (!shadowPass)
+            //{
+            //    while (PhysicsWorld3D.ConsumingRayTraces.TryDequeue(out RayTrace trace))
+            //        trace.Render();
 
-                while (PhysicsWorld3D.ConsumingShapeTraces.TryDequeue(out ShapeTrace trace))
-                    trace.Render();
-            }
+            //    while (PhysicsWorld3D.ConsumingShapeTraces.TryDequeue(out ShapeTrace trace))
+            //        trace.Render();
+            //}
         }
         private void Render2D()
         {
@@ -457,9 +460,12 @@ namespace TheraEngine.Worlds
             Scene?.GlobalSwap();
             PhysicsWorld3D?.Swap();
         }
-        void IWorld.GlobalPreRender()
+        void IWorld.GlobalPreRender(float delta)
         {
-            Scene?.GlobalPreRender();
+            if (!Engine.IsPaused)
+                PhysicsWorld3D?.StepSimulation(delta);
+
+            Scene?.GlobalRender();
         }
     }
 }

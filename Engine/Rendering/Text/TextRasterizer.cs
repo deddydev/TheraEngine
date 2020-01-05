@@ -1,5 +1,6 @@
 ﻿using Extensions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -31,7 +32,7 @@ namespace TheraEngine.Rendering.Text
         public event DelTextRedraw NeedsRedraw;
 
         private TextSort _sorter;
-        private LinkedList<UIString2D> _modified;
+        private ConcurrentQueue<UIString2D> _modified;
 
         protected void OnDoRedraw(bool forceFullRedraw) 
             => NeedsRedraw?.Invoke(forceFullRedraw);
@@ -50,7 +51,7 @@ namespace TheraEngine.Rendering.Text
             Text.PostRemovedRange += Text_PostRemovedRange;
             Text.PostInserted += Text_PostInserted;
             Text.PostInsertedRange += Text_PostInsertedRange;
-            _modified = new LinkedList<UIString2D>();
+            _modified = new ConcurrentQueue<UIString2D>();
         }
 
         private void Text_PostInsertedRange(IEnumerable<UIString2D> items, int index)
@@ -91,7 +92,8 @@ namespace TheraEngine.Rendering.Text
         public void Clear(bool redraw = true)
         {
             Text.Clear();
-            _modified.Clear();
+            while (!_modified.IsEmpty)
+                _modified.TryDequeue(out _);
 
             if (redraw)
                 OnDoRedraw(true);
@@ -218,13 +220,14 @@ namespace TheraEngine.Rendering.Text
                 Engine.LogException(ex);
             }
 
-            _modified.Clear();
+            while (!_modified.IsEmpty)
+                _modified.TryDequeue(out _);
             tex.Invalidate();
         }
         internal void TextChanged(UIString2D textData)
         {
-            _modified.AddLast(textData);
-            OnDoRedraw(false);
+            //_modified.Enqueue(textData);
+            //OnDoRedraw(false);
         }
     }
 }

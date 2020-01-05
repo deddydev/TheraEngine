@@ -11,7 +11,7 @@ namespace TheraEngine.Input.Devices
         public InputAwaiter(DelFoundInput uponFound)
         {
             FoundInput += uponFound;
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
+            RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, Tick);
         }
         //~InputAwaiter() { Dispose(); }
 

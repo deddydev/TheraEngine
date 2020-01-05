@@ -152,15 +152,26 @@ namespace TheraEngine.Rendering.Models.Materials
 
         internal void SetProgramUniform(RenderProgram program, string name)
         {
-            int loc = program.GetUniformLocation(name);
-            if (loc >= 0)
-                SetProgramUniform(program, loc);
+            if (_valueChanged)
+            {
+                int loc = program.GetUniformLocation(name);
+                if (loc >= 0)
+                    SetProgramUniform(program, loc);
+                _valueChanged = false;
+            }
             //else
             //    throw new Exception();
         }
 
-        internal void SetProgramUniform(RenderProgram program) 
-            => SetProgramUniform(program, Name);
+        protected bool _valueChanged = true;
+        internal void SetProgramUniform(RenderProgram program)
+        {
+            if (_valueChanged)
+            {
+                SetProgramUniform(program, Name);
+                _valueChanged = false;
+            }
+        }
 
         //internal void SetUniform(string name) { SetUniform(Engine.Renderer.GetUniformLocation(programBindingId, name)); }
         //internal void SetUniform() { SetUniform(Engine.Renderer.GetUniformLocation(programBindingId, Name)); }
@@ -175,6 +186,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         protected void OnValueChanged()
         {
+            _valueChanged = true;
             ValueChanged?.Invoke(this);
         }
 

@@ -8,12 +8,12 @@ namespace TheraEngine.Components.Scene.Transforms
     {
         public override void OnSpawned()
         {
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick, EInputPauseType.TickOnlyWhenUnpaused);
+            RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Logic, Tick, EInputPauseType.TickOnlyWhenUnpaused);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick, EInputPauseType.TickOnlyWhenUnpaused);
+            UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Logic, Tick, EInputPauseType.TickOnlyWhenUnpaused);
             base.OnDespawned();
         }
         private void Tick(float delta)

@@ -43,7 +43,7 @@ namespace TheraEngine.Input.Devices
         protected InputDevice(int index)
         {
             _index = index;
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, UpdateStates);
+            RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, UpdateStates);
             ResetStates();
         }
         protected abstract int GetButtonCount();

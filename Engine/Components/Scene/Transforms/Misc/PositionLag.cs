@@ -73,12 +73,12 @@ namespace TheraEngine.Components.Scene.Transforms
         public override void OnSpawned()
         {
             _currentPoint = _worldMatrix.Translation;
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
+            RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
+            UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             base.OnDespawned();
         }
     }

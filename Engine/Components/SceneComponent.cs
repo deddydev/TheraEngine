@@ -117,13 +117,14 @@ namespace TheraEngine.Components
 
         public event Action<ISceneComponent> WorldTransformChanged;
 
+        protected bool _readingPhysicsTransform = false;
         /// <summary>
         /// This is the method that will be called immediately after any world transform change.
         /// Use this to update anything that depends on this component's transform.
         /// </summary>
         protected virtual void OnWorldTransformChanged()
         {
-            if (this is IRigidBodyCollidable p && p.RigidBodyCollision != null)
+            if (!_readingPhysicsTransform && this is IRigidBodyCollidable p && p.RigidBodyCollision != null)
             {
                 p.RigidBodyCollision.WorldTransform = _worldMatrix;
 
@@ -186,9 +187,9 @@ namespace TheraEngine.Components
                 if (!_monitorAudioVelocity)
                 {
                     if (_monitorVelocity)
-                        RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, CalcVelocityTick);
+                        RegisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, CalcVelocityTick);
                     else
-                        UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, CalcVelocityTick);
+                        UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, CalcVelocityTick);
                 }
             }
         }
@@ -206,9 +207,9 @@ namespace TheraEngine.Components
                 if (!_monitorVelocity)
                 {
                     if (_monitorAudioVelocity)
-                        RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, CalcVelocityTick);
+                        RegisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, CalcVelocityTick);
                     else
-                        UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, CalcVelocityTick);
+                        UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, CalcVelocityTick);
                 }
             }
         }

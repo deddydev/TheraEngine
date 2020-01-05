@@ -496,9 +496,9 @@ namespace TheraEditor.Windows.Forms
             if (should != _ticking)
             {
                 if (_ticking = should)
-                    Engine.RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, TickInput);
+                    Engine.RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, TickInput);
                 else
-                    Engine.UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, TickInput);
+                    Engine.UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, TickInput);
             }
         }
         protected virtual void TickInput(float delta)
@@ -563,7 +563,7 @@ namespace TheraEditor.Windows.Forms
             if (ContextMenu.Contains(cursorPos))
                 ContextMenu.HoveredMenuItem?.Click();
             
-            ContextMenu.IsVisible = false;
+            ContextMenu.Visibility = EVisibility.Collapsed;
         }
 
         protected virtual void OnRightClickPressed()
@@ -578,7 +578,7 @@ namespace TheraEditor.Windows.Forms
             RightClickPressed = false;
 
             if (ContextMenu != null)
-                ContextMenu.IsVisible = !_viewDragged;
+                ContextMenu.Visibility = _viewDragged ? EVisibility.Collapsed : EVisibility.Visible;
         }
 
         public TMenuComponent ContextMenu 
@@ -588,7 +588,7 @@ namespace TheraEditor.Windows.Forms
             {
                 if (_contextMenu != null)
                 {
-                    _contextMenu.IsVisible = false;
+                    _contextMenu.Visibility = EVisibility.Collapsed;
                     RootComponent.ChildComponents.Remove(_contextMenu);
                 }
 
@@ -596,7 +596,7 @@ namespace TheraEditor.Windows.Forms
 
                 if (_contextMenu != null)
                 {
-                    _contextMenu.IsVisible = false;
+                    _contextMenu.Visibility = EVisibility.Collapsed;
                     RootComponent.ChildComponents.Add(_contextMenu);
                 }
             }

@@ -64,14 +64,12 @@ namespace TheraEngine.Timers
         /// <summary>
         /// Runs the timer until Stop() is called.
         /// </summary>
-        public void Run(bool singleThreaded)
+        public void Run()
         {
             if (IsRunning)
                 return;
 
-            Engine.PrintLine($"Started {(singleThreaded ? "single" : "multi")}-threaded game loop.");
-
-            IsSingleThreaded = singleThreaded;
+            Engine.PrintLine($"Started {(IsSingleThreaded ? "single" : "multi")}-threaded game loop.");
 
             InitiateLoop();
         }
@@ -80,6 +78,7 @@ namespace TheraEngine.Timers
             _preRenderDone = new ManualResetEventSlim(false);
             _renderStarted = new ManualResetEventSlim(false);
             _renderDone = new ManualResetEventSlim(true);
+            //_preSimTickDone = new ManualResetEventSlim(false);
         }
 
         private Task UpdateTask = null;
@@ -138,6 +137,18 @@ namespace TheraEngine.Timers
                 SingleThreadLoop();
         }
 
+        //private ManualResetEventSlim _preSimTickDone;
+
+        public void PreSimulationTick(float delta)
+        {
+            Engine.TickGroup(ETickGroup.PrePhysics, delta);
+            //_preSimTickDone.Set();
+        }
+        public void PostSimulationTick(float delta)
+        {
+            Engine.TickGroup(ETickGroup.PostPhysics, delta);
+        }
+
         private void UpdateThread()
         {
             while (IsMultiThreadActive)
@@ -174,6 +185,12 @@ namespace TheraEngine.Timers
             SetRenderDone();
             WaitPreRenderDone();
             SetRenderStarted();
+            while (!DispatchRender()) ;
+        }
+        private void MultiThreadRenderLoopSingle()
+        {
+            DispatchPreRender();
+            OnSwapBuffers();
             while (!DispatchRender()) ;
         }
 
@@ -218,6 +235,7 @@ namespace TheraEngine.Timers
             _renderDone?.Set();
             _preRenderDone?.Set();
             _renderStarted?.Set();
+            //_preSimTickDone?.Set();
 
             UpdateTask?.Wait();
             UpdateTask = null;
@@ -264,48 +282,56 @@ namespace TheraEngine.Timers
         }
         private void DispatchUpdate()
         {
-            int runningSlowlyRetries = 4;
+            //int runningSlowlyRetries = 4;
 
             float timestamp = (float)_watch.Elapsed.TotalSeconds;
             float elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0f, 1.0f);
 
-            //if (elapsed > 0 && elapsed >= TargetUpdatePeriod)
+            if (elapsed > 0 && elapsed >= TargetUpdatePeriod)
             //    RaiseUpdateFrame(elapsed, ref timestamp);
 
-            while (elapsed > 0 && elapsed + _updateEpsilon >= TargetUpdatePeriod)
+            //while (IsRunning && elapsed > 0 && elapsed + _updateEpsilon >= TargetUpdatePeriod)
             {
-                RaiseUpdateFrame(elapsed, ref timestamp);
+                //RaiseUpdateFrame(elapsed, ref timestamp);
+
+                if (Engine.IsPaused)
+                    Engine.TickGroup(ETickGroup.PrePhysics, elapsed);
+
+                Engine.TickGroup(ETickGroup.DuringPhysics, elapsed);
+
+                if (Engine.IsPaused)
+                    Engine.TickGroup(ETickGroup.PostPhysics, elapsed);
 
                 // Calculate difference (positive or negative) between
                 // actual elapsed time and target elapsed time. We must
                 // compensate for this difference.
-                _updateEpsilon += elapsed - TargetUpdatePeriod;
+                //_updateEpsilon += elapsed - TargetUpdatePeriod;
 
-                // Prepare for next loop
-                elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0f, 1.0f);
+                //// Prepare for next loop
+                //elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0f, 1.0f);
 
-                if (TargetUpdatePeriod <= float.Epsilon)
-                {
-                    // According to the TargetUpdatePeriod documentation,
-                    // a TargetUpdatePeriod of zero means we will raise
-                    // UpdateFrame events as fast as possible (one event
-                    // per ProcessEvents() call)
-                    break;
-                }
+                //if (TargetUpdatePeriod <= float.Epsilon)
+                //{
+                //    // According to the TargetUpdatePeriod documentation,
+                //    // a TargetUpdatePeriod of zero means we will raise
+                //    // UpdateFrame events as fast as possible (one event
+                //    // per ProcessEvents() call)
+                //    break;
+                //}
 
-                _isRunningSlowly = _updateEpsilon >= TargetUpdatePeriod;
-                if (_isRunningSlowly && --runningSlowlyRetries == 0)
-                {
-                    // If UpdateFrame consistently takes longer than TargetUpdateFrame
-                    // stop raising events to avoid hanging inside the UpdateFrame loop.
-                    break;
-                }
+                //_isRunningSlowly = _updateEpsilon >= TargetUpdatePeriod;
+                //if (_isRunningSlowly && --runningSlowlyRetries == 0)
+                //{
+                //    // If UpdateFrame consistently takes longer than TargetUpdateFrame
+                //    // stop raising events to avoid hanging inside the UpdateFrame loop.
+                //    break;
+                //}
             }
         }
         private void RaiseUpdateFrame(float elapsed, ref float timestamp)
         {
             // Raise UpdateFrame event
-            _updateArgs.Time = elapsed;
+            _updateArgs.Time = elapsed * TimeDilation;
             OnUpdateFrameInternal(_updateArgs);
 
             // Update UpdatePeriod/UpdateFrequency properties
@@ -319,7 +345,7 @@ namespace TheraEngine.Timers
         void RaiseRenderFrame(float elapsed, ref float timestamp)
         {
             // Raise RenderFrame event
-            _renderArgs.Time = elapsed;
+            _renderArgs.Time = elapsed * TimeDilation;
             OnRenderFrameInternal(_renderArgs);
 
             // Update RenderPeriod/UpdateFrequency properties
@@ -333,7 +359,7 @@ namespace TheraEngine.Timers
         void RaisePreRenderFrame(float elapsed, ref float timestamp)
         {
             // Raise RenderFrame event
-            _preRenderArgs.Time = elapsed;
+            _preRenderArgs.Time = elapsed * TimeDilation;
             OnPreRenderFrameInternal(_preRenderArgs);
             _lastPreRenderTimestamp = timestamp;
         }
@@ -506,29 +532,11 @@ namespace TheraEngine.Timers
                 if (_isSingleThreaded == value)
                     return;
 
-                if (IsRunning)
-                {
-                    if (_renderStarted != null)
-                        Application.Idle -= UIDomainRenderLoop;
-                    else
-                        Application.Idle -= UIDomainSingleThreadLoop;
-                }
+                Stop();
 
                 _isSingleThreaded = value;
 
-                if (IsRunning)
-                {
-                    if (_isSingleThreaded)
-                        Application.Idle += UIDomainSingleThreadLoop;
-                    else
-                    {
-                        MakeManualResetEvents();
-
-                        Task.Factory.StartNew(UpdateThread, TaskCreationOptions.LongRunning);
-
-                        Application.Idle += UIDomainRenderLoop;
-                    }
-                }
+                Run();
             }
         }
     }

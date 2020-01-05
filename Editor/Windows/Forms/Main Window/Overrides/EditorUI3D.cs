@@ -226,7 +226,7 @@ namespace TheraEditor.Windows.Forms
 
             SubViewport = new UIViewportComponent() { RenderTransformation = false };
             SubViewport.MinWidth = 200.0f;
-            SubViewport.IsVisible = false;
+            SubViewport.Visibility = EVisibility.Collapsed;
 
             SubViewport.Size.BindProperty("X", 
                 canvas.ActualSize, "X",
@@ -418,9 +418,9 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnSpawnedPostComponentSpawn();
 
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
+            RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, Tick);
             _highlightPoint.RenderInfo.LinkScene(_highlightPoint, OwningScene3D);
-            SubViewport.IsVisible = false;
+            SubViewport.Visibility = EVisibility.Collapsed;
 
             Editor.Instance.ActorTreeForm.EditorHUD = this;
         }
@@ -428,7 +428,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnDespawned();
 
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
+            UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, Tick);
             _highlightPoint.RenderInfo.UnlinkScene();
 
             Editor.Instance.ActorTreeForm.EditorHUD = null;
@@ -702,19 +702,19 @@ namespace TheraEditor.Windows.Forms
                 cam.Camera != OwningPawn?.LocalPlayerController?.ViewportCamera)
             {
                 SubViewport.ViewportCamera = cam.Camera;
-                SubViewport.IsVisible = true;
+                SubViewport.Visibility = EVisibility.Visible;
                 if (cam.PreviewAlwaysVisible)
                     Engine.EditorState.PinnedCameraComponent = cam;
             }
             else if (Engine.EditorState.PinnedCameraComponent != null)
             {
                 SubViewport.ViewportCamera = Engine.EditorState.PinnedCameraComponent.Camera;
-                SubViewport.IsVisible = true;
+                SubViewport.Visibility = EVisibility.Visible;
             }
             else
             {
                 SubViewport.ViewportCamera = null;
-                SubViewport.IsVisible = false;
+                SubViewport.Visibility = EVisibility.Collapsed;
             }
 
             if (SelectedComponent != null)

@@ -120,8 +120,14 @@ namespace TheraEngine.Physics.Bullet
         }
         public override Matrix4 InterpolationWorldTransform
         {
-            get => Body.InterpolationWorldTransform;
-            set => Body.InterpolationWorldTransform = value;
+            get => Body.MotionState?.WorldTransform ?? Body.InterpolationWorldTransform;
+            set
+            {
+                if (Body.MotionState != null)
+                    Body.MotionState.WorldTransform = value;
+                else
+                    Body.InterpolationWorldTransform = value;
+            }
         }
         public override Vec3 InterpolationLinearVelocity
         {

@@ -20,9 +20,16 @@ namespace TheraEngine.Rendering.UI
     {
         public IUIComponent UIComponent { get; set; }
     }
+    public enum EVisibility
+    {
+        Visible,
+        Hidden,
+        Collapsed,
+    }
     public interface IUIComponent : IOriginRebasableComponent, I2DRenderable, IEnumerable<IUIComponent>
     {
         bool IsVisible { get; set; }
+        EVisibility Visibility { get; set; }
         bool IsEnabled { get; set; }
         UIParentAttachmentInfo ParentInfo { get; set; }
 
@@ -35,38 +42,60 @@ namespace TheraEngine.Rendering.UI
     {
         public UIComponent() : base() { _rc = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderVisualGuides); }
 
-        protected bool _visible = true;
-        protected bool _enabled = true;
+        [TSerialize(nameof(Visibility))]
+        protected EVisibility _visibility = EVisibility.Visible;
+        [TSerialize(nameof(IsEnabled))]
+        protected bool _isEnabled = true;
 
+        [TSerialize]
         [Category("Rendering")]
-        public IRenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
+        public IRenderInfo2D RenderInfo { get; private set; } = new RenderInfo2D(0, 0);
 
-        [Category("Rendering")]
-        public virtual bool IsVisible
+        [Browsable(false)]
+        public bool IsVisible
         {
-            get => _visible;
+            get => Visibility == EVisibility.Visible;
             set
             {
-                if (!Set(ref _visible, value))
+                if (value)
+                    Visibility = EVisibility.Visible;
+                else
+                    Visibility = CollapseOnHide ? EVisibility.Collapsed : EVisibility.Hidden;
+            }
+        }
+
+        [Browsable(false)]
+        [TSerialize]
+        public bool CollapseOnHide { get; set; } = true;
+
+        [Category("Rendering")]
+        public virtual EVisibility Visibility
+        {
+            get => _visibility;
+            set
+            {
+                if (!Set(ref _visibility, value))
                     return;
 
-                RenderInfo.Visible = _visible;
+                RenderInfo.Visible = IsVisible;
+
+                OnPropertyChanged(nameof(IsVisible));
 
                 foreach (ISceneComponent c in _children)
                     if (c is UIComponent uic)
-                        uic.IsVisible = _visible;
+                        uic.Visibility = _visibility;
             }
         }
         [Category("Rendering")]
         public virtual bool IsEnabled
         {
-            get => _enabled;
+            get => _isEnabled;
             set
             {
-                if (Set(ref _enabled, value))
+                if (Set(ref _isEnabled, value))
                     foreach (ISceneComponent c in _children)
                         if (c is UIComponent uic)
-                            uic.IsEnabled = _enabled;
+                            uic.IsEnabled = _isEnabled;
             }
         }
 

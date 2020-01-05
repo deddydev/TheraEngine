@@ -36,12 +36,13 @@ namespace TheraEngine.Rendering
 #if EDITOR
         [TSerialize]
         public virtual bool VisibleInEditorOnly { get; set; } = false;
+        [TSerialize]
         public EEditorVisibility EditorVisibilityMode { get; set; } = EEditorVisibility.Unchanged;
 #endif
         [Browsable(false)]
         public DateTime LastRenderedTime { get; set; }
         public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
-        public bool VisibleOnScreen => GetTimeSinceLastRender().TotalMilliseconds < 33.33f; //33.33ms per frame = 30 fps
+        public bool VisibleOnScreen => GetTimeSinceLastRender().TotalMilliseconds < Engine.RenderPeriod; //33.33ms per frame = 30 fps
     }
     public delegate float DelGetSortOrder(bool shadowPass);
     public delegate void DelCullingVolumeChanged(TShape oldVolume, TShape newVolume);

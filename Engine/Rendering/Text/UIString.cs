@@ -113,7 +113,7 @@ namespace TheraEngine.Rendering.Text
                     return;
 
                 _font = value;
-                //Region.Extents = TextRenderer.MeasureText(_text, _font);
+                ActualTextSize = TextRenderer.MeasureText(_text, _font, Region.SizeInt, _flags);
                 Parent?.TextChanged(this);
             }
         }

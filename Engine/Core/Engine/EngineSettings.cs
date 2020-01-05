@@ -188,9 +188,9 @@ namespace TheraEngine
     [TFileDef("Engine Settings")]
     public class EngineSettings : TSettings
     {
-        private bool _singleThreaded = false;
-        private bool _capUPS = false;
-        private bool _capFPS = false;
+        private bool _singleThreaded;
+        private bool _capUPS;
+        private bool _capFPS;
         private float _targetFPS;
         private float _targetUPS;
         private bool _skinOnGPU;
@@ -449,8 +449,8 @@ namespace TheraEngine
 
             CapFPS = false;
             TargetFPS = 60.0f;
-            CapUPS = false;
-            TargetUPS = 30.0f;
+            CapUPS = true;
+            TargetUPS = 60.0f;
 
             string startupPath = Application.StartupPath;
             if (Engine.DesignMode)

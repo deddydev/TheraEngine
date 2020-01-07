@@ -23,7 +23,7 @@ namespace TheraEditor.Windows.Forms
         public abstract IWorld World { get; }
         public virtual TGameMode GameMode => World?.CurrentGameMode as TGameMode;
 
-        protected override TScene GetScene(Viewport v) => World?.Scene as TScene;
+        //protected override TScene GetScene(Viewport v) => World?.Scene as TScene;
         public abstract TPawn EditorPawn { get; }
 
         ELocalPlayerIndex IEditorRenderHandler.PlayerIndex => PlayerIndex;

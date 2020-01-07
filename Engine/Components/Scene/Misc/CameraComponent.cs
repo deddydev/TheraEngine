@@ -17,19 +17,19 @@ namespace TheraEngine.Components.Scene
     {
         #region Constructors
         public CameraComponent() : this(null) { }
-        public CameraComponent(bool orthographic) : this(orthographic ? (Camera)new OrthographicCamera() : new PerspectiveCamera()) { }
-        public CameraComponent(Camera camera)
+        public CameraComponent(bool orthographic) : this(orthographic ? (ICamera)new OrthographicCamera() : new PerspectiveCamera()) { }
+        public CameraComponent(ICamera camera)
         {
-            _cameraRef = new GlobalFileRef<Camera>(camera);
+            _cameraRef = new GlobalFileRef<ICamera>(camera);
             _cameraRef.Loaded += CameraLoaded;
             _cameraRef.Unloaded += CameraUnloaded;
         }
         #endregion
         
-        private GlobalFileRef<Camera> _cameraRef;
+        private GlobalFileRef<ICamera> _cameraRef;
 
         [Browsable(false)]
-        public Camera Camera
+        public ICamera Camera
         {
             get => CameraRef?.File;
             set
@@ -37,13 +37,13 @@ namespace TheraEngine.Components.Scene
                 if (CameraRef != null)
                     CameraRef.File = value;
                 else
-                    CameraRef = value;
+                    CameraRef = new GlobalFileRef<ICamera>(value);
             }
         }
 
         [DisplayName(nameof(Camera))]
         [TSerialize]
-        public GlobalFileRef<Camera> CameraRef
+        public GlobalFileRef<ICamera> CameraRef
         {
             get => _cameraRef;
             set
@@ -53,7 +53,7 @@ namespace TheraEngine.Components.Scene
                     _cameraRef.Loaded -= (CameraLoaded);
                     if (_cameraRef.IsLoaded && _cameraRef.File != null)
                     {
-                        Camera camera = _cameraRef.File;
+                        ICamera camera = _cameraRef.File;
                         camera.OwningComponent = null;
                         camera.TransformChanged -= RecalcLocalTransform;
                     }
@@ -62,12 +62,12 @@ namespace TheraEngine.Components.Scene
             }
         }
 
-        private void CameraLoaded(Camera camera)
+        private void CameraLoaded(ICamera camera)
         {
             camera.OwningComponent = this;
             camera.TransformChanged += RecalcLocalTransform;
         }
-        private void CameraUnloaded(Camera camera)
+        private void CameraUnloaded(ICamera camera)
         {
             camera.OwningComponent = null;
             camera.TransformChanged -= RecalcLocalTransform;
@@ -79,7 +79,7 @@ namespace TheraEngine.Components.Scene
         /// <param name="playerIndex">The index of the local player to assign this camera to.</param>
         public void SetCurrentForPlayer(ELocalPlayerIndex playerIndex)
         {
-            Camera c = Camera;
+            ICamera c = Camera;
             if (c is null)
             {
                 Engine.LogWarning("Camera component has no camera set.");
@@ -91,12 +91,12 @@ namespace TheraEngine.Components.Scene
                 OwningWorld.CurrentGameMode.LocalPlayers[index].ViewportCamera = c;
             else
             {
-                Dictionary<int, ConcurrentQueue<Camera>> v = LocalPlayerController.CameraPossessionQueue;
+                Dictionary<int, ConcurrentQueue<ICamera>> v = LocalPlayerController.CameraPossessionQueue;
                 if (v.ContainsKey(index))
                     v[index].Enqueue(c);
                 else
                 {
-                    ConcurrentQueue<Camera> queue = new ConcurrentQueue<Camera>();
+                    ConcurrentQueue<ICamera> queue = new ConcurrentQueue<ICamera>();
                     queue.Enqueue(c);
                     v.Add(index, queue);
                 }
@@ -109,7 +109,7 @@ namespace TheraEngine.Components.Scene
         {
             if (controller != null)
             {
-                Camera c = Camera;
+                ICamera c = Camera;
                 if (c is null)
                 {
                     Engine.LogWarning("Camera component has no camera set.");
@@ -125,7 +125,7 @@ namespace TheraEngine.Components.Scene
         {
             if (OwningActor is IPawn pawn && pawn.Controller is LocalPlayerController controller)
             {
-                Camera c = Camera;
+                ICamera c = Camera;
                 if (c is null)
                 {
                     Engine.LogWarning("Camera component has no camera set.");
@@ -204,7 +204,7 @@ namespace TheraEngine.Components.Scene
         
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            Camera c = _cameraRef.File;
+            ICamera c = _cameraRef.File;
             if (c != null)
             {
                 localTransform = c.CameraToComponentSpaceMatrix;
@@ -237,7 +237,7 @@ namespace TheraEngine.Components.Scene
         {
             base.OnSpawned();
 
-            Camera c = Camera;
+            ICamera c = Camera;
             if (c != null)
                 c.RenderInfo.LinkScene(c, OwningScene3D, _alwaysShowFrustum);
         }
@@ -245,13 +245,13 @@ namespace TheraEngine.Components.Scene
         {
             base.OnDespawned();
 
-            Camera c = Camera;
+            ICamera c = Camera;
             if (c != null)
                 c.RenderInfo.UnlinkScene();
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            Camera c = Camera;
+            ICamera c = Camera;
             if (c != null)
                 c.RenderInfo.Visible = selected || AlwaysShowFrustum;
         }
@@ -269,7 +269,7 @@ namespace TheraEngine.Components.Scene
 
                 _alwaysShowFrustum = value;
 
-                Camera c = Camera;
+                ICamera c = Camera;
                 if (IsSpawned && c != null)
                 {
                     if (_alwaysShowFrustum)

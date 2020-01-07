@@ -10,7 +10,7 @@ namespace TheraEngine.Input
 {
     public class LocalPlayerController : PlayerController
     {
-        public static Dictionary<int, ConcurrentQueue<Camera>> CameraPossessionQueue = new Dictionary<int, ConcurrentQueue<Camera>>();
+        public static Dictionary<int, ConcurrentQueue<ICamera>> CameraPossessionQueue = new Dictionary<int, ConcurrentQueue<ICamera>>();
 
         public LocalPlayerController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null) : base()
         {
@@ -26,7 +26,7 @@ namespace TheraEngine.Input
 
             if (CameraPossessionQueue.ContainsKey(i))
             {
-                Camera camera;
+                ICamera camera;
                 while (!CameraPossessionQueue[i].TryDequeue(out camera)) ;
                 ViewportCamera = camera;
             }
@@ -43,7 +43,7 @@ namespace TheraEngine.Input
 
             if (CameraPossessionQueue.ContainsKey(i))
             {
-                Camera camera;
+                ICamera camera;
                 while (!CameraPossessionQueue[i].TryDequeue(out camera)) ;
                 ViewportCamera = camera;
             }

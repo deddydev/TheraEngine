@@ -11,7 +11,7 @@ namespace TheraEngine.Actors.Types
 
         [Browsable(false)]
         public CameraComponent CameraComponent { get; private set; }
-        public Camera Camera
+        public ICamera Camera
         {
             get => CameraComponent.CameraRef.File;
             set => CameraComponent.CameraRef.File = value;

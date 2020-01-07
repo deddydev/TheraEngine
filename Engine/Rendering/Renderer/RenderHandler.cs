@@ -17,21 +17,21 @@ namespace TheraEngine
         /// </summary>
         /// <param name="v">The current viewport that is to be rendered.</param>
         /// <returns>The scene to render.</returns>
-        protected abstract T GetScene(Viewport v);
+        //protected abstract T GetScene(Viewport v);
         /// <summary>
         /// Returns the camera to render the scene from for this frame.
         /// By default, returns the viewport's camera.
         /// </summary>
         /// <param name="v">The current viewport that is to be rendered.</param>
         /// <returns>The camera to render the scene from for this frame.</returns>
-        protected virtual ICamera GetCamera(Viewport v) => v.AttachedCamera;
+        //protected virtual ICamera GetCamera(Viewport v) => v.AttachedCamera;
         /// <summary>
         /// Returns the view frustum to cull the scene with.
         /// By defualt, returns the current camera's frustum.
         /// </summary>
         /// <param name="v">The current viewport that is to be rendered.</param>
         /// <returns>The frustum to cull the scene with.</returns>
-        protected virtual IVolume GetCullingVolume(Viewport v) => GetCamera(v)?.Frustum;
+        //protected virtual IVolume GetCullingVolume(Viewport v) => GetCamera(v)?.Frustum;
         /// <summary>
         /// Called before any viewports are rendered.
         /// </summary>
@@ -43,7 +43,7 @@ namespace TheraEngine
         protected virtual void GlobalPostRender() => OnPostRender();
         protected void OnPostRender() => PostRendered?.Invoke();
 
-        public override void CollectVisible()
+        public override void PreRenderUpdate()
         {
             foreach (Viewport v in Viewports.Values)
                 v.PreRenderUpdate();

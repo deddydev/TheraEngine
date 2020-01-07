@@ -20,7 +20,7 @@ namespace TheraEngine.Windows.Forms
             //WindowGameMode?.TargetRenderHandlers?.Add(this);
         }
 
-        public Func<Viewport, IVolume> GetCullingVolumeOverride { get; set; }
+        //public Func<Viewport, IVolume> GetCullingVolumeOverride { get; set; }
         public bool IsEditView { get; set; }
         public EditorGameMode WindowGameMode { get; set; } = new EditorGameMode();
 
@@ -39,7 +39,7 @@ namespace TheraEngine.Windows.Forms
 
         protected override void LinkEngineWorldChangeEvents() { } //World will not change
 
-        protected override IVolume GetCullingVolume(Viewport v)
-            => GetCullingVolumeOverride?.Invoke(v) ?? base.GetCullingVolume(v);
+        //protected override IVolume GetCullingVolume(Viewport v)
+        //    => GetCullingVolumeOverride?.Invoke(v) ?? base.GetCullingVolume(v);
     }
 }

@@ -2,6 +2,7 @@
 using TheraEditor.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Components.Scene;
 using TheraEngine.Input;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -32,13 +33,15 @@ namespace TheraEngine
         public override UIGameModeType GameMode { get; }
         public UIPawnType UI { get; }
 
+        public Actor<CameraComponent> CameraHost { get; }
+
         IUserInterfacePawn IUIRenderHandler.UI => UI;
         IWorld IUIRenderHandler.World => World;
         IUIGameMode IUIRenderHandler.GameMode => GameMode;
         public override UIPawnType EditorPawn => UI;
 
-        protected override IScene2D GetScene(Viewport v) => World?.Scene2D;
-        protected override ICamera GetCamera(Viewport v) => (UI?.RootComponent as IUICanvasComponent)?.ScreenSpaceCamera;
+        //protected override IScene2D GetScene(Viewport v) => World?.Scene2D;
+        //protected override ICamera GetCamera(Viewport v) => (UI?.RootComponent as IUICanvasComponent)?.ScreenSpaceCamera;
 
         public UIRenderHandler() : base(ELocalPlayerIndex.One)
         {
@@ -51,40 +54,42 @@ namespace TheraEngine
             UI = new UIPawnType();
 
             v.AttachedHUD = UI;
-            v.AttachedCamera = GetCamera(null);
+            v.AttachedCamera = (UI.RootComponent as IUICanvasComponent)?.ScreenSpaceCamera;
+
+            CameraHost = new Actor<CameraComponent>(new CameraComponent(v.AttachedCamera));
         }
         protected override void OnWorldManagerPreChanged()
         {
-            if (Visible)
+            if (Visible && World != null)
             {
-                if (World != null)
-                {
-                    World.DespawnActor(UI);
-                    World.EndPlay();
-                    World.CurrentGameMode = null;
-                }
+                World.DespawnActor(CameraHost);
+                World.DespawnActor(UI);
+                World.EndPlay();
+                World.CurrentGameMode = null;
             }
+            
             base.OnWorldManagerPreChanged();
         }
         protected override void OnWorldManagerPostChanged()
         {
-            if (Visible)
+            if (Visible && World != null)
             {
-                if (World != null)
-                {
-                    World.CurrentGameMode = GameMode;
-                    World.BeginPlay();
-                    World.SpawnActor(UI);
-                }
+                World.CurrentGameMode = GameMode;
+                World.BeginPlay();
+                World.SpawnActor(UI);
+                World.SpawnActor(CameraHost);
             }
+            
             base.OnWorldManagerPostChanged();
         }
         public bool Visible { get; private set; }
         public void FormShown()
         {
             Visible = true;
+
             if (World is null)
                 return;
+
             World.BeginPlay();
             World.SpawnActor(UI);
             //RegisterTick();
@@ -92,8 +97,10 @@ namespace TheraEngine
         public void FormClosed()
         {
             Visible = false;
+
             if (World is null)
                 return;
+
             World.EndPlay();
             World.DespawnActor(UI);
             //UnregisterTick();

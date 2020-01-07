@@ -17,6 +17,7 @@ using TheraEngine.Rendering.Text;
 using TheraEngine.Rendering.UI;
 using Extensions;
 using TheraEditor.Wrappers;
+using System.Collections.Concurrent;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -33,8 +34,8 @@ namespace TheraEditor.Windows.Forms
         protected UIMaterialRectangleComponent _backgroundComponent;
 
         protected UITextRasterComponent _originText;
-        private Dictionary<string, (UITextRasterComponent, UIString2D)> _textCacheX = new Dictionary<string, (UITextRasterComponent, UIString2D)>();
-        private Dictionary<string, (UITextRasterComponent, UIString2D)> _textCacheY = new Dictionary<string, (UITextRasterComponent, UIString2D)>();
+        private ConcurrentDictionary<string, (UITextRasterComponent, UIString2D)> _textCacheX = new ConcurrentDictionary<string, (UITextRasterComponent, UIString2D)>();
+        private ConcurrentDictionary<string, (UITextRasterComponent, UIString2D)> _textCacheY = new ConcurrentDictionary<string, (UITextRasterComponent, UIString2D)>();
         protected UITextRasterComponent _xUnitText, _yUnitText;
         protected UIString2D _xUnitString, _yUnitString;
 
@@ -330,7 +331,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void UpdateTextIncrements(
             float unitCount,
-            Dictionary<string, (UITextRasterComponent, UIString2D)> textCache,
+            ConcurrentDictionary<string, (UITextRasterComponent, UIString2D)> textCache,
             float minimum, 
             float increment,
             bool xCoord,
@@ -363,10 +364,8 @@ namespace TheraEditor.Windows.Forms
                     if (IsVisible(key))
                     {
                         //Visible, and in cache?
-                        if (textCache.ContainsKey(key))
+                        if (textCache.TryGetValue(key, out var cache))
                         {
-                            //Show it
-                            var cache = textCache[key];
                             comp = cache.Item1;
                             str = cache.Item2;
                         }
@@ -376,19 +375,23 @@ namespace TheraEditor.Windows.Forms
                             var unusedKey = textCache.FirstOrDefault(x => !IsVisible(x.Key)).Key;
                             if (unusedKey != null)
                             {
-                                var value = textCache[unusedKey];
-                                textCache.Remove(unusedKey);
-                                comp = value.Item1;
-                                str = value.Item2;
-                                str.Text = key;
-                                textCache.Add(key, value);
+                                if (textCache.TryRemove(unusedKey, out var value))
+                                {
+                                    comp = value.Item1;
+                                    str = value.Item2;
+
+                                    str.Text = key;
+                                    textCache.TryAdd(key, value);
+                                }
+                                else
+                                    continue;
                             }
                             else
                             {
                                 //Not in cache, none unused
                                 //Need more cached text components
                                 comp = ConstructText(new ColorF3(0.4f), key, "-0000.000", out str);
-                                textCache.Add(key, (comp, str));
+                                textCache.TryAdd(key, (comp, str));
                             }
                         }
 
@@ -418,7 +421,8 @@ namespace TheraEditor.Windows.Forms
                     else
                     {
                         //Not visible, but exists in cache? Hide it
-                        textCache[key].Item1.RenderInfo.Visible = false;
+                        if (textCache.TryGetValue(key, out var value))
+                            value.Item1.RenderInfo.Visible = false;
                         continue;
                     }
                 }
@@ -496,9 +500,9 @@ namespace TheraEditor.Windows.Forms
             if (should != _ticking)
             {
                 if (_ticking = should)
-                    Engine.RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, TickInput);
+                    Engine.RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, TickInput);
                 else
-                    Engine.UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, TickInput);
+                    Engine.UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, TickInput);
             }
         }
         protected virtual void TickInput(float delta)

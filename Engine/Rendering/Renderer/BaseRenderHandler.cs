@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering
         IReadOnlyDictionary<ELocalPlayerIndex, Viewport> Viewports { get; }
 
         void Render();
-        void CollectVisible();
+        void PreRenderUpdate();
         void SwapBuffers();
 
         void GotFocus();
@@ -62,7 +62,7 @@ namespace TheraEngine.Rendering
         public int Height { get; private set; }
 
         public abstract void Render();
-        public abstract void CollectVisible();
+        public abstract void PreRenderUpdate();
         public abstract void SwapBuffers();
 
         public virtual void GotFocus() { }

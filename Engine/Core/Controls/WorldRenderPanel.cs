@@ -37,7 +37,7 @@ namespace TheraEngine
         //    //next?.TargetRenderHandlers?.Add(this);
         //}
 
-        protected override IScene GetScene(Viewport v) => Engine.Scene;
+        //protected override IScene GetScene(Viewport v) => Engine.Scene;
         //protected override void GlobalPreRender()
         //{
         //    Engine.Scene?.GlobalRender();

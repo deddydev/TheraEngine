@@ -25,6 +25,6 @@ namespace TheraEngine
             }
         }
 
-        protected override IScene GetScene(Viewport v) => World.Scene;
+        //protected override IScene GetScene(Viewport v) => World.Scene;
     }
 }

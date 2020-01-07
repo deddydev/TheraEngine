@@ -326,7 +326,7 @@ namespace TheraEngine.Rendering
             //hud may sample scene colors, render it after scene
             AttachedHUD?.RenderInScreenSpace(this, HUDFBO);
         }
-        public void PreRenderSwap() => PreRenderUpdate(AttachedCamera, AttachedHUD);
+        public void PreRenderSwap() => PreRenderSwap(AttachedCamera, AttachedHUD);
         public void PreRenderSwap(ICamera camera, IUserInterfacePawn hud)
         {
             camera?.OwningComponent?.OwningScene?.PreRenderSwap();

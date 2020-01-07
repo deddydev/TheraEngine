@@ -12,7 +12,7 @@ namespace TheraEngine.Actors.Types.Pawns
         public FlyingCameraPawnBase() : base() { }
         public FlyingCameraPawnBase(ELocalPlayerIndex possessor) : base(false, possessor) { }
         
-        public Camera Camera
+        public ICamera Camera
         {
             get => CameraComp.Camera;
             set => CameraComp.Camera = value;

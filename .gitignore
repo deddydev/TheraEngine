@@ -1,5 +1,4 @@
-Engine/obj/
-Engine/bin/
+
 ipch/
 Libraries/fbx_d99936f11250/
 *.opendb
@@ -12,8 +11,9 @@ Libraries/fbx_d99936f11250/
 *.suo
 *.force
 .vs/
-Thera/obj/
+
 Releases/
+Thera/obj/
 Thera/bin/
 Build/Debug/
 Build/Release/
@@ -28,9 +28,15 @@ WindowsNativeInterop/bin/
 GameProjectTemplate/obj/
 GameProjectTemplate/bin/
 GameProjectTemplateInstaller/bin/
-
 GameProjectTemplateInstaller/obj/
-packages/
+Server/obj/
+Server/bin/
+Engine/obj/
+Engine/bin/
 CSharpAnalyzer/obj/
 CSharpAnalyzer/bin/
 Discord/obj/
+Discord/bin/
+AppDomainToolkit/AppDomainToolkit.UnitTests/
+
+packages/

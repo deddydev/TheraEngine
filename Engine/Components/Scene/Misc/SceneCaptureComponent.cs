@@ -95,20 +95,24 @@ namespace TheraEngine.Components.Scene
             _tempDepth.SetStorage(ERenderBufferStorage.DepthComponent32f, _colorRes, _colorRes);
 
             RenderFBO = new CubeFrameBuffer(null, 0.1f, 10000.0f, true);
-            RenderFBO.SetTransform(WorldPoint);
+            ChildComponents.Clear();
 
-            float aspect = _viewport.InternalResolution.Width / _viewport.InternalResolution.Height;
+            //RenderFBO.SetTransform(WorldPoint);
+
+            //float aspect = _viewport.InternalResolution.Width / _viewport.InternalResolution.Height;
             foreach (TypicalCamera cam in RenderFBO.Cameras)
             {
+                ChildComponents.Add(new CameraComponent(cam));
+
                 cam.PostProcessRef.File.ColorGrading.AutoExposure = false;
                 cam.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
             }
         }
-        protected override void OnWorldTransformChanged()
-        {
-            base.OnWorldTransformChanged();
-            RenderFBO?.SetTransform(WorldPoint);
-        }
+        //protected override void OnWorldTransformChanged()
+        //{
+        //    base.OnWorldTransformChanged();
+        //    //RenderFBO?.SetTransform(WorldPoint);
+        //}
         /// <summary>
         /// Renders the scene to the ResultTexture cubemap.
         /// </summary>
@@ -127,34 +131,28 @@ namespace TheraEngine.Components.Scene
             scene.Lights.SwapBuffers();
             scene.RenderShadowMaps();
 
+            int depthLayer;
+            IFrameBufferAttachement depthAttachment;
+
             for (int i = 0; i < 6; ++i)
             {
-                Camera camera = RenderFBO.Cameras[i];
-
-                _viewport.PreRender(scene, camera, camera.Frustum);
-
-                scene.PreRenderSwap();
-                _viewport.SwapBuffers();
-
                 if (CaptureDepthCubeMap)
                 {
-                    RenderFBO.SetRenderTargets(
-                        (_envTex, EFramebufferAttachment.ColorAttachment0, 0, i),
-                        (_envDepthTex, EFramebufferAttachment.DepthAttachment, 0, i));
+                    depthLayer = i;
+                    depthAttachment = _envDepthTex;
                 }
                 else
                 {
-                    RenderFBO.SetRenderTargets(
-                        (_envTex, EFramebufferAttachment.ColorAttachment0, 0, i),
-                        (_tempDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
+                    depthLayer = 0;
+                    depthAttachment = _tempDepth;
                 }
 
+                RenderFBO.SetRenderTargets(
+                    (_envTex, EFramebufferAttachment.ColorAttachment0, 0, i),
+                    (depthAttachment, EFramebufferAttachment.DepthAttachment, 0, depthLayer));
 
-                _viewport.HUD?.PreRender();
-
-                scene.PreRender(_viewport, camera);
-
-                _viewport.Render(scene, camera, RenderFBO);
+                _viewport.AttachedCamera = RenderFBO.Cameras[i];
+                _viewport.FullRender(RenderFBO);
             }
 
             BaseRenderTexture tex = _envTex.RenderTextureGeneric;

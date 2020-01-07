@@ -17,10 +17,10 @@ namespace TheraEngine
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ICamera Camera
         {
-            get => Viewports.Count == 0 ? null : Viewports[0].Camera;
+            get => Viewports.Count == 0 ? null : Viewports[0].AttachedCamera;
             set
             {
-                GetOrAddViewport(ELocalPlayerIndex.One).Camera = value;
+                GetOrAddViewport(ELocalPlayerIndex.One).AttachedCamera = value;
                 value.Resize(Width, Height);
             }
         }

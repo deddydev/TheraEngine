@@ -395,7 +395,7 @@ namespace TheraEngine.GameModes
         
         protected internal virtual void HandleLocalPlayerLeft(ControllerType item)
         {
-            item.Viewport.HUD = null;
+            item.Viewport.AttachedHUD = null;
             item.Viewport.RenderHandler.UnregisterController(item);
 
             TargetWorld.DespawnActor(item.ControlledPawn as BaseActor);

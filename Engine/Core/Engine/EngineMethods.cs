@@ -377,7 +377,7 @@ namespace TheraEngine
         public static void RegisterRenderTick(
             EventHandler<FrameEventArgs> render,
             EventHandler<FrameEventArgs> collectVisible,
-            Action swapBuffers)
+            EventHandler<FrameEventArgs> swapBuffers)
         {
             if (render != null)
                 Timer.RenderFrame += render;
@@ -394,7 +394,7 @@ namespace TheraEngine
         public static void UnregisterRenderTick(
             EventHandler<FrameEventArgs> render,
             EventHandler<FrameEventArgs> collectVisible,
-            Action swapBuffers)
+            EventHandler<FrameEventArgs> swapBuffers)
         {
             if (render != null)
                 Timer.RenderFrame -= render;
@@ -541,7 +541,7 @@ namespace TheraEngine
         {
             World?.CurrentGameMode?.FoundInput(device);
         }
-        public static void SwapRenderBuffers()
+        public static void SwapRenderBuffers(object sender, FrameEventArgs e)
         {
             THelpers.Swap(ref RebaseWorldsProcessing, ref RebaseWorldsQueue);
             RebaseWorldsProcessing.ForEach(x => x.Key.RebaseOrigin(x.Value));

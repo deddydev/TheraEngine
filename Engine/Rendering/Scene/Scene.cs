@@ -144,9 +144,8 @@ namespace TheraEngine.Rendering
         DelRender Render { get; }
 
         void CollectVisible(RenderPasses passes, IVolume collectionVolume, ICamera camera, bool shadowPass);
-        void PreRender(RenderPasses passes, IVolume collectionVolume, ICamera camera);
+        void PreRenderUpdate(RenderPasses passes, IVolume collectionVolume, ICamera camera);
 
-        void PreRenderUpdate(ICamera camera);
         void PreRenderSwap();
         void PreRender(Viewport viewport, ICamera camera);
 
@@ -195,53 +194,50 @@ namespace TheraEngine.Rendering
         /// <param name="passes"></param>
         /// <param name="collectionVolume"></param>
         /// <param name="camera"></param>
-        public void PreRender(RenderPasses passes, IVolume collectionVolume, ICamera camera)
+        public void PreRenderUpdate(RenderPasses passes, IVolume collectionVolume, ICamera camera)
         {
             CollectVisible(passes, collectionVolume, camera, false);
-            PreRenderUpdate(camera);
-        }
-        
-        public void PreRenderUpdate(ICamera camera)
-        {
+
             //TODO: prerender on own consistent animation thread
             //ParallelLoopResult result = await Task.Run(() => Parallel.ForEach(_preRenderList, p => { p.PreRenderUpdate(camera); }));
-            //foreach (IPreRendered p in _preRenderList)
-            //    if (p.PreRenderEnabled)
-            //        p.PreRenderUpdate(camera);
+            foreach (IPreRendered p in _preRenderList)
+                if (p.PreRenderEnabled)
+                    p.PreRenderUpdate(camera);
         }
+        
         public void PreRenderSwap()
         {
-            //foreach (IPreRendered p in _preRenderRemoveWaitList)
-            //    _preRenderList.Remove(p);
-            //foreach (IPreRendered p in _preRenderAddWaitList)
-            //    _preRenderList.Add(p);
+            foreach (IPreRendered p in _preRenderRemoveWaitList)
+                _preRenderList.Remove(p);
+            foreach (IPreRendered p in _preRenderAddWaitList)
+                _preRenderList.Add(p);
 
-            //_preRenderRemoveWaitList.Clear();
-            //_preRenderAddWaitList.Clear();
+            _preRenderRemoveWaitList.Clear();
+            _preRenderAddWaitList.Clear();
 
-            //foreach (IPreRendered p in _preRenderList)
-            //    if (p.PreRenderEnabled)
-            //        p.PreRenderSwap();
+            foreach (IPreRendered p in _preRenderList)
+                if (p.PreRenderEnabled)
+                    p.PreRenderSwap();
         }
         public void PreRender(Viewport viewport, ICamera camera)
         {
-            //foreach (IPreRendered p in _preRenderList)
-            //    if (p.PreRenderEnabled)
-            //        p.PreRender(viewport, camera);
+            foreach (IPreRendered p in _preRenderList)
+                if (p.PreRenderEnabled)
+                    p.PreRender(viewport, camera);
         }
         public void AddPreRenderedObject(IPreRendered obj)
         {
-            //if (obj is null)
-            //    return;
-            //if (!_preRenderList.Contains(obj))
-            //    _preRenderAddWaitList.Add(obj);
+            if (obj is null)
+                return;
+            if (!_preRenderList.Contains(obj))
+                _preRenderAddWaitList.Add(obj);
         }
         public void RemovePreRenderedObject(IPreRendered obj)
         {
-            //if (obj is null)
-            //    return;
-            //if (_preRenderList.Contains(obj))
-            //    _preRenderRemoveWaitList.Add(obj);
+            if (obj is null)
+                return;
+            if (_preRenderList.Contains(obj))
+                _preRenderRemoveWaitList.Add(obj);
         }
         
         public abstract void RegenerateTree();

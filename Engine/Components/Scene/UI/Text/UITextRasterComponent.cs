@@ -27,7 +27,7 @@ namespace TheraEngine.Rendering.UI
         private void Init()
         {
             _textDrawer = new TextRasterizer();
-            _textDrawer.NeedsRedraw += WantsRedraw;
+            _textDrawer.Invalidated += OnInvalidated;
 
             RenderCommand.RenderPass = ERenderPass.TransparentForward;
             RenderCommand.Mesh.Material.RenderParams = new RenderingParameters(true);
@@ -43,9 +43,9 @@ namespace TheraEngine.Rendering.UI
                 Resizable = true
             };
 
-        private void WantsRedraw(bool forceFullRedraw)
+        private void OnInvalidated(bool forceFullRedraw)
         {
-            NeedsRedraw = true;
+            Invalidated = true;
             ForceFullRedraw = forceFullRedraw;
         }
 
@@ -66,7 +66,7 @@ namespace TheraEngine.Rendering.UI
             {
                 _texRes = value;
 
-                NeedsRedraw = true;
+                Invalidated = true;
                 ForceFullRedraw = true;
                 InvalidateLayout();
             }
@@ -78,14 +78,14 @@ namespace TheraEngine.Rendering.UI
             {
                 _textQuality = value;
 
-                NeedsRedraw = true;
+                Invalidated = true;
                 ForceFullRedraw = true;
             }
         }
 
         public bool ForceFullRedraw { get; set; } = true;
         public IVec2? NeedsResize { get; set; } = null;
-        public bool NeedsRedraw { get; set; } = false;
+        public bool Invalidated { get; set; } = false;
 
         protected override void OnResizeLayout(BoundingRectangleF parentRegion)
         {
@@ -96,12 +96,12 @@ namespace TheraEngine.Rendering.UI
             if (w != TextTexture.Width || h != TextTexture.Height)
             {
                 NeedsResize = new IVec2(w, h);
-                NeedsRedraw = true;
+                Invalidated = true;
                 ForceFullRedraw = true;
             }
         }
         [Browsable(false)]
-        public bool PreRenderEnabled => NeedsResize != null || NeedsRedraw;
+        public bool PreRenderEnabled => NeedsResize != null || Invalidated;
 
         public void PreRenderUpdate(ICamera camera) { }
         public void PreRender(Viewport viewport, ICamera camera) { }
@@ -113,10 +113,10 @@ namespace TheraEngine.Rendering.UI
                 NeedsResize = null;
             }
 
-            if (NeedsRedraw)
+            if (Invalidated)
             {
                 TextDrawer.Draw(TextTexture, TextureResolutionMultiplier, TextQuality, ForceFullRedraw);
-                NeedsRedraw = false;
+                Invalidated = false;
             }
         }
     }

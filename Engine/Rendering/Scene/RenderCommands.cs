@@ -179,9 +179,8 @@ namespace TheraEngine.Rendering
         {
             //TODO: viewport renders all viewed items to the framebuffer,
             //But this method is called within the parent's rendering to its framebuffer.
-            var curr = FrameBuffer.CurrentlyBound;
-            Viewport.Render(Viewport.Camera?.OwningComponent?.OwningScene, Viewport.Camera, Framebuffer);
-            curr?.Bind(EFramebufferTarget.DrawFramebuffer);
+            Viewport.Render(Framebuffer);
+            FrameBuffer.CurrentlyBound?.Bind(EFramebufferTarget.DrawFramebuffer);
             base.Render(shadowPass);
         }
     }

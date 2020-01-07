@@ -47,8 +47,8 @@ namespace TheraEngine.Worlds
         int SpawnedActorCount { get; }
         WorldManager Manager { get; set; }
 
-        void GlobalCollectVisible();
-        void GlobalSwap();
+        void GlobalCollectVisible(float delta);
+        void GlobalSwap(float delta);
         void GlobalPreRender(float delta);
 
         void SpawnActor(IActor item);
@@ -451,20 +451,20 @@ namespace TheraEngine.Worlds
             passes.Add(_rc2D);
         }
 
-        void IWorld.GlobalCollectVisible()
+        void IWorld.GlobalCollectVisible(float delta)
         {
+            if (!Engine.IsPaused)
+                PhysicsWorld3D?.StepSimulation(delta);
+
             Scene?.GlobalCollectVisible();
         }
-        void IWorld.GlobalSwap()
+        void IWorld.GlobalSwap(float delta)
         {
             Scene?.GlobalSwap();
             PhysicsWorld3D?.Swap();
         }
         void IWorld.GlobalPreRender(float delta)
         {
-            if (!Engine.IsPaused)
-                PhysicsWorld3D?.StepSimulation(delta);
-
             Scene?.GlobalRender();
         }
     }

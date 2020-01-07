@@ -34,8 +34,8 @@ namespace TheraEngine.Rendering.Text
             Vec3 screenPrev = v.WorldToScreen(PrevWorldPosition);
             Vec3 screen = v.WorldToScreen(_worldPosition);
 
-            PrevWorldZ = TMath.DepthToDistance(screenPrev.Z, v.Camera.NearZ, v.Camera.FarZ);
-            WorldZ = TMath.DepthToDistance(screen.Z, v.Camera.NearZ, v.Camera.FarZ);
+            PrevWorldZ = TMath.DepthToDistance(screenPrev.Z, v.AttachedCamera.NearZ, v.AttachedCamera.FarZ);
+            WorldZ = TMath.DepthToDistance(screen.Z, v.AttachedCamera.NearZ, v.AttachedCamera.FarZ);
 
             _screenVelocity.X = screen.X - Position.X;
             _screenVelocity.Y = screen.Y - Position.Y;

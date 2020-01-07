@@ -80,11 +80,11 @@ namespace TheraEngine.Input
         [Category("Local Player Controller")]
         public ICamera ViewportCamera
         {
-            get => _viewport?.Camera;
+            get => _viewport?.AttachedCamera;
             set
             {
                 if (_viewport != null)
-                    _viewport.Camera = value;
+                    _viewport.AttachedCamera = value;
             }
         }
 
@@ -173,10 +173,10 @@ namespace TheraEngine.Input
                 return;
 
             if (setHUD)
-                _viewport.HUD = _controlledPawn?.HUD?.File;
+                _viewport.AttachedHUD = _controlledPawn?.HUD?.File;
 
             if (setCamera)
-                _viewport.Camera = _controlledPawn?.CurrentCameraComponent?.Camera;
+                _viewport.AttachedCamera = _controlledPawn?.CurrentCameraComponent?.Camera;
         }
         protected virtual void RegisterInput(InputInterface input)
         {

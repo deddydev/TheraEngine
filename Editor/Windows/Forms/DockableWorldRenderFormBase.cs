@@ -50,7 +50,7 @@ namespace TheraEditor.Windows.Forms
             };
 
             Viewport vp = GetOrAddViewport(PlayerIndex);
-            vp.Camera = EditorPawn.Camera;
+            vp.AttachedCamera = EditorPawn.Camera;
 
             PostWorldChanged();
             LinkEngineWorldChangeEvents();

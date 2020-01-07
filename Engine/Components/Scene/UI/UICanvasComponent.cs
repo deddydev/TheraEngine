@@ -100,7 +100,7 @@ namespace TheraEngine.Rendering.UI
         public void RenderInScreenSpace(Viewport viewport, QuadFrameBuffer fbo) 
             => ScreenSpaceUIScene?.Render(ScreenSpaceRenderPasses, ScreenSpaceCamera, viewport, fbo);
         public void UpdateInScreenSpace()
-            => ScreenSpaceUIScene?.PreRender(ScreenSpaceRenderPasses, null, ScreenSpaceCamera);
+            => ScreenSpaceUIScene?.PreRenderUpdate(ScreenSpaceRenderPasses, null, ScreenSpaceCamera);
         public void SwapInScreenSpace()
         {
             ScreenSpaceUIScene?.GlobalSwap();

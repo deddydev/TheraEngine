@@ -17,26 +17,28 @@ namespace TheraEngine.Timers
         public event EventHandler<FrameEventArgs> UpdateFrame;
         public event EventHandler<FrameEventArgs> PreRenderFrame;
         public event EventHandler<FrameEventArgs> RenderFrame;
-
-        public event Action SwapRenderBuffers;
+        public event EventHandler<FrameEventArgs> SwapRenderBuffers;
 
         private bool _isSingleThreaded = false;
         private float _targetUpdatePeriod, _targetRenderPeriod;
         private float _lastUpdateTimestamp; // timestamp of last UpdateFrame event
         private float _lastRenderTimestamp; // timestamp of last RenderFrame event
         private float _lastPreRenderTimestamp;
-        
+        private float _lastSwapBuffersTimestamp;
+
         private float _updateEpsilon = 0.0f; // quantization error for UpdateFrame events
         private bool _isRunningSlowly; // true, when UpdatePeriod cannot reach TargetUpdatePeriod
 
         private readonly FrameEventArgs _updateArgs = new FrameEventArgs();
         private readonly FrameEventArgs _renderArgs = new FrameEventArgs();
         private readonly FrameEventArgs _preRenderArgs = new FrameEventArgs();
+        private readonly FrameEventArgs _swapBuffersArgs = new FrameEventArgs();
         private readonly Stopwatch _watch = new Stopwatch();
 
         private ManualResetEventSlim _renderStarted;
         private ManualResetEventSlim _preRenderDone;
         private ManualResetEventSlim _renderDone;
+        private ManualResetEventSlim _updatingDone;
 
         public bool IsRunning { get; private set; } = false;
 
@@ -78,7 +80,7 @@ namespace TheraEngine.Timers
             _preRenderDone = new ManualResetEventSlim(false);
             _renderStarted = new ManualResetEventSlim(false);
             _renderDone = new ManualResetEventSlim(true);
-            //_preSimTickDone = new ManualResetEventSlim(false);
+            _updatingDone = new ManualResetEventSlim(false);
         }
 
         private Task UpdateTask = null;
@@ -137,12 +139,9 @@ namespace TheraEngine.Timers
                 SingleThreadLoop();
         }
 
-        //private ManualResetEventSlim _preSimTickDone;
-
         public void PreSimulationTick(float delta)
         {
             Engine.TickGroup(ETickGroup.PrePhysics, delta);
-            //_preSimTickDone.Set();
         }
         public void PostSimulationTick(float delta)
         {
@@ -169,14 +168,15 @@ namespace TheraEngine.Timers
         {
             DispatchUpdate();
             DispatchPreRender();
-            OnSwapBuffers();
+            DispatchSwapBuffers();
             DispatchRender();
         }
         private void MultiThreadPreRenderLoop()
         {
             DispatchPreRender();
             WaitRenderDone();
-            OnSwapBuffers();
+            DispatchSwapBuffers();
+            //_updatingDone.Wait();
             SetPreRenderDone();
             WaitRenderStarted();
         }
@@ -190,12 +190,9 @@ namespace TheraEngine.Timers
         private void MultiThreadRenderLoopSingle()
         {
             DispatchPreRender();
-            OnSwapBuffers();
+            DispatchSwapBuffers();
             while (!DispatchRender()) ;
         }
-
-        private void OnSwapBuffers()
-            => SwapRenderBuffers?.Invoke();
 
         private void SetRenderStarted()
         {
@@ -235,7 +232,7 @@ namespace TheraEngine.Timers
             _renderDone?.Set();
             _preRenderDone?.Set();
             _renderStarted?.Set();
-            //_preSimTickDone?.Set();
+            //_updatingDone?.Set();
 
             UpdateTask?.Wait();
             UpdateTask = null;
@@ -280,6 +277,12 @@ namespace TheraEngine.Timers
             float elapsed = (timestamp - _lastPreRenderTimestamp).Clamp(0.0f, 1.0f);
             RaisePreRenderFrame(elapsed, ref timestamp);
         }
+        private void DispatchSwapBuffers()
+        {
+            float timestamp = (float)_watch.Elapsed.TotalSeconds;
+            float elapsed = (timestamp - _lastSwapBuffersTimestamp).Clamp(0.0f, 1.0f);
+            RaiseSwapBuffers(elapsed, ref timestamp);
+        }
         private void DispatchUpdate()
         {
             //int runningSlowlyRetries = 4;
@@ -294,6 +297,8 @@ namespace TheraEngine.Timers
             {
                 //RaiseUpdateFrame(elapsed, ref timestamp);
 
+                //_renderDone.Wait();
+                //_updatingDone.Reset();
                 if (Engine.IsPaused)
                     Engine.TickGroup(ETickGroup.PrePhysics, elapsed);
 
@@ -301,6 +306,7 @@ namespace TheraEngine.Timers
 
                 if (Engine.IsPaused)
                     Engine.TickGroup(ETickGroup.PostPhysics, elapsed);
+                //_updatingDone.Set();
 
                 // Calculate difference (positive or negative) between
                 // actual elapsed time and target elapsed time. We must
@@ -358,12 +364,18 @@ namespace TheraEngine.Timers
         }
         void RaisePreRenderFrame(float elapsed, ref float timestamp)
         {
-            // Raise RenderFrame event
             _preRenderArgs.Time = elapsed * TimeDilation;
             OnPreRenderFrameInternal(_preRenderArgs);
             _lastPreRenderTimestamp = timestamp;
         }
+        void RaiseSwapBuffers(float elapsed, ref float timestamp)
+        {
+            _swapBuffersArgs.Time = elapsed * TimeDilation;
+            OnSwapBuffersInternal(_swapBuffersArgs);
+            _lastSwapBuffersTimestamp = timestamp;
+        }
 
+        private void OnSwapBuffersInternal(FrameEventArgs e) => SwapRenderBuffers?.Invoke(this, e);
         private void OnPreRenderFrameInternal(FrameEventArgs e) => PreRenderFrame?.Invoke(this, e);
         private void OnRenderFrameInternal(FrameEventArgs e) => RenderFrame?.Invoke(this, e);
         private void OnUpdateFrameInternal(FrameEventArgs e) => UpdateFrame?.Invoke(this, e);

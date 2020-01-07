@@ -55,9 +55,12 @@ namespace TheraEngine.Worlds
         public void UseEngineWorld() 
             => TargetWorld = null;
 
-        public void GlobalCollectVisible() => TargetWorld?.GlobalCollectVisible();
-        public void GlobalPreRender(float delta) => TargetWorld?.GlobalPreRender(delta);
-        public void GlobalSwap() => TargetWorld?.GlobalSwap();
+        public void GlobalCollectVisible(float delta)
+            => TargetWorld?.GlobalCollectVisible(delta);
+        public void GlobalPreRender(float delta)
+            => TargetWorld?.GlobalPreRender(delta);
+        public void GlobalSwap(float delta)
+            => TargetWorld?.GlobalSwap(delta);
 
         public void AddContext(RenderContext ctx) => _contextAddQueue.Enqueue(ctx);
         public void RemoveContext(RenderContext ctx) => _contextRemoveQueue.Enqueue(ctx);

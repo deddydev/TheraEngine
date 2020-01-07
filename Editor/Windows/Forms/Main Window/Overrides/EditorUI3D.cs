@@ -515,7 +515,7 @@ namespace TheraEditor.Windows.Forms
         protected virtual void HandleTransformTool(Viewport v, Vec2 viewportPoint)
         {
             Ray cursor = v.GetWorldRay(viewportPoint);
-            if (!TransformTool3D.Instance.MouseMove(cursor, v.Camera, MouseDown))
+            if (!TransformTool3D.Instance.MouseMove(cursor, v.AttachedCamera, MouseDown))
                 HighlightScene(v, viewportPoint);
             else if (!MouseDown)
                 HighlightedComponent = null;//TransformTool3D.Instance.RootComponent;
@@ -539,11 +539,11 @@ namespace TheraEditor.Windows.Forms
             if (comp is null)
             {
                 _hitNormal = Vec3.Up;
-                float depth = TMath.DistanceToDepth(DraggingTestDistance, v.Camera.NearZ, v.Camera.FarZ);
+                float depth = TMath.DistanceToDepth(DraggingTestDistance, v.AttachedCamera.NearZ, v.AttachedCamera.FarZ);
                 _hitPoint = v.ScreenToWorld(viewportPoint, depth);
             }
 
-            Vec3 rightCameraVector = v.Camera.RightVector;
+            Vec3 rightCameraVector = v.AttachedCamera.RightVector;
             Quat rotation = Quat.FromAxisAngleDeg(_hitNormal, _spawnRotation);
             rightCameraVector = rotation * rightCameraVector;
             Vec3
@@ -566,7 +566,7 @@ namespace TheraEditor.Windows.Forms
         }
         protected virtual void HighlightScene(Viewport viewport, Vec2 viewportPoint)
         {
-            ICamera c = viewport.Camera;
+            ICamera c = viewport.AttachedCamera;
             if (c.IsNull())
                 return;
 
@@ -767,7 +767,7 @@ namespace TheraEditor.Windows.Forms
                             if (DragComponent != null)
                             {
                                 _prevDragMatrix = DragComponent.WorldMatrix;
-                                ICamera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
+                                ICamera c = OwningPawn?.LocalPlayerController?.Viewport?.AttachedCamera;
                                 DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(DragComponent.WorldPoint) : DraggingTestDistance;
                             }
                         }

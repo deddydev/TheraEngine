@@ -198,7 +198,7 @@ namespace TheraEngine.Rendering
                 value?.Dispose();
             }
         }
-        public void PreRender() => Handler.PreRender();
+        public void CollectVisible() => Handler.CollectVisible();
         public void SwapBuffers() => Handler.SwapBuffers();
         public void Render()
         {

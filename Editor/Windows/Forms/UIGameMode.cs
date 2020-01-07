@@ -32,7 +32,7 @@ namespace TheraEditor.Windows.Forms
             RenderHandler.RegisterController(item);
 
             item.EnqueuePosession(RenderHandler.UI);
-            item.Viewport.HUD = RenderHandler.UI;
+            item.Viewport.AttachedHUD = RenderHandler.UI;
             item.ViewportCamera = ((IUICanvasComponent)RenderHandler.UI.RootComponent).ScreenSpaceCamera;
         }
         protected override void HandleLocalPlayerLeft(ControllerType item)

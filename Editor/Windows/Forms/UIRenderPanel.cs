@@ -50,8 +50,8 @@ namespace TheraEngine
 
             UI = new UIPawnType();
 
-            v.HUD = UI;
-            v.Camera = GetCamera(null);
+            v.AttachedHUD = UI;
+            v.AttachedCamera = GetCamera(null);
         }
         protected override void OnWorldManagerPreChanged()
         {

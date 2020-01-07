@@ -143,12 +143,12 @@ namespace TheraEngine.Actors.Types.Pawns
 
         protected override void OnSpawnedPostComponentSpawn()
         {
-            RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, Tick);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
             base.OnSpawnedPostComponentSpawn();
         }
         protected override void OnDespawned()
         {
-            UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, Tick);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
             base.OnDespawned();
         }
 

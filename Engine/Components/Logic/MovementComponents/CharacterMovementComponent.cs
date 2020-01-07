@@ -131,13 +131,13 @@ namespace TheraEngine.Components.Logic.Movement
             }
             CurrentWalkingSurface = null;
             _subUpdateTick = TickFalling;
-            RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, MainUpdateTick);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, MainUpdateTick);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             _subUpdateTick = null;
-            UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Input, MainUpdateTick);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, MainUpdateTick);
             base.OnDespawned();
         }
         private void FloorTransformChanged(ISceneComponent floor)

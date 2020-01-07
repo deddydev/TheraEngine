@@ -24,7 +24,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="v">The current viewport that is to be rendered.</param>
         /// <returns>The camera to render the scene from for this frame.</returns>
-        protected virtual ICamera GetCamera(Viewport v) => v.Camera;
+        protected virtual ICamera GetCamera(Viewport v) => v.AttachedCamera;
         /// <summary>
         /// Returns the view frustum to cull the scene with.
         /// By defualt, returns the current camera's frustum.
@@ -43,35 +43,22 @@ namespace TheraEngine
         protected virtual void GlobalPostRender() => OnPostRender();
         protected void OnPostRender() => PostRendered?.Invoke();
 
-        public override void PreRender()
+        public override void CollectVisible()
         {
             foreach (Viewport v in Viewports.Values)
-                v.PreRender(GetScene(v), GetCamera(v), GetCullingVolume(v));
+                v.PreRenderUpdate();
         }
         public override void SwapBuffers()
         {
             foreach (Viewport v in Viewports.Values)
-            {
-                GetScene(v)?.PreRenderSwap();
-                v.SwapBuffers();
-            }
+                v.PreRenderSwap();
         }
         public override void Render()
         {
             GlobalPreRender();
             foreach (Viewport viewport in Viewports.Values)
-                RenderViewport(viewport);
+                viewport.Render();
             GlobalPostRender();
-        }
-
-        private void RenderViewport(Viewport viewport)
-        {
-            ICamera camera = GetCamera(viewport);
-            IScene scene = GetScene(viewport);
-
-            viewport.HUD?.PreRender();
-            scene?.PreRender(viewport, camera);
-            viewport.Render(scene, camera, null);
         }
     }
 }

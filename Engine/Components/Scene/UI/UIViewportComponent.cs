@@ -52,8 +52,8 @@ namespace TheraEngine.Rendering.UI
         [Browsable(false)]
         public virtual ICamera ViewportCamera
         {
-            get => Viewport.Camera;
-            set => Viewport.Camera = value;
+            get => Viewport.AttachedCamera;
+            set => Viewport.AttachedCamera = value;
         }
         [Category("Rendering")]
         public Viewport Viewport { get; private set; } = new Viewport(1, 1);
@@ -72,53 +72,29 @@ namespace TheraEngine.Rendering.UI
 
         public void PreRenderUpdate(ICamera camera)
         {
-            if (_updating)
+            if (!IsVisible || _updating)
                 return;
 
-            ICamera c = ViewportCamera;
-            if (!IsVisible || c is null)
-                return;
-            
             _updating = true;
-
-            IScene scene = c.OwningComponent?.OwningScene;
-            scene?.PreRenderUpdate(c);
-            Viewport.PreRender(scene, c, c.Frustum);
-
+            Viewport.PreRenderUpdate();
             _updating = false;
         }
         public void PreRenderSwap()
         {
-            if (_swapping)
-                return;
-
-            ICamera c = ViewportCamera;
-            if (!IsVisible || c is null)
+            if (!IsVisible || _swapping)
                 return;
 
             _swapping = true;
-
-            IScene scene = ViewportCamera?.OwningComponent?.OwningScene;
-            scene?.PreRenderSwap();
-            Viewport.SwapBuffers();
-
+            Viewport.PreRenderSwap();
             _swapping = false;
         }
         public void PreRender(Viewport viewport, ICamera camera)
         {
-            if (_rendering)
+            if (!IsVisible || _rendering)
                 return;
 
-            ICamera c = ViewportCamera;
-            if (!IsVisible || c is null)
-                return;
-            
             _rendering = true;
-
-            IScene scene = c.OwningComponent?.OwningScene;
-            scene?.PreRender(Viewport, c);
-            Viewport.Render(scene, c, _fbo);
-
+            Viewport.Render(_fbo);
             _rendering = false;
         }
     }

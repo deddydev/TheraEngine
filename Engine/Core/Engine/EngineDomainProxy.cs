@@ -226,9 +226,9 @@ namespace TheraEngine.Core
 
                 try
                 {
-                    m.GlobalCollectVisible();
+                    m.GlobalCollectVisible(e.Time);
                     foreach (var ctx in m.AssociatedContexts)
-                        ctx.PreRender();
+                        ctx.CollectVisible();
                 }
                 catch { }
             }
@@ -236,7 +236,7 @@ namespace TheraEngine.Core
 
         public IFileObject LoadRef(IFileRef fref) => fref.GetInstance();
 
-        private void SwapBuffersTick()
+        private void SwapBuffersTick(object sender, FrameEventArgs e)
         {
             foreach (WorldManager m in WorldManagers)
             {
@@ -248,7 +248,7 @@ namespace TheraEngine.Core
                 if (m.AssociatedContexts.Count == 0)
                     continue;
 
-                m.GlobalSwap();
+                m.GlobalSwap(e.Time);
 
                 try
                 {

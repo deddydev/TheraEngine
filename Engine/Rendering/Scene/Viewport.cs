@@ -70,8 +70,10 @@ namespace TheraEngine.Rendering
         public float _bottomPercentage = 0.0f;
         public float _topPercentage = 1.0f;
 
+        public IScene AttachedScene => AttachedCamera?.OwningComponent?.OwningScene;
+
         public IUserInterfacePawn _hud;
-        public IUserInterfacePawn HUD
+        public IUserInterfacePawn AttachedHUD
         {
             get => _hud;
             set
@@ -83,7 +85,7 @@ namespace TheraEngine.Rendering
             }
         }
         public ICamera _camera;
-        public ICamera Camera
+        public ICamera AttachedCamera
         {
             get => _camera;
             set
@@ -250,8 +252,8 @@ namespace TheraEngine.Rendering
                 internalResolutionWidth <= 0 ? _region.Width : internalResolutionWidth,
                 internalResolutionHeight <= 0 ? _region.Height : internalResolutionHeight);
 
-            HUD?.Resize(_region.Extents);
-            if (Camera is PerspectiveCamera p)
+            AttachedHUD?.Resize(_region.Extents);
+            if (AttachedCamera is PerspectiveCamera p)
                 p.Aspect = (float)_region.Width / _region.Height;
         }
 
@@ -281,31 +283,37 @@ namespace TheraEngine.Rendering
             if (Owners.Count == 0)
                 RenderHandler.Viewports.TryRemove(PlayerIndex, out _);
         }
-        
-        /// <summary>
-        /// Renders the viewport using the given scene, camera, frustum, and optional render target FBO.
-        /// </summary>
-        /// <param name="scene"></param>
-        /// <param name="camera"></param>
-        /// <param name="frustum"></param>
-        /// <param name="target"></param>
-        public void Render(IScene scene, ICamera camera, FrameBuffer target)
+
+        public void FullRender(FrameBuffer target) => FullRender(AttachedCamera, AttachedHUD, target);
+        public void FullRender(ICamera camera, IUserInterfacePawn hud, FrameBuffer target)
         {
-            if (scene is null || camera is null || RegeneratingFBOs || Engine.CurrentlyRenderingViewport == this)
+            PreRenderUpdate(camera, hud);
+            PreRenderSwap(camera, hud);
+            Render(camera, hud, target);
+        }
+
+        public void Render() => Render(null);
+        public void Render(FrameBuffer target) => Render(AttachedCamera, AttachedHUD, target);
+        public void Render(ICamera camera, IUserInterfacePawn hud, FrameBuffer target)
+        {
+            var scene = camera?.OwningComponent?.OwningScene;
+
+            if (scene is null || RegeneratingFBOs || Engine.CurrentlyRenderingViewport == this)
                 return;
 
+            scene?.PreRender(this, camera);
+            hud?.PreRender();
+
             Engine.PushRenderingViewport(this);
-            OnRender(scene, camera, target);
+            OnRender(scene, camera, hud, target);
             Engine.PopRenderingViewport();
         }
         private bool _captured = false;
         private readonly RenderPasses _renderPasses = new RenderPasses();
-        protected virtual void OnRender(IScene scene, ICamera camera, FrameBuffer target)
+        protected virtual void OnRender(IScene scene, ICamera camera, IUserInterfacePawn hud, FrameBuffer target)
         {
             if (!FBOsInitialized)
                 InitializeFBOs();
-
-            HUD?.RenderInScreenSpace(this, HUDFBO);
 
             scene.Render(_renderPasses, camera, this, target);
 
@@ -314,16 +322,23 @@ namespace TheraEngine.Rendering
                 s3d.IBLProbeActor?.InitAndCaptureAll(512);
                 _captured = true;
             }
+
+            //hud may sample scene colors, render it after scene
+            AttachedHUD?.RenderInScreenSpace(this, HUDFBO);
         }
-        internal protected virtual void SwapBuffers()
+        public void PreRenderSwap() => PreRenderUpdate(AttachedCamera, AttachedHUD);
+        public void PreRenderSwap(ICamera camera, IUserInterfacePawn hud)
         {
+            camera?.OwningComponent?.OwningScene?.PreRenderSwap();
+            hud?.SwapInScreenSpace();
+
             _renderPasses.SwapBuffers();
-            HUD?.SwapInScreenSpace();
         }
-        public void PreRender(IScene scene, ICamera camera, IVolume cullingVolume)
+        public void PreRenderUpdate() => PreRenderUpdate(AttachedCamera, AttachedHUD);
+        public void PreRenderUpdate(ICamera camera, IUserInterfacePawn hud)
         {
-            HUD?.UpdateLayout();
-            scene?.PreRender(_renderPasses, cullingVolume, camera);
+            camera?.OwningComponent?.OwningScene?.PreRenderUpdate(_renderPasses, camera.Frustum, camera);
+            hud?.UpdateLayout();
         }
 
         /// <summary>
@@ -463,7 +478,7 @@ namespace TheraEngine.Rendering
         {
             if (testHud)
             {
-                IUIComponent hudComp = HUD?.FindDeepestComponent(viewportPoint);
+                IUIComponent hudComp = AttachedHUD?.FindDeepestComponent(viewportPoint);
                 bool hasHit = hudComp?.IsVisible ?? false;
                 bool hitValidated = !interactableHudOnly || hudComp is UIInteractableComponent;
                 if (hasHit && hitValidated)

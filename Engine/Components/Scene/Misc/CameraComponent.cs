@@ -21,8 +21,8 @@ namespace TheraEngine.Components.Scene
         public CameraComponent(Camera camera)
         {
             _cameraRef = new GlobalFileRef<Camera>(camera);
-            _cameraRef.Loaded += (CameraLoaded);
-            _cameraRef.Unloaded += (CameraUnloaded);
+            _cameraRef.Loaded += CameraLoaded;
+            _cameraRef.Unloaded += CameraUnloaded;
         }
         #endregion
         

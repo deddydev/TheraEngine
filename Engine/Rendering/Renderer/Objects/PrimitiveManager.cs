@@ -500,7 +500,8 @@ namespace TheraEngine.Rendering.Models
         internal TMaterial GetRenderMaterial(TMaterial localOverrideMat)
             => Engine.Renderer.MeshMaterialOverride ?? localOverrideMat ?? Material;
 
-        public void Render() => Render(1);
+        public void Render()
+            => Render(1);
         public void Render(int instances) 
             => Render(Matrix4.Identity, Matrix3.Identity, instances);
         public void Render(Matrix4 modelMatrix, int instances = 1) 
@@ -531,18 +532,18 @@ namespace TheraEngine.Rendering.Models
                 _remake = false;
             }
 
+            TMaterial mat = GetRenderMaterial(materialOverride);
+            if (mat is null)
+                return;
+
             if (!IsActive)
                 Generate();
-            
+
             if (_singleBind != null)
             {
                 modelMatrix = modelMatrix * _singleBind.VertexMatrix;
                 normalMatrix = normalMatrix * _singleBind.VertexMatrix.Inverted().Transposed().GetRotationMatrix3();
             }
-
-            TMaterial mat = GetRenderMaterial(materialOverride);
-            if (mat is null)
-                return;
 
             RenderProgram vtxProg, matProg;
             if (Engine.Settings.AllowShaderPipelines)

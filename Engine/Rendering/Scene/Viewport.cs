@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -55,6 +56,7 @@ namespace TheraEngine.Rendering
         public Stack<ICamera> RenderingCameras { get; } = new Stack<ICamera>();
 
         public TexRef2D _brdfTex = null;
+        [Browsable(false)]
         public TexRef2D BrdfTex
         {
             get

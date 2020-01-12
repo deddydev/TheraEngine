@@ -901,8 +901,9 @@ void main()
             Vec2 wh = _backgroundComponent.ActualSize.Raw;
 
             //TODO: if a keyframe is dragged past another, its index changes but these indices are not updated
-            if (ClosestPositionIndices != null)
-                foreach (int index in ClosestPositionIndices)
+            int[] close = ClosestPositionIndices;
+            if (close != null)
+                foreach (int index in close)
                     if (KeyframeInOutPosInOutTan?.IndexInRange(index) ?? false)
                         Engine.Renderer.RenderPoint(Vec3.TransformPosition(KeyframeInOutPosInOutTan[index], OriginTransformComponent.WorldMatrix), Color.Yellow, false, 10.0f);
 

@@ -97,7 +97,7 @@ namespace TheraEngine.Rendering.DirectX
             if (_currentPrimitiveManager is null)
                 return;
 
-            EPrimitiveType type = _currentPrimitiveManager.Data._type;
+            EPrimitiveType type = _currentPrimitiveManager.Data.Type;
             int count = _currentPrimitiveManager.IndexBuffer.ElementCount;
             EDrawElementType elemType = _currentPrimitiveManager.ElementType;
 

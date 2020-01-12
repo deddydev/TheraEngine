@@ -19,6 +19,7 @@ namespace TheraEngine.Timers
         public event EventHandler<FrameEventArgs> RenderFrame;
         public event EventHandler<FrameEventArgs> SwapRenderBuffers;
 
+        private bool _sequentialCollectVisible = false;
         private bool _isSingleThreaded = false;
         private float _targetUpdatePeriod, _targetRenderPeriod;
         private float _lastUpdateTimestamp; // timestamp of last UpdateFrame event
@@ -26,7 +27,7 @@ namespace TheraEngine.Timers
         private float _lastPreRenderTimestamp;
         private float _lastSwapBuffersTimestamp;
 
-        private float _updateEpsilon = 0.0f; // quantization error for UpdateFrame events
+        private float _updateTimeDiff = 0.0f; // quantization error for UpdateFrame events
         private bool _isRunningSlowly; // true, when UpdatePeriod cannot reach TargetUpdatePeriod
 
         private readonly FrameEventArgs _updateArgs = new FrameEventArgs();
@@ -285,53 +286,45 @@ namespace TheraEngine.Timers
         }
         private void DispatchUpdate()
         {
-            //int runningSlowlyRetries = 4;
+            int runningSlowlyRetries = 4;
 
             float timestamp = (float)_watch.Elapsed.TotalSeconds;
             float elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0f, 1.0f);
 
-            if (elapsed > 0 && elapsed >= TargetUpdatePeriod)
+            //if (elapsed > 0 && elapsed >= TargetUpdatePeriod)
             //    RaiseUpdateFrame(elapsed, ref timestamp);
 
-            //while (IsRunning && elapsed > 0 && elapsed + _updateEpsilon >= TargetUpdatePeriod)
+            while (IsRunning && elapsed > 0 && elapsed + _updateTimeDiff >= TargetUpdatePeriod)
             {
-                //RaiseUpdateFrame(elapsed, ref timestamp);
-
                 //_renderDone.Wait();
                 //_updatingDone.Reset();
-                if (Engine.IsPaused)
-                    Engine.TickGroup(ETickGroup.PrePhysics, elapsed);
-
-                Engine.TickGroup(ETickGroup.DuringPhysics, elapsed);
-
-                if (Engine.IsPaused)
-                    Engine.TickGroup(ETickGroup.PostPhysics, elapsed);
+                RaiseUpdateFrame(elapsed, ref timestamp);
                 //_updatingDone.Set();
 
                 // Calculate difference (positive or negative) between
                 // actual elapsed time and target elapsed time. We must
                 // compensate for this difference.
-                //_updateEpsilon += elapsed - TargetUpdatePeriod;
+                _updateTimeDiff += elapsed - TargetUpdatePeriod;
 
-                //// Prepare for next loop
-                //elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0f, 1.0f);
+                // Prepare for next loop
+                elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0f, 1.0f);
 
-                //if (TargetUpdatePeriod <= float.Epsilon)
-                //{
-                //    // According to the TargetUpdatePeriod documentation,
-                //    // a TargetUpdatePeriod of zero means we will raise
-                //    // UpdateFrame events as fast as possible (one event
-                //    // per ProcessEvents() call)
-                //    break;
-                //}
+                if (TargetUpdatePeriod <= float.Epsilon)
+                {
+                    // According to the TargetUpdatePeriod documentation,
+                    // a TargetUpdatePeriod of zero means we will raise
+                    // UpdateFrame events as fast as possible (one event
+                    // per ProcessEvents() call)
+                    break;
+                }
 
-                //_isRunningSlowly = _updateEpsilon >= TargetUpdatePeriod;
-                //if (_isRunningSlowly && --runningSlowlyRetries == 0)
-                //{
-                //    // If UpdateFrame consistently takes longer than TargetUpdateFrame
-                //    // stop raising events to avoid hanging inside the UpdateFrame loop.
-                //    break;
-                //}
+                _isRunningSlowly = _updateTimeDiff >= TargetUpdatePeriod;
+                if (_isRunningSlowly && --runningSlowlyRetries == 0)
+                {
+                    // If UpdateFrame consistently takes longer than TargetUpdateFrame
+                    // stop raising events to avoid hanging inside the UpdateFrame loop.
+                    break;
+                }
             }
         }
         private void RaiseUpdateFrame(float elapsed, ref float timestamp)
@@ -378,7 +371,18 @@ namespace TheraEngine.Timers
         private void OnSwapBuffersInternal(FrameEventArgs e) => SwapRenderBuffers?.Invoke(this, e);
         private void OnPreRenderFrameInternal(FrameEventArgs e) => PreRenderFrame?.Invoke(this, e);
         private void OnRenderFrameInternal(FrameEventArgs e) => RenderFrame?.Invoke(this, e);
-        private void OnUpdateFrameInternal(FrameEventArgs e) => UpdateFrame?.Invoke(this, e);
+        private void OnUpdateFrameInternal(FrameEventArgs e)
+        {
+            //UpdateFrame?.Invoke(this, e);
+
+            if (Engine.IsPaused)
+                Engine.TickGroup(ETickGroup.PrePhysics, e.Time);
+
+            Engine.TickGroup(ETickGroup.DuringPhysics, e.Time);
+
+            if (Engine.IsPaused)
+                Engine.TickGroup(ETickGroup.PostPhysics, e.Time);
+        }
         
         /// <summary>
         /// Gets a float representing the actual frequency of RenderFrame events, in hertz (i.e. fps or frames per second).

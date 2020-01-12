@@ -121,7 +121,6 @@ namespace TheraEngine.Rendering.Models
             _bufferInfo.HasTangents = true;
             OnBufferInfoChanged();
         }
-        protected void OnBufferInfoChanged() => BufferInfoChanged?.Invoke();
         private void SetInfluences(params InfluenceDef[] influences)
         {
             Remapper remap = new Remapper();

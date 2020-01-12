@@ -151,8 +151,6 @@ namespace TheraEngine.Rendering.UI
             _scale.SetRawNoUpdate(new Vec3(newScale, _scale.Z));
 
             InvalidateLayout();
-
-            RecalcLocalTransform();
         }
     }
 }

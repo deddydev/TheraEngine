@@ -1087,7 +1087,7 @@ namespace TheraEngine.Rendering.OpenGL
             if (_currentPrimitiveManager is null)
                 return;
             
-            PrimitiveType type = (PrimitiveType)(int)_currentPrimitiveManager.Data._type;
+            PrimitiveType type = (PrimitiveType)(int)_currentPrimitiveManager.Data.Type;
             int count = _currentPrimitiveManager.IndexBuffer.ElementCount;
             DrawElementsType elemType = DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager.ElementType;
             //Engine.PrintLine("{0} {1} {2}", type.ToString(), count, elemType.ToString());

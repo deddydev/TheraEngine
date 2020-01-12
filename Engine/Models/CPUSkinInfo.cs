@@ -71,8 +71,8 @@ namespace TheraEngine.Rendering.Models
             (_binormals = data[EBufferType.Binormal])?.GetData(out _baseBinormals, false);
             (_tangents = data[EBufferType.Tangent])?.GetData(out _baseTangents, false);
 
-            _influenceIndices = data._facePoints.Select(x => x.InfluenceIndex).ToArray();
-            _influences = data._influences.Select(x => LiveInfluence.FromInfluence(x, skeleton)).ToArray();
+            _influenceIndices = data.FacePoints.Select(x => x.InfluenceIndex).ToArray();
+            _influences = data.Influences.Select(x => LiveInfluence.FromInfluence(x, skeleton)).ToArray();
             _data = data;
         }
         public unsafe void UpdatePNBT(IEnumerable<int> modifiedVertexIndices)

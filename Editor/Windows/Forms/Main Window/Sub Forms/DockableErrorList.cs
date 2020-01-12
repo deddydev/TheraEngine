@@ -199,13 +199,13 @@ namespace TheraEditor.Windows.Forms
         {
             if (!File.Exists(filePath))
             {
-                Engine.PrintLine("Unable to open " + filePath);
+                Engine.Out("Unable to open " + filePath);
                 return;
             }
             TextFile text = await TFileObject.LoadAsync<TextFile>(filePath);
             if (text is null)
             {
-                Engine.PrintLine("Unable to open " + filePath);
+                Engine.Out("Unable to open " + filePath);
                 return;
             }
 

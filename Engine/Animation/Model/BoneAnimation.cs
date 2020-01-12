@@ -93,7 +93,7 @@ namespace TheraEngine.Animation
             else if (!_boneNotFoundCache.Contains(Name))
             {
                 _boneNotFoundCache.Add(Name);
-                Engine.PrintLine($"Bone '{Name}' not found in skeleton '{skeleton.ToString()}'.");
+                Engine.Out($"Bone '{Name}' not found in skeleton '{skeleton.ToString()}'.");
             }
         }
         public void UpdateState(ITransform frameState, ITransform bindState)

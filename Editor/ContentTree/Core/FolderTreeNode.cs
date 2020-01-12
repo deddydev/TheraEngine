@@ -111,13 +111,13 @@ namespace TheraEditor.Wrappers
             }
             catch (DirectoryNotFoundException)
             {
-                Engine.PrintLine($"Unable to find directory {FilePath}; removing from content tree.");
+                Engine.Out($"Unable to find directory {FilePath}; removing from content tree.");
                 Remove();
             }
             catch (OperationCanceledException) { }
             catch (UnauthorizedAccessException)
             {
-                Engine.PrintLine($"Can't delete {FilePath}. Unable to access.");
+                Engine.Out($"Can't delete {FilePath}. Unable to access.");
             }
             finally
             {

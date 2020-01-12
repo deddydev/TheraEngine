@@ -597,7 +597,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 catch (Exception ex)
                 {
-                    Engine.PrintLine($"Problem constructing {t.GetFriendlyName()}.\n{ex.ToString()}");
+                    Engine.Out($"Problem constructing {t.GetFriendlyName()}.\n{ex.ToString()}");
                     obj = FormatterServices.GetUninitializedObject(t);
                 }
             }
@@ -799,7 +799,7 @@ namespace TheraEngine.Core.Files.Serialization
                         }
 
                         if (types.Count > 1)
-                            Engine.PrintLine($"Multiple possible file types found for 3rd party extension '{ext}': {types.ToStringList(", ")}. Assuming the first.");
+                            Engine.Out($"Multiple possible file types found for 3rd party extension '{ext}': {types.ToStringList(", ")}. Assuming the first.");
                         
                         fileType = types.Count > 0 ? types[0] : null;
 
@@ -828,7 +828,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             catch (Exception e)
             {
-                Engine.PrintLine(e.ToString());
+                Engine.Out(e.ToString());
             }
             //if (fileType is null)
             //    Engine.LogWarning("Cannot determine the type of file at " + filePath + ".");

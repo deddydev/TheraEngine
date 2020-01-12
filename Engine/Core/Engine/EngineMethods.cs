@@ -280,12 +280,12 @@ namespace TheraEngine
         {
             if (!OpenVR.IsRuntimeInstalled())
             {
-                PrintLine("VR runtime not installed.");
+                Out("VR runtime not installed.");
                 return EVRInitError.Init_InstallationNotFound;
             }
             if (!OpenVR.IsHmdPresent())
             {
-                PrintLine("VR headset not found.");
+                Out("VR headset not found.");
                 return EVRInitError.Init_HmdNotFound;
             }
 
@@ -296,7 +296,7 @@ namespace TheraEngine
                 if (OpenVR.Init(ref peError, EVRApplicationType.VRApplication_Scene) is null)
                     LogWarning(peError.ToString());
                 else
-                    PrintLine("VR system initialized successfully.");
+                    Out("VR system initialized successfully.");
             }
             catch (Exception ex)
             {
@@ -466,7 +466,7 @@ namespace TheraEngine
         {
             foreach (var kv in Sequences)
             {
-                PrintLine($"Sequence {kv.Key}: {kv.Value.ToStringList(",")}");
+                Out($"Sequence {kv.Key}: {kv.Value.ToStringList(",")}");
             }
         }
         private static void ClearMarkers()
@@ -587,7 +587,7 @@ namespace TheraEngine
             IsPaused = wantsPause;
             Instance.OnPauseChanged(IsPaused, toggler);
 
-            PrintLine($"Engine {(IsPaused ? "paused" : "unpaused")}.");
+            Out($"Engine {(IsPaused ? "paused" : "unpaused")}.");
         }
         public static void Pause(ELocalPlayerIndex toggler, bool force = false)
             => SetPaused(true, toggler, force);
@@ -613,22 +613,22 @@ namespace TheraEngine
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
-        public static void PrintLine(string message, params object[] args)
-            => PrintLine(EOutputVerbosity.Normal, message, args);
+        public static void Out(string message, params object[] args)
+            => Out(EOutputVerbosity.Normal, message, args);
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
-        public static void PrintLine(EOutputVerbosity verbosity, string message, params object[] args)
-            => PrintLine(verbosity, true, message, args);
+        public static void Out(EOutputVerbosity verbosity, string message, params object[] args)
+            => Out(verbosity, true, message, args);
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
-        public static void PrintLine(EOutputVerbosity verbosity, bool debugOnly, string message, params object[] args)
-            => PrintLine(verbosity, debugOnly, false, false, false, 0, 0, message, args);
+        public static void Out(EOutputVerbosity verbosity, bool debugOnly, string message, params object[] args)
+            => Out(verbosity, debugOnly, false, false, false, 0, 0, message, args);
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
-        public static void PrintLine(
+        public static void Out(
             EOutputVerbosity verbosity,
             bool debugOnly,
             bool printDate,
@@ -698,13 +698,13 @@ namespace TheraEngine
         public static void LogException(Exception ex)
         {
 #if DEBUG || EDITOR
-            PrintLine(EOutputVerbosity.Verbose, false, ex.ToString());
+            Out(EOutputVerbosity.Verbose, false, ex.ToString());
 #endif
         }
         public static void LogWarning(string message, int lineIgnoreCount = 1, int includedLineCount = 5)
         {
 #if DEBUG || EDITOR
-            PrintLine(EOutputVerbosity.Normal, true, false, false, true, 4 + lineIgnoreCount, includedLineCount, message);
+            Out(EOutputVerbosity.Normal, true, false, false, true, 4 + lineIgnoreCount, includedLineCount, message);
 #endif
         }
 

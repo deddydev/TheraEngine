@@ -104,7 +104,7 @@ namespace TheraEngine
                     if (parser.TryGetField(prop.PropertyType, prop.Name, out object obj))
                         prop.SetValue(this, obj);
                     else
-                        Engine.PrintLine($"Could not read {prop.PropertyType.GetFriendlyName()} {prop.Name} from CSV.");
+                        Engine.Out($"Could not read {prop.PropertyType.GetFriendlyName()} {prop.Name} from CSV.");
             }
         }
 

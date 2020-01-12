@@ -214,7 +214,7 @@ namespace TheraEngine.Rendering
 
             string fragStr = fragGen.EndMain();
 
-            Engine.PrintLine("Generated Fragment Shader, " + maxGLSLVer.ToString() + ":\n" + fragStr);
+            Engine.Out("Generated Fragment Shader, " + maxGLSLVer.ToString() + ":\n" + fragStr);
 
             shaderFiles = new GLSLScript[]
             {

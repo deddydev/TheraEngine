@@ -61,7 +61,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if ((GetValue() is null))
                     return;
 
-                Engine.PrintLine("Unable to set this property to null.");
+                Engine.Out("Unable to set this property to null.");
             }
 
             ChooseFont();

@@ -202,8 +202,8 @@ namespace TheraEngine.Rendering.OpenGL
                     output += "GLSL: " + ShaderLanguageVersion + Environment.NewLine;
                     output += "TEXTURE UNITS: " + MaxTextureUnits + Environment.NewLine;
                     string ext = string.Join(Environment.NewLine, Extensions);
-                    Engine.PrintLine(EOutputVerbosity.Normal, output);
-                    Engine.PrintLine(EOutputVerbosity.Verbose, ext);
+                    Engine.Out(EOutputVerbosity.Normal, output);
+                    Engine.Out(EOutputVerbosity.Verbose, ext);
                 }
             }
 
@@ -229,7 +229,7 @@ namespace TheraEngine.Rendering.OpenGL
                 if (readSpec)
                     Specification = new GLSpecs();
 
-                Engine.PrintLine(EOutputVerbosity.Normal, $"Generated OpenGL context on thread {_thread.ManagedThreadId}.");
+                Engine.Out(EOutputVerbosity.Normal, $"Generated OpenGL context on thread {_thread.ManagedThreadId}.");
 
 #if DEBUG
                 if (readSpec)

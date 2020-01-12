@@ -88,11 +88,11 @@ namespace TheraEditor.Windows.Forms
             EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
             if (dte is null)
             {
-                Engine.PrintLine($"Unable to launch Visual Studio.");
+                Engine.Out($"Unable to launch Visual Studio.");
                 return;
             }
 
-            Engine.PrintLine($"Launched Visual Studio {dte.Edition} {dte.Version}.");
+            Engine.Out($"Launched Visual Studio {dte.Edition} {dte.Version}.");
             dte.MainWindow.Visible = true;
             dte.UserControl = true;
             VisualStudioManager.VSInstanceClosed();
@@ -256,10 +256,10 @@ namespace TheraEditor.Windows.Forms
             //if (project is null)
             //    return;
 
-            Engine.PrintLine("Creating game domain.");
+            Engine.Out("Creating game domain.");
 
             AppDomainHelper.ResetAppDomainCache();
-            Engine.PrintLine("Active domains before load: " + AppDomainHelper.AppDomainStringList);
+            Engine.Out("Active domains before load: " + AppDomainHelper.AppDomainStringList);
 
             try
             {
@@ -300,10 +300,10 @@ namespace TheraEditor.Windows.Forms
             //}
             finally
             {
-                Engine.PrintLine("Game domain created.");
+                Engine.Out("Game domain created.");
 
                 AppDomainHelper.ResetAppDomainCache();
-                Engine.PrintLine("Active domains after load: " + AppDomainHelper.AppDomainStringList);
+                Engine.Out("Active domains after load: " + AppDomainHelper.AppDomainStringList);
             }
         }
     }

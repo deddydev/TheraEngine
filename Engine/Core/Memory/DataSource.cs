@@ -70,7 +70,7 @@ namespace TheraEngine.Core.Memory
                 }
                 catch (Exception e)
                 {
-                    Engine.PrintLine(e.ToString());
+                    Engine.Out(e.ToString());
                 }
 
                 _disposedValue = true;

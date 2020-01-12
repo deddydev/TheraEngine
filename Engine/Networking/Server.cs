@@ -41,7 +41,7 @@ namespace TheraEngine.Networking
             switch (message)
             {
                 case EConnectionMessage.Request:
-                    Engine.PrintLine($"Received connection request from {endPoint.ToString()}.");
+                    Engine.Out($"Received connection request from {endPoint.ToString()}.");
                     NetworkClient client = FindConnectedClient(endPoint);
                     if (client is null)
                     {
@@ -51,7 +51,7 @@ namespace TheraEngine.Networking
                         response.Header.Header.PacketType = EPacketType.Connection;
                         response.Header.ConnectionMessage = EConnectionMessage.Accepted;
                         response.ServerIndex = (byte)index;
-                        Engine.PrintLine($"Accepted request. Server index = {index.ToString()}.");
+                        Engine.Out($"Accepted request. Server index = {index.ToString()}.");
                         SendPacket(response, 1.0f);
                     }
                     else
@@ -59,7 +59,7 @@ namespace TheraEngine.Networking
                         TPacketConnection response = new TPacketConnection();
                         response.Header.PacketType = EPacketType.Connection;
                         response.ConnectionMessage = EConnectionMessage.Denied;
-                        Engine.PrintLine("Denied request.");
+                        Engine.Out("Denied request.");
                         SendPacket(response, 5.0f);
                     }
                     break;

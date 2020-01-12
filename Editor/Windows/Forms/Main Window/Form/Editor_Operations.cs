@@ -181,7 +181,7 @@ namespace TheraEditor.Windows.Forms
             }
 
             toolStripStatusLabel1.Text = message;
-            Engine.PrintLine(message);
+            Engine.Out(message);
         }
 
         public static void RunOperationAsync2<T>(

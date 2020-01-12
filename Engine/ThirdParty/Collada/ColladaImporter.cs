@@ -45,7 +45,7 @@ namespace TheraEngine.Rendering.Models
             if (!File.Exists(filePath))
                 return null;
 
-            Engine.PrintLine("Importing Collada scene on thread " + Thread.CurrentThread.ManagedThreadId + ".");
+            Engine.Out("Importing Collada scene on thread " + Thread.CurrentThread.ManagedThreadId + ".");
 
             ImportResult result = new ImportResult();
 
@@ -62,12 +62,12 @@ namespace TheraEngine.Rendering.Models
 
                 if (unit != null)
                 {
-                    Engine.PrintLine("Units: {0} (to meters: {1})", unit.Name, unit.Meter.ToString());
+                    Engine.Out("Units: {0} (to meters: {1})", unit.Name, unit.Meter.ToString());
                     baseTransform = baseTransform * Matrix4.CreateScale(unit.Meter);
                 }
                 if (coord != null)
                 {
-                    Engine.PrintLine("Up axis: " + coord.StringContent.Value.ToString());
+                    Engine.Out("Up axis: " + coord.StringContent.Value.ToString());
                     switch (coord.StringContent.Value)
                     {
                         case Asset.EUpAxis.X_UP:
@@ -165,7 +165,7 @@ namespace TheraEngine.Rendering.Models
                         if (anim != null && animationLength > 0.0f)
                         {
                             anim.SetLength(animationLength, false);
-                            Engine.PrintLine("Model animation imported: " + animationLength.ToString() + " seconds / " + Math.Ceiling(animationLength * 60.0f).ToString() + " frames long at 60fps.");
+                            Engine.Out("Model animation imported: " + animationLength.ToString() + " seconds / " + Math.Ceiling(animationLength * 60.0f).ToString() + " frames long at 60fps.");
                             result.Models[0].Animation = anim;
                         }
                     }
@@ -485,7 +485,7 @@ namespace TheraEngine.Rendering.Models
                                 }
                                 else if (source is Image14X.Data d)
                                 {
-                                    Engine.PrintLine("Internal image data not supported");
+                                    Engine.Out("Internal image data not supported");
                                     texRef = new TexRef2D();
                                 }
                             }
@@ -499,7 +499,7 @@ namespace TheraEngine.Rendering.Models
                                 }
                                 else if (source.EmbeddedElement != null)
                                 {
-                                    Engine.PrintLine("Internal image data not supported");
+                                    Engine.Out("Internal image data not supported");
                                     texRef = new TexRef2D();
                                 }
                             }

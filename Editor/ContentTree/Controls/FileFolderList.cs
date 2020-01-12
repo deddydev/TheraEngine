@@ -121,13 +121,13 @@ namespace TheraEditor.Windows.Forms
                         //    }
                         //}
 
-                        Engine.PrintLine(fullname);
+                        Engine.Out(fullname);
 
                         item.ImageKey = fullname;
                     }
                     catch(Exception ex)
                     {
-                        Engine.PrintLine(ex.Message);
+                        Engine.Out(ex.Message);
                     }
                     finally
                     {

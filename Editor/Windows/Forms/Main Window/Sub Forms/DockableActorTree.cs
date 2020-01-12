@@ -150,25 +150,25 @@ namespace TheraEditor.Windows.Forms
         private bool IsSuspended { get; set; } = false;
         private void World_PreEndPlay()
         {
-            Engine.PrintLine("ActorTreeForm : Suspending layout.");
+            Engine.Out("ActorTreeForm : Suspending layout.");
             ActorTree.SuspendLayout();
             IsSuspended = true;
         }
         private void World_PostEndPlay()
         {
-            Engine.PrintLine("ActorTreeForm : Resuming layout.");
+            Engine.Out("ActorTreeForm : Resuming layout.");
             ActorTree.ResumeLayout(true);
             IsSuspended = false;
         }
         private void World_PreBeginPlay()
         {
-            Engine.PrintLine("ActorTreeForm : Suspending layout.");
+            Engine.Out("ActorTreeForm : Suspending layout.");
             ActorTree.SuspendLayout();
             IsSuspended = true;
         }
         private void World_PostBeginPlay()
         {
-            Engine.PrintLine("ActorTreeForm : Resuming layout.");
+            Engine.Out("ActorTreeForm : Resuming layout.");
             ActorTree.ResumeLayout(true);
             IsSuspended = false;
         }
@@ -181,7 +181,7 @@ namespace TheraEditor.Windows.Forms
             if (value.IsLoaded)
                 MapUnloaded(value.File);
 
-            Engine.PrintLine("ActorTreeForm : Map ref removed.");
+            Engine.Out("ActorTreeForm : Map ref removed.");
 
             value.Loaded -= MapLoaded;
             value.Unloaded -= MapUnloaded;
@@ -191,7 +191,7 @@ namespace TheraEditor.Windows.Forms
             if (value is null)
                 return;
 
-            Engine.PrintLine("ActorTreeForm : Map ref added.");
+            Engine.Out("ActorTreeForm : Map ref added.");
 
             value.Loaded += MapLoaded;
             value.Unloaded += MapUnloaded;
@@ -204,7 +204,7 @@ namespace TheraEditor.Windows.Forms
                 Invoke(new Action<IMap>(MapUnloaded), map);
                 return;
             }
-            Engine.PrintLine("ActorTreeForm : Map unloaded.");
+            Engine.Out("ActorTreeForm : Map unloaded.");
             FindAndRemoveMapNode(map);
         }
         private void MapLoaded(IMap map)
@@ -214,7 +214,7 @@ namespace TheraEditor.Windows.Forms
                 Invoke(new Action<IMap>(MapLoaded), map);
                 return;
             }
-            Engine.PrintLine("ActorTreeForm : Map loaded.");
+            Engine.Out("ActorTreeForm : Map loaded.");
             FindOrCreateMapNode(map);
         }
 
@@ -225,7 +225,7 @@ namespace TheraEditor.Windows.Forms
 
             if (e.PropertyName.EqualsInvariant(nameof(IWorld.Settings)))
             {
-                Engine.PrintLine("ActorTreeForm : World settings property changed.");
+                Engine.Out("ActorTreeForm : World settings property changed.");
                 LinkSettings(world.Settings);
             }
         }
@@ -236,7 +236,7 @@ namespace TheraEditor.Windows.Forms
 
             if (e.PropertyName.EqualsInvariant(nameof(IWorldSettings.Maps)))
             {
-                Engine.PrintLine("ActorTreeForm : Maps property changed.");
+                Engine.Out("ActorTreeForm : Maps property changed.");
                 LinkMapsList(settings.Maps);
             }
         }
@@ -246,7 +246,7 @@ namespace TheraEditor.Windows.Forms
         {
             UnlinkSettings();
 
-            Engine.PrintLine("ActorTreeForm : Linking settings.");
+            Engine.Out("ActorTreeForm : Linking settings.");
 
             CurrentSettings = settings;
             if (CurrentSettings is null)
@@ -263,7 +263,7 @@ namespace TheraEditor.Windows.Forms
             if (CurrentSettings is null)
                 return;
 
-            Engine.PrintLine("ActorTreeForm : Unlinking settings.");
+            Engine.Out("ActorTreeForm : Unlinking settings.");
 
             CurrentSettings.PropertyChanged -= Settings_PropertyChanged;
             UnlinkMapsList();
@@ -277,7 +277,7 @@ namespace TheraEditor.Windows.Forms
             if (Maps is null)
                 return;
 
-            Engine.PrintLine($"ActorTreeForm : Unlinking maps list, {Maps.Count} maps.");
+            Engine.Out($"ActorTreeForm : Unlinking maps list, {Maps.Count} maps.");
 
             ActorTree.SuspendLayout();
             Maps.ForEach(x => MapRefRemoved(x.Key, x.Value));
@@ -297,7 +297,7 @@ namespace TheraEditor.Windows.Forms
 
             AppDomainHelper.Sponsor(Maps);
 
-            Engine.PrintLine($"ActorTreeForm : Linking maps list, {Maps.Count} maps.");
+            Engine.Out($"ActorTreeForm : Linking maps list, {Maps.Count} maps.");
 
             ActorTree.SuspendLayout();
             Maps.ForEach(x => MapRefAdded(x.Key, x.Value));
@@ -316,7 +316,7 @@ namespace TheraEditor.Windows.Forms
             if (worldNode is null)
                 return;
 
-            Engine.PrintLine("ActorTreeForm : Attempting to remove map node.");
+            Engine.Out("ActorTreeForm : Attempting to remove map node.");
             if (_mapTreeNodes.ContainsKey(map.Guid))
             {
                 TreeNode mapNode = _mapTreeNodes[map.Guid];
@@ -324,7 +324,7 @@ namespace TheraEditor.Windows.Forms
                 _mapTreeNodes.Remove(map.Guid);
                 map.Renamed -= MapRenamed;
 
-                Engine.PrintLine("ActorTreeForm : Successfully removed map node.");
+                Engine.Out("ActorTreeForm : Successfully removed map node.");
             }
         }
         internal TreeNode FindOrCreateMapNode(IMap map)
@@ -348,7 +348,7 @@ namespace TheraEditor.Windows.Forms
             }
             else if (!_mapTreeNodes.ContainsKey(map.Guid))
             {
-                Engine.PrintLine("ActorTreeForm : Creating map node.");
+                Engine.Out("ActorTreeForm : Creating map node.");
 
                 AppDomainHelper.Sponsor(map);
                 mapNode = new TreeNode(map.Name) { Tag = map };
@@ -394,7 +394,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            Engine.PrintLine("ActorTreeForm : Spawning multiple actors.");
+            Engine.Out("ActorTreeForm : Spawning multiple actors.");
 
             ActorTree.SuspendLayout();
             actors.ForEach(ActorSpawned);

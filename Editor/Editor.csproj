@@ -569,7 +569,7 @@
       <DependentUpon>UIEditorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Editors\2D\User Interface\UIEditorUI.cs" />
-    <Compile Include="Windows\Forms\Editors\2D\EditorUI2DBase.cs" />
+    <Compile Include="Windows\Forms\Editors\EditorUI2DBase.cs" />
     <Compile Include="Windows\Forms\Interfaces.cs" />
     <Compile Include="Windows\Forms\Main Window\AboutForm.cs">
       <SubType>Form</SubType>
@@ -1262,7 +1262,7 @@
     <Compile Include="Windows\Forms\Main Window\Form\Editor_Designer.Designer.cs">
       <DependentUpon>Editor_Designer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Overrides\EditorUI3D.cs" />
+    <Compile Include="Windows\Forms\Editors\EditorUI3D.cs" />
     <Compile Include="EditorSettings.cs" />
     <Compile Include="Windows\Forms\Borderless Form\BorderlessFormBase.cs">
       <SubType>Form</SubType>

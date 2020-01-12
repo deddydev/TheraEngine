@@ -537,7 +537,7 @@ namespace TheraEngine.Core
 
             worldManager.AddContext(ctx);
             ctx.Handler.WorldManager = worldManager;
-            Engine.PrintLine("Linked render panel to world manager successfully.");
+            Engine.Out("Linked render panel to world manager successfully.");
         }
         public void RegisterRenderPanel<T>(IntPtr handle, params object[] handlerArgs)
             where T : class, IRenderHandler
@@ -547,7 +547,7 @@ namespace TheraEngine.Core
 
             Type t = typeof(T);
             var handler = Activator.CreateInstance(t, handlerArgs) as BaseRenderHandler;
-            Engine.PrintLine("CREATED RENDER HANDLER : " + t.GetFriendlyName());
+            Engine.Out("CREATED RENDER HANDLER : " + t.GetFriendlyName());
 
             RenderContext ctx;
             switch (handler.RenderLibrary)
@@ -563,7 +563,7 @@ namespace TheraEngine.Core
             }
             if (ctx != null)
             {
-                Engine.PrintLine("Registered render panel " + handler.GetType().GetFriendlyName());
+                Engine.Out("Registered render panel " + handler.GetType().GetFriendlyName());
             }
         }
         public void UnregisterRenderPanel(IntPtr handle)
@@ -574,7 +574,7 @@ namespace TheraEngine.Core
             Contexts.TryRemove(handle, out var ctx);
             ctx?.QueueDisposeSelf();
 
-            Engine.PrintLine("Unregistered render panel.");
+            Engine.Out("Unregistered render panel.");
         }
         public void RenderPanelResized(IntPtr handle, int width, int height)
         {

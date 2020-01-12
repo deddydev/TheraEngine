@@ -451,7 +451,7 @@ namespace TheraEngine.Core.Files
             }
             catch (UnauthorizedAccessException e)
             {
-                Engine.PrintLine(e.ToString());
+                Engine.Out(e.ToString());
             }
             return file;
         }

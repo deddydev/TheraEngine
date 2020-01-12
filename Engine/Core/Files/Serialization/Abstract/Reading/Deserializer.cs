@@ -57,7 +57,7 @@ namespace TheraEngine.Core.Files.Serialization
             Format = format;
             Reader = GetReader(format, filePath, fileType, stream, progress, cancel);
             object file = await Reader.CreateObjectAsync();
-            Engine.PrintLine($"Deserialized {format} file at {filePath}");
+            Engine.Out($"Deserialized {format} file at {filePath}");
             return file;
         }
         private AbstractReader GetReader(

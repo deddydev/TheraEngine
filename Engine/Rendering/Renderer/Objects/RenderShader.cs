@@ -62,7 +62,7 @@ namespace TheraEngine.Rendering
             {
                 bool success = Compile(out string info);
                 if (!success)
-                    Engine.PrintLine(GetFullSource(true));
+                    Engine.Out(GetFullSource(true));
             }
 
             SourceChanged?.Invoke();
@@ -105,7 +105,7 @@ namespace TheraEngine.Rendering
                 string trueScript = ResolveFullSource();
                 Engine.Renderer.SetShaderSource(BindingId, trueScript);
                 if (!Compile(out string info))
-                    Engine.PrintLine(GetFullSource(true));
+                    Engine.Out(GetFullSource(true));
             }
         }
         public string GetFullSource(bool lineNumbers)
@@ -147,7 +147,7 @@ namespace TheraEngine.Rendering
             string src = ResolveIncludesRecursive(SourceText, resolvedPaths) ?? SourceText;
             if (resolvedPaths.Count > 0)
             {
-                Engine.PrintLine(src);
+                Engine.Out(src);
             }
             return src;
         }
@@ -208,7 +208,7 @@ namespace TheraEngine.Rendering
                         if (resolvedPaths.Contains(includePath))
                         {
                             //Infinite recursion, path already visited
-                            Engine.PrintLine($"Infinite include recursion detected; the path '{includePath}' will not be included again.");
+                            Engine.Out($"Infinite include recursion detected; the path '{includePath}' will not be included again.");
                             fileText = string.Empty;
                         }
                         else
@@ -220,7 +220,7 @@ namespace TheraEngine.Rendering
                     }
                     catch (Exception ex)
                     {
-                        Engine.PrintLine(ex.Message);
+                        Engine.Out(ex.Message);
                         fileText = string.Empty;
                     }
                 }

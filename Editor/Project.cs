@@ -723,7 +723,7 @@ namespace TheraEditor
             #endregion
 
             #region sln
-            Engine.PrintLine(EOutputVerbosity.Verbose, $"Writing sln... {SolutionPath}");
+            Engine.Out(EOutputVerbosity.Verbose, $"Writing sln... {SolutionPath}");
             //0 = project name, 1 = project GUID, 2 = project type
             //The first GUID is the GUID of a C# project package
             string projTmpl = "Project(\"{2}\") = \"{0}\", \"{0}.csproj\", \"{1}\"\nEndProject\n";
@@ -755,7 +755,7 @@ namespace TheraEditor
             string sln = string.Format(slnTmpl, projects, preSol, postSol, solutionGuid, majorVer.ToString(), ver);
 
             File.WriteAllText(SolutionPath, sln);
-            Engine.PrintLine(EOutputVerbosity.Verbose, $"Done writing sln.");
+            Engine.Out(EOutputVerbosity.Verbose, $"Done writing sln.");
             #endregion
 
             //EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
@@ -794,7 +794,7 @@ namespace TheraEditor
         {
             if (IsCompiling)
             {
-                Engine.PrintLine("Project is already compiling.");
+                Engine.Out("Project is already compiling.");
                 return false;
             }
 
@@ -802,7 +802,7 @@ namespace TheraEditor
             {
                 IsCompiling = true;
                 CompileStarted?.Invoke(this);
-                Engine.PrintLine($"Compiling {buildConfiguration} {buildPlatform} {SolutionPath}");
+                Engine.Out($"Compiling {buildConfiguration} {buildPlatform} {SolutionPath}");
 
                 DeleteIntermediateDirectory();
                 await UpdateEngineLibReferenceAsync();

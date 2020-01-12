@@ -392,7 +392,7 @@ namespace TheraEditor
                                 int[] mins = numAssignableTo.FindAllMatchIndices(x => x == min);
                                 string msg = "File of type " + type.GetFriendlyName() + " has multiple valid interface wrappers: " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName());
                                 msg += ". Narrowed down wrappers to " + mins.Select(x => validInterfaces[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
-                                Engine.PrintLine(msg);
+                                Engine.Out(msg);
                                 interfaceType = validInterfaces[mins[0]];
                             }
                             else
@@ -694,7 +694,7 @@ namespace TheraEditor
             out MarshalProgress<float> progress, out CancellationTokenSource cancel,
             TimeSpan? maxOperationTime = null)
         {
-            Engine.PrintLine(statusBarMessage);
+            Engine.Out(statusBarMessage);
 
             bool firstOperationAdded = Operations.Count == 0;
             int index = Operations.Count;

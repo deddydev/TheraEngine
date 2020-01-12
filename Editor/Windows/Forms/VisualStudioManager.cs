@@ -61,7 +61,7 @@ namespace TheraEditor.Windows.Forms
                 }
                 catch (Exception ex)
                 {
-                    Engine.PrintLine(ex.ToString());
+                    Engine.Out(ex.ToString());
                 }
             }
             return dte;

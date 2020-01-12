@@ -29,7 +29,7 @@ namespace TheraEngine.Physics
         }
         public override void ReportErrorWarning(string warningString)
         {
-            Engine.PrintLine(warningString);
+            Engine.Out(warningString);
         }
         public override void DrawAabb(ref Vector3 from, ref Vector3 to, Color color)
         {

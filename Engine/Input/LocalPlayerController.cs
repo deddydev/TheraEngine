@@ -107,7 +107,7 @@ namespace TheraEngine.Input
 
                     _controlledPawn.OnUnPossessed();
 
-                    Engine.PrintLine($"Player {((int)LocalPlayerIndex + 1).ToString()} released control of {_controlledPawn}");
+                    Engine.Out($"Player {((int)LocalPlayerIndex + 1).ToString()} released control of {_controlledPawn}");
                 }
 
                 _controlledPawn = value;
@@ -128,7 +128,7 @@ namespace TheraEngine.Input
                     _controlledPawn.OnPossessed(this);
                     _input.TryRegisterInput();
 
-                    Engine.PrintLine($"Player {((int)LocalPlayerIndex + 1).ToString()} gained control of {_controlledPawn}");
+                    Engine.Out($"Player {((int)LocalPlayerIndex + 1).ToString()} gained control of {_controlledPawn}");
                 }
             }
         }

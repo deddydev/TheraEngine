@@ -93,7 +93,7 @@ namespace TheraEngine.Rendering
             Viewport newViewport = new Viewport(this, Viewports.Count);
             Viewports.TryAdd(index, newViewport);
 
-            Engine.PrintLine("Added new viewport to {0}: {1}", GetType().GetFriendlyName(), newViewport.Index);
+            Engine.Out("Added new viewport to {0}: {1}", GetType().GetFriendlyName(), newViewport.Index);
 
             //Fix the regions of the rest of the viewports
             var twoPlayerPref = Engine.Game?.TwoPlayerPref ?? Viewport.ETwoPlayerPreference.SplitHorizontally;

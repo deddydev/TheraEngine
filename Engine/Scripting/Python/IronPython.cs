@@ -96,7 +96,7 @@ namespace TheraEngine.Scripting
                     Ignored.Add(info);
                     break;
             }
-            Engine.PrintLine($"{severity} {errorCode}: {message} (line {span.Start.Line} col {span.Start.Column})");
+            Engine.Out($"{severity} {errorCode}: {message} (line {span.Start.Line} col {span.Start.Column})");
         }
     }
 }

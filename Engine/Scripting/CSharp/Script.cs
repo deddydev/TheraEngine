@@ -48,7 +48,7 @@ namespace TheraEngine.Scripting
                 Location location = node.GetLocation();
                 var span = location.GetLineSpan();
                 LinePositionSpan lineSpan = span.Span;
-                Engine.PrintLine($"{kind}: {lineSpan}");
+                Engine.Out($"{kind}: {lineSpan}");
             }
         }
     }

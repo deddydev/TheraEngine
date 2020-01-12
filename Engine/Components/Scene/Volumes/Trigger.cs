@@ -98,7 +98,7 @@ namespace TheraEngine.Components.Scene.Volumes
                 {
                     Contacts.Remove(obj);
                     OnLeft(obj);
-                    Engine.PrintLine($"TRIGGER OBJECT LEFT: {Contacts.Count} contacts total");
+                    Engine.Out($"TRIGGER OBJECT LEFT: {Contacts.Count} contacts total");
                 }
                 foreach (var result in _test.Results)
                 {
@@ -111,7 +111,7 @@ namespace TheraEngine.Components.Scene.Volumes
                     {
                         Contacts.Add(obj, info);
                         OnEntered(obj);
-                        Engine.PrintLine($"TRIGGER OBJECT ENTERED: {Contacts.Count} contacts total");
+                        Engine.Out($"TRIGGER OBJECT ENTERED: {Contacts.Count} contacts total");
                     }
                     //RigidBodyCollision.OnOverlapped(result.CollisionObject, result.Contact, result.IsObjectB);
                     //result.CollisionObject.OnOverlapped(RigidBodyCollision, result.Contact, !result.IsObjectB);
@@ -138,7 +138,7 @@ namespace TheraEngine.Components.Scene.Volumes
                 {
                     Contacts.Remove(obj);
                     OnLeft(obj);
-                    Engine.PrintLine($"TRIGGER OBJECT LEFT: {Contacts.Count} contacts total");
+                    Engine.Out($"TRIGGER OBJECT LEFT: {Contacts.Count} contacts total");
                 }
                 foreach (var obj in list)
                 {
@@ -148,7 +148,7 @@ namespace TheraEngine.Components.Scene.Volumes
                     {
                         Contacts.Add(obj, null);
                         OnEntered(obj);
-                        Engine.PrintLine($"TRIGGER OBJECT ENTERED: {Contacts.Count} contacts total");
+                        Engine.Out($"TRIGGER OBJECT ENTERED: {Contacts.Count} contacts total");
                     }
                     //RigidBodyCollision.OnOverlapped(result.CollisionObject, result.Contact, result.IsObjectB);
                     //result.CollisionObject.OnOverlapped(RigidBodyCollision, result.Contact, !result.IsObjectB);

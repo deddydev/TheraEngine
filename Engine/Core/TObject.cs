@@ -139,6 +139,8 @@ namespace TheraEngine
         protected virtual void OnRenamed(string oldName)
             => Renamed?.Invoke(this, oldName);
 
+        public override string ToString() => Name;
+
         #endregion
 
         #region Property Management

@@ -467,7 +467,7 @@ namespace TheraEditor.Windows.Forms
                             else
                             {
                                 ConstructedObject = null;
-                                Engine.PrintLine($"Unable to create {ClassType.GetFriendlyName()}; no valid constructor available.");
+                                Engine.Out($"Unable to create {ClassType.GetFriendlyName()}; no valid constructor available.");
                             }
                         }
                         else

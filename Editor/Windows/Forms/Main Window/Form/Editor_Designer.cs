@@ -101,7 +101,7 @@ namespace TheraEditor.Windows.Forms
             DockableWorldRenderPanel form = _renderForms[i];
             if (form is null || form.IsDisposed)
             {
-                Engine.PrintLine("Created viewport " + (i + 1).ToString());
+                Engine.Out("Created viewport " + (i + 1).ToString());
                 form = _renderForms[i] = new DockableWorldRenderPanel(ELocalPlayerIndex.One, i);
                 form.Show(DockPanel);
             }
@@ -121,7 +121,7 @@ namespace TheraEditor.Windows.Forms
                 return value;
 
             value = new T();
-            Engine.PrintLine("Created " + value.GetType().GetFriendlyName());
+            Engine.Out("Created " + value.GetType().GetFriendlyName());
             if (InvokeRequired)
             {
                 T value2 = value;
@@ -370,7 +370,7 @@ namespace TheraEditor.Windows.Forms
                 var func = MappableActions[e.KeyData];
                 e.Handled = func();
                 if (e.Handled)
-                    Engine.PrintLine(e.KeyData.ToString().Replace(", ", "+") + ": " + func.Method.Name);
+                    Engine.Out(e.KeyData.ToString().Replace(", ", "+") + ": " + func.Method.Name);
                 return;
             }
             base.OnKeyDown(e);
@@ -560,7 +560,7 @@ namespace TheraEditor.Windows.Forms
                 DockPanel.ResumeLayout(true, true);
             }
 
-            Engine.PrintLine($"Set project to {_project?.FilePath?.ToString() ?? "null"}.");
+            Engine.Out($"Set project to {_project?.FilePath?.ToString() ?? "null"}.");
         }
         public async void LoadProject(string projectPath)
         {
@@ -650,7 +650,7 @@ namespace TheraEditor.Windows.Forms
 
             s.InitializeConnection(NetworkConnection.ServerPort, null);
 
-            Engine.PrintLine($"Started hosting server at {NetworkConnection.GetLocalIPAddressV4()}:{NetworkConnection.ServerPort}.");
+            Engine.Out($"Started hosting server at {NetworkConnection.GetLocalIPAddressV4()}:{NetworkConnection.ServerPort}.");
         }
 
         private async void connectAsClientToolStripMenuItem_Click(object sender, EventArgs e)
@@ -668,16 +668,16 @@ namespace TheraEditor.Windows.Forms
                 IPEndPoint point = new IPEndPoint(addr, NetworkConnection.ServerPort);
                 c.InitializeConnection(NetworkConnection.ClientPort, point);
 
-                Engine.PrintLine($"Requesting connection to server at {point.Address.ToString()}:{NetworkConnection.ServerPort}.");
+                Engine.Out($"Requesting connection to server at {point.Address.ToString()}:{NetworkConnection.ServerPort}.");
             }
             else
             {
-                Engine.PrintLine($"'{txtTargetIPPort.Text}' is not a valid IP configuration.");
+                Engine.Out($"'{txtTargetIPPort.Text}' is not a valid IP configuration.");
                 return;
             }
 
             bool success = await c.RequestConnectionAsync();
-            Engine.PrintLine(success
+            Engine.Out(success
                 ? "Successfully connected to the target server."
                 : "Failed to connect to the target server.");
         }
@@ -777,7 +777,7 @@ namespace TheraEditor.Windows.Forms
                     return _value;
 
                 _value = new T();
-                Engine.PrintLine("Created " + _value.GetType().GetFriendlyName());
+                Engine.Out("Created " + _value.GetType().GetFriendlyName());
                 _onCreated?.Invoke(_value);
                 return _value;
             }

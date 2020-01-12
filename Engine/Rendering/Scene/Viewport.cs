@@ -83,7 +83,7 @@ namespace TheraEngine.Rendering
                 _hud = value;
                 _hud?.Resize(Region.Extents);
 
-                Engine.PrintLine("Set viewport HUD: " + (_hud?.GetTypeProxy()?.GetFriendlyName() ?? "null"));
+                Engine.Out("Set viewport HUD: " + (_hud?.GetTypeProxy()?.GetFriendlyName() ?? "null"));
             }
         }
         public ICamera _camera;
@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering
                         p.Aspect = (float)Width / Height;
                 }
 
-                Engine.PrintLine("Set viewport camera: " + (_camera?.GetTypeProxy()?.GetFriendlyName() ?? "null"));
+                Engine.Out("Set viewport camera: " + (_camera?.GetTypeProxy()?.GetFriendlyName() ?? "null"));
             }
         }
 
@@ -232,7 +232,7 @@ namespace TheraEngine.Rendering
             SSAOFBO?.Generate();
             TimeSpan span = DateTime.Now - start;
 
-            Engine.PrintLine($"FBO regeneration took {span.Seconds} seconds.");
+            Engine.Out($"FBO regeneration took {span.Seconds} seconds.");
         }
 
         public void Resize(

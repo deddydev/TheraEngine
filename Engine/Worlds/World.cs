@@ -259,7 +259,7 @@ namespace TheraEngine.Worlds
             //throw new Exception("Cannot rebase origin while already rebasing. Check to make sure there are no RebaseOrigin calls within rebasing code.");
             IsRebasingOrigin = true;
 
-            Engine.PrintLine("Beginning origin rebase.");
+            Engine.Out("Beginning origin rebase.");
 
             if (PhysicsWorld3D != null)
                 PhysicsWorld3D.AllowIndividualAabbUpdates = false;
@@ -277,7 +277,7 @@ namespace TheraEngine.Worlds
 
             //Scene.RegenerateTree();
 
-            Engine.PrintLine("Finished origin rebase.");
+            Engine.Out("Finished origin rebase.");
 
             IsRebasingOrigin = false;
         }
@@ -303,11 +303,11 @@ namespace TheraEngine.Worlds
 
         public void BeginPlay()
         {
-            Engine.PrintLine("World : Beginning play.");
+            Engine.Out("World : Beginning play.");
             PreBeginPlay?.Invoke();
             OnBeginPlay();
             PostBeginPlay?.Invoke();
-            Engine.PrintLine("World : Finished beginning play.");
+            Engine.Out("World : Finished beginning play.");
         }
         protected virtual void OnBeginPlay()
         {
@@ -358,7 +358,7 @@ namespace TheraEngine.Worlds
                 value.BeginPlay(this);
 
             State.SpawnedMaps.Add(value);
-            Engine.PrintLine("World : Spawned map.");
+            Engine.Out("World : Spawned map.");
         }
         public void DespawnMap(IMap value)
         {
@@ -369,16 +369,16 @@ namespace TheraEngine.Worlds
                 value.EndPlay();
 
             State.SpawnedMaps.Remove(value);
-            Engine.PrintLine("World : Despawned map.");
+            Engine.Out("World : Despawned map.");
         }
 
         public void EndPlay()
         {
-            Engine.PrintLine("World : Ending play.");
+            Engine.Out("World : Ending play.");
             PreEndPlay?.Invoke();
             OnEndPlay();
             PostEndPlay?.Invoke();
-            Engine.PrintLine("World : Finished ending play.");
+            Engine.Out("World : Finished ending play.");
         }
         protected virtual void OnEndPlay()
         {

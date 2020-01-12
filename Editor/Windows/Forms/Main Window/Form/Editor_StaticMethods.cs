@@ -29,7 +29,7 @@ namespace TheraEditor.Windows.Forms
             if (world != null)
                 world.CurrentGameMode = ActiveRenderForm.GameMode;
             
-            Engine.PrintLine("Set active render form: " + ActiveRenderForm?.ToString() ?? "null");
+            Engine.Out("Set active render form: " + ActiveRenderForm?.ToString() ?? "null");
         }
         public static LocalFileRef<EditorSettings> GetSettingsRef() 
             => Instance.Project?.EditorSettingsOverrideRef ?? Instance.DefaultSettingsRef;

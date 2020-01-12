@@ -72,7 +72,7 @@ namespace TheraEngine.Timers
             if (IsRunning)
                 return;
 
-            Engine.PrintLine($"Started {(IsSingleThreaded ? "single" : "multi")}-threaded game loop.");
+            Engine.Out($"Started {(IsSingleThreaded ? "single" : "multi")}-threaded game loop.");
 
             InitiateLoop();
         }
@@ -261,7 +261,7 @@ namespace TheraEngine.Timers
             _renderStarted = null;
             _renderDone = null;
 
-            Engine.PrintLine("Game loop ended.");
+            Engine.Out("Game loop ended.");
         }
         private bool DispatchRender()
         {
@@ -417,17 +417,17 @@ namespace TheraEngine.Timers
                 if (value < 1.0f)
                 {
                     _targetRenderPeriod = 0.0f;
-                    Engine.PrintLine("Target render frequency set to unrestricted.");
+                    Engine.Out("Target render frequency set to unrestricted.");
                 }
                 else if (value < MaxFrequency)
                 {
                     _targetRenderPeriod = 1.0f / value;
-                    Engine.PrintLine("Target render frequency set to {0}Hz.", value.ToString());
+                    Engine.Out("Target render frequency set to {0}Hz.", value.ToString());
                 }
                 else
                 {
                     _targetRenderPeriod = 1.0f / MaxFrequency;
-                    Engine.PrintLine("Target render frequency clamped to {0}Hz.", MaxFrequency.ToString());
+                    Engine.Out("Target render frequency clamped to {0}Hz.", MaxFrequency.ToString());
                 }
             }
         }
@@ -447,17 +447,17 @@ namespace TheraEngine.Timers
                 if (value < 1.0f / MaxFrequency)
                 {
                     _targetRenderPeriod = 0.0f;
-                    Engine.PrintLine("Target render frequency set to unrestricted.");
+                    Engine.Out("Target render frequency set to unrestricted.");
                 }
                 else if (value < 1.0f)
                 {
                     _targetRenderPeriod = value;
-                    Engine.PrintLine("Target render frequency set to {0}Hz.", TargetRenderFrequency.ToString());
+                    Engine.Out("Target render frequency set to {0}Hz.", TargetRenderFrequency.ToString());
                 }
                 else
                 {
                     _targetRenderPeriod = 1.0f;
-                    Engine.PrintLine("Target render frequency clamped to 1Hz.");
+                    Engine.Out("Target render frequency clamped to 1Hz.");
                 }
             }
         }
@@ -482,17 +482,17 @@ namespace TheraEngine.Timers
                 if (value < 1.0)
                 {
                     _targetUpdatePeriod = 0.0f;
-                    Engine.PrintLine("Target update frequency set to unrestricted.");
+                    Engine.Out("Target update frequency set to unrestricted.");
                 }
                 else if (value < MaxFrequency)
                 {
                     _targetUpdatePeriod = 1.0f / value;
-                    Engine.PrintLine("Target update frequency set to {0}Hz.", value);
+                    Engine.Out("Target update frequency set to {0}Hz.", value);
                 }
                 else
                 {
                     _targetUpdatePeriod = 1.0f / MaxFrequency;
-                    Engine.PrintLine("Target update frequency clamped to {0}Hz.", MaxFrequency);
+                    Engine.Out("Target update frequency clamped to {0}Hz.", MaxFrequency);
                 }
             }
         }
@@ -512,17 +512,17 @@ namespace TheraEngine.Timers
                 if (value < 1.0f / MaxFrequency)
                 {
                     _targetUpdatePeriod = 0.0f;
-                    Engine.PrintLine("Target update frequency set to unrestricted.");
+                    Engine.Out("Target update frequency set to unrestricted.");
                 }
                 else if (value < 1.0)
                 {
                     _targetUpdatePeriod = value;
-                    Engine.PrintLine("Target update frequency set to {0}Hz.", TargetUpdateFrequency);
+                    Engine.Out("Target update frequency set to {0}Hz.", TargetUpdateFrequency);
                 }
                 else
                 {
                     _targetUpdatePeriod = 1.0f;
-                    Engine.PrintLine("Target update frequency clamped to 1Hz.");
+                    Engine.Out("Target update frequency clamped to 1Hz.");
                 }
             }
         }

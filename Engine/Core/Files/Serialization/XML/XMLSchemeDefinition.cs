@@ -53,7 +53,7 @@ namespace TheraEngine.Core.Files.XML
                     ElementName nameAttrib = t.GetCustomAttribute<ElementName>();
                     ElementNames[i] = nameAttrib;
                     if (nameAttrib is null)
-                        Engine.PrintLine(Data.ChildEntryType.GetFriendlyName() + " has no 'Name' attribute");
+                        Engine.Out(Data.ChildEntryType.GetFriendlyName() + " has no 'Name' attribute");
                 }
             }
         
@@ -151,7 +151,7 @@ namespace TheraEngine.Core.Files.XML
             ElementName name = t.GetCustomAttribute<ElementName>();
             if (name is null || string.IsNullOrEmpty(name.Name))
             {
-                Engine.PrintLine(t.GetFriendlyName() + " has no 'Name' attribute.");
+                Engine.Out(t.GetFriendlyName() + " has no 'Name' attribute.");
                 return null;
             }
 
@@ -206,7 +206,7 @@ namespace TheraEngine.Core.Files.XML
 
             if (reader.NodeType != XmlNodeType.Element)
             {
-                Engine.PrintLine("Encountered an unexpected node: {0} '{1}'", reader.Name, reader.NodeType.ToString());
+                Engine.Out("Encountered an unexpected node: {0} '{1}'", reader.Name, reader.NodeType.ToString());
                 await reader.SkipAsync();
                 entry.PostRead();
                 return entry;
@@ -214,7 +214,7 @@ namespace TheraEngine.Core.Files.XML
 
             if (entry.ParentType != typeof(IElement) && !entry.ParentType.IsAssignableFrom(parent.GetType()))
             {
-                Engine.PrintLine("Parent mismatch. {0} expected {1}, but got {2}", elementType.GetFriendlyName(), entry.ParentType.GetFriendlyName(), parent.GetType().GetFriendlyName());
+                Engine.Out("Parent mismatch. {0} expected {1}, but got {2}", elementType.GetFriendlyName(), entry.ParentType.GetFriendlyName(), parent.GetType().GetFriendlyName());
                 await reader.SkipAsync();
                 entry.PostRead();
                 return entry;
@@ -347,7 +347,7 @@ namespace TheraEngine.Core.Files.XML
                                     if (typeIndex >= 0)
                                     {
                                         if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
-                                            Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
+                                            Engine.Out("Element '{0}' has occurred more times than expected.", parentTree);
 
                                         IElement elem = await ParseElementAsync(child.Types[typeIndex], entry, reader, version, ignoreFlags, parentTree, childIndex, cancel);
                                         elem.ElementName = elementName;
@@ -399,7 +399,7 @@ namespace TheraEngine.Core.Files.XML
 
                         if (underCounted.Length > 0)
                             foreach (ElementName c in underCounted)
-                                Engine.PrintLine("Element '{0}' has occurred less times than expected.", c.Name);
+                                Engine.Out("Element '{0}' has occurred less times than expected.", c.Name);
                     }
 
                     if (reader.Name == parentElementName)

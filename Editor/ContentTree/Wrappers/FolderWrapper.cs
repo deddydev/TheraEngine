@@ -100,7 +100,7 @@ namespace TheraEditor.Wrappers
             }
             else
             {
-                Engine.PrintLine("Loading importable and creatable file types to folder menu.");
+                Engine.Out("Loading importable and creatable file types to folder menu.");
 
                 Task import = Task.Run(() => 
                     Program.GenerateTMenu(ImportFileOption, ImportableTree.Value, OnImportClick));
@@ -109,7 +109,7 @@ namespace TheraEditor.Wrappers
                     Program.GenerateTMenu(NewFileOption, NewTree.Value, OnNewClick));
 
                 Task.WhenAll(import, create).ContinueWith(t => 
-                    Engine.PrintLine("Finished loading importable and creatable file types to folder menu."));
+                    Engine.Out("Finished loading importable and creatable file types to folder menu."));
             }
         }
 

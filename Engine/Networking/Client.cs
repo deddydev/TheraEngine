@@ -43,9 +43,9 @@ namespace TheraEngine.Networking
             BlockWhile(() => !_connectionResponseRecieved && watch.Elapsed < timeoutSpan);
 
             if (!_connectionResponseRecieved)
-                Engine.PrintLine("Server connection request timed out.");
+                Engine.Out("Server connection request timed out.");
             else
-                Engine.PrintLine("Recieved a response from the server.");
+                Engine.Out("Recieved a response from the server.");
 
             return _connectionAccepted;
         }
@@ -71,14 +71,14 @@ namespace TheraEngine.Networking
                     //ConnectionDenied?.Invoke();
                     _connectionAccepted = false;
                     _connectionResponseRecieved = true;
-                    Engine.PrintLine("Server denied connection request.");
+                    Engine.Out("Server denied connection request.");
                     break;
                 case EConnectionMessage.Accepted:
                     if (_connectionResponseRecieved &&
                         _connectionAccepted && 
                         ServerEndPoint.ToString() == endPoint.ToString())
                     {
-                        Engine.PrintLine("Server previously accepted connection request. Ignoring new request.");
+                        Engine.Out("Server previously accepted connection request. Ignoring new request.");
                     }
                     else
                     {
@@ -88,7 +88,7 @@ namespace TheraEngine.Networking
                         //ConnectionAccepted?.Invoke();
                         _connectionAccepted = true;
                         _connectionResponseRecieved = true;
-                        Engine.PrintLine("Server accepted connection request.");
+                        Engine.Out("Server accepted connection request.");
                     }
                     break;
                 case EConnectionMessage.LocalPlayerCountChanged:

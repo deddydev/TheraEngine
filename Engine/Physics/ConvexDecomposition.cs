@@ -75,7 +75,7 @@ namespace TheraEngine.Physics
         }
         private static bool HacdUpdate(string msg, double progress, double globalConcativity, int n)
         {
-            Engine.PrintLine(msg);
+            Engine.Out(msg);
             return true;
         }
     }

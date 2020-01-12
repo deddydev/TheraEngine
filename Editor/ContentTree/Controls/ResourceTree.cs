@@ -316,7 +316,7 @@ namespace TheraEditor.Windows.Forms
                 var func = MappableActions[e.KeyData];
                 e.Handled = func();
                 if (e.Handled)
-                    Engine.PrintLine(EOutputVerbosity.Verbose, e.KeyData.ToString() + ": " + func.Method.Name);
+                    Engine.Out(EOutputVerbosity.Verbose, e.KeyData.ToString() + ": " + func.Method.Name);
                 
                 return;
             }
@@ -496,7 +496,7 @@ namespace TheraEditor.Windows.Forms
             if (changedNodes.Length == 0)
                 return null;
             if (changedNodes.Length > 1)
-                Engine.PrintLine("More than one node with the path " + path);
+                Engine.Out("More than one node with the path " + path);
             return changedNodes[0] as ContentTreeNode;
         }
         public ContentTreeNode FindOrCreatePath(string path)

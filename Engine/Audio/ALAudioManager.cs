@@ -23,8 +23,8 @@ namespace TheraEngine.Audio
         private AudioContext GenerateContext()
         {
             IList<string> devices = AudioContext.AvailableDevices;
-            Engine.PrintLine("Available audio devices: " + string.Join(", ", devices));
-            Engine.PrintLine("Default audio device: " + AudioContext.DefaultDevice);
+            Engine.Out("Available audio devices: " + string.Join(", ", devices));
+            Engine.Out("Default audio device: " + AudioContext.DefaultDevice);
 
             AudioContext ctx = new AudioContext(AudioContext.DefaultDevice);
             ctx.MakeCurrent();
@@ -33,8 +33,8 @@ namespace TheraEngine.Audio
             string vendor = AL.Get(ALGetString.Vendor);
             string renderer = AL.Get(ALGetString.Renderer);
             string extensions = AL.Get(ALGetString.Extensions);
-            Engine.PrintLine($"OpenAL {version}, {vendor} [{renderer}]");
-            Engine.PrintLine($"OpenAL Extensions: {extensions}");
+            Engine.Out($"OpenAL {version}, {vendor} [{renderer}]");
+            Engine.Out($"OpenAL Extensions: {extensions}");
 
             _efx = new EffectsExtension();
 
@@ -77,7 +77,7 @@ namespace TheraEngine.Audio
 
             var param = source.Parameters;
 
-            Engine.PrintLine($"Playing audio {audio?.Name}...");
+            Engine.Out($"Playing audio {audio?.Name}...");
 
             int sourceID = AllocateNewSource();
             int bufferID = AL.GenBuffer();
@@ -294,10 +294,10 @@ namespace TheraEngine.Audio
                 CheckError();
                 force = param != currentValue;
                 if (force)
-                    Engine.PrintLine($"Audio {instanceID}: {dest} {currentValue} -> {param}");
+                    Engine.Out($"Audio {instanceID}: {dest} {currentValue} -> {param}");
             }
             else
-                Engine.PrintLine($"Audio {instanceID}: {dest} = {param}");
+                Engine.Out($"Audio {instanceID}: {dest} = {param}");
 
             if (force)
             {
@@ -315,10 +315,10 @@ namespace TheraEngine.Audio
                 CheckError();
                 force = !param.EqualTo(currentValue);
                 if (force)
-                    Engine.PrintLine($"Audio {instanceID}: {dest} {currentValue} -> {param}");
+                    Engine.Out($"Audio {instanceID}: {dest} {currentValue} -> {param}");
             }
             else
-                Engine.PrintLine($"Audio {instanceID}: {dest} = {param}");
+                Engine.Out($"Audio {instanceID}: {dest} = {param}");
 
             if (force)
             {
@@ -337,10 +337,10 @@ namespace TheraEngine.Audio
                 Vec3 diff = param - (Vec3)currentValue;
                 force = diff.Length > float.Epsilon;
                 if (force)
-                    Engine.PrintLine($"Audio {instanceID}: {dest} {currentValue} -> {param}");
+                    Engine.Out($"Audio {instanceID}: {dest} {currentValue} -> {param}");
             }
             else
-                Engine.PrintLine($"Audio {instanceID}: {dest} = {param}");
+                Engine.Out($"Audio {instanceID}: {dest} = {param}");
 
             if (force)
             {

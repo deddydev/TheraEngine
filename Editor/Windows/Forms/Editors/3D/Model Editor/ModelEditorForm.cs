@@ -66,7 +66,7 @@ namespace TheraEditor.Windows.Forms
             DockableModelEditorRenderForm form = _renderForms[i];
             if (form is null || form.IsDisposed)
             {
-                Engine.PrintLine("Created model editor viewport " + (i + 1).ToString());
+                Engine.Out("Created model editor viewport " + (i + 1).ToString());
                 form = _renderForms[i] = new DockableModelEditorRenderForm(ELocalPlayerIndex.One, i, this);
                 form.Show(DockPanel1, DockState.Document);
             }

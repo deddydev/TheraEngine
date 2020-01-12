@@ -95,7 +95,7 @@ namespace TheraEditor
 //#endif
                 };
 
-                Engine.PrintLine($"Posting new release for {tagName} at {assemblyPath}...");
+                Engine.Out($"Posting new release for {tagName} at {assemblyPath}...");
 
                 string[] paths = Directory.EnumerateFileSystemEntries(progDir, "*.*", SearchOption.AllDirectories).
                     Where(x => exts.Contains(Path.GetExtension(x).ToLowerInvariant())).ToArray();
@@ -182,7 +182,7 @@ namespace TheraEditor
                     updateRelease.Draft = false;
                     release = await client.Repository.Release.Edit(RepoOwner, RepoName, release.Id, updateRelease);
                     
-                    Engine.PrintLine("New release created successfully! Find it at " + release.HtmlUrl);
+                    Engine.Out("New release created successfully! Find it at " + release.HtmlUrl);
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
@@ -199,7 +199,7 @@ namespace TheraEditor
         private static bool CheckGithubConnection(out GitHubClient client)
         {
             //Check to see if the user is online and that github is up and running.
-            Engine.PrintLine(EOutputVerbosity.Verbose, "Checking connection to Github...");
+            Engine.Out(EOutputVerbosity.Verbose, "Checking connection to Github...");
             try
             {
                 using (Ping s = new Ping())
@@ -207,7 +207,7 @@ namespace TheraEditor
                     PingReply reply = s.Send(GithubUrl);
                     if (reply.Status != IPStatus.Success)
                     {
-                        Engine.PrintLine(EOutputVerbosity.Verbose, $"Could not connect to {GithubUrl}: {reply.Status}");
+                        Engine.Out(EOutputVerbosity.Verbose, $"Could not connect to {GithubUrl}: {reply.Status}");
                         client = null;
                         return false;
                     }
@@ -215,13 +215,13 @@ namespace TheraEditor
             }
             catch (Exception ex)
             {
-                Engine.PrintLine(EOutputVerbosity.Verbose, "Unable to connect.");
+                Engine.Out(EOutputVerbosity.Verbose, "Unable to connect.");
                 Engine.LogException(ex);
                 client = null;
                 return false;
             }
 
-            Engine.PrintLine(EOutputVerbosity.Verbose, "Connected successfully.");
+            Engine.Out(EOutputVerbosity.Verbose, "Connected successfully.");
             client = new GitHubClient(new ProductHeaderValue(RepoName))
             {
                 Credentials = GetBotCredentials()
@@ -248,7 +248,7 @@ namespace TheraEditor
                 IReadOnlyList<Release> releases = await client.Repository.Release.GetAll(RepoOwner, RepoName);
                 if (releases is null || releases.Count == 0)
                 {
-                    Engine.PrintLine($"No updates found for {name.Name}.");
+                    Engine.Out($"No updates found for {name.Name}.");
                     return (EVersionRelation.IsNewerBuild, null);
                 }
 
@@ -292,12 +292,12 @@ namespace TheraEditor
                 int comp = ver.CompareTo(mostRecentVer);
                 if (comp == 0)
                 {
-                    Engine.PrintLine($"You are running the most recent version of {name.Name}.");
+                    Engine.Out($"You are running the most recent version of {name.Name}.");
                     return (EVersionRelation.IsCurrentRelease, mostRecentRelease);
                 }
                 else if (comp > 0)
                 {
-                    Engine.PrintLine($"You are running a newer build of {name.Name}.");
+                    Engine.Out($"You are running a newer build of {name.Name}.");
                     return (EVersionRelation.IsNewerBuild, mostRecentRelease);
                 }
                 else
@@ -319,7 +319,7 @@ namespace TheraEditor
                         DialogResult update = MessageBox.Show(newestRelease.Name + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
                         if (update != DialogResult.Yes)
                         {
-                            Engine.PrintLine("Update canceled.");
+                            Engine.Out("Update canceled.");
                             return;
                         }
                         
@@ -345,7 +345,7 @@ namespace TheraEditor
                         
                         if (overwrite == DialogResult.Cancel)
                         {
-                            Engine.PrintLine("Update canceled.");
+                            Engine.Out("Update canceled.");
                             return;
                         }
                             
@@ -377,7 +377,7 @@ namespace TheraEditor
                                     void downloadFileProgressChanged(object sender, DownloadProgressChangedEventArgs args)
                                     {
                                         float percent = (float)args.BytesReceived / args.TotalBytesToReceive;
-                                        Engine.PrintLine($"{percent * 100.0f}% downloaded...");
+                                        Engine.Out($"{percent * 100.0f}% downloaded...");
                                         p.Report(percent);
                                     }
 
@@ -387,14 +387,14 @@ namespace TheraEditor
                                 });
                         }
 
-                        Engine.PrintLine("Success! Starting install...");
+                        Engine.Out("Success! Starting install...");
 
                         await ExtractZipAsync(localUpdateZipPath, localUpdateUnzipPath);
 
                         if (overwrite != DialogResult.Yes)
                             return;
 
-                        Engine.PrintLine("Overwriting installation...");
+                        Engine.Out("Overwriting installation...");
 
                         Overwrite(localUpdateUnzipPath, exeDir);
                     }
@@ -451,7 +451,7 @@ namespace TheraEditor
                 Process.Start(info);
             }
             private static void BatProcess_OutputDataReceived(object sender, DataReceivedEventArgs e)
-                => Engine.PrintLine(e.Data);
+                => Engine.Out(e.Data);
         }
 
         public static class IssueReporter

@@ -99,10 +99,10 @@ namespace TheraEditor.Wrappers
             var file = await GetFileGenericAsync();
 
             if (file is null)
-                Engine.PrintLine($"Can't open file at {FilePath}.");
+                Engine.Out($"Can't open file at {FilePath}.");
             else
             {
-                Engine.PrintLine($"Editing file at {FilePath}.");
+                Engine.Out($"Editing file at {FilePath}.");
 
                 //TODO: pre-resolve editor type
                 TypeProxy editorType = ResolveEditorType(FileType);

@@ -87,7 +87,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     Engine.LogException(ex);
                     types = GetControlTypes(null);
                 }
-                Engine.PrintLine(EOutputVerbosity.Verbose, "Got control types for " + property.Name + ": " + types.ToArray().ToStringList(", ", ", ", t => t.GetFriendlyName()));
+                Engine.Out(EOutputVerbosity.Verbose, "Got control types for " + property.Name + ": " + types.ToArray().ToStringList(", ", ", ", t => t.GetFriendlyName()));
                 ControlTypes = types;
                 Property = property;
                 Category = category;
@@ -1308,7 +1308,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (sfd.ShowDialog(this) == DialogResult.OK)
                     path = sfd.FileName;
                 else
-                    Engine.PrintLine("Save canceled.");
+                    Engine.Out("Save canceled.");
             }
             return path;
         }

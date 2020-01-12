@@ -33,12 +33,12 @@ namespace TheraEngine.Rendering.Textures
             => ManualRead3rdParty(path);
         public TextureFile2D(string path, Action<TextureFile2D> onFinishedAsync)
         {
-            Engine.PrintLine("Loading texture async from " + path);
+            Engine.Out("Loading texture async from " + path);
             Task.Run(() => TextureConverter.Decode(path)).ContinueWith(t => { Bitmaps = t.Result; onFinishedAsync?.Invoke(this); });
         }
         public override void ManualRead3rdParty(string filePath)
         {
-            Engine.PrintLine("Loading texture from " + filePath);
+            Engine.Out("Loading texture from " + filePath);
             Bitmaps = TextureConverter.Decode(filePath);
         }
     }

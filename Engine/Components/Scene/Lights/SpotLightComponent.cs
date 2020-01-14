@@ -155,10 +155,10 @@ namespace TheraEngine.Components.Scene.Lights
             _direction = _rotation.GetDirection();
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
-        protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             UpdateCones();
-            base.OnWorldTransformChanged();
+            base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
         public override void OnSpawned()
         {

@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering.Cameras
                 _cameraToWorldSpaceMatrix = value;
                 _worldToCameraSpaceMatrix = _cameraToWorldSpaceMatrix.Inverted();
                 _localPoint.Raw = _cameraToWorldSpaceMatrix.Translation;
-                _localRotation.SetRotations(_cameraToWorldSpaceMatrix.GetRotationMatrix4().ExtractRotation().ToYawPitchRoll());
+                _localRotation.SetRotations(_cameraToWorldSpaceMatrix.GetRotationMatrix4().ExtractRotation().ToRotator());
                 OnTransformChanged();
             }
         }

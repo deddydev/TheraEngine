@@ -482,8 +482,7 @@ namespace TheraEngine.TriangleConverter
 		        uint j = Link.Terminal._elem._index;
 		        if ((!_Triangles[j].Marked) && (!_TriHeap.Removed(j))) 
                 {
-			        uint NewDegree = _TriHeap[j];
-			        NewDegree = NewDegree - 1;
+			        uint NewDegree = _TriHeap[j] - 1;
 			        _TriHeap.Update(j, NewDegree);
 
 			        //Update the candidate list if cache is enabled
@@ -556,18 +555,16 @@ namespace TheraEngine.TriangleConverter
             }
         }
 
-	    private static TriangleEdge FirstEdge(Triangle Triangle, TriOrder Order)
-        {
-            switch (Order)
+        private static TriangleEdge FirstEdge(Triangle Triangle, TriOrder Order)
+            => Order switch
             {
-                case TriOrder.ABC: return new TriangleEdge(Triangle.A, Triangle.B);
-                case TriOrder.BCA: return new TriangleEdge(Triangle.B, Triangle.C);
-                case TriOrder.CAB: return new TriangleEdge(Triangle.C, Triangle.A);
-                default: return new TriangleEdge(0, 0);
-            }
-        }
+                TriOrder.ABC => new TriangleEdge(Triangle.A, Triangle.B),
+                TriOrder.BCA => new TriangleEdge(Triangle.B, Triangle.C),
+                TriOrder.CAB => new TriangleEdge(Triangle.C, Triangle.A),
+                _ => new TriangleEdge(0, 0),
+            };
 
-	    private static TriangleEdge LastEdge(Triangle Triangle, TriOrder Order)
+        private static TriangleEdge LastEdge(Triangle Triangle, TriOrder Order)
         {
             switch (Order)
             {

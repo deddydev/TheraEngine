@@ -17,9 +17,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// </summary>
         /// <param name="rootComparer"></param>
         public DataTableComparer(RootComparer rootComparer)
-            : base(rootComparer)
-        {
-        }
+            : base(rootComparer) { }
 
         /// <summary>
         /// Returns true if both objects are of type DataTable
@@ -28,20 +26,15 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// <param name="type2">The type of the second object</param>
         /// <returns></returns>
         public override bool IsTypeMatch(Type type1, Type type2)
-        {
-            return TypeHelper.IsDataTable(type1) && TypeHelper.IsDataTable(type2);
-        }
+            => TypeHelper.IsDataTable(type1) && TypeHelper.IsDataTable(type2);
 
         /// <summary>
         /// Compare two datatables
         /// </summary>
         public override void CompareType(CompareParms parms)
         {
-            DataTable dataTable1 = parms.Object1 as DataTable;
-            DataTable dataTable2 = parms.Object2 as DataTable;
-
             //This should never happen, null check happens one level up
-            if (dataTable1 is null || dataTable2 is null)
+            if (!(parms.Object1 is DataTable dataTable1) || !(parms.Object2 is DataTable dataTable2))
                 return;
 
             //Only compare specific table names
@@ -73,20 +66,16 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
                     return;
             }
 
-            if (ColumnsDifferent(parms)) return;
-
-            CompareEachRow(parms);
+            if (!ColumnsDifferent(parms))
+                CompareEachRow(parms);
         }
 
         private bool ColumnsDifferent(CompareParms parms)
         {
-            DataTable dataTable1 = parms.Object1 as DataTable;
-            DataTable dataTable2 = parms.Object2 as DataTable;
-
-            if (dataTable1 is null)
+            if (!(parms.Object1 is DataTable dataTable1))
                 throw new ArgumentException("parms.Object1");
 
-            if (dataTable2 is null)
+            if (!(parms.Object2 is DataTable dataTable2))
                 throw new ArgumentException("parms.Object2");
 
             if (dataTable1.Columns.Count != dataTable2.Columns.Count)
@@ -135,13 +124,10 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
 
         private void CompareEachRow(CompareParms parms)
         {
-            DataTable dataTable1 = parms.Object1 as DataTable;
-            DataTable dataTable2 = parms.Object2 as DataTable;
-
-            if (dataTable1 is null)
+            if (!(parms.Object1 is DataTable dataTable1))
                 throw new ArgumentException("parms.Object1");
 
-            if (dataTable2 is null)
+            if (!(parms.Object2 is DataTable dataTable2))
                 throw new ArgumentException("parms.Object2");
 
             for (int i = 0; i < Math.Min(dataTable1.Rows.Count, dataTable2.Rows.Count); i++)
@@ -165,8 +151,6 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
                     return;
             }
         }
-
-
     }
 }
 

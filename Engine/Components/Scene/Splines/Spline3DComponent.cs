@@ -310,9 +310,9 @@ void main()
             Transform.DeriveTRS(_localTRS, out Vec3 t, out Vec3 s, out Quat r);
             _translation.SetRawNoUpdate(t);
             _scale.SetRawNoUpdate(s);
-            _rotation.SetRotationsNoUpdate(r.ToYawPitchRoll());
+            _rotation.SetRotationsNoUpdate(r.ToRotator());
         }
-        protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             Matrix4 mtx = ParentMatrix * _localTRS;
             _rcKfLines.WorldMatrix = mtx;
@@ -325,7 +325,7 @@ void main()
 
             RenderInfo.CullingVolume?.SetTransformMatrix(mtx * _cullingVolumeTranslation.AsTranslationMatrix());
 
-            base.OnWorldTransformChanged();
+            base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
         
         private readonly RenderCommandMesh3D _rcKfLines = new RenderCommandMesh3D(ERenderPass.OpaqueForward);

@@ -179,7 +179,7 @@ namespace System
         /// <summary>
         /// Returns a euler rotation in the order of yaw, pitch, roll.
         /// </summary>
-        public Rotator ToYawPitchRoll()
+        public Rotator ToRotator()
         {
             Normalize();
             float sqx = X * X;

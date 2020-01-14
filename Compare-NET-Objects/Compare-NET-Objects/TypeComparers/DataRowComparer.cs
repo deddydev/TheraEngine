@@ -34,11 +34,8 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// </summary>
         public override void CompareType(CompareParms parms)
         {
-            DataRow dataRow1 = parms.Object1 as DataRow;
-            DataRow dataRow2 = parms.Object2 as DataRow;
-
             //This should never happen, null check happens one level up
-            if (dataRow1 is null || dataRow2 is null)
+            if (!(parms.Object1 is DataRow dataRow1) || !(parms.Object2 is DataRow dataRow2))
                 return;
 
             for (int i = 0; i < Math.Min(dataRow2.Table.Columns.Count, dataRow1.Table.Columns.Count); i++)

@@ -325,9 +325,9 @@ namespace TheraEngine.Components.Scene.Mesh
 
             base.OnDespawned();
         }
-        public override void RecalcWorldTransform()
+        public override void RecalcWorldTransform(bool recalcChildWorldTransformsNow = true)
         {
-            base.RecalcWorldTransform();
+            base.RecalcWorldTransform(recalcChildWorldTransformsNow);
             TargetSkeleton?.WorldMatrixChanged();
         }
         

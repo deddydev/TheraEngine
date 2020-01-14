@@ -114,28 +114,26 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
 
         private bool DictionaryCountsDifferent(CompareParms parms)
         {
-            IDictionary iDict1 = parms.Object1 as IDictionary;
-            IDictionary iDict2 = parms.Object2 as IDictionary;
-
-            if (iDict1 is null)
+            if (!(parms.Object1 is IDictionary iDict1))
                 throw new ArgumentException("parms.Object1");
 
-            if (iDict2 is null)
+            if (!(parms.Object2 is IDictionary iDict2))
                 throw new ArgumentException("parms.Object2");
 
             if (iDict1.Count != iDict2.Count)
             {
-                Difference difference = new Difference
-                                            {
-                                                ParentObject1 = parms.ParentObject1,
-                                                ParentObject2 = parms.ParentObject2,
-                                                PropertyName = parms.BreadCrumb,
-                                                Object1Value = iDict1.Count.ToString(CultureInfo.InvariantCulture),
-                                                Object2Value = iDict2.Count.ToString(CultureInfo.InvariantCulture),
-                                                ChildPropertyName = "Count",
-                                                Object1 = iDict1,
-                                                Object2 = iDict2
-                                            };
+                Difference difference = 
+                    new Difference
+                    {
+                        ParentObject1 = parms.ParentObject1,
+                        ParentObject2 = parms.ParentObject2,
+                        PropertyName = parms.BreadCrumb,
+                        Object1Value = iDict1.Count.ToString(CultureInfo.InvariantCulture),
+                        Object2Value = iDict2.Count.ToString(CultureInfo.InvariantCulture),
+                        ChildPropertyName = "Count",
+                        Object1 = iDict1,
+                        Object2 = iDict2
+                    };
 
                 AddDifference(parms.Result, difference);
 

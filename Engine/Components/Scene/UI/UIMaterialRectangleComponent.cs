@@ -110,10 +110,10 @@ namespace TheraEngine.Rendering.UI
         //    inverseLocalTransform = Matrix4.CreateScale(1.0f / _size.X, 1.0f / _size.Y, 1.0f) * inverseLocalTransform;
         //}
 
-        protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             RenderCommand.WorldMatrix = WorldMatrix * Matrix4.CreateScale(ActualWidth, ActualHeight, 1.0f);
-            base.OnWorldTransformChanged();
+            base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 
         [Category("Rendering")]

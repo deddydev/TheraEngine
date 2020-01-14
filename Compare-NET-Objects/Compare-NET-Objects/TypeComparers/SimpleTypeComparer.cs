@@ -11,9 +11,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// Constructor that takes a root comparer
         /// </summary>
         /// <param name="rootComparer"></param>
-        public SimpleTypeComparer(RootComparer rootComparer) : base(rootComparer)
-        {
-        }
+        public SimpleTypeComparer(RootComparer rootComparer) : base(rootComparer) { }
 
         /// <summary>
         /// Returns true if the type is a simple type
@@ -22,9 +20,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// <param name="type2">The type of the second object</param>
         /// <returns></returns>
         public override bool IsTypeMatch(Type type1, Type type2)
-        {
-            return TypeHelper.IsSimpleType(type1) && TypeHelper.IsSimpleType(type2);
-        }
+            => TypeHelper.IsSimpleType(type1) && TypeHelper.IsSimpleType(type2);
 
         /// <summary>
         /// Compare two simple types
@@ -35,15 +31,11 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             if (parms.Object1 is null || parms.Object2 is null)
                 return;
 
-            IComparable valOne = parms.Object1 as IComparable;
-
-            if (valOne is null)
+            if (!(parms.Object1 is IComparable valOne))
                 throw new Exception("Expected value does not implement IComparable");
 
             if (valOne.CompareTo(parms.Object2) != 0)
-            {
                 AddDifference(parms);
-            }
         }
     }
 }

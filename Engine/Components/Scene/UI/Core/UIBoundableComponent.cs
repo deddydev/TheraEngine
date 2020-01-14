@@ -401,8 +401,15 @@ namespace TheraEngine.Rendering.UI
         protected override void OnResizeLayout(BoundingRectangleF parentBounds)
         {
             OnResizeActual(parentBounds);
-            RecalcLocalTransform();
-            var bounds = new BoundingRectangleF(ActualTranslation.Raw, ActualSize.Raw);
+            RecalcLocalTransform(true, false);
+
+            Vec4 pad = Padding.Raw;
+            Vec2 size = ActualSize.Raw;
+            Vec2 pos = ActualTranslation.Raw;
+            pos += new Vec2(pad.X, pad.Y);
+            size -= new Vec2(pad.X + pad.Z, pad.Y + pad.W);
+            var bounds = new BoundingRectangleF(pos, size);
+
             OnResizeChildComponents(bounds);
             RemakeAxisAlignedRegion();
         }

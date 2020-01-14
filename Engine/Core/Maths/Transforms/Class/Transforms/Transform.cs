@@ -117,25 +117,23 @@ namespace TheraEngine.Core.Maths.Transforms
             _scale.Changed += CreateTransform;
 
             _quaternion = rotate;
-            _rotation = _quaternion.ToYawPitchRoll();
+            _rotation = _quaternion.ToRotator();
 
             _transformOrder = transformOrder;
             CreateTransform();
         }
 
         public static ETransformOrder OppositeOrder(ETransformOrder order)
-        {
-            switch (order)
+            => order switch
             {
-                case ETransformOrder.TRS: return ETransformOrder.SRT;
-                case ETransformOrder.TSR: return ETransformOrder.RST;
-                case ETransformOrder.RST: return ETransformOrder.RST;
-                case ETransformOrder.RTS: return ETransformOrder.RTS;
-                case ETransformOrder.STR: return ETransformOrder.STR;
-                case ETransformOrder.SRT: return ETransformOrder.SRT;
-            }
-            return ETransformOrder.TRS;
-        }
+                ETransformOrder.TRS => ETransformOrder.SRT,
+                ETransformOrder.TSR => ETransformOrder.RST,
+                ETransformOrder.RST => ETransformOrder.RST,
+                ETransformOrder.RTS => ETransformOrder.RTS,
+                ETransformOrder.STR => ETransformOrder.STR,
+                ETransformOrder.SRT => ETransformOrder.SRT,
+                _ => ETransformOrder.TRS,
+            };
 
         public void SetAll(Vec3 translate, Rotator rotation, Vec3 scale)
         {
@@ -150,7 +148,7 @@ namespace TheraEngine.Core.Maths.Transforms
             _translation.SetRawNoUpdate(translate);
             _scale.SetRawNoUpdate(scale);
             _quaternion = rotation;
-            _rotation.SetRotationsNoUpdate(_quaternion.ToYawPitchRoll());
+            _rotation.SetRotationsNoUpdate(_quaternion.ToRotator());
             CreateTransform();
         }
 
@@ -213,7 +211,7 @@ namespace TheraEngine.Core.Maths.Transforms
             _translation.SetRawNoUpdate(t);
             _scale.SetRawNoUpdate(s);
             _quaternion = r;
-            Rotation.SetRotationsNoUpdate(_quaternion.ToYawPitchRoll());
+            Rotation.SetRotationsNoUpdate(_quaternion.ToRotator());
         }
 
         [Category("Transform")]
@@ -322,7 +320,7 @@ namespace TheraEngine.Core.Maths.Transforms
             set
             {
                 _quaternion = value;
-                Rotation.SetRotations(_quaternion.ToYawPitchRoll());
+                Rotation.SetRotations(_quaternion.ToRotator());
             }
         }
 

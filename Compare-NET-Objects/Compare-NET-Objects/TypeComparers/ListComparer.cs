@@ -104,13 +104,10 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
 
         private bool ListsHaveDifferentCounts(CompareParms parms)
         {
-            IList ilist1 = parms.Object1 as IList;
-            IList ilist2 = parms.Object2 as IList;
-
-            if (ilist1 is null)
+            if (!(parms.Object1 is IList ilist1))
                 throw new ArgumentException("parms.Object1");
 
-            if (ilist2 is null)
+            if (!(parms.Object2 is IList ilist2))
                 throw new ArgumentException("parms.Object2");
 
             try
@@ -169,16 +166,17 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             {
                 string currentBreadCrumb = AddBreadCrumb(parms.Config, parms.BreadCrumb, string.Empty, string.Empty, count);
 
-                CompareParms childParms = new CompareParms
-                                          {
-                                              Result = parms.Result,
-                                              Config = parms.Config,
-                                              ParentObject1 = parms.Object1,
-                                              ParentObject2 = parms.Object2,
-                                              Object1 = enumerator1.Current,
-                                              Object2 = enumerator2.Current,
-                                              BreadCrumb = currentBreadCrumb
-                                          };
+                CompareParms childParms = 
+                    new CompareParms
+                    {
+                        Result = parms.Result,
+                        Config = parms.Config,
+                        ParentObject1 = parms.Object1,
+                        ParentObject2 = parms.Object2,
+                        Object1 = enumerator1.Current,
+                        Object2 = enumerator2.Current,
+                        BreadCrumb = currentBreadCrumb
+                    };
 
                 RootComparer.Compare(childParms);
 

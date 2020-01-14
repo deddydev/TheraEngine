@@ -86,7 +86,7 @@ namespace TheraEngine.Rendering.UI
         protected override void OnResizeLayout(BoundingRectangleF parentBounds)
         {
             OnResizeActual(parentBounds);
-            RecalcLocalTransform();
+            RecalcLocalTransform(true, false);
             var bounds = new BoundingRectangleF(ActualTranslation.Raw, parentBounds.Extents);
             OnResizeChildComponents(bounds);
         }
@@ -147,8 +147,8 @@ namespace TheraEngine.Rendering.UI
 
             Vec2 newTranslation = ActualTranslation.Raw + (worldScreenPoint - WorldPoint.Xy) * multiplier;
 
-            _translation.SetRawNoUpdate(new Vec3(newTranslation, _translation.Z));
-            _scale.SetRawNoUpdate(new Vec3(newScale, _scale.Z));
+            _translation.Raw = new Vec3(newTranslation, _translation.Z);
+            _scale.Raw = new Vec3(newScale, _scale.Z);
 
             InvalidateLayout();
         }

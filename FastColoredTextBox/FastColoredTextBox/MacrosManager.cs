@@ -57,12 +57,11 @@ namespace FastColoredTextBoxNS
                 {
                     UnderlayingControl.ProcessKey((Keys)item);
                 }
-                if (item is KeyValuePair<char, Keys>)
+                if (item is KeyValuePair<char, Keys> p)
                 {
-                    var p = (KeyValuePair<char, Keys>)item;
                     UnderlayingControl.ProcessKey(p.Key, p.Value);
                 }
-                
+
             }
             UnderlayingControl.EndAutoUndo();
             UnderlayingControl.Selection.EndUpdate();
@@ -130,9 +129,8 @@ namespace FastColoredTextBoxNS
                     {
                         sb.AppendFormat("<item key='{0}' />\r\n", kc.ConvertToString((Keys)item));
                     }
-                    else if (item is KeyValuePair<char, Keys>)
+                    else if (item is KeyValuePair<char, Keys> p)
                     {
-                        var p = (KeyValuePair<char, Keys>)item;
                         sb.AppendFormat("<item char='{0}' key='{1}' />\r\n", (int)p.Key, kc.ConvertToString(p.Value));
                     }
                 }

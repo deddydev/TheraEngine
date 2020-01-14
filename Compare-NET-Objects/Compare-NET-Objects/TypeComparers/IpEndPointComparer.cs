@@ -16,8 +16,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// </summary>
         /// <param name="rootComparer"></param>
         public IpEndPointComparer(RootComparer rootComparer)
-            : base(rootComparer)
-        {}
+            : base(rootComparer) { }
 
         /// <summary>
         /// Returns true if both objects are an IP End Point
@@ -26,20 +25,15 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// <param name="type2">The type of the second object</param>
         /// <returns></returns>
         public override bool IsTypeMatch(Type type1, Type type2)
-        {
-            return TypeHelper.IsIpEndPoint(type1) && TypeHelper.IsIpEndPoint(type2);
-        }
+            => TypeHelper.IsIpEndPoint(type1) && TypeHelper.IsIpEndPoint(type2);
 
         /// <summary>
         /// Compare two IP End Points
         /// </summary>
         public override void CompareType(CompareParms parms)
         {
-            IPEndPoint ipEndPoint1 = parms.Object1 as IPEndPoint;
-            IPEndPoint ipEndPoint2 = parms.Object2 as IPEndPoint;
-
             //Null check happens above
-            if (ipEndPoint1 is null || ipEndPoint2 is null)
+            if (!(parms.Object1 is IPEndPoint ipEndPoint1) || !(parms.Object2 is IPEndPoint ipEndPoint2))
                 return;
 
             ComparePort(parms, ipEndPoint1, ipEndPoint2);
@@ -56,17 +50,18 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         {
             if (ipEndPoint1.Port != ipEndPoint2.Port)
             {
-                Difference difference = new Difference
-                                            {
-                                                ParentObject1 = parms.ParentObject1,
-                                                ParentObject2 = parms.ParentObject2,
-                                                PropertyName = parms.BreadCrumb,
-                                                Object1Value = ipEndPoint1.Port.ToString(CultureInfo.InvariantCulture),
-                                                Object2Value = ipEndPoint2.Port.ToString(CultureInfo.InvariantCulture),
-                                                ChildPropertyName = "Port",
-                                                Object1 = ipEndPoint1,
-                                                Object2 = ipEndPoint2
-                                            };
+                Difference difference = 
+                    new Difference
+                    {
+                        ParentObject1 = parms.ParentObject1,
+                        ParentObject2 = parms.ParentObject2,
+                        PropertyName = parms.BreadCrumb,
+                        Object1Value = ipEndPoint1.Port.ToString(CultureInfo.InvariantCulture),
+                        Object2Value = ipEndPoint2.Port.ToString(CultureInfo.InvariantCulture),
+                        ChildPropertyName = "Port",
+                        Object1 = ipEndPoint1,
+                        Object2 = ipEndPoint2
+                    };
 
                 AddDifference(parms.Result, difference);
             }

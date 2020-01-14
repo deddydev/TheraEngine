@@ -63,6 +63,7 @@ namespace TheraEngine.Components
         
         void RecalcWorldTransform();
         void RecalcLocalTransform();
+        void RecalcLocalTransform(bool recalcWorldTransform, bool recalcChildWorldTransforms);
         List<ISceneComponent> GenerateChildCache();
         void GenerateChildCache(List<ISceneComponent> cache);
 
@@ -107,8 +108,12 @@ namespace TheraEngine.Components
             Engine.Audio.UpdateListener(WorldPoint, WorldForwardVec, WorldUpVec, Velocity, 1.0f, 1.0f, true);
         }
 
-        void ISceneComponent.RecalcLocalTransform() => RecalcLocalTransform();
-        void ISceneComponent.RecalcWorldTransform() => RecalcWorldTransform();
+        void ISceneComponent.RecalcLocalTransform()
+            => RecalcLocalTransform();
+        void ISceneComponent.RecalcLocalTransform(bool recalcWorldTransform, bool recalcChildWorldTransforms)
+            => RecalcLocalTransform(recalcWorldTransform, recalcChildWorldTransforms);
+        void ISceneComponent.RecalcWorldTransform()
+            => RecalcWorldTransform();
 
         protected SceneComponent()
         {
@@ -122,7 +127,7 @@ namespace TheraEngine.Components
         /// This is the method that will be called immediately after any world transform change.
         /// Use this to update anything that depends on this component's transform.
         /// </summary>
-        protected virtual void OnWorldTransformChanged()
+        protected virtual void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             if (!_readingPhysicsTransform && this is IRigidBodyCollidable p && p.RigidBodyCollision != null)
             {
@@ -140,8 +145,9 @@ namespace TheraEngine.Components
             if (this is I3DRenderable r3d)
                 r3d.RenderInfo?.OctreeNode?.ItemMoved(r3d);
 
-            foreach (ISceneComponent c in _children)
-                c?.RecalcWorldTransform();
+            if (recalcChildWorldTransformsNow)
+                foreach (ISceneComponent c in _children)
+                    c?.RecalcWorldTransform();
 
             WorldTransformChanged?.Invoke(this);
             SocketTransformChanged?.Invoke(this);
@@ -664,14 +670,17 @@ namespace TheraEngine.Components
                 r2D.RenderInfo.UnlinkScene();
         }
 
-        protected bool AllowLocalRecalc { get; set; } = true;
-        protected void RecalcLocalTransform()
+        protected virtual bool AllowRecalcLocalTransform() => true;
+        protected void RecalcLocalTransform() => RecalcLocalTransform(true, true);
+        protected void RecalcLocalTransform(bool recalcWorldTransform, bool recalcChildWorldTransforms)
         {
-            if (!AllowLocalRecalc)
+            if (!AllowRecalcLocalTransform())
                 return;
 
             OnRecalcLocalTransform(out _localMatrix, out _inverseLocalMatrix);
-            RecalcWorldTransform();
+
+            if (recalcWorldTransform)
+                RecalcWorldTransform(recalcChildWorldTransforms);
         }
         /// <summary>
         /// Override to set local transforms.
@@ -681,13 +690,13 @@ namespace TheraEngine.Components
         /// <summary>
         /// Recalculates the world matrix for this component in relation to the parent component's world matrix.
         /// </summary>
-        public virtual void RecalcWorldTransform()
+        public virtual void RecalcWorldTransform(bool recalcChildWorldTransforms = true)
         {
             _previousWorldMatrix = _worldMatrix;
             _worldMatrix = ParentMatrix * LocalMatrix;
             _previousInverseWorldMatrix = _inverseWorldMatrix;
             _inverseWorldMatrix = InverseLocalMatrix * InverseParentMatrix;
-            OnWorldTransformChanged();
+            OnWorldTransformChanged(recalcChildWorldTransforms);
         }
 
         public List<ISceneComponent> GenerateChildCache()

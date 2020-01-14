@@ -84,9 +84,9 @@ namespace TheraEngine.Components.Scene
             Instance = Engine.Audio.Play(this);
         }
 
-        protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
-            base.OnWorldTransformChanged();
+            base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
             UpdateTransform(ParametersRef?.File);
         }
 

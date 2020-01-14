@@ -158,10 +158,10 @@ namespace TheraEngine.Components.Scene.Lights
 
 #if EDITOR
 
-        protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             PreviewIconRenderCommand.Position = WorldPoint;
-            base.OnWorldTransformChanged();
+            base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 
         [Category("Editor Traits")]

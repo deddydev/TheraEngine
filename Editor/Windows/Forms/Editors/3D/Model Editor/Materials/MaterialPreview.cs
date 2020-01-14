@@ -120,7 +120,7 @@ namespace TheraEditor.Windows.Forms
                 float vecLen = vec.Length;
                 Quat rot = Quat.FromAxisAngleDeg(axis, vecLen);
                 lightRotation = rot * lightRotation;
-                Rotator r = lightRotation.ToYawPitchRoll();
+                Rotator r = lightRotation.ToRotator();
                 _light.Rotation.SetRotations(r);
             }
         }

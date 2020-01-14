@@ -205,6 +205,9 @@ namespace TheraEngine.Core
         //        finally { Monitor.Exit(ctx); }
         //    }
         //}
+
+        public IFileObject LoadRef(IFileRef fref) => fref.GetInstance();
+
         public RenderContext GetContext(EPanelType type)
         {
             return type switch
@@ -233,9 +236,6 @@ namespace TheraEngine.Core
                 catch { }
             }
         }
-
-        public IFileObject LoadRef(IFileRef fref) => fref.GetInstance();
-
         private void SwapBuffersTick(object sender, FrameEventArgs e)
         {
             foreach (WorldManager m in WorldManagers)
@@ -258,7 +258,6 @@ namespace TheraEngine.Core
                 catch { }
             }
         }
-
         private void RenderTick(object sender, FrameEventArgs e)
         {
             while (Engine.DisposingRenderContexts.TryDequeue(out RenderContext ctx))

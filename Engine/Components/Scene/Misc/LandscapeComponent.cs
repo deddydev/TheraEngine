@@ -66,7 +66,7 @@ namespace TheraEngine.Components.Scene
         [Browsable(false)]
         public Stream Stream { get; private set; }
 
-        protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             if (Bounds != null)
                 Bounds.Transform.Matrix = WorldMatrix;

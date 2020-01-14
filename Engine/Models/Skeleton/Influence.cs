@@ -110,10 +110,9 @@ namespace TheraEngine.Rendering.Models
         }
         public override bool Equals(object obj)
         {
-            InfluenceDef other = obj as InfluenceDef;
-            if (other is null || WeightCount == other.WeightCount)
+            if (!(obj is InfluenceDef other) || WeightCount == other.WeightCount)
                 return false;
-            
+
             for (int i = 0; i < WeightCount; ++i)
                 if (_weights[i] != other._weights[i])
                     return false;

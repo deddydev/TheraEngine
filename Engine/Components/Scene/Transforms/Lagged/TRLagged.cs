@@ -128,7 +128,7 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             Quat q = _currentRotation.ToQuaternion();
             q = q * delta;
-            _desiredRotation.SetRotations(q.ToYawPitchRoll());
+            _desiredRotation.SetRotations(q.ToRotator());
             base.HandleRotation(delta);
         }
 

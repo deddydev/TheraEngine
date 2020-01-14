@@ -54,7 +54,7 @@ namespace TheraEngine.Components.Scene.Transforms
         public override bool IsRotatable => true;
         public override void HandleRotation(Quat delta)
         {
-            _rotation.SetRotations(delta.ToYawPitchRoll());
+            _rotation.SetRotations(delta.ToRotator());
         }
     }
 }

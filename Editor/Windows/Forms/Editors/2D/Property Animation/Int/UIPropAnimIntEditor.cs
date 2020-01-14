@@ -417,14 +417,6 @@ void main()
             color = Vec3.Lerp(Vec3.UnitZ, Vec3.UnitX, time);
             pos = new Vec3(sec, val, 0.0f);
         }
-        protected override void UpdateTextScale()
-        {
-            base.UpdateTextScale();
-
-            Vec2 scale = 1.0f / OriginTransformComponent.Scale.Xy;
-            _xCoord.Scale.Xy = scale;
-            _yCoord.Scale.Xy = scale;
-        }
         protected override bool GetWorkArea(out Vec2 min, out Vec2 max)
         {
             //if (_targetAnimation is null)

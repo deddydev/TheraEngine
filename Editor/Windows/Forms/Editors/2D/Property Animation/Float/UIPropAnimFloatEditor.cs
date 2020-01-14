@@ -372,14 +372,6 @@ void main()
             
             _regenerating = false;
         }
-        protected override void UpdateTextScale()
-        {
-            base.UpdateTextScale();
-
-            Vec2 scale = 1.0f / OriginTransformComponent.Scale.Xy;
-            _xCoord.Scale.Xy = scale;
-            _yCoord.Scale.Xy = scale;
-        }
         public override void ZoomExtents(bool adjustScale = true)
         {
             base.ZoomExtents(adjustScale);
@@ -415,7 +407,7 @@ void main()
             OriginTransformComponent.InvalidateLayout();
         }
         private bool _redrewLastMove = false;
-        protected override void BaseTransformComponent_WorldTransformChanged(ISceneComponent obj)
+        protected override void OriginTransformComponent_WorldTransformChanged(ISceneComponent obj)
         {
             Matrix4 mtx = OriginTransformComponent.WorldMatrix;
 
@@ -452,7 +444,7 @@ void main()
                 _redrewLastMove = shouldRedraw;
             }
 
-            base.BaseTransformComponent_WorldTransformChanged(obj);
+            base.OriginTransformComponent_WorldTransformChanged(obj);
         }
         //protected override void ResizeLayout()
         //{

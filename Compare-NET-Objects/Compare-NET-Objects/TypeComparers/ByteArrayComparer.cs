@@ -13,9 +13,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// Protected constructor that references the root comparer
         /// </summary>
         /// <param name="rootComparer">The root comparer.</param>
-        public ByteArrayComparer(RootComparer rootComparer) : base(rootComparer)
-        {
-        }
+        public ByteArrayComparer(RootComparer rootComparer) : base(rootComparer) { }
 
         /// <summary>
         /// If true the type comparer will handle the comparison for the type
@@ -24,10 +22,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// <param name="type2">The type of the second object</param>
         /// <returns><c>true</c> if it is a byte array; otherwise, <c>false</c>.</returns>
         public override bool IsTypeMatch(Type type1, Type type2)
-        {
-            return TypeHelper.IsByteArray(type1)
-                   && TypeHelper.IsByteArray(type2);
-        }
+            => TypeHelper.IsByteArray(type1) && TypeHelper.IsByteArray(type2);
 
         /// <summary>
         /// Compare two byte array objects
@@ -46,13 +41,10 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
 
         private bool ListsHaveDifferentCounts(CompareParms parms)
         {
-            IList ilist1 = parms.Object1 as IList;
-            IList ilist2 = parms.Object2 as IList;
-
-            if (ilist1 is null)
+            if (!(parms.Object1 is IList ilist1))
                 throw new ArgumentException("parms.Object1");
 
-            if (ilist2 is null)
+            if (!(parms.Object2 is IList ilist2))
                 throw new ArgumentException("parms.Object2");
 
             //Objects must be the same length

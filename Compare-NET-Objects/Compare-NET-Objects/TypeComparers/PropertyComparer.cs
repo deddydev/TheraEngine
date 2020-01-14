@@ -238,13 +238,9 @@ See https://github.com/GregFinzer/Compare-Net-Objects/issues/103";
             return null;
         }
 
-
-
         private static List<PropertyEntity> AddExpandoPropertyValues(Object objectValue, Type objectType)
         {
-            IDictionary<string, object> expandoPropertyValues = objectValue as IDictionary<string, object>;
-
-            if (expandoPropertyValues is null)
+            if (!(objectValue is IDictionary<string, object> expandoPropertyValues))
                 return new List<PropertyEntity>();
 
             List<PropertyEntity> currentProperties  = new List<PropertyEntity>();

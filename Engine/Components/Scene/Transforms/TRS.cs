@@ -34,13 +34,15 @@ namespace TheraEngine.Components.Scene.Transforms
             _scale.Changed += RecalcLocalTransform;
             RecalcLocalTransform();
         }
+        protected override bool AllowRecalcLocalTransform() => _allowLocalRecalc;
+        private bool _allowLocalRecalc = true;
         public void SetTRSRaw(Vec3 translation, Rotator rotation, Vec3 scale)
         {
-            AllowLocalRecalc = false;
+            _allowLocalRecalc = false;
             _translation.Raw = translation;
             _rotation.SetRotations(rotation);
             _scale.Raw = scale;
-            AllowLocalRecalc = true;
+            _allowLocalRecalc = true;
             RecalcLocalTransform();
         }
 
@@ -69,7 +71,7 @@ namespace TheraEngine.Components.Scene.Transforms
             Transform.DeriveTRS(LocalMatrix, out Vec3 t, out Vec3 s, out Quat r);
             _translation.SetRawNoUpdate(t);
             _scale.SetRawNoUpdate(s);
-            _rotation.SetRotationsNoUpdate(r.ToYawPitchRoll());
+            _rotation.SetRotationsNoUpdate(r.ToRotator());
         }
 
         protected internal override void OnDeserialized()

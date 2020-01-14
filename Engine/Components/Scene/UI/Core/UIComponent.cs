@@ -59,8 +59,10 @@ namespace TheraEngine.Rendering.UI
             {
                 if (value)
                     Visibility = EVisibility.Visible;
+                else if (CollapseOnHide)
+                    Visibility = EVisibility.Collapsed;
                 else
-                    Visibility = CollapseOnHide ? EVisibility.Collapsed : EVisibility.Hidden;
+                    Visibility = EVisibility.Hidden;
             }
         }
 
@@ -78,7 +80,6 @@ namespace TheraEngine.Rendering.UI
                     return;
 
                 RenderInfo.Visible = IsVisible;
-
                 OnPropertyChanged(nameof(IsVisible));
 
                 foreach (ISceneComponent c in _children)
@@ -132,9 +133,7 @@ namespace TheraEngine.Rendering.UI
         }
 
         public void InvalidateLayout()
-        {
-            OwningUserInterface?.InvalidateLayout();
-        }
+            => OwningUserInterface?.InvalidateLayout();
 
         [Category("Rendering")]
         public bool RenderTransformation 
@@ -183,6 +182,14 @@ namespace TheraEngine.Rendering.UI
                 OwningUserInterface?.RemoveRenderableComponent(r);
             base.OnDespawned();
         }
+        protected override bool AllowRecalcLocalTransform()
+        {
+            if (OwningUserInterface?.IsResizing ?? true)
+                return true;
+
+            InvalidateLayout();
+            return false;
+        }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             localTransform = Matrix4.Identity;
@@ -202,9 +209,7 @@ namespace TheraEngine.Rendering.UI
         void IUIComponent.ResizeLayout(BoundingRectangleF parentRegion)
             => ResizeLayout(parentRegion);
         internal void ResizeLayout(BoundingRectangleF parentRegion)
-        {
-            OnResizeLayout(parentRegion);
-        }
+            => OnResizeLayout(parentRegion);
         //public virtual IUIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis)
         //{
         //    foreach (ISceneComponent c in _children)

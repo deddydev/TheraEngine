@@ -89,10 +89,10 @@ namespace TheraEngine.Components.Scene
             Vec3 halfExtents = _shape.HalfExtents.Raw;
             RenderCommandDecal.WorldMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
         }
-        protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             UpdateRenderCommandMatrix();
-            base.OnWorldTransformChanged();
+            base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Extensions;
+using System;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -15,9 +16,6 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
 using TheraEngine.Rendering.UI;
-using Extensions;
-using TheraEditor.Wrappers;
-using System.Collections.Concurrent;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -99,7 +97,7 @@ namespace TheraEditor.Windows.Forms
             UICanvasComponent baseUI = new UICanvasComponent() { RenderTransformation = false };
             baseUI.ChildComponents.Add(_backgroundComponent);
 
-            OriginTransformComponent.WorldTransformChanged += BaseTransformComponent_WorldTransformChanged;
+            OriginTransformComponent.WorldTransformChanged += OriginTransformComponent_WorldTransformChanged;
 
             _originText = ConstructText(new ColorF4(0.3f), "0", "0", out UIString2D originStr);
             if (!string.IsNullOrWhiteSpace(XUnitString))
@@ -161,10 +159,16 @@ namespace TheraEditor.Windows.Forms
             comp.TextDrawer.Text.Add(str);
 
             OriginTransformComponent.ChildComponents.Add(comp);
+
             comp.Scale.Raw = 1.0f / OriginTransformComponent.Scale * TextScale;
+            
+            comp.Scale.BindProperty(nameof(EventVec3.Raw),
+                OriginTransformComponent.Scale, nameof(EventVec3.Raw),
+                TextScaleConverter);
 
             return comp;
         }
+        private object TextScaleConverter(object x) => 1.0f / (Vec3)x * TextScale;
         protected abstract bool GetWorkArea(out Vec2 min, out Vec2 max);
         public virtual void ZoomExtents(bool adjustScale = true)
         {
@@ -218,20 +222,14 @@ namespace TheraEditor.Windows.Forms
                 OriginTransformComponent.Scale.Xy = TMath.Min(Bounds.X, Bounds.Y) / (UnitIncrementX * InitialVisibleBoxes);
             }
         }
-        protected virtual void BaseTransformComponent_WorldTransformChanged(ISceneComponent obj)
+        protected virtual void OriginTransformComponent_WorldTransformChanged(ISceneComponent obj)
         {
-            Vec2 origin = GetViewportTopRight();
             if (_xUnitText != null)
-            {
-                float width = _xUnitText.Width;
-                _xUnitText.Translation.X = origin.X - width / OriginTransformComponent.Scale.X;
-            }
+                _xUnitText.Translation.X = (-OriginTransformComponent.Translation.X + Bounds.X - _xUnitText.Width) / OriginTransformComponent.Scale.X;
+            
             if (_yUnitText != null)
-            {
-                float height = _yUnitText.Height;
-                _yUnitText.Translation.Y = origin.Y - height / OriginTransformComponent.Scale.Y;
-            }
-            UpdateTextScale();
+                _yUnitText.Translation.Y = (-OriginTransformComponent.Translation.Y + Bounds.Y - _yUnitText.Height) / OriginTransformComponent.Scale.Y;
+            
             CalcIntervals();
             DisplayIntervals();
             UpdateBackgroundMaterial();
@@ -665,24 +663,6 @@ namespace TheraEditor.Windows.Forms
         {
             Vec3 worldPoint = CursorPositionWorld();
             OriginTransformComponent.Zoom(OriginTransformComponent.Scale.X * increment, worldPoint.Xy, new Vec2(0.1f, 0.1f), new Vec2(3000.0f, 3000.0f));
-        }
-        protected virtual void UpdateTextScale()
-        {
-            Vec2 scale = 1.0f / OriginTransformComponent.Scale.Xy;
-
-            _originText.Scale.Xy = scale;
-
-            foreach (var comp in _textCacheX)
-                comp.Value.Item1.Scale.Xy = scale;
-
-            foreach (var comp in _textCacheY)
-                comp.Value.Item1.Scale.Xy = scale;
-
-            if (_xUnitText != null)
-                _xUnitText.Scale.Xy = scale;
-
-            if (_yUnitText != null)
-                _yUnitText.Scale.Xy = scale;
         }
         protected virtual void AddRenderables(RenderPasses passes) { }
         void I2DRenderable.AddRenderables(RenderPasses passes, ICamera camera)

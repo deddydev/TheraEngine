@@ -16,9 +16,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// Protected constructor that references the root comparer
         /// </summary>
         /// <param name="rootComparer">The root comparer.</param>
-        public FontComparer(RootComparer rootComparer) : base(rootComparer)
-        {
-        }
+        public FontComparer(RootComparer rootComparer) : base(rootComparer) { }
 
         /// <summary>
         /// If true the type comparer will handle the comparison for the type
@@ -28,19 +26,14 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// <returns><c>true</c> if [is type match] [the specified type1]; otherwise, <c>false</c>.</returns>
         /// <exception cref="System.NotImplementedException"></exception>
         public override bool IsTypeMatch(Type type1, Type type2)
-        {
-            return TypeHelper.IsFont(type1) && TypeHelper.IsFont(type2);
-        }
+            => TypeHelper.IsFont(type1) && TypeHelper.IsFont(type2);
 
         /// <summary>
         /// Compare the two fonts
         /// </summary>
         public override void CompareType(CompareParms parms)
         {
-            Font font1 = parms.Object1 as Font;
-            Font font2 = parms.Object2 as Font;
-
-            if (font1 is null || font2 is null)
+            if (!(parms.Object1 is Font font1) || !(parms.Object2 is Font font2))
                 return;
 
             CompareProp(parms, font1.Bold, font2.Bold, "Bold");

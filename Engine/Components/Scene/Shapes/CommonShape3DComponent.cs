@@ -69,10 +69,10 @@ namespace TheraEngine.Components.Scene.Shapes
         protected virtual void Render(bool shadowPass) => _shape?.Render(shadowPass);
         protected override RenderCommand3D GetRenderCommand() => RenderCommand;
 
-        protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             _shape?.SetTransformMatrix(WorldMatrix);
-            base.OnWorldTransformChanged();
+            base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 
         public override TCollisionShape GetCollisionShape()

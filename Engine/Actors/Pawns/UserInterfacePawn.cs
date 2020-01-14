@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Actors.Types.Pawns
@@ -17,6 +15,7 @@ namespace TheraEngine.Actors.Types.Pawns
         IPawn OwningPawn { get; set; }
 
         EventVec2 Bounds { get; }
+        bool IsResizing { get; }
 
         Vec2 CursorPosition();
         Vec2 CursorPositionWorld();
@@ -317,22 +316,25 @@ namespace TheraEngine.Actors.Types.Pawns
                 RootComponent.RenderInScreenSpace(viewport, fbo);
         }
 
-        public Action<UserInterfacePawn<T>> Resizing;
-        public Action<UserInterfacePawn<T>> Resized;
+        public Action<UserInterfacePawn<T>> ResizeStarted;
+        public Action<UserInterfacePawn<T>> ResizeFinished;
 
         protected virtual void ResizeLayout() 
             => RootComponent.ResizeLayout(new BoundingRectangleF(
                 RootComponent.Translation.Xy,
                 RootComponent.Size.Raw));
 
+        public bool IsResizing { get; private set; }
         public virtual void UpdateLayout()
         {
             if (IsLayoutInvalidated)
             {
-                Resizing?.Invoke(this);
+                IsResizing = true;
+                ResizeStarted?.Invoke(this);
                 ResizeLayout();
                 IsLayoutInvalidated = false;
-                Resized?.Invoke(this);
+                IsResizing = false;
+                ResizeFinished?.Invoke(this);
             }
 
             if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)

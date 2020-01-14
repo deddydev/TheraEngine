@@ -22,12 +22,12 @@ namespace TheraEngine.Timers
         private bool _sequentialCollectVisible = false;
         private bool _isSingleThreaded = false;
         private float _targetUpdatePeriod, _targetRenderPeriod;
-        private float _lastUpdateTimestamp; // timestamp of last UpdateFrame event
-        private float _lastRenderTimestamp; // timestamp of last RenderFrame event
-        private float _lastPreRenderTimestamp;
-        private float _lastSwapBuffersTimestamp;
+        private double _lastUpdateTimestamp; // timestamp of last UpdateFrame event
+        private double _lastRenderTimestamp; // timestamp of last RenderFrame event
+        private double _lastPreRenderTimestamp;
+        private double _lastSwapBuffersTimestamp;
 
-        private float _updateTimeDiff = 0.0f; // quantization error for UpdateFrame events
+        private double _updateTimeDiff = 0.0; // quantization error for UpdateFrame events
         private bool _isRunningSlowly; // true, when UpdatePeriod cannot reach TargetUpdatePeriod
 
         private readonly FrameEventArgs _updateArgs = new FrameEventArgs();
@@ -265,8 +265,8 @@ namespace TheraEngine.Timers
         }
         private bool DispatchRender()
         {
-            float timestamp = (float)_watch.Elapsed.TotalSeconds;
-            float elapsed = (timestamp - _lastRenderTimestamp).Clamp(0.0f, 1.0f);
+            double timestamp = _watch.Elapsed.TotalSeconds;
+            double elapsed = (timestamp - _lastRenderTimestamp).Clamp(0.0, 1.0);
             bool dispatch = elapsed > 0 && elapsed >= TargetRenderPeriod;
             if (dispatch)
                 RaiseRenderFrame(elapsed, ref timestamp);
@@ -274,22 +274,22 @@ namespace TheraEngine.Timers
         }
         private void DispatchPreRender()
         {
-            float timestamp = (float)_watch.Elapsed.TotalSeconds;
-            float elapsed = (timestamp - _lastPreRenderTimestamp).Clamp(0.0f, 1.0f);
+            double timestamp = _watch.Elapsed.TotalSeconds;
+            double elapsed = (timestamp - _lastPreRenderTimestamp).Clamp(0.0, 1.0);
             RaisePreRenderFrame(elapsed, ref timestamp);
         }
         private void DispatchSwapBuffers()
         {
-            float timestamp = (float)_watch.Elapsed.TotalSeconds;
-            float elapsed = (timestamp - _lastSwapBuffersTimestamp).Clamp(0.0f, 1.0f);
+            double timestamp = _watch.Elapsed.TotalSeconds;
+            double elapsed = (timestamp - _lastSwapBuffersTimestamp).Clamp(0.0, 1.0);
             RaiseSwapBuffers(elapsed, ref timestamp);
         }
         private void DispatchUpdate()
         {
             int runningSlowlyRetries = 4;
 
-            float timestamp = (float)_watch.Elapsed.TotalSeconds;
-            float elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0f, 1.0f);
+            double timestamp = _watch.Elapsed.TotalSeconds;
+            double elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0, 1.0);
 
             //if (elapsed > 0 && elapsed >= TargetUpdatePeriod)
             //    RaiseUpdateFrame(elapsed, ref timestamp);
@@ -306,10 +306,7 @@ namespace TheraEngine.Timers
                 // compensate for this difference.
                 _updateTimeDiff += elapsed - TargetUpdatePeriod;
 
-                // Prepare for next loop
-                elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0f, 1.0f);
-
-                if (TargetUpdatePeriod <= float.Epsilon)
+                if (TargetUpdatePeriod <= double.Epsilon)
                 {
                     // According to the TargetUpdatePeriod documentation,
                     // a TargetUpdatePeriod of zero means we will raise
@@ -325,45 +322,48 @@ namespace TheraEngine.Timers
                     // stop raising events to avoid hanging inside the UpdateFrame loop.
                     break;
                 }
+
+                // Prepare for next loop
+                elapsed = (timestamp - _lastUpdateTimestamp).Clamp(0.0f, 1.0f);
             }
         }
-        private void RaiseUpdateFrame(float elapsed, ref float timestamp)
+        private void RaiseUpdateFrame(double elapsed, ref double timestamp)
         {
             // Raise UpdateFrame event
-            _updateArgs.Time = elapsed * TimeDilation;
+            _updateArgs.Time = (float)elapsed * TimeDilation;
             OnUpdateFrameInternal(_updateArgs);
 
             // Update UpdatePeriod/UpdateFrequency properties
-            UpdatePeriod = elapsed;
+            UpdatePeriod = (float)elapsed;
 
             // Update UpdateTime property
             _lastUpdateTimestamp = timestamp;
             timestamp = (float)_watch.Elapsed.TotalSeconds/* * TimeDilation*/;
-            UpdateTime = timestamp - _lastUpdateTimestamp;
+            UpdateTime = (float)(timestamp - _lastUpdateTimestamp);
         }
-        void RaiseRenderFrame(float elapsed, ref float timestamp)
+        void RaiseRenderFrame(double elapsed, ref double timestamp)
         {
             // Raise RenderFrame event
-            _renderArgs.Time = elapsed * TimeDilation;
+            _renderArgs.Time = (float)elapsed * TimeDilation;
             OnRenderFrameInternal(_renderArgs);
 
             // Update RenderPeriod/UpdateFrequency properties
-            RenderPeriod = elapsed;
+            RenderPeriod = (float)elapsed;
 
             // Update RenderTime property
             _lastRenderTimestamp = timestamp;
-            timestamp = (float)_watch.Elapsed.TotalSeconds;
-            RenderTime = timestamp - _lastRenderTimestamp;
+            timestamp = _watch.Elapsed.TotalSeconds;
+            RenderTime = (float)(timestamp - _lastRenderTimestamp);
         }
-        void RaisePreRenderFrame(float elapsed, ref float timestamp)
+        void RaisePreRenderFrame(double elapsed, ref double timestamp)
         {
-            _preRenderArgs.Time = elapsed * TimeDilation;
+            _preRenderArgs.Time = (float)elapsed * TimeDilation;
             OnPreRenderFrameInternal(_preRenderArgs);
             _lastPreRenderTimestamp = timestamp;
         }
-        void RaiseSwapBuffers(float elapsed, ref float timestamp)
+        void RaiseSwapBuffers(double elapsed, ref double timestamp)
         {
-            _swapBuffersArgs.Time = elapsed * TimeDilation;
+            _swapBuffersArgs.Time = (float)elapsed * TimeDilation;
             OnSwapBuffersInternal(_swapBuffersArgs);
             _lastSwapBuffersTimestamp = timestamp;
         }

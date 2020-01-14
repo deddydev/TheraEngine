@@ -506,14 +506,6 @@ void main()
             
             _regenerating = false;
         }
-        protected override void UpdateTextScale()
-        {
-            base.UpdateTextScale();
-
-            Vec2 scale = 1.0f / OriginTransformComponent.Scale.Xy;
-            _xCoord.Scale.Xy = scale;
-            _yCoord.Scale.Xy = scale;
-        }
         protected override bool GetWorkArea(out Vec2 min, out Vec2 max)
         {
             if (_targetAnimation is null)

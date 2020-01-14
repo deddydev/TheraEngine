@@ -1029,7 +1029,7 @@ namespace System
         {
             return TransformMatrix(1.0f / scale, rotate, -translate, OppositeOf(order));
         }
-        public enum Axis
+        public enum EAxis
         {
             X,Y,Z
         }
@@ -1040,16 +1040,15 @@ namespace System
                 ret[i] = Interp.Lerp(from[i], to[i], time);
             return ret;
         }
-        public Vec3 GetScaledAxis(Axis axis)
+        public Vec3 GetScaledAxis(EAxis axis)
         {
-	        switch (axis)
-	        {
-	            case Axis.X: return new Vec3(M11, M12, M13);
-	            case Axis.Y: return new Vec3(M21, M22, M23);
-	            case Axis.Z: return new Vec3(M31, M32, M33);
-	            default:
-		            return Vec3.Zero;
-	        }
+            return axis switch
+            {
+                EAxis.X => new Vec3(M11, M12, M13),
+                EAxis.Y => new Vec3(M21, M22, M23),
+                EAxis.Z => new Vec3(M31, M32, M33),
+                _ => Vec3.Zero,
+            };
         }
         public static Matrix4 operator *(Matrix4 left, Matrix4 right)
         {

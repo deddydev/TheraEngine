@@ -63,13 +63,13 @@ namespace TheraEngine.Components.Scene.Lights
             ShadowMinBias = 0.05f;
             ShadowMaxBias = 10.0f;
         }
-        protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             _influenceVolume.SetTransformMatrix(WorldMatrix);
             foreach (PerspectiveCamera cam in ShadowCameras)
                 cam.LocalPoint.Raw = WorldMatrix.Translation;
             LightMatrix = WorldMatrix * Matrix4.CreateScale(Radius);
-            base.OnWorldTransformChanged();
+            base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 
         public override void OnSpawned()

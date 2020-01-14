@@ -41,9 +41,9 @@ namespace TheraEngine.Components.Scene
 
         public IBLProbeComponent() : base() { }
         
-        protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
-            base.OnWorldTransformChanged();
+            base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
             if (_rc != null)
             {
                 _irradianceSphere.Parameter<ShaderVec3>(0).Value = WorldMatrix.Translation;

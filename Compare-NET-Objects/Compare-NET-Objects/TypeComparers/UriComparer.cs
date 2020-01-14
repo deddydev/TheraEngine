@@ -11,9 +11,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// Constructor that takes a root comparer
         /// </summary>
         /// <param name="rootComparer"></param>
-        public UriComparer(RootComparer rootComparer) : base(rootComparer)
-        {
-        }
+        public UriComparer(RootComparer rootComparer) : base(rootComparer) { }
 
         /// <summary>
         /// Returns true if both types are a URI
@@ -22,20 +20,15 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         /// <param name="type2">The type of the second object</param>
         /// <returns></returns>
         public override bool IsTypeMatch(Type type1, Type type2)
-        {
-            return TypeHelper.IsUri(type1) && TypeHelper.IsUri(type2);
-        }
+            => TypeHelper.IsUri(type1) && TypeHelper.IsUri(type2);
 
         /// <summary>
         /// Compare two URIs
         /// </summary>
         public override void CompareType(CompareParms parms)
         {
-            Uri uri1 = parms.Object1 as Uri;
-            Uri uri2 = parms.Object2 as Uri;
-
             //This should never happen, null check happens one level up
-            if (uri1 is null || uri2 is null)
+            if (!(parms.Object1 is Uri uri1) || !(parms.Object2 is Uri uri2))
                 return;
 
             if (uri1.OriginalString != uri2.OriginalString)

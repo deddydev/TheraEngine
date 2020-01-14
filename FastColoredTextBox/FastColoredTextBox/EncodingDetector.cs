@@ -9,10 +9,18 @@ using System.Text.RegularExpressions;
 
 namespace FastColoredTextBoxNS
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class EncodingDetector
     {
         const long _defaultHeuristicSampleSize = 0x10000; //completely arbitrary - inappropriate for high numbers of files / high speed requirements
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="InputFilename"></param>
+        /// <returns></returns>
         public static Encoding DetectTextFileEncoding(string InputFilename)
         {
             using (FileStream textfileStream = File.OpenRead(InputFilename))
@@ -20,35 +28,40 @@ namespace FastColoredTextBoxNS
                 return DetectTextFileEncoding(textfileStream, _defaultHeuristicSampleSize);
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="InputFileStream"></param>
+        /// <param name="HeuristicSampleSize"></param>
+        /// <returns></returns>
         public static Encoding DetectTextFileEncoding(FileStream InputFileStream, long HeuristicSampleSize)
         {
-            bool uselessBool = false;
-            return DetectTextFileEncoding(InputFileStream, _defaultHeuristicSampleSize, out uselessBool);
+            return DetectTextFileEncoding(InputFileStream, HeuristicSampleSize, out _);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="InputFileStream"></param>
+        /// <param name="HeuristicSampleSize"></param>
+        /// <param name="HasBOM"></param>
+        /// <returns></returns>
         public static Encoding DetectTextFileEncoding(FileStream InputFileStream, long HeuristicSampleSize, out bool HasBOM)
         {
-            Encoding encodingFound = null;
-
             long originalPos = InputFileStream.Position;
 
             InputFileStream.Position = 0;
-
 
             //First read only what we need for BOM detection
             byte[] bomBytes = new byte[InputFileStream.Length > 4 ? 4 : InputFileStream.Length];
             InputFileStream.Read(bomBytes, 0, bomBytes.Length);
 
-            encodingFound = DetectBOMBytes(bomBytes);
-
+            Encoding encodingFound = DetectBOMBytes(bomBytes);
             if (encodingFound != null)
             {
                 InputFileStream.Position = originalPos;
                 HasBOM = true;
                 return encodingFound;
             }
-
 
             //BOM Detection failed, going for heuristics now.
             //  create sample byte array and populate it
@@ -65,6 +78,11 @@ namespace FastColoredTextBoxNS
             return encodingFound;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="BOMBytes"></param>
+        /// <returns></returns>
         public static Encoding DetectBOMBytes(byte[] BOMBytes)
         {
             if (BOMBytes.Length < 2)
@@ -105,6 +123,11 @@ namespace FastColoredTextBoxNS
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="SampleBytes"></param>
+        /// <returns></returns>
         public static Encoding DetectUnicodeInByteSampleByHeuristics(byte[] SampleBytes)
         {
             long oddBinaryNullsInSample = 0;

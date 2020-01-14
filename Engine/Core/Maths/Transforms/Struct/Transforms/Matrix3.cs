@@ -450,9 +450,7 @@ namespace System
         /// <param name="result">Matrix result.</param>
         public static Matrix3 CreateFromQuaternion(Quat q)
         {
-            Vec3 axis;
-            float angle;
-            q.ToAxisAngleDeg(out axis, out angle);
+            q.ToAxisAngleDeg(out Vec3 axis, out float angle);
             return CreateFromAxisAngle(axis, angle);
         }
 
@@ -532,8 +530,7 @@ namespace System
         /// <returns>A scale matrix.</returns>
         public static Matrix3 CreateScale(float scale)
         {
-            Matrix3 result;
-            CreateScale(scale, out result);
+            CreateScale(scale, out Matrix3 result);
             return result;
         }
 
@@ -544,8 +541,7 @@ namespace System
         /// <returns>A scale matrix.</returns>
         public static Matrix3 CreateScale(Vec3 scale)
         {
-            Matrix3 result;
-            CreateScale(ref scale, out result);
+            CreateScale(ref scale, out Matrix3 result);
             return result;
         }
 
@@ -558,8 +554,7 @@ namespace System
         /// <returns>A scale matrix.</returns>
         public static Matrix3 CreateScale(float x, float y, float z)
         {
-            Matrix3 result;
-            CreateScale(x, y, z, out result);
+            CreateScale(x, y, z, out Matrix3 result);
             return result;
         }
 
@@ -616,8 +611,7 @@ namespace System
         /// <returns>A new instance that is the result of the multiplication</returns>
         public static Matrix3 Mult(Matrix3 left, Matrix3 right)
         {
-            Matrix3 result;
-            Mult(ref left, ref right, out result);
+            Mult(ref left, ref right, out Matrix3 result);
             return result;
         }
 
@@ -767,8 +761,7 @@ namespace System
         /// <exception cref="InvalidOperationException">Thrown if the Matrix4 is singular.</exception>
         public static Matrix3 Invert(Matrix3 mat)
         {
-            Matrix3 result;
-            Invert(ref mat, out result);
+            Invert(ref mat, out Matrix3 result);
             return result;
         }
 

@@ -126,6 +126,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 }
 
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(Raw));
             }
         }
         public float Y
@@ -150,6 +151,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 }
 
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(Raw));
             }
         }
         public float Z
@@ -174,6 +176,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 }
 
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(Raw));
             }
         }
 

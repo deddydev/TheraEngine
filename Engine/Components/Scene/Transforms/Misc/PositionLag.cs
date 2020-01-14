@@ -46,7 +46,7 @@ namespace TheraEngine.Components.Scene.Transforms
             localTransform = Matrix4.Identity;
             inverseLocalTransform = Matrix4.Identity;
         }
-        public override void RecalcWorldTransform()
+        public override void RecalcWorldTransform(bool recalcChildWorldTransformsNow = true)
         {
             _previousWorldMatrix = _worldMatrix;
             _previousInverseWorldMatrix = _inverseWorldMatrix;
@@ -54,7 +54,7 @@ namespace TheraEngine.Components.Scene.Transforms
             _worldMatrix = _interpPoint.AsTranslationMatrix();
             _inverseWorldMatrix = (-_interpPoint).AsTranslationMatrix();
 
-            OnWorldTransformChanged();
+            OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
         protected internal void Tick(float delta)
         {

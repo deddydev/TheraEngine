@@ -238,14 +238,14 @@ namespace TheraEngine.Animation
                 {
                     _prevKeyframe.Interpolate(floorSec,
                         out _prevKeyframe,
-                        out LerpableKeyframe<TValue> nextKeyF,
-                        out float normalizedTimeF,
+                        out LerpableKeyframe<TValue> _,
+                        out float _,
                         out TValue floorPosition);
 
                     _prevKeyframe.Interpolate(ceilSec,
-                       out LerpableKeyframe<TValue> prevKeyC,
-                       out LerpableKeyframe<TValue> nextKeyC,
-                       out float normalizedTimeC,
+                       out LerpableKeyframe<TValue> _,
+                       out LerpableKeyframe<TValue> _,
+                       out float _,
                        out TValue ceilPosition);
 
                     CurrentPosition = LerpValues(floorPosition, ceilPosition, time);
@@ -256,16 +256,15 @@ namespace TheraEngine.Animation
 
             _prevKeyframe.Interpolate(second,
                 out _prevKeyframe,
-                out LerpableKeyframe<TValue> nextKey,
-                out float normalizedTime,
+                out LerpableKeyframe<TValue> _,
+                out float _,
                 out TValue pos);
 
             CurrentPosition = pos;
         }
         private TValue LerpKeyedValues(float floorSec, float ceilSec, float time)
         {
-            TValue floorValue = Keyframes.First.Interpolate(floorSec,
-                out LerpableKeyframe<TValue> prevKey, out LerpableKeyframe<TValue> nextKey, out float normalizedTime);
+            TValue floorValue = Keyframes.First.Interpolate(floorSec, out LerpableKeyframe<TValue> prevKey, out _, out _);
             TValue ceilValue = prevKey.Interpolate(ceilSec);
             return LerpValues(floorValue, ceilValue, time);
         }

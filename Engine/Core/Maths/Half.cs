@@ -454,8 +454,7 @@ namespace TheraEngine.Core.Maths
         /// <returns>Success.</returns>
         public static bool TryParse(string s, out Half result)
         {
-            float f;
-            bool b = Single.TryParse(s, out f);
+            bool b = Single.TryParse(s, out float f);
             result = (Half)f;
             return b;
         }

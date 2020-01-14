@@ -750,7 +750,7 @@ namespace System
         public static double NormalDistribution(double x, double sigma = 1.0, double mu = 0.0)
         {
             x -= mu;
-            x = x * x;
+            x *= x;
             double m = sigma * sigma;
             double power = -x * 0.5 / m;
             return Exp(power) / (sigma * Sqrt(2.0 * PI));
@@ -770,7 +770,7 @@ namespace System
         public static float NormalDistribution(float x, float sigma = 1.0f, float mu = 0.0f)
         {
             x -= mu;
-            x = x * x;
+            x *= x;
             float m = sigma * sigma;
             float power = -x * 0.5f / m;
             return (float)Exp(power) / (sigma * (float)Sqrt(2.0f * PIf));

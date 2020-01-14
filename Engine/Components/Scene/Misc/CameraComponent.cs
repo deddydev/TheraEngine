@@ -145,10 +145,10 @@ namespace TheraEngine.Components.Scene
 
 #if EDITOR
 
-        protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             PreviewIconRenderCommand.Position = WorldPoint;
-            base.OnWorldTransformChanged();
+            base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 
         private bool _previewAlwaysVisible = false;
@@ -216,13 +216,13 @@ namespace TheraEngine.Components.Scene
                 inverseLocalTransform = Matrix4.Identity;
             }
         }
-        public override void RecalcWorldTransform()
+        public override void RecalcWorldTransform(bool recalcChildWorldTransformsNow = true)
         {
             _previousWorldMatrix = _worldMatrix;
             _worldMatrix = ParentMatrix * LocalMatrix;
             _previousInverseWorldMatrix = _inverseWorldMatrix;
             _inverseWorldMatrix = InverseLocalMatrix * InverseParentMatrix;
-            OnWorldTransformChanged();
+            OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 
         [Browsable(false)]

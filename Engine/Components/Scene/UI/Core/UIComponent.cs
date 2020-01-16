@@ -159,16 +159,16 @@ namespace TheraEngine.Rendering.UI
         /// <param name="input"></param>
         internal protected virtual void RegisterInputs(InputInterface input)
         {
-            try
-            {
-                foreach (ISceneComponent comp in ChildComponents)
-                    if (comp is IUIComponent uiComp)
-                        uiComp.RegisterInputs(input);
-            }
-            catch (Exception ex) 
-            {
-                Engine.LogException(ex);
-            }
+            //try
+            //{
+            //    foreach (ISceneComponent comp in ChildComponents)
+            //        if (comp is IUIComponent uiComp)
+            //            uiComp.RegisterInputs(input);
+            //}
+            //catch (Exception ex) 
+            //{
+            //    Engine.LogException(ex);
+            //}
         }
         public override void OnSpawned()
         {

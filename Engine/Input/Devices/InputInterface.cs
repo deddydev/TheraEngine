@@ -59,13 +59,12 @@ namespace TheraEngine.Input.Devices
             }
         }
         private int _playerIndex;
-        private bool _unregister = false;
 
         /// <summary>
-        /// IsRegistering is true when the controller has gained focus and is currently adding inputs to handle.
-        /// IsRegistering is false when the controller has lost focus and inputs are being removed.
+        /// Unregister is false when the controller has gained focus and is currently adding inputs to handle.
+        /// Unregister is true when the controller has lost focus and inputs are being removed.
         /// </summary>
-        public bool IsRegistering => !_unregister;
+        public bool Unregister { get; set; } = false;
 
         //Dictionary<string, List<EKey>> _namedKeys = new Dictionary<string, List<EKey>>();
         //Dictionary<string, List<GamePadButton>> _namedGamepadButtons = new Dictionary<string, List<GamePadButton>>();
@@ -84,7 +83,7 @@ namespace TheraEngine.Input.Devices
             {
                 TryUnregisterInput();
 
-                _unregister = false;
+                Unregister = false;
                 //Interface gets input from pawn, hud, local controller, and global list
                 InputRegistration?.Invoke(this);
                 foreach (DelWantsInputsRegistered register in GlobalRegisters)
@@ -99,11 +98,11 @@ namespace TheraEngine.Input.Devices
                 //unregister all calls instead of registering them.
                 //This way the user doesn't have to do any extra work
                 //other than just registering the inputs.
-                _unregister = true;
+                Unregister = true;
                 InputRegistration?.Invoke(this);
                 foreach (DelWantsInputsRegistered register in GlobalRegisters)
                     register(this);
-                _unregister = false;
+                Unregister = false;
             }
         }
         private void GetDevices()
@@ -177,38 +176,38 @@ namespace TheraEngine.Input.Devices
 
         #region Mouse input registration
         public void RegisterButtonPressed(EMouseButton button, DelButtonState func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Mouse?.RegisterButtonPressed(button, pauseType, func, _unregister);
+            => Mouse?.RegisterButtonPressed(button, pauseType, func, Unregister);
         public void RegisterButtonEvent(EMouseButton button, EButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Mouse?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
+            => Mouse?.RegisterButtonEvent(button, type, pauseType, func, Unregister);
         public void RegisterMouseScroll(DelMouseScroll func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Mouse?.RegisterScroll(func, pauseType, _unregister);
+            => Mouse?.RegisterScroll(func, pauseType, Unregister);
         public void RegisterMouseMove(DelCursorUpdate func, EMouseMoveType type, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Mouse?.RegisterMouseMove(func, pauseType, type, _unregister);
+            => Mouse?.RegisterMouseMove(func, pauseType, type, Unregister);
         #endregion
 
         #region Keyboard input registration
         public void RegisterKeyPressed(EKey button, DelButtonState func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Keyboard?.RegisterKeyPressed(button, pauseType, func, _unregister);
+            => Keyboard?.RegisterKeyPressed(button, pauseType, func, Unregister);
         public void RegisterKeyEvent(EKey button, EButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Keyboard?.RegisterKeyEvent(button, type, pauseType, func, _unregister);
+            => Keyboard?.RegisterKeyEvent(button, type, pauseType, func, Unregister);
         #endregion
 
         #region Gamepad input registration
 
         public void RegisterAxisButtonPressed(EGamePadAxis axis, DelButtonState func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Gamepad?.RegisterButtonState(axis, pauseType, func, _unregister);
+            => Gamepad?.RegisterButtonState(axis, pauseType, func, Unregister);
 
         public void RegisterButtonPressed(EGamePadButton button, DelButtonState func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Gamepad?.RegisterButtonState(button, pauseType, func, _unregister);
+            => Gamepad?.RegisterButtonState(button, pauseType, func, Unregister);
 
         public void RegisterButtonEvent(EGamePadButton button, EButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Gamepad?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
+            => Gamepad?.RegisterButtonEvent(button, type, pauseType, func, Unregister);
 
         public void RegisterAxisButtonEvent(EGamePadAxis button, EButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Gamepad?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
+            => Gamepad?.RegisterButtonEvent(button, type, pauseType, func, Unregister);
 
         public void RegisterAxisUpdate(EGamePadAxis axis, DelAxisValue func, bool continuousUpdate, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Gamepad?.RegisterAxisUpdate(axis, pauseType, func, continuousUpdate, _unregister);
+            => Gamepad?.RegisterAxisUpdate(axis, pauseType, func, continuousUpdate, Unregister);
 
         #endregion
         

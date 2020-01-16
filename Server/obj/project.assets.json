@@ -75,7 +75,7 @@
   },
   "libraries": {
     "Microsoft.CSharp/4.5.0": {
-      "sha512": "fcyI3xN2vZV2FTGmxxMjV2LmQykV4PknROKrXrBG4lrTFJqlJJx5d1bOwTTJ/Y9XzpWBHGYsTSBnA0q3bWgGjg==",
+      "sha512": "kaj6Wb4qoMuH3HySFJhxwQfe8R/sJsNJnANrvv8WdFPMoNbKY5htfNscv+LHCu5ipz+49m2e+WQXpLXr9XYemQ==",
       "type": "package",
       "path": "microsoft.csharp/4.5.0",
       "files": [
@@ -174,41 +174,33 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\dnedd\\.nuget\\packages\\": {},
-    "C:\\Microsoft\\Xamarin\\NuGet\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Users\\David\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Server\\Server.csproj",
-      "projectName": "THeraServer",
-      "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Server\\Server.csproj",
-      "packagesPath": "C:\\Users\\dnedd\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Server\\obj\\",
+      "projectUniqueName": "X:\\Repositories\\TheraEngine\\Server\\Server.csproj",
+      "projectName": "TheraServer",
+      "projectPath": "X:\\Repositories\\TheraEngine\\Server\\Server.csproj",
+      "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
+      "outputPath": "X:\\Repositories\\TheraEngine\\Server\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Microsoft\\Xamarin\\NuGet\\",
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-      ],
       "configFilePaths": [
-        "C:\\Users\\dnedd\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp3.1"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "https://api.nuget.org/v3/index.json": {},
-        "https://dotnet.myget.org/F/roslyn/api/v3/index.json": {}
+        "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "netcoreapp3.1": {
           "projectReferences": {
-            "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Engine\\Engine.csproj": {
-              "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Engine\\Engine.csproj"
+            "X:\\Repositories\\TheraEngine\\Engine\\Engine.csproj": {
+              "projectPath": "X:\\Repositories\\TheraEngine\\Engine\\Engine.csproj"
             }
           }
         }
@@ -236,7 +228,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
       }
     }
   }

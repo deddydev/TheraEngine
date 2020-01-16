@@ -75,8 +75,9 @@ namespace TheraEngine.Components
         void OnLostAudioListener();
         void OnGotAudioListener();
 
-        void RemovedFromParent();
-        void AddedToParent(ISocket parent);
+        void RemoveSelf();
+        internal void RemovedFromParent();
+        internal void AddedToParent(ISocket parent);
     }
 
     /// <summary>
@@ -172,6 +173,12 @@ namespace TheraEngine.Components
         protected Matrix4 _inverseLocalMatrix = Matrix4.Identity;
 
         internal ISocket _parent;
+
+        public void RemoveSelf()
+        {
+            _parent?.ChildComponents?.Remove(this);
+        }
+
         protected EventList<ISceneComponent> _children;
         
         IEventList<ISceneComponent> ISocket.ChildComponents => _children;
@@ -944,14 +951,13 @@ namespace TheraEngine.Components
                 SocketTransformChanged += eventMethod;
         }
 
-        public void RemovedFromParent()
+        void ISceneComponent.RemovedFromParent()
         {
             ((ISocket)this).SetParentInternal(null);
             OwningActor = null;
             RecalcWorldTransform();
         }
-
-        public void AddedToParent(ISocket parent)
+        void ISceneComponent.AddedToParent(ISocket parent)
         {
             //Trace.WriteLine($"Added {this} to parent {parent}.");
             ((ISocket)this).SetParentInternal(parent);

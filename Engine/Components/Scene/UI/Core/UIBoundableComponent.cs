@@ -78,8 +78,6 @@ namespace TheraEngine.Rendering.UI
             Padding = new EventVec4();
         }
 
-        private bool _isMouseOver = false;
-
         private EventVec2 _originPercent;
         private EventVec2 _size;
         private EventVec2 _minSize;
@@ -92,12 +90,6 @@ namespace TheraEngine.Rendering.UI
         [TSerialize(nameof(VerticalAlignment))]
         private EVerticalAlign _verticalAlign = EVerticalAlign.Positional;
 
-        [Category("State")]
-        public bool IsMouseOver
-        {
-            get => _isMouseOver;
-            set => Set(ref _isMouseOver, value);
-        }
         [Category("Transform")]
         public EVerticalAlign VerticalAlignment
         {

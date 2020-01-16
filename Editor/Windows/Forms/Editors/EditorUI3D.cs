@@ -300,7 +300,7 @@ namespace TheraEditor.Windows.Forms
             input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Released, OnMouseUp, EInputPauseType.TickAlways);
 
             input.RegisterButtonEvent(EGamePadButton.FaceDown, EButtonInputType.Pressed, OnGamepadSelect, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EGamePadButton.FaceRight, EButtonInputType.Pressed, OnBackInput, EInputPauseType.TickAlways);
+            //input.RegisterButtonEvent(EGamePadButton.FaceRight, EButtonInputType.Pressed, OnBackInput, EInputPauseType.TickAlways);
             
             input.RegisterKeyEvent(EKey.Number1, EButtonInputType.Pressed, SetTranslationMode, EInputPauseType.TickAlways);
             input.RegisterKeyEvent(EKey.Number2, EButtonInputType.Pressed, SetRotationMode, EInputPauseType.TickAlways);

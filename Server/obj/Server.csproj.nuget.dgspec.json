@@ -1,38 +1,33 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Server\\Server.csproj": {}
+    "X:\\Repositories\\TheraEngine\\Server\\Server.csproj": {}
   },
   "projects": {
-    "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\AppDomainToolkit\\AppDomainToolkit\\AppDomainToolkit.csproj": {
+    "X:\\Repositories\\TheraEngine\\AppDomainToolkit\\AppDomainToolkit\\AppDomainToolkit.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\AppDomainToolkit\\AppDomainToolkit\\AppDomainToolkit.csproj",
+        "projectUniqueName": "X:\\Repositories\\TheraEngine\\AppDomainToolkit\\AppDomainToolkit\\AppDomainToolkit.csproj",
         "projectName": "AppDomainToolkit",
-        "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\AppDomainToolkit\\AppDomainToolkit\\AppDomainToolkit.csproj"
+        "projectPath": "X:\\Repositories\\TheraEngine\\AppDomainToolkit\\AppDomainToolkit\\AppDomainToolkit.csproj"
       },
       "frameworks": {
         "net40": {}
       }
     },
-    "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\Compare-NET-Objects.csproj": {
+    "X:\\Repositories\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\Compare-NET-Objects.csproj": {
       "version": "4.58.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\Compare-NET-Objects.csproj",
+        "projectUniqueName": "X:\\Repositories\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\Compare-NET-Objects.csproj",
         "projectName": "CompareNETObjects",
-        "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\Compare-NET-Objects.csproj",
-        "packagesPath": "C:\\Users\\dnedd\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\obj\\",
+        "projectPath": "X:\\Repositories\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\Compare-NET-Objects.csproj",
+        "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
+        "outputPath": "X:\\Repositories\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\obj\\",
         "projectStyle": "PackageReference",
         "crossTargeting": true,
-        "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\dnedd\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net40",
@@ -45,8 +40,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://dotnet.myget.org/F/roslyn/api/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net40": {
@@ -79,19 +73,19 @@
       },
       "frameworks": {
         "net40": {
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
         },
         "net45": {
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
         },
         "net451": {
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
         },
         "net452": {
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
         },
         "net46": {
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
         },
         "netstandard1.3": {
           "dependencies": {
@@ -108,7 +102,7 @@
           "imports": [
             "dnxcore50"
           ],
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
         },
         "netstandard2.0": {
           "dependencies": {
@@ -133,30 +127,30 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Engine\\Engine.csproj": {
+    "X:\\Repositories\\TheraEngine\\Engine\\Engine.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Engine\\Engine.csproj",
+        "projectUniqueName": "X:\\Repositories\\TheraEngine\\Engine\\Engine.csproj",
         "projectName": "Engine",
-        "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Engine\\Engine.csproj",
+        "projectPath": "X:\\Repositories\\TheraEngine\\Engine\\Engine.csproj",
         "frameworks": {
           "net48": {
             "projectReferences": {
-              "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\AppDomainToolkit\\AppDomainToolkit\\AppDomainToolkit.csproj": {
-                "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\AppDomainToolkit\\AppDomainToolkit\\AppDomainToolkit.csproj"
+              "X:\\Repositories\\TheraEngine\\AppDomainToolkit\\AppDomainToolkit\\AppDomainToolkit.csproj": {
+                "projectPath": "X:\\Repositories\\TheraEngine\\AppDomainToolkit\\AppDomainToolkit\\AppDomainToolkit.csproj"
               },
-              "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\Compare-NET-Objects.csproj": {
-                "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\Compare-NET-Objects.csproj"
+              "X:\\Repositories\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\Compare-NET-Objects.csproj": {
+                "projectPath": "X:\\Repositories\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects\\Compare-NET-Objects.csproj"
               },
-              "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Extensions\\Extensions.csproj": {
-                "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Extensions\\Extensions.csproj"
+              "X:\\Repositories\\TheraEngine\\Extensions\\Extensions.csproj": {
+                "projectPath": "X:\\Repositories\\TheraEngine\\Extensions\\Extensions.csproj"
               },
-              "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj": {
-                "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj"
+              "X:\\Repositories\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj": {
+                "projectPath": "X:\\Repositories\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj"
               }
             }
           }
@@ -166,37 +160,31 @@
         "net48": {}
       }
     },
-    "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Extensions\\Extensions.csproj": {
+    "X:\\Repositories\\TheraEngine\\Extensions\\Extensions.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Extensions\\Extensions.csproj",
+        "projectUniqueName": "X:\\Repositories\\TheraEngine\\Extensions\\Extensions.csproj",
         "projectName": "Extensions",
-        "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Extensions\\Extensions.csproj",
-        "packagesPath": "C:\\Users\\dnedd\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Extensions\\obj\\",
+        "projectPath": "X:\\Repositories\\TheraEngine\\Extensions\\Extensions.csproj",
+        "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
+        "outputPath": "X:\\Repositories\\TheraEngine\\Extensions\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\dnedd\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://dotnet.myget.org/F/roslyn/api/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "netstandard2.0": {
             "projectReferences": {
-              "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj": {
-                "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj"
+              "X:\\Repositories\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj": {
+                "projectPath": "X:\\Repositories\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj"
               }
             }
           }
@@ -227,41 +215,35 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Server\\Server.csproj": {
+    "X:\\Repositories\\TheraEngine\\Server\\Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Server\\Server.csproj",
+        "projectUniqueName": "X:\\Repositories\\TheraEngine\\Server\\Server.csproj",
         "projectName": "TheraServer",
-        "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Server\\Server.csproj",
-        "packagesPath": "C:\\Users\\dnedd\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Server\\obj\\",
+        "projectPath": "X:\\Repositories\\TheraEngine\\Server\\Server.csproj",
+        "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
+        "outputPath": "X:\\Repositories\\TheraEngine\\Server\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\dnedd\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.1"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://dotnet.myget.org/F/roslyn/api/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "netcoreapp3.1": {
             "projectReferences": {
-              "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Engine\\Engine.csproj": {
-                "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Engine\\Engine.csproj"
+              "X:\\Repositories\\TheraEngine\\Engine\\Engine.csproj": {
+                "projectPath": "X:\\Repositories\\TheraEngine\\Engine\\Engine.csproj"
               }
             }
           }
@@ -289,35 +271,29 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj": {
+    "X:\\Repositories\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj",
+        "projectUniqueName": "X:\\Repositories\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj",
         "projectName": "WindowsNativeInterop",
-        "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj",
-        "packagesPath": "C:\\Users\\dnedd\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\WindowsNativeInterop\\obj\\",
+        "projectPath": "X:\\Repositories\\TheraEngine\\WindowsNativeInterop\\WindowsNativeInterop.csproj",
+        "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
+        "outputPath": "X:\\Repositories\\TheraEngine\\WindowsNativeInterop\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\dnedd\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://dotnet.myget.org/F/roslyn/api/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "netstandard2.0": {
@@ -350,7 +326,7 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.1.100\\RuntimeIdentifierGraph.json"
         }
       }
     }

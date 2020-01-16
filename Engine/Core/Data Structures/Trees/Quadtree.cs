@@ -39,8 +39,10 @@ namespace System
         void Remove(T value);
 
         T FindDeepest(Vec2 point);
-        List<T> FindAllIntersecting(Vec2 point);
-        SortedSet<T> FindAllIntersectingSorted(Vec2 point);
+        List<T> FindAllIntersecting(Vec2 point, Predicate<T> predicate = null);
+        SortedSet<T> FindAllIntersectingSorted(Vec2 point, Predicate<T> predicate = null);
+        void FindAllIntersecting(Vec2 point, List<T> list, Predicate<T> predicate = null);
+        void FindAllIntersectingSorted(Vec2 point, SortedSet<T> sortedSet, Predicate<T> predicate = null);
     }
     /// <summary>
     /// A 3D space partitioning tree that recursively divides aabbs into 4 smaller axis-aligned rectangles depending on the items they contain.
@@ -170,15 +172,25 @@ namespace System
             _head.FindDeepest(point, ref value);
             return value;
         }
+        public void FindAllIntersecting(Vec2 point, List<T> list, Predicate<T> predicate = null)
+        {
+            list.Clear();
+            _head.FindAllIntersecting(point, list, predicate);
+        }
+        public void FindAllIntersectingSorted(Vec2 point, SortedSet<T> sortedSet, Predicate<T> predicate = null)
+        {
+            sortedSet.Clear();
+            _head.FindAllIntersecting(point, sortedSet, predicate);
+        }
         /// <summary>
         /// Finds all renderables that contain the given point.
         /// </summary>
         /// <param name="point">The point that the returned renderables should contain.</param>
         /// <returns>A list of renderables containing the given point.</returns>
-        public List<T> FindAllIntersecting(Vec2 point)
+        public List<T> FindAllIntersecting(Vec2 point, Predicate<T> predicate = null)
         {
             List<T> intersecting = new List<T>();
-            _head.FindAllIntersecting(point, intersecting);
+            _head.FindAllIntersecting(point, intersecting, predicate);
             return intersecting;
         }
         /// <summary>
@@ -187,10 +199,10 @@ namespace System
         /// </summary>
         /// <param name="point">The point that the returned renderables should contain.</param>
         /// <returns>A sorted set of renderables containing the given point.</returns>
-        public SortedSet<T> FindAllIntersectingSorted(Vec2 point)
+        public SortedSet<T> FindAllIntersectingSorted(Vec2 point, Predicate<T> predicate = null)
         {
             SortedSet<T> intersecting = new SortedSet<T>();
-            _head.FindAllIntersecting(point, intersecting);
+            _head.FindAllIntersecting(point, intersecting, predicate);
             return intersecting;
         }
         /// <summary>
@@ -610,7 +622,7 @@ namespace System
                         currentDeepest = item;
                 //IsLoopingItems = false;
             }
-            public void FindAllIntersecting(Vec2 point, List<T> intersecting)
+            public void FindAllIntersecting(Vec2 point, List<T> intersecting, Predicate<T> predicate = null)
             {
                 if (!_bounds.Contains(point))
                     return;
@@ -625,11 +637,11 @@ namespace System
                 
                 //IsLoopingItems = true;
                 foreach (T item in _items)
-                    if (item.RenderInfo.AxisAlignedRegion.Contains(point))
+                    if (item.RenderInfo.AxisAlignedRegion.Contains(point) && (predicate?.Invoke(item) ?? true))
                         intersecting.Add(item);
                 //IsLoopingItems = false;
             }
-            public void FindAllIntersecting(Vec2 point, SortedSet<T> intersecting)
+            public void FindAllIntersecting(Vec2 point, SortedSet<T> intersecting, Predicate<T> predicate = null)
             {
                 if (!_bounds.Contains(point))
                     return;
@@ -644,7 +656,7 @@ namespace System
 
                 //IsLoopingItems = true;
                 foreach (T item in _items)
-                    if (item.RenderInfo.AxisAlignedRegion.Contains(point))
+                    if (item.RenderInfo.AxisAlignedRegion.Contains(point) && (predicate?.Invoke(item) ?? true))
                         intersecting.Add(item);
                 //IsLoopingItems = false;
             }

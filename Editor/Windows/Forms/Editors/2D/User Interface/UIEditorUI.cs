@@ -3,6 +3,7 @@ using System.Drawing;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
@@ -58,6 +59,17 @@ namespace TheraEditor.Windows.Forms
             ContextMenu = new TMenuComponent();
             ContextMenu.ChildComponents.Add(new TMenuItemComponent());
         }
+        public override void RegisterInput(InputInterface input)
+        {
+            base.RegisterInput(input);
+            input.RegisterKeyEvent(EKey.Delete, EButtonInputType.Pressed, OnDelete, EInputPauseType.TickAlways);
+        }
+
+        private void OnDelete()
+        {
+            _selectedComp?.RemoveSelf();
+        }
+
         protected override void ResizeLayout()
         {
             base.ResizeLayout();

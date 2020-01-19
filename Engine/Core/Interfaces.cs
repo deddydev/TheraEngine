@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using TheraEngine.Core.Memory;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -91,6 +92,9 @@ namespace TheraEngine
         /// </summary>
         IRenderInfo2D RenderInfo { get; }
         void AddRenderables(RenderPasses passes, ICamera camera);
+
+        bool Contains(Vec2 worldPoint);
+        Vec2 ClosestPoint(Vec2 worldPoint);
     }
     public interface IRenderable
     {

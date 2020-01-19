@@ -13,8 +13,6 @@ using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using Extensions;
-using TheraEngine.Physics.RayTracing;
-using TheraEngine.Physics.ShapeTracing;
 
 namespace TheraEngine.Worlds
 {

@@ -74,8 +74,9 @@ namespace TheraEngine.Rendering.UI
         public IScene2D ScreenSpaceUIScene => _screenSpaceUIScene;
         [Browsable(false)]
         public RenderPasses ScreenSpaceRenderPasses { get; set; } = new RenderPasses();
-
-        public Vec2 CursorPositionWorld { get; set; }
+        
+        public Vec2 LastCursorPositionWorld { get; private set; }
+        public Vec2 CursorPositionWorld { get; private set; }
 
         public bool PreRenderEnabled { get; }
 
@@ -206,6 +207,7 @@ namespace TheraEngine.Rendering.UI
             if (CursorPositionWorld.DistanceToSquared(newPos) < 0.001f) 
                 return;
 
+            LastCursorPositionWorld = CursorPositionWorld;
             CursorPositionWorld = newPos;
 
             var tree = ScreenSpaceUIScene?.RenderTree;
@@ -216,23 +218,26 @@ namespace TheraEngine.Rendering.UI
 
                 InteractableIntersections.Union(LastInteractableIntersections).ForEach(ValidateIntersection);
                 THelpers.Swap(ref LastInteractableIntersections, ref InteractableIntersections);
-
-                if (DeepestInteractable != null)
-                    Engine.Out(DeepestInteractable.ToString());
             }
         }
 
         private void ValidateIntersection(I2DRenderable obj)
         {
+            if (!(obj is IUIInteractableComponent inter))
+                return;
+
             if (LastInteractableIntersections.Contains(obj))
             {
                 if (!InteractableIntersections.Contains(obj))
                 {
                     //Lost mouse over
-                    IUIInteractableComponent inter = obj as IUIInteractableComponent;
-
                     inter.IsMouseOver = false;
                     inter.IsMouseDirectlyOver = false;
+                }
+                else
+                {
+                    //Had mouse over and still does now
+                    inter.MouseMove(inter.ScreenToLocal(LastCursorPositionWorld), inter.ScreenToLocal(CursorPositionWorld));
                 }
             }
             else
@@ -240,8 +245,6 @@ namespace TheraEngine.Rendering.UI
                 if (InteractableIntersections.Contains(obj))
                 {
                     //Got mouse over
-                    IUIInteractableComponent inter = obj as IUIInteractableComponent;
-
                     inter.IsMouseOver = true;
                     inter.IsMouseDirectlyOver = obj == DeepestInteractable;
                 }

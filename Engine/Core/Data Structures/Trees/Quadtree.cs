@@ -591,7 +591,7 @@ namespace System
                 //IsLoopingItems = true;
                 foreach (T item in _items)
                 {
-                    float dist = item.RenderInfo.AxisAlignedRegion.ClosestPoint(point).DistanceToFast(point);
+                    float dist = item.ClosestPoint(point).DistanceToFast(point);
                     if (dist < closestDistance)
                     {
                         closestDistance = dist;
@@ -617,7 +617,7 @@ namespace System
 
                 //IsLoopingItems = true;
                 foreach (T item in _items)
-                    if (item.RenderInfo.AxisAlignedRegion.Contains(point) && 
+                    if (item.Contains(point) && 
                         item.RenderInfo.DeeperThan(currentDeepest?.RenderInfo))
                         currentDeepest = item;
                 //IsLoopingItems = false;
@@ -637,7 +637,7 @@ namespace System
                 
                 //IsLoopingItems = true;
                 foreach (T item in _items)
-                    if (item.RenderInfo.AxisAlignedRegion.Contains(point) && (predicate?.Invoke(item) ?? true))
+                    if (item.Contains(point) && (predicate?.Invoke(item) ?? true))
                         intersecting.Add(item);
                 //IsLoopingItems = false;
             }
@@ -656,7 +656,7 @@ namespace System
 
                 //IsLoopingItems = true;
                 foreach (T item in _items)
-                    if (item.RenderInfo.AxisAlignedRegion.Contains(point) && (predicate?.Invoke(item) ?? true))
+                    if (item.Contains(point) && (predicate?.Invoke(item) ?? true))
                         intersecting.Add(item);
                 //IsLoopingItems = false;
             }

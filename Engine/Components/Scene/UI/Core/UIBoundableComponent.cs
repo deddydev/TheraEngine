@@ -311,24 +311,6 @@ namespace TheraEngine.Rendering.UI
             set => OriginPercent.Raw = value / ActualSize.Raw;
         }
 
-        public bool Contains(Vec2 worldPoint)
-        {
-            Vec3 localPoint = worldPoint * InverseActorRelativeMatrix;
-            return ActualSize.Raw.Contains(localPoint.Xy);
-        }
-
-        /// <summary>
-        /// Returns true if the given world point projected perpendicularly to the HUD as a 2D point is contained within this component and the Z value is within the given depth margin.
-        /// </summary>
-        /// <param name="worldPoint"></param>
-        /// <param name="zMargin">How far away the point can be on either side of the HUD for it to be considered close enough.</param>
-        /// <returns></returns>
-        public bool Contains(Vec3 worldPoint, float zMargin = 0.5f)
-        {
-            Vec3 localPoint = Vec3.TransformPosition(worldPoint, InverseWorldMatrix);
-            return Math.Abs(localPoint.Z) < zMargin && ActualSize.Raw.Contains(localPoint.Xy);
-        }
-
         protected override void OnRecalcLocalTransform(
             out Matrix4 localTransform,
             out Matrix4 inverseLocalTransform)
@@ -463,5 +445,27 @@ namespace TheraEngine.Rendering.UI
 
         public virtual float GetWidth()
             => Width.Clamp(MinWidth, MaxWidth);
+
+        public override Vec2 ClosestPoint(Vec2 worldPoint)
+        {
+            Vec3 localPoint = ScreenToLocal(worldPoint);
+            return localPoint.Xy.Clamped(-OriginTranslation, ActualSize.Raw - OriginTranslation);
+        }
+        public override bool Contains(Vec2 worldPoint)
+        {
+            Vec3 localPoint = ScreenToLocal(worldPoint);
+            return ActualSize.Raw.Contains(localPoint.Xy);
+        }
+        /// <summary>
+        /// Returns true if the given world point projected perpendicularly to the HUD as a 2D point is contained within this component and the Z value is within the given depth margin.
+        /// </summary>
+        /// <param name="worldPoint"></param>
+        /// <param name="zMargin">How far away the point can be on either side of the HUD for it to be considered close enough.</param>
+        /// <returns></returns>
+        public bool Contains(Vec3 worldPoint, float zMargin = 0.5f)
+        {
+            Vec3 localPoint = Vec3.TransformPosition(worldPoint, InverseWorldMatrix);
+            return Math.Abs(localPoint.Z) < zMargin && ActualSize.Raw.Contains(localPoint.Xy);
+        }
     }
 }

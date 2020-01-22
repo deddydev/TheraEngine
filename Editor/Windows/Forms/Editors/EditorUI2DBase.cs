@@ -685,5 +685,15 @@ namespace TheraEditor.Windows.Forms
             Engine.Renderer.RenderLine(new Vec2(start.X, 0.0f), new Vec2(start.X, wh.Y), new ColorF4(0.55f), false, 10.0f);
             Engine.Renderer.RenderLine(new Vec2(0.0f, start.Y), new Vec2(wh.X, start.Y), new ColorF4(0.55f), false, 10.0f);
         }
+
+        public bool Contains(Vec2 worldPoint)
+        {
+            return false;
+        }
+
+        public Vec2 ClosestPoint(Vec2 worldPoint)
+        {
+            return new Vec2();
+        }
     }
 }

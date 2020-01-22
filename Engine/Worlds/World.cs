@@ -465,5 +465,15 @@ namespace TheraEngine.Worlds
         {
             Scene?.GlobalRender();
         }
+
+        public bool Contains(Vec2 worldPoint)
+        {
+            return false;
+        }
+
+        public Vec2 ClosestPoint(Vec2 worldPoint)
+        {
+            return new Vec2();
+        }
     }
 }

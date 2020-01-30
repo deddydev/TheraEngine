@@ -102,7 +102,7 @@ namespace TheraEngine.Rendering.UI
             float height = 0.0f;
             foreach (var comp in comps)
                 if (comp is IUIBoundableComponent bc)
-                    height = Math.Max(bc.GetHeight(), height);
+                    height = Math.Max(bc.CalcAutoHeight(), height);
             return height;
         }
         private float GetColAutoWidth(IEnumerable<IUIComponent> comps)
@@ -110,7 +110,7 @@ namespace TheraEngine.Rendering.UI
             float width = 0.0f;
             foreach (var comp in comps)
                 if (comp is IUIBoundableComponent bc)
-                    width = Math.Max(bc.GetWidth(), width);
+                    width = Math.Max(bc.CalcAutoWidth(), width);
             return width;
 
         }
@@ -121,13 +121,13 @@ namespace TheraEngine.Rendering.UI
             float xSize = parentRegion.Width;
             float ySize = parentRegion.Height;
 
-            var autoRows = Rows.Select(x => x.AnyAuto ? x : null).ToArray();
-            var autoCols = Columns.Select(x => x.AnyAuto ? x : null).ToArray();
+            var autoRows = Rows.Select(x => x.Value.Mode == ESizingMode.Auto ? x : null).ToArray();
+            var autoCols = Columns.Select(x => x.Value.Mode == ESizingMode.Auto ? x : null).ToArray();
 
             for (int i = 0; i < Rows.Count; i++)
             {
                 var row = Rows[i];
-                if (row.AnyAuto)
+                if (row.Value.Mode == ESizingMode.Auto)
                     GetRowAutoHeight(GetComponentsInRow(i));
 
 
@@ -135,7 +135,7 @@ namespace TheraEngine.Rendering.UI
             for (int i = 0; i < Columns.Count; i++)
             {
                 var col = Columns[i];
-                if (col.AnyAuto)
+                if (col.Value.Mode == ESizingMode.Auto)
                     GetColAutoWidth(GetComponentsInColumn(i));
 
 
@@ -272,56 +272,6 @@ namespace TheraEngine.Rendering.UI
             {
                 get => _columnSpan;
                 set => Set(ref _columnSpan, value);
-            }
-        }
-        public enum ESizingMode
-        {
-            Auto,
-            Fixed,
-            Proportional,
-        }
-        public class SizingValue : TObject
-        {
-            private float _value = 0.0f;
-            private ESizingMode _mode = ESizingMode.Auto;
-
-            public ESizingMode Mode
-            {
-                get => _mode;
-                set => Set(ref _mode, value);
-            }
-            public float Value
-            {
-                get => _value;
-                set => Set(ref _value, value);
-            }
-        }
-        public class SizingDefinition : TObject
-        {
-            private SizingValue _value = null;
-            private SizingValue _min = null;
-            private SizingValue _max = null;
-
-            [Browsable(false)]
-            public bool AnyAuto =>
-                _value != null && _value.Mode == ESizingMode.Auto ||
-                _min != null && _min.Mode == ESizingMode.Auto ||
-                _max != null && _max.Mode == ESizingMode.Auto;
-
-            public SizingValue Value
-            {
-                get => _value;
-                set => Set(ref _value, value);
-            }
-            public SizingValue Min
-            {
-                get => _min;
-                set => Set(ref _min, value);
-            }
-            public SizingValue Max
-            {
-                get => _max;
-                set => Set(ref _max, value);
             }
         }
     }

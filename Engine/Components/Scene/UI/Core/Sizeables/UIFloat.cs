@@ -4,7 +4,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.UI
 {
-    public enum ESizingMode
+    public enum EFloatSizingMode
     {
         /// <summary>
         /// 

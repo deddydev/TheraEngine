@@ -36,8 +36,8 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public Vec3 ScreenTranslation
         {
-            get => Vec3.TransformPosition(WorldPoint, ActorRelativeMatrix);
-            set => Translation.Xyz = Vec3.TransformPosition(value, InverseActorRelativeMatrix);
+            get => LocalToScreen(_worldMatrix.Translation);
+            set => _worldMatrix.Translation = ScreenToLocal(value);
         }
 
         [TSerialize]

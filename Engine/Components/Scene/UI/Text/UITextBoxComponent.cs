@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI.Text
@@ -33,6 +34,11 @@ namespace TheraEngine.Rendering.UI.Text
         {
             get => _uiText.Format;
             set => _uiText.Format = value;
+        }
+
+        protected internal override void RegisterInputs(InputInterface input)
+        {
+            base.RegisterInputs(input);
         }
     }
 }

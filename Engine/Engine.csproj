@@ -537,12 +537,13 @@
     <Compile Include="Components\Scene\Shapes\CollidableShape3DComponent.cs" />
     <Compile Include="Components\Scene\Splines\Spline2DComponent.cs" />
     <Compile Include="Components\Scene\Misc\SubActorComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\Arrangements\UIItemListComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Sizeables\UIVec2.cs" />
     <Compile Include="Components\Scene\UI\Core\Sizeables\UIVec4.cs" />
     <Compile Include="Components\Scene\UI\Core\Transforms\UIScaleComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Transforms\UITransformComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Transforms\UITranslationComponent.cs" />
-    <Compile Include="Components\Scene\UI\Core\Arrangements\UIGridComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\Arrangements\UIItemGridComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Sizeables\UIVec3.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UITreeComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextBoxComponent.cs" />
@@ -579,7 +580,6 @@
     <Compile Include="Components\Scene\UI\Interactable\UIButtonComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIComboBoxComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIInteractableComponent.cs" />
-    <Compile Include="Components\Scene\UI\Interactable\UIListComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UIDebugPrintComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UIRichTextBoxComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextProjectionComponent.cs" />
@@ -677,6 +677,7 @@
     <Compile Include="Input\Devices\DirectX\DXGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\OpenTK\TKGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\ScrollWheelManager.cs" />
+    <Compile Include="Input\Devices\HMDOpenVR.cs" />
     <Compile Include="Models\Skeleton\BoneMatrices.cs" />
     <Compile Include="Physics\Bullet\Collision Bodies\BulletGhostBody.cs" />
     <Compile Include="Physics\Bullet\TContactResultCallback.cs" />
@@ -688,6 +689,7 @@
     <Compile Include="Rendering\Renderer\BaseRenderHandler.cs" />
     <Compile Include="Rendering\Scene\RenderInfo3D.cs" />
     <Compile Include="Rendering\Scene\RenderInfo2D.cs" />
+    <Compile Include="Rendering\Scene\VRViewport.cs" />
     <Compile Include="Rendering\UI\TMenuComponent.cs" />
     <Compile Include="Shapes\BoundingRectangle.cs" />
     <Compile Include="Shapes\Boxes\BoundingBoxStruct.cs" />
@@ -698,7 +700,7 @@
     <Compile Include="Shapes\EventBoundingRectangleF.cs" />
     <Compile Include="Shapes\Cylindrical\XAligned\ConeX.cs" />
     <Compile Include="Input\Devices\OpenTK\TKRift.cs" />
-    <Compile Include="Input\Devices\Types\Rift.cs" />
+    <Compile Include="Input\Devices\Types\HMD.cs" />
     <Compile Include="Input\ServerPlayerController.cs" />
     <Compile Include="Networking\Packets.cs" />
     <Compile Include="Physics\AbstractPhysicsInterface.cs" />

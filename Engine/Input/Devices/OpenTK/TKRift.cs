@@ -3,7 +3,7 @@
 
 namespace TheraEngine.Input.Devices.OpenTK
 {
-    public class TKRift : BaseRift
+    public class TKRift : BaseHMD
     {
         public TKRift() : base() { }
         private OculusRift _rift = new OculusRift();

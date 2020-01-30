@@ -37,6 +37,9 @@ namespace TheraEngine.Rendering.UI
         void ResizeLayout(BoundingRectangleF parentRegion);
         Vec2 ScreenToLocal(Vec2 coordinate, bool delta = false);
         void InvalidateLayout();
+
+        float CalcAutoWidth();
+        float CalcAutoHeight();
     }
     public abstract class UIComponent : OriginRebasableComponent, IUIComponent
     {
@@ -272,6 +275,27 @@ namespace TheraEngine.Rendering.UI
                 mtx = mtx.ClearTranslation();
             return (coordinate * mtx).Xy;
         }
+        public Vec3 ScreenToLocal(Vec3 coordinate, bool delta = false)
+        {
+            Matrix4 mtx = InverseActorRelativeMatrix;
+            if (delta)
+                mtx = mtx.ClearTranslation();
+            return coordinate * mtx;
+        }
+        public Vec3 LocalToScreen(Vec3 coordinate, bool delta = false)
+        {
+            Matrix4 mtx = ActorRelativeMatrix;
+            if (delta)
+                mtx = mtx.ClearTranslation();
+            return coordinate * mtx;
+        }
+        public Vec2 LocalToScreen(Vec2 coordinate, bool delta = false)
+        {
+            Matrix4 mtx = ActorRelativeMatrix;
+            if (delta)
+                mtx = mtx.ClearTranslation();
+            return (coordinate * mtx).Xy;
+        }
 
         public RenderCommandMethod2D _rc;
         private UIParentAttachmentInfo _parentInfo;
@@ -308,5 +332,8 @@ namespace TheraEngine.Rendering.UI
             Engine.Renderer.RenderLine(endPoint, endPoint + up, Color.Green);
             Engine.Renderer.RenderLine(endPoint, endPoint + right, Color.Red);
         }
+        
+        public virtual float CalcAutoWidth() => 0.0f;
+        public virtual float CalcAutoHeight() => 0.0f;
     }
 }

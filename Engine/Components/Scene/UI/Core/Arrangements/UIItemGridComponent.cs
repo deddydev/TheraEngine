@@ -9,12 +9,12 @@ using TheraEngine.Core;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UIGridComponent : UIBoundableComponent
+    public class UIItemGridComponent : UIBoundableComponent
     {
         private EventList<SizingDefinition> _rows;
         private EventList<SizingDefinition> _columns;
 
-        public UIGridComponent()
+        public UIItemGridComponent()
         {
             _rows = new EventList<SizingDefinition>();
             _rows.CollectionChanged += CollectionChanged;

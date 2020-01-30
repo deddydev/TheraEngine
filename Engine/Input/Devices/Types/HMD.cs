@@ -2,9 +2,9 @@
 
 namespace TheraEngine.Input.Devices
 {
-    public abstract class BaseRift : InputDevice
+    public abstract class BaseHMD : InputDevice
     {
-        public BaseRift() : base(0) { }
+        public BaseHMD() : base(0) { }
         
         protected override int GetAxisCount() => 0; 
         protected override int GetButtonCount() => 3;

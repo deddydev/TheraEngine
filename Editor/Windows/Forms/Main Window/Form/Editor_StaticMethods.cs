@@ -61,9 +61,9 @@ namespace TheraEditor.Windows.Forms
             //if (type == typeof(string))
             //    return string.Empty;
 
-            if (AppDomainHelper.IsPrimaryDomain && DomainProxy != null)
-                return DomainProxy.UserCreateInstanceOf(type, allowDerivedTypes);
-            else
+            //if (AppDomainHelper.IsPrimaryDomain && DomainProxy != null)
+            //    return DomainProxy.UserCreateInstanceOf(type, allowDerivedTypes);
+            //else
             {
                 if (type.IsGenericTypeDefinition)
                 {

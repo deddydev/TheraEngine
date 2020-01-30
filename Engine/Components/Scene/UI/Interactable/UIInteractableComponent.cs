@@ -13,6 +13,8 @@ namespace TheraEngine.Rendering.UI
 
         event Action GotFocus;
         event Action LostFocus;
+
+        internal void MouseMove(Vec2 prevPositionLocal, Vec2 newPositionLocal);
     }
     public delegate void DelMouseMove(float x, float y);
     /// <summary>
@@ -20,10 +22,10 @@ namespace TheraEngine.Rendering.UI
     /// </summary>
     public abstract class UIInteractableComponent : UIMaterialRectangleComponent, IUIInteractableComponent
     {
-        public UIInteractableComponent() 
+        public UIInteractableComponent()
             : base() { }
 
-        public UIInteractableComponent(TMaterial material, bool flipVerticalUVCoord = false) 
+        public UIInteractableComponent(TMaterial material, bool flipVerticalUVCoord = false)
             : base(material, flipVerticalUVCoord) { }
 
         [Category("Events")]
@@ -36,6 +38,14 @@ namespace TheraEngine.Rendering.UI
         public event Action MouseEnter;
         [Category("Events")]
         public event Action MouseLeave;
+
+        private bool _registerInputsOnFocus = true;
+        [Category("Interactable")]
+        public bool RegisterInputsOnFocus
+        {
+            get => _registerInputsOnFocus;
+            set => Set(ref _registerInputsOnFocus, value);
+        }
 
         private bool _isFocused = false;
         [Category("State")]
@@ -83,7 +93,6 @@ namespace TheraEngine.Rendering.UI
         public UIInteractableComponent GamepadRightComponent { get; set; }
 
         protected virtual void OnMouseMove(float x, float y) { }
-
         protected virtual void OnMouseEnter() => MouseEnter?.Invoke();
         protected virtual void OnMouseLeave() => MouseLeave?.Invoke();
 
@@ -92,31 +101,37 @@ namespace TheraEngine.Rendering.UI
 
         protected virtual void OnGotFocus()
         {
-            var input = OwningUserInterface?.LocalPlayerController?.Input;
-            if (input != null)
+            if (RegisterInputsOnFocus)
             {
-                input.Unregister = false;
-                RegisterInputs(input);
+                var input = OwningUserInterface?.LocalPlayerController?.Input;
+                if (input != null)
+                {
+                    input.Unregister = false;
+                    RegisterInputs(input);
+                }
             }
 
             GotFocus?.Invoke();
         }
         protected virtual void OnLostFocus()
         {
-            var input = OwningUserInterface?.LocalPlayerController?.Input;
-            if (input != null)
+            if (RegisterInputsOnFocus)
             {
-                input.Unregister = true;
-                RegisterInputs(input);
-                input.Unregister = false;
+                var input = OwningUserInterface?.LocalPlayerController?.Input;
+                if (input != null)
+                {
+                    input.Unregister = true;
+                    RegisterInputs(input);
+                    input.Unregister = false;
+                }
             }
 
             LostFocus?.Invoke();
         }
-
-        protected internal override void RegisterInputs(InputInterface input)
+        
+        void IUIInteractableComponent.MouseMove(Vec2 prevPositionLocal, Vec2 newPositionLocal)
         {
-            base.RegisterInputs(input);
+            
         }
     }
 }

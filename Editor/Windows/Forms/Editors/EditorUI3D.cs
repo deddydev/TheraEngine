@@ -266,18 +266,19 @@ namespace TheraEditor.Windows.Forms
 
             t = "FPS: 000";
             s = TextRenderer.MeasureText(t, f);
-            UITextRasterComponent fpsComp = new UITextRasterComponent() { RenderTransformation = false };
-
-            fpsComp.RenderInfo.VisibleByDefault = true;
-            fpsComp.Width = s.Width;
-            fpsComp.Height = s.Height;
-
-            fpsComp.VerticalAlignment = EVerticalAlign.Top;
-            fpsComp.HorizontalAlignment = EHorizontalAlign.Left;
+            UITextRasterComponent fpsComp = new UITextRasterComponent
+            {
+                RenderTransformation = false,
+                Visibility = EVisibility.Visible,
+                Width = s.Width,
+                Height = s.Height,
+                VerticalAlignment = EVerticalAlign.Top,
+                HorizontalAlignment = EHorizontalAlign.Left,
+                TextureResolutionMultiplier = f.Size
+            };
             fpsComp.Margins.Raw = new Vec4(5.0f);
             fpsComp.Padding.Raw = new Vec4(0.0f);
 
-            fpsComp.TextureResolutionMultiplier = f.Size;
             TextFormatFlags flags = TextFormatFlags.NoClipping | TextFormatFlags.SingleLine;
             FPSText = new UIString2D(t, f, new ColorF4(0.1f, 1.0f, 0.1f, 1.0f), flags);
             fpsComp.TextDrawer.Text.Add(FPSText);

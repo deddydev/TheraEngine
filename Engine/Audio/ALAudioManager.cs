@@ -22,25 +22,33 @@ namespace TheraEngine.Audio
 
         private AudioContext GenerateContext()
         {
-            IList<string> devices = AudioContext.AvailableDevices;
-            Engine.Out("Available audio devices: " + string.Join(", ", devices));
-            Engine.Out("Default audio device: " + AudioContext.DefaultDevice);
+            try
+            {
+                IList<string> devices = AudioContext.AvailableDevices;
+                Engine.Out("Available audio devices: " + string.Join(", ", devices));
+                Engine.Out("Default audio device: " + AudioContext.DefaultDevice);
 
-            AudioContext ctx = new AudioContext(AudioContext.DefaultDevice);
-            ctx.MakeCurrent();
+                AudioContext ctx = new AudioContext(AudioContext.DefaultDevice);
+                ctx.MakeCurrent();
 
-            string version = AL.Get(ALGetString.Version);
-            string vendor = AL.Get(ALGetString.Vendor);
-            string renderer = AL.Get(ALGetString.Renderer);
-            string extensions = AL.Get(ALGetString.Extensions);
-            Engine.Out($"OpenAL {version}, {vendor} [{renderer}]");
-            Engine.Out($"OpenAL Extensions: {extensions}");
+                string version = AL.Get(ALGetString.Version);
+                string vendor = AL.Get(ALGetString.Vendor);
+                string renderer = AL.Get(ALGetString.Renderer);
+                string extensions = AL.Get(ALGetString.Extensions);
+                Engine.Out($"OpenAL {version}, {vendor} [{renderer}]");
+                Engine.Out($"OpenAL Extensions: {extensions}");
 
-            _efx = new EffectsExtension();
+                _efx = new EffectsExtension();
 
-            AL.DistanceModel(ALDistanceModel.LinearDistanceClamped);
+                AL.DistanceModel(ALDistanceModel.LinearDistanceClamped);
 
-            return ctx;
+                return ctx;
+            }
+            catch //(DllNotFoundException ex)
+            {
+                Engine.LogWarning("OpenAL is not installed.");
+                return null;
+            }
         }
 
         private EffectsExtension _efx;

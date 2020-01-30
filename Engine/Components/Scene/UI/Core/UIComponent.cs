@@ -335,5 +335,8 @@ namespace TheraEngine.Rendering.UI
         
         public virtual float CalcAutoWidth() => 0.0f;
         public virtual float CalcAutoHeight() => 0.0f;
+
+        public virtual bool Contains(Vec2 worldPoint) => worldPoint.DistanceTo(WorldMatrix.Translation.Xy) < 0.0001f;
+        public virtual Vec2 ClosestPoint(Vec2 worldPoint) => WorldMatrix.Translation.Xy;
     }
 }

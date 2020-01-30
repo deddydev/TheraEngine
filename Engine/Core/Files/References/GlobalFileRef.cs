@@ -62,8 +62,8 @@ namespace TheraEngine.Core.Files
             if (string.IsNullOrEmpty(path))
                 return;
 
-            if (file.Domain == AppDomain.CurrentDomain && AppDomainHelper.IsPrimaryDomain)
-                throw new Exception();
+            //if (file.Domain == AppDomain.CurrentDomain && AppDomainHelper.IsPrimaryDomain)
+            //    throw new Exception();
 
             Engine.DomainProxy?.AddGlobalFile(path, file);
         }

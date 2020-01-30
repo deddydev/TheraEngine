@@ -13,8 +13,6 @@ using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using Extensions;
-using TheraEngine.Physics.RayTracing;
-using TheraEngine.Physics.ShapeTracing;
 
 namespace TheraEngine.Worlds
 {
@@ -466,6 +464,16 @@ namespace TheraEngine.Worlds
         void IWorld.GlobalPreRender(float delta)
         {
             Scene?.GlobalRender();
+        }
+
+        public bool Contains(Vec2 worldPoint)
+        {
+            return false;
+        }
+
+        public Vec2 ClosestPoint(Vec2 worldPoint)
+        {
+            return new Vec2();
         }
     }
 }

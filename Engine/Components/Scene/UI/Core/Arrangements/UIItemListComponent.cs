@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Components;
-using Extensions;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Core;
 
 namespace TheraEngine.Rendering.UI
 {
+    public class ListPlacementInfo : UIParentAttachmentInfo
+    {
+        public SizingDefinition Size { get; set; }
+    }
     public enum EOrientation
     {
         Vertical,
@@ -16,13 +17,12 @@ namespace TheraEngine.Rendering.UI
     }
     public class UIListComponent : UIBoundableComponent
     {
-        private EventList<SizingDefinition> _itemSizes;
         private bool _reverseOrder = false;
         private EOrientation _orientation = EOrientation.Vertical;
 
         public UIListComponent()
         {
-            _itemSizes = new EventList<SizingDefinition>();
+
         }
 
         [TSerialize]
@@ -40,17 +40,39 @@ namespace TheraEngine.Rendering.UI
             set => Set(ref _reverseOrder, value);
         }
 
-        public EventList<SizingDefinition> ItemSizes
-        {
-            get => _itemSizes;
-            set => Set(ref _itemSizes, value);
-        }
-
         protected override void OnResizeLayout(BoundingRectangleF parentRegion)
         {
             //Sizing priority: auto, fixed, proportional
-            float xSize = parentRegion.Width;
-            
+            bool vertical = Orientation == EOrientation.Vertical;
+            float remaining = vertical ? parentRegion.Height : parentRegion.Width;
+            for (int i = 0; i < ChildComponents.Count; ++i)
+            {
+                ISceneComponent comp = ChildComponents[i];
+                if (!(comp is IUIComponent uiComp))
+                    continue;
+
+                SizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
+                switch (def.Value.Mode)
+                {
+                    case ESizingMode.Auto:
+                        float auto = vertical ? uiComp.CalcAutoHeight() : uiComp.CalcAutoWidth();
+                        break;
+                    case ESizingMode.Fixed:
+
+                        break;
+                    case ESizingMode.Proportional:
+
+                        break;
+                }
+            }
+            for (int i = 0; i < ChildComponents.Count; ++i)
+            {
+                ISceneComponent component = ChildComponents[i];
+                if (!(comp is IUIComponent uiComp))
+                    continue;
+
+            }
+
             var autoItems = ItemSizes.Where(x => x.Value.Mode == ESizingMode.Auto).ToArray();
             var fixedItems = ItemSizes.Where(x => x.Value.Mode == ESizingMode.Fixed).ToArray();
             var propItems = ItemSizes.Where(x => x.Value.Mode == ESizingMode.Proportional).ToArray();

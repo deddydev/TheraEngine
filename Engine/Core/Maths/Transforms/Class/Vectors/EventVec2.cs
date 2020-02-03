@@ -416,13 +416,13 @@ namespace System
             return vec;
         }
         public static bool operator ==(EventVec2 left, EventVec2 right) => left?.Equals(right) ?? right is null;
-        public static bool operator !=(EventVec2 left, EventVec2 right) { return !(left?.Equals(right) ?? right is null); }
-        public static explicit operator EventVec2(Vec3 v) { return new EventVec2(v.X, v.Y); }
-        public static explicit operator EventVec2(Vec4 v) { return new EventVec2(v.X, v.Y); }
-        public static implicit operator EventVec2(PointF v) { return new EventVec2(v.X, v.Y); }
-        public static implicit operator PointF(EventVec2 v) { return new PointF(v.X, v.Y); }
-        public static implicit operator EventVec2(Vec2 v) { return new EventVec2(v.X, v.Y); }
-        public static implicit operator Vec2(EventVec2 v) { return v.Raw; }
+        public static bool operator !=(EventVec2 left, EventVec2 right) => !(left?.Equals(right) ?? right is null);
+        public static explicit operator EventVec2(Vec3 v) => new EventVec2(v.X, v.Y);
+        public static explicit operator EventVec2(Vec4 v) => new EventVec2(v.X, v.Y);
+        public static implicit operator EventVec2(PointF v) => new EventVec2(v.X, v.Y);
+        public static implicit operator PointF(EventVec2 v) => new PointF(v.X, v.Y);
+        public static implicit operator EventVec2(Vec2 v) => new EventVec2(v.X, v.Y);
+        public static implicit operator Vec2(EventVec2 v) => v.Raw;
 
         private static readonly string ListSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString() => string.Format("({0}{2} {1})", X, Y, ListSeparator);

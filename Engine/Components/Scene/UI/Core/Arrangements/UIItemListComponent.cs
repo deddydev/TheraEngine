@@ -90,6 +90,52 @@ namespace TheraEngine.Rendering.UI
         }
 
         /// <summary>
+        /// Actually resizes child items using prepass information.
+        /// </summary>
+        /// <param name="vertical">If the list box displays items left to right (false) or top to bottom (true)</param>
+        /// <param name="remaining">How much room is left after calculating the size of fixed and auto sized items.</param>
+        /// <param name="propDenom">The denominator to use to calculate proportional item sizes.</param>
+        private void ResizeChildrenPrepass(bool vertical, ref float remaining, ref float propDenom)
+        {
+            for (int i = 0; i < ChildComponents.Count; ++i)
+            {
+                int index = ReverseItemOrder ? ChildComponents.Count - 1 - i : i;
+
+                ISceneComponent comp = ChildComponents[index];
+                if (!(comp is IUIComponent uiComp))
+                    continue;
+
+                float calc = 0.0f;
+                SizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
+                if (def?.Value != null)
+                {
+                    switch (def.Value.Mode)
+                    {
+                        default:
+                        case ESizingMode.Fixed:
+                            {
+                                calc = def.Value.Value;
+                                break;
+                            }
+                        case ESizingMode.Auto:
+                            {
+                                calc = vertical ? uiComp.CalcAutoHeight() : uiComp.CalcAutoWidth();
+                                break;
+                            }
+                        case ESizingMode.Proportional:
+                            {
+                                calc = 0.0f;
+                                propDenom += def.Value.Value;
+                                break;
+                            }
+                    };
+                    def.CalculatedValue = calc;
+                }
+                remaining -= calc;
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="parentRegion"></param>
@@ -119,7 +165,7 @@ namespace TheraEngine.Rendering.UI
                     IUIBoundableComponent uibComp = uiComp as IUIBoundableComponent;
 
                     if (def.Value.Mode == ESizingMode.Proportional)
-                        def.CalculatedValue = totalProportional <= 0.0f || uibComp is null ? 0.0f : (vertical ? uibComp.Height : uibComp.Width) / totalProportional * remaining;
+                        def.CalculatedValue = totalProportional <= 0.0f ? 0.0f : def.Value.Value / totalProportional * remaining;
 
                     GetItemRegion(ref parentRegion, vertical, maxExtent, ref offset, def,
                         out float width, out float height, out float x, out float y);
@@ -157,52 +203,6 @@ namespace TheraEngine.Rendering.UI
             offset += def.CalculatedValue;
         }
 
-        /// <summary>
-        /// Actually resizes child items using prepass information.
-        /// </summary>
-        /// <param name="vertical">If the list box displays items left to right (false) or top to bottom (true)</param>
-        /// <param name="remaining">How much room is left after calculating the size of fixed and auto sized items.</param>
-        /// <param name="propDenom">The denominator to use to calculate proportional item sizes.</param>
-        private void ResizeChildrenPrepass(bool vertical, ref float remaining, ref float propDenom)
-        {
-            for (int i = 0; i < ChildComponents.Count; ++i)
-            {
-                int index = ReverseItemOrder ? ChildComponents.Count - 1 - i : i;
-
-                ISceneComponent comp = ChildComponents[index];
-                if (!(comp is IUIComponent uiComp))
-                    continue;
-
-                float calc = 0.0f;
-                SizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
-                if (def?.Value != null)
-                {
-                    switch (def.Value.Mode)
-                    {
-                        default:
-                        case ESizingMode.Fixed:
-                            {
-                                calc = uiComp is IUIBoundableComponent uibComp ? (vertical ? uibComp.Height : uibComp.Width) : 0.0f;
-                                break;
-                            }
-                        case ESizingMode.Auto:
-                            {
-                                calc = vertical ? uiComp.CalcAutoHeight() : uiComp.CalcAutoWidth();
-                                break;
-                            }
-                        case ESizingMode.Proportional:
-                            {
-                                calc = 0.0f;
-                                propDenom += uiComp is IUIBoundableComponent uibComp ? (vertical ? uibComp.Height : uibComp.Width) : 0.0f;
-                                break;
-                            }
-                    };
-                    def.CalculatedValue = calc;
-                }
-                remaining -= calc;
-            }
-        }
-
         private void AdjustByMargin(bool vertical, IUIBoundableComponent uibComp, ref float offset, ref float x, ref float y, ref float width, ref float height)
         {
             var margins = uibComp?.Margins;
@@ -216,35 +216,23 @@ namespace TheraEngine.Rendering.UI
 
             if (vertical)
             {
-                if (ArrangeBackward)
-                {
-                    y += bottom;
-                }
-                else
-                {
-                    y -= top;
-                }
-
-                offset += bottom + top;
-
-                x += left;
+                float temp = bottom + top;
                 width -= left + right;
+                height -= temp;
+                offset += temp;
+
+                y += bottom;
+                x += left;
             }
             else
             {
-                if (ArrangeBackward)
-                {
-                    x -= right;
-                }
-                else
-                {
-                    x += left;
-                }
-
-                offset += left + right;
-
-                y += bottom;
+                float temp = left + right;
                 height -= bottom + top;
+                width -= temp;
+                offset += temp;
+
+                x += left;
+                y += bottom;
             }
         }
 

@@ -87,7 +87,7 @@ namespace TheraEngine.Rendering.UI
         {
             OnResizeActual(parentBounds);
             RecalcLocalTransform(true, false);
-            var bounds = new BoundingRectangleF(ActualTranslation.Raw, parentBounds.Extents);
+            var bounds = new BoundingRectangleF(0.0f, parentBounds.Extents);
             OnResizeChildComponents(bounds);
         }
 

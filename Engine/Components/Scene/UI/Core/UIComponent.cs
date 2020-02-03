@@ -145,7 +145,7 @@ namespace TheraEngine.Rendering.UI
             set => Set(ref _renderTransformation, value); 
         }
 
-        [Category("Rendering")]
+        [Category("Transform")]
         public UIParentAttachmentInfo ParentInfo
         {
             get => _parentInfo;

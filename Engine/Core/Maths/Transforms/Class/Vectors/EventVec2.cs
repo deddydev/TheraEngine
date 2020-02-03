@@ -415,8 +415,8 @@ namespace System
             vec.Y = amount - vec.Y;
             return vec;
         }
-        public static bool operator ==(EventVec2 left, EventVec2 right) { return left.Equals(right); }
-        public static bool operator !=(EventVec2 left, EventVec2 right) { return !left.Equals(right); }
+        public static bool operator ==(EventVec2 left, EventVec2 right) => left?.Equals(right) ?? right is null;
+        public static bool operator !=(EventVec2 left, EventVec2 right) { return !(left?.Equals(right) ?? right is null); }
         public static explicit operator EventVec2(Vec3 v) { return new EventVec2(v.X, v.Y); }
         public static explicit operator EventVec2(Vec4 v) { return new EventVec2(v.X, v.Y); }
         public static implicit operator EventVec2(PointF v) { return new EventVec2(v.X, v.Y); }

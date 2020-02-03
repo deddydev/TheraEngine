@@ -548,6 +548,7 @@
     <Compile Include="Components\Scene\UI\Core\Sizeables\UIVec3.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UITreeComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextBoxComponent.cs" />
+    <Compile Include="Components\Scene\UI\Text\UITextQuadComponent.cs" />
     <Compile Include="Components\Scene\UI\UICanvasComponent.cs" />
     <Compile Include="Core\Attributes\TDeprecatedName.cs" />
     <Compile Include="Core\Attributes\TDropDownIndexSelectorAttribute.cs" />

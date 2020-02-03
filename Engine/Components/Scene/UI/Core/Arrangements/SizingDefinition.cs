@@ -11,7 +11,7 @@ namespace TheraEngine.Rendering.UI
     public class SizingValue : TObject
     {
         private float _value = 0.0f;
-        private ESizingMode _mode = ESizingMode.Auto;
+        private ESizingMode _mode = ESizingMode.Fixed;
 
         public ESizingMode Mode
         {
@@ -26,9 +26,11 @@ namespace TheraEngine.Rendering.UI
     }
     public class SizingDefinition : TObject
     {
-        private SizingValue _value = null;
+        private SizingValue _value = new SizingValue();
         private SizingValue _min = null;
         private SizingValue _max = null;
+
+        public float CalculatedValue { get; set; }
 
         [Browsable(false)]
         public bool NeedsAutoSizing =>

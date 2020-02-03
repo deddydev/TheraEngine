@@ -312,7 +312,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     Label.Visible = true;
                 if (ParentCategory != null && !ParentCategory.Visible)
                     ParentCategory.Visible = true;
-
                 try
                 {
                     object value = GetValue();
@@ -321,7 +320,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     else
                         displayChanged = UpdateDisplayInternal(value);
                 }
-                catch (AppDomainUnloadedException e)
+                catch (AppDomainUnloadedException)
                 {
                     //Engine.LogWarning(e.ToString());
                 }
@@ -402,10 +401,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             strip.RenderMode = ToolStripRenderMode.Professional;
             strip.Renderer = new TheraToolStripRenderer();
+            strip.Opening += Strip_Opening;
 
             Label.ContextMenuStrip = strip;
             Label.Name += "*";
         }
+
+        private void Strip_Opening(object sender, CancelEventArgs e) => e.Cancel = !IsEditable();
+
         private static void EditAnimation(object sender, EventArgs e)
         {
             //if (sender is ToolStripMenuItem item && item.Tag is AnimationTree anim)

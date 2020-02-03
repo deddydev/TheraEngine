@@ -38,7 +38,7 @@ namespace TheraEngine.Rendering.UI
         private float
             _modValue = 0.0f,
             _resValue = 0.0f;
-        private ESizingMode _sizingMode = ESizingMode.Pixels;
+        private EFloatSizingMode _sizingMode = EFloatSizingMode.Pixels;
 
         private UIFloat
             _propElem = null,
@@ -102,7 +102,7 @@ namespace TheraEngine.Rendering.UI
                     Set(ref _smallerRelative, value, null, InvalidateAbsoluteValue, true);
             }
         }
-        public ESizingMode SizingOption
+        public EFloatSizingMode SizingOption
         {
             get => _sizingMode;
             set
@@ -209,13 +209,13 @@ namespace TheraEngine.Rendering.UI
             switch (SizingOption)
             {
                 default:
-                case ESizingMode.Pixels:
+                case EFloatSizingMode.Pixels:
                     newValue += _modValue;
                     break;
-                case ESizingMode.PercentageOfParent:
+                case EFloatSizingMode.PercentageOfParent:
                     newValue += range * _modValue;
                     break;
-                case ESizingMode.ProportionalToElement:
+                case EFloatSizingMode.ProportionalToElement:
                     if (ProportionElement != null)
                         newValue += ProportionElement.Value * _modValue;
                     break;
@@ -255,15 +255,15 @@ namespace TheraEngine.Rendering.UI
             switch (SizingOption)
             {
                 default:
-                case ESizingMode.Pixels:
+                case EFloatSizingMode.Pixels:
                     break;
-                case ESizingMode.PercentageOfParent:
+                case EFloatSizingMode.PercentageOfParent:
                     if (size != 0.0f)
                         newValue /= size;
                     else
                         newValue = 0.0f;
                     break;
-                case ESizingMode.ProportionalToElement:
+                case EFloatSizingMode.ProportionalToElement:
                     if (ProportionElement != null)
                     {
                         float dim = ProportionElement.Value;
@@ -292,7 +292,7 @@ namespace TheraEngine.Rendering.UI
         }
         public void SetSizingPercentageOfParent(float percentage)
         {
-            SizingOption = ESizingMode.PercentageOfParent;
+            SizingOption = EFloatSizingMode.PercentageOfParent;
             RelativeValue = percentage;
         }
         public static UIFloat Proportioned(UIFloat proportionalElement, float ratio, bool smallerRelative = true)
@@ -306,7 +306,7 @@ namespace TheraEngine.Rendering.UI
         }
         public void SetSizingProportioned(UIFloat proportionalElement, float ratio)
         {
-            SizingOption = ESizingMode.ProportionalToElement;
+            SizingOption = EFloatSizingMode.ProportionalToElement;
             ProportionElement = proportionalElement;
             RelativeValue = ratio;
         }
@@ -327,7 +327,7 @@ namespace TheraEngine.Rendering.UI
         /// <param name="parentDim"></param>
         public void SetSizingPixels(float pixels)
         {
-            SizingOption = ESizingMode.Pixels;
+            SizingOption = EFloatSizingMode.Pixels;
             RelativeValue = pixels;
         }
         //public void SetSizingIgnored()

@@ -36,6 +36,9 @@ namespace TheraEngine.Rendering.UI
         float ActualWidth { get; }
         float ActualHeight { get; }
         EventVec2 ActualSize { get; }
+        
+        EventVec4 Margins { get; set; }
+        EventVec4 Padding { get; set; }
 
         IUIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis);
         List<IUIBoundableComponent> FindAllIntersecting(Vec2 worldPoint, bool includeThis);
@@ -87,6 +90,23 @@ namespace TheraEngine.Rendering.UI
         [TSerialize(nameof(VerticalAlignment))]
         private EVerticalAlign _verticalAlign = EVerticalAlign.Positional;
 
+        protected EventVec2 _actualSize = new EventVec2();
+
+        //[Browsable(false)]
+        [Category("Transform")]
+        public EventVec2 ActualSize
+        {
+            get => _actualSize;
+            set => Set(ref _actualSize, value ?? new EventVec2());
+        }
+
+        [Browsable(false)]
+        [Category("Transform")]
+        public float ActualWidth => ActualSize.X;
+        [Browsable(false)]
+        [Category("Transform")]
+        public float ActualHeight => ActualSize.Y;
+
         [Category("Transform")]
         public EVerticalAlign VerticalAlignment
         {
@@ -107,20 +127,24 @@ namespace TheraEngine.Rendering.UI
                     InvalidateLayout();
             }
         }
+
+        [Browsable(false)]
         [Category("Transform")]
         public virtual float Width
         {
             get => _size.X;
             set => _size.X = value;
         }
+        [Browsable(false)]
         [Category("Transform")]
         public virtual float Height
         {
             get => _size.Y;
             set => _size.Y = value;
         }
+        //[Browsable(false)]
         [TSerialize]
-        [Browsable(false)]
+        [Category("Transform")]
         public EventVec2 Size
         {
             get => _size;
@@ -150,32 +174,23 @@ namespace TheraEngine.Rendering.UI
             InvalidateLayout();
         }
 
-        protected EventVec2 _actualSize = new EventVec2();
         [Browsable(false)]
-        public EventVec2 ActualSize
-        {
-            get => _actualSize;
-            set => Set(ref _actualSize, value ?? new EventVec2());
-        }
-        [Browsable(false)]
-        public float ActualWidth => ActualSize.X;
-        [Browsable(false)]
-        public float ActualHeight => ActualSize.Y;
-
         [Category("Transform")]
         public virtual float MinWidth
         {
             get => _minSize.X;
             set => _minSize.X = value;
         }
+        [Browsable(false)]
         [Category("Transform")]
         public virtual float MinHeight
         {
             get => _minSize.Y;
             set => _minSize.Y = value;
         }
+        //[Browsable(false)]
         [TSerialize]
-        [Browsable(false)]
+        [Category("Transform")]
         public EventVec2 MinSize
         {
             get => _minSize;
@@ -195,20 +210,23 @@ namespace TheraEngine.Rendering.UI
             InvalidateLayout();
         }
 
+        [Browsable(false)]
         [Category("Transform")]
         public virtual float MaxWidth
         {
             get => _maxSize.X;
             set => _maxSize.X = value;
         }
+        [Browsable(false)]
         [Category("Transform")]
         public virtual float MaxHeight
         {
             get => _maxSize.Y;
             set => _maxSize.Y = value;
         }
+        //[Browsable(false)]
         [TSerialize]
-        [Browsable(false)]
+        [Category("Transform")]
         public EventVec2 MaxSize
         {
             get => _maxSize;
@@ -228,20 +246,23 @@ namespace TheraEngine.Rendering.UI
             InvalidateLayout();
         }
 
+        [Browsable(false)]
         [Category("Transform")]
         public virtual float OriginPercentX
         {
             get => _originPercent.X;
             set => _originPercent.X = value;
         }
+        [Browsable(false)]
         [Category("Transform")]
         public virtual float OriginPercentY
         {
             get => _originPercent.Y;
             set => _originPercent.Y = value;
         }
+        //[Browsable(false)]
         [TSerialize]
-        [Browsable(false)]
+        [Category("Transform")]
         public EventVec2 OriginPercent
         {
             get => _originPercent;
@@ -289,23 +310,31 @@ namespace TheraEngine.Rendering.UI
                     InvalidateLayout();
             }
         }
+        [Browsable(false)]
         [Category("Transform")]
         public virtual float OriginTranslationX
         {
             get => OriginPercentX * ActualWidth;
-            set => OriginPercentX = value / ActualWidth;
+            set => OriginPercentX = ActualWidth.IsZero() ? 0.0f : value / ActualWidth;
         }
+        [Browsable(false)]
         [Category("Transform")]
         public virtual float OriginTranslationY
         {
             get => OriginPercentY * ActualHeight;
-            set => OriginPercentY = value / ActualHeight;
+            set => OriginPercentY = ActualHeight.IsZero() ? 0.0f : value / ActualHeight;
         }
-        [Browsable(false)]
+        //[Browsable(false)]
+        [Category("Transform")]
         public Vec2 OriginTranslation
         {
             get => OriginPercent.Raw * ActualSize.Raw;
-            set => OriginPercent.Raw = value / ActualSize.Raw;
+            set
+            {
+                float x = ActualSize.X.IsZero() ? 0.0f : value.X / ActualSize.X;
+                float y = ActualSize.Y.IsZero() ? 0.0f : value.Y / ActualSize.Y;
+                OriginPercent.Raw = new Vec2(x, y);
+            }
         }
 
         protected override void OnRecalcLocalTransform(
@@ -368,20 +397,39 @@ namespace TheraEngine.Rendering.UI
                     _actualTranslation.Y = _translation.Y;
                     break;
             }
+
+            //X = left, Y = bottom, Z = right, W = top
+            //if (Margins != null)
+            //{
+            //    _actualTranslation.X += Margins.X;
+            //    _actualTranslation.Y += Margins.Y;
+            //    _actualSize.X -= Margins.X + Margins.Z;
+            //    _actualSize.Y -= Margins.Y + Margins.W;
+            //}
         }
         protected override void OnResizeLayout(BoundingRectangleF parentBounds)
         {
             OnResizeActual(parentBounds);
             RecalcLocalTransform(true, false);
 
-            Vec4 pad = Padding.Raw;
-            Vec2 size = ActualSize.Raw;
-            Vec2 pos = ActualTranslation.Raw;
-            pos += new Vec2(pad.X, pad.Y);
-            size -= new Vec2(pad.X + pad.Z, pad.Y + pad.W);
-            var bounds = new BoundingRectangleF(pos, size);
+            var pad = Padding;
+            if (pad != null)
+            {
+                float left = pad.X;
+                float bottom = pad.Y;
+                float right = pad.Z;
+                float top = pad.W;
 
-            OnResizeChildComponents(bounds);
+                Vec2 size = ActualSize.Raw;
+                Vec2 pos = ActualTranslation.Raw;
+
+                pos += new Vec2(left, bottom);
+                size -= new Vec2(left + right, bottom + top);
+
+                parentBounds = new BoundingRectangleF(pos, size);
+            }
+            
+            OnResizeChildComponents(parentBounds);
             RemakeAxisAlignedRegion();
         }
         protected virtual void RemakeAxisAlignedRegion()

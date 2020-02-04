@@ -179,25 +179,20 @@ namespace TheraEngine.Rendering.UI
 
         private void GetItemRegion(ref BoundingRectangleF parentRegion, bool vertical, float maxExtent, ref float offset, SizingDefinition def, out float width, out float height, out float x, out float y)
         {
+            x = parentRegion.X;
+            y = parentRegion.Y;
+
             if (vertical)
             {
                 width = parentRegion.Width;
                 height = def.CalculatedValue;
-
-                x = 0.0f;
-                y = ArrangeBackward
-                    ? offset
-                    : maxExtent - offset - height;
+                y += ArrangeBackward ? offset : maxExtent - offset - height;
             }
             else
             {
                 width = def.CalculatedValue;
                 height = parentRegion.Height;
-
-                y = 0.0f;
-                x = ArrangeBackward
-                    ? maxExtent - offset - width
-                    : offset;
+                x += ArrangeBackward ? maxExtent - offset - width : offset;
             }
 
             offset += def.CalculatedValue;

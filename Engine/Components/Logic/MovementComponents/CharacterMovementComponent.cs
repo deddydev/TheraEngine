@@ -269,7 +269,7 @@ namespace TheraEngine.Components.Logic.Movement
             #region Ground Test
 
             float centerToGroundDist = root.Shape.HalfHeight + root.Shape.Radius;
-            float marginDist = CurrentWalkingSurface.CollisionShape.Margin + body.CollisionShape.Margin;
+            float marginDist = (CurrentWalkingSurface?.CollisionShape?.Margin ?? 0.0f) + (body?.CollisionShape?.Margin ?? 0.0f);
             float groundTestDist = 2.0f;// centerToGroundDist + marginDist;
             down *= groundTestDist;
             inputTransform = down.AsTranslationMatrix();

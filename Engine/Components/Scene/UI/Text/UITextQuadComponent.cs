@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Windows.Forms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
@@ -11,6 +13,30 @@ using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI
 {
+    public enum EGDICharSet : byte
+    {
+        ANSI = 0,
+        DEFAULT = 1,
+        SYMBOL = 2,
+        SHIFTJIS = 128,
+        HANGEUL = 129,
+        HANGUL = 129,
+        GB2312 = 134,
+        CHINESEBIG5 = 136,
+        OEM = 255,
+        JOHAB = 130,
+        HEBREW = 177,
+        ARABIC = 178,
+        GREEK = 161,
+        TURKISH = 162,
+        VIETNAMESE = 163,
+        THAI = 222,
+        EASTEUROPE = 238,
+        RUSSIAN = 204,
+        MAC = 77,
+        BALTIC = 186,
+    }
+
     public class UITextQuadComponent : UIInteractableComponent
     {
         private Font _font;
@@ -41,13 +67,32 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
-        [TSerialize(nameof(TextDrawer))]
-        private TextRasterizer _textDrawer;
-        public TextRasterizer TextDrawer => _textDrawer;
+        public TextRasterizer TextDrawer { get; }
 
+        //Region = X, Y, W, H in atlas texture for glyph to use
+        //UV = X, Y, W, H to translate and scale quads
+        private List<(Vec4 Region, Vec4 UV)> _glyphs = new List<(Vec4 Region, Vec4 UV)>();
+
+        public const int MaxTextLength = 256;
+        public const string AllGlyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+-=`~,.<>/?\\|{}[];:\"'";
+        
         private void GenerateFontTexture()
         {
+            _glyphs.Clear();
 
+            //Vec2 atlasSize = new Vec2(256.0f);
+
+            //TODO: get graphics from atlas bitmap
+            using Graphics g = Graphics.FromHwnd(IntPtr.Zero);
+            float height = Font.GetHeight(g);
+            //TODO: dynamic wrap and scale all glyphs to fit in atlas texture
+            SizeF size = g.MeasureString(AllGlyphs, Font);
+            StringFormat fmt = new StringFormat(StringFormatFlags.NoClip);
+            var regions = g.MeasureCharacterRanges(AllGlyphs, Font, new RectangleF(new PointF(), size), fmt);
+            foreach (var region in regions)
+            {
+                var rect = region.GetBounds(g);
+            }
         }
 
         private RenderCommandMesh3D Command { get; }
@@ -55,6 +100,8 @@ namespace TheraEngine.Rendering.UI
 
         public UITextQuadComponent() : base(null)
         {
+            TextDrawer = new TextRasterizer();
+
             var mat = TMaterial.CreateUnlitAlphaTextureMaterialForward(
                 new TexRef2D("CharTex", 64, 64, PixelFormat.Format32bppArgb));
 
@@ -63,7 +110,8 @@ namespace TheraEngine.Rendering.UI
                 VertexQuad.PosZQuad(1.0f, true, 0.0f, true));
 
             //TODO: resize buffer length if text length reaches capacity
-            int textLengthCapacity = 256;
+            //Or use multiple primitive managers all set to same fixed size buffer
+            int textLengthCapacity = MaxTextLength;
             var positionsBuffer = data.AddBuffer(new Vec4[textLengthCapacity], new VertexAttribInfo(EBufferType.Other, 0), false, false, true, 1);
             var textureRegionsBuffer = data.AddBuffer(new Vec4[textLengthCapacity], new VertexAttribInfo(EBufferType.Other, 1), false, false, true, 1);
 

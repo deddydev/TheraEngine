@@ -414,27 +414,31 @@ namespace TheraEngine.Rendering.UI
 
             OnResizeActual(parentBounds);
             RecalcLocalTransform(true, false);
-
-            var pad = Padding;
-            if (pad != null)
-            {
-                float left = pad.X;
-                float bottom = pad.Y;
-                float right = pad.Z;
-                float top = pad.W;
-
-                Vec2 size = ActualSize.Raw;
-                Vec2 pos = ActualTranslation.Raw;
-
-                pos += new Vec2(left, bottom);
-                size -= new Vec2(left + right, bottom + top);
-
-                parentBounds = new BoundingRectangleF(pos, size);
-            }
-            
+            ApplyPadding(ref parentBounds);
             OnResizeChildComponents(parentBounds);
             RemakeAxisAlignedRegion();
         }
+
+        private void ApplyPadding(ref BoundingRectangleF bounds)
+        {
+            var pad = Padding;
+            if (pad is null)
+                return;
+            
+            float left = pad.X;
+            float bottom = pad.Y;
+            float right = pad.Z;
+            float top = pad.W;
+
+            Vec2 size = ActualSize.Raw;
+            Vec2 pos = ActualTranslation.Raw;
+
+            pos += new Vec2(left, bottom);
+            size -= new Vec2(left + right, bottom + top);
+
+            bounds = new BoundingRectangleF(pos, size);
+        }
+
         protected virtual void RemakeAxisAlignedRegion()
         {
             Matrix4 mtx = WorldMatrix * Matrix4.CreateScale(ActualSize.X, ActualSize.Y, 1.0f);

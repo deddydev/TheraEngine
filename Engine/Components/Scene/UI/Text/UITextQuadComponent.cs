@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Windows.Forms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
@@ -71,7 +69,7 @@ namespace TheraEngine.Rendering.UI
 
         //Region = X, Y, W, H in atlas texture for glyph to use
         //UV = X, Y, W, H to translate and scale quads
-        private List<(Vec4 Region, Vec4 UV)> _glyphs = new List<(Vec4 Region, Vec4 UV)>();
+        private readonly List<(Vec4 Region, Vec4 UV)> _glyphs = new List<(Vec4 Region, Vec4 UV)>();
 
         public const int MaxTextLength = 256;
         public const string AllGlyphs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+-=`~,.<>/?\\|{}[];:\"'";

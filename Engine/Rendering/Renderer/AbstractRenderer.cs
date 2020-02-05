@@ -200,7 +200,7 @@ namespace TheraEngine.Rendering
             }
             return null;
         }
-        
+
         //public void CacheWireframePlane()
         //{
         //    _wirePlane = new PrimitiveManager(
@@ -236,11 +236,7 @@ namespace TheraEngine.Rendering
         //public void RenderCone(string name, Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, Matrix4 transform, bool solid, ColorF4 color)
         //    => RenderCone(name, Vec3.TransformPosition(topPoint, transform), bottomPoint * transform, bottomRadius, solid, color);
 
-        private bool DisallowRender(bool solid)
-        {
-            bool renderingMaps = Current3DScene?.Lights?.RenderingShadowMaps ?? false;
-            return renderingMaps && !solid;
-        }
+        private bool DisallowRender(bool solid) => (Current3DScene?.Lights?.RenderingShadowMaps ?? false) && !solid;
 
         //public abstract void RenderPoint(Vec3 position, ColorF4 color, float pointSize = DefaultPointSize);
         //public abstract void RenderLine(Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize);

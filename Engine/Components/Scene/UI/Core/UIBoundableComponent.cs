@@ -337,14 +337,16 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
+        private Vec2 ParentPaddingOffset { get; set; }
+
         protected override void OnRecalcLocalTransform(
             out Matrix4 localTransform,
             out Matrix4 inverseLocalTransform)
         {
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
 
-            localTransform *= Matrix4.CreateTranslation(_parentOffset.X - OriginTranslationX, _parentOffset.Y - OriginTranslationY, 0.0f);
-            inverseLocalTransform = Matrix4.CreateTranslation(OriginTranslationX - _parentOffset.X, OriginTranslationY - _parentOffset.Y, 0.0f) * inverseLocalTransform;
+            localTransform *= Matrix4.CreateTranslation(ParentPaddingOffset.X - OriginTranslationX, ParentPaddingOffset.Y - OriginTranslationY, 0.0f);
+            inverseLocalTransform = Matrix4.CreateTranslation(OriginTranslationX - ParentPaddingOffset.X, OriginTranslationY - ParentPaddingOffset.Y, 0.0f) * inverseLocalTransform;
         }
         protected override void OnResizeActual(BoundingRectangleF parentBounds)
         {
@@ -407,10 +409,9 @@ namespace TheraEngine.Rendering.UI
             //    _actualSize.Y -= Margins.Y + Margins.W;
             //}
         }
-        private Vec2 _parentOffset;
         protected override void OnResizeLayout(BoundingRectangleF parentBounds)
         {
-            _parentOffset = parentBounds.Translation;
+            ParentPaddingOffset = parentBounds.Translation;
 
             OnResizeActual(parentBounds);
             RecalcLocalTransform(true, false);

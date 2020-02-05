@@ -5,6 +5,8 @@ namespace TheraEngine.Core.Memory
 {
     public static class Memory
     {
+        public static bool MacOSXCheck { get; }
+
         public static void Move(VoidPtr dst, VoidPtr src, uint size)
         {
             switch (Environment.OSVersion.Platform)

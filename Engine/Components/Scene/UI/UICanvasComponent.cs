@@ -87,7 +87,7 @@ namespace TheraEngine.Rendering.UI
 
         protected override void OnResizeLayout(BoundingRectangleF parentRegion)
         {
-            //Engine.PrintLine($"UI CANVAS: {parentBounds.X.Rounded(2)}x{parentBounds.Y.Rounded(2)}");
+            Engine.Out($"UI CANVAS {Name} : {parentRegion.Width.Rounded(2)} x {parentRegion.Height.Rounded(2)}");
 
             ScreenSpaceUIScene.Resize(parentRegion.Extents);
             ScreenSpaceCamera.Resize(parentRegion.Width, parentRegion.Height);
@@ -216,12 +216,43 @@ namespace TheraEngine.Rendering.UI
                 tree.FindAllIntersectingSorted(CursorPositionWorld, InteractableIntersections, InteractablePredicate);
                 DeepestInteractable = InteractableIntersections.Min as IUIInteractableComponent;
 
-                InteractableIntersections.Union(LastInteractableIntersections).ForEach(ValidateIntersection);
+                LastInteractableIntersections.ForEach(ValidatePreviousIntersection);
+                InteractableIntersections.ForEach(ValidateCurrentIntersection);
+
                 THelpers.Swap(ref LastInteractableIntersections, ref InteractableIntersections);
             }
         }
 
-        private void ValidateIntersection(I2DRenderable obj)
+        private void ValidatePreviousIntersection(I2DRenderable obj)
+        {
+            if (!(obj is IUIInteractableComponent inter))
+                return;
+            
+            if (LastInteractableIntersections.Contains(obj))
+            {
+                if (!InteractableIntersections.Contains(obj))
+                {
+                    //Lost mouse over
+                    inter.IsMouseOver = false;
+                    inter.IsMouseDirectlyOver = false;
+                }
+                else
+                {
+                    //Had mouse over and still does now
+                    inter.MouseMove(inter.ScreenToLocal(LastCursorPositionWorld), inter.ScreenToLocal(CursorPositionWorld));
+                }
+            }
+            else
+            {
+                if (InteractableIntersections.Contains(obj))
+                {
+                    //Got mouse over
+                    inter.IsMouseOver = true;
+                    inter.IsMouseDirectlyOver = obj == DeepestInteractable;
+                }
+            }
+        }
+        private void ValidateCurrentIntersection(I2DRenderable obj)
         {
             if (!(obj is IUIInteractableComponent inter))
                 return;

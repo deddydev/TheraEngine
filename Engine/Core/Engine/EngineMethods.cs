@@ -45,16 +45,31 @@ namespace TheraEngine
         public static ColorF4 InvalidColor { get; } = Color.Magenta;
 
         #region Startup/Shutdown
-        private class EngineTraceListener : TraceListener
+
+        private class EngineTraceListener : ConsoleTraceListener
         {
+            private bool _isActive = false;
+
+            //TODO: output to session file using stream
             public override void WriteLine(string message)
                 => Write(message + Environment.NewLine);
             public override void Write(string message)
             {
+                //Avoid possibility of stack overflow
+                if (_isActive)
+                    return;
+
+                _isActive = true;
+
                 OutputString += message;
-                Instance.OnDebugOutput(message);
+
+                try { Instance?.OnDebugOutput(message); }
+                catch { }
+
+                _isActive = false;
             }
         }
+
         public static bool FontsLoaded { get; private set; } = false;
         private class TickList
         {
@@ -94,6 +109,9 @@ namespace TheraEngine
         }
         static Engine()
         {
+            //Output can cause calls to the engine again, which causes an exception
+            AllowOutput = false;
+
             //PrintLine("Constructing static engine class.");
 
             //TODO: change tick order to int. 
@@ -109,7 +127,9 @@ namespace TheraEngine
             //InputLibraryChanged();
             RetrievePhysicsInterface();
 
+            //Subscribe to built-in output and enable
             Debug.Listeners.Add(new EngineTraceListener());
+            AllowOutput = true;
         }
 
         /// <summary>
@@ -274,36 +294,6 @@ namespace TheraEngine
             //string result = table.AnalyzeString("Wow this is really cool at <currentTime:hh:mm:ss tt> for <localPlayerName:0>!", out (int index, int length, bool redraw)[] varLocs);
             //string result2 = table.SolveAnalyzedString(result, varLocs.Select(x => (x.index, x.length)).ToArray());
             //PrintLine(result2);
-        }
-
-        public static EVRInitError InitializeVR()
-        {
-            if (!OpenVR.IsRuntimeInstalled())
-            {
-                Out("VR runtime not installed.");
-                return EVRInitError.Init_InstallationNotFound;
-            }
-            if (!OpenVR.IsHmdPresent())
-            {
-                Out("VR headset not found.");
-                return EVRInitError.Init_HmdNotFound;
-            }
-
-            EVRInitError peError = EVRInitError.None;
-
-            try
-            {
-                if (OpenVR.Init(ref peError, EVRApplicationType.VRApplication_Scene) is null)
-                    LogWarning(peError.ToString());
-                else
-                    Out("VR system initialized successfully.");
-            }
-            catch (Exception ex)
-            {
-                LogException(ex);
-            }
-
-            return peError;
         }
 
         public static bool ShuttingDown { get; private set; }
@@ -604,11 +594,13 @@ namespace TheraEngine
         //            throw new Exception(message);
         //#endif
         //        }
-        public static string OutputString { get; private set; }
         public static bool DesignMode 
             => Application.ExecutablePath.IndexOf("devenv.exe", StringComparison.OrdinalIgnoreCase) >= 0;
 
         public static ConcurrentDictionary<string, DateTime> RecentMessageCache = new ConcurrentDictionary<string, DateTime>();
+
+        public static string OutputString { get; private set; }
+        public static bool AllowOutput { get; set; } = false;
 
         /// <summary>
         /// Prints a message for debugging purposes.
@@ -640,6 +632,12 @@ namespace TheraEngine
             params object[] args)
         {
 #if DEBUG || EDITOR
+
+            if (!AllowOutput)
+            {
+                Console.WriteLine($"[Suppressed] {message}");
+                return;
+            }
 
             EngineSettings settings = Settings;
             AppDomainHelper.Sponsor(settings);

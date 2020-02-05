@@ -22,14 +22,15 @@ namespace TheraEngine.Rendering.UI
 
         protected EventVec3 _translation;
         protected EventVec3 _scale;
+        protected EventVec2 _actualTranslation = new EventVec2();
         protected ETransformOrder _order = ETransformOrder.TRS;
 
-        protected EventVec2 _actualTranslation = new EventVec2();
-        [Browsable(false)]
+        //[Browsable(false)]
+        [Category("Transform")]
         public EventVec2 ActualTranslation
         {
             get => _actualTranslation;
-            set => _actualTranslation = value;
+            set => Set(ref _actualTranslation, value ?? new EventVec2());
         }
 
         [Browsable(false)]

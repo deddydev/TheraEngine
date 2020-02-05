@@ -1102,6 +1102,19 @@ namespace System
         {
             return !left.Equals(right);
         }
+        public static implicit operator Valve.VR.HmdMatrix34_t(Matrix4 matrix)
+        {
+            Valve.VR.HmdMatrix34_t m = new Valve.VR.HmdMatrix34_t();
+            Memory.Move(&m, matrix.Data, 48);
+            return m;
+        }
+        public static implicit operator Matrix4(Valve.VR.HmdMatrix34_t matrix)
+        {
+            Matrix4 m = new Matrix4();
+            //3x4 mtx -> 4x4 mtx, 48 bytes and pad last 16
+            Memory.Move(m.Data, &matrix, 48);
+            return m;
+        }
         public static implicit operator BulletSharp.Matrix(Matrix4 matrix)
         {
             BulletSharp.Matrix m = new BulletSharp.Matrix();

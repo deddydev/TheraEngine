@@ -18,7 +18,8 @@ namespace TheraEngine.Rendering.UI
 {
     public abstract class UIParentAttachmentInfo : TObject
     {
-        public IUIComponent UIComponent { get; set; }
+        public IUIComponent ParentUIComponent { get; internal set; }
+        public IUIComponent UIComponent { get; internal set; }
     }
     public enum EVisibility
     {

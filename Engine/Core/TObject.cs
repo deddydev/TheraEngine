@@ -160,6 +160,11 @@ namespace TheraEngine
         [Serializable]
         public class SerializableCancellablePropertyChangingEventArgs : PropertyChangingEventArgs, ISerializable
         {
+            /// <summary>
+            /// Set to true if you wish to cancel the impending change.
+            /// NOTE: if this is an event subscription, lock before accessing this property 
+            /// and check if it is already true in case other subscriptions also change it
+            /// </summary>
             public bool Cancel { get; set; } = false;
 
             public SerializableCancellablePropertyChangingEventArgs(string propertyName) : base(propertyName) { }
@@ -177,19 +182,19 @@ namespace TheraEngine
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        //public event PropertyChangingEventHandler PropertyChanging;
+        public event PropertyChangingEventHandler PropertyChanging;
 
-        ///// <summary>
-        ///// Returns true if cancelled.
-        ///// </summary>
-        ///// <param name="propertyName"></param>
-        ///// <returns></returns>
-        //protected virtual bool OnPropertyChanging([CallerMemberName] string propertyName = null)
-        //{
-        //    var args = new SerializableCancellablePropertyChangingEventArgs(propertyName);
-        //    PropertyChanging?.Invoke(this, args);
-        //    return args.Cancel;
-        //}
+        /// <summary>
+        /// Returns true if cancelled.
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        protected virtual bool OnPropertyChanging([CallerMemberName] string propertyName = null)
+        {
+            var args = new SerializableCancellablePropertyChangingEventArgs(propertyName);
+            PropertyChanging?.Invoke(this, args);
+            return args.Cancel;
+        }
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
             => PropertyChanged?.Invoke(this, new SerializablePropertyChangedEventArgs(propertyName));
         protected void OnPropertiesChanged(params string[] propertyNames)
@@ -215,8 +220,8 @@ namespace TheraEngine
             if (Equals(fieldValue, newValue))
                 return false;
 
-            //if (OnPropertyChanging(propertyName))
-            //    return false;
+            if (OnPropertyChanging(propertyName))
+                return false;
 
             if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(fieldValue, default))
                 beforeSet?.Invoke();
@@ -250,8 +255,8 @@ namespace TheraEngine
             if (Equals(fieldValue, newValue))
                 return false;
 
-            //if (OnPropertyChanging(propertyName))
-            //    return false;
+            if (OnPropertyChanging(propertyName))
+                return false;
 
             if (executeMethodsIfNull || !EqualityComparer<T>.Default.Equals(fieldValue, default))
                 beforeSet?.Invoke(fieldValue);

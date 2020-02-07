@@ -167,10 +167,15 @@ namespace TheraEngine.Rendering.UI
                     if (def.Value.Mode == ESizingMode.Proportional)
                         def.CalculatedValue = totalProportional <= 0.0f ? 0.0f : def.Value.Value / totalProportional * remaining;
 
-                    GetItemRegion(ref parentRegion, vertical, maxExtent, ref offset, def,
-                        out float width, out float height, out float x, out float y);
+                    GetItemRegion(
+                        ref parentRegion, vertical, maxExtent, ref offset, def,
+                        out float width, out float height,
+                        out float x, out float y);
 
-                    AdjustByMargin(vertical, uibComp, ref offset, ref x, ref y, ref width, ref height);
+                    AdjustByMargin(
+                        vertical, uibComp, ref offset, 
+                        ref x, ref y, 
+                        ref width, ref height);
 
                     uiComp.ResizeLayout(new BoundingRectangleF(x, y, width, height));
                 }

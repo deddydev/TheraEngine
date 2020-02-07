@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
-using TheraEngine.Actors.Types;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Transforms;
@@ -13,7 +12,6 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
-using static TheraEngine.Rendering.RenderContext;
 
 namespace TheraEngine.Actors
 {

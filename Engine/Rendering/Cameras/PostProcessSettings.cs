@@ -1,9 +1,9 @@
 ﻿using Extensions;
 using System;
 using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Cameras

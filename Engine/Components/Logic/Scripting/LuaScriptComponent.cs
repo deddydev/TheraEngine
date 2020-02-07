@@ -1,5 +1,5 @@
 ﻿using MoonSharp.Interpreter;
-using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Scripting;
 
 namespace TheraEngine.Components.Logic.Scripting

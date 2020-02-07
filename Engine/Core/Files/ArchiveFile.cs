@@ -1,7 +1,7 @@
 ﻿using Extensions;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files

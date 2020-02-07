@@ -1,7 +1,7 @@
 ﻿using Extensions;
 using System;
-using System.ComponentModel;
 using System.Linq;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Maths.Transforms;

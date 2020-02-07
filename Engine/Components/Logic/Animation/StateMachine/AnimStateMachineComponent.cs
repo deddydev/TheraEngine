@@ -1,8 +1,8 @@
 ﻿using Extensions;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using TheraEngine.Animation;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models;
 

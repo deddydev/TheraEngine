@@ -1,11 +1,11 @@
 ﻿using OpenTK.Input;
 using System;
-using System.ComponentModel;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Input.Devices.OpenTK
 {
     [TFileDef("", "")]
-    [TFileExt("tkconf")]
+    [TFileExt("tkcfg")]
     public class TKGamepadConfiguration : BaseGamepadConfiguration
     {
         public TKGamepadConfiguration() : base() { }

@@ -1,5 +1,4 @@
 ﻿using Extensions;
-using SevenZip;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection;
@@ -486,7 +486,6 @@ namespace TheraEngine.Core.Files
         public class ThirdPartyLoader : Attribute
         {
             public string Extension { get; private set; }
-            public bool Async { get; private set; }
 
             /// <summary>
             /// Method declaration if not async:
@@ -497,11 +496,7 @@ namespace TheraEngine.Core.Files
             /// </summary>
             /// <param name="extension">The extension this method will handle.</param>
             /// <param name="isAsync">If the method is declared as async or not.</param>
-            public ThirdPartyLoader(string extension, bool isAsync)
-            {
-                Extension = extension;
-                Async = isAsync;
-            }
+            public ThirdPartyLoader(string extension) => Extension = extension;
         }
         /// <summary>
         /// Method declaration if not async:
@@ -514,7 +509,6 @@ namespace TheraEngine.Core.Files
         public class ThirdPartyExporter : Attribute
         {
             public string Extension { get; private set; }
-            public bool Async { get; private set; }
 
             /// <summary>
             /// Method declaration if not async:
@@ -525,11 +519,7 @@ namespace TheraEngine.Core.Files
             /// </summary>
             /// <param name="extension">The extension this method will handle.</param>
             /// <param name="isAsync">If the method is declared as async or not.</param>
-            public ThirdPartyExporter(string extension, bool isAsync)
-            {
-                Extension = extension;
-                Async = isAsync;
-            }
+            public ThirdPartyExporter(string extension) => Extension = extension;
         }
     }
     [Flags]

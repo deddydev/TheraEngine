@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using TheraEngine.Core.Files;
 using Extensions;
 using System.Linq;
 using TheraEngine.Core.Files.XML;
 using System.Threading.Tasks;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.ThirdParty
 {

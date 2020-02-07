@@ -1,7 +1,8 @@
 ﻿using Extensions;
+using System;
 using System.Collections.Generic;
 
-namespace System.ComponentModel
+namespace TheraEngine.ComponentModel
 {
     [Serializable]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]

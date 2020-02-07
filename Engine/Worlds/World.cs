@@ -13,6 +13,7 @@ using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using Extensions;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Worlds
 {

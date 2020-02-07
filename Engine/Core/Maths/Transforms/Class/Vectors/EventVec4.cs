@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel;
-using System.Threading;
 using System.Xml.Serialization;
 using TheraEngine;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
-using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Models;
 using static System.Math;
 using static System.TMath;

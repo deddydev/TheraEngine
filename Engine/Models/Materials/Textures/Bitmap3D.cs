@@ -1,7 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Files;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Rendering.Models.Materials
 {

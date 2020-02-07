@@ -1,5 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Animation
 {

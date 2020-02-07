@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Core.Shapes
 {

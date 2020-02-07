@@ -1,10 +1,10 @@
 ﻿using TheraEngine.Core.Files;
-using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using System;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Rendering.Textures
 {

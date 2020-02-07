@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;

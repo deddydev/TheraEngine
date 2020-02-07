@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine.Core;
-using TheraEngine.Core.Files;
 
 namespace TheraEngine
 {

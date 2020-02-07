@@ -1,5 +1,5 @@
 ﻿using Extensions;
-using System.ComponentModel;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
@@ -31,7 +31,7 @@ namespace TheraEngine.Components.Scene.Transforms
         public float TraumaDecrementPerSecond
         {
             get => _traumaDecrement;
-            set => _traumaDecrement = value;
+            set => Set(ref _traumaDecrement, value);
         }
         /// <summary>
         /// The maximum amount of screenshake allowed.
@@ -39,7 +39,7 @@ namespace TheraEngine.Components.Scene.Transforms
         public float MaxTrauma
         {
             get => _maxTrauma;
-            set => _maxTrauma = value;
+            set => Set(ref _maxTrauma, value);
         }
         /// <summary>
         /// Add to this value to increase the amount of screenshake.
@@ -49,9 +49,11 @@ namespace TheraEngine.Components.Scene.Transforms
             get => _trauma;
             set
             {
-                _trauma = value.Clamp(0.0f, MaxTrauma);
-                float normalized = _trauma / MaxTrauma;
-                ShakeIntensity = normalized * normalized;
+                if (Set(ref _trauma, value.Clamp(0.0f, MaxTrauma)))
+                {
+                    float normalized = _trauma / MaxTrauma;
+                    ShakeIntensity = normalized * normalized;
+                }
             }
         }
         protected override void NoiseTick(float delta)

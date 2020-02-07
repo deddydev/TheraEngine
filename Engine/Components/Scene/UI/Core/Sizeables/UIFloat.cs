@@ -1,5 +1,4 @@
 ﻿using Extensions;
-using System;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.UI

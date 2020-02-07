@@ -7,9 +7,7 @@ using TheraEngine.Animation;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Reflection;
-using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
-using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms

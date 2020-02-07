@@ -1,7 +1,5 @@
 ﻿using System;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine
 {

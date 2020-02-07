@@ -1,5 +1,4 @@
-﻿using FreeImageAPI;
-using System.Drawing;
+﻿using System.Drawing;
 using System.IO;
 
 namespace TheraEngine.Rendering.Models.Materials

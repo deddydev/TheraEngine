@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
-using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core;
 using TheraEngine.Core.Files;
 using TheraEngine.Input.Devices;

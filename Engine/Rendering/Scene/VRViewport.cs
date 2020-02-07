@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheraEngine.Actors.Types.Pawns;
+﻿using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Rendering.Cameras;
-using Valve.VR;
 
 namespace TheraEngine.Rendering.Scene
 {

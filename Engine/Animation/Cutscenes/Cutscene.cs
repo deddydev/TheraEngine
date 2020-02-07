@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using TheraEngine.Actors;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Cameras;

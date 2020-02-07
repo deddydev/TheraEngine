@@ -1,15 +1,14 @@
 using Extensions;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using TheraEngine.Animation;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Maths;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
 using TheraEngine.Input.Devices;

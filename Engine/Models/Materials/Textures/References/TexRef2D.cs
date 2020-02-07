@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials.Textures;

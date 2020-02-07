@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using System.ComponentModel;
 using TheraEngine.Animation;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
 using static TheraEngine.Rendering.Models.Collada;

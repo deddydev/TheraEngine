@@ -126,12 +126,9 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public event Action<ShaderVar> ValueChanged;
 
-        [TSerialize("CanSwizzle", NodeType = ENodeType.Attribute)]
+        //Determines if this var's components can be moved around
         protected bool _canSwizzle = true;
-
         protected IShaderVarOwner _owner;
-
-        //[TSerialize("Fields")]
         protected Dictionary<string, ShaderVar> _fields = new Dictionary<string, ShaderVar>();
 
         internal IShaderVarOwner Owner => _owner;

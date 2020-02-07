@@ -1,6 +1,6 @@
 ﻿using TheraEngine.Physics;
-using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Components.Scene.Volumes
 {

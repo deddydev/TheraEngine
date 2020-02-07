@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core;
 using TheraEngine.Core.Maths.Transforms;
 

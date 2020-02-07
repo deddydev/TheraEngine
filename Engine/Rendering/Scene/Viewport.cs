@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using TheraEngine.Actors;
-using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;

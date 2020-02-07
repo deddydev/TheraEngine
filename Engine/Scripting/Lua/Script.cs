@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 
 namespace TheraEngine.Scripting

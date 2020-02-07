@@ -3,14 +3,11 @@ using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.Remoting;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.ContentTree.Core;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Wrappers

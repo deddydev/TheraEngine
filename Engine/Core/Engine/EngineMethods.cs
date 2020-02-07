@@ -22,7 +22,6 @@ using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
-using Valve.VR;
 using TheraEngine.Core.Reflection;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;

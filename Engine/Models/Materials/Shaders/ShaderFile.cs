@@ -1,5 +1,5 @@
-﻿using System.ComponentModel;
-using System.IO;
+﻿using System.IO;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models.Materials

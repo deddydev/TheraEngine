@@ -1,7 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Animation;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;

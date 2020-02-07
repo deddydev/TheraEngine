@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
@@ -51,7 +51,7 @@ namespace TheraEngine.Rendering.Models
             //        aabb.Expand(s.CullingVolume.GetAABB());
             return aabb;
         }
-        [ThirdPartyLoader("dae", true)]
+        [ThirdPartyLoader("dae")]
         public static async Task<StaticModel> LoadDAEAsync(
             string path, IProgress<float> progress, CancellationToken cancel)
         {
@@ -65,7 +65,7 @@ namespace TheraEngine.Rendering.Models
             };
             return (await Collada.ImportAsync(path, o))?.Models[0].StaticModel;
         }
-        [ThirdPartyLoader("obj", false)]
+        [ThirdPartyLoader("obj")]
         public static StaticModel LoadOBJ(string path)
         {
             ColladaImportOptions o = new ColladaImportOptions()

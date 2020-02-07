@@ -1,10 +1,10 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Rendering.Models;
@@ -16,22 +16,22 @@ namespace TheraEngine.Animation
     [TFileExt("skelanim", new string[] { "dae", "vmd" }, null)]
     public class SkeletalAnimation : BaseAnimation
     {
-        [ThirdPartyLoader("dae", true)]
+        [ThirdPartyLoader("dae")]
         public static async Task<SkeletalAnimation> LoadDAEAsync(
             string path, IProgress<float> progress, CancellationToken cancel)
         {
             ColladaImportOptions o = new ColladaImportOptions()
             {
                 IgnoreFlags =
-                Collada.EIgnoreFlags.Extra |
-                Collada.EIgnoreFlags.Geometry |
-                Collada.EIgnoreFlags.Controllers |
-                Collada.EIgnoreFlags.Cameras |
-                Collada.EIgnoreFlags.Lights
+                    Collada.EIgnoreFlags.Extra |
+                    Collada.EIgnoreFlags.Geometry |
+                    Collada.EIgnoreFlags.Controllers |
+                    Collada.EIgnoreFlags.Cameras |
+                    Collada.EIgnoreFlags.Lights
             };
             return (await Collada.ImportAsync(path, o, progress, cancel))?.Models[0].Animation;
         }
-        [ThirdPartyLoader("vmd", true)]
+        [ThirdPartyLoader("vmd")]
         public static async Task<SkeletalAnimation> LoadVMDAsync(
             string path, IProgress<float> progress, CancellationToken cancel)
         {

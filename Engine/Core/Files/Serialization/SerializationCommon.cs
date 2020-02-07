@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Tools;
 using Extensions;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Core.Files.Serialization
 {

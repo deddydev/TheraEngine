@@ -1,7 +1,8 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using TheraEngine.Core.Tools;
 
-namespace System.ComponentModel
+namespace TheraEngine.ComponentModel
 {
     public enum ENodeType
     {

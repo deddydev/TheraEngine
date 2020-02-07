@@ -1,13 +1,13 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Concurrent;
-using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEditor.Actors.Types.Pawns;
 using TheraEngine;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
@@ -503,15 +503,13 @@ namespace TheraEditor.Windows.Forms
         }
 
         protected (Func<bool> Condition, Action<Viewport, Vec2> Action)[] OrderedIntersectionEvents { get; set; }
-        protected virtual void CacheIntersectionEvents()
-        {
-            OrderedIntersectionEvents = new (Func<bool>, Action<Viewport, Vec2>)[]
+        protected virtual void CacheIntersectionEvents() 
+            => OrderedIntersectionEvents = new (Func<bool>, Action<Viewport, Vec2>)[]
             {
                 (() => TransformTool3D.Instance.IsSpawned,  HandleTransformTool),
                 (() => _currentConstraint != null,          HandleConstraint),
                 (() => DragComponent != null,               HandleDraggedComponent),
             };
-        }
 
         protected virtual void HandleTransformTool(Viewport v, Vec2 viewportPoint)
         {

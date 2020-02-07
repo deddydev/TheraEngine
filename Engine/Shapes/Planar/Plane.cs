@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System;
 using System.Runtime.InteropServices;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Core.Shapes
 {

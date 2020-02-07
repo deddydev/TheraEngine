@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using TheraEngine;
 using TheraEngine.Animation;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input.Devices;

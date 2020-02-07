@@ -1,13 +1,11 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Threading.Tasks;
 using TheraEngine;
-using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Animation;
-using TheraEngine.Components;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;

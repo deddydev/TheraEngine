@@ -1,5 +1,4 @@
 ﻿using TheraEngine;
-using TheraEngine.Rendering;
 
 namespace TheraEditor.Windows.Forms
 {

@@ -1,6 +1,6 @@
-﻿using Extensions;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TheraEngine.Actors;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 
 namespace TheraEngine.Components

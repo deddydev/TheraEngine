@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using TheraEngine;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 
 namespace TheraEditor

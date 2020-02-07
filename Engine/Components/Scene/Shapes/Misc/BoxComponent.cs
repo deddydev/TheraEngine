@@ -1,8 +1,8 @@
 ﻿using System;
 using TheraEngine.Core.Shapes;
-using System.ComponentModel;
 using TheraEngine.Physics;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Components.Scene.Shapes
 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Physics;
 
 namespace TheraEngine.Components.Scene.Shapes

@@ -1,9 +1,9 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Rendering.Text

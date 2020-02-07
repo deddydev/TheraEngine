@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 
@@ -59,7 +60,7 @@ namespace TheraEngine.Rendering.UI
             get => _translation;
             set
             {
-                if (Set(ref _translation, value,
+                if (Set(ref _translation, value ?? new EventVec3(),
                     () => _translation.Changed -= InvalidateLayout,
                     () => _translation.Changed += InvalidateLayout,
                     false))
@@ -73,7 +74,7 @@ namespace TheraEngine.Rendering.UI
             get => _scale;
             set
             {
-                if (Set(ref _scale, value,
+                if (Set(ref _scale, value ?? EventVec3.One,
                     () => _scale.Changed -= InvalidateLayout,
                     () => _scale.Changed += InvalidateLayout,
                     false))

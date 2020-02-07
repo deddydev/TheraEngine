@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.ContentTree.Core;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Scripting;

@@ -1,8 +1,9 @@
 ﻿using Extensions;
+using System;
 using System.Runtime.Serialization;
 using TheraEngine.Core.Files;
 
-namespace System.ComponentModel
+namespace TheraEngine.ComponentModel
 {
     /// <summary>
     /// This attribute can be used on <see cref="TFileObject"/> classes to define a proprietary (engine-exclusive) extension for the file.

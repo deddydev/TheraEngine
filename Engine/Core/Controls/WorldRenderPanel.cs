@@ -1,6 +1,4 @@
-﻿using TheraEngine.GameModes;
-using TheraEngine.Rendering;
-using TheraEngine.Worlds;
+﻿using TheraEngine.Rendering;
 
 namespace TheraEngine
 {

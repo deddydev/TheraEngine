@@ -21,7 +21,7 @@ namespace TheraEditor.Windows.Forms
             get => _renderHandler;
             set
             {
-                _renderHandler = value;
+                Set(ref _renderHandler, value);
                 //TargetRenderHandlers.Clear();
                 //if (_renderHandler != null)
                 //    TargetRenderHandlers.Add(_renderHandler);

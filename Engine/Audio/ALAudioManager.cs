@@ -4,7 +4,6 @@ using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths.Transforms;

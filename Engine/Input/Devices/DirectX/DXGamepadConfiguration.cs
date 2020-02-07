@@ -1,11 +1,11 @@
 ﻿using SharpDX.XInput;
 using System;
-using System.ComponentModel;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Input.Devices.DirectX
 {
     [TFileDef("", "")]
-    [TFileExt("dxconf")]
+    [TFileExt("dxcfg")]
     public class DXGamepadConfiguration : BaseGamepadConfiguration
     {
         private const float ByteDiv = 1.0f / byte.MaxValue;

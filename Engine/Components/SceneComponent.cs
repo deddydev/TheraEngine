@@ -12,7 +12,7 @@ using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
 using Extensions;
 using static TheraEngine.Components.SceneComponent;
-using System.Diagnostics;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Components
 {

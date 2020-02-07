@@ -1,5 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Worlds;

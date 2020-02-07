@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using System;
 using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Attributes;
 
 namespace TheraEngine.Animation

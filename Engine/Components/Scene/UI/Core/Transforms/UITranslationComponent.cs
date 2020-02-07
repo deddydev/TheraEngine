@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 
@@ -18,13 +19,14 @@ namespace TheraEngine.Rendering.UI
         }
 
         protected EventVec3 _translation;
-
         protected EventVec2 _actualTranslation = new EventVec2();
-        [Browsable(false)]
+
+        //[Browsable(false)]
+        [Category("Transform")]
         public EventVec2 ActualTranslation
         {
             get => _actualTranslation;
-            set => _actualTranslation = value;
+            set => Set(ref _actualTranslation, value ?? new EventVec2());
         }
 
         [Browsable(false)]
@@ -42,7 +44,7 @@ namespace TheraEngine.Rendering.UI
             get => _translation;
             set
             {
-                if (Set(ref _translation, value,
+                if (Set(ref _translation, value ?? new EventVec3(),
                     () => _translation.Changed -= InvalidateLayout,
                     () => _translation.Changed += InvalidateLayout,
                     false))

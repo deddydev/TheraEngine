@@ -1,9 +1,7 @@
-﻿using System;
-using System.ComponentModel;
-using TheraEngine.Animation;
+﻿using TheraEngine.Animation;
 using TheraEngine.Core.Files;
 using Extensions;
-using System.Collections.Generic;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Components.Logic.Animation
 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
@@ -20,8 +21,11 @@ namespace TheraEngine.Rendering
         IScene3D Scene { get; set; }
         I3DRenderable Owner { get; set; }
 
+        //TODO: better link / unlink mechanism
+        //preferably something like World.RegisterRenderableItem(IRenderable item) on component spawn
         void LinkScene(I3DRenderable r3d, IScene3D scene, bool forceVisible = false);
         void UnlinkScene();
+
         bool AllowRender(IVolume cullingVolume, RenderPasses passes, ICamera camera, bool shadowPass);
     }
     public class RenderInfo3D : RenderInfo, IRenderInfo3D

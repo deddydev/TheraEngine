@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿using TheraEngine.ComponentModel;
 using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.Models

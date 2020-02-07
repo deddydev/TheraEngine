@@ -3,14 +3,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
@@ -63,7 +61,7 @@ namespace TheraEngine.Core
     public class EngineDomainProxy : SponsorableMarshalByRefObject
     {
         public Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyLoaders { get; private set; }
-        public Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyExporters { get; private set; }
+        //public Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyExporters { get; private set; }
 
         public event Action Stopped;
         public event Action Started;
@@ -301,12 +299,12 @@ namespace TheraEngine.Core
                 Reset3rdPartyImportExportMethods();
             return Get3rdPartyMethod(_3rdPartyLoaders, fileType, extension);
         }
-        public Delegate Get3rdPartyExporter(TypeProxy fileType, string extension)
-        {
-            if (_3rdPartyExporters is null)
-                Reset3rdPartyImportExportMethods();
-            return Get3rdPartyMethod(_3rdPartyExporters, fileType, extension);
-        }
+        //public Delegate Get3rdPartyExporter(TypeProxy fileType, string extension)
+        //{
+        //    if (_3rdPartyExporters is null)
+        //        Reset3rdPartyImportExportMethods();
+        //    return Get3rdPartyMethod(_3rdPartyExporters, fileType, extension);
+        //}
         private Delegate Get3rdPartyMethod(Dictionary<string, Dictionary<TypeProxy, Delegate>> methodDic, TypeProxy fileType, string extension)
         {
             extension = extension.ToLowerInvariant();
@@ -324,24 +322,24 @@ namespace TheraEngine.Core
                 Reset3rdPartyImportExportMethods();
             Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
         }
-        public void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethod<T> exportMethod) where T : class, IFileObject
-        {
-            if (_3rdPartyExporters is null)
-                Reset3rdPartyImportExportMethods();
-            Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
-        }
+        //public void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethod<T> exportMethod) where T : class, IFileObject
+        //{
+        //    if (_3rdPartyExporters is null)
+        //        Reset3rdPartyImportExportMethods();
+        //    Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
+        //}
         public void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethodAsync<T> loadMethod) where T : class, IFileObject
         {
             if (_3rdPartyLoaders is null)
                 Reset3rdPartyImportExportMethods();
             Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
         }
-        public void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethodAsync<T> exportMethod) where T : class, IFileObject
-        {
-            if (_3rdPartyExporters is null)
-                Reset3rdPartyImportExportMethods();
-            Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
-        }
+        //public void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethodAsync<T> exportMethod) where T : class, IFileObject
+        //{
+        //    if (_3rdPartyExporters is null)
+        //        Reset3rdPartyImportExportMethods();
+        //    Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
+        //}
         private static void Register3rdParty<T>(
             Dictionary<string, Dictionary<TypeProxy, Delegate>> methodDic,
             string extension,
@@ -371,7 +369,7 @@ namespace TheraEngine.Core
             if (reloadNow)
             {
                 _3rdPartyLoaders = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
-                _3rdPartyExporters = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
+                //_3rdPartyExporters = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
                 try
                 {
                     TypeProxy[] types = AppDomainHelper.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
@@ -382,7 +380,7 @@ namespace TheraEngine.Core
                             continue;
 
                         ReadLoaders(_3rdPartyLoaders, type, attrib.ImportableExtensions);
-                        ReadLoaders(_3rdPartyExporters, type, attrib.ExportableExtensions);
+                        //ReadLoaders(_3rdPartyExporters, type, attrib.ExportableExtensions);
                     }
                 }
                 catch { }
@@ -390,34 +388,37 @@ namespace TheraEngine.Core
             else
             {
                 _3rdPartyLoaders = null;
-                _3rdPartyExporters = null;
+                //_3rdPartyExporters = null;
             }
         }
         private void ReadLoaders(IDictionary<string, Dictionary<TypeProxy, Delegate>> loaders, TypeProxy type, IEnumerable<string> extensions)
         {
             foreach (string ext3rd in extensions)
             {
-                string extLower = ext3rd.ToLowerInvariant();
+                string ext = ext3rd.ToLowerInvariant();
+
                 Dictionary<TypeProxy, Delegate> extensionLoaders;
-                if (loaders.ContainsKey(extLower))
-                    extensionLoaders = loaders[extLower];
+                if (loaders.ContainsKey(ext))
+                    extensionLoaders = loaders[ext];
                 else
-                    loaders.Add(extLower, extensionLoaders = new Dictionary<TypeProxy, Delegate>());
+                    loaders.Add(ext, extensionLoaders = new Dictionary<TypeProxy, Delegate>());
 
                 if (extensionLoaders.ContainsKey(type))
-                    throw new Exception(type.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
+                    throw new Exception($"{type.GetFriendlyName()} has already been added to the third party loader list for {ext}");
 
-                MethodInfoProxy[] methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
-                    .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
-                    .ToArray();
+                BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static;
+                MethodInfoProxy m = type.GetMethods(flags)?.FirstOrDefault(IsLoaderMethod(ext));
 
-                if (methods.Length <= 0)
+                if (m is null)
                     continue;
 
-                MethodInfoProxy m = methods[0];
-                ThirdPartyLoader loader = m.GetCustomAttribute<ThirdPartyLoader>();
-                bool async = loader.Async;
-                TypeProxy delGenType = async ? typeof(Del3rdPartyImportFileMethodAsync<>) : typeof(Del3rdPartyImportFileMethod<>);
+                bool async =
+                    m.ReturnType.IsGenericTypeDefinition &&
+                    m.ReturnType.GetGenericTypeDefinition() == typeof(Task<>);
+
+                TypeProxy delGenType = async
+                    ? typeof(Del3rdPartyImportFileMethodAsync<>)
+                    : typeof(Del3rdPartyImportFileMethod<>);
 
                 try
                 {
@@ -432,10 +433,14 @@ namespace TheraEngine.Core
             }
         }
 
-        public TypeProxy GetTypeFor(object o) => o.GetType();
+        private static Func<MethodInfoProxy, bool> IsLoaderMethod(string ext) 
+            => method => string.Equals(ext,
+                method.GetCustomAttribute<ThirdPartyLoader>()?.Extension,
+                StringComparison.InvariantCultureIgnoreCase);
 
+        public TypeProxy GetTypeFor(object o) => o.GetTypeProxy();
         public TypeProxy GetTypeFor<T>() => typeof(T);
-        public TypeProxy GetTypeFor(string typeName) => Type.GetType(typeName);
+        public TypeProxy GetTypeFor(string typeName) => TypeProxy.GetType(typeName);
 
         public void ExportFile(IFileObject file, string dir, EProprietaryFileFormat format)
         {

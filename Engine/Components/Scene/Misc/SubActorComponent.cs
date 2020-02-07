@@ -1,5 +1,5 @@
-﻿using System.ComponentModel;
-using TheraEngine.Actors;
+﻿using TheraEngine.Actors;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Components.Scene

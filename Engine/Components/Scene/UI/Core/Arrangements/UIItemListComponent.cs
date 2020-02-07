@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Core.Shapes;
 
@@ -155,29 +156,48 @@ namespace TheraEngine.Rendering.UI
             {
                 int index = ReverseItemOrder ? ChildComponents.Count - 1 - i : i;
 
-                ISceneComponent comp = ChildComponents[index];
-                if (!(comp is IUIComponent uiComp))
+                if (!(ChildComponents[index] is IUIComponent uiComp))
                     continue;
 
                 SizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
-                if (def?.Value != null)
-                {
-                    IUIBoundableComponent uibComp = uiComp as IUIBoundableComponent;
+                if (def?.Value is null)
+                    continue;
 
-                    if (def.Value.Mode == ESizingMode.Proportional)
-                        def.CalculatedValue = totalProportional <= 0.0f ? 0.0f : def.Value.Value / totalProportional * remaining;
+                if (def.Value.Mode == ESizingMode.Proportional)
+                    def.CalculatedValue = totalProportional <= 0.0f ? 0.0f : def.Value.Value / totalProportional * remaining;
 
-                    GetItemRegion(ref parentRegion, vertical, maxExtent, ref offset, def,
-                        out float width, out float height, out float x, out float y);
+                GetItemRegion(parentRegion, vertical, maxExtent, ref offset, def,
+                    out float width, out float height, out float x, out float y);
 
-                    AdjustByMargin(vertical, uibComp, ref offset, ref x, ref y, ref width, ref height);
+                AdjustByMargin(vertical, uiComp as IUIBoundableComponent,
+                    ref offset, ref x, ref y, ref width, ref height);
 
-                    uiComp.ResizeLayout(new BoundingRectangleF(x, y, width, height));
-                }
+                uiComp.ResizeLayout(new BoundingRectangleF(x, y, width, height));
             }
         }
 
-        private void GetItemRegion(ref BoundingRectangleF parentRegion, bool vertical, float maxExtent, ref float offset, SizingDefinition def, out float width, out float height, out float x, out float y)
+        /// <summary>
+        /// Determines the allowed region for the element to occupy.
+        /// </summary>
+        /// <param name="parentRegion"></param>
+        /// <param name="vertical"></param>
+        /// <param name="maxExtent"></param>
+        /// <param name="offset"></param>
+        /// <param name="def"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        private void GetItemRegion(
+            BoundingRectangleF parentRegion,
+            bool vertical,
+            float maxExtent,
+            ref float offset,
+            SizingDefinition def,
+            out float width,
+            out float height,
+            out float x,
+            out float y)
         {
             x = parentRegion.X;
             y = parentRegion.Y;
@@ -198,7 +218,14 @@ namespace TheraEngine.Rendering.UI
             offset += def.CalculatedValue;
         }
 
-        private void AdjustByMargin(bool vertical, IUIBoundableComponent uibComp, ref float offset, ref float x, ref float y, ref float width, ref float height)
+        private void AdjustByMargin(
+            bool vertical,
+            IUIBoundableComponent uibComp,
+            ref float offset,
+            ref float x,
+            ref float y,
+            ref float width,
+            ref float height)
         {
             var margins = uibComp?.Margins;
             if (margins is null)

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Actors;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;

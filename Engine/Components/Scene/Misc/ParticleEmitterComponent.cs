@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering;

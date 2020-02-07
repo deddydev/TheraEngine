@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.ComponentModel;
 using TheraEngine.Input;
 
 namespace TheraEngine.GameModes

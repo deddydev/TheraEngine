@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.XML;

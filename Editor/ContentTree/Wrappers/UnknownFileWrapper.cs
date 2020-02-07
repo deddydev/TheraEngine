@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Wrappers
 {

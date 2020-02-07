@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;

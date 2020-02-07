@@ -1,8 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Files;
 using TheraEngine.Worlds;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Physics
 {

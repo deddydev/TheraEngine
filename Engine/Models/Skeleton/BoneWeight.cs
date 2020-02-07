@@ -1,5 +1,5 @@
 ﻿using Extensions;
-using System.ComponentModel;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {

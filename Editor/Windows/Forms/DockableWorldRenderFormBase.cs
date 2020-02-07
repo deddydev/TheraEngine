@@ -1,10 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows.Forms;
 using TheraEditor.Actors.Types.Pawns;
 using TheraEngine;
 using TheraEngine.Actors;
-using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;

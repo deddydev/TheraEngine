@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using TheraEngine.Core.Attributes;
 using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Core.Reflection
 {

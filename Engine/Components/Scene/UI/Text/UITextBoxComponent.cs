@@ -1,5 +1,5 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Text;
@@ -8,6 +8,9 @@ namespace TheraEngine.Rendering.UI.Text
 {
     public class UITextBoxComponent : UITextRasterComponent
     {
+        [TSerialize]
+        public bool Multiline { get; set; }
+
         public UITextBoxComponent() : base()
         {
             _uiText = new UIString2D();

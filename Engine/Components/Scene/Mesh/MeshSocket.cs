@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Actors;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene.Mesh
@@ -47,12 +48,12 @@ namespace TheraEngine.Components.Scene.Mesh
             _owningActor = actor;
             _transform = transform;
             ChildComponents = new EventList<ISceneComponent>();
-            ChildComponents.PostAdded += _children_Added;
-            ChildComponents.PostAddedRange += _children_AddedRange;
-            ChildComponents.PostInserted += _children_Inserted;
-            ChildComponents.PostInsertedRange += _children_InsertedRange;
-            ChildComponents.PostRemoved += _children_Removed;
-            ChildComponents.PostRemovedRange += _children_RemovedRange;
+            ChildComponents.PostAdded += Children_Added;
+            ChildComponents.PostAddedRange += Children_AddedRange;
+            ChildComponents.PostInserted += Children_Inserted;
+            ChildComponents.PostInsertedRange += Children_InsertedRange;
+            ChildComponents.PostRemoved += Children_Removed;
+            ChildComponents.PostRemovedRange += Children_RemovedRange;
         }
 
         private ISocket _parent;
@@ -71,32 +72,32 @@ namespace TheraEngine.Components.Scene.Mesh
         [Browsable(false)]
         public int ParentSocketChildIndex => -1;//ParentSocket?.ChildComponents?.IndexOf(this) ?? -1;
 
-        private void _children_RemovedRange(IEnumerable<ISceneComponent> items)
+        private void Children_RemovedRange(IEnumerable<ISceneComponent> items)
         {
             foreach (ISceneComponent item in items)
-                _children_Removed(item);
+                Children_Removed(item);
 
             //_owner?.GenerateSceneComponentCache();
         }
-        private void _children_Removed(ISceneComponent item)
+        private void Children_Removed(ISceneComponent item)
         {
             item.SetParentInternal(null);
             ((IComponent)item).OwningActor = null;
             item.RecalcWorldTransform();
             //_owner?.GenerateSceneComponentCache();
         }
-        private void _children_InsertedRange(IEnumerable<ISceneComponent> items, int index)
-            => _children_AddedRange(items);
-        private void _children_Inserted(ISceneComponent item, int index)
-            => _children_Added(item);
-        private void _children_AddedRange(IEnumerable<ISceneComponent> items)
+        private void Children_InsertedRange(IEnumerable<ISceneComponent> items, int index)
+            => Children_AddedRange(items);
+        private void Children_Inserted(ISceneComponent item, int index)
+            => Children_Added(item);
+        private void Children_AddedRange(IEnumerable<ISceneComponent> items)
         {
             foreach (ISceneComponent item in items)
-                _children_Added(item);
+                Children_Added(item);
             
             //_owner?.GenerateSceneComponentCache();
         }
-        private void _children_Added(ISceneComponent item)
+        private void Children_Added(ISceneComponent item)
         {
             item.SetParentInternal(this);
             ((IComponent)item).OwningActor = _owningActor;
@@ -111,7 +112,7 @@ namespace TheraEngine.Components.Scene.Mesh
             set
             {
                 _transform = value;
-                _transform.MatrixChanged += _transform_MatrixChanged;
+                _transform.MatrixChanged += Transform_MatrixChanged;
             }
         }
         
@@ -121,7 +122,7 @@ namespace TheraEngine.Components.Scene.Mesh
             set => _parent = value; //TODO: perform link
         }
 
-        private void _transform_MatrixChanged(ITransform transform, Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        private void Transform_MatrixChanged(ITransform transform, Matrix4 oldMatrix, Matrix4 oldInvMatrix)
         {
             SocketTransformChanged?.Invoke(this);
         }

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering;
 using TheraEngine.Actors;
 using TheraEngine.GameModes;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Worlds
 {

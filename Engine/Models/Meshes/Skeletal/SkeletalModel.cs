@@ -1,9 +1,9 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Shapes;
 using TheraEngine.ThirdParty.PMX;
@@ -50,7 +50,7 @@ namespace TheraEngine.Rendering.Models
             return meshes;
         }
 
-        [ThirdPartyLoader("dae", true)]
+        [ThirdPartyLoader("dae")]
         public static async Task<SkeletalModel> LoadDAEAsync(
             string path, IProgress<float> progress, CancellationToken cancel)
         {
@@ -69,7 +69,7 @@ namespace TheraEngine.Rendering.Models
             }
             return null;
         }
-        [ThirdPartyExporter("pmx", false)]
+        [ThirdPartyExporter("pmx")]
         public static void ExportPMX(SkeletalModel model, string path)
         {
             PMXExporter e = new PMXExporter(model);

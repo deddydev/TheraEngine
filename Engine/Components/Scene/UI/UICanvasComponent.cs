@@ -11,7 +11,6 @@ using TheraEngine.Actors;
 using TheraEngine.Input;
 using System.Collections;
 using TheraEngine.Core;
-using System.Linq;
 
 namespace TheraEngine.Rendering.UI
 {

@@ -1,9 +1,9 @@
 ﻿using TheraEngine.Rendering.Models;
-using System.ComponentModel;
 using System.Collections.Generic;
 using System;
 using System.Runtime.InteropServices;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Core.Shapes
 {

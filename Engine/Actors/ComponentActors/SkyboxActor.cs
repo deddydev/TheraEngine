@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;

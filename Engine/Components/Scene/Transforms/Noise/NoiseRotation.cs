@@ -1,5 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input.Devices;
 using TheraEngine.ThirdParty;

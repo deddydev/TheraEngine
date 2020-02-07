@@ -1,13 +1,13 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection;
 
@@ -165,12 +165,11 @@ namespace TheraEngine.Core.Files.Serialization
 
             private bool ShouldReadFileObjectManually(Type objType)
             {
-                TFileExt ext = TFileObject.GetFileExtension(objType);
-                if (ext is null)
+                if (TFileObject.GetFileExtension(objType) is null)
                     return false;
 
-                bool serConfig = ext.ManualBinConfigSerialize;
-                bool serState = ext.ManualBinStateSerialize;
+                bool serConfig = TFileObject.GetFileExtension(objType).ManualBinConfigSerialize;
+                bool serState = TFileObject.GetFileExtension(objType).ManualBinStateSerialize;
 
                 return serConfig || serState;
             }
@@ -232,33 +231,30 @@ namespace TheraEngine.Core.Files.Serialization
 
             private string ReadString(ref VoidPtr address)
             {
-                string value;
-                switch (StringOffsetSize)
+                var value = StringOffsetSize switch
                 {
-                    case 1: value = StringTable[address.Byte   - 1]; break;
-                    case 2: value = StringTable[address.UShort - 1]; break;
-                    case 3: value = StringTable[address.UInt24 - 1]; break;
-                    default:
-                    case 4: value = StringTable[address.Int    - 1]; break;
-                }
+                    1 => StringTable[address.Byte - 1],
+                    2 => StringTable[address.UShort - 1],
+                    3 => StringTable[address.UInt24 - 1],
+                    _ => StringTable[address.Int - 1],
+                };
                 address.Offset(StringOffsetSize);
                 return value;
             }
             private object ReadEnum(Type enumType, ref VoidPtr address)
             {
                 TypeCode typeCode = Type.GetTypeCode(enumType);
-                switch (typeCode)
+                return typeCode switch
                 {
-                    case TypeCode.SByte:    return Enum.ToObject(enumType, address.ReadSByte());
-                    case TypeCode.Byte:     return Enum.ToObject(enumType, address.ReadByte());
-                    case TypeCode.Int16:    return Enum.ToObject(enumType, address.ReadShort());
-                    case TypeCode.UInt16:   return Enum.ToObject(enumType, address.ReadUShort());
-                    default:
-                    case TypeCode.Int32:    return Enum.ToObject(enumType, address.ReadInt());
-                    case TypeCode.UInt32:   return Enum.ToObject(enumType, address.ReadUInt());
-                    case TypeCode.Int64:    return Enum.ToObject(enumType, address.ReadLong());
-                    case TypeCode.UInt64:   return Enum.ToObject(enumType, address.ReadULong());
-                }
+                    TypeCode.SByte => Enum.ToObject(enumType, address.ReadSByte()),
+                    TypeCode.Byte => Enum.ToObject(enumType, address.ReadByte()),
+                    TypeCode.Int16 => Enum.ToObject(enumType, address.ReadShort()),
+                    TypeCode.UInt16 => Enum.ToObject(enumType, address.ReadUShort()),
+                    TypeCode.UInt32 => Enum.ToObject(enumType, address.ReadUInt()),
+                    TypeCode.Int64 => Enum.ToObject(enumType, address.ReadLong()),
+                    TypeCode.UInt64 => Enum.ToObject(enumType, address.ReadULong()),
+                    _ => Enum.ToObject(enumType, address.ReadInt()),
+                };
             }
             private object ReadArray(Type type, ref VoidPtr address)
             {

@@ -1,10 +1,7 @@
-﻿using System;
-using TheraEditor;
+﻿using TheraEditor;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Actors;
-using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
-using TheraEngine.Rendering;
 using TheraEngine.Worlds;
 
 namespace TheraEngine.Windows.Forms

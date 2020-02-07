@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Transforms;

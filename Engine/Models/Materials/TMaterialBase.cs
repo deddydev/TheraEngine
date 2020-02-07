@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models.Materials

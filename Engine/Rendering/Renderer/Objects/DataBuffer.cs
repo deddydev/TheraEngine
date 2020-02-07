@@ -1,8 +1,8 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Runtime.InteropServices;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Memory;
 

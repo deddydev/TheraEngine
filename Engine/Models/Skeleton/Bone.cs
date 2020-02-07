@@ -9,6 +9,7 @@ using TheraEngine.Components;
 using TheraEngine.Physics;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Actors;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {

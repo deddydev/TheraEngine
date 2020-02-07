@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -70,10 +71,11 @@ namespace TheraEngine.Rendering.UI
     {
         public UIBoundableComponent() : base() 
         {
+            //Set properties to register changed events
             OriginPercent = new EventVec2();
             Size = new EventVec2();
-            MinSize = new EventVec2();
-            MaxSize = new EventVec2();
+            MinSize = null;
+            MaxSize = null;
             Margins = new EventVec4();
             Padding = new EventVec4();
         }
@@ -268,7 +270,7 @@ namespace TheraEngine.Rendering.UI
             get => _originPercent;
             set
             {
-                if (Set(ref _originPercent, value,
+                if (Set(ref _originPercent, value ?? new EventVec2(),
                     () => _originPercent.Changed -= OriginPercentChanged,
                     () => _originPercent.Changed += OriginPercentChanged))
                     OriginPercentChanged();

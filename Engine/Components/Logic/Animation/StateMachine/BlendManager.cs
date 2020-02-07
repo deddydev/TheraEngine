@@ -1,8 +1,8 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using TheraEngine.Animation;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Maths;
 using TheraEngine.Rendering.Models;
 

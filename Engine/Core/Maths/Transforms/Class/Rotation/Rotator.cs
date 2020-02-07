@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using TheraEngine.ComponentModel;
 using static System.Math;
 
 namespace TheraEngine.Core.Maths.Transforms

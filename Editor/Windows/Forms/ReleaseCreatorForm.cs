@@ -14,8 +14,6 @@ using Microsoft.Build.Execution;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Evaluation;
 using static TheraEditor.TProject;
-using System.Diagnostics;
-using Microsoft.Build.Locator;
 
 namespace TheraEditor.Windows.Forms
 {

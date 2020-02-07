@@ -1,5 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine
 {
@@ -65,24 +65,64 @@ namespace TheraEngine
         private EPhysicsLibrary _physicsLibrary = EPhysicsLibrary.Bullet;
 
         [TSerialize]
-        public EVSyncMode VSync { get => _vSyncMode; set => _vSyncMode = value; }
+        public EVSyncMode VSync
+        {
+            get => _vSyncMode;
+            set => Set(ref _vSyncMode, value);
+        }
         [TSerialize]
-        public EngineQuality TextureQuality { get => _textureQuality; set => _textureQuality = value; }
+        public EngineQuality TextureQuality
+        {
+            get => _textureQuality;
+            set => Set(ref _textureQuality, value);
+        }
         [TSerialize]
-        public EngineQuality ModelQuality { get => _modelQuality; set => _modelQuality = value; }
+        public EngineQuality ModelQuality
+        {
+            get => _modelQuality;
+            set => Set(ref _modelQuality, value);
+        }
         [TSerialize]
-        public EngineQuality SoundQuality { get => _soundQuality; set => _soundQuality = value; }
+        public EngineQuality SoundQuality
+        {
+            get => _soundQuality;
+            set => Set(ref _soundQuality, value);
+        }
         [TSerialize]
-        public ERenderLibrary RenderLibrary { get => _renderLibrary; set => _renderLibrary = value; }
+        public ERenderLibrary RenderLibrary
+        {
+            get => _renderLibrary;
+            set => Set(ref _renderLibrary, value);
+        }
         [TSerialize]
-        public EAudioLibrary AudioLibrary { get => _audioLibrary; set => _audioLibrary = value; }
+        public EAudioLibrary AudioLibrary
+        {
+            get => _audioLibrary;
+            set => Set(ref _audioLibrary, value);
+        }
         [TSerialize]
-        public EInputLibrary InputLibrary { get => _inputLibrary; set => _inputLibrary = value; }
+        public EInputLibrary InputLibrary
+        {
+            get => _inputLibrary;
+            set => Set(ref _inputLibrary, value);
+        }
         [TSerialize]
-        public EPhysicsLibrary PhysicsLibrary { get => _physicsLibrary; set => _physicsLibrary = value; }
+        public EPhysicsLibrary PhysicsLibrary
+        {
+            get => _physicsLibrary;
+            set => Set(ref _physicsLibrary, value);
+        }
         [TSerialize]
-        public WindowBorderStyle WindowBorderStyle { get => _windowBorderStyle; set => _windowBorderStyle = value; }
+        public WindowBorderStyle WindowBorderStyle
+        {
+            get => _windowBorderStyle;
+            set => Set(ref _windowBorderStyle, value);
+        }
         [TSerialize]
-        public bool FullScreen { get => _fullscreen; set => _fullscreen = value; }
+        public bool FullScreen
+        {
+            get => _fullscreen;
+            set => Set(ref _fullscreen, value);
+        }
     }
 }

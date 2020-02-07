@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using System;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Core.Maths.Transforms
 {

@@ -3,7 +3,6 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using System;
-using System.Diagnostics;
 using System.Threading;
 
 namespace TheraEngine.Rendering.OpenGL

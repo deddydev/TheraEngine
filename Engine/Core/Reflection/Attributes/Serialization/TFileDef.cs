@@ -1,6 +1,7 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
-namespace System.ComponentModel
+namespace TheraEngine.ComponentModel
 {
     [Serializable]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]

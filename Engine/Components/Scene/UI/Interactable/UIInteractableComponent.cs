@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI

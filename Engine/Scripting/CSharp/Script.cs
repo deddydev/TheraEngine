@@ -2,11 +2,11 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using System.ComponentModel;
 using TheraEngine.Core.Files;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using System.Threading;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Scripting
 {

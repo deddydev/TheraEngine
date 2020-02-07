@@ -8,7 +8,6 @@ using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
-using TheraEngine.Rendering;
 using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Actors.Types.Pawns

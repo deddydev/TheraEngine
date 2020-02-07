@@ -5,6 +5,7 @@ using TheraEngine.Core.Attributes;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Reflection.Attributes;
 using Extensions;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Animation
 {

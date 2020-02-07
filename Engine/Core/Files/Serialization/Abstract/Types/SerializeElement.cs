@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensions;
+using TheraEngine.ComponentModel;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization

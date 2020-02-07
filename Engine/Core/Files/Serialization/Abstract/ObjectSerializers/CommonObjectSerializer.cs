@@ -1,7 +1,6 @@
 ﻿using KellermanSoftware.CompareNetObjects;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -9,6 +8,7 @@ using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using Extensions;
 using TheraEngine.Core.Reflection;
+using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Core.Files.Serialization
 {

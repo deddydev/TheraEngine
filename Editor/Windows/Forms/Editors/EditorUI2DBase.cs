@@ -1,12 +1,12 @@
 ﻿using Extensions;
 using System;
 using System.Collections.Concurrent;
-using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;

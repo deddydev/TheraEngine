@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Windows.Forms;
-using TheraEditor.Windows.Forms;
+﻿using TheraEditor.Windows.Forms;
 using TheraEngine.Core.Files;
 using WeifenLuo.WinFormsUI.Docking;
 

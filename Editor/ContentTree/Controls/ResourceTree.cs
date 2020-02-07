@@ -15,7 +15,6 @@ using TheraEditor.Core;
 using TheraEditor.Properties;
 using TheraEditor.Wrappers;
 using TheraEngine;
-using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 using System.Collections.Concurrent;
 

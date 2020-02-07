@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using TheraEngine.Core;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics.ContactTesting;
 using TheraEngine.Physics.RayTracing;

@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine.Core.Reflection;
-using System.ComponentModel;
 
 namespace TheraEngine.Timers
 {

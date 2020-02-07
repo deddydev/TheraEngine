@@ -1,5 +1,4 @@
-﻿using TheraEditor.Windows.Forms;
-using TheraEngine;
+﻿using TheraEngine;
 using TheraEngine.Worlds;
 
 namespace TheraEditor

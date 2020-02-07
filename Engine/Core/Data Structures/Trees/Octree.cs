@@ -7,7 +7,6 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Shapes;
-using Extensions;
 
 namespace System
 {

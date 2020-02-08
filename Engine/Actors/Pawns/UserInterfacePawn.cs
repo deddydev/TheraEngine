@@ -53,11 +53,16 @@ namespace TheraEngine.Actors.Types.Pawns
         public UserInterfacePawn(Vec2 bounds) : this() => Resize(bounds);
 
         protected Vec2 _cursorPos = Vec2.Zero;
-
         private IPawn _owningPawn;
 
         [Browsable(false)]
-        public EventVec2 Bounds 
+        public bool IsResizing
+        {
+            get => _isResizing;
+            private set => Set(ref _isResizing, value);
+        }
+        [Browsable(false)]
+        public EventVec2 Bounds
         {
             get => RootComponent.Size;
             private set => RootComponent.Size = value;
@@ -75,45 +80,55 @@ namespace TheraEngine.Actors.Types.Pawns
             get => _owningPawn;
             set
             {
-                InputInterface input;
-
-                if (_owningPawn != null)
-                {
-                    if (_owningPawn.IsSpawned)
-                        Despawned();
-
-                    if (_owningPawn != this && _owningPawn.LocalPlayerController != null)
-                    {
-                        //Unlink input commands from the owning controller to this hud
-                        input = _owningPawn.LocalPlayerController.Input;
-                        input.TryUnregisterInput();
-                        input.InputRegistration -= RegisterInput;
-                        input.TryRegisterInput();
-                    }
-                }
-
+                UnlinkOwningPawn();
                 _owningPawn = value;
-                if (_owningPawn != null)
-                {
-                    if (_owningPawn.IsSpawned)
-                        Spawned(_owningPawn.OwningWorld);
-
-                    if (_owningPawn != this && _owningPawn.LocalPlayerController != null)
-                    {
-                        //Link input commands from the owning controller to this hud
-                        input = _owningPawn.LocalPlayerController.Input;
-                        input.InputRegistration += RegisterInput;
-                        input.TryRegisterInput();
-                    }
-                }
+                LinkOwningPawn();
             }
         }
-        
+
+        private void LinkOwningPawn()
+        {
+            if (_owningPawn is null)
+                return;
+            
+            if (_owningPawn.IsSpawned)
+                Spawned(_owningPawn.OwningWorld);
+
+            if (_owningPawn != this && _owningPawn.LocalPlayerController != null)
+            {
+                //Link input commands from the owning controller to this hud
+                //TODO: add register input method only for this pawn
+                var input = _owningPawn.LocalPlayerController.Input;
+                input.TryUnregisterInput();
+                input.InputRegistration += RegisterInput;
+                input.TryRegisterInput();
+            }
+        }
+
+        private void UnlinkOwningPawn()
+        {
+            if (_owningPawn is null)
+                return;
+            
+            if (_owningPawn.IsSpawned)
+                Despawned();
+
+            if (_owningPawn != this && _owningPawn.LocalPlayerController != null)
+            {
+                //Unlink input commands from the owning controller to this hud
+                //TODO: add unregister input method only for this pawn
+                var input = _owningPawn.LocalPlayerController.Input;
+                input.TryUnregisterInput();
+                input.InputRegistration -= RegisterInput;
+                input.TryRegisterInput();
+            }
+        }
+
         protected override T OnConstructRoot() => new T() { };
         public override void RegisterInput(InputInterface input)
         {
             RootComponent.RegisterInputs(input);
-            
+
             input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickAlways);
             //input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickOnlyWhenPaused);
 
@@ -133,7 +148,7 @@ namespace TheraEngine.Actors.Types.Pawns
         /// </summary>
         //protected virtual void OnSelectInput()
         //{
-            //_focusedComponent?.OnSelect();
+        //_focusedComponent?.OnSelect();
         //}
         protected virtual void OnScrolledInput(bool up)
         {
@@ -152,7 +167,7 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             _cursorPos = CursorPositionWorld();
 
-            
+
         }
 
         public List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint)
@@ -318,13 +333,13 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public Action<UserInterfacePawn<T>> ResizeStarted;
         public Action<UserInterfacePawn<T>> ResizeFinished;
+        private bool _isResizing;
 
-        protected virtual void ResizeLayout() 
+        protected virtual void ResizeLayout()
             => RootComponent.ResizeLayout(new BoundingRectangleF(
                 RootComponent.Translation.Xy,
                 RootComponent.Size.Raw));
 
-        public bool IsResizing { get; private set; }
         public virtual void UpdateLayout()
         {
             if (IsLayoutInvalidated)

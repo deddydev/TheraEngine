@@ -447,7 +447,7 @@ namespace TheraEngine
             OutputVerbosity = EOutputVerbosity.Normal;
             AllowedOutputRecencySeconds = 2.0;
 
-            CapFPS = false;
+            CapFPS = true;
             TargetFPS = 60.0f;
             CapUPS = true;
             TargetUPS = 60.0f;

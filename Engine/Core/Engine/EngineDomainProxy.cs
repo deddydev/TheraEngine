@@ -438,9 +438,9 @@ namespace TheraEngine.Core
                 method.GetCustomAttribute<ThirdPartyLoader>()?.Extension,
                 StringComparison.InvariantCultureIgnoreCase);
 
-        public TypeProxy GetTypeFor(object o) => o.GetTypeProxy();
+        public TypeProxy GetTypeFor(object o) => o?.GetType();
         public TypeProxy GetTypeFor<T>() => typeof(T);
-        public TypeProxy GetTypeFor(string typeName) => TypeProxy.GetType(typeName);
+        public TypeProxy GetTypeFor(string typeName) => Type.GetType(typeName);
 
         public void ExportFile(IFileObject file, string dir, EProprietaryFileFormat format)
         {

@@ -13,6 +13,7 @@ namespace TheraEngine.Rendering.UI
     {
         private EventList<SizingDefinition> _rows;
         private EventList<SizingDefinition> _columns;
+        private List<int>[,] _indices;
 
         public UIItemGridComponent()
         {
@@ -26,7 +27,17 @@ namespace TheraEngine.Rendering.UI
         //Jagged array indexed by (row,col) of int lists.
         //Each int list contains indices of child UI components that reside in the cell specified by (row,col).
         [Browsable(false)]
-        public List<int>[,] Indices { get; set; }
+        public List<int>[,] Indices 
+        {
+            get
+            {
+                if (_indices is null)
+                    RegenerateIndices();
+                return _indices;
+            }
+            set => _indices = value; 
+        }
+
         public bool InvertY { get; set; }
 
         public EventList<SizingDefinition> Rows
@@ -37,7 +48,7 @@ namespace TheraEngine.Rendering.UI
                 if (Set(ref _rows, value,
                     () => _rows.CollectionChanged -= CollectionChanged,
                     () => _rows.CollectionChanged += CollectionChanged, false))
-                    RegenerateIndices();
+                    OnChildrenChanged();
             }
         }
         public EventList<SizingDefinition> Columns
@@ -48,20 +59,16 @@ namespace TheraEngine.Rendering.UI
                 if (Set(ref _columns, value,
                     () => _columns.CollectionChanged -= CollectionChanged,
                     () => _columns.CollectionChanged += CollectionChanged, false))
-                    RegenerateIndices();
+                    OnChildrenChanged();
             }
         }
+
         private void CollectionChanged(object sender, TCollectionChangedEventArgs<SizingDefinition> e)
-            => RegenerateIndices();
-        private void RegenerateIndices()
+            => OnChildrenChanged();
+
+        private void OnChildrenChanged()
         {
-            Indices = new List<int>[Rows.Count, Columns.Count];
-            Indices.Initialize();
-
-            for (int i = 0; i < ChildComponents.Count; ++i)
-                if (ChildComponents[i] is IUIComponent uic && uic.ParentInfo is GridPlacementInfo info)
-                    Indices[info.Row, info.Column].Add(i);
-
+            Indices = null;
             InvalidateLayout();
         }
 
@@ -114,132 +121,375 @@ namespace TheraEngine.Rendering.UI
             return width;
 
         }
-        protected override void OnResizeLayout(BoundingRectangleF parentRegion)
+
+        private void RegenerateIndices()
         {
-            //Sizing priority: auto, fixed, proportional
+            _indices = new List<int>[Rows.Count, Columns.Count];
+            for (int r = 0; r < Rows.Count; ++r)
+                for (int c = 0; c < Columns.Count; ++c)
+                    _indices[r, c] = new List<int>();
 
-            float xSize = parentRegion.Width;
-            float ySize = parentRegion.Height;
+            for (int i = 0; i < ChildComponents.Count; ++i)
+                if (ChildComponents[i] is IUIComponent uic && uic.ParentInfo is GridPlacementInfo info)
+                    _indices[info.Row, info.Column].Add(i);
+        }
 
-            var autoRows = Rows.Select(x => x.Value.Mode == ESizingMode.Auto ? x : null).ToArray();
-            var autoCols = Columns.Select(x => x.Value.Mode == ESizingMode.Auto ? x : null).ToArray();
+        protected override void OnResizeChildComponents(BoundingRectangleF parentRegion)
+        {
+            //Set to fixed values or initialize to zero for auto calculation
+            float rowPropDenom = 0.0f;
+            float colPropDenom = 0.0f;
 
-            for (int i = 0; i < Rows.Count; i++)
+            List<IUIComponent> autoComps = new List<IUIComponent>();
+            
+            //Pre-pass: 
+            //calculate initial values,
+            //grab any components affected by auto sizing,
+            //add proportional values for use later
+            foreach (var row in Rows)
             {
-                var row = Rows[i];
-                if (row.Value.Mode == ESizingMode.Auto)
-                    GetRowAutoHeight(GetComponentsInRow(i));
-
-
+                switch (row.Value.Mode)
+                {
+                    case ESizingMode.Auto:
+                        row.CalculatedValue = 0.0f;
+                        foreach (var comp in row.AttachedControls)
+                            if (!autoComps.Contains(comp.UIComponent))
+                                autoComps.Add(comp.UIComponent);
+                        break;
+                    case ESizingMode.Fixed:
+                        row.CalculatedValue = row.Value.Value;
+                        break;
+                    case ESizingMode.Proportional:
+                        row.CalculatedValue = 0.0f;
+                        rowPropDenom += row.Value.Value;
+                        break;
+                }
             }
-            for (int i = 0; i < Columns.Count; i++)
+            foreach (var col in Columns)
             {
-                var col = Columns[i];
-                if (col.Value.Mode == ESizingMode.Auto)
-                    GetColAutoWidth(GetComponentsInColumn(i));
-
-
+                switch (col.Value.Mode)
+                {
+                    case ESizingMode.Auto:
+                        col.CalculatedValue = 0.0f;
+                        foreach (var comp in col.AttachedControls)
+                            if (!autoComps.Contains(comp.UIComponent))
+                                autoComps.Add(comp.UIComponent);
+                        break;
+                    case ESizingMode.Fixed:
+                        col.CalculatedValue = col.Value.Value;
+                        break;
+                    case ESizingMode.Proportional:
+                        col.CalculatedValue = 0.0f;
+                        colPropDenom += col.Value.Value;
+                        break;
+                }
             }
-
-            var allRows = Rows.ToList();
-            var allCols = Columns.ToList();
-            var childComps = ChildComponents.Where(x => x is IUIComponent).Select(x => (IUIComponent)x);
-            foreach (var row in autoRows)
+            //Auto sizing pass, only calculate auto size for components that are affected
+            foreach (IUIComponent comp in autoComps)
             {
+                if (!(comp?.ParentInfo is GridPlacementInfo info))
+                    continue;
 
-                allRows.Remove(row);
+                bool hasCalcAutoHeight = false;
+                bool hasCalcAutoWidth = false;
+                float autoHeight = 0.0f;
+                float autoWidth = 0.0f;
+
+                //Calc height through one or more rows
+                foreach (int rowIndex in info.AssociatedRowIndices)
+                {
+                    var row = Rows[rowIndex];
+                    switch (row.Value.Mode)
+                    {
+                        case ESizingMode.Auto:
+                            if (!hasCalcAutoHeight)
+                            {
+                                hasCalcAutoHeight = true;
+                                autoHeight = info.UIComponent?.CalcAutoHeight() ?? 0.0f;
+                            }
+                            row.CalculatedValue = Math.Max(row.CalculatedValue, autoHeight);
+                            break;
+                    }
+                }
+
+                //Calc width through one or more cols
+                foreach (int colIndex in info.AssociatedColumnIndices)
+                {
+                    var col = Columns[colIndex];
+                    switch (col.Value.Mode)
+                    {
+                        case ESizingMode.Auto:
+                            if (!hasCalcAutoWidth)
+                            {
+                                hasCalcAutoWidth = true;
+                                autoWidth = info.UIComponent?.CalcAutoWidth() ?? 0.0f;
+                            }
+                            col.CalculatedValue = Math.Max(col.CalculatedValue, autoWidth);
+                            break;
+                    }
+                }
             }
-            foreach (var col in autoCols)
+
+            float remainingRowHeight = parentRegion.Height;
+            float remainingColWidth = parentRegion.Width;
+
+            foreach (var row in Rows)
             {
-
-                allCols.Remove(col);
+                if (row.Value.Mode != ESizingMode.Proportional)
+                    remainingRowHeight -= row.CalculatedValue;
             }
 
-            float y = 0.0f;
+            foreach (var col in Columns)
+            {
+                if (col.Value.Mode != ESizingMode.Proportional)
+                    remainingColWidth -= col.CalculatedValue;
+            }
+
+            //Clamp remaining to zero
+            if (remainingRowHeight < 0.0f)
+                remainingRowHeight = 0.0f;
+            if (remainingColWidth < 0.0f)
+                remainingColWidth = 0.0f;
+
+            //Post-pass: actually size each row and col, and resize each component
+            float heightOffset = 0.0f;
             for (int r = 0; r < Rows.Count; ++r)
             {
                 var row = Rows[r];
-                float height = row.Value.Value;
 
-                float x = 0.0f;
+                //Calculate the proportional value now that the fixed and auto values have been processed
+                if (row.Value.Mode == ESizingMode.Proportional)
+                    row.CalculatedValue = rowPropDenom <= 0.0f ? 0.0f : row.Value.Value / rowPropDenom * remainingRowHeight;
+
+                float height = row.CalculatedValue;
+
+                float widthOffset = 0.0f;
                 for (int c = 0; c < Columns.Count; ++c)
                 {
                     var col = Columns[c];
-                    float width = col.Value.Value;
+
+                    //Calculate the proportional value now that the fixed and auto values have been processed
+                    if (col.Value.Mode == ESizingMode.Proportional)
+                        col.CalculatedValue = colPropDenom <= 0.0f ? 0.0f : col.Value.Value / colPropDenom * remainingColWidth;
+
+                    float width = col.CalculatedValue;
 
                     List<int> indices = Indices[r, c];
+                    if (indices is null)
+                        Indices[r, c] = indices = new List<int>();
                     foreach (var index in indices)
                     {
                         ISceneComponent comp = ChildComponents[index];
-                        if (comp is IUIComponent uic)
-                            uic.ResizeLayout(new BoundingRectangleF(x, y, width, height));
+                        if (!(comp is IUIComponent uiComp))
+                            continue;
+
+                        float x = parentRegion.X;
+                        float y = parentRegion.Y;
+                        y += parentRegion.Height - heightOffset - height;
+                        x += widthOffset;
+
+                        AdjustByMargin(
+                            uiComp as IUIBoundableComponent, 
+                            ref widthOffset, ref heightOffset, 
+                            ref x, ref y, 
+                            ref width, ref height);
+
+                        uiComp.ResizeLayout(new BoundingRectangleF(x, y, width, height));
                     }
 
-                    x += width;
+                    widthOffset += width;
                 }
 
-                y += height;
+                heightOffset += height;
             }
+        }
+
+        private void AdjustByMargin(IUIBoundableComponent uibComp, ref float widthOffset, ref float heightOffset, ref float x, ref float y, ref float width, ref float height)
+        {
+            var margins = uibComp?.Margins;
+            if (margins is null)
+                return;
+
+            float left = margins.X;
+            float bottom = margins.Y;
+            float right = margins.Z;
+            float top = margins.W;
+
+            float temp = bottom + top;
+            width -= left + right;
+            height -= temp;
+            heightOffset += temp;
+
+            y += bottom;
+            x += left;
+
+            temp = left + right;
+            height -= bottom + top;
+            width -= temp;
+            widthOffset += temp;
+
+            x += left;
+            y += bottom;
         }
 
         protected override void OnChildAdded(ISceneComponent item)
         {
             if (item is IUIComponent uic)
             {
+                //Add parent info
                 if (!(uic.ParentInfo is GridPlacementInfo info))
-                    uic.ParentInfo = info = new GridPlacementInfo();
+                    uic.ParentInfo = info = new GridPlacementInfo() { ParentUIComponent = this };
 
-                //info.PropertyChanging += Info_PropertyChanging;
+                //Register events
+                info.PropertyChanging += Info_PropertyChanging;
                 info.PropertyChanged += Info_PropertyChanged;
+
+                //Add row/col associations
+                AddControlToRows(info);
+                AddControlToColumns(info);
             }
 
             base.OnChildAdded(item);
+
+            //Regenerate row/col indices and invalidate layout for next render
+            OnChildrenChanged();
         }
+
         protected override void OnChildRemoved(ISceneComponent item)
         {
-            if (item is IUIComponent uic)
+            if (item is IUIComponent uic && uic.ParentInfo is GridPlacementInfo info)
             {
-                if (uic.ParentInfo is GridPlacementInfo info)
-                {
-                    //info.PropertyChanging -= Info_PropertyChanging;
-                    info.PropertyChanged -= Info_PropertyChanged;
-                }
+                //Unregister events
+                info.PropertyChanging -= Info_PropertyChanging;
+                info.PropertyChanged -= Info_PropertyChanged;
 
-                uic.ParentInfo = null;
+                //Remove row/col associations
+                RemoveControlFromRows(info);
+                RemoveControlFromColumns(info);
+
+                //Remove parent info
+                if (info.ParentUIComponent == this)
+                {
+                    info.ParentUIComponent = null;
+                    uic.ParentInfo = null;
+                }
             }
 
             base.OnChildRemoved(item);
+
+            //Regenerate row/col indices and invalidate layout for next render
+            OnChildrenChanged();
         }
 
         private void Info_PropertyChanging(object sender, PropertyChangingEventArgs e)
         {
-            //GridPlacementInfo info = sender as GridPlacementInfo;
-            //switch (e.PropertyName)
-            //{
-            //    case nameof(GridPlacementInfo.Row):
+            if (!(sender is GridPlacementInfo info))
+                return;
 
-            //        break;
-            //    case nameof(GridPlacementInfo.Column):
+            switch (e.PropertyName)
+            {
+                case nameof(GridPlacementInfo.RowSpan):
+                case nameof(GridPlacementInfo.Row):
+                    RemoveControlFromRows(info);
+                    break;
 
-            //        break;
-            //}
+                case nameof(GridPlacementInfo.ColumnSpan):
+                case nameof(GridPlacementInfo.Column):
+                    RemoveControlFromColumns(info);
+                    break;
+            }
+
+            //TODO: don't fully regenerate every time,
+            //Just update the indices of this element
+            OnChildrenChanged();
         }
 
         private void Info_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            //TODO: don't fully regenerate every time
-            RegenerateIndices();
+            if (!(sender is GridPlacementInfo info))
+                return;
 
-            //GridPlacementInfo info = sender as GridPlacementInfo;
-            //switch (e.PropertyName)
-            //{
-            //    case nameof(GridPlacementInfo.Row):
+            switch (e.PropertyName)
+            {
+                case nameof(GridPlacementInfo.RowSpan):
+                case nameof(GridPlacementInfo.Row):
+                    AddControlToRows(info);
+                    break;
 
-            //        break;
-            //    case nameof(GridPlacementInfo.Column):
+                case nameof(GridPlacementInfo.ColumnSpan):
+                case nameof(GridPlacementInfo.Column):
+                    AddControlToColumns(info);
+                    break;
+            }
 
-            //        break;
-            //}
+            //TODO: don't fully regenerate every time,
+            //Just update the indices of this element
+            OnChildrenChanged();
+        }
+
+        private void AddControlToRows(GridPlacementInfo info)
+        {
+            int startIndex = info.Row;
+            for (int rowIndex = startIndex; rowIndex < startIndex + info.RowSpan; ++rowIndex)
+            {
+                if (rowIndex < 0 || rowIndex >= Rows.Count)
+                    continue;
+
+                var list = Rows[rowIndex]?.AttachedControls;
+                if (list != null && !list.Contains(info))
+                {
+                    list.Add(info);
+                    info.AssociatedRowIndices.Add(rowIndex);
+                }
+            }
+        }
+        private void AddControlToColumns(GridPlacementInfo info)
+        {
+            int startIndex = info.Column;
+            for (int colIndex = startIndex; colIndex < startIndex + info.ColumnSpan; ++colIndex)
+            {
+                if (colIndex < 0 || colIndex >= Columns.Count)
+                    continue;
+
+                var list = Columns[colIndex]?.AttachedControls;
+                if (list != null && !list.Contains(info))
+                {
+                    list.Add(info);
+                    info.AssociatedColumnIndices.Add(colIndex);
+                }
+            }
+        }
+        private void RemoveControlFromRows(GridPlacementInfo info)
+        {
+            int startIndex = info.Row;
+            for (int rowIndex = startIndex; rowIndex < startIndex + info.RowSpan; ++rowIndex)
+            {
+                if (rowIndex < 0 || rowIndex >= Rows.Count)
+                    continue;
+
+                var list = Rows[rowIndex]?.AttachedControls;
+                if (list != null && list.Contains(info))
+                {
+                    list.Remove(info);
+                    info.AssociatedRowIndices.Remove(rowIndex);
+                }
+            }
+        }
+        private void RemoveControlFromColumns(GridPlacementInfo info)
+        {
+            int startIndex = info.Column;
+            for (int colIndex = startIndex; colIndex < startIndex + info.ColumnSpan; ++colIndex)
+            {
+                if (colIndex < 0 || colIndex >= Columns.Count)
+                    continue;
+
+                var list = Columns[colIndex]?.AttachedControls;
+                if (list != null && list.Contains(info))
+                {
+                    list.Remove(info);
+                    info.AssociatedColumnIndices.Remove(colIndex);
+                }
+            }
         }
 
         public class GridPlacementInfo : UIParentAttachmentInfo
@@ -273,6 +523,9 @@ namespace TheraEngine.Rendering.UI
                 get => _columnSpan;
                 set => Set(ref _columnSpan, value);
             }
+
+            public HashSet<int> AssociatedRowIndices { get; } = new HashSet<int>();
+            public HashSet<int> AssociatedColumnIndices { get; } = new HashSet<int>();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -30,7 +31,8 @@ namespace TheraEngine.Rendering.UI
         private SizingValue _min = null;
         private SizingValue _max = null;
 
-        public float CalculatedValue { get; set; }
+        internal float CalculatedValue { get; set; }
+        internal List<UIParentAttachmentInfo> AttachedControls { get; } = new List<UIParentAttachmentInfo>();
 
         [Browsable(false)]
         public bool NeedsAutoSizing =>

@@ -1,26 +1,25 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using TheraEngine.Components;
-using Extensions;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Core;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
     public class UIItemGridComponent : UIBoundableComponent
     {
-        private EventList<SizingDefinition> _rows;
-        private EventList<SizingDefinition> _columns;
+        private EventList<UISizingDefinition> _rows;
+        private EventList<UISizingDefinition> _columns;
         private List<int>[,] _indices;
 
         public UIItemGridComponent()
         {
-            _rows = new EventList<SizingDefinition>();
+            _rows = new EventList<UISizingDefinition>();
             _rows.CollectionChanged += CollectionChanged;
 
-            _columns = new EventList<SizingDefinition>();
+            _columns = new EventList<UISizingDefinition>();
             _columns.CollectionChanged += CollectionChanged;
         }
 
@@ -40,7 +39,7 @@ namespace TheraEngine.Rendering.UI
 
         public bool InvertY { get; set; }
 
-        public EventList<SizingDefinition> Rows
+        public EventList<UISizingDefinition> Rows
         {
             get => _rows;
             set
@@ -51,7 +50,7 @@ namespace TheraEngine.Rendering.UI
                     OnChildrenChanged();
             }
         }
-        public EventList<SizingDefinition> Columns
+        public EventList<UISizingDefinition> Columns
         {
             get => _columns;
             set
@@ -63,7 +62,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
-        private void CollectionChanged(object sender, TCollectionChangedEventArgs<SizingDefinition> e)
+        private void CollectionChanged(object sender, TCollectionChangedEventArgs<UISizingDefinition> e)
             => OnChildrenChanged();
 
         private void OnChildrenChanged()

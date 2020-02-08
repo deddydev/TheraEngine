@@ -78,7 +78,7 @@ namespace TheraEngine.Rendering.UI
             Padding = new EventVec4();
         }
 
-        private EventVec2 _originPercent;
+        private EventVec2 _originPercent = EventVec2.Zero;
         private EventVec2 _size;
         private EventVec2 _minSize;
         private EventVec2 _maxSize;
@@ -337,7 +337,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
-        private Vec2 ParentPaddingOffset { get; set; }
+        private Vec2 ParentPaddingOffset { get; set; } = Vec2.Zero;
 
         protected override void OnRecalcLocalTransform(
             out Matrix4 localTransform,

@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.UI
         Fixed,
         Proportional,
     }
-    public class SizingValue : TObject
+    public class UISizingValue : TObject
     {
         private float _value = 0.0f;
         private ESizingMode _mode = ESizingMode.Fixed;
@@ -25,11 +25,11 @@ namespace TheraEngine.Rendering.UI
             set => Set(ref _value, value);
         }
     }
-    public class SizingDefinition : TObject
+    public class UISizingDefinition : TObject
     {
-        private SizingValue _value = new SizingValue();
-        private SizingValue _min = null;
-        private SizingValue _max = null;
+        private UISizingValue _value = new UISizingValue();
+        private UISizingValue _min = null;
+        private UISizingValue _max = null;
 
         internal float CalculatedValue { get; set; }
         internal List<UIParentAttachmentInfo> AttachedControls { get; } = new List<UIParentAttachmentInfo>();
@@ -40,17 +40,17 @@ namespace TheraEngine.Rendering.UI
             _min != null && _min.Mode == ESizingMode.Auto ||
             _max != null && _max.Mode == ESizingMode.Auto;
 
-        public SizingValue Value
+        public UISizingValue Value
         {
             get => _value;
             set => Set(ref _value, value);
         }
-        public SizingValue Min
+        public UISizingValue Min
         {
             get => _min;
             set => Set(ref _min, value);
         }
-        public SizingValue Max
+        public UISizingValue Max
         {
             get => _max;
             set => Set(ref _max, value);

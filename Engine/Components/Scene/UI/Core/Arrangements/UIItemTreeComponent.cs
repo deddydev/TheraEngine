@@ -2,9 +2,9 @@
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UITreeComponent : UIInteractableComponent
+    public class UIItemTreeComponent : UIInteractableComponent
     {
-        public UITreeComponent()
+        public UIItemTreeComponent()
         {
 
         }

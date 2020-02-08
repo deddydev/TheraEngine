@@ -7,11 +7,11 @@ namespace TheraEngine.Rendering.UI
 {
     public class ListPlacementInfo : UIParentAttachmentInfo
     {
-        private SizingDefinition _size = new SizingDefinition();
-        public SizingDefinition Size
+        private UISizingDefinition _size = new UISizingDefinition();
+        public UISizingDefinition Size
         {
             get => _size;
-            set => _size = value ?? new SizingDefinition();
+            set => _size = value ?? new UISizingDefinition();
         }
     }
     public enum EOrientation
@@ -106,7 +106,7 @@ namespace TheraEngine.Rendering.UI
                     continue;
 
                 float calc = 0.0f;
-                SizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
+                UISizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
                 if (def?.Value != null)
                 {
                     switch (def.Value.Mode)
@@ -159,7 +159,7 @@ namespace TheraEngine.Rendering.UI
                 if (!(comp is IUIComponent uiComp))
                     continue;
 
-                SizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
+                UISizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
                 if (def?.Value != null)
                 {
                     IUIBoundableComponent uibComp = uiComp as IUIBoundableComponent;
@@ -182,7 +182,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
-        private void GetItemRegion(ref BoundingRectangleF parentRegion, bool vertical, float maxExtent, ref float offset, SizingDefinition def, out float width, out float height, out float x, out float y)
+        private void GetItemRegion(ref BoundingRectangleF parentRegion, bool vertical, float maxExtent, ref float offset, UISizingDefinition def, out float width, out float height, out float x, out float y)
         {
             x = parentRegion.X;
             y = parentRegion.Y;

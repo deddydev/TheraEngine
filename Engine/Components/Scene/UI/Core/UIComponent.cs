@@ -192,7 +192,7 @@ namespace TheraEngine.Rendering.UI
             if (OwningUserInterface?.IsResizing ?? true)
                 return true;
 
-            InvalidateLayout();
+            //InvalidateLayout();
             return false;
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)

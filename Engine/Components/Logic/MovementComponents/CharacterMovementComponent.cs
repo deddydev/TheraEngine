@@ -281,7 +281,7 @@ namespace TheraEngine.Components.Logic.Movement
             bool walkSuccess = traceSuccess && IsSurfaceNormalWalkable(_closestTrace.HitNormalWorld);
             if (!walkSuccess)
             {
-                Engine.Out(traceSuccess ? "walk surface failed" : "walk trace failed");
+                //Engine.Out(traceSuccess ? "walk surface failed" : "walk trace failed");
 
                 CurrentMovementMode = EMovementMode.Falling;
                 return;

@@ -8,11 +8,11 @@ namespace TheraEngine.Rendering.UI
 {
     public class ListPlacementInfo : UIParentAttachmentInfo
     {
-        private SizingDefinition _size = new SizingDefinition();
-        public SizingDefinition Size
+        private UISizingDefinition _size = new UISizingDefinition();
+        public UISizingDefinition Size
         {
             get => _size;
-            set => _size = value ?? new SizingDefinition();
+            set => _size = value ?? new UISizingDefinition();
         }
     }
     public enum EOrientation
@@ -107,7 +107,7 @@ namespace TheraEngine.Rendering.UI
                     continue;
 
                 float calc = 0.0f;
-                SizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
+                UISizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
                 if (def?.Value != null)
                 {
                     switch (def.Value.Mode)

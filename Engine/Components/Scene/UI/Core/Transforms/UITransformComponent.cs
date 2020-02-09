@@ -60,7 +60,6 @@ namespace TheraEngine.Rendering.UI
             get => _translation;
             set
             {
-<<<<<<< HEAD
                 if (Set(ref _translation, value ?? new EventVec3(),
                     () => _translation.Changed -= UpdateMatrix,
                     () => _translation.Changed += UpdateMatrix,

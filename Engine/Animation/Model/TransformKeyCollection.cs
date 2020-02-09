@@ -19,6 +19,7 @@ namespace TheraEngine.Animation
         public float LengthInSeconds { get; private set; }
         public ETransformOrder TransformOrder { get; set; } = ETransformOrder.TRS;
         public ERotationOrder EulerOrder { get; set; } = ERotationOrder.RYP;
+        public bool UseQuaternionRotation { get; set; } = true;
 
         public PropAnimFloat TranslationX => _tracks[0];
         public PropAnimFloat TranslationY => _tracks[1];
@@ -31,6 +32,8 @@ namespace TheraEngine.Animation
         public PropAnimFloat ScaleX => _tracks[6];
         public PropAnimFloat ScaleY => _tracks[7];
         public PropAnimFloat ScaleZ => _tracks[8];
+
+        public PropAnimQuat QuatRot { get; } = new PropAnimQuat();
 
         public PropAnimFloat this[int index]
         {

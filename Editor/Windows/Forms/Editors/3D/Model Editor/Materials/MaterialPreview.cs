@@ -138,7 +138,7 @@ namespace TheraEditor.Windows.Forms
         }
         
         private DirectionalLightComponent _light;
-        private MeshRenderable _spherePrim;
+        private DirectMesh _spherePrim;
         private TMaterial _material;
 
         public TMaterial Material

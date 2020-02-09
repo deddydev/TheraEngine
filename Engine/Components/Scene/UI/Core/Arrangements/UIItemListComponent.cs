@@ -159,7 +159,7 @@ namespace TheraEngine.Rendering.UI
                 if (!(ChildComponents[index] is IUIComponent uiComp))
                     continue;
 
-                SizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
+                UISizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
                 if (def?.Value is null)
                     continue;
 
@@ -193,7 +193,7 @@ namespace TheraEngine.Rendering.UI
             bool vertical,
             float maxExtent,
             ref float offset,
-            SizingDefinition def,
+            UISizingDefinition def,
             out float width,
             out float height,
             out float x,

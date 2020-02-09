@@ -13,8 +13,8 @@ namespace TheraEngine.ThirdParty.VMD
 
         private fixed byte _boneName[15];
         private uint _frameIndex;
-        private Vec3 _boneRelativePosition;
-        private Quat _boneRotation;
+        private Vec3 _relativeTranslation;
+        private Quat _rotation;
         private fixed byte _interpolation[64];
 
         public string BoneName
@@ -41,15 +41,15 @@ namespace TheraEngine.ThirdParty.VMD
             get => _frameIndex;
             set => _frameIndex = value;
         }
-        public Vec3 BoneRelativePosition
+        public Vec3 RelativeTranslation
         {
-            get => _boneRelativePosition;
-            set => _boneRelativePosition = value;
+            get => _relativeTranslation;
+            set => _relativeTranslation = value;
         }
-        public Quat BoneRotation
+        public Quat Rotation
         {
-            get => _boneRotation;
-            set => _boneRotation = value;
+            get => _rotation;
+            set => _rotation = value;
         }
 
         public unsafe byte* Interpolation { get { fixed (byte* ptr = _interpolation) return ptr; } }

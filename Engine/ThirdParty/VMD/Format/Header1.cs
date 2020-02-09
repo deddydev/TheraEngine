@@ -1,24 +1,26 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
 
 namespace TheraEngine.ThirdParty.VMD
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Header
+    public unsafe struct Header1
     {
-        public const int Size = 54;
-        public static readonly string MagicString = "Vocaloid Motion Data 0002";
+        public const int Size = 40;
+        public static readonly string MagicString = "Vocaloid Motion Data";
 
-        private fixed byte _magic[30]; //Vocaloid Motion Data 0002 + 5 null bytes
-        private fixed byte _modelName[20];
-        private uint _keyframeCount;
-        
-        public uint KeyframeCount
-        {
-            get => _keyframeCount;
-            set => _keyframeCount = value;
-        }
+        private fixed byte _magic[30];
+        private fixed byte _modelName[10];
+
+        public KeyframeList<BoneKeyframe>* BoneKeyframes => (KeyframeList<BoneKeyframe>*)(
+            Address + Size);
+        public KeyframeList<MorphKeyframe>* MorphKeyframes => (KeyframeList<MorphKeyframe>*)(
+            Address + Size + BoneKeyframes->GetSize());
+        public KeyframeList<CameraKeyframe>* CameraKeyframes => (KeyframeList<CameraKeyframe>*)(
+            Address + Size + BoneKeyframes->GetSize() + MorphKeyframes->GetSize());
+
         public string Magic
         {
             get

@@ -9,10 +9,10 @@ namespace TheraEngine.Rendering
     /// Wrapper class to render a <see cref="PrimitiveManager"/> in a <see cref="BaseScene"/>.
     /// Not attached to the component system.
     /// </summary>
-    public class MeshRenderable : I3DRenderable
+    public class DirectMesh : I3DRenderable
     {
-        public MeshRenderable() { }
-        public MeshRenderable(PrimitiveManager m)
+        public DirectMesh() { }
+        public DirectMesh(PrimitiveManager m)
         {
             Primitives = m;
             Transform = Matrix4.Identity;

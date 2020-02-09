@@ -31,13 +31,21 @@ namespace TheraEngine.Animation
             };
             return (await Collada.ImportAsync(path, o, progress, cancel))?.Models[0].Animation;
         }
+
+        /// <summary>
+        /// TODO: make mechanism to import multiple file types from one
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="progress"></param>
+        /// <param name="cancel"></param>
+        /// <returns></returns>
         [ThirdPartyLoader("vmd")]
         public static async Task<SkeletalAnimation> LoadVMDAsync(
             string path, IProgress<float> progress, CancellationToken cancel)
         {
             VMDImporter importer = new VMDImporter();
-            SkeletalAnimation anim = await importer.Import(path);
-            return anim;
+            var (SkeletonAnimation, _, _, _) = await Task.Run(() => importer.Import(path));
+            return SkeletonAnimation;
         }
 
         public SkeletalAnimation() 

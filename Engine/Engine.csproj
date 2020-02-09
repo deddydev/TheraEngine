@@ -784,7 +784,7 @@
     <Compile Include="Models\Materials\TMaterialBase.cs" />
     <Compile Include="Models\Meshes\BaseSubMesh.cs" />
     <Compile Include="Models\Meshes\LOD.cs" />
-    <Compile Include="Rendering\PrimitiveRenderWrapper.cs" />
+    <Compile Include="Rendering\DirectMesh.cs" />
     <Compile Include="Rendering\Renderer\Objects\FrameBuffers\MaterialFrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\Objects\FrameBuffers\PingPongFrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\Objects\FrameBuffers\CubeFrameBuffer.cs" />
@@ -1237,11 +1237,14 @@
     <Compile Include="ThirdParty\PMX\Format\Triangles.cs" />
     <Compile Include="ThirdParty\PMX\Format\Vertices.cs" />
     <Compile Include="ThirdParty\VisualStudioSolution.cs" />
+    <Compile Include="ThirdParty\VMD\Format\Header1.cs" />
+    <Compile Include="ThirdParty\VMD\Format\KeyframeList.cs" />
+    <Compile Include="ThirdParty\VMD\Format\LightKeyframe.cs" />
     <Compile Include="ThirdParty\VMD\Importer.cs" />
-    <Compile Include="ThirdParty\VMD\Format\Camera.cs" />
-    <Compile Include="ThirdParty\VMD\Format\Morph.cs" />
-    <Compile Include="ThirdParty\VMD\Format\Bone.cs" />
-    <Compile Include="ThirdParty\VMD\Format\Header.cs" />
+    <Compile Include="ThirdParty\VMD\Format\CameraKeyframe.cs" />
+    <Compile Include="ThirdParty\VMD\Format\MorphKeyframe.cs" />
+    <Compile Include="ThirdParty\VMD\Format\BoneKeyframe.cs" />
+    <Compile Include="ThirdParty\VMD\Format\Header2.cs" />
     <Compile Include="Worlds\AssetURL.cs" />
     <Compile Include="Worlds\EventDictionary.cs" />
     <Compile Include="Worlds\Maps\Map.cs" />

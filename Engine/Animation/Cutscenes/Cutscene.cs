@@ -39,7 +39,7 @@ namespace TheraEngine.Animation.Cutscenes
             SubScenes = new EventList<(float Second, Clip<Cutscene> Clip)>();
         }
 
-        private PerspCamKeyCollection _cameraTrack = new PerspCamKeyCollection();
+        private PerspectiveCameraKeyCollection _cameraTrack = new PerspectiveCameraKeyCollection();
         private EventList<(float Second, Clip<Cutscene> Clip)> _scenes;
         private EventDictionary<string, (float Second, Clip<BaseAnimation> Clip)> _animationTracks = new EventDictionary<string, (float Second, Clip<BaseAnimation> Clip)>();
 
@@ -65,10 +65,10 @@ namespace TheraEngine.Animation.Cutscenes
         public World TargetWorld { get; set; }
         
         [TSerialize]
-        public PerspCamKeyCollection CameraTrack
+        public PerspectiveCameraKeyCollection CameraTrack
         {
             get => _cameraTrack;
-            set => _cameraTrack = value ?? new PerspCamKeyCollection();
+            set => _cameraTrack = value ?? new PerspectiveCameraKeyCollection();
         }
         [TSerialize]
         public EventDictionary<string, (float Second, Clip<BaseAnimation> Clip)> AnimationTracks

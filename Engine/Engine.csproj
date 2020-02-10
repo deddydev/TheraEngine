@@ -509,7 +509,7 @@
     <Compile Include="Actors\IActor.cs" />
     <Compile Include="Actors\BaseActor.cs" />
     <Compile Include="Actors\Pawns\CutsceneCameraPawn.cs" />
-    <Compile Include="Animation\Camera\PerspCamKeyCollection.cs" />
+    <Compile Include="Animation\PerspectiveCameraKeyCollection.cs" />
     <Compile Include="Animation\Model\BoneAnimation.cs" />
     <Compile Include="Animation\Property\Core\AnimationMember.cs" />
     <Compile Include="Animation\Property\Core\AnimationTree.cs" />
@@ -641,6 +641,7 @@
     <Compile Include="Core\LocalizedString.cs" />
     <Compile Include="Core\MarshalSponsor.cs" />
     <Compile Include="Core\Maths\Half.cs" />
+    <Compile Include="Core\Maths\Transforms\Class\Rotation\EventQuat.cs" />
     <Compile Include="Core\Memory\Int24.cs" />
     <Compile Include="Core\PropertyBinding.cs" />
     <Compile Include="Core\PropertyChangedRouter.cs" />
@@ -858,7 +859,7 @@
     <Compile Include="ThirdParty\OBJ\TypeParsers\TypeParserBase.cs" />
     <Compile Include="ThirdParty\OBJ\TypeParsers\UseMaterialParser.cs" />
     <Compile Include="ThirdParty\OBJ\TypeParsers\VertexParser.cs" />
-    <Compile Include="Animation\Model\TransformKeyCollection.cs" />
+    <Compile Include="Animation\TransformKeyCollection.cs" />
     <Compile Include="Core\Maths\Interpolation.cs" />
     <Compile Include="Core\Reflection\Attributes\BrowsableIf.cs" />
     <Compile Include="Core\HelperMethods.cs" />

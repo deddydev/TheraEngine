@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components.Logic.Animation;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models;
 
@@ -70,9 +71,9 @@ namespace TheraEngine.Animation
         
         //TODO: pool bone frames
         public BoneFrame GetFrame()
-            => new BoneFrame(Name, _tracks.GetValues(), _tracks.EulerOrder);
+            => new BoneFrame(Name, _tracks);
         public BoneFrame GetFrame(float second)
-            => new BoneFrame(Name, _tracks.GetValues(second), _tracks.EulerOrder);
+            => new BoneFrame(Name, _tracks, second);
         
         //public void SetValue(Matrix4 transform, float frameIndex, PlanarInterpType planar, RadialInterpType radial)
         //{
@@ -95,25 +96,25 @@ namespace TheraEngine.Animation
         }
         public void UpdateState(ITransform frameState, ITransform bindState)
         {
-            GetTransform(bindState, out Vec3 translation, out Rotator rotation, out Vec3 scale);
+            GetTransform(bindState, out Vec3 translation, out Quat rotation, out Vec3 scale);
             frameState.SetAll(translation, rotation, scale);
         }
         public void UpdateState(ITransform frameState, ITransform bindState, float second)
         {
-            GetTransform(bindState, second, out Vec3 translation, out Rotator rotation, out Vec3 scale);
+            GetTransform(bindState, second, out Vec3 translation, out Quat rotation, out Vec3 scale);
             frameState.SetAll(translation, rotation, scale);
         }
 
         /// <summary>
         /// Retrieves the parts of the transform for this bone at the current frame second.
         /// </summary>
-        public unsafe void GetTransform(ITransform bindState, out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        public unsafe void GetTransform(ITransform bindState, out Vec3 translation, out Quat rotation, out Vec3 scale)
             => _tracks.GetTransform(bindState, out translation, out rotation, out scale);
         /// <summary>
         /// Retrieves the parts of the transform for this bone at the requested frame second.
         /// </summary>
-        public unsafe void GetTransform(ITransform bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
-            => _tracks.GetTransform(bindState, second, out translation, out rotation, out scale);
+        public unsafe void GetTransform(ITransform bindState, float second, out Vec3 translation, out Quat rotation, out Vec3 scale)
+            => _tracks.GetTransform(bindState, out translation, out rotation, out scale, second);
         public void UpdateStateBlended(ITransform frameState, ITransform bindState, BoneAnimation otherBoneAnim, float otherWeight, EAnimBlendType blendType)
             => UpdateStateBlended(frameState, bindState, otherBoneAnim, Parent.CurrentTime, otherBoneAnim.Parent.CurrentTime, otherWeight, blendType);
         public void UpdateStateBlended(
@@ -125,12 +126,15 @@ namespace TheraEngine.Animation
             float otherWeight,
             EAnimBlendType blendType)
         {
-            GetTransform(bindState, thisSecond, out Vec3 t1, out Rotator r1, out Vec3 s1);
-            otherBoneAnim.GetTransform(bindState, otherSecond, out Vec3 t2, out Rotator r2, out Vec3 s2);
+            GetTransform(bindState, thisSecond, out Vec3 t1, out Quat r1, out Vec3 s1);
+            otherBoneAnim.GetTransform(bindState, otherSecond, out Vec3 t2, out Quat r2, out Vec3 s2);
+
+            otherWeight = Interp.TimeModifier(otherWeight, blendType);
 
             Vec3 t = Vec3.Lerp(t1, t2, otherWeight);
-            Quat r = Quat.Slerp(r1.ToQuaternion(), r2.ToQuaternion(), otherWeight);
+            Quat r = Quat.Slerp(r1, r2, otherWeight);
             Vec3 s = Vec3.Lerp(s1, s2, otherWeight);
+
             frameState.SetAll(t, r, s);
         }
         public void UpdateSkeletonBlended(

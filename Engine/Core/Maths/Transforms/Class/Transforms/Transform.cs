@@ -22,19 +22,12 @@ namespace TheraEngine.Core.Maths.Transforms
         Matrix4 Matrix { get; set; }
         Matrix4 InverseMatrix { get; set; }
 
-        EventVec3 Translation { get; set; }
-        float Yaw { get; set; }
-        float Pitch { get; set; }
-        float Roll { get; set; }
-        EventVec3 Scale { get; set; }
         ETransformOrder TransformationOrder { get; set; }
-        ERotationOrder RotationOrder { get; set; }
-        Rotator Rotation { get; set; }
-        Quat Quaternion { get; set; }
-
+        EventVec3 Translation { get; set; }
+        EventQuat Rotation { get; set; }
+        EventVec3 Scale { get; set; }
+        
         void CreateTransform();
-
-        void SetAll(Vec3 translate, Rotator rotation, Vec3 scale);
         void SetAll(Vec3 translate, Quat rotation, Vec3 scale);
 
         void Lookat(Vec3 point);
@@ -59,13 +52,10 @@ namespace TheraEngine.Core.Maths.Transforms
     {
         public event MatrixChange MatrixChanged;
 
-        public static Transform GetIdentity(
-            ETransformOrder transformationOrder = ETransformOrder.TRS,
-            ERotationOrder rotationOrder = ERotationOrder.YPR)
+        public static Transform GetIdentity(ETransformOrder transformationOrder = ETransformOrder.TRS)
         {
             Transform identity = GetIdentity();
             identity._transformOrder = transformationOrder;
-            identity.RotationOrder = rotationOrder;
             return identity;
         }
         public static Transform GetIdentity() => new Transform(Vec3.Zero, Quat.Identity, Vec3.One);
@@ -74,8 +64,7 @@ namespace TheraEngine.Core.Maths.Transforms
             _translation = Vec3.Zero;
             _translation.Changed += CreateTransform;
 
-            _quaternion = Quat.Identity;
-            _rotation = new Rotator(ERotationOrder.YPR);
+            _rotation = Quat.Identity;
             _rotation.Changed += CreateTransform;
 
             _scale = Vec3.One;
@@ -87,38 +76,18 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         
         public Transform(
-            Vec3 translate, 
-            Rotator rotate,
+            Vec3 translation,
+            Quat rotation,
             Vec3 scale,
             ETransformOrder transformOrder = ETransformOrder.TRS)
         {
-            _translation = translate;
+            _translation = translation;
             _translation.Changed += CreateTransform;
 
             _scale = scale;
             _scale.Changed += CreateTransform;
 
-            _rotation = rotate;
-            _rotation.Changed += CreateTransform;
-            _quaternion = _rotation.ToQuaternion();
-
-            _transformOrder = transformOrder;
-            CreateTransform();
-        }
-        public Transform(
-            Vec3 translate,
-            Quat rotate,
-            Vec3 scale,
-            ETransformOrder transformOrder = ETransformOrder.TRS)
-        {
-            _translation = translate;
-            _translation.Changed += CreateTransform;
-
-            _scale = scale;
-            _scale.Changed += CreateTransform;
-
-            _quaternion = rotate;
-            _rotation = _quaternion.ToRotator();
+            _rotation = rotation;
 
             _transformOrder = transformOrder;
             CreateTransform();
@@ -136,26 +105,16 @@ namespace TheraEngine.Core.Maths.Transforms
                 _ => ETransformOrder.TRS,
             };
 
-        public void SetAll(Vec3 translate, Rotator rotation, Vec3 scale)
-        {
-            _translation.SetRawNoUpdate(translate);
-            _scale.SetRawNoUpdate(scale);
-            _rotation.SetRotationsNoUpdate(rotation);
-            _quaternion = _rotation.ToQuaternion();
-            CreateTransform();
-        }
         public void SetAll(Vec3 translate, Quat rotation, Vec3 scale)
         {
             _translation.SetRawNoUpdate(translate);
             _scale.SetRawNoUpdate(scale);
-            _quaternion = rotation;
-            _rotation.SetRotationsNoUpdate(_quaternion.ToRotator());
+            _rotation.SetRawNoUpdate(rotation);
             CreateTransform();
         }
 
-        private Quat _quaternion = Quat.Identity;
         [TSerialize("Rotation")]
-        private Rotator _rotation;
+        private EventQuat _rotation;
         [TSerialize("Translation")]
         private EventVec3 _translation;
         [TSerialize("Scale")]
@@ -176,10 +135,15 @@ namespace TheraEngine.Core.Maths.Transforms
 
         }
 
-        public Vec3 GetForwardVector() => _quaternion * Vec3.Forward;
-        public Vec3 GetUpVector() => _quaternion * Vec3.Up;
-        public Vec3 GetRightVector() => _quaternion * Vec3.Right;
-        public Matrix4 GetRotationMatrix() => _rotation.GetMatrix();
+        public Vec3 GetForwardVector()
+            => _rotation.Raw * Vec3.Forward;
+        public Vec3 GetUpVector()
+            => _rotation.Raw * Vec3.Up;
+        public Vec3 GetRightVector()
+            => _rotation.Raw * Vec3.Right;
+
+        public Matrix4 GetRotationMatrix()
+            => Matrix4.CreateFromQuaternion(_rotation.Raw);
 
         [Browsable(false)]
         public Matrix4 Matrix
@@ -211,8 +175,7 @@ namespace TheraEngine.Core.Maths.Transforms
             DeriveTRS(_transform, out Vec3 t, out Vec3 s, out Quat r);
             _translation.SetRawNoUpdate(t);
             _scale.SetRawNoUpdate(s);
-            _quaternion = r;
-            Rotation.SetRotationsNoUpdate(_quaternion.ToRotator());
+            _rotation.SetRawNoUpdate(r);
         }
 
         [Category("Transform")]
@@ -230,39 +193,39 @@ namespace TheraEngine.Core.Maths.Transforms
                 _translation.Changed += CreateTransform;
             }
         }
-        [Browsable(false)]
-        public float Yaw
-        {
-            get
-            {
-                if (_matrixChanged)
-                    MatrixUpdated();
-                return _rotation.Yaw;
-            }
-            set => _rotation.Yaw = value;
-        }
-        [Browsable(false)]
-        public float Pitch
-        {
-            get
-            {
-                if (_matrixChanged)
-                    MatrixUpdated();
-                return _rotation.Pitch;
-            }
-            set => _rotation.Pitch = value;
-        }
-        [Browsable(false)]
-        public float Roll
-        {
-            get
-            {
-                if (_matrixChanged)
-                    MatrixUpdated();
-                return _rotation.Roll;
-            }
-            set => _rotation.Roll = value;
-        }
+        //[Browsable(false)]
+        //public float Yaw
+        //{
+        //    get
+        //    {
+        //        if (_matrixChanged)
+        //            MatrixUpdated();
+        //        return _rotation.Yaw;
+        //    }
+        //    set => _rotation.Yaw = value;
+        //}
+        //[Browsable(false)]
+        //public float Pitch
+        //{
+        //    get
+        //    {
+        //        if (_matrixChanged)
+        //            MatrixUpdated();
+        //        return _rotation.Pitch;
+        //    }
+        //    set => _rotation.Pitch = value;
+        //}
+        //[Browsable(false)]
+        //public float Roll
+        //{
+        //    get
+        //    {
+        //        if (_matrixChanged)
+        //            MatrixUpdated();
+        //        return _rotation.Roll;
+        //    }
+        //    set => _rotation.Roll = value;
+        //}
         [Category("Transform")]
         public EventVec3 Scale
         {
@@ -288,14 +251,14 @@ namespace TheraEngine.Core.Maths.Transforms
                 CreateTransform();
             }
         }
+        //[Category("Transform")]
+        //public ERotationOrder RotationOrder
+        //{
+        //    get => _rotation.Order;
+        //    set => _rotation.Order = value;
+        //}
         [Category("Transform")]
-        public ERotationOrder RotationOrder
-        {
-            get => _rotation.Order;
-            set => _rotation.Order = value;
-        }
-        [Category("Transform")]
-        public Rotator Rotation
+        public EventQuat Rotation
         {
             get
             {
@@ -305,25 +268,25 @@ namespace TheraEngine.Core.Maths.Transforms
             }
             set
             {
-                _rotation = value ?? new Rotator();
+                _rotation = value ?? new EventQuat();
                 _rotation.Changed += CreateTransform;
             }
         }
-        [Browsable(false)]
-        public Quat Quaternion
-        {
-            get
-            {
-                if (_matrixChanged)
-                    MatrixUpdated();
-                return _quaternion;
-            }
-            set
-            {
-                _quaternion = value;
-                Rotation.SetRotations(_quaternion.ToRotator());
-            }
-        }
+        //[Browsable(false)]
+        //public Quat Quaternion
+        //{
+        //    get
+        //    {
+        //        if (_matrixChanged)
+        //            MatrixUpdated();
+        //        return _quaternion;
+        //    }
+        //    set
+        //    {
+        //        _quaternion = value;
+        //        Rotation.SetRotations(_quaternion.ToRotator());
+        //    }
+        //}
 
         //private void SetTranslate(Vec3 value)
         //{
@@ -367,9 +330,8 @@ namespace TheraEngine.Core.Maths.Transforms
             Matrix4 oldMatrix = _transform;
             Matrix4 oldInvMatrix = _inverseTransform;
 
-            _quaternion = _rotation.ToQuaternion();
-            _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation, _transformOrder);
-            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation, _transformOrder);
+            _transform = Matrix4.TransformMatrix(_scale, _rotation.Raw, _translation, _transformOrder);
+            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation.Raw, _translation, _transformOrder);
 
             MatrixChanged?.Invoke(this, oldMatrix, oldInvMatrix);
         }
@@ -522,12 +484,10 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         public static unsafe Transform DeriveTRS(Matrix4 m)
         {
-            Transform state = new Transform()
-            {
-                _translation = m.Row3.Xyz,
-                _scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length),
-                Quaternion = m.ExtractRotation(true)
-            };
+            Transform state = new Transform();
+            state.Translation.Raw = m.Row3.Xyz;
+            state.Scale.Raw = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
+            state.Rotation.Raw = m.ExtractRotation(true);
 
             //float x, y, z, c;
             //float* p = m.Data;
@@ -565,14 +525,14 @@ namespace TheraEngine.Core.Maths.Transforms
 
             //state._rotation = new Rotator(CustomMath.RadToDeg(new Vec3(x, y, z)), Rotator.Order.YPR);
 
-            if (state._rotation.Pitch == float.NaN ||
-                state._rotation.Yaw == float.NaN ||
-                state._rotation.Roll == float.NaN)
-                throw new Exception("Something went wrong when deriving rotation values.");
+            //if (state._rotation.Pitch == float.NaN ||
+            //    state._rotation.Yaw == float.NaN ||
+            //    state._rotation.Roll == float.NaN)
+            //    throw new Exception("Something went wrong when deriving rotation values.");
 
-            state._translation.Raw.Round(5);
-            state._scale.Raw.Round(5);
-            state._rotation.Round(5);
+            //state._translation.Raw.Round(5);
+            //state._scale.Raw.Round(5);
+            //state._rotation.Round(5);
             state.CreateTransform();
             return state;
         }
@@ -659,6 +619,6 @@ namespace TheraEngine.Core.Maths.Transforms
         //#endregion
 
         public Transform HardCopy()
-            => new Transform(Translation, Rotation, Scale, TransformationOrder);
+            => new Transform(Translation.Raw, Rotation.Raw, Scale.Raw, TransformationOrder);
     }
 }

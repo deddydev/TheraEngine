@@ -10,7 +10,7 @@ namespace TheraEngine.ThirdParty.VMD
         public const int Size = 23;
         
         private uint _frameIndex;
-        private float _length;
+        private float _zoomDistance;
         private Vec3 _position;
         private Vec3 _rotation;
         private fixed byte _interpolation[24];
@@ -24,8 +24,8 @@ namespace TheraEngine.ThirdParty.VMD
         }
         public float Length
         {
-            get => _length;
-            set => _length = value;
+            get => _zoomDistance;
+            set => _zoomDistance = value;
         }
         public Vec3 Position
         {

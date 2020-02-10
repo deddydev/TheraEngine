@@ -1,9 +1,12 @@
 ﻿using Extensions;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using TheraEngine;
 using TheraEngine.Core;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Memory;
+using TheraEngine.Rendering.Models;
 using static System.Math;
 using static System.TMath;
 
@@ -11,7 +14,7 @@ namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct Quat : IEquatable<Quat>, ISerializableString
+    public unsafe struct Quat : IEquatable<Quat>, IUniformable4Float, IBufferable, ISerializableString
     {
         public static readonly Quat Identity = new Quat(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -41,7 +44,21 @@ namespace System
 
         public static implicit operator Quat(Vec4 v) => new Quat(v);
 
-        public float* Data { get { fixed (void* p = &this) return (float*)p; } }
+        [Browsable(false)]
+        public float* Data => (float*)Address;
+        [Browsable(false)]
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+
+        [Browsable(false)]
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Float;
+        [Browsable(false)]
+        public int ComponentCount => 4;
+        [Browsable(false)]
+        bool IBufferable.Normalize => false;
+
+        public void Write(VoidPtr address) { *(Quat*)address = this; }
+        public void Read(VoidPtr address) { this = *(Quat*)address; }
+
         public Vec3 Xyz
         {
             get => new Vec3(X, Y, Z);
@@ -345,16 +362,16 @@ namespace System
             Quat p = FromAxisAngleDeg(Vec3.UnitX, pitch);
             Quat y = FromAxisAngleDeg(Vec3.UnitY, yaw);
             Quat r = FromAxisAngleDeg(Vec3.UnitZ, roll);
-            switch (order)
+            return order switch
             {
-                case ERotationOrder.RYP: return r * y * p;
-                case ERotationOrder.YRP: return y * r * p;
-                case ERotationOrder.PRY: return p * r * y;
-                case ERotationOrder.RPY: return r * p * y;
-                case ERotationOrder.YPR: return y * p * r;
-                case ERotationOrder.PYR: return p * y * r;
-            }
-            return Identity;
+                ERotationOrder.RYP => r * y * p,
+                ERotationOrder.YRP => y * r * p,
+                ERotationOrder.PRY => p * r * y,
+                ERotationOrder.RPY => r * p * y,
+                ERotationOrder.YPR => y * p * r,
+                ERotationOrder.PYR => p * y * r,
+                _ => Identity,
+            };
         }
         public static Quat FromMatrix(Matrix4 matrix)
         {

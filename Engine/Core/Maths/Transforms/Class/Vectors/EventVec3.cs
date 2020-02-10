@@ -502,6 +502,7 @@ namespace TheraEngine.Core.Maths.Transforms
 
             return result;
         }
+
         /// <summary>
         /// Projects a vector from screen space into object space.
         /// </summary>
@@ -519,39 +520,26 @@ namespace TheraEngine.Core.Maths.Transforms
         /// Project(vector, -1, -1, 2, 2, -1, 1, inverseWorldViewProjection).
         /// </remarks>
         public Vec3 Unproject(float x, float y, float width, float height, float minZ, float maxZ, Matrix4 inverseWorldViewProjection)
-        {
-            return inverseWorldViewProjection * new Vec3(
+            => inverseWorldViewProjection * new Vec3(
                 (X - x) / width * 2.0f - 1.0f,
                 (Y - y) / height * 2.0f - 1.0f,
                 Z / (maxZ - minZ) * 2.0f - 1.0f);
-        }
+
         /// <summary>
         /// Returns a YPR rotator with azimuth as yaw, elevation as pitch, and 0 as roll.
         /// </summary>
-        public Rotator LookatAngles()
-        {
-            return _data.LookatAngles();
-        }
-        
-        public Vec3 GetSafeNormal(float tolerance = 1.0e-8f)
-        {
-            return _data.GetSafeNormal(tolerance);
-        }
+        public Rotator LookatAngles() => _data.LookatAngles();
+
+        public Vec3 GetSafeNormal(float tolerance = 1.0e-8f) => _data.GetSafeNormal(tolerance);
 
         /// <summary>
         /// Returns the portion of this Vec3 that is parallel to the given normal.
         /// </summary>
-        public Vec3 ParallelComponent(Vec3 normal)
-        {
-            return _data.ParallelComponent(normal);
-        }
+        public Vec3 ParallelComponent(Vec3 normal) => _data.ParallelComponent(normal);
         /// <summary>
         /// Returns the portion of this Vec3 that is perpendicular to the given normal.
         /// </summary>
-        public Vec3 PerpendicularComponent(Vec3 normal)
-        {
-            return _data.PerpendicularComponent(normal);
-        }
+        public Vec3 PerpendicularComponent(Vec3 normal) => _data.PerpendicularComponent(normal);
 
         //public EventVec3 GetAngles() { return new EventVec3(AngleX(), AngleY(), AngleZ()); }
         //public EventVec3 GetAngles(EventVec3 origin) { return (this - origin).GetAngles(); }

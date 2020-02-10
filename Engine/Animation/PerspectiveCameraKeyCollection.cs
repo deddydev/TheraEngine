@@ -12,9 +12,9 @@ namespace TheraEngine.Animation
     [Serializable]
     [TFileExt("pkc", ManualXmlConfigSerialize = true)]
     [TFileDef("Perspective Camera Key Collection")]
-    public class PerspCamKeyCollection : TFileObject
+    public class PerspectiveCameraKeyCollection : TFileObject
     {
-        public PerspCamKeyCollection() { }
+        public PerspectiveCameraKeyCollection() { }
         
         public float LengthInSeconds { get; private set; }
         public ERotationOrder EulerOrder { get; set; }

@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using System;
 using System.Drawing;
+using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
 using static System.Math;
@@ -538,6 +539,11 @@ namespace TheraEngine.Core.Maths
         /// </summary>
         public static float CosineTimeModifier(float time)
             => (1.0f - (float)Cos(time * PIf)) * 0.5f;
+        public static float TimeModifier(float time, EAnimBlendType type)
+        {
+            //TODO
+            return time;
+        }
 
         #endregion
 

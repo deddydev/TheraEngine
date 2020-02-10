@@ -12,73 +12,48 @@ namespace TheraEngine.Animation
 {
     [TFileExt("tkc", ManualXmlConfigSerialize = true)]
     [TFileDef("Transform Key Collection")]
-    public class TransformKeyCollection : TFileObject, IEnumerable<PropAnimFloat>
+    public class TransformKeyCollection : TFileObject
     {
         public TransformKeyCollection() { }
 
         public float LengthInSeconds { get; private set; }
         public ETransformOrder TransformOrder { get; set; } = ETransformOrder.TRS;
-        public ERotationOrder EulerOrder { get; set; } = ERotationOrder.RYP;
-        public bool UseQuaternionRotation { get; set; } = true;
+        public bool RelativeTranslation { get; set; }
 
-        public PropAnimFloat TranslationX => _tracks[0];
-        public PropAnimFloat TranslationY => _tracks[1];
-        public PropAnimFloat TranslationZ => _tracks[2];
-        
-        public PropAnimFloat RotationX => _tracks[3];
-        public PropAnimFloat RotationY => _tracks[4];
-        public PropAnimFloat RotationZ => _tracks[5];
-        
-        public PropAnimFloat ScaleX => _tracks[6];
-        public PropAnimFloat ScaleY => _tracks[7];
-        public PropAnimFloat ScaleZ => _tracks[8];
-
-        public PropAnimQuat QuatRot { get; } = new PropAnimQuat();
-
-        public PropAnimFloat this[int index]
-        {
-            get => _tracks.IndexInRange(index) ? _tracks[index] : null;
-            set
-            {
-                if (_tracks.IndexInRange(index))
-                    _tracks[index] = value;
-            }
-        }
-
-        private PropAnimFloat[] _tracks = new PropAnimFloat[]
-        {
-            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //tx
-            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //ty
-            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //tz
-            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //rx
-            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //ry
-            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //rz
-            new PropAnimFloat() { DefaultValue = 1.0f, TickSelf = false },  //sx
-            new PropAnimFloat() { DefaultValue = 1.0f, TickSelf = false },  //sy
-            new PropAnimFloat() { DefaultValue = 1.0f, TickSelf = false },  //sz
-        };
+        public PropAnimVec3 Translation { get; } 
+            = new PropAnimVec3() { DefaultValue = Vec3.Zero, TickSelf = false };
+        public PropAnimVec3 Scale { get; }
+            = new PropAnimVec3() { DefaultValue = Vec3.One, TickSelf = false };
+        public PropAnimQuat Rotation { get; }
+            = new PropAnimQuat() { DefaultValue = Quat.Identity, TickSelf = false };
 
         public void SetLength(float seconds, bool stretchAnimation, bool notifyChanged = true)
         {
             LengthInSeconds = seconds;
-            foreach (var track in _tracks)
-                track.SetLength(seconds, stretchAnimation, notifyChanged);
+            Translation.SetLength(seconds, stretchAnimation, notifyChanged);
+            Scale.SetLength(seconds, stretchAnimation, notifyChanged);
+            Rotation.SetLength(seconds, stretchAnimation, notifyChanged);
         }
 
-        public void Progress(float delta) => _tracks.ForEach(x => x.Progress(delta));
+        public void Progress(float delta)
+        {
+            Translation.Progress(delta);
+            Scale.Progress(delta);
+            Rotation.Progress(delta);
+        }
 
         /// <summary>
         /// Retrieves the parts of the transform at the requested frame second.
         /// Uses the defaultTransform for tracks that have no keys.
         /// </summary>
         public unsafe void GetTransform(ITransform bindState,
-            out Vec3 translation, out Rotator rotation, out Vec3 scale)
+            out Vec3 translation, out Quat rotation, out Vec3 scale)
         {
-            Vec3 t, r, s;
-            Vec3
-                bt = bindState.Translation.Raw,
-                br = bindState.Rotation.PitchYawRoll,
-                bs = bindState.Scale.Raw;
+            Vec3 t, s;
+            Vec3 bt = bindState.Translation.Raw;
+            Vec3 bs = bindState.Scale.Raw;
+            Quat r = bindState.Quaternion;
+
             float* pt = (float*)&t;
             float* pr = (float*)&r;
             float* ps = (float*)&s;

@@ -54,13 +54,9 @@ namespace TheraEngine.Animation
         public PropAnimFloat TranslationY => _tracks.TranslationY;
         [Category("Bone Animation")]
         public PropAnimFloat TranslationZ => _tracks.TranslationZ;
-
+        
         [Category("Bone Animation")]
-        public PropAnimFloat RotationX => _tracks.RotationX;
-        [Category("Bone Animation")]
-        public PropAnimFloat RotationY => _tracks.RotationY;
-        [Category("Bone Animation")]
-        public PropAnimFloat RotationZ => _tracks.RotationZ;
+        public PropAnimQuat Rotation => _tracks.Rotation;
 
         [Category("Bone Animation")]
         public PropAnimFloat ScaleX => _tracks.ScaleX;

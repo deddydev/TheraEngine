@@ -71,13 +71,23 @@ namespace TheraEngine.Rendering.UI
     {
         public UIBoundableComponent() : base() 
         {
-            //Set properties to register changed events
-            OriginPercent = new EventVec2();
-            Size = new EventVec2();
-            MinSize = null;
-            MaxSize = null;
-            Margins = new EventVec4();
-            Padding = new EventVec4();
+            _originPercent = EventVec2.Zero;
+            _originPercent.Changed += OriginPercentChanged;
+
+            _size = EventVec2.Zero;
+            _size.Changed += SizeChanged;
+
+            _minSize = EventVec2.Zero;
+            _minSize.Changed += MinSizeChanged;
+
+            _maxSize = EventVec2.Zero;
+            _maxSize.Changed += MinSizeChanged;
+
+            _margins = EventVec4.Zero;
+            _margins.Changed += InvalidateLayout;
+
+            _padding = EventVec4.Zero;
+            _padding.Changed += InvalidateLayout;
         }
 
         private EventVec2 _originPercent = EventVec2.Zero;

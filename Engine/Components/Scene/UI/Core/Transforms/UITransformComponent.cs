@@ -17,8 +17,11 @@ namespace TheraEngine.Rendering.UI
     {
         public UITransformComponent() : base()
         {
-            Translation = EventVec3.Zero;
-            Scale = EventVec3.One;
+            _translation = EventVec3.Zero;
+            _translation.Changed += UpdateMatrix;
+
+            _scale = EventVec3.One;
+            _scale.Changed += UpdateMatrix;
         }
 
         protected EventVec3 _translation;

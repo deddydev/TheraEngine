@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TheraEngine;
 using TheraEngine.Animation;
 using TheraEngine.ComponentModel;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
@@ -66,8 +67,8 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _renderAnimPosition = value;
-                _xCoord.RenderInfo.Visible = _renderAnimPosition;
-                _yCoord.RenderInfo.Visible = _renderAnimPosition;
+                _xCoord.RenderInfo.IsVisible = _renderAnimPosition;
+                _yCoord.RenderInfo.IsVisible = _renderAnimPosition;
             }
         }
         

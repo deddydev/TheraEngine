@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using TheraEngine.ComponentModel;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
@@ -263,8 +264,8 @@ namespace TheraEngine.Components.Scene.Lights
         protected override string PreviewIconName => "SpotLightIcon.png";
         protected internal override void OnSelectedChanged(bool selected)
         {
-            OuterCone.RenderInfo.Visible = selected;
-            InnerCone.RenderInfo.Visible = selected;
+            OuterCone.RenderInfo.IsVisible = selected;
+            InnerCone.RenderInfo.IsVisible = selected;
             base.OnSelectedChanged(selected);
         }
 #endif

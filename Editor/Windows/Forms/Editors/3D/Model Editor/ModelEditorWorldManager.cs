@@ -95,13 +95,13 @@ namespace TheraEditor.Windows.Forms
                         if (skelComp.Meshes != null)
                             foreach (var mesh in skelComp.Meshes)
                                 if ((r3D = mesh?.RenderInfo?.CullingVolume?.RenderInfo) != null)
-                                    r3D.Visible = _viewCullingVolumes;
+                                    r3D.IsVisible = _viewCullingVolumes;
                         break;
                     case StaticMeshComponent staticComp:
                         if (staticComp.Meshes != null)
                             foreach (var mesh in staticComp.Meshes)
                                 if ((r3D = mesh?.RenderInfo?.CullingVolume?.RenderInfo) != null)
-                                    r3D.Visible = _viewCullingVolumes;
+                                    r3D.IsVisible = _viewCullingVolumes;
                         break;
                 }
             }
@@ -115,7 +115,7 @@ namespace TheraEditor.Windows.Forms
                 _viewBones = value;
 
                 if (TargetActor?.RootComponent is SkeletalMeshComponent skel)
-                    skel.TargetSkeleton.RenderInfo.Visible = _viewBones;
+                    skel.TargetSkeleton.RenderInfo.IsVisible = _viewBones;
             }
         }
 

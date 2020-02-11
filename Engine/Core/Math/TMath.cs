@@ -1,14 +1,15 @@
 ﻿using Extensions;
+using System;
 using System.Linq;
 using System.Numerics;
 using TheraEngine.Core.Maths.Transforms;
 using static System.Math;
 
-namespace System
+namespace TheraEngine.Core.Maths
 {
     /// <summary>
     /// Thera Math: contains static methods and constants not included in the built-in System.Math class.<para></para>
-    /// Easily call methods in this class by implementing 'using static System.TMath;' at the top of code files.
+    /// Easily call methods in this class by implementing 'using static TheraEngine.Core.Maths.TMath;' at the top of code files.
     /// </summary>
     public unsafe static class TMath
     {
@@ -132,15 +133,15 @@ namespace System
             return x;
         }
 
-        public static void CartesianToPolarDeg(Vec2 coordinate, out float angle, out float radius)
+        public static void CartesianToPolarDeg(Vec2 vector, out float angle, out float radius)
         {
-            radius = coordinate.Length;
-            angle = Atan2df(coordinate.Y, coordinate.X);
+            radius = vector.Length;
+            angle = Atan2df(vector.Y, vector.X);
         }
-        public static void CartesianToPolarRad(Vec2 coordinate, out float angle, out float radius)
+        public static void CartesianToPolarRad(Vec2 vector, out float angle, out float radius)
         {
-            radius = coordinate.Length;
-            angle = Atan2f(coordinate.Y, coordinate.X);
+            radius = vector.Length;
+            angle = Atan2f(vector.Y, vector.X);
         }
         public static Vec2 PolarToCartesianDeg(float degree, float radius)
         {
@@ -209,30 +210,133 @@ namespace System
             cos = Cosdf(deg);
         }
 
+        /// <summary>
+        /// Cosine as float, from radians
+        /// </summary>
+        /// <param name="rad"></param>
+        /// <returns></returns>
         public static float Cosf(float rad) => (float)Cos(rad);
+        /// <summary>
+        /// Sine as float, from radians
+        /// </summary>
+        /// <param name="rad"></param>
+        /// <returns></returns>
         public static float Sinf(float rad) => (float)Sin(rad);
+        /// <summary>
+        /// Tangent as float, from radians
+        /// </summary>
+        /// <param name="rad"></param>
+        /// <returns></returns>
         public static float Tanf(float rad) => (float)Tan(rad);
 
+        /// <summary>
+        /// Cosine from degrees, as float
+        /// </summary>
+        /// <param name="deg"></param>
+        /// <returns></returns>
         public static float Cosdf(float deg) => Cosf(deg * DegToRadMultf);
+        /// <summary>
+        /// Sine from degrees, as float
+        /// </summary>
+        /// <param name="deg"></param>
+        /// <returns></returns>
         public static float Sindf(float deg) => Sinf(deg * DegToRadMultf);
+        /// <summary>
+        /// Tangent from degrees, as float
+        /// </summary>
+        /// <param name="deg"></param>
+        /// <returns></returns>
         public static float Tandf(float deg) => Tanf(deg * DegToRadMultf);
 
+        /// <summary>
+        /// Arc cosine, as float. Returns radians
+        /// </summary>
+        /// <param name="cos"></param>
+        /// <returns></returns>
         public static float Acosf(float cos) => (float)Acos(cos);
+        /// <summary>
+        /// Arc sine, as float. Returns radians
+        /// </summary>
+        /// <param name="sin"></param>
+        /// <returns></returns>
         public static float Asinf(float sin) => (float)Asin(sin);
+        /// <summary>
+        /// Arc tangent, as float. Returns radians
+        /// </summary>
+        /// <param name="tan"></param>
+        /// <returns></returns>
         public static float Atanf(float tan) => (float)Atan(tan);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tanY"></param>
+        /// <param name="tanX"></param>
+        /// <returns></returns>
         public static float Atan2f(float tanY, float tanX) => (float)Atan2(tanY, tanX);
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cos"></param>
+        /// <returns></returns>
         public static float Acosdf(float cos) => Acosf(cos) * RadToDegMultf;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sin"></param>
+        /// <returns></returns>
         public static float Asindf(float sin) => Asinf(sin) * RadToDegMultf;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tan"></param>
+        /// <returns></returns>
         public static float Atandf(float tan) => Atanf(tan) * RadToDegMultf;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tanY"></param>
+        /// <param name="tanX"></param>
+        /// <returns></returns>
         public static float Atan2df(float tanY, float tanX) => Atan2f(tanY, tanX) * RadToDegMultf;
         
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deg"></param>
+        /// <returns></returns>
         public static double Cosd(double deg) => Cos(deg * DegToRadMult);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deg"></param>
+        /// <returns></returns>
         public static double Sind(double deg) => Sin(deg * DegToRadMult);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deg"></param>
+        /// <returns></returns>
         public static double Tand(double deg) => Tan(deg * DegToRadMult);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="exponent"></param>
+        /// <returns></returns>
         public static float Powf(float value, float exponent) => (float)Pow(value, exponent);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static float Sigmoidf(float value) => 1.0f / (1.0f + Powf(Ef, -value));
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static double Sigmoid(double value) => 1.0 / (1.0 + Pow(E, -value));
         /// <summary>
         /// Finds the two values of x where the equation ax^2 + bx + c evaluates to 0.

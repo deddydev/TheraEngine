@@ -8,6 +8,7 @@ using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
@@ -188,20 +189,24 @@ namespace TheraEditor.Windows.Forms
 
                 if (adjustScale)
                 {
+                    Vec2 targetScale;
                     if (xScale < yScale)
                     {
-                        OriginTransformComponent.Scale.Raw = xScale;
-                        float remaining = (Bounds.Y / OriginTransformComponent.Scale.X - yBound) * 0.5f;
+                        targetScale = xScale;
+                        float remaining = (Bounds.Y / targetScale.X - yBound) * 0.5f;
                         bottomLeft.Y += remaining;
-                        bottomLeft *= OriginTransformComponent.Scale.X;
+                        bottomLeft *= targetScale.X;
                     }
                     else
                     {
-                        OriginTransformComponent.Scale.Raw = yScale;
-                        float remaining = (Bounds.X / OriginTransformComponent.Scale.Y - xBound) * 0.5f;
+                        targetScale = yScale;
+                        float remaining = (Bounds.X / targetScale.Y - xBound) * 0.5f;
                         bottomLeft.X += remaining;
-                        bottomLeft *= OriginTransformComponent.Scale.Y;
+                        bottomLeft *= targetScale.Y;
                     }
+
+                    OriginTransformComponent.Scale.AnimatePropertyTo(nameof(EventVec3.Xy), 5.0f, targetScale);
+                    //OriginTransformComponent.Scale.Xy = targetScale;
                 }
                 else
                 {
@@ -214,7 +219,8 @@ namespace TheraEditor.Windows.Forms
                     bottomLeft *= OriginTransformComponent.Scale.Xy;
                 }
 
-                OriginTransformComponent.Translation.Raw = bottomLeft;
+                OriginTransformComponent.Translation.AnimatePropertyTo(nameof(EventVec3.Xy), 5.0f, bottomLeft);
+                //OriginTransformComponent.Translation.Xy = bottomLeft;
             }
             else
             {
@@ -414,13 +420,13 @@ namespace TheraEditor.Windows.Forms
                                 x = (maxView - width) / OriginTransformComponent.Scale.X;
                             comp.Translation.Xy = new Vec2(x, pos);
                         }
-                        comp.RenderInfo.Visible = true;
+                        comp.RenderInfo.IsVisible = true;
                     }
                     else
                     {
                         //Not visible, but exists in cache? Hide it
                         if (textCache.TryGetValue(key, out var value))
-                            value.Item1.RenderInfo.Visible = false;
+                            value.Item1.RenderInfo.IsVisible = false;
                         continue;
                     }
                 }

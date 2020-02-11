@@ -1,16 +1,15 @@
-﻿using TheraEngine;
-using TheraEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
-using static System.TMath;
+using static TheraEngine.Core.Maths.TMath;
 using static System.Math;
 using System.ComponentModel;
 using System.Globalization;
 using TheraEngine.Core.Memory;
-using TheraEngine.Core.Maths.Transforms;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Maths.Transforms
 {
     /// <summary>
     /// A struct containing 2 float values.

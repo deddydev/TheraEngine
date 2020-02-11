@@ -174,7 +174,7 @@ namespace TheraEngine.Components.Scene.Lights
         protected override string PreviewIconName => "PointLightIcon.png";
         protected internal override void OnSelectedChanged(bool selected)
         {
-            ShadowCamera.RenderInfo.Visible = selected;
+            ShadowCamera.RenderInfo.IsVisible = selected;
         }
 #endif
     }

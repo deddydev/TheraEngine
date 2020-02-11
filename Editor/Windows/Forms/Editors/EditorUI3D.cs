@@ -11,6 +11,7 @@ using TheraEngine.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Editor;
@@ -98,14 +99,14 @@ namespace TheraEditor.Windows.Forms
                 if (value is null && HighlightedComponent != null)
                 {
                     if (TransformTool3D.Instance is null ||  HighlightedComponent != TransformTool3D.Instance.RootComponent)
-                        _highlightPoint.RenderInfo.Visible = false;
+                        _highlightPoint.RenderInfo.IsVisible = false;
                     //BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
                     //p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Default));
                 }
                 else if (value != null && HighlightedComponent is null)
                 {
                     if (TransformTool3D.Instance is null || value != TransformTool3D.Instance.RootComponent)
-                        _highlightPoint.RenderInfo.Visible = true;
+                        _highlightPoint.RenderInfo.IsVisible = true;
                     //BaseRenderPanel p = Engine.Instance.FocusedPanel?.Control;
                     //p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Hand));
                 }
@@ -488,7 +489,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (IsMouseOutOfBounds)
             {
-                _highlightPoint.RenderInfo.Visible = HighlightedComponent != null;
+                _highlightPoint.RenderInfo.IsVisible = HighlightedComponent != null;
                 return;
             }
 
@@ -584,7 +585,7 @@ namespace TheraEditor.Windows.Forms
                 out _hitDistance);
 
             bool hasHit = comp != null;
-            _highlightPoint.RenderInfo.Visible = hasHit;
+            _highlightPoint.RenderInfo.IsVisible = hasHit;
 
             if (hasHit)
             {
@@ -667,7 +668,7 @@ namespace TheraEditor.Windows.Forms
                 DragComponent = null;
             }
 
-            _highlightPoint.RenderInfo.Visible = HighlightedComponent != null && !IsMouseOutOfBounds;
+            _highlightPoint.RenderInfo.IsVisible = HighlightedComponent != null && !IsMouseOutOfBounds;
         }
         public ISceneComponent SelectedComponent { get; private set; }
 
@@ -721,7 +722,7 @@ namespace TheraEditor.Windows.Forms
                 if (OwningWorld is null)
                     return;
 
-                _highlightPoint.RenderInfo.Visible = false;
+                _highlightPoint.RenderInfo.IsVisible = false;
                 if (((TheraEngine.Components.IComponent)SelectedComponent).OwningActor is TransformTool3D tool)
                 {
 

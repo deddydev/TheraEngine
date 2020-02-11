@@ -65,15 +65,15 @@ namespace TheraEngine.Rendering
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        public override bool Visible
+        public override bool IsVisible
         {
-            get => Scene != null && base.Visible;
+            get => Scene != null && base.IsVisible;
             set
             {
-                if (base.Visible == value)
+                if (base.IsVisible == value)
                     return;
 
-                base.Visible = value;
+                base.IsVisible = value;
 
                 if (Scene is null)
                     return;
@@ -120,7 +120,7 @@ namespace TheraEngine.Rendering
                 return;
 
             Scene = null;
-            Visible = false;
+            IsVisible = false;
 
             Scene = scene;
             Owner = r3d;
@@ -130,7 +130,7 @@ namespace TheraEngine.Rendering
             if (VisibleInEditorOnly)
                 visible = visible && Engine.EditorState.InEditMode;
 #endif
-            Visible = visible;
+            IsVisible = visible;
 
             CullingVolume?.RenderInfo?.LinkScene(CullingVolume, scene);
         }
@@ -162,7 +162,7 @@ namespace TheraEngine.Rendering
             if (!editMode && VisibleInEditorOnly)
                 return false;
 #endif
-            return Visible &&
+            return IsVisible &&
             (!shadowPass || CastsShadows) &&
             (CullingVolume == null || cullingVolume.Contains(CullingVolume) != EContainment.Disjoint);
         }

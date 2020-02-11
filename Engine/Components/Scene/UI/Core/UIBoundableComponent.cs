@@ -467,14 +467,23 @@ namespace TheraEngine.Rendering.UI
         }
         public IUIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis)
         {
-            foreach (ISceneComponent c in _children)
+            try
             {
-                if (c is IUIBoundableComponent uiComp)
+                _childLocker.EnterReadLock();
+
+                foreach (ISceneComponent c in _children)
                 {
-                    IUIComponent comp = uiComp.FindDeepestComponent(worldPoint, true);
-                    if (comp != null)
-                        return comp;
+                    if (c is IUIBoundableComponent uiComp)
+                    {
+                        IUIComponent comp = uiComp.FindDeepestComponent(worldPoint, true);
+                        if (comp != null)
+                            return comp;
+                    }
                 }
+            }
+            finally
+            {
+                _childLocker.ExitReadLock();
             }
 
             if (includeThis && Contains(worldPoint))
@@ -490,9 +499,18 @@ namespace TheraEngine.Rendering.UI
         }
         public void FindAllIntersecting(Vec2 worldPoint, bool includeThis, List<IUIBoundableComponent> results)
         {
-            foreach (ISceneComponent c in _children)
-                if (c is IUIBoundableComponent uiComp)
-                    uiComp.FindAllIntersecting(worldPoint, true, results);
+            try
+            {
+                _childLocker.EnterReadLock();
+
+                foreach (ISceneComponent c in _children)
+                    if (c is IUIBoundableComponent uiComp)
+                        uiComp.FindAllIntersecting(worldPoint, true, results);
+            }
+            finally
+            {
+                _childLocker.ExitReadLock();
+            }
 
             if (includeThis && Contains(worldPoint))
                 results.Add(this);

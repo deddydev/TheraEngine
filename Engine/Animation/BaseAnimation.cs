@@ -53,7 +53,7 @@ namespace TheraEngine.Animation
         protected void OnTickSelfChanged() => TickSelfChanged?.Invoke(this);
 
         [TSerialize("TickGroup")]
-        protected ETickGroup _group = ETickGroup.PrePhysics;
+        protected ETickGroup _group = ETickGroup.DuringPhysics;
         [TSerialize("TickOrder")]
         protected ETickOrder _order = ETickOrder.Animation;
         [TSerialize("TickPausedBehavior")]

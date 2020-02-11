@@ -94,7 +94,7 @@ namespace TheraEngine.Components.Scene.Mesh
                     foreach (SkeletalRenderableMesh mesh in Meshes)
                     {
                         mesh.RenderInfo.UnlinkScene();
-                        mesh.RenderInfo.Visible = false;
+                        mesh.RenderInfo.IsVisible = false;
                     }
                     Meshes = null;
                 }
@@ -199,7 +199,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 foreach (SkeletalRenderableMesh m in Meshes)
                 {
                     m.RenderInfo.UnlinkScene();
-                    m.RenderInfo.Visible = false;
+                    m.RenderInfo.IsVisible = false;
                     m.Destroy();
                 }
             
@@ -362,7 +362,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 {
                     var cull = m?.RenderInfo?.CullingVolume;
                     if (cull != null)
-                        cull.RenderInfo.Visible = selected;
+                        cull.RenderInfo.IsVisible = selected;
                     
                     //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
                 }

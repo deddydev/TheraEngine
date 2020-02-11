@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
@@ -274,16 +275,16 @@ namespace TheraEngine.Actors.Types
 
                 for (int i = 0; i < 3; ++i)
                 {
-                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode != TransformType.Rotate;
-                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode != TransformType.Rotate;
-                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Translate;
-                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Translate;
-                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Scale;
-                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Rotate;
+                    RootComponent.Meshes[x++].RenderInfo.IsVisible = _mode != TransformType.Rotate;
+                    RootComponent.Meshes[x++].RenderInfo.IsVisible = _mode != TransformType.Rotate;
+                    RootComponent.Meshes[x++].RenderInfo.IsVisible = _mode == TransformType.Translate;
+                    RootComponent.Meshes[x++].RenderInfo.IsVisible = _mode == TransformType.Translate;
+                    RootComponent.Meshes[x++].RenderInfo.IsVisible = _mode == TransformType.Scale;
+                    RootComponent.Meshes[x++].RenderInfo.IsVisible = _mode == TransformType.Rotate;
                 }
-                RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Rotate;
-                RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Translate;
-                RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Rotate;
+                RootComponent.Meshes[x++].RenderInfo.IsVisible = _mode == TransformType.Rotate;
+                RootComponent.Meshes[x++].RenderInfo.IsVisible = _mode == TransformType.Translate;
+                RootComponent.Meshes[x++].RenderInfo.IsVisible = _mode == TransformType.Rotate;
 
                 GetDependentColors();
             }

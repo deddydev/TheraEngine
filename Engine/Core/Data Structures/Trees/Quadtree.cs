@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine;
+using TheraEngine.Core.Maths;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -387,7 +389,7 @@ namespace System
             {
                 //IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)
-                    if (_items[i] is I2DRenderable r && (!visibleOnly || r.RenderInfo.Visible))
+                    if (_items[i] is I2DRenderable r && (!visibleOnly || r.RenderInfo.IsVisible))
                         r.AddRenderables(passes, camera);
                 //IsLoopingItems = false;
 

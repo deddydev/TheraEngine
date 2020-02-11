@@ -4,11 +4,12 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using TheraEngine;
 using TheraEngine.Core;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
 using TheraEngine.Rendering.Models;
 using static System.Math;
-using static System.TMath;
+using static TheraEngine.Core.Maths.TMath;
 
 namespace System
 {

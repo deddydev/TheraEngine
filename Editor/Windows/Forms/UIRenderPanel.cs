@@ -3,6 +3,7 @@ using TheraEditor.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components.Scene;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.UI;

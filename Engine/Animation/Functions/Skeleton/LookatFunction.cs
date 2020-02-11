@@ -17,7 +17,7 @@ namespace TheraEngine.Animation
                 (arg2 is Matrix4 ? ((Matrix4)arg2).Translation : 
                 Vec3.Zero)));
             Vec3 sourcePoint = bone.WorldMatrix.Translation;
-            bone.FrameState.Rotation.SetRotations(Quat.LookAt(sourcePoint, destPoint, Vec3.TransformVector(Vec3.Forward, bone.Parent.WorldMatrix)).ToRotator());
+            bone.FrameState.Rotation.Raw = Quat.LookAt(sourcePoint, destPoint, Vec3.TransformVector(Vec3.Forward, bone.Parent.WorldMatrix));
         }
 
         protected override AnimFuncValueInput[] GetValueInputs()

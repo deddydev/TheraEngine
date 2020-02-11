@@ -121,7 +121,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 {
                     if (IsSpawned)
                         foreach (StaticRenderableMesh mesh in Meshes)
-                            mesh.RenderInfo.Visible = false;
+                            mesh.RenderInfo.IsVisible = false;
                     Meshes = null;
                 }
 
@@ -294,7 +294,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 {
                     var cull = m?.RenderInfo?.CullingVolume;
                     if (cull != null)
-                        cull.RenderInfo.Visible = selected;
+                        cull.RenderInfo.IsVisible = selected;
 
                     //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
                 }

@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering
     {
         int SceneID { get; set; }
         bool VisibleByDefault { get; set; }
-        bool Visible { get; set; }
+        bool IsVisible { get; set; }
 #if EDITOR
         bool VisibleInEditorOnly { get; set; }
         EEditorVisibility EditorVisibilityMode { get; set; }
@@ -33,7 +33,7 @@ namespace TheraEngine.Rendering
         [TSerialize]
         public virtual bool VisibleByDefault { get; set; } = true;
         [TSerialize(State = true, Config = false)]
-        public virtual bool Visible { get; set; } = false;
+        public virtual bool IsVisible { get; set; } = false;
 #if EDITOR
         [TSerialize]
         public virtual bool VisibleInEditorOnly { get; set; } = false;

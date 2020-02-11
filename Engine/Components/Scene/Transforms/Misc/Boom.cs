@@ -54,7 +54,7 @@ namespace TheraEngine.Components.Scene.Transforms
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
-            RenderInfo.Visible = selected;
+            RenderInfo.IsVisible = selected;
         }
 #endif
 

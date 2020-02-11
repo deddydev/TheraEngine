@@ -67,8 +67,12 @@ namespace TheraEngine.ThirdParty.VMD
             if (count == 0u)
                 return null;
 
-            var interpType = EVectorInterpType.CubicBezier;
+            var vecInterpType = EVectorInterpType.CubicBezier;
+            var rotInterpType = ERadialInterpType.CubicBezier;
+
+            //TODO: 60 or 30 fps?
             float hz = 1.0f / 60.0f;
+
             SkeletalAnimation anim = new SkeletalAnimation();
             for (uint i = 0; i < count; ++i)
             {
@@ -79,15 +83,14 @@ namespace TheraEngine.ThirdParty.VMD
                 float sec = index * hz;
                 byte* interp = kf.Interpolation;
                 string boneName = kf.BoneName;
+
                 BoneAnimation boneAnim = anim.FindOrCreateBoneAnimation(boneName, out bool found);
 
-                boneAnim.TranslationX.Keyframes.Add(new FloatKeyframe(sec, relPos.X, 0.0f, interpType));
-                boneAnim.TranslationY.Keyframes.Add(new FloatKeyframe(sec, relPos.Y, 0.0f, interpType));
-                boneAnim.TranslationZ.Keyframes.Add(new FloatKeyframe(sec, relPos.Z, 0.0f, interpType));
+                boneAnim.TranslationX.Keyframes.Add(new FloatKeyframe(sec, relPos.X, 0.0f, vecInterpType));
+                boneAnim.TranslationY.Keyframes.Add(new FloatKeyframe(sec, relPos.Y, 0.0f, vecInterpType));
+                boneAnim.TranslationZ.Keyframes.Add(new FloatKeyframe(sec, relPos.Z, 0.0f, vecInterpType));
 
-                boneAnim.RotationX.Keyframes.Add(new FloatKeyframe(sec, relPos.X, 0.0f, interpType));
-                boneAnim.RotationY.Keyframes.Add(new FloatKeyframe(sec, relPos.Y, 0.0f, interpType));
-                boneAnim.RotationZ.Keyframes.Add(new FloatKeyframe(sec, relPos.Z, 0.0f, interpType));
+                boneAnim.Rotation.Keyframes.Add(new QuatKeyframe(sec, rot, rot, rotInterpType));
             }
 
             return anim;

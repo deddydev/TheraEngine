@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using static System.Math;
-using static System.TMath;
+using static TheraEngine.Core.Maths.TMath;
 using TheraEngine;
 using TheraEngine.Core.Maths.Transforms;
 

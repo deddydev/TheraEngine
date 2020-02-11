@@ -8,6 +8,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Text

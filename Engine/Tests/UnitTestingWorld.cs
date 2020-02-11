@@ -15,6 +15,7 @@ using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Components.Scene.Volumes;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Shapes;

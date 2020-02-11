@@ -65,6 +65,8 @@ namespace TheraEngine.Animation
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
         public QuatKeyframe(int frameIndex, float FPS, Quat inoutValue, Quat inTangent, Quat outTangent, ERadialInterpType type)
             : this(frameIndex / FPS, inoutValue, inoutValue, inTangent, outTangent, type) { }
+        public QuatKeyframe(float second, Quat inoutValue, Quat inOutTangent, ERadialInterpType type)
+            : this(second, inoutValue, inoutValue, inOutTangent, inOutTangent, type) { }
         public QuatKeyframe(float second, Quat inoutValue, Quat inTangent, Quat outTangent, ERadialInterpType type)
             : this(second, inoutValue, inoutValue, inTangent, outTangent, type) { }
         public QuatKeyframe(float second, Quat inValue, Quat outValue, Quat inTangent, Quat outTangent, ERadialInterpType type) : base()

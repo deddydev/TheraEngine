@@ -9,7 +9,7 @@ using TheraEngine.Core.Memory;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using static System.Math;
-using static System.TMath;
+using static TheraEngine.Core.Maths.TMath;
 
 namespace TheraEngine.Core.Maths.Transforms
 {

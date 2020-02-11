@@ -13,6 +13,7 @@ using TheraEngine.Worlds;
 using Extensions;
 using static TheraEngine.Components.SceneComponent;
 using TheraEngine.ComponentModel;
+using System.Threading;
 
 namespace TheraEngine.Components
 {
@@ -123,6 +124,8 @@ namespace TheraEngine.Components
 
         public event Action<ISceneComponent> WorldTransformChanged;
 
+        protected ReaderWriterLockSlim _childLocker = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+
         protected bool _readingPhysicsTransform = false;
         /// <summary>
         /// This is the method that will be called immediately after any world transform change.
@@ -147,8 +150,19 @@ namespace TheraEngine.Components
                 r3d.RenderInfo?.OctreeNode?.ItemMoved(r3d);
 
             if (recalcChildWorldTransformsNow)
-                foreach (ISceneComponent c in _children)
-                    c?.RecalcWorldTransform();
+            {
+                try
+                {
+                    _childLocker.EnterReadLock();
+
+                    foreach (ISceneComponent c in _children)
+                        c?.RecalcWorldTransform();
+                }
+                finally
+                {
+                    _childLocker.ExitReadLock();
+                }
+            }
 
             WorldTransformChanged?.Invoke(this);
             SocketTransformChanged?.Invoke(this);
@@ -369,11 +383,23 @@ namespace TheraEngine.Components
             get => base.OwningActor;
             set
             {
+                if (base.OwningActor == value)
+                    return;
+
                 base.OwningActor = value;
 
-                foreach (IComponent c in _children)
-                    if (c != null)
-                        c.OwningActor = value;
+                try
+                {
+                    _childLocker.EnterReadLock();
+
+                    foreach (IComponent c in _children)
+                        if (c != null)
+                            c.OwningActor = value;
+                }
+                finally
+                {
+                    _childLocker.ExitReadLock();
+                }
             }
         }
 
@@ -435,25 +461,34 @@ namespace TheraEngine.Components
             get => _children;
             set
             {
-                if (_children != null)
+                try
                 {
-                    _children.Clear();
-                    _children.PostAdded -= OnChildComponentAdded;
-                    _children.PostAddedRange -= OnChildComponentsAdded;
-                    _children.PostInserted -= OnChildComponentInserted;
-                    _children.PostInsertedRange -= OnChildComponentsInserted;
-                    _children.PostRemoved -= OnChildComponentRemoved;
-                    _children.PostRemovedRange -= OnChildComponentsRemoved;
+                    _childLocker.EnterWriteLock();
+
+                    if (_children != null)
+                    {
+                        _children.Clear();
+                        _children.PostAdded -= OnChildComponentAdded;
+                        _children.PostAddedRange -= OnChildComponentsAdded;
+                        _children.PostInserted -= OnChildComponentInserted;
+                        _children.PostInsertedRange -= OnChildComponentsInserted;
+                        _children.PostRemoved -= OnChildComponentRemoved;
+                        _children.PostRemovedRange -= OnChildComponentsRemoved;
+                    }
+                    _children = value ?? new EventList<ISceneComponent>();
+                    if (_children != null)
+                    {
+                        _children.PostAdded += OnChildComponentAdded;
+                        _children.PostAddedRange += OnChildComponentsAdded;
+                        _children.PostInserted += OnChildComponentInserted;
+                        _children.PostInsertedRange += OnChildComponentsInserted;
+                        _children.PostRemoved += OnChildComponentRemoved;
+                        _children.PostRemovedRange += OnChildComponentsRemoved;
+                    }
                 }
-                if (value != null)
+                finally
                 {
-                    _children = value;
-                    _children.PostAdded += OnChildComponentAdded;
-                    _children.PostAddedRange += OnChildComponentsAdded;
-                    _children.PostInserted += OnChildComponentInserted;
-                    _children.PostInsertedRange += OnChildComponentsInserted;
-                    _children.PostRemoved += OnChildComponentRemoved;
-                    _children.PostRemovedRange += OnChildComponentsRemoved;
+                    _childLocker.ExitWriteLock();
                 }
             }
         }
@@ -629,8 +664,17 @@ namespace TheraEngine.Components
         {
             InformInterfacesDespawned();
 
-            foreach (ISceneComponent c in _children)
-                c.Despawn(OwningActor);
+            try
+            {
+                _childLocker.EnterReadLock();
+
+                foreach (ISceneComponent c in _children)
+                    c.Despawn(OwningActor);
+            }
+            finally
+            {
+                _childLocker.ExitReadLock();
+            }
         }
 
         /// <summary>
@@ -651,7 +695,7 @@ namespace TheraEngine.Components
                 r3D.RenderInfo.LinkScene(r3D, OwningScene3D);
 #if EDITOR
                 if (Engine.EditorState.InEditMode && r3D.RenderInfo.EditorVisibilityMode == EEditorVisibility.VisibleAlways)
-                    r3D.RenderInfo.Visible = true;
+                    r3D.RenderInfo.IsVisible = true;
 
                 if (this is IEditorPreviewIconRenderable icon && icon.PreviewIconRenderCommand is null)
                     icon.PreviewIconRenderCommand = CreatePreviewRenderCommand(icon.PreviewIconName);
@@ -717,8 +761,18 @@ namespace TheraEngine.Components
         {
             ActorSceneComponentCacheIndex = cache.Count;
             cache.Add(this);
-            foreach (ISceneComponent c in _children)
-                c?.GenerateChildCache(cache);
+
+            try
+            {
+                _childLocker.EnterReadLock();
+
+                foreach (ISceneComponent c in _children)
+                    c?.GenerateChildCache(cache);
+            }
+            finally
+            {
+                _childLocker.ExitReadLock();
+            }
         }
 
         #region Child Components
@@ -930,11 +984,11 @@ namespace TheraEngine.Components
         {
             if (this is I3DRenderable r3D &&
                 r3D.RenderInfo.EditorVisibilityMode == EEditorVisibility.VisibleOnlyWhenSelected)
-                r3D.RenderInfo.Visible = selected;
+                r3D.RenderInfo.IsVisible = selected;
 
             if (this is I2DRenderable r2D &&
                 r2D.RenderInfo.EditorVisibilityMode == EEditorVisibility.VisibleOnlyWhenSelected)
-                r2D.RenderInfo.Visible = selected;
+                r2D.RenderInfo.IsVisible = selected;
 
             //foreach (SceneComponent comp in ChildComponents)
             //    comp.OnSelectedChanged(selected);

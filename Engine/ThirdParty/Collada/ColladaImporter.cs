@@ -398,7 +398,7 @@ namespace TheraEngine.Rendering.Models
 
             public void Initialize(StaticModel model, VisualScene scene, bool addBinormals = true, bool addTangents = true)
             {
-                PrimitiveData data = null;
+                PrimitiveData data;
                 if (_rig != null)
                 {
                     if (_geoEntry != null)
@@ -596,77 +596,84 @@ namespace TheraEngine.Rendering.Models
                         var s = selector.ParseAs<Channel.ESelector>();
                         if (s == Channel.ESelector.ANGLE)
                         {
-                            if (target is Node.Rotate rotate)
+                            if (!(target is Node.Rotate rotate))
+                                Engine.LogWarning("ANGLE channel selector expects Node.Rotate element, but got " + target.GetType().GetFriendlyName());
+                            else
                             {
                                 Vec4 axisAngle = rotate.StringContent.Value;
-                                bool xAxis = axisAngle.X == 1.0f && axisAngle.Y == 0.0f && axisAngle.Z == 0.0f;
-                                bool yAxis = axisAngle.X == 0.0f && axisAngle.Y == 1.0f && axisAngle.Z == 0.0f;
-                                bool zAxis = axisAngle.X == 0.0f && axisAngle.Y == 0.0f && axisAngle.Z == 1.0f;
-                                if (!xAxis && !yAxis && !zAxis)
+                                //bool xAxis = axisAngle.X == 1.0f && axisAngle.Y == 0.0f && axisAngle.Z == 0.0f;
+                                //bool yAxis = axisAngle.X == 0.0f && axisAngle.Y == 1.0f && axisAngle.Z == 0.0f;
+                                //bool zAxis = axisAngle.X == 0.0f && axisAngle.Y == 0.0f && axisAngle.Z == 1.0f;
+                                //if (!xAxis && !yAxis && !zAxis)
+                                //{
+                                //    Engine.LogWarning("Animation rotation axes that are not the one of the three unit axes are not supported.");
+                                //}
+                                //else
+                                //{
+                                Node node = rotate.Parent;
+                                string targetName = node.Name ?? (node.ID ?? node.SID);
+                                if (node.Type == Node.EType.JOINT)
                                 {
-                                    Engine.LogWarning("Animation rotation axes that are not the one of the three unit axes are not supported.");
+                                    BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
+                                    if (!wasFound)
+                                    {
+
+                                    }
+
+                                    int x = 0;
+                                    for (int i = 0; i < inputData.Length; ++i, x += 2)
+                                    {
+                                        float second = inputData[i];
+                                        float value = outputData[i];
+                                        Quat rot = Quat.FromAxisAngleDeg(axisAngle.Xyz, value);
+                                        EInterpType type = interpTypeData[i].AsEnum<EInterpType>();
+                                        ERadialInterpType rType;
+
+                                        //TODO: parse tangents for slerp
+                                        Quat inTan = Quat.Identity, outTan = Quat.Identity;
+                                        switch (type)
+                                        {
+                                            case EInterpType.STEP:
+                                                rType = ERadialInterpType.Step;
+                                                break;
+                                            case EInterpType.LINEAR:
+                                                rType = ERadialInterpType.Linear;
+                                                break;
+                                            case EInterpType.HERMITE:
+                                                rType = ERadialInterpType.CubicBezier;
+                                                //inTan = inTanData[i];
+                                                //outTan = outTanData[i];
+                                                break;
+                                            case EInterpType.BEZIER:
+                                                rType = ERadialInterpType.CubicBezier;
+                                                //inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
+                                                //outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
+                                                //if (float.IsNaN(inTan) || float.IsInfinity(inTan))
+                                                //{
+                                                //    inTan = 0.0f;
+                                                //    //Engine.PrintLine("Invalid in-tangent calculated");
+                                                //}
+                                                //if (float.IsNaN(outTan) || float.IsInfinity(outTan))
+                                                //{
+                                                //    outTan = 0.0f;
+                                                //    //Engine.PrintLine("Invalid out-tangent calculated");
+                                                //}
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+
+                                        QuatKeyframe kf = new QuatKeyframe(second, rot, inTan, outTan, rType);
+                                        animationLength = Math.Max(animationLength, second);
+                                        bone.Rotation.Keyframes.Add(kf);
+                                    }
                                 }
                                 else
                                 {
-                                    Node node = rotate.Parent;
-                                    string targetName = node.Name ?? (node.ID ?? node.SID);
-                                    if (node.Type == Node.EType.JOINT)
-                                    {
-                                        BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
-                                        if (!wasFound)
-                                        {
-
-                                        }
-
-                                        int x = 0;
-                                        for (int i = 0; i < inputData.Length; ++i, x += 2)
-                                        {
-                                            float second = inputData[i];
-                                            float value = outputData[i];
-                                            EInterpType type = interpTypeData[i].AsEnum<EInterpType>();
-                                            EVectorInterpType pType = (EVectorInterpType)(int)type;
-
-                                            float inTan = 0.0f, outTan = 0.0f;
-                                            switch (pType)
-                                            {
-                                                case EVectorInterpType.CubicHermite:
-                                                    inTan = inTanData[i];
-                                                    outTan = outTanData[i];
-                                                    break;
-                                                case EVectorInterpType.CubicBezier:
-                                                    inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
-                                                    outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
-                                                    if (float.IsNaN(inTan) || float.IsInfinity(inTan))
-                                                    {
-                                                        inTan = 0.0f;
-                                                        //Engine.PrintLine("Invalid in-tangent calculated");
-                                                    }
-                                                    if (float.IsNaN(outTan) || float.IsInfinity(outTan))
-                                                    {
-                                                        outTan = 0.0f;
-                                                        //Engine.PrintLine("Invalid out-tangent calculated");
-                                                    }
-                                                    break;
-                                            }
-
-                                            FloatKeyframe kf = new FloatKeyframe(second, value, inTan, outTan, pType);
-                                            animationLength = Math.Max(animationLength, second);
-                                            if (xAxis)
-                                                bone.RotationX.Keyframes.Add(kf);
-                                            else if (yAxis)
-                                                bone.RotationY.Keyframes.Add(kf);
-                                            else
-                                                bone.RotationZ.Keyframes.Add(kf);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Engine.LogWarning("Non-joint axis-angle rotation animation not supported.");
-                                    }
+                                    Engine.LogWarning("Non-joint axis-angle rotation animation not supported.");
                                 }
+                                //}
                             }
-                            else
-                                Engine.LogWarning("ANGLE channel selector expects Node.Rotate element, but got " + target.GetType().GetFriendlyName());
                         }
                         else if (s == Channel.ESelector.TIME)
                         {
@@ -840,9 +847,8 @@ namespace TheraEngine.Rendering.Models
                                 bone.TranslationY.Keyframes.Add(new FloatKeyframe(second, transform.Translation.Y, inTan, outTan, pType));
                                 bone.TranslationZ.Keyframes.Add(new FloatKeyframe(second, transform.Translation.Z, inTan, outTan, pType));
 
-                                bone.RotationX.Keyframes.Add(new FloatKeyframe(second, transform.Rotation.Pitch, inTan, outTan, pType));
-                                bone.RotationY.Keyframes.Add(new FloatKeyframe(second, transform.Rotation.Yaw, inTan, outTan, pType));
-                                bone.RotationZ.Keyframes.Add(new FloatKeyframe(second, transform.Rotation.Roll, inTan, outTan, pType));
+                                //TODO: proper tangent
+                                bone.Rotation.Keyframes.Add(new QuatKeyframe(second, transform.Rotation.Raw, transform.Rotation.Raw, ERadialInterpType.CubicBezier));
 
                                 bone.ScaleX.Keyframes.Add(new FloatKeyframe(second, transform.Scale.X, inTan, outTan, pType));
                                 bone.ScaleY.Keyframes.Add(new FloatKeyframe(second, transform.Scale.Y, inTan, outTan, pType));

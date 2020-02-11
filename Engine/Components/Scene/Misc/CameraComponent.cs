@@ -254,7 +254,7 @@ namespace TheraEngine.Components.Scene
         {
             ICamera c = Camera;
             if (c != null)
-                c.RenderInfo.Visible = selected || AlwaysShowFrustum;
+                c.RenderInfo.IsVisible = selected || AlwaysShowFrustum;
         }
         [TSerialize(nameof(AlwaysShowFrustum))]
         private bool _alwaysShowFrustum = false;
@@ -274,9 +274,9 @@ namespace TheraEngine.Components.Scene
                 if (IsSpawned && c != null)
                 {
                     if (_alwaysShowFrustum)
-                        c.RenderInfo.Visible = true;
+                        c.RenderInfo.IsVisible = true;
                     else if (!EditorState.Selected)
-                        c.RenderInfo.Visible = false;
+                        c.RenderInfo.IsVisible = false;
                 }
             }
         }

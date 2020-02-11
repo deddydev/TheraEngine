@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Maths;
 
 namespace TheraEngine.Rendering.Models.Materials.Textures
 {

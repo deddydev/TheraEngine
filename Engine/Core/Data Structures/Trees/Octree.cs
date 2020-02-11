@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
@@ -368,7 +369,7 @@ namespace System
                 for (int i = 0; i < _items.Count; ++i)
                 {
                     I3DRenderable r = _items[i] as I3DRenderable;
-                    bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
+                    bool allowRender = r.RenderInfo.IsVisible && (!shadowPass || r.RenderInfo.CastsShadows);
                     if (allowRender)
                     {
                         if (!shadowPass)

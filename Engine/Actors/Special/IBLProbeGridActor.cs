@@ -47,7 +47,7 @@ namespace TheraEngine.Actors
             {
                 _showCaptureSpheres = value;
                 foreach (IBLProbeComponent probe in RootComponent.ChildComponents)
-                    probe.RenderInfo.Visible = _showCaptureSpheres;
+                    probe.RenderInfo.IsVisible = _showCaptureSpheres;
             }
         }
 

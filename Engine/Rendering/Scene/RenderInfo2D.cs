@@ -44,15 +44,15 @@ namespace TheraEngine.Rendering
         [Browsable(false)]
         public IQuadtreeNode QuadtreeNode { get; set; }
 
-        public override bool Visible
+        public override bool IsVisible
         {
-            get => Scene != null && base.Visible;
+            get => Scene != null && base.IsVisible;
             set
             {
-                if (base.Visible == value)
+                if (base.IsVisible == value)
                     return;
 
-                base.Visible = value;
+                base.IsVisible = value;
 
                 if (Scene is null)
                     return;
@@ -89,7 +89,7 @@ namespace TheraEngine.Rendering
                 return;
 
             Scene = null;
-            Visible = false;
+            IsVisible = false;
 
             Scene = scene;
             Owner = r2D;
@@ -99,7 +99,7 @@ namespace TheraEngine.Rendering
             if (VisibleInEditorOnly)
                 visible = visible && Engine.EditorState.InEditMode;
 #endif
-            Visible = visible;
+            IsVisible = visible;
 
             //AxisAlignedRegion?.RenderInfo?.LinkScene(AxisAlignedRegion, scene);
         }

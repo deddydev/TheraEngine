@@ -1,14 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 using TheraEngine.ComponentModel;
 using TheraEngine.Core.Memory;
 using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Core.Maths.Transforms
 {
-    [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
     public unsafe class EventQuat : TObject, IEquatable<EventQuat>, IUniformable4Float, IBufferable, ISerializableString
     {
         public event Action Changed;

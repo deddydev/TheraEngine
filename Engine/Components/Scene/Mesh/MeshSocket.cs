@@ -140,7 +140,7 @@ namespace TheraEngine.Components.Scene.Mesh
         bool ISocket.IsRotatable => true;
         public void HandleRotation(Quat delta)
         {
-            _transform.Quaternion *= delta;
+            _transform.Rotation *= delta;
         }
 
         public void SetParentInternal(ISocket socket) => _parent = socket as IMeshSocketOwner;

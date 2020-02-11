@@ -64,6 +64,19 @@ namespace TheraEngine.Animation
     }
     public class Vec4Keyframe : VectorKeyframe<Vec4>
     {
+        public Vec4Keyframe()
+          : this(0.0f, 0.0f, 0.0f, EVectorInterpType.CubicBezier) { }
+        public Vec4Keyframe(int frameIndex, float FPS, Vec4 inValue, Vec4 outValue, Vec4 inTangent, Vec4 outTangent, EVectorInterpType type)
+            : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
+        public Vec4Keyframe(int frameIndex, float FPS, Vec4 inoutValue, Vec4 inoutTangent, EVectorInterpType type)
+            : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
+        public Vec4Keyframe(float second, Vec4 inoutValue, Vec4 inoutTangent, EVectorInterpType type)
+            : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
+        public Vec4Keyframe(float second, Vec4 inoutValue, Vec4 inTangent, Vec4 outTangent, EVectorInterpType type)
+            : this(second, inoutValue, inoutValue, inTangent, outTangent, type) { }
+        public Vec4Keyframe(float second, Vec4 inValue, Vec4 outValue, Vec4 inTangent, Vec4 outTangent, EVectorInterpType type)
+            : base(second, inValue, outValue, inTangent, outTangent, type) { }
+
         public override Vec4 Lerp(VectorKeyframe<Vec4> next, float diff, float span)
             => Interp.Lerp(OutValue, next.InValue, span.IsZero() ? 0.0f : diff / span);
         public override Vec4 LerpVelocity(VectorKeyframe<Vec4> next, float diff, float span)

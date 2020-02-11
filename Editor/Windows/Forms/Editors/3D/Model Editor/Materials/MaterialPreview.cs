@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Components.Scene.Lights;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;

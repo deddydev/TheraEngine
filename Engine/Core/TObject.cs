@@ -9,6 +9,7 @@ using TheraEngine.Animation;
 using TheraEngine.ComponentModel;
 using TheraEngine.Core;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
 using TheraEngine.Input.Devices;
@@ -443,7 +444,7 @@ namespace TheraEngine
         [BrowsableIf("Animations != null")]
         public IEventList<AnimationTree> Animations
         {
-            get => _animations;
+            get => _animations ?? (Animations = new EventList<AnimationTree>());
             set => Set(ref _animations, value,
                 () =>
                 {
@@ -544,18 +545,92 @@ namespace TheraEngine
         private void RemoveAnimationSelf(BaseAnimation anim)
             => _animations.Remove((AnimationTree)anim);
 
-        public delegate float DelAnimateFloat(float value, float time);
-        public void AnimateProperty(string name, float seconds, PropAnimMethod<float>.DelGetValue interp)
+        //TODO: add animation-ended callback that asks if a loop is desired
+        //Or add max loop count, and cancel loop callback?
+
+        /// <summary>
+        /// Animate any value using a method that receives the current second in the animation and returns a value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">The name of the property to animate.</param>
+        /// <param name="seconds">How long the animation lasts.</param>
+        /// <param name="animMethod">The method used to generate animated values.</param>
+        public void AnimateProperty<T>(string name, float seconds, PropAnimMethod<T>.DelGetValue animMethod)
+            => AddAndStartAnim(name, new PropAnimMethod<T>(seconds, false, animMethod));
+
+        public void AnimatePropertyTo(string name, float seconds, float value, bool cubic = true)
         {
-            //TODO: pool these animation trees?
-            PropAnimMethod<float> anim = new PropAnimMethod<float>(seconds, false, interp);
-            AnimationTree tree = new AnimationTree("AnimatePropertyMethod", name, anim)
-            {
-                RemoveOnEnd = true
-            };
-            Animations.Add(tree);
+            if (!(GetType().GetProperty(name)?.GetValue(this) is float currVal))
+                return;
+
+            EVectorInterpType type = cubic ? EVectorInterpType.CubicHermite : EVectorInterpType.Linear;
+            PropAnimFloat anim = new PropAnimFloat(seconds, false, true);
+            anim.Keyframes.Add(new FloatKeyframe(0.0f, currVal, 0.0f, type));
+            anim.Keyframes.Add(new FloatKeyframe(seconds, value, 0.0f, type));
+
+            AddAndStartAnim(name, anim);
+        }
+        public void AnimatePropertyTo(string name, float seconds, Vec2 value, bool cubic = true)
+        {
+            if (!(GetType().GetProperty(name)?.GetValue(this) is Vec2 currVal))
+                return;
+
+            EVectorInterpType type = cubic ? EVectorInterpType.CubicHermite : EVectorInterpType.Linear;
+            PropAnimVec2 anim = new PropAnimVec2(seconds, false, true);
+            anim.Keyframes.Add(new Vec2Keyframe(0.0f, currVal, 0.0f, type));
+            anim.Keyframes.Add(new Vec2Keyframe(seconds, value, 0.0f, type));
+
+            AddAndStartAnim(name, anim);
+        }
+        public void AnimatePropertyTo(string name, float seconds, Vec3 value, bool cubic = true)
+        {
+            if (!(GetType().GetProperty(name)?.GetValue(this) is Vec3 currVal))
+                return;
+
+            EVectorInterpType type = cubic ? EVectorInterpType.CubicHermite : EVectorInterpType.Linear;
+            PropAnimVec3 anim = new PropAnimVec3(seconds, false, true);
+            anim.Keyframes.Add(new Vec3Keyframe(0.0f, currVal, 0.0f, type));
+            anim.Keyframes.Add(new Vec3Keyframe(seconds, value, 0.0f, type));
+
+            AddAndStartAnim(name, anim);
+        }
+        public void AnimatePropertyTo(string name, float seconds, Vec4 value, bool cubic = true)
+        {
+            if (!(GetType().GetProperty(name)?.GetValue(this) is Vec4 currVal))
+                return;
+
+            EVectorInterpType type = cubic ? EVectorInterpType.CubicHermite : EVectorInterpType.Linear;
+            PropAnimVec4 anim = new PropAnimVec4(seconds, false, true);
+            anim.Keyframes.Add(new Vec4Keyframe(0.0f, currVal, 0.0f, type));
+            anim.Keyframes.Add(new Vec4Keyframe(seconds, value, 0.0f, type));
+
+            AddAndStartAnim(name, anim);
+        }
+        public void AnimatePropertyTo(string name, float seconds, Quat value, bool cubic = true)
+        {
+            if (!(GetType().GetProperty(name)?.GetValue(this) is Quat currVal))
+                return;
+
+            ERadialInterpType type = cubic ? ERadialInterpType.CubicBezier : ERadialInterpType.Linear;
+            PropAnimQuat anim = new PropAnimQuat(seconds, false, true);
+            anim.Keyframes.Add(new QuatKeyframe(0.0f, currVal, currVal, type));
+            anim.Keyframes.Add(new QuatKeyframe(seconds, value, value, type));
+
+            AddAndStartAnim(name, anim);
         }
 
+        private void AddAndStartAnim(string name, BasePropAnim anim)
+        {
+            //TODO: pool these animation trees?
+            AnimationTree tree = new AnimationTree("AnimatePropertyMethod", name, anim) { RemoveOnEnd = true };
+            Animations.Add(tree);
+            tree.Start();
+        }
+
+        /// <summary>
+        /// Starts all animations parented to this object.
+        /// </summary>
+        /// <param name="beginOnSpawnOnly">If true, only starts animations that have <see cref="AnimationTree.BeginOnSpawn"/> set to true.</param>
         protected void StartAllAnimations(bool beginOnSpawnOnly)
         {
             Animations?.ForEach(anim =>
@@ -564,6 +639,9 @@ namespace TheraEngine
                     anim.Start();
             });
         }
+        /// <summary>
+        /// Stops all animations parented to this object.
+        /// </summary>
         protected void StopAllAnimations()
         {
             Animations?.ForEach(anim =>

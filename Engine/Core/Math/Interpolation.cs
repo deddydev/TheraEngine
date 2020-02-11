@@ -5,7 +5,7 @@ using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
 using static System.Math;
-using static System.TMath;
+using static TheraEngine.Core.Maths.TMath;
 
 namespace TheraEngine.Core.Maths
 {

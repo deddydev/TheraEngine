@@ -4,6 +4,7 @@ using TheraEngine.Animation;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;

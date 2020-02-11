@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading;
 using TheraEngine;
 using TheraEngine.Core;
 
@@ -98,6 +99,14 @@ namespace System.Collections.Generic
 
         public delegate bool PreIndexSetHandler(int index, T newItem);
         public delegate void PostIndexSetHandler(int index, T prevItem);
+
+        public bool ThreadSafe
+        {
+            get => _locker != null;
+            set => _locker = value ? new ReaderWriterLockSlim() : null;
+        } 
+
+        private ReaderWriterLockSlim _locker = new ReaderWriterLockSlim();
 
         /// <summary>
         /// Event called for every individual item just before being added to the list.
@@ -242,7 +251,15 @@ namespace System.Collections.Generic
                 }
             }
 
-            _list.Add(item);
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.Add(item);
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
 
             if (!_updating)
             {
@@ -261,7 +278,18 @@ namespace System.Collections.Generic
             return true;
         }
 
-        public bool Contains(T item) => _list.Contains(item);
+        public bool Contains(T item)
+        {
+            try
+            {
+                _locker?.EnterReadLock();
+                return _list.Contains(item);
+            }
+            finally
+            {
+                _locker?.ExitReadLock();
+            }
+        }
         public void AddRange(IEnumerable<T> collection) => AddRange(collection, true, true);
         public void AddRange(IEnumerable<T> collection, bool reportAddedRange, bool reportModified)
         {
@@ -292,7 +320,15 @@ namespace System.Collections.Generic
                 }
             }
 
-            _list.AddRange(collection);
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.AddRange(collection);
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
 
             if (!_updating)
             {
@@ -330,7 +366,18 @@ namespace System.Collections.Generic
                 }
             }
 
-            if (_list.Remove(item))
+            bool success = false;
+            try
+            {
+                _locker?.EnterWriteLock();
+                success = _list.Remove(item);
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
+
+            if (success)
             {
                 if (!_updating)
                 {
@@ -376,7 +423,15 @@ namespace System.Collections.Generic
                 }
             }
 
-            _list.RemoveRange(index, count);
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.RemoveRange(index, count);
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
 
             if (!_updating)
             {
@@ -420,7 +475,15 @@ namespace System.Collections.Generic
                 }
             }
 
-            _list.RemoveAt(index);
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.RemoveAt(index);
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
 
             if (!_updating)
             {
@@ -463,7 +526,15 @@ namespace System.Collections.Generic
                 }
             }
 
-            _list.Clear();
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.Clear();
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
 
             if (!_updating)
             {
@@ -484,10 +555,10 @@ namespace System.Collections.Generic
         public void RemoveAll(Predicate<T> match) => RemoveAll(match, true, true);
         public void RemoveAll(Predicate<T> match, bool reportRemovedRange, bool reportModified)
         {
+            IEnumerable<T> matches = null;
+
             if (!_updating)
             {
-                IEnumerable<T> matches = null;
-
                 if (reportRemovedRange)
                     matches = FindAll(match);
 
@@ -509,13 +580,24 @@ namespace System.Collections.Generic
                                     matches = matches.Where(x => !ReferenceEquals(x, item));
                     }
                 }
+            }
 
+            try
+            {
+                _locker?.EnterWriteLock();
                 _list.RemoveAll(match);
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
 
+            if (!_updating)
+            {
                 if (reportRemovedRange)
                 {
                     PostRemovedRange?.Invoke(matches);
-                    if (PostAnythingRemoved != null)
+                    if (PostAnythingRemoved != null && matches != null)
                         foreach (T item in matches)
                             PostAnythingRemoved(item);
                 }
@@ -525,11 +607,20 @@ namespace System.Collections.Generic
                     CollectionChanged?.Invoke(this, new TCollectionChangedEventArgs<T>(ECollectionChangedAction.Remove, matches.ToArray()));
                 }
             }
-            else
-                _list.RemoveAll(match);
         }
 
-        public IEnumerable<T> FindAll(Predicate<T> match) => _list.FindAll(match);
+        public IEnumerable<T> FindAll(Predicate<T> match)
+        {
+            try
+            {
+                _locker?.EnterReadLock();
+                return _list.FindAll(match);
+            }
+            finally
+            {
+                _locker?.ExitReadLock();
+            }
+        }
 
         public void Insert(int index, T item) => Insert(index, item, true, true);
         public void Insert(int index, T item, bool reportInserted, bool reportModified)
@@ -557,7 +648,15 @@ namespace System.Collections.Generic
                 }
             }
 
-            _list.Insert(index, item);
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.Insert(index, item);
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
 
             if (!_updating)
             {
@@ -603,7 +702,15 @@ namespace System.Collections.Generic
                 }
             }
 
-            _list.InsertRange(index, collection);
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.InsertRange(index, collection);
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
 
             if (!_updating)
             {
@@ -630,7 +737,15 @@ namespace System.Collections.Generic
                 if (!(PreModified?.Invoke() ?? true))
                     return;
             }
-            _list.Reverse(index, count);
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.Reverse(index, count);
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
             if (report)
             {
                 PostModified?.Invoke();
@@ -646,7 +761,15 @@ namespace System.Collections.Generic
                 if (!(PreModified?.Invoke() ?? true))
                     return;
             }
-            _list.Reverse();
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.Reverse();
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
             if (report)
             {
                 PostModified?.Invoke();
@@ -662,7 +785,15 @@ namespace System.Collections.Generic
                 if (!(PreModified?.Invoke() ?? true))
                     return;
             }
-            _list.Sort(index, count, comparer);
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.Sort(index, count, comparer);
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
             if (report)
             {
                 PostModified?.Invoke();
@@ -678,7 +809,15 @@ namespace System.Collections.Generic
                 if (!(PreModified?.Invoke() ?? true))
                     return;
             }
-            _list.Sort();
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.Sort();
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
             if (report)
             {
                 PostModified?.Invoke();
@@ -694,7 +833,15 @@ namespace System.Collections.Generic
                 if (!(PreModified?.Invoke() ?? true))
                     return;
             }
-            _list.Sort(comparer);
+            try
+            {
+                _locker?.EnterWriteLock();
+                _list.Sort(comparer);
+            }
+            finally
+            {
+                _locker?.ExitWriteLock();
+            }
             if (report)
             {
                 PostModified?.Invoke();
@@ -703,7 +850,18 @@ namespace System.Collections.Generic
         }
         public T this[int index]
         {
-            get => _list[index];
+            get
+            {
+                try
+                {
+                    _locker?.EnterReadLock();
+                    return _list[index];
+                }
+                finally
+                {
+                    _locker?.ExitReadLock();
+                }
+            }
             set
             {
                 if (!_allowNull && value == null)
@@ -721,8 +879,17 @@ namespace System.Collections.Generic
                     if (!(PreIndexSet?.Invoke(index, value) ?? true))
                         return;
                 }
-                T prev = _list[index];
-                _list[index] = value;
+                T prev = default;
+                try
+                {
+                    _locker?.EnterWriteLock();
+                    prev = _list[index];
+                    _list[index] = value;
+                }
+                finally
+                {
+                    _locker?.ExitWriteLock();
+                }
                 if (!_updating)
                 {
                     PostAdded?.Invoke(value);
@@ -772,5 +939,54 @@ namespace System.Collections.Generic
 
         public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        private class ThreadSafeEnumerator : IEnumerator<T>
+        {
+            private int _currentIndex = 0;
+            private T _current;
+            private List<T> _list;
+            private ReaderWriterLockSlim _locker;
+
+            public ThreadSafeEnumerator(List<T> list, ReaderWriterLockSlim locker)
+            {
+                _list = list;
+                _locker = locker;
+            }
+
+            public T Current => _current;
+            object IEnumerator.Current => _current;
+
+            public void Dispose()
+            {
+                _locker?.ExitReadLock();
+            }
+            public bool MoveNext()
+            {
+                int index = _currentIndex;
+                bool valid = index >= 0 && index < _list.Count;
+
+                if (!valid)
+                    return false;
+
+                ++_currentIndex;
+                _current = _list[index];
+
+                if (index == 0)
+                    _locker?.EnterReadLock();
+                
+                if (index == _list.Count - 1)
+                    _locker?.ExitReadLock();
+
+                return true;
+            }
+            public void Reset()
+            {
+                if (_currentIndex != 0)
+                    _locker?.ExitReadLock();
+
+                _currentIndex = 0;
+                _current = _list.Count == 0 ? default : _list[0];
+            }
+        }
     }
 }

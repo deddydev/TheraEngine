@@ -79,29 +79,49 @@ namespace TheraEngine.Rendering.UI
         public virtual EVisibility Visibility
         {
             get => _visibility;
-            set
-            {
-                if (!Set(ref _visibility, value))
-                    return;
+            set => Set(ref _visibility, value, null, VisibilityChanged);
+        }
 
-                RenderInfo.Visible = IsVisible;
-                OnPropertyChanged(nameof(IsVisible));
+        private void VisibilityChanged()
+        {
+            RenderInfo.IsVisible = IsVisible;
+
+            try
+            {
+                _childLocker.EnterReadLock();
 
                 foreach (ISceneComponent c in _children)
                     if (c is UIComponent uic)
-                        uic.Visibility = _visibility;
+                        uic.Visibility = Visibility;
             }
+            finally
+            {
+                _childLocker.ExitReadLock();
+            }
+
+            OnPropertyChanged(nameof(IsVisible));
         }
+
         [Category("Rendering")]
         public virtual bool IsEnabled
         {
             get => _isEnabled;
-            set
+            set => Set(ref _isEnabled, value, null, IsEnabledChanged);
+        }
+
+        private void IsEnabledChanged()
+        {
+            try
             {
-                if (Set(ref _isEnabled, value))
-                    foreach (ISceneComponent c in _children)
-                        if (c is UIComponent uic)
-                            uic.IsEnabled = _isEnabled;
+                _childLocker.EnterReadLock();
+
+                foreach (ISceneComponent c in _children)
+                    if (c is UIComponent uic)
+                        uic.IsEnabled = IsEnabled;
+            }
+            finally
+            {
+                _childLocker.ExitReadLock();
             }
         }
 
@@ -204,9 +224,18 @@ namespace TheraEngine.Rendering.UI
         protected abstract void OnResizeLayout(BoundingRectangleF parentRegion);
         protected virtual void OnResizeChildComponents(BoundingRectangleF parentRegion)
         {
-            foreach (ISceneComponent c in _children)
-                if (c is IUIComponent uiComp)
-                    uiComp.ResizeLayout(parentRegion);
+            try
+            {
+                _childLocker.EnterReadLock();
+
+                foreach (ISceneComponent c in _children)
+                    if (c is IUIComponent uiComp)
+                        uiComp.ResizeLayout(parentRegion);
+            }
+            finally
+            {
+                _childLocker.ExitReadLock();
+            }
         }
         /// <summary>
         /// Resizes self depending on the parent component.

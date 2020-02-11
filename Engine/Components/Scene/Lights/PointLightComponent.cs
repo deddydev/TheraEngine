@@ -179,7 +179,7 @@ namespace TheraEngine.Components.Scene.Lights
         protected override string PreviewIconName => "PointLightIcon.png";
         protected internal override void OnSelectedChanged(bool selected)
         {
-            _influenceVolume.RenderInfo.Visible = selected;
+            _influenceVolume.RenderInfo.IsVisible = selected;
         }
 #endif
     }

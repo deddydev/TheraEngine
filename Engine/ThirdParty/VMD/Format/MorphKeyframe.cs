@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
-using System.Text;
 using TheraEngine.Core.Memory;
+using Extensions;
 
 namespace TheraEngine.ThirdParty.VMD
 {
@@ -9,7 +9,7 @@ namespace TheraEngine.ThirdParty.VMD
     {
         public const int Size = 23;
 
-        private fixed byte _morphName[15];
+        private fixed sbyte _morphName[15];
         private uint _frameIndex;
         private float _weight;
         
@@ -17,19 +17,13 @@ namespace TheraEngine.ThirdParty.VMD
         {
             get
             {
-                byte[] bytes = new byte[15];
-                for (int i = 0; i < 15; ++i)
-                    bytes[i] = _morphName[i];
-                char[] chars = new char[15];
-                Encoding.ASCII.GetDecoder().GetChars(bytes, 0, 30, chars, 0, true);
-                return new string(chars);
+                fixed (sbyte* ptr = _morphName)
+                    return new string(ptr);
             }
             set
             {
-                byte[] bytes = new byte[15];
-                Encoding.ASCII.GetEncoder().GetBytes(value.ToCharArray(), 0, value.Length, bytes, 0, true);
-                for (int i = 0; i < 15; ++i)
-                    _morphName[i] = bytes[i];
+                fixed (sbyte* ptr = _morphName)
+                    value.Write(ptr, 15, true);
             }
         }
         public uint FrameIndex

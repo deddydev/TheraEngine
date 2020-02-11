@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
-using System.Text;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
+using Extensions;
 
 namespace TheraEngine.ThirdParty.VMD
 {
@@ -11,8 +10,8 @@ namespace TheraEngine.ThirdParty.VMD
         public const int Size = 40;
         public static readonly string MagicString = "Vocaloid Motion Data";
 
-        private fixed byte _magic[30];
-        private fixed byte _modelName[10];
+        private fixed sbyte _magic[30];
+        private fixed sbyte _modelName[10];
 
         public KeyframeList<BoneKeyframe>* BoneKeyframes => (KeyframeList<BoneKeyframe>*)(
             Address + Size);
@@ -25,38 +24,26 @@ namespace TheraEngine.ThirdParty.VMD
         {
             get
             {
-                byte[] bytes = new byte[30];
-                for (int i = 0; i < 30; ++i)
-                    bytes[i] = _magic[i];
-                char[] chars = new char[30];
-                Encoding.ASCII.GetDecoder().GetChars(bytes, 0, 30, chars, 0, true);
-                return new string(chars);
+                fixed (sbyte* ptr = _magic)
+                    return new string(ptr);
             }
             set
             {
-                byte[] bytes = new byte[30];
-                Encoding.ASCII.GetEncoder().GetBytes(value.ToCharArray(), 0, value.Length, bytes, 0, true);
-                for (int i = 0; i < 30; ++i)
-                    _magic[i] = bytes[i];
+                fixed (sbyte* ptr = _magic)
+                    value.Write(ptr, 30, true);
             }
         }
         public string ModelName
         {
             get
             {
-                byte[] bytes = new byte[20];
-                for (int i = 0; i < 20; ++i)
-                    bytes[i] = _modelName[i];
-                char[] chars = new char[20];
-                Encoding.ASCII.GetDecoder().GetChars(bytes, 0, 30, chars, 0, true);
-                return new string(chars);
+                fixed (sbyte* ptr = _modelName)
+                    return new string(ptr);
             }
             set
             {
-                byte[] bytes = new byte[20];
-                Encoding.ASCII.GetEncoder().GetBytes(value.ToCharArray(), 0, value.Length, bytes, 0, true);
-                for (int i = 0; i < 20; ++i)
-                    _modelName[i] = bytes[i];
+                fixed (sbyte* ptr = _modelName)
+                    value.Write(ptr, 10, true);
             }
         }
 

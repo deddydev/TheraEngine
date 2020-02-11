@@ -165,7 +165,21 @@ namespace Extensions
             if (nullTerminate)
                 *addr++ = 0;
         }
+        public static unsafe void Write(this string s, sbyte* addr, bool nullTerminate)
+        {
+            foreach (char c in s)
+                *addr++ = (sbyte)c;
+            if (nullTerminate)
+                *addr++ = 0;
+        }
         public static unsafe void Write(this string s, ref sbyte* addr, int maxLength, bool nullTerminate)
+        {
+            for (int i = 0; i < Math.Max(s.Length, maxLength); ++i)
+                *addr++ = (sbyte)s[i];
+            if (nullTerminate)
+                *addr++ = 0;
+        }
+        public static unsafe void Write(this string s, sbyte* addr, int maxLength, bool nullTerminate)
         {
             for (int i = 0; i < Math.Max(s.Length, maxLength); ++i)
                 *addr++ = (sbyte)s[i];

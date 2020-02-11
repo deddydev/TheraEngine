@@ -413,7 +413,7 @@ namespace TheraEngine.Core
                     continue;
 
                 bool async =
-                    m.ReturnType.IsGenericTypeDefinition &&
+                    m.ReturnType.GenericTypeArguments.Length > 0 &&
                     m.ReturnType.GetGenericTypeDefinition() == typeof(Task<>);
 
                 TypeProxy delGenType = async

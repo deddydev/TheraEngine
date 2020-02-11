@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
+using Extensions;
 
 namespace TheraEngine.ThirdParty.VMD
 {
@@ -11,7 +11,7 @@ namespace TheraEngine.ThirdParty.VMD
     {
         public const int Size = 111;
 
-        private fixed byte _boneName[15];
+        private fixed sbyte _boneName[15];
         private uint _frameIndex;
         private Vec3 _relativeTranslation;
         private Quat _rotation;
@@ -21,19 +21,13 @@ namespace TheraEngine.ThirdParty.VMD
         {
             get
             {
-                byte[] bytes = new byte[15];
-                for (int i = 0; i < 15; ++i)
-                    bytes[i] = _boneName[i];
-                char[] chars = new char[15];
-                Encoding.ASCII.GetDecoder().GetChars(bytes, 0, 30, chars, 0, true);
-                return new string(chars);
+                fixed (sbyte* ptr = _boneName)
+                    return new string(ptr);
             }
             set
             {
-                byte[] bytes = new byte[15];
-                Encoding.ASCII.GetEncoder().GetBytes(value.ToCharArray(), 0, value.Length, bytes, 0, true);
-                for (int i = 0; i < 15; ++i)
-                    _boneName[i] = bytes[i];
+                fixed (sbyte* ptr = _boneName)
+                    value.Write(ptr, 15, true);
             }
         }
         public uint FrameIndex

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
 using TheraEngine.Animation;
 using TheraEngine.Core.Memory;
 using TheraEngine.Rendering.Models;
@@ -10,10 +11,17 @@ namespace TheraEngine.ThirdParty.VMD
     {
         private SkeletalModel _model;
         private Skeleton _skeleton;
-        
+        private IProgress<float> _progress;
+        private CancellationToken _cancel;
+
         public VMDImporter()
         {
 
+        }
+        public VMDImporter(IProgress<float> progress, CancellationToken cancel)
+        {
+            _progress = progress;
+            _cancel = cancel;
         }
         
         public unsafe (
@@ -31,30 +39,31 @@ namespace TheraEngine.ThirdParty.VMD
             FileMap map = FileMap.FromFile(path);
 
             VoidPtr baseAddr = map.Address;
-            byte[] bytes = new byte[30];
-            for (int i = 0; i < 30; ++i)
-                bytes[i] = *(byte*)baseAddr[i, 1];
-            char[] chars = new char[30];
-            Encoding.ASCII.GetDecoder().GetChars(bytes, 0, 30, chars, 0, true);
-            string magic = new string(chars);
+            string magic = new string((sbyte*)baseAddr).Trim();
             if (!magic.Equals(Header2.MagicString))
                 return (skelAnim, morphAnim, camAnim, lightAnim);
             
             Header2* vmd = (Header2*)baseAddr;
+            var bones = vmd->BoneKeyframes;
+            var morphs = vmd->MorphKeyframes;
+            var cams = vmd->CameraKeyframes;
+            var lights = vmd->LightKeyframes;
 
-            skelAnim = ParseBones(vmd->BoneKeyframes);
+            uint total = bones->KeyframeCount + morphs->KeyframeCount + cams->KeyframeCount + lights->KeyframeCount;
+
+            skelAnim = ParseBones(bones);
             if (skelAnim != null)
                 skelAnim.Name = vmd->ModelName;
 
-            morphAnim = ParseMorphs(vmd->MorphKeyframes);
+            morphAnim = ParseMorphs(morphs);
             if (morphAnim != null)
                 morphAnim.Name = vmd->ModelName;
 
-            camAnim = ParseCameraKeyframes(vmd->CameraKeyframes);
+            camAnim = ParseCameraKeyframes(cams);
             if (camAnim != null)
                 camAnim.Name = vmd->ModelName;
 
-            lightAnim = ParseLightKeyframes(vmd->LightKeyframes);
+            lightAnim = ParseLightKeyframes(lights);
             if (lightAnim != null)
                 lightAnim.Name = vmd->ModelName;
 
@@ -71,7 +80,7 @@ namespace TheraEngine.ThirdParty.VMD
             var rotInterpType = ERadialInterpType.CubicBezier;
 
             //TODO: 60 or 30 fps?
-            float hz = 1.0f / 60.0f;
+            float hz = 1.0f / 30.0f;
 
             SkeletalAnimation anim = new SkeletalAnimation();
             for (uint i = 0; i < count; ++i)

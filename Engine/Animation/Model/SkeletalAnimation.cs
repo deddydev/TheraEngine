@@ -43,7 +43,7 @@ namespace TheraEngine.Animation
         public static async Task<SkeletalAnimation> LoadVMDAsync(
             string path, IProgress<float> progress, CancellationToken cancel)
         {
-            VMDImporter importer = new VMDImporter();
+            VMDImporter importer = new VMDImporter(progress, cancel);
             var (SkeletonAnimation, _, _, _) = await Task.Run(() => importer.Import(path));
             return SkeletonAnimation;
         }

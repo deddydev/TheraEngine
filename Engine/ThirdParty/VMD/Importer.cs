@@ -100,6 +100,9 @@ namespace TheraEngine.ThirdParty.VMD
                 boneAnim.TranslationZ.Keyframes.Add(new FloatKeyframe(sec, relPos.Z, 0.0f, vecInterpType));
 
                 boneAnim.Rotation.Keyframes.Add(new QuatKeyframe(sec, rot, rot, rotInterpType));
+
+                if (sec > boneAnim.LengthInSeconds)
+                    boneAnim.SetLength(sec, false, false);
             }
 
             return anim;

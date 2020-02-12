@@ -36,6 +36,8 @@ namespace TheraEngine.Animation
 
         protected virtual void UseKeyframesChanged() { }
 
+        public float LengthInSeconds => _tracks.LengthInSeconds;
+
         public void SetLength(float seconds, bool stretchAnimation, bool notifyChanged = true)
             => _tracks.SetLength(seconds, stretchAnimation, notifyChanged);
 

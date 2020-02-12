@@ -72,10 +72,10 @@ namespace TheraEngine.Animation
         public void SetLength(float seconds, bool stretch, bool notifyLengthChanged = true, bool notifyChanged = true)
         {
             float prevLength = LengthInSeconds;
-            float ratio = seconds / LengthInSeconds;
             _lengthInSeconds = seconds;
-            if (stretch)
+            if (stretch && prevLength > 0.0f)
             {
+                float ratio = seconds / prevLength;
                 Keyframe key = FirstKey;
                 while (key != null)
                 {
@@ -83,18 +83,18 @@ namespace TheraEngine.Animation
                     key = key.Next;
                 }
             }
-            else
-            {
-                //Keyframe key = FirstKey;
-                //while (key != null)
-                //{
-                //    if (key.Second < 0 || key.Second > LengthInSeconds)
-                //        key.Remove();
-                //    if (key.Next == FirstKey)
-                //        break;
-                //    key = key.Next;
-                //}
-            }
+            //else
+            //{
+            //    //Keyframe key = FirstKey;
+            //    //while (key != null)
+            //    //{
+            //    //    if (key.Second < 0 || key.Second > LengthInSeconds)
+            //    //        key.Remove();
+            //    //    if (key.Next == FirstKey)
+            //    //        break;
+            //    //    key = key.Next;
+            //    //}
+            //}
             if (notifyChanged)
             {
                 OnLengthChanged(prevLength);

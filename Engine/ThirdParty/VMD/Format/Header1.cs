@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using TheraEngine.Core.Memory;
 using Extensions;
+using System.Text;
 
 namespace TheraEngine.ThirdParty.VMD
 {
@@ -10,8 +11,8 @@ namespace TheraEngine.ThirdParty.VMD
         public const int Size = 40;
         public static readonly string MagicString = "Vocaloid Motion Data";
 
-        private fixed sbyte _magic[30];
-        private fixed sbyte _modelName[10];
+        private fixed byte _magic[30];
+        private fixed byte _modelName[10];
 
         public KeyframeList<BoneKeyframe>* BoneKeyframes => (KeyframeList<BoneKeyframe>*)(
             Address + Size);
@@ -24,26 +25,26 @@ namespace TheraEngine.ThirdParty.VMD
         {
             get
             {
-                fixed (sbyte* ptr = _magic)
-                    return new string(ptr);
+                fixed (byte* ptr = _magic)
+                    return Encoding.GetEncoding(932).GetString(ptr, 30).Trim('\0');
             }
             set
             {
-                fixed (sbyte* ptr = _magic)
-                    value.Write(ptr, 30, true);
+                //fixed (sbyte* ptr = _magic)
+                //    value.Write(ptr, 30, true);
             }
         }
         public string ModelName
         {
             get
             {
-                fixed (sbyte* ptr = _modelName)
-                    return new string(ptr);
+                fixed (byte* ptr = _modelName)
+                    return Encoding.GetEncoding(932).GetString(ptr, 10).Trim('\0');
             }
             set
             {
-                fixed (sbyte* ptr = _modelName)
-                    value.Write(ptr, 10, true);
+                //fixed (sbyte* ptr = _modelName)
+                //    value.Write(ptr, 10, true);
             }
         }
 

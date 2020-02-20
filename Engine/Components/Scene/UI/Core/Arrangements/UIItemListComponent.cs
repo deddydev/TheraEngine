@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components;
@@ -27,7 +28,10 @@ namespace TheraEngine.Rendering.UI
         private EOrientation _orientation = EOrientation.Vertical;
         private IComparer<ISceneComponent> _sorter;
 
-        public UIListComponent() { }
+        public UIListComponent()
+        {
+
+        }
 
         [TSerialize]
         [Category("List")]
@@ -294,6 +298,18 @@ namespace TheraEngine.Rendering.UI
         private void Info_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             InvalidateLayout();
+        }
+    }
+
+    internal class ZSorter : Comparer<ISceneComponent>
+    {
+        public override int Compare(ISceneComponent x, ISceneComponent y)
+        {
+            if (x is IUIComponent xc && y is IUIComponent yc)
+            {
+                
+            }
+            return 0;
         }
     }
 }

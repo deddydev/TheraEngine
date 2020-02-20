@@ -462,14 +462,14 @@ namespace TheraEngine.Rendering.UI
             Vec2 min = new Vec2(Math.Min(minPos.X, maxPos.X), Math.Min(minPos.Y, maxPos.Y));
             Vec2 max = new Vec2(Math.Max(minPos.X, maxPos.X), Math.Max(minPos.Y, maxPos.Y));
 
-            RenderInfo.AxisAlignedRegion = BoundingRectangleF.FromMinMaxSides(min.X, max.X, min.Y, max.Y, 0.0f, 0.0f);
+            RenderInfo2D.AxisAlignedRegion = BoundingRectangleF.FromMinMaxSides(min.X, max.X, min.Y, max.Y, 0.0f, 0.0f);
             //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
         public IUIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis)
         {
             try
             {
-                _childLocker.EnterReadLock();
+                //_childLocker.EnterReadLock();
 
                 foreach (ISceneComponent c in _children)
                 {
@@ -481,9 +481,13 @@ namespace TheraEngine.Rendering.UI
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
             finally
             {
-                _childLocker.ExitReadLock();
+                //_childLocker.ExitReadLock();
             }
 
             if (includeThis && Contains(worldPoint))
@@ -501,15 +505,19 @@ namespace TheraEngine.Rendering.UI
         {
             try
             {
-                _childLocker.EnterReadLock();
+                //_childLocker.EnterReadLock();
 
                 foreach (ISceneComponent c in _children)
                     if (c is IUIBoundableComponent uiComp)
                         uiComp.FindAllIntersecting(worldPoint, true, results);
             }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
             finally
             {
-                _childLocker.ExitReadLock();
+                //_childLocker.ExitReadLock();
             }
 
             if (includeThis && Contains(worldPoint))
@@ -519,8 +527,9 @@ namespace TheraEngine.Rendering.UI
         protected override void OnChildAdded(ISceneComponent item)
         {
             base.OnChildAdded(item);
-            if (item is IUIComponent c)
-                c.RenderInfo.LayerIndex = RenderInfo.LayerIndex;
+
+            if (item is I2DRenderable c)
+                c.RenderInfo.LayerIndex = RenderInfo2D.LayerIndex;
         }
 
         public override float CalcAutoWidth() => Width.Clamp(MinWidth, MaxWidth);

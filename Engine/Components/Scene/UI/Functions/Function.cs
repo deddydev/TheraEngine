@@ -183,8 +183,9 @@ namespace TheraEngine.Rendering.UI.Functions
             RemakeAxisAlignedRegion();
 
             BaseFunction func;
-            min = RenderInfo.AxisAlignedRegion.Min;
-            max = RenderInfo.AxisAlignedRegion.Max;
+            min = RenderInfo2D.AxisAlignedRegion.Min;
+            max = RenderInfo2D.AxisAlignedRegion.Max;
+
             if (searchBackward)
             {
                 foreach (var input in _execInputs)

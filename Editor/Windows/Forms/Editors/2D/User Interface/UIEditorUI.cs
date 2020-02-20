@@ -180,8 +180,8 @@ namespace TheraEditor.Windows.Forms
         {
             if (_selectedComp != null)
             {
-                min = Vec3.TransformPosition(_selectedComp.RenderInfo.AxisAlignedRegion.Min, OriginTransformComponent.InverseLocalMatrix).Xy;
-                max = Vec3.TransformPosition(_selectedComp.RenderInfo.AxisAlignedRegion.Max, OriginTransformComponent.InverseLocalMatrix).Xy;
+                min = Vec3.TransformPosition(_selectedComp.RenderInfo2D.AxisAlignedRegion.Min, OriginTransformComponent.InverseLocalMatrix).Xy;
+                max = Vec3.TransformPosition(_selectedComp.RenderInfo2D.AxisAlignedRegion.Max, OriginTransformComponent.InverseLocalMatrix).Xy;
             }
             else
             {

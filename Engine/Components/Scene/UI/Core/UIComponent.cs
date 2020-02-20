@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering.UI
         Hidden,
         Collapsed,
     }
-    public interface IUIComponent : IOriginRebasableComponent, I2DRenderable, IEnumerable<IUIComponent>
+    public interface IUIComponent : IOriginRebasableComponent, IEnumerable<IUIComponent>
     {
         bool IsVisible { get; set; }
         EVisibility Visibility { get; set; }
@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering.UI
         float CalcAutoWidth();
         float CalcAutoHeight();
     }
-    public abstract class UIComponent : OriginRebasableComponent, IUIComponent
+    public abstract class UIComponent : OriginRebasableComponent, IUIComponent, I2DRenderable, I3DRenderable
     {
         public UIComponent() : base() { _rc = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderVisualGuides); }
 
@@ -52,9 +52,15 @@ namespace TheraEngine.Rendering.UI
         [TSerialize(nameof(IsEnabled))]
         protected bool _isEnabled = true;
 
+        IRenderInfo2D I2DRenderable.RenderInfo => RenderInfo2D;
+        IRenderInfo3D I3DRenderable.RenderInfo => RenderInfo3D;
+
         [TSerialize]
         [Category("Rendering")]
-        public IRenderInfo2D RenderInfo { get; private set; } = new RenderInfo2D(0, 0);
+        public IRenderInfo2D RenderInfo2D { get; private set; } = new RenderInfo2D(0, 0);
+        [TSerialize]
+        [Category("Rendering")]
+        public IRenderInfo3D RenderInfo3D { get; private set; } = new RenderInfo3D(true, true);
 
         [Browsable(false)]
         public bool IsVisible
@@ -84,19 +90,24 @@ namespace TheraEngine.Rendering.UI
 
         private void VisibilityChanged()
         {
-            RenderInfo.IsVisible = IsVisible;
+            RenderInfo2D.IsVisible = IsVisible;
+            RenderInfo3D.IsVisible = IsVisible;
 
             try
             {
-                _childLocker.EnterReadLock();
+                //_childLocker.EnterReadLock();
 
                 foreach (ISceneComponent c in _children)
                     if (c is UIComponent uic)
                         uic.Visibility = Visibility;
             }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
             finally
             {
-                _childLocker.ExitReadLock();
+                //_childLocker.ExitReadLock();
             }
 
             OnPropertyChanged(nameof(IsVisible));
@@ -113,15 +124,19 @@ namespace TheraEngine.Rendering.UI
         {
             try
             {
-                _childLocker.EnterReadLock();
+                //_childLocker.EnterReadLock();
 
                 foreach (ISceneComponent c in _children)
                     if (c is UIComponent uic)
                         uic.IsEnabled = IsEnabled;
             }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
             finally
             {
-                _childLocker.ExitReadLock();
+                //_childLocker.ExitReadLock();
             }
         }
 
@@ -226,15 +241,19 @@ namespace TheraEngine.Rendering.UI
         {
             try
             {
-                _childLocker.EnterReadLock();
+                //_childLocker.EnterReadLock();
 
                 foreach (ISceneComponent c in _children)
                     if (c is IUIComponent uiComp)
                         uiComp.ResizeLayout(parentRegion);
             }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
             finally
             {
-                _childLocker.ExitReadLock();
+                //_childLocker.ExitReadLock();
             }
         }
         /// <summary>
@@ -263,12 +282,15 @@ namespace TheraEngine.Rendering.UI
         protected override void OnChildAdded(ISceneComponent item)
         {
             base.OnChildAdded(item);
-            if (item is IUIComponent c)
+
+            if (item is I2DRenderable c)
             {
-                c.RenderInfo.LayerIndex = RenderInfo.LayerIndex;
-                c.RenderInfo.IndexWithinLayer = RenderInfo.IndexWithinLayer + 1;
-                c.InvalidateLayout();
+                c.RenderInfo.LayerIndex = RenderInfo2D.LayerIndex;
+                c.RenderInfo.IndexWithinLayer = RenderInfo2D.IndexWithinLayer + 1;
             }
+
+            if (item is IUIComponent uic)
+                uic.InvalidateLayout();
         }
 
         protected internal override void OnOriginRebased(Vec3 newOrigin) { }

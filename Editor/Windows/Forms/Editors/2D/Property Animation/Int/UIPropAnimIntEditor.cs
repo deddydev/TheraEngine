@@ -62,8 +62,9 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 _renderAnimPosition = value;
-                _xCoord.RenderInfo.IsVisible = _renderAnimPosition;
-                _yCoord.RenderInfo.IsVisible = _renderAnimPosition;
+
+                _xCoord.RenderInfo2D.IsVisible = _renderAnimPosition;
+                _yCoord.RenderInfo2D.IsVisible = _renderAnimPosition;
             }
         }
         

@@ -23,6 +23,7 @@ namespace TheraEngine.Animation
         {
             _keyframes = new KeyframeTrack<T>();
             _keyframes.LengthChanged += KeyframesLengthChanged;
+            _keyframes.LengthInSeconds = LengthInSeconds;
             return _keyframes;
         }
 

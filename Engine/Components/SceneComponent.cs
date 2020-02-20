@@ -124,8 +124,8 @@ namespace TheraEngine.Components
 
         public event Action<ISceneComponent> WorldTransformChanged;
 
-        protected ReaderWriterLockSlim _childLocker = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
-
+        //protected ReaderWriterLockSlim _childLocker = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+        
         protected bool _readingPhysicsTransform = false;
         /// <summary>
         /// This is the method that will be called immediately after any world transform change.
@@ -153,14 +153,18 @@ namespace TheraEngine.Components
             {
                 try
                 {
-                    _childLocker.EnterReadLock();
+                    //_childLocker.EnterReadLock();
 
                     foreach (ISceneComponent c in _children)
                         c?.RecalcWorldTransform();
                 }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
                 finally
                 {
-                    _childLocker.ExitReadLock();
+                    //_childLocker.ExitReadLock();
                 }
             }
 
@@ -390,15 +394,19 @@ namespace TheraEngine.Components
 
                 try
                 {
-                    _childLocker.EnterReadLock();
+                    //_childLocker.EnterReadLock();
 
                     foreach (IComponent c in _children)
                         if (c != null)
                             c.OwningActor = value;
                 }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
                 finally
                 {
-                    _childLocker.ExitReadLock();
+                    //_childLocker.ExitReadLock();
                 }
             }
         }
@@ -463,7 +471,7 @@ namespace TheraEngine.Components
             {
                 try
                 {
-                    _childLocker.EnterWriteLock();
+                    //_childLocker.EnterWriteLock();
 
                     if (_children != null)
                     {
@@ -486,9 +494,13 @@ namespace TheraEngine.Components
                         _children.PostRemovedRange += OnChildComponentsRemoved;
                     }
                 }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
                 finally
                 {
-                    _childLocker.ExitWriteLock();
+                    //_childLocker.ExitWriteLock();
                 }
             }
         }
@@ -666,14 +678,18 @@ namespace TheraEngine.Components
 
             try
             {
-                _childLocker.EnterReadLock();
+                //_childLocker.EnterReadLock();
 
                 foreach (ISceneComponent c in _children)
                     c.Despawn(OwningActor);
             }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
             finally
             {
-                _childLocker.ExitReadLock();
+                //_childLocker.ExitReadLock();
             }
         }
 
@@ -764,14 +780,18 @@ namespace TheraEngine.Components
 
             try
             {
-                _childLocker.EnterReadLock();
+                //_childLocker.EnterReadLock();
 
                 foreach (ISceneComponent c in _children)
                     c?.GenerateChildCache(cache);
             }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
             finally
             {
-                _childLocker.ExitReadLock();
+                //_childLocker.ExitReadLock();
             }
         }
 

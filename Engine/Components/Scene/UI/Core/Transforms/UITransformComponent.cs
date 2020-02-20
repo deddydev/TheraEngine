@@ -87,8 +87,9 @@ namespace TheraEngine.Rendering.UI
 
         protected void UpdateMatrix()
         {
-            ActualTranslation.Raw = Translation.Xy;
-            RecalcLocalTransform();
+            InvalidateLayout();
+            //ActualTranslation.Raw = Translation.Xy;
+            //RecalcLocalTransform();
         }
 
         protected virtual void OnResizeActual(BoundingRectangleF parentBounds)

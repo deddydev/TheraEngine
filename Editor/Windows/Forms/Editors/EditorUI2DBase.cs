@@ -148,7 +148,7 @@ namespace TheraEditor.Windows.Forms
             float height = size.Height;
 
             UITextRasterComponent comp = new UITextRasterComponent() { RenderTransformation = false };
-            comp.RenderInfo.VisibleByDefault = true;
+            comp.RenderInfo2D.VisibleByDefault = true;
             comp.Size.Raw = new Vec2(width, height);
             //comp.TextureResolutionMultiplier = UIFont.Size;
 
@@ -173,7 +173,17 @@ namespace TheraEditor.Windows.Forms
         protected abstract bool GetWorkArea(out Vec2 min, out Vec2 max);
         public virtual void ZoomExtents(bool adjustScale = true)
         {
-            if (GetWorkArea(out Vec2 min, out Vec2 max))
+            Vec2 targetTranslation;
+            Vec2 targetScale = Vec2.One;
+
+            if (!GetWorkArea(out Vec2 min, out Vec2 max))
+            {
+                targetTranslation = Vec2.Zero;
+
+                if (adjustScale)
+                    targetScale = TMath.Min(Bounds.X, Bounds.Y) / (UnitIncrementX * InitialVisibleBoxes);
+            }
+            else
             {
                 float xBound = max.X - min.X;
                 float yBound = max.Y - min.Y;
@@ -189,7 +199,6 @@ namespace TheraEditor.Windows.Forms
 
                 if (adjustScale)
                 {
-                    Vec2 targetScale;
                     if (xScale < yScale)
                     {
                         targetScale = xScale;
@@ -204,9 +213,6 @@ namespace TheraEditor.Windows.Forms
                         bottomLeft.X += remaining;
                         bottomLeft *= targetScale.Y;
                     }
-
-                    OriginTransformComponent.Scale.AnimatePropertyTo(nameof(EventVec3.Xy), 5.0f, targetScale);
-                    //OriginTransformComponent.Scale.Xy = targetScale;
                 }
                 else
                 {
@@ -219,13 +225,16 @@ namespace TheraEditor.Windows.Forms
                     bottomLeft *= OriginTransformComponent.Scale.Xy;
                 }
 
-                OriginTransformComponent.Translation.AnimatePropertyTo(nameof(EventVec3.Xy), 5.0f, bottomLeft);
-                //OriginTransformComponent.Translation.Xy = bottomLeft;
+                targetTranslation = bottomLeft;
             }
-            else
+
+            OriginTransformComponent.Translation.AnimatePropertyTo(nameof(EventVec3.Xy), 1.0f, targetTranslation);
+            //OriginTransformComponent.Translation.Xy = targetTranslation;
+
+            if (adjustScale)
             {
-                OriginTransformComponent.Translation.Xy = Vec2.Zero;
-                OriginTransformComponent.Scale.Xy = TMath.Min(Bounds.X, Bounds.Y) / (UnitIncrementX * InitialVisibleBoxes);
+                OriginTransformComponent.Scale.AnimatePropertyTo(nameof(EventVec3.Xy), 1.0f, targetScale);
+                //OriginTransformComponent.Scale.Xy = targetScale;
             }
         }
         protected virtual void OriginTransformComponent_WorldTransformChanged(ISceneComponent obj)
@@ -420,13 +429,13 @@ namespace TheraEditor.Windows.Forms
                                 x = (maxView - width) / OriginTransformComponent.Scale.X;
                             comp.Translation.Xy = new Vec2(x, pos);
                         }
-                        comp.RenderInfo.IsVisible = true;
+                        comp.RenderInfo2D.IsVisible = true;
                     }
                     else
                     {
                         //Not visible, but exists in cache? Hide it
                         if (textCache.TryGetValue(key, out var value))
-                            value.Item1.RenderInfo.IsVisible = false;
+                            value.Item1.RenderInfo2D.IsVisible = false;
                         continue;
                     }
                 }

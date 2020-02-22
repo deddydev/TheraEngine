@@ -427,7 +427,10 @@ namespace TheraEngine.Audio
         public bool IsStopped => State == EAudioState.Stopped;
         public bool IsInInitialState => State == EAudioState.Initial;
         public EAudioState State => Engine.Audio.GetState(this);
-        
+
+        public bool IsStreaming { get; internal set; }
+        public int TotalBuffersProcessed { get; internal set; }
+
         public void UpdateAllParameters(bool force = false) 
             => Engine.Audio.UpdateSource(this, force);
     }

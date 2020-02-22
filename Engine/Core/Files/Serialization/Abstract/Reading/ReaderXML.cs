@@ -20,6 +20,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Async = true,
             };
 
+            private IXmlLineInfo ReaderLineInfo => _reader as IXmlLineInfo;
             private XmlReader _reader;
 
             public ReaderXML(

@@ -70,14 +70,13 @@ namespace TheraEngine.Audio
         }
 
         private static ALFormat GetSoundFormat(int channels, int bits)
-        {
-            switch (channels)
+            => channels switch
             {
-                case 1: return bits == 8 ? ALFormat.Mono8 : ALFormat.Mono16;
-                case 2: return bits == 8 ? ALFormat.Stereo8 : ALFormat.Stereo16;
-                default: throw new NotSupportedException("The specified sound format is not supported.");
-            }
-        }
+                1 => bits == 8 ? ALFormat.Mono8 : ALFormat.Mono16,
+                2 => bits == 8 ? ALFormat.Stereo8 : ALFormat.Stereo16,
+                _ => throw new NotSupportedException("The specified sound format is not supported."),
+            };
+
         public override AudioInstance Play(IAudioSource source)
         {
             var audio = source?.Audio;
@@ -102,11 +101,12 @@ namespace TheraEngine.Audio
 
             ALFormat format = GetSoundFormat(audio.Channels, audio.BitsPerSample);
 
-            if (audio.UseStreaming)
+            if (!audio.UseStreaming)
             {
+                instance.StreamingSource = audio;
                 audio.OpenForStreaming();
-                audio.StreamableProperties[nameof(AudioFile.Samples)]
-                while (audio.GetNextStreamChunk(out byte[] buffer))
+                int bufferedChunks = 0;
+                while (prop.GetNextStreamChunk(audio.StreamingChunkSize, out byte[] buffer) && ++bufferedChunks < audio.StreamingMaxBufferedChunks)
                 {
                     AL.BufferData(audio.BufferId, format, buffer, buffer.Length, audio.SampleRate);
                     CheckError();

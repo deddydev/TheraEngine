@@ -38,9 +38,6 @@ namespace TheraEngine.Audio
         [TSerialize(IsAttribute = true)]
         public int StreamingMaxBufferedChunks { get; set; } = 0;
 
-        [Browsable(false)]
-        public int BufferId { get; internal set; }
-
         //public bool GetStreamChunk(int index, out byte[] buffer)
         //{
 

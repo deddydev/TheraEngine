@@ -6,7 +6,7 @@ namespace TheraEngine.Audio
 {
     public abstract class AbstractAudioManager : TObjectSlim
     {
-        public abstract AudioInstance Play(IAudioSource source);
+        public abstract AudioInstance CreateNewInstance(IAudioSource source);
         public abstract bool Play(AudioInstance instance);
         public abstract bool Pause(AudioInstance instance);
         public abstract bool Stop(AudioInstance instance);

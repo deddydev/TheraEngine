@@ -433,6 +433,8 @@ namespace TheraEngine.Core.Files
                 DataType = dataType;
             }
 
+            //TODO: parse section of raw data from Content
+
             SerializeElementContent Content { get; set; }
 
             public TypeProxy DataType { get; set; }
@@ -464,7 +466,7 @@ namespace TheraEngine.Core.Files
             => StreamableProperties.ContainsKey(name) ? StreamableProperties[name] : null;
 
         private MemoryMappedFile FileMap { get; set; }
-        private MemoryMappedViewStream FileMapStream { get; set; }
+        public MemoryMappedViewStream FileMapStream { get; private set; }
 
         public void OpenForStreaming()
         {

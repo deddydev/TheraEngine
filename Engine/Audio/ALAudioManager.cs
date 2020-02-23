@@ -4,6 +4,7 @@ using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths.Transforms;
@@ -14,9 +15,32 @@ namespace TheraEngine.Audio
     {
         private const int MaxOpenALSources = 32;
 
-        public ALAudioManager() : base()
+        public ALAudioManager() : base() 
+            => LazyContext = new Lazy<AudioContext>(GenerateContext,
+                LazyThreadSafetyMode.ExecutionAndPublication);
+
+        public List<AudioInstance> PlayingInstances { get; } = new List<AudioInstance>();
+        public void AddPlayingInstance(AudioInstance instance)
         {
-            LazyContext = new Lazy<AudioContext>(GenerateContext, LazyThreadSafetyMode.ExecutionAndPublication);
+            if (PlayingInstances.Count == 0)
+                Engine.RegisterTick(
+                    ETickGroup.DuringPhysics,
+                    ETickOrder.Timers,
+                    UpdateAudioSources,
+                    Input.Devices.EInputPauseType.TickAlways);
+
+            PlayingInstances.Add(instance);
+        }
+        public void RemovePlayingInstance(AudioInstance instance)
+        {
+            PlayingInstances.Remove(instance);
+
+            if (PlayingInstances.Count == 0)
+                Engine.UnregisterTick(
+                    ETickGroup.DuringPhysics,
+                    ETickOrder.Timers,
+                    UpdateAudioSources,
+                    Input.Devices.EInputPauseType.TickAlways);
         }
 
         private AudioContext GenerateContext()
@@ -51,7 +75,7 @@ namespace TheraEngine.Audio
         }
 
         private EffectsExtension _efx;
-        private readonly int[] _sourceBuffers = new int[MaxOpenALSources];
+        //private readonly int[] _sourceBuffers = new int[MaxOpenALSources];
         
         public enum EAudioPriorityType
         {
@@ -77,27 +101,21 @@ namespace TheraEngine.Audio
                 _ => throw new NotSupportedException("The specified sound format is not supported."),
             };
 
-        public override AudioInstance Play(IAudioSource source)
+        public override AudioInstance CreateNewInstance(IAudioSource source)
         {
-            var audio = source?.Audio;
+            if (source is null)
+                return null;
 
-            var param = source.Parameters;
+            var audio = source.Audio;
+            if (audio is null)
+                return null;
 
-            Engine.Out($"Playing audio {audio?.Name}...");
+            Engine.Out($"Playing audio {audio.Name}...");
 
-            int sourceID = AllocateNewSource();
-            int bufferID = AL.GenBuffer();
+            int sourceID = AL.GenSource();
             CheckError();
 
-            if (audio.BufferId > 0)
-            {
-                AL.DeleteBuffer(audio.BufferId);
-                CheckError();
-            }
-
-            audio.BufferId = bufferID;
-
-            AudioInstance instance = new AudioInstance(sourceID, param);
+            AudioInstance instance = new AudioInstance(audio, sourceID, source.Parameters);
 
             ALFormat format = GetSoundFormat(audio.Channels, audio.BitsPerSample);
 
@@ -105,17 +123,19 @@ namespace TheraEngine.Audio
             {
                 instance.StreamingSource = audio;
                 audio.OpenForStreaming();
-                int bufferedChunks = 0;
-                while (prop.GetNextStreamChunk(audio.StreamingChunkSize, out byte[] buffer) && ++bufferedChunks < audio.StreamingMaxBufferedChunks)
+
+                int bufferWindowSize = audio.StreamingMaxBufferedChunks;
+                int[] buffers = AL.GenBuffers(bufferWindowSize);
+
+                int chunkIndex = 0;
+                while (prop.GetNextStreamChunk(audio.StreamingChunkSize, out byte[] buffer) && chunkIndex < bufferWindowSize)
                 {
-                    AL.BufferData(audio.BufferId, format, buffer, buffer.Length, audio.SampleRate);
-                    CheckError();
-
-                    AL.SourceQueueBuffer(sourceID, bufferID);
-
-                    AL.GetSource(instance.ID)
-                    AL.SourceUnqueueBuffers();
+                    int buf = buffers[chunkIndex];
+                    AL.BufferData(buf, format, buffer, buffer.Length, audio.SampleRate);
+                    AL.SourceQueueBuffer(sourceID, buf);
+                    ++chunkIndex;
                 }
+
                 audio.CloseStreaming();
             }
             else
@@ -124,27 +144,19 @@ namespace TheraEngine.Audio
                 if (data is null || data.Length == 0)
                     return null;
 
-                AL.BufferData(audio.BufferId, format, data, data.Length, audio.SampleRate);
+                int bufferID = AL.GenBuffer();
+                CheckError();
+
+                AL.BufferData(bufferID, format, data, data.Length, audio.SampleRate);
                 CheckError();
                 
-                AL.BindBufferToSource(sourceID, audio.BufferId);
+                AL.BindBufferToSource(sourceID, bufferID);
+                CheckError();
             }
 
-            CheckError();
-
             UpdateSource(instance, false);
-            Play(instance);
-
-            source.Instance = instance;
 
             return instance;
-        }
-
-        private int AllocateNewSource()
-        {
-            int id = AL.GenSource();
-            CheckError();
-            return id;
         }
 
         private void CheckError()
@@ -161,6 +173,49 @@ namespace TheraEngine.Audio
         public AudioContext Context => LazyContext?.Value;
         private Lazy<AudioContext> LazyContext { get; set; }
 
+        private void UpdateAudioSources(float delta)
+        {
+            for (int i = 0; i < PlayingInstances.Count; i++)
+            {
+                AudioInstance instance = PlayingInstances[i];
+                ALSourceState state = AL.GetSourceState(instance.ID);
+                if (state == ALSourceState.Stopped)
+                {
+                    instance.OnStopped();
+                    PlayingInstances.RemoveAt(i--);
+                }
+                else if (instance.IsStreaming)
+                {
+                    AL.GetSource(instance.ID, ALGetSourcei.BuffersProcessed, out int releasedBufferCount);
+                    instance.TotalBuffersProcessed += releasedBufferCount;
+
+                    var audio = instance.SourceFile;
+                    if (audio is null)
+                        continue;
+
+                    // For each processed buffer, remove it from the source queue, read the next chunk of
+                    // audio data from the file, fill the buffer with new data, and add it to the source queue
+                    while (releasedBufferCount-- > 0)
+                    {
+                        int buf = AL.SourceUnqueueBuffer(instance.ID);
+
+                        int chunkSize = audio.StreamingChunkSize;
+                        byte[] chunk = instance.StreamingSamplesProperty.ReadRaw(
+                            instance.TotalBuffersProcessed * chunkSize,
+                            chunkSize,
+                            audio.FileMapStream);
+
+                        if (chunk is null || chunk.Length == 0)
+                            break;
+                        
+                        ALFormat format = GetSoundFormat(audio.Channels, audio.BitsPerSample);
+                        AL.BufferData(buf, format, chunk, chunk.Length, audio.SampleRate);
+                        AL.SourceQueueBuffer(instance.ID, buf);
+                    }
+                }
+            }
+        }
+
         public override bool Play(AudioInstance instance)
         {
             CheckError();
@@ -169,41 +224,11 @@ namespace TheraEngine.Audio
                 return true;
 
             AL.SourcePlay(instance.ID);
-
-            if (instance.IsStreaming)
-            {
-                // Buffer queuing loop must operate in a new thread
-                while (!thread_finish)
-                {
-                    usleep(10 * 1000); // Sleep 10 msec periodically
-                    
-                    AL.GetSource(instance.ID, ALGetSourcei.BuffersProcessed, out int count);
-
-                    instance.TotalBuffersProcessed += count;
-
-                    // For each processed buffer, remove it from the source queue, read the next chunk of
-                    // audio data from the file, fill the buffer with new data, and add it to the source queue
-                    while (count > 0)
-                    {
-                        // Remove the buffer from the queue (uiBuffer contains the buffer ID for the dequeued buffer)
-                        int buf = AL.SourceUnqueueBuffer(instance.ID);
-
-                        // Read more pData audio data (if there is any)
-
-                        // Copy audio data to buffer
-                        AL.BufferData(buf, AL_FORMAT_MONO8, pData, DATA_CHUNK_SIZE, 22050);
-                        // Insert the audio buffer to the source queue
-                        alSourceQueueBuffers(source, 1, &uiBuffer);
-
-                        iBuffersProcessed--;
-                    }
-                }
-            }
-
             CheckError();
             
             return GetState(instance) == EAudioState.Playing;
         }
+
         public override bool Pause(AudioInstance instance)
         {
             CheckError();

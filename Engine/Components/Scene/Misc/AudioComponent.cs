@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using TheraEngine.Audio;
 using TheraEngine.ComponentModel;
@@ -11,7 +12,7 @@ namespace TheraEngine.Components.Scene
 {
     public interface IAudioSource
     {
-        AudioInstance Instance { get; set; }
+        EventList<AudioInstance> Instances { get; set; }
         AudioFile Audio { get; }
         AudioParameters Parameters { get; }
 
@@ -22,7 +23,7 @@ namespace TheraEngine.Components.Scene
         private LocalFileRef<AudioParameters> _parametersRef;
 
         [Category("State")]
-        public AudioInstance Instance { get; set; }
+        public EventList<AudioInstance> Instances { get; set; }
 
         [Category("Playback")]
         [TSerialize]
@@ -82,7 +83,9 @@ namespace TheraEngine.Components.Scene
             if (file is null)
                 return;
 
-            Instance = Engine.Audio.Play(this);
+            var instance = Engine.Audio.CreateNewInstance(this);
+            Instances.Add(instance);
+            Engine.Audio.Play(instance);
         }
 
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)

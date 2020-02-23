@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 
@@ -8,9 +9,11 @@ namespace TheraEngine.Audio
     {
         public int ID { get; }
         public bool Valid { get; internal set; }
+        public AudioFile SourceFile { get; }
 
-        internal AudioInstance(int instanceID, AudioParameters parameters)
+        internal AudioInstance(AudioFile file, int instanceID, AudioParameters parameters)
         {
+            SourceFile = file;
             ID = instanceID;
             Valid = true;
 
@@ -148,6 +151,9 @@ namespace TheraEngine.Audio
                 Engine.Audio.UpdateSourceEfxAuxiliarySendFilterGainAuto(this);
             }
         }
+
+        internal void OnStopped() => throw new NotImplementedException();
+
         /// <summary>
         /// (EFX Extension) If this Source property is AL_TRUE (its default value), the intensity
         /// of this Source’s reflected sound at high frequencies will be automatically attenuated

@@ -12,9 +12,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     public abstract class PropGridMemberInfo : MarshalByRefObject
     {
         public PropGridMemberInfo(IPropGridMemberOwner owner)
-        {
-            Owner = owner;
-        }
+            => Owner = owner;
 
         /// <summary>
         /// The type that is expected of this instance's <see cref="MemberValue"/>.

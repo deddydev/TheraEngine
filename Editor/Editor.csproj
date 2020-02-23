@@ -916,40 +916,40 @@
       <DependentUpon>GenericDropDownControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\UIRenderPanel.cs" />
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxDecimal.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxDecimal.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxDouble.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxDouble.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxByte.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxByte.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxInt64.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxInt64.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxInt32.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxInt32.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxUInt64.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxUInt64.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxUInt32.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxUInt32.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxUInt16.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxUInt16.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxInt16.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxInt16.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxSByte.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxSByte.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxSingle.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxSingle.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxBase.cs">
+    <Compile Include="Windows\Forms\Property Grid\Numeric Input Box\NumericInputBoxBase.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Controls\BufferedPanel.cs">

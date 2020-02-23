@@ -170,7 +170,7 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     //if (!SerializationCommon.IsPrimitiveType(elementType))
                     //    separator = "|";
-                    Type indivElemType = elem.GetType();
+                    Type indivElemType = elem?.GetType() ?? elementType;
                     BaseObjectSerializer ser2 = DetermineObjectSerializer(indivElemType, true);
                     if (ser2 is null || !ser2.CanWriteAsString(indivElemType))
                         throw new InvalidOperationException();

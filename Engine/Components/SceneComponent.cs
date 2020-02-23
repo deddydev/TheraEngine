@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Actors;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;
@@ -10,10 +12,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
-using Extensions;
 using static TheraEngine.Components.SceneComponent;
-using TheraEngine.ComponentModel;
-using System.Threading;
 
 namespace TheraEngine.Components
 {

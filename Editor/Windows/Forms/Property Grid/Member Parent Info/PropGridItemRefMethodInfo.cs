@@ -17,12 +17,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override TypeProxy DataType => Method?.ReturnType;
-        
+
         public PropGridMemberInfoMethod(IPropGridMemberOwner owner, MethodInfoProxy method) : base(owner)
-        {
-            Method = method;
-        }
-        
+            => Method = method;
+
         internal protected override void SubmitStateChange(object oldValue, object newValue, ValueChangeHandler dataChangeHandler) { }
         public override object MemberValue { get { return null; } set { } }
     }

@@ -18,11 +18,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         [Browsable(false)]
         public override TypeProxy DataType => Event?.EventHandlerType;
 
-        public PropGridMemberInfoEvent(IPropGridMemberOwner owner, EventInfoProxy eventInfo) : base(owner)
-        {
-            Event = eventInfo;
-        }
-        
+        public PropGridMemberInfoEvent(IPropGridMemberOwner owner, EventInfoProxy eventInfo)
+            : base(owner) => Event = eventInfo;
+
         internal protected override void SubmitStateChange(object oldValue, object newValue, ValueChangeHandler dataChangeHandler) { }
         public override object MemberValue { get { return null; } set { } }
     }

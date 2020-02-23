@@ -22,9 +22,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public override TypeProxy DataType => Property?.PropertyType;
 
         public PropGridMemberInfoProperty(IPropGridMemberOwner owner, PropertyInfoProxy property) : base(owner)
-        {
-            Property = property;
-        }
+            => Property = property;
 
         public override bool IsReadOnly()
             => base.IsReadOnly() || Property.IsNull() || !Property.CanWrite;

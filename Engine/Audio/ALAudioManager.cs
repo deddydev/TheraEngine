@@ -70,14 +70,13 @@ namespace TheraEngine.Audio
         }
 
         private static ALFormat GetSoundFormat(int channels, int bits)
-        {
-            switch (channels)
+            => channels switch
             {
-                case 1: return bits == 8 ? ALFormat.Mono8 : ALFormat.Mono16;
-                case 2: return bits == 8 ? ALFormat.Stereo8 : ALFormat.Stereo16;
-                default: throw new NotSupportedException("The specified sound format is not supported.");
-            }
-        }
+                1 => bits == 8 ? ALFormat.Mono8 : ALFormat.Mono16,
+                2 => bits == 8 ? ALFormat.Stereo8 : ALFormat.Stereo16,
+                _ => throw new NotSupportedException("The specified sound format is not supported."),
+            };
+
         public override AudioInstance Play(IAudioSource source)
         {
             var audio = source?.Audio;
@@ -102,20 +101,24 @@ namespace TheraEngine.Audio
 
             ALFormat format = GetSoundFormat(audio.Channels, audio.BitsPerSample);
 
-            //if (audio.UseStreaming)
-            //{
-            //    while (audio.GetNextStreamChunk(out byte[] buffer))
-            //    {
-            //        AL.BufferData(audio.BufferId, format, buffer, buffer.Length, audio.SampleRate);
-            //        CheckError();
+            if (!audio.UseStreaming)
+            {
+                instance.StreamingSource = audio;
+                audio.OpenForStreaming();
+                int bufferedChunks = 0;
+                while (prop.GetNextStreamChunk(audio.StreamingChunkSize, out byte[] buffer) && ++bufferedChunks < audio.StreamingMaxBufferedChunks)
+                {
+                    AL.BufferData(audio.BufferId, format, buffer, buffer.Length, audio.SampleRate);
+                    CheckError();
 
-            //        AL.SourceQueueBuffer(sourceID, bufferID);
+                    AL.SourceQueueBuffer(sourceID, bufferID);
 
-            //        AL.GetSource(instance.ID)
-            //        AL.SourceUnqueueBuffers();
-            //    }
-            //}
-            //else
+                    AL.GetSource(instance.ID)
+                    AL.SourceUnqueueBuffers();
+                }
+                audio.CloseStreaming();
+            }
+            else
             {
                 byte[] data = audio?.Samples;
                 if (data is null || data.Length == 0)
@@ -166,6 +169,37 @@ namespace TheraEngine.Audio
                 return true;
 
             AL.SourcePlay(instance.ID);
+
+            if (instance.IsStreaming)
+            {
+                // Buffer queuing loop must operate in a new thread
+                while (!thread_finish)
+                {
+                    usleep(10 * 1000); // Sleep 10 msec periodically
+                    
+                    AL.GetSource(instance.ID, ALGetSourcei.BuffersProcessed, out int count);
+
+                    instance.TotalBuffersProcessed += count;
+
+                    // For each processed buffer, remove it from the source queue, read the next chunk of
+                    // audio data from the file, fill the buffer with new data, and add it to the source queue
+                    while (count > 0)
+                    {
+                        // Remove the buffer from the queue (uiBuffer contains the buffer ID for the dequeued buffer)
+                        int buf = AL.SourceUnqueueBuffer(instance.ID);
+
+                        // Read more pData audio data (if there is any)
+
+                        // Copy audio data to buffer
+                        AL.BufferData(buf, AL_FORMAT_MONO8, pData, DATA_CHUNK_SIZE, 22050);
+                        // Insert the audio buffer to the source queue
+                        alSourceQueueBuffers(source, 1, &uiBuffer);
+
+                        iBuffersProcessed--;
+                    }
+                }
+            }
+
             CheckError();
             
             return GetState(instance) == EAudioState.Playing;

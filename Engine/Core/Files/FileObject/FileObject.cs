@@ -433,6 +433,8 @@ namespace TheraEngine.Core.Files
                 DataType = dataType;
             }
 
+            SerializeElementContent Content { get; set; }
+
             public TypeProxy DataType { get; set; }
             public long FileOffset { get; set; }
             public long DataLength { get; set; }
@@ -457,6 +459,9 @@ namespace TheraEngine.Core.Files
         [Browsable(false)]
         [TSerialize]
         public Dictionary<string, StreamableProperty> StreamableProperties { get; set; }
+
+        public StreamableProperty TryGetStreamableProperty(string name)
+            => StreamableProperties.ContainsKey(name) ? StreamableProperties[name] : null;
 
         private MemoryMappedFile FileMap { get; set; }
         private MemoryMappedViewStream FileMapStream { get; set; }

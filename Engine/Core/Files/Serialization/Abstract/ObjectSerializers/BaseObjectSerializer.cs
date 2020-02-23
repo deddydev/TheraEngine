@@ -96,7 +96,9 @@ namespace TheraEngine.Core.Files.Serialization
         /// <param name="mustAllowBinarySerialize"></param>
         /// <returns></returns>
         public static BaseObjectSerializer DetermineObjectSerializer(
-            TypeProxy objectType, bool mustAllowStringSerialize = false, bool mustAllowBinarySerialize = false)
+            TypeProxy objectType,
+            bool mustAllowStringSerialize = false,
+            bool mustAllowBinarySerialize = false)
         {
             if (objectType is null)
             {

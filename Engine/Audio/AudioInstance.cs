@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Audio
@@ -416,19 +417,39 @@ namespace TheraEngine.Audio
         private Vec3 _position = Vec3.Zero;
         private Vec3 _direction = Vec3.Zero;
         private Vec3 _velocity = Vec3.Zero;
+
         #endregion
 
-        public void Play()  => Engine.Audio.Play (this);
+        public void Play() => Engine.Audio.Play(this);
         public void Pause() => Engine.Audio.Pause(this);
-        public void Stop()  => Engine.Audio.Stop (this);
+        public void Stop() => Engine.Audio.Stop(this);
 
         public bool IsPlaying => State == EAudioState.Playing;
-        public bool IsPaused  => State == EAudioState.Paused;
+        public bool IsPaused => State == EAudioState.Paused;
         public bool IsStopped => State == EAudioState.Stopped;
         public bool IsInInitialState => State == EAudioState.Initial;
         public EAudioState State => Engine.Audio.GetState(this);
-        
-        public void UpdateAllParameters(bool force = false) 
+
+        public bool IsStreaming { get; internal set; }
+        public int TotalBuffersProcessed { get; internal set; }
+
+        private AudioFile _streamingSource;
+        public AudioFile StreamingSource 
+        {
+            get => _streamingSource;
+            set
+            {
+                //TODO: continually verify that the file still exists and can be streamed from
+                _streamingSource?.CloseStreaming();
+                _streamingSource = value;
+                _streamingSource?.OpenForStreaming();
+
+                StreamingSamplesProperty = _streamingSource?.TryGetStreamableProperty(nameof(AudioFile.Samples));
+            }
+        }
+        public TFileObject.StreamableProperty StreamingSamplesProperty { get; private set; }
+
+        public void UpdateAllParameters(bool force = false)
             => Engine.Audio.UpdateSource(this, force);
     }
 }

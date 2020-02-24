@@ -152,7 +152,15 @@ namespace TheraEngine.Audio
             }
         }
 
-        internal void OnStopped() => throw new NotImplementedException();
+        public event Action Stopped;
+        internal void OnStopped()
+        {
+            if (IsStreaming)
+                SourceFile.StreamingInstances?.Remove(this);
+            TotalBuffersProcessed = 0;
+            StreamingSource = null;
+            Stopped?.Invoke();
+        }
 
         /// <summary>
         /// (EFX Extension) If this Source property is AL_TRUE (its default value), the intensity
@@ -438,6 +446,7 @@ namespace TheraEngine.Audio
 
         public bool IsStreaming { get; internal set; }
         public int TotalBuffersProcessed { get; internal set; }
+        public int NextBufferIndex { get; set; } = 0;
 
         private AudioFile _streamingSource;
         public AudioFile StreamingSource 
@@ -454,6 +463,7 @@ namespace TheraEngine.Audio
             }
         }
         public TFileObject.StreamableProperty StreamingSamplesProperty { get; private set; }
+        public int[] BufferIDs { get; set; }
 
         public void UpdateAllParameters(bool force = false)
             => Engine.Audio.UpdateSource(this, force);

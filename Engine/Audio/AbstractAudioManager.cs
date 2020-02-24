@@ -14,6 +14,7 @@ namespace TheraEngine.Audio
         public abstract EAudioState GetState(AudioInstance instance);
 
         public abstract IList<string> SoundDevices { get; }
+        public bool CheckErrors { get; set; } = true;
 
         #region Source
 

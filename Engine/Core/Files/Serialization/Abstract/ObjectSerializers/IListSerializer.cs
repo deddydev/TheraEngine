@@ -19,7 +19,12 @@ namespace TheraEngine.Core.Files.Serialization
         {
             TypeProxy listType = TreeNode.ObjectType;
 
-            if (!TreeNode.Content.GetObject(listType, out object list))
+            if (TreeNode.Content.GetObject(listType, out object list))
+            {
+                List = list as IList;
+                TreeNode.Object = list;
+            }
+            else
             {
                 int count = TreeNode.Children.Count;
 
@@ -33,10 +38,12 @@ namespace TheraEngine.Core.Files.Serialization
 
                 if (streamable)
                 {
+                    if (!dontReadStreamables)
+                    {
 
+                    }
                 }
-
-                if (!streamable || !dontReadStreamables)
+                else
                 {
                     bool async = TreeNode.MemberInfo?.DeserializeAsync ?? false;
                     if (async)
@@ -49,10 +56,8 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                 }
 
-                list = List;
+                TreeNode.Object = List;
             }
-
-            TreeNode.Object = list;
         }
         private async void ReadElements(TypeProxy arrayType, int count)
         {

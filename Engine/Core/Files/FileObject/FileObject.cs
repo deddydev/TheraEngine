@@ -458,6 +458,7 @@ namespace TheraEngine.Core.Files
             //}
         }
 
+        //TODO: make TObjectStreaming class?
         [Browsable(false)]
         [TSerialize]
         public Dictionary<string, StreamableProperty> StreamableProperties { get; set; }
@@ -467,9 +468,13 @@ namespace TheraEngine.Core.Files
 
         private MemoryMappedFile FileMap { get; set; }
         public MemoryMappedViewStream FileMapStream { get; private set; }
-
+        [Browsable(false)]
+        public bool IsStreamingData => FileMapStream != null;
+        
         public void OpenForStreaming()
         {
+            CloseStreaming();
+
             FileMap = MemoryMappedFile.CreateFromFile(FilePath);
             FileMapStream = FileMap.CreateViewStream();
         }

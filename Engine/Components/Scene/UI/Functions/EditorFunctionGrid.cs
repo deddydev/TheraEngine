@@ -1,6 +1,6 @@
 ﻿namespace TheraEngine.Rendering.UI.Functions
 {
-    public class EditorFunctionGrid : UIMaterialRectangleComponent
+    public class EditorFunctionGrid : UIMaterialComponent
     {
 
     }

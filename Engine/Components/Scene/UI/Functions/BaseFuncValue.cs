@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.UI.Functions
             set
             {
                 _currentArgType = value;
-                InterfaceMaterial.Parameter<ShaderVec4>(0).Value = GetTypeColor();
+                Material.Parameter<ShaderVec4>(0).Value = GetTypeColor();
                 OnCurrentArgTypeChanged();
             }
         }

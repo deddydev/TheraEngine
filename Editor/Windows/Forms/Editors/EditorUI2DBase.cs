@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms
         public EditorUI2DBase(Vec2 bounds) : base(bounds)
             => _rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
 
-        protected UIMaterialRectangleComponent _backgroundComponent;
+        protected UIMaterialComponent _backgroundComponent;
 
         protected UITextRasterComponent _originText;
         private ConcurrentDictionary<string, (UITextRasterComponent, UIString2D)> _textCacheX = new ConcurrentDictionary<string, (UITextRasterComponent, UIString2D)>();
@@ -89,7 +89,7 @@ namespace TheraEditor.Windows.Forms
             OriginTransformComponent = new UITransformComponent() { RenderTransformation = false };
 
             TMaterial bgmat = GetBackgroundMaterial();
-            _backgroundComponent = new UIMaterialRectangleComponent(bgmat) { RenderTransformation = false };
+            _backgroundComponent = new UIMaterialComponent(bgmat) { RenderTransformation = false };
             _backgroundComponent.Translation.Xy = 0.0f;
             _backgroundComponent.HorizontalAlignment = EHorizontalAlign.Stretch;
             _backgroundComponent.VerticalAlignment = EVerticalAlign.Stretch;
@@ -448,7 +448,7 @@ namespace TheraEditor.Windows.Forms
 
         protected void UpdateBackgroundMaterial()
         {
-            TMaterial mat = _backgroundComponent.InterfaceMaterial;
+            TMaterial mat = _backgroundComponent.Material;
             mat.Parameter<ShaderFloat>(2).Value = OriginTransformComponent.Scale.X;
             mat.Parameter<ShaderVec2>(4).Value = OriginTransformComponent.ActualTranslation.Raw;
             mat.Parameter<ShaderFloat>(5).Value = UnitIncrementX;

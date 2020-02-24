@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// UI component that can be interacted with by the player.
     /// </summary>
-    public abstract class UIInteractableComponent : UIMaterialRectangleComponent, IUIInteractableComponent
+    public abstract class UIInteractableComponent : UIMaterialComponent, IUIInteractableComponent
     {
         public UIInteractableComponent()
             : base() { }

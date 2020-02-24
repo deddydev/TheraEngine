@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering.UI.Functions
         int ArgumentIndex { get; }
         bool IsOutput { get; }
     }
-    public abstract class BaseFuncArg : UIMaterialRectangleComponent
+    public abstract class BaseFuncArg : UIMaterialComponent
     {
         public const int ConnectionBoxDims = 10;
         public const int ConnectionBoxMargin = 5;

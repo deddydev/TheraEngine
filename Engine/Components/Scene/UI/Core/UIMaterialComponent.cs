@@ -8,11 +8,11 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UIMaterialRectangleComponent : UIBoundableComponent, I2DRenderable
+    public class UIMaterialComponent : UIBoundableComponent, I2DRenderable
     {
-        public UIMaterialRectangleComponent() 
+        public UIMaterialComponent() 
             : this(TMaterial.CreateUnlitColorMaterialForward(Color.Magenta)) { }
-        public UIMaterialRectangleComponent(TMaterial material, bool flipVerticalUVCoord = false)
+        public UIMaterialComponent(TMaterial material, bool flipVerticalUVCoord = false)
         {
             VertexQuad quad = VertexQuad.PosZQuad(1.0f, 1.0f, 0.0f, true, flipVerticalUVCoord);
             PrimitiveData quadData = PrimitiveData.FromQuads(VertexShaderDesc.PosTex(), quad);
@@ -48,7 +48,7 @@ namespace TheraEngine.Rendering.UI
         /// The material used to render on this UI component.
         /// </summary>
         [Category("Rendering")]
-        public TMaterial InterfaceMaterial
+        public TMaterial Material
         {
             get => RenderCommand.Mesh.Material;
             set => RenderCommand.Mesh.Material = value;

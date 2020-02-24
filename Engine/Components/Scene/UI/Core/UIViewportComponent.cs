@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// Houses a viewport that renders a scene from a designated camera.
     /// </summary>
-    public class UIViewportComponent : UIMaterialRectangleComponent, I2DRenderable, IPreRendered
+    public class UIViewportComponent : UIMaterialComponent, I2DRenderable, IPreRendered
     {
         public event DelSetUniforms SettingUniforms;
 
@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering.UI
 
         public UIViewportComponent() : base(GetViewportMaterial())
         {
-            _fbo = new MaterialFrameBuffer(InterfaceMaterial);
+            _fbo = new MaterialFrameBuffer(Material);
             RenderCommand.Mesh.SettingUniforms += SetUniforms;
         }
 

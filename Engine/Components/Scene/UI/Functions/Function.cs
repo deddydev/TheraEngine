@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering.UI.Functions
     {
 
     }
-    public abstract class BaseFunction : UIMaterialRectangleComponent, IShaderVarOwner, IFunction
+    public abstract class BaseFunction : UIMaterialComponent, IShaderVarOwner, IFunction
     {
         public static Vec4 RegularColor { get; set; } = new Vec4(0.1f, 0.1f, 0.1f, 1.0f);
         public static Vec4 SelectedColor { get; set; } = new Vec4(0.1f, 0.2f, 0.25f, 1.0f);

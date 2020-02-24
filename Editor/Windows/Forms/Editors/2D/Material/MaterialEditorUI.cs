@@ -104,7 +104,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnLeftClickDown()
         {
             if (_selectedFunc != null && _selectedFunc != _highlightedFunc)
-                _selectedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.RegularColor;
+                _selectedFunc.Material.Parameter<ShaderVec4>(0).Value = BaseFunction.RegularColor;
 
             _selectedFunc = _highlightedFunc;
             _selectedArg = _highlightedArg;
@@ -203,32 +203,32 @@ namespace TheraEditor.Windows.Forms
                 comp = (IUIComponent)comp.ParentSocket;
 
             if (_highlightedFunc != null && comp != _highlightedFunc)
-                _highlightedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = _highlightedFunc == _selectedFunc ? BaseFunction.SelectedColor : BaseFunction.RegularColor;
+                _highlightedFunc.Material.Parameter<ShaderVec4>(0).Value = _highlightedFunc == _selectedFunc ? BaseFunction.SelectedColor : BaseFunction.RegularColor;
             
             if (_highlightedArg != null && comp != _highlightedArg)
             {
                 if (_highlightedArg is BaseFuncValue value)
                 {
-                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = value.GetTypeColor();
+                    _highlightedArg.Material.Parameter<ShaderVec4>(0).Value = value.GetTypeColor();
                 }
                 else
                 {
-                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncExec.DefaultColor;
+                    _highlightedArg.Material.Parameter<ShaderVec4>(0).Value = BaseFuncExec.DefaultColor;
                 }
-                UIMaterialRectangleComponent r = _highlightedArg.ParentSocket as UIMaterialRectangleComponent;
-                r.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.RegularColor;
+                UIMaterialComponent r = _highlightedArg.ParentSocket as UIMaterialComponent;
+                r.Material.Parameter<ShaderVec4>(0).Value = BaseFunction.RegularColor;
             }
 
             _highlightedFunc = comp as MaterialFunction;
             _highlightedArg = comp as BaseFuncArg;
 
             if (_highlightedFunc != null)
-                _highlightedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.HighlightedColor;
+                _highlightedFunc.Material.Parameter<ShaderVec4>(0).Value = BaseFunction.HighlightedColor;
 
             if (_highlightedArg != null)
             {
-                UIMaterialRectangleComponent r = _highlightedArg.ParentSocket as UIMaterialRectangleComponent;
-                r.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.HighlightedColor;
+                UIMaterialComponent r = _highlightedArg.ParentSocket as UIMaterialComponent;
+                r.Material.Parameter<ShaderVec4>(0).Value = BaseFunction.HighlightedColor;
 
                 if (_draggedArg != null &&
                     !ReferenceEquals(_draggedArg, _highlightedArg) &&
@@ -239,13 +239,13 @@ namespace TheraEditor.Windows.Forms
                     else
                         UpdateCursorBezier(_highlightedArg.WorldPoint.Xy, _draggedArg.WorldPoint.Xy);
                     
-                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncValue.ConnectableColor;
+                    _highlightedArg.Material.Parameter<ShaderVec4>(0).Value = BaseFuncValue.ConnectableColor;
                 }
                 else
                 {
-                    Vec4 value = _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value;
+                    Vec4 value = _highlightedArg.Material.Parameter<ShaderVec4>(0).Value;
                     value = new Vec4(0.8f);
-                    _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = value;
+                    _highlightedArg.Material.Parameter<ShaderVec4>(0).Value = value;
                 }
             }
         }

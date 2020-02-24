@@ -546,7 +546,7 @@
     <Compile Include="Components\Scene\UI\Core\Transforms\UITranslationComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Arrangements\UIItemGridComponent.cs" />
     <Compile Include="Components\Scene\UI\Sizeables\UIVec3.cs" />
-    <Compile Include="Components\Scene\UI\Core\Arrangements\UIItemTreeComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\Arrangements\UITreeComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextBoxComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextQuadComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\UICanvasComponent.cs" />
@@ -588,7 +588,7 @@
     <Compile Include="Components\Scene\UI\Text\UITextRasterComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\UIComponent.cs" />
     <None Include="Components\Scene\UI\Core\UIDockableComponent.cs" />
-    <Compile Include="Components\Scene\UI\Core\UIMaterialRectangleComponent.cs" />
+    <Compile Include="Components\Scene\UI\Core\UIMaterialComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Transforms\UIRotationComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\UIViewportComponent.cs" />
     <Compile Include="Components\Scene\Volumes\Boost.cs" />

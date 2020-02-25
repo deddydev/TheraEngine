@@ -315,7 +315,7 @@ void main()
         }
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
-            Matrix4 mtx = ParentMatrix * _localTRS;
+            Matrix4 mtx = ParentWorldMatrix * _localTRS;
             _rcKfLines.WorldMatrix = mtx;
             _rcSpline.WorldMatrix = mtx;
             _rcVelocityTangents.WorldMatrix = mtx;

@@ -48,7 +48,7 @@ namespace TheraEngine.Components.Scene.Transforms
         private void Render(bool shadowPass)
         {
             Engine.Renderer.RenderSphere(WorldPoint, _traceShape.Radius, false, Color.Black);
-            Engine.Renderer.RenderLine(ParentMatrix.Translation, WorldPoint, Color.Black);
+            Engine.Renderer.RenderLine(ParentWorldMatrix.Translation, WorldPoint, Color.Black);
         }
 
 #if EDITOR
@@ -89,7 +89,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         private void Tick(float delta)
         {
-            Matrix4 startMatrix = ParentMatrix * Rotation.GetMatrix() * Translation.AsTranslationMatrix();
+            Matrix4 startMatrix = ParentWorldMatrix * Rotation.GetMatrix() * Translation.AsTranslationMatrix();
             _startPoint = startMatrix.Translation;
             Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, MaxLength));
             Vec3 testEnd = endMatrix.Translation;

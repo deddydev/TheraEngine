@@ -537,6 +537,7 @@
     <Compile Include="Components\Scene\Shapes\CollidableShape3DComponent.cs" />
     <Compile Include="Components\Scene\Splines\Spline2DComponent.cs" />
     <Compile Include="Components\Scene\Misc\SubActorComponent.cs" />
+    <Compile Include="Components\Scene\Transforms\TransformComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Arrangements\UISizingDefinition.cs" />
     <Compile Include="Components\Scene\UI\Core\Arrangements\UIItemListComponent.cs" />
     <Compile Include="Components\Scene\UI\Sizeables\UIVec2.cs" />

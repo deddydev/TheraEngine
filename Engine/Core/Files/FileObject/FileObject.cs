@@ -26,11 +26,16 @@ namespace TheraEngine.Core.Files
     public abstract partial class TFileObject : TObject, IFileObject
     {
         [Browsable(false)]
-        public TFileDef FileDefinition => GetFileDefinition(GetType());
+        public TFileDef FileDefinition
+            => GetFileDefinition(GetType());
+
         [Browsable(false)]
-        public TFileExt FileExtension => GetFileExtension(GetType());
+        public TFileExt FileExtension
+            => GetFileExtension(GetType());
+
         [Browsable(false)]
-        public TFile3rdPartyExt File3rdPartyExtensions => GetFile3rdPartyExtensions(GetType());
+        public TFile3rdPartyExt File3rdPartyExtensions
+            => GetFile3rdPartyExtensions(GetType());
 
         public delegate T Del3rdPartyImportFileMethod<T>(string path) where T : IFileObject;
         public delegate Task<T> Del3rdPartyImportFileMethodAsync<T>(string path, IProgress<float> progress, CancellationToken cancel) where T : IFileObject;
@@ -431,22 +436,21 @@ namespace TheraEngine.Core.Files
                 FileOffset = fileOffset;
                 DataLength = dataLength;
                 DataType = dataType;
+
+                Deserializer = BaseObjectSerializer.DetermineObjectSerializer(DataType, false, false) as IStreamableSerializer;
+                //Deserializer.TreeNode = this;
             }
 
-            //TODO: parse section of raw data from Content
-
-            SerializeElementContent Content { get; set; }
-
+            public IStreamableSerializer Deserializer { get; set; }
+            public EProprietaryFileFormat Format { get; set; }
             public TypeProxy DataType { get; set; }
             public long FileOffset { get; set; }
             public long DataLength { get; set; }
 
-            public byte[] ReadRaw(long relativeOffset, int chunkSize, MemoryMappedViewStream stream)
+            public object Read(int startIndex, int count, MemoryMappedViewStream stream)
             {
-                stream.Seek(FileOffset + relativeOffset, SeekOrigin.Begin);
-                byte[] buffer = new byte[chunkSize];
-                stream.Read(buffer, 0, chunkSize);
-                return buffer;
+                stream.Seek(FileOffset, SeekOrigin.Begin);
+                return Deserializer.StreamChunk(startIndex, count, stream);
             }
             //public object[] ReadArrayPortion(int startIndex, int count, MemoryMappedViewStream stream)
             //{

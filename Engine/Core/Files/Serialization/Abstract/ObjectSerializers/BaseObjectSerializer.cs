@@ -29,17 +29,21 @@ namespace TheraEngine.Core.Files.Serialization
             ManualBinarySerialize = manualBinarySerialize;
         }
     }
+    public interface IBaseObjectSerializer : IObject
+    {
+        SerializeElement TreeNode { get; set; }
+    }
     /// <summary>
     /// Tool to collect all members of an object into an array of children.
     /// </summary>
-    public abstract class BaseObjectSerializer : TObject
+    public abstract class BaseObjectSerializer : TObject, IBaseObjectSerializer
     {
         public bool ShouldWriteDefaultMembers
             => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteDefaultMembers) ?? false;
         public bool WriteChangedMembersOnly
             => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteChangedMembersOnly) ?? false;
 
-        public SerializeElement TreeNode { get; protected internal set; } = null;
+        public SerializeElement TreeNode { get; set; } = null;
         public int TreeSize { get; private set; }
         
         protected abstract int OnGetTreeSize(Serializer.WriterBinary binWriter);

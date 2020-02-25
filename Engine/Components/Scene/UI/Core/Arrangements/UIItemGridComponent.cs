@@ -8,13 +8,13 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UIItemGridComponent : UIBoundableComponent
+    public class UIGridComponent : UIBoundableComponent
     {
         private EventList<UISizingDefinition> _rows;
         private EventList<UISizingDefinition> _columns;
         private List<int>[,] _indices;
 
-        public UIItemGridComponent()
+        public UIGridComponent()
         {
             _rows = new EventList<UISizingDefinition>();
             _rows.CollectionChanged += CollectionChanged;

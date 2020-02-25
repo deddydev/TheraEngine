@@ -198,10 +198,10 @@ namespace TheraEngine.Audio
                 return;
 
             int chunkSize = audio.StreamingChunkSize;
-            byte[] chunk = instance.StreamingSamplesProperty.ReadRaw(
+            byte[] chunk = instance.StreamingSamplesProperty.Read(
                 instance.NextBufferIndex++ * chunkSize,
                 chunkSize,
-                audio.FileMapStream);
+                audio.FileMapStream) as byte[];
 
             if (chunk is null || chunk.Length == 0)
                 return;

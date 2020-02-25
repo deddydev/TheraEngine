@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO.MemoryMappedFiles;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -33,6 +34,11 @@ namespace TheraEngine.Core.Files.Serialization
             _stringValue = str;
             
             return !IsNonStringObject;
+        }
+
+        public byte[] Read(int offset, int count, MemoryMappedViewStream fileMapStream)
+        {
+
         }
 
         public void SetValueAsString(string o)

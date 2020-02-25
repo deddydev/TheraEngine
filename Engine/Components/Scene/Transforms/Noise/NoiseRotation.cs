@@ -18,7 +18,6 @@ namespace TheraEngine.Components.Scene.Transforms
             NoiseFrequency = noiseFreq;
             ShakeIntensity = currentShakeIntensity;
         }
-
         public float ShakeIntensity { get; set; } = 0.0f;
         public float MaxYaw { get; set; } = 30.0f;
         public float MaxPitch { get; set; } = 30.0f;
@@ -35,8 +34,8 @@ namespace TheraEngine.Components.Scene.Transforms
         private float _time = 0.0f;
         private float _noiseFrequency = 500.0f;
 
-        private Rotator _rotation = new Rotator();
-        private FastNoise _noise = new FastNoise();
+        private readonly Rotator _rotation = new Rotator();
+        private readonly FastNoise _noise = new FastNoise();
 
         public override void OnSpawned()
         {
@@ -52,9 +51,10 @@ namespace TheraEngine.Components.Scene.Transforms
         protected virtual void NoiseTick(float delta)
         {
             _time += delta;
-            _rotation.Yaw = MaxYaw * ShakeIntensity * _noise.GetPerlin(20.0f, _time);
-            _rotation.Pitch = MaxPitch * ShakeIntensity * _noise.GetPerlin(21.0f, _time);
-            _rotation.Roll = MaxRoll * ShakeIntensity * _noise.GetPerlin(22.0f, _time);
+            _rotation.SetRotations(
+                MaxPitch * ShakeIntensity * _noise.GetPerlin(21.0f, _time),
+                MaxYaw * ShakeIntensity * _noise.GetPerlin(20.0f, _time),
+                MaxRoll * ShakeIntensity * _noise.GetPerlin(22.0f, _time));
             RecalcLocalTransform();
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)

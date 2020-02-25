@@ -1,12 +1,17 @@
 ﻿using Extensions;
 using System;
 using System.Collections;
+using System.IO.MemoryMappedFiles;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
+    public interface IStreamableSerializer : IBaseObjectSerializer
+    {
+        object StreamChunk(int startIndex, int count, MemoryMappedViewStream stream);
+    }
     [ObjectSerializerFor(typeof(IList), CanSerializeAsString = true)]
     public class IListSerializer : BaseObjectSerializer
     {

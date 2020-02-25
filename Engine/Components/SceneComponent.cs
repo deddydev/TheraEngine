@@ -51,8 +51,8 @@ namespace TheraEngine.Components
         Vec3 WorldPoint { get; }
         int ActorSceneComponentCacheIndex { get; }
         
-        Matrix4 ParentMatrix { get; }
-        Matrix4 InverseParentMatrix { get; }
+        Matrix4 ParentWorldMatrix { get; }
+        Matrix4 InverseParentWorldMatrix { get; }
         Matrix4 ActorRelativeMatrix { get; }
         Matrix4 InverseActorRelativeMatrix { get; }
         
@@ -264,8 +264,8 @@ namespace TheraEngine.Components
             _inverseWorldMatrix = inverse;
             _worldMatrix = transform;
 
-            _localMatrix = InverseParentMatrix * WorldMatrix;
-            _inverseLocalMatrix = InverseWorldMatrix * ParentMatrix;
+            _localMatrix = InverseParentWorldMatrix * WorldMatrix;
+            _inverseLocalMatrix = InverseWorldMatrix * ParentWorldMatrix;
 
             OnWorldTransformChanged();
         }
@@ -286,8 +286,8 @@ namespace TheraEngine.Components
                 _worldMatrix = value;
                 _inverseWorldMatrix = _worldMatrix.Inverted();
 
-                _localMatrix = WorldMatrix * InverseParentMatrix;
-                _inverseLocalMatrix = ParentMatrix * InverseWorldMatrix;
+                _localMatrix = WorldMatrix * InverseParentWorldMatrix;
+                _inverseLocalMatrix = ParentWorldMatrix * InverseWorldMatrix;
 
                 OnWorldTransformChanged();
             }
@@ -340,8 +340,8 @@ namespace TheraEngine.Components
                 _inverseWorldMatrix = value;
                 _worldMatrix = _inverseWorldMatrix.Inverted();
 
-                _localMatrix = InverseParentMatrix * WorldMatrix;
-                _inverseLocalMatrix = InverseWorldMatrix * ParentMatrix;
+                _localMatrix = InverseParentWorldMatrix * WorldMatrix;
+                _inverseLocalMatrix = InverseWorldMatrix * ParentWorldMatrix;
 
                 OnWorldTransformChanged();
             }
@@ -525,8 +525,8 @@ namespace TheraEngine.Components
             if (retainCurrentPosition)
             {
                 _inverseWorldMatrix = WorldMatrix.Inverted();
-                _localMatrix = WorldMatrix * InverseParentMatrix;
-                _inverseLocalMatrix = ParentMatrix * InverseWorldMatrix;
+                _localMatrix = WorldMatrix * InverseParentWorldMatrix;
+                _inverseLocalMatrix = ParentWorldMatrix * InverseWorldMatrix;
                 RecalcWorldTransform();
             }
             foreach (ISceneComponent c in ChildComponents)
@@ -537,8 +537,8 @@ namespace TheraEngine.Components
         {
             _previousWorldMatrix = _worldMatrix;
             _previousInverseWorldMatrix = _inverseWorldMatrix;
-            _worldMatrix = ParentMatrix * LocalMatrix;
-            _inverseWorldMatrix = InverseLocalMatrix * InverseParentMatrix;
+            _worldMatrix = ParentWorldMatrix * LocalMatrix;
+            _inverseWorldMatrix = InverseLocalMatrix * InverseParentWorldMatrix;
 
             _ancestorSimulatingPhysics = null;
             foreach (ISceneComponent c in ChildComponents)
@@ -555,13 +555,13 @@ namespace TheraEngine.Components
         /// Returns the world transform of the parent scene component.
         /// </summary>
         [Browsable(false)]
-        public Matrix4 ParentMatrix
+        public Matrix4 ParentWorldMatrix
             => ParentSocket is null ? Matrix4.Identity : ParentSocket.WorldMatrix;
         /// <summary>
         /// Returns the inverse of the world transform of the parent scene component.
         /// </summary>
         [Browsable(false)]
-        public Matrix4 InverseParentMatrix 
+        public Matrix4 InverseParentWorldMatrix 
             => ParentSocket is null ? Matrix4.Identity : ParentSocket.InverseWorldMatrix;
 
         /// <summary>
@@ -759,9 +759,9 @@ namespace TheraEngine.Components
         public virtual void RecalcWorldTransform(bool recalcChildWorldTransforms = true)
         {
             _previousWorldMatrix = _worldMatrix;
-            _worldMatrix = ParentMatrix * LocalMatrix;
+            _worldMatrix = ParentWorldMatrix * LocalMatrix;
             _previousInverseWorldMatrix = _inverseWorldMatrix;
-            _inverseWorldMatrix = InverseLocalMatrix * InverseParentMatrix;
+            _inverseWorldMatrix = InverseLocalMatrix * InverseParentWorldMatrix;
             OnWorldTransformChanged(recalcChildWorldTransforms);
         }
 

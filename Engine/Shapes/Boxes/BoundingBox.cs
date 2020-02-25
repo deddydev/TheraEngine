@@ -322,12 +322,29 @@ namespace TheraEngine.Core.Shapes
 
             if (cubemapUVs == ECubemapTextureUVs.None)
             {
-                left =      inwardFacing ? VertexQuad.MakeQuad(BFL, BBL, TBL, TFL, leftNormal)      : VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal);
-                right =     inwardFacing ? VertexQuad.MakeQuad(BBR, BFR, TFR, TBR, rightNormal)     : VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal);
-                top =       inwardFacing ? VertexQuad.MakeQuad(TBL, TBR, TFR, TFL, topNormal)       : VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal);
-                bottom =    inwardFacing ? VertexQuad.MakeQuad(BFL, BFR, BBR, BBL, bottomNormal)    : VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal);
-                front =     inwardFacing ? VertexQuad.MakeQuad(BFR, BFL, TFL, TFR, frontNormal)     : VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
-                back =      inwardFacing ? VertexQuad.MakeQuad(BBL, BBR, TBR, TBL, backNormal)      : VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
+                left = inwardFacing ?
+                    VertexQuad.MakeQuad(BFL, BBL, TBL, TFL, leftNormal) :
+                    VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal);
+
+                right = inwardFacing ?
+                    VertexQuad.MakeQuad(BBR, BFR, TFR, TBR, rightNormal) :
+                    VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal);
+
+                top = inwardFacing ?
+                    VertexQuad.MakeQuad(TBL, TBR, TFR, TFL, topNormal) :
+                    VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal);
+
+                bottom = inwardFacing ?
+                    VertexQuad.MakeQuad(BFL, BFR, BBR, BBL, bottomNormal) :
+                    VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal);
+
+                front = inwardFacing ?
+                    VertexQuad.MakeQuad(BFR, BFL, TFL, TFR, frontNormal) :
+                    VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
+
+                back = inwardFacing ?
+                    VertexQuad.MakeQuad(BBL, BBR, TBR, TBL, backNormal) :
+                    VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
             }
             else
             {
@@ -335,18 +352,23 @@ namespace TheraEngine.Core.Shapes
                 left = inwardFacing ?
                     VertexQuad.MakeQuad(BFL, BBL, TBL, TFL, leftNormal,     ECubemapFace.NegX, widthLarger, bias) :
                     VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal,     ECubemapFace.NegX, widthLarger, bias);
+
                 right = inwardFacing ?
                     VertexQuad.MakeQuad(BBR, BFR, TFR, TBR, rightNormal,    ECubemapFace.PosX, widthLarger, bias) : 
                     VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal,    ECubemapFace.PosX, widthLarger, bias);
+
                 top = inwardFacing ?
                     VertexQuad.MakeQuad(TBL, TBR, TFR, TFL, topNormal,      ECubemapFace.PosY, widthLarger, bias) : 
                     VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal,      ECubemapFace.PosY, widthLarger, bias);
+
                 bottom = inwardFacing ? 
                     VertexQuad.MakeQuad(BFL, BFR, BBR, BBL, bottomNormal,   ECubemapFace.NegY, widthLarger, bias) : 
                     VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal,   ECubemapFace.NegY, widthLarger, bias);
+
                 front = inwardFacing ? 
                     VertexQuad.MakeQuad(BFR, BFL, TFL, TFR, frontNormal,    ECubemapFace.PosZ, widthLarger, bias) :
                     VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal,    ECubemapFace.PosZ, widthLarger, bias);
+
                 back = inwardFacing ? 
                     VertexQuad.MakeQuad(BBL, BBR, TBR, TBL, backNormal,     ECubemapFace.NegZ, widthLarger, bias) :
                     VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal,     ECubemapFace.NegZ, widthLarger, bias);

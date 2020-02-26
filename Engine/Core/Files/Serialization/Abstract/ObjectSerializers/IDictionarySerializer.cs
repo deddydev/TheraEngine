@@ -14,7 +14,7 @@ namespace TheraEngine.Core.Files.Serialization
         public event Action DoneReadingElements;
         public IDictionary Dictionary { get; private set; }
 
-        public override void DeserializeTreeToObject()
+        public override async Task DeserializeTreeToObjectAsync()
         {
             bool async = TreeNode.MemberInfo?.DeserializeAsync ?? false;
 
@@ -28,15 +28,14 @@ namespace TheraEngine.Core.Files.Serialization
                 return;
 
             if (async)
-                TreeNode.Owner.PendingAsyncTasks.Add(Task.Run(() =>
-                    ReadDictionary(dicType, keyValCount)).ContinueWith(t => DoneReadingElements?.Invoke()));
+                TreeNode.Manager.PendingAsyncTasks.Add(Task.Run(() => ReadDictionaryAsync(dicType, keyValCount)).ContinueWith(t => DoneReadingElements?.Invoke()));
             else
             {
-                ReadDictionary(dicType, keyValCount);
+                await ReadDictionaryAsync(dicType, keyValCount);
                 DoneReadingElements?.Invoke();
             }
         }
-        private async void ReadDictionary(TypeProxy dicType, int keyValCount)
+        private async Task ReadDictionaryAsync(TypeProxy dicType, int keyValCount)
         {
             TypeProxy[] args = dicType.GetGenericArguments();
             TypeProxy keyType = args[0];
@@ -103,7 +102,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Dictionary.Add(keyNode.Object, valNode.Object);
         }
 
-        public override void SerializeTreeFromObject()
+        public override async Task SerializeTreeFromObjectAsync()
         {
             if (!(TreeNode.Object is IDictionary dic))
                 return;
@@ -129,10 +128,10 @@ namespace TheraEngine.Core.Files.Serialization
                 SerializeElement valNode = valNodes[i];
 
                 pairNode.Children.Add(keyNode);
-                keyNode.SerializeTreeFromObject();
+                await keyNode.SerializeTreeFromObjectAsync();
 
                 pairNode.Children.Add(valNode);
-                valNode.SerializeTreeFromObject();
+                await valNode.SerializeTreeFromObjectAsync();
             }
         }
         protected override int OnGetTreeSize(Serializer.WriterBinary binWriter)

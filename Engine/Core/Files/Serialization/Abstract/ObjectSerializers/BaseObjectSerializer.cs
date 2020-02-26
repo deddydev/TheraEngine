@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection;
 
@@ -38,10 +39,13 @@ namespace TheraEngine.Core.Files.Serialization
     /// </summary>
     public abstract class BaseObjectSerializer : TObject, IBaseObjectSerializer
     {
+        public bool IsStreamable => TreeNode?.MemberInfo?.IsStreamable ?? false;
+        public bool DoNotReadStreamables => (TreeNode?.Manager?.Flags & ESerializeFlags.SkipStreamableProperties) != 0;
+
         public bool ShouldWriteDefaultMembers
-            => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteDefaultMembers) ?? false;
+            => TreeNode?.Manager?.Flags.HasFlag(ESerializeFlags.WriteDefaultMembers) ?? false;
         public bool WriteChangedMembersOnly
-            => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteChangedMembersOnly) ?? false;
+            => TreeNode?.Manager?.Flags.HasFlag(ESerializeFlags.WriteChangedMembersOnly) ?? false;
 
         public SerializeElement TreeNode { get; set; } = null;
         public int TreeSize { get; private set; }
@@ -81,12 +85,12 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// Creates the TreeNode's object from the serialization tree.
         /// </summary>
-        public abstract void DeserializeTreeToObject();
+        public abstract Task DeserializeTreeToObjectAsync();
         /// <summary>
         /// Creates the serialization tree from the TreeNode's object.
         /// </summary>
-        public abstract void SerializeTreeFromObject();
-
+        public abstract Task SerializeTreeFromObjectAsync();
+        
         public abstract bool CanWriteAsString(TypeProxy type);
 
         static BaseObjectSerializer() => ClearObjectSerializerCache();
@@ -99,7 +103,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <param name="mustAllowStringSerialize"></param>
         /// <param name="mustAllowBinarySerialize"></param>
         /// <returns></returns>
-        public static BaseObjectSerializer DetermineObjectSerializer(
+        public static BaseObjectSerializer GetSerializerFor(
             TypeProxy objectType,
             bool mustAllowStringSerialize = false,
             bool mustAllowBinarySerialize = false)

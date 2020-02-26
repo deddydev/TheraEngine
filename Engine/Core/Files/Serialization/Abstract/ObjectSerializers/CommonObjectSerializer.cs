@@ -19,7 +19,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         public event Action DoneReadingChildMembers;
 
-        public override void DeserializeTreeToObject()
+        public override async Task DeserializeTreeToObjectAsync()
         {
             bool async = TreeNode.MemberInfo?.DeserializeAsync ?? false;
 
@@ -30,7 +30,7 @@ namespace TheraEngine.Core.Files.Serialization
                 //Engine.PrintLine($"Deserializing {TreeNode.ObjectType.GetFriendlyName()} {TreeNode.Name} as {nameof(ENodeType.ElementContent)}.");
 
                 if (async)
-                    TreeNode.Owner.PendingAsyncTasks.Add(Task.Run(ReadContent));
+                    TreeNode.Manager.PendingAsyncTasks.Add(Task.Run(ReadContent));
                 else
                     ReadContent();
                 
@@ -42,29 +42,28 @@ namespace TheraEngine.Core.Files.Serialization
             else
                 TreeNode.Object = TreeNode.ObjectType.CreateInstance();
             
-            if (TreeNode.Object is IFileObject fobj && fobj.RootFile != TreeNode.Owner.RootFileObject)
+            if (TreeNode.Object is IFileObject fobj && fobj.RootFile != TreeNode.Manager.RootFileObject)
             {
-                fobj.RootFile = TreeNode.Owner.RootFileObject as IFileObject;
+                fobj.RootFile = TreeNode.Manager.RootFileObject as IFileObject;
                 if (TreeNode.IsRoot)
-                    fobj.FilePath = TreeNode.Owner.FilePath;
+                    fobj.FilePath = TreeNode.Manager.FilePath;
             }
-            
+
             if (async)
-                Task.Run(() => ReadChildren(values)).ContinueWith(t => DoneReadingChildMembers?.Invoke());
+            {
+                TreeNode.Manager.PendingAsyncTasks.Add(Task.Run(() => ReadChildren(values)).ContinueWith(t => DoneReadingChildMembers?.Invoke()));
+            }
             else
             {
-                ReadChildren(values);
+                await ReadChildren(values);
                 DoneReadingChildMembers?.Invoke();
             }
         }
 
-        private void ReadContent()
-        {
-            bool success = TreeNode.Content.GetObject(TreeNode.ObjectType, out object obj);
-            TreeNode.Object = success ? obj : null;
-        }
+        private void ReadContent() 
+            => TreeNode.Object = TreeNode.Content.GetObject(TreeNode.ObjectType, out object obj) ? obj : null;
 
-        private async void ReadChildren(List<TSerializeMemberInfo> values)
+        private async Task ReadChildren(List<TSerializeMemberInfo> values)
         {
             foreach (MethodInfo m in TreeNode.PreDeserializeMethods.OrderBy(x => x.GetCustomAttribute<TPreDeserialize>().Order))
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<TPreDeserialize>().Arguments);
@@ -112,7 +111,7 @@ namespace TheraEngine.Core.Files.Serialization
                     {
                         if (member.DeserializeAsync)
                         {
-                            parentNode.Owner.PendingAsyncTasks.Add(Task.Run(() => 
+                            parentNode.Manager.PendingAsyncTasks.Add(Task.Run(() => 
                             {
                                 if (attrib.GetObject(member.MemberType, out object value))
                                     member.SetObject(o, value);
@@ -209,7 +208,7 @@ namespace TheraEngine.Core.Files.Serialization
             return isSerializable;
         }
 
-        public override async void SerializeTreeFromObject()
+        public override async Task SerializeTreeFromObjectAsync()
         {
             var (Count, Values) = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
             if (Count == 0)
@@ -233,7 +232,7 @@ namespace TheraEngine.Core.Files.Serialization
                     else
                         parent = categoryNodes[member.Category];
 
-                    parent.Owner = TreeNode.Owner;
+                    parent.Manager = TreeNode.Manager;
                     parent.Parent = TreeNode.Parent;
                 }
 
@@ -268,7 +267,7 @@ namespace TheraEngine.Core.Files.Serialization
                                 if (!ShouldWriteDefaultMembers && element.IsObjectDefault())
                                     parent.Children.RemoveAt(parent.Children.Count - 1);
                                 else
-                                    element.SerializeTreeFromObject();
+                                    element.SerializeTreeFromObjectAsync();
                             }
                             //else if (!ShouldWriteDefaultMembers && element.ObjectIsDefault)
                             //    parent.ChildElements.RemoveAt(parent.ChildElements.Count - 1);
@@ -384,7 +383,7 @@ namespace TheraEngine.Core.Files.Serialization
                 else
                 {
                     type = type.GetGenericArguments()[0];
-                    var ser = DetermineObjectSerializer(type, true);
+                    var ser = GetSerializerFor(type, true);
                     if (ser is null)
                     {
                         result = null;

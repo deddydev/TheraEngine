@@ -27,18 +27,13 @@ namespace TheraEngine.Core.Files.Serialization
                 return false;
             }
 
-            var serializer = BaseObjectSerializer.DetermineObjectSerializer(_valueType, true);
+            var serializer = BaseObjectSerializer.GetSerializerFor(_valueType, true);
 
             string str = null;
             IsNonStringObject = serializer is null || !serializer.ObjectToString(_value, out str);
             _stringValue = str;
             
             return !IsNonStringObject;
-        }
-
-        public byte[] Read(int offset, int count, MemoryMappedViewStream fileMapStream)
-        {
-
         }
 
         public void SetValueAsString(string o)
@@ -58,9 +53,22 @@ namespace TheraEngine.Core.Files.Serialization
         public bool IsNonStringObject { get; private set; } = false;
         public bool IsUnparsedString => _valueType is null;
 
+        private bool ParseStringToObject(BaseObjectSerializer serializer, TypeProxy type)
+        {
+            if (serializer is null || !serializer.CanWriteAsString(type))
+            {
+                _valueType = null;
+                return false;
+            }
+
+            IsNonStringObject = !serializer.ObjectFromString(type, _stringValue, out _value);
+            _valueType = type;
+
+            return true;
+        }
         private bool ParseStringToObject(TypeProxy type)
         {
-            BaseObjectSerializer serializer = BaseObjectSerializer.DetermineObjectSerializer(type, true);
+            BaseObjectSerializer serializer = BaseObjectSerializer.GetSerializerFor(type, true);
             if (serializer is null)
             {
                 _valueType = null;
@@ -94,6 +102,31 @@ namespace TheraEngine.Core.Files.Serialization
             value = success ? _value : default;
 
             return success;
+        }
+        public bool GetObject(BaseObjectSerializer serializer, TypeProxy expectedType, out object value)
+        {
+            if (expectedType is null)
+            {
+                value = _value;
+                return _value != null && !IsUnparsedString;
+            }
+
+            //TODO: verify IsInstanceOfType usage
+            bool success = IsNotNull && (IsUnparsedString ? ParseStringToObject(serializer, expectedType) : (_value is null || expectedType.IsInstanceOfType(_value)));
+
+            value = success ? _value : default;
+
+            return success;
+        }
+        public bool HasObject(BaseObjectSerializer serializer, TypeProxy expectedType)
+        {
+            if (expectedType is null)
+            {
+                return _value != null && !IsUnparsedString;
+            }
+
+            //TODO: verify IsInstanceOfType usage
+            return IsNotNull && (IsUnparsedString ? serializer?.CanWriteAsString(expectedType) ?? false : (_value is null || expectedType.IsInstanceOfType(_value)));
         }
         public bool GetObjectAs<T>(out T value)
         {

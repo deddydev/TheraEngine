@@ -20,11 +20,18 @@ namespace TheraEngine.Core.Files.Serialization
         public event Action DoneReadingElements;
         public IList List { get; private set; }
 
-        public override void DeserializeTreeToObject()
+        public override async Task DeserializeTreeToObjectAsync()
         {
             TypeProxy listType = TreeNode.ObjectType;
 
-            if (TreeNode.Content.GetObject(listType, out object list))
+            if (IsStreamable && DoNotReadStreamables)
+            {
+                //TODO: Cache this serializer and string value in object as streamable property
+
+                return;
+            }
+
+            if (TreeNode.Content.GetObject(this, listType, out object list))
             {
                 List = list as IList;
                 TreeNode.Object = list;
@@ -38,33 +45,25 @@ namespace TheraEngine.Core.Files.Serialization
                 else
                     List = listType.CreateInstance() as IList;
 
-                bool streamable = TreeNode.MemberInfo?.IsStreamable ?? false;
-                bool dontReadStreamables = (TreeNode.Owner.Flags & ESerializeFlags.SkipStreamableProperties) != 0;
+                Task task = ReadElementsAsync(listType, count);
 
-                if (streamable)
-                {
-                    if (!dontReadStreamables)
-                    {
-
-                    }
-                }
+                bool async = TreeNode.MemberInfo?.DeserializeAsync ?? false;
+                if (async)
+                    TreeNode.Manager.PendingAsyncTasks.Add(task);
                 else
-                {
-                    bool async = TreeNode.MemberInfo?.DeserializeAsync ?? false;
-                    if (async)
-                        TreeNode.Owner.PendingAsyncTasks.Add(Task.Run(() =>
-                            ReadElements(listType, count)).ContinueWith(t => DoneReadingElements?.Invoke()));
-                    else
-                    {
-                        ReadElements(listType, count);
-                        DoneReadingElements?.Invoke();
-                    }
-                }
-
+                    await task;
+                
                 TreeNode.Object = List;
             }
         }
-        private async void ReadElements(TypeProxy arrayType, int count)
+
+        private async Task<object> ReadElementAsync(int index)
+        {
+            SerializeElement node = TreeNode.Children[index];
+            await node.DeserializeTreeToObjectAsync();
+            return node.Object;
+        }
+        private async Task ReadElementsAsync(TypeProxy arrayType, int count)
         {
             TypeProxy elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
             for (int i = 0; i < count; ++i)
@@ -80,6 +79,7 @@ namespace TheraEngine.Core.Files.Serialization
                 else
                     List.Add(node.Object);
             }
+            DoneReadingElements?.Invoke();
         }
         private void Node_ObjectChanged(SerializeElement element, object previousObject)
         {
@@ -87,7 +87,7 @@ namespace TheraEngine.Core.Files.Serialization
             List[index] = element.Object;
         }
 
-        public override void SerializeTreeFromObject()
+        public override async Task SerializeTreeFromObjectAsync()
         {
             if (!(TreeNode.Object is IList list))
                 return;
@@ -103,7 +103,7 @@ namespace TheraEngine.Core.Files.Serialization
                 //if (ShouldWriteDefaultMembers || !element.IsObjectDefault())
                 //{
                 TreeNode.Children.Add(element);
-                element.SerializeTreeFromObject();
+                await element.SerializeTreeFromObjectAsync();
                 //}
             }
         }
@@ -113,13 +113,13 @@ namespace TheraEngine.Core.Files.Serialization
         public override bool CanWriteAsString(TypeProxy type)
         {
             TypeProxy elementType = type.DetermineElementType();
-            BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
+            BaseObjectSerializer ser = GetSerializerFor(elementType, true);
             return ser != null && ser.CanWriteAsString(elementType);
         }
         public override bool ObjectFromString(TypeProxy type, string value, out object result)
         {
             TypeProxy elementType = type.DetermineElementType();
-            BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
+            BaseObjectSerializer ser = GetSerializerFor(elementType, true);
             if (ser is null || !ser.CanWriteAsString(elementType))
             {
                 result = null;
@@ -173,7 +173,7 @@ namespace TheraEngine.Core.Files.Serialization
             Type arrayType = list.GetType();
             Type elementType = arrayType.DetermineElementType();
 
-            BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
+            BaseObjectSerializer ser = GetSerializerFor(elementType, true);
             if (ser is null || !ser.CanWriteAsString(elementType))
             {
                 string Convert(object elem)
@@ -181,7 +181,7 @@ namespace TheraEngine.Core.Files.Serialization
                     //if (!SerializationCommon.IsPrimitiveType(elementType))
                     //    separator = "|";
                     Type indivElemType = elem?.GetType() ?? elementType;
-                    BaseObjectSerializer ser2 = DetermineObjectSerializer(indivElemType, true);
+                    BaseObjectSerializer ser2 = GetSerializerFor(indivElemType, true);
                     if (ser2 is null || !ser2.CanWriteAsString(indivElemType))
                         throw new InvalidOperationException();
 

@@ -44,7 +44,7 @@ namespace TheraEngine.Core.Files.Serialization
                 if (fo != null)
                     fo.IsSerializing = true;
 
-                RootNode.SerializeTreeFromObject();
+                RootNode.SerializeTreeFromObjectAsync();
 
                 if (WritingSharedObjectIndices.Count > 0)
                 {

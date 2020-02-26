@@ -114,7 +114,7 @@ namespace TheraEngine.Core.Files
                     {
                         case EPathType.FileRelative:
                             {
-                                string dir = System.IO.Path.GetDirectoryName(node.Parent.Owner.FilePath);
+                                string dir = System.IO.Path.GetDirectoryName(node.Parent.Manager.FilePath);
                                 if (dir.EndsWith(@"\"))
                                     dir = dir.Remove(dir.Length - 1);
                                 if (!path.StartsWith(@"\"))

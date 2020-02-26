@@ -437,7 +437,7 @@ namespace TheraEngine.Core.Files
                 DataLength = dataLength;
                 DataType = dataType;
 
-                Deserializer = BaseObjectSerializer.DetermineObjectSerializer(DataType, false, false) as IStreamableSerializer;
+                Deserializer = BaseObjectSerializer.GetSerializerFor(DataType, false, false) as IStreamableSerializer;
                 //Deserializer.TreeNode = this;
             }
 

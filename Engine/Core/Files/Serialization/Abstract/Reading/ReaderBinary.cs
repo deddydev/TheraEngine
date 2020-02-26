@@ -147,10 +147,10 @@ namespace TheraEngine.Core.Files.Serialization
                                 else
                                 {
                                     SerializeElement elem = new SerializeElement(null, new TSerializeMemberInfo(memberType, null));
-                                    var objSer = BaseObjectSerializer.DetermineObjectSerializer(objType, false, true);
+                                    var objSer = BaseObjectSerializer.GetSerializerFor(objType, false, true);
                                     objSer.TreeNode = elem;
                                     objSer.DeserializeTreeFromBinary(ref address, this);
-                                    objSer.DeserializeTreeToObject();
+                                    objSer.DeserializeTreeToObjectAsync();
                                     obj = null;
                                     return elem;
                                 }

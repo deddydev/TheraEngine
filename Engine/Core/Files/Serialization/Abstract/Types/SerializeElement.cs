@@ -17,11 +17,6 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public event DelObjectChange ObjectChanged;
 
-        private BaseSerializationIO.BaseAbstractReaderWriter _owner;
-        private object _object;
-        private TypeProxy _desiredDerivedObjectType;
-        private TSerializeMemberInfo _memberInfo;
-
         public EventList<SerializeAttribute> Attributes { get; }
         public EventList<SerializeElement> Children { get; }
         public SerializeElementContent Content { get; }
@@ -36,23 +31,25 @@ namespace TheraEngine.Core.Files.Serialization
                 DetermineDefaultObject();
             }
         }
-        public BaseSerializationIO.BaseAbstractReaderWriter Owner
+        private BaseSerializationIO.BaseAbstractReaderWriter _manager;
+        public BaseSerializationIO.BaseAbstractReaderWriter Manager
         {
-            get => _owner;
+            get => _manager;
             internal set
             {
-                if (_owner != value)
+                if (_manager != value)
                 {
                     UnlinkObjectGuidFromOwner();
-                    _owner = value;
+                    _manager = value;
                     ObjectTypeChanged();
                     LinkObjectGuidToOwner();
                 }
                 
                 foreach (var child in Children)
-                    child.Owner = _owner;
+                    child.Manager = _manager;
             }
         }
+        private TSerializeMemberInfo _memberInfo;
         /// <summary>
         /// Information for this object as a member of the parent.
         /// </summary>
@@ -87,6 +84,7 @@ namespace TheraEngine.Core.Files.Serialization
         public object DefaultMemberObject { get; private set; }
         //public bool IsSharedObject { get; internal set; }
 
+        private TypeProxy _desiredDerivedObjectType;
         public TypeProxy DesiredDerivedObjectType
         {
             get => _desiredDerivedObjectType;
@@ -105,17 +103,17 @@ namespace TheraEngine.Core.Files.Serialization
                 return;
 
             Guid guid = tobj.Guid;
-            if (guid == Guid.Empty || Owner is null || !Owner.WritingSharedObjectIndices.ContainsKey(guid))
+            if (guid == Guid.Empty || Manager is null || !Manager.WritingSharedObjectIndices.ContainsKey(guid))
                 return;
 
-            --Owner.WritingSharedObjectIndices[guid];
-            if (Owner.WritingSharedObjectIndices[guid] > 0)
+            --Manager.WritingSharedObjectIndices[guid];
+            if (Manager.WritingSharedObjectIndices[guid] > 0)
                 return;
 
-            Owner.WritingSharedObjectIndices.Remove(guid);
-            if (Owner.WritingSharedObjects.ContainsKey(guid))
+            Manager.WritingSharedObjectIndices.Remove(guid);
+            if (Manager.WritingSharedObjects.ContainsKey(guid))
             {
-                Owner.WritingSharedObjects.Remove(guid);
+                Manager.WritingSharedObjects.Remove(guid);
                 //IsSharedObject = false;
             }
         }
@@ -125,22 +123,23 @@ namespace TheraEngine.Core.Files.Serialization
                 return;
 
             Guid guid = tobj.Guid;
-            if (guid == Guid.Empty || Owner is null)
+            if (guid == Guid.Empty || Manager is null)
                 return;
 
-            if (Owner.WritingSharedObjectIndices.ContainsKey(guid))
-                ++Owner.WritingSharedObjectIndices[guid];
+            if (Manager.WritingSharedObjectIndices.ContainsKey(guid))
+                ++Manager.WritingSharedObjectIndices[guid];
             else
             {
-                Owner.WritingSharedObjectIndices.Add(guid, 1);
-                if (!Owner.WritingSharedObjects.ContainsKey(guid))
+                Manager.WritingSharedObjectIndices.Add(guid, 1);
+                if (!Manager.WritingSharedObjects.ContainsKey(guid))
                 {
-                    Owner.WritingSharedObjects.Add(guid, this);
+                    Manager.WritingSharedObjects.Add(guid, this);
                     //IsSharedObject = true;
                 }
             }
         }
-        
+
+        private object _object;
         /// <summary>
         /// The value assigned to this member.
         /// </summary>
@@ -160,15 +159,15 @@ namespace TheraEngine.Core.Files.Serialization
                 if (_object is IObject iobj)
                     iobj.ConstructedProgrammatically = false;
 
-                if (Owner != null && Parent is null && _object != null)
+                if (Manager != null && Parent is null && _object != null)
                 {
-                    Owner.RootFileObject = _object;
+                    Manager.RootFileObject = _object;
                     if (_object is IFileObject fobj)
                     {
-                        if (fobj.RootFile != Owner.RootFileObject)
-                            fobj.RootFile = Owner.RootFileObject as IFileObject;
+                        if (fobj.RootFile != Manager.RootFileObject)
+                            fobj.RootFile = Manager.RootFileObject as IFileObject;
                         if (IsRoot)
-                            fobj.FilePath = Owner.FilePath;
+                            fobj.FilePath = Manager.FilePath;
                     }
                 }
 
@@ -293,7 +292,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (item is null)
                 return;
             item.Parent?.Children?.Remove(item);
-            item.Owner = Owner;
+            item.Manager = Manager;
             item.Parent = this;
         }
 
@@ -430,18 +429,18 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (GetAttributeValue("SharedIndex", out int sharedObjectIndex))
             {
-                if (Owner.ReadingSharedObjectsList.IndexInRange(sharedObjectIndex))
+                if (Manager.ReadingSharedObjectsList.IndexInRange(sharedObjectIndex))
                 {
-                    Object = Owner.ReadingSharedObjectsList[sharedObjectIndex].Object;
+                    Object = Manager.ReadingSharedObjectsList[sharedObjectIndex].Object;
                     ApplyObjectToParent();
                 }
                 else
                 {
                     //var sharedObjElems = Owner.SharedObjectsElement.ChildElements;
-                    if (Owner.ReadingSharedObjectsSetQueue.ContainsKey(sharedObjectIndex))
-                        Owner.ReadingSharedObjectsSetQueue[sharedObjectIndex].Add(this);
+                    if (Manager.ReadingSharedObjectsSetQueue.ContainsKey(sharedObjectIndex))
+                        Manager.ReadingSharedObjectsSetQueue[sharedObjectIndex].Add(this);
                     else
-                        Owner.ReadingSharedObjectsSetQueue.Add(sharedObjectIndex, new List<SerializeElement>() { this });
+                        Manager.ReadingSharedObjectsSetQueue.Add(sharedObjectIndex, new List<SerializeElement>() { this });
                     return false;
                 }
             }
@@ -457,15 +456,16 @@ namespace TheraEngine.Core.Files.Serialization
                 if (!success)
                 {
                     //Automatic deserialization
-                    if (!ObjectType.IsAbstract)
-                        ObjectSerializer?.DeserializeTreeToObject();
+                    var ser = ObjectSerializer;
+                    if (ser != null && !ObjectType.IsAbstract)
+                        await ser.DeserializeTreeToObjectAsync();
                     ApplyObjectToParent();
                 }
             }
 
             return true;
         }
-        public async void SerializeTreeFromObject()
+        public async Task SerializeTreeFromObjectAsync()
         {
             await FileObjectCheckAsync();
             
@@ -475,18 +475,21 @@ namespace TheraEngine.Core.Files.Serialization
             if (ObjectType.IsAbstract || ObjectType.IsInterface)
                 throw new Exception();
 
-            if (Owner != null && 
+            if (Manager != null && 
                 Object is IObject tobj && 
                 tobj.Guid != Guid.Empty &&
-                Owner.WritingSharedObjectIndices.ContainsKey(tobj.Guid) &&
-                Owner.WritingSharedObjectIndices[tobj.Guid] > 1)
+                Manager.WritingSharedObjectIndices.ContainsKey(tobj.Guid) &&
+                Manager.WritingSharedObjectIndices[tobj.Guid] > 1)
                 return;
 
             bool custom = await TryInvokeManualParentSerializeAsync();
+
             if (!custom)
                 custom = TryInvokeManualSerializeAsync();
-            if (!custom)
-                ObjectSerializer?.SerializeTreeFromObject();
+
+            var ser = ObjectSerializer;
+            if (ser != null && !custom)
+                await ser.SerializeTreeFromObjectAsync();
         }
 
         private void GenerateMethodEnqueueCache()
@@ -520,10 +523,10 @@ namespace TheraEngine.Core.Files.Serialization
             if (ObjectType != null)
             {
                 //Debug.WriteLine($"Determining object serializer in {AppDomain.CurrentDomain.FriendlyName}");
-                ObjectSerializer = BaseObjectSerializer.DetermineObjectSerializer(ObjectType, false, false);
+                ObjectSerializer = BaseObjectSerializer.GetSerializerFor(ObjectType, false, false);
                 ObjectSerializer.TreeNode = this;
 
-                if (Owner != null)
+                if (Manager != null)
                 {
                     MethodInfoProxy[] methods = ObjectType?.GetMethods(
                         BindingFlags.NonPublic |
@@ -533,7 +536,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                     Task task = Task.Run(() => methods.ForEachParallelArray(method =>
                     {
-                        if (method.CanRunForFormat(Owner.Format, out ESerializeMethodType type))
+                        if (method.CanRunForFormat(Manager.Format, out ESerializeMethodType type))
                             MethodEnqueueActions[(int)type](method);
                     }));
                     
@@ -619,7 +622,7 @@ namespace TheraEngine.Core.Files.Serialization
             //Update the object's file path
             if (Object is IFileObject fobj)
             {
-                fobj.FilePath = Owner.FilePath;
+                fobj.FilePath = Manager.FilePath;
                 if (fobj is IFileRef fref && !fref.StoredInternally)
                 {
                     //Make some last minute adjustments to external file refs
@@ -654,9 +657,9 @@ namespace TheraEngine.Core.Files.Serialization
                         //however only if the file has changed
                         if (path.IsValidPath() && !File.Exists(path))
                         {
-                            if (fref is IGlobalFileRef && !Owner.Flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
+                            if (fref is IGlobalFileRef && !Manager.Flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
                                 return;
-                            if (fref is ILocalFileRef && !Owner.Flags.HasFlag(ESerializeFlags.ExportLocalRefs))
+                            if (fref is ILocalFileRef && !Manager.Flags.HasFlag(ESerializeFlags.ExportLocalRefs))
                                 return;
 
                             string dir = path.Contains(".") ? Path.GetDirectoryName(path) : path;
@@ -665,9 +668,9 @@ namespace TheraEngine.Core.Files.Serialization
                             if (file.FileExtension != null)
                             {
                                 string fileName = SerializationCommon.ResolveFileName(
-                                    Owner.FileDirectory, file.Name, file.FileExtension.GetFullExtension(EProprietaryFileFormat.XML));
+                                    Manager.FileDirectory, file.Name, file.FileExtension.GetFullExtension(EProprietaryFileFormat.XML));
 
-                                await file.ExportAsync(dir, fileName, Owner.Flags, EFileFormat.XML, null,null, CancellationToken.None);
+                                await file.ExportAsync(dir, fileName, Manager.Flags, EFileFormat.XML, null,null, CancellationToken.None);
                             }
                             else
                             {
@@ -675,8 +678,8 @@ namespace TheraEngine.Core.Files.Serialization
                                 if (f?.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
                                 {
                                     string ext = f.ExportableExtensions[0];
-                                    string fileName = SerializationCommon.ResolveFileName(Owner.FileDirectory, file.Name, ext);
-                                    await file.ExportAsync(dir, fileName, Owner.Flags, EFileFormat.ThirdParty, ext, null, CancellationToken.None);
+                                    string fileName = SerializationCommon.ResolveFileName(Manager.FileDirectory, file.Name, ext);
+                                    await file.ExportAsync(dir, fileName, Manager.Flags, EFileFormat.ThirdParty, ext, null, CancellationToken.None);
                                 }
                                 else
                                     Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());

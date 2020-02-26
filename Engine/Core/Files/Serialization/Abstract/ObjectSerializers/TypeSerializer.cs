@@ -1,5 +1,6 @@
 ﻿using Extensions;
 using System;
+using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection;
 
@@ -9,7 +10,7 @@ namespace TheraEngine.Core.Files.Serialization
     public class TypeSerializer : BaseObjectSerializer
     {
         #region Tree
-        public override void DeserializeTreeToObject()
+        public override async Task DeserializeTreeToObjectAsync()
         {
             TypeProxy type = TreeNode.ObjectType;
 
@@ -18,7 +19,7 @@ namespace TheraEngine.Core.Files.Serialization
             else
                 Engine.LogWarning($"Element {TreeNode.Name} cannot be parsed as {type.GetFriendlyName()}");
         }
-        public override void SerializeTreeFromObject()
+        public override async Task SerializeTreeFromObjectAsync()
         {
             if (!(TreeNode.Object is Type type))
                 return;

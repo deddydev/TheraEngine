@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection;
 
@@ -8,7 +9,7 @@ namespace TheraEngine.Core.Files.Serialization
     public class DateTimeSerializer : BaseObjectSerializer
     {
         #region Tree
-        public override void DeserializeTreeToObject()
+        public override async Task DeserializeTreeToObjectAsync()
         {
             TypeProxy type = TreeNode.ObjectType;
 
@@ -17,11 +18,11 @@ namespace TheraEngine.Core.Files.Serialization
             else
                 Engine.LogWarning($"Element {TreeNode.Name} cannot be parsed as {type.GetFriendlyName()}");
         }
-        public override void SerializeTreeFromObject()
+        public override async Task SerializeTreeFromObjectAsync()
         {
             if (!(TreeNode.Object is DateTime time))
                 return;
-
+            
             if (!TreeNode.Content.SetValueAsObject(time))
                 Engine.LogWarning($"{time.ToString()} cannot be written as a string.");
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Components.Scene;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using Valve.VR;
 using ETextureType = Valve.VR.ETextureType;
@@ -10,6 +11,7 @@ namespace TheraEngine.Core
     {
         public EyeHandler LeftEye { get; } = new EyeHandler();
         public EyeHandler RightEye { get; } = new EyeHandler();
+        public VRComponent HMDViewComponent { get; set; }
 
         TrackedDevicePose_t[] _renderPoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
         TrackedDevicePose_t[] _updatePoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
@@ -96,14 +98,12 @@ namespace TheraEngine.Core
         {
             OpenVR.Compositor.WaitGetPoses(_renderPoses, _updatePoses);
 
-            int m_iValidPoseCount = 0;
-            string m_strPoseClasses = "";
+            //string m_strPoseClasses = "";
             for (uint nDevice = 0; nDevice < OpenVR.k_unMaxTrackedDeviceCount; ++nDevice)
             {
                 if (!_renderPoses[nDevice].bPoseIsValid)
                     continue;
                 
-                m_iValidPoseCount++;
                 _renderTransforms[nDevice] = _renderPoses[nDevice].mDeviceToAbsoluteTracking;
                 //if (m_rDevClassChar[nDevice] == 0)
                 //{
@@ -121,10 +121,7 @@ namespace TheraEngine.Core
             }
 
             if (_renderPoses[OpenVR.k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
-            {
-                HMDToWorldTransform = _renderTransforms[OpenVR.k_unTrackedDeviceIndex_Hmd];
-                HMDToWorldTransform.Invert();
-            }
+                HMDViewComponent.WorldMatrix = _renderTransforms[OpenVR.k_unTrackedDeviceIndex_Hmd];
         }
 
         /// <summary>
@@ -159,8 +156,6 @@ namespace TheraEngine.Core
 
             public Matrix4 GetEyeToHeadTransform()
                 => OpenVR.System.GetEyeToHeadTransform(EyeTarget);
-
-
 
             private VRTextureBounds_t _eyeTexBounds = new VRTextureBounds_t()
             {

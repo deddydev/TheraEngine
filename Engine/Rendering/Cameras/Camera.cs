@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering.Cameras
         List<Viewport> Viewports { get; set; }
         bool IsActiveRenderCamera { get; set; }
 
-        CameraComponent OwningComponent { get; set; }
+        SceneComponent OwningComponent { get; set; }
 
         Vec3 WorldToScreen(Vec3 worldPoint);
         void WorldToScreen(Vec3 worldPoint, out Vec2 screenPoint, out float depth);
@@ -82,7 +82,7 @@ namespace TheraEngine.Rendering.Cameras
 
         bool UsesAutoExposure { get; }
     }
-    public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
+    public delegate void OwningComponentChange(SceneComponent previous, SceneComponent current);
     public abstract class Camera : TFileObject, ICamera
     {
         protected Camera()
@@ -154,12 +154,12 @@ namespace TheraEngine.Rendering.Cameras
         public bool IsActiveRenderCamera { get; set; } = false;
 
         [Browsable(false)]
-        public virtual CameraComponent OwningComponent
+        public virtual SceneComponent OwningComponent
         {
             get => _owningComponent;
             set
             {
-                CameraComponent prev = _owningComponent;
+                SceneComponent prev = _owningComponent;
                 if (_owningComponent != null)
                     _owningComponent.WorldTransformChanged -= _owningComponent_WorldTransformChanged;
                 _owningComponent = value;
@@ -170,7 +170,7 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
         
-        protected CameraComponent _owningComponent;
+        protected SceneComponent _owningComponent;
         internal Vec3 _projectionRange;
         internal Vec3 _projectionOrigin;
         protected IFrustum _untransformedFrustum, _transformedFrustum;

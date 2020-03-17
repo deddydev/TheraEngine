@@ -9,6 +9,7 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
 
@@ -53,6 +54,13 @@ namespace TheraEditor.Windows.Forms
         private void CubeMapEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
+        }
+        private void BtnVREdit_Click(object sender, EventArgs e)
+        {
+            if (EngineVR.IsActive)
+                EngineVR.Shutdown();
+            else
+                EngineVR.Initialize();
         }
         private void TextureGeneratorToolStripMenuItem_Click(object sender, EventArgs e)
         {

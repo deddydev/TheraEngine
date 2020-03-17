@@ -283,7 +283,6 @@ namespace TheraEngine.Components.Scene
 #endif
 
         public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
-        
         #endregion
     }
 }

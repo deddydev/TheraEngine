@@ -519,6 +519,7 @@
             // 
             this.btnVREdit.Name = "btnVREdit";
             this.btnVREdit.Visible = false;
+            this.btnVREdit.Click += new System.EventHandler(this.BtnVREdit_Click);
             resources.ApplyResources(this.btnVREdit, "btnVREdit");
             // 
             // btnPackageNewRelease

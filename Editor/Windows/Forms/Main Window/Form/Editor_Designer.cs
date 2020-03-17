@@ -58,7 +58,7 @@ namespace TheraEditor.Windows.Forms
 
             TheraEngineText.Font = Engine.MakeFont("origicide", 10.0f, FontStyle.Regular);
 
-            lblYourIpPort.Text = "Your IP: " + NetworkConnection.GetLocalIPAddressV4();
+            lblYourIpPort.Text = $"Your IP: {NetworkConnection.GetLocalIPAddressV4()}";
             CursorManager.GlobalWrapCursorWithinClip = false;
 
             if (lblVersion is null)

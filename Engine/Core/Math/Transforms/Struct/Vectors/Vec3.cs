@@ -1145,9 +1145,11 @@ namespace TheraEngine.Core.Maths.Transforms
         public static implicit operator Vec3(BulletSharp.Vector3 v) => new Vec3(v.X, v.Y, v.Z);
         public static implicit operator Jitter.LinearMath.JVector(Vec3 v) => new Jitter.LinearMath.JVector(v.X, v.Y, v.Z);
         public static implicit operator Vec3(Jitter.LinearMath.JVector v) => new Vec3(v.X, v.Y, v.Z);
+        public static implicit operator Valve.VR.HmdVector3_t(Vec3 v) => new Valve.VR.HmdVector3_t() { v0 = v.X, v1 = v.Y, v2 = v.Z };
+        public static implicit operator Vec3(Valve.VR.HmdVector3_t v) => new Vec3(v.v0, v.v1, v.v2);
 
         #endregion
-        
+
         public override string ToString() => ToString();
         public string ToString(string openingBracket = "(", string closingBracket = ")", string separator = ", ")
             => string.Format("{4}{0}{3}{1}{3}{2}{5}", X, Y, Z, separator, openingBracket, closingBracket);

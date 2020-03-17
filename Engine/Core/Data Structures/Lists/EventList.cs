@@ -179,8 +179,19 @@ namespace System.Collections.Generic
         public event TCollectionChangedEventHandler<T> CollectionChanged;
 
         private bool _updating = false;
-        private readonly bool _allowDuplicates = true;
-        private readonly bool _allowNull = true;
+        private bool _allowDuplicates = true;
+        private bool _allowNull = true;
+
+        internal bool AllowDuplicates
+        {
+            get => _allowDuplicates;
+            set => _allowDuplicates = value;
+        }
+        internal bool AllowNull
+        {
+            get => _allowNull;
+            set => _allowNull = value;
+        }
 
         public EventList()
         {

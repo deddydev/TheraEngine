@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
@@ -96,7 +97,7 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
         [Browsable(false)]
-        public override CameraComponent OwningComponent
+        public override SceneComponent OwningComponent
         {
             get => base.OwningComponent;
             set

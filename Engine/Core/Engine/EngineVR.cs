@@ -1,5 +1,6 @@
 ﻿using System;
 using TheraEngine.Components.Scene;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using Valve.VR;
 using ETextureType = Valve.VR.ETextureType;
@@ -7,38 +8,102 @@ using ETextureType = Valve.VR.ETextureType;
 namespace TheraEngine.Core
 {
     public delegate void DelRenderEye(RenderTex2D target);
-    public class EngineVR
+    public static class EngineVR
     {
-        public EyeHandler LeftEye { get; } = new EyeHandler();
-        public EyeHandler RightEye { get; } = new EyeHandler();
-        public VRComponent HMDViewComponent { get; set; }
+        public static EyeHandler LeftEye { get; } = new EyeHandler();
+        public static EyeHandler RightEye { get; } = new EyeHandler();
+        public static VRComponent VRComponent { get; set; }
 
-        TrackedDevicePose_t[] _renderPoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
-        TrackedDevicePose_t[] _updatePoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
-        Matrix4[] _renderTransforms = new Matrix4[OpenVR.k_unMaxTrackedDeviceCount];
-        Matrix4[] _updateTransforms = new Matrix4[OpenVR.k_unMaxTrackedDeviceCount];
-        public Matrix4 HMDToWorldTransform { get; private set; }
+        public class DevicePoseInfo
+        {
+            public event Action<DevicePoseInfo> ValidPoseChanged;
+            public event Action<DevicePoseInfo> IsConnectedChanged;
 
-        private bool _isActive = false;
-        private bool _seatedMode = false;
+            public ETrackingResult State { get; set; }
+            public Matrix4 DeviceToWorldMatrix { get; set; }
 
-        public bool IsActive 
+            public Vec3 Velocity { get; set; }
+            public Vec3 LastVelocity { get; set; }
+
+            public Vec3 AngularVelocity { get; set; }
+            public Vec3 LastAngularVelocity { get; set; }
+
+            public bool ValidPose { get; set; }
+            public bool IsConnected { get; set; }
+
+            public void Update(TrackedDevicePose_t pose)
+            {
+                State = pose.eTrackingResult;
+                DeviceToWorldMatrix = pose.mDeviceToAbsoluteTracking;
+
+                LastVelocity = Velocity;
+                Velocity = pose.vVelocity;
+
+                LastAngularVelocity = AngularVelocity;
+                AngularVelocity = pose.vAngularVelocity;
+
+                bool validChanged = ValidPose != pose.bPoseIsValid;
+                ValidPose = pose.bPoseIsValid;
+
+                bool isConnectedChanged = IsConnected != pose.bDeviceIsConnected;
+                IsConnected = pose.bDeviceIsConnected;
+
+                if (validChanged)
+                    ValidPoseChanged?.Invoke(this);
+
+                if (isConnectedChanged)
+                    IsConnectedChanged?.Invoke(this);
+            }
+        }
+        public class DeviceInfo
+        {
+            public DeviceInfo(uint index)
+            {
+                Index = index;
+                Class = OpenVR.System.GetTrackedDeviceClass(index);
+            }
+
+            public uint Index { get; }
+            public ETrackedDeviceClass Class { get; }
+            public DevicePoseInfo RenderPose { get; } = new DevicePoseInfo();
+            public DevicePoseInfo UpdatePose { get; } = new DevicePoseInfo();
+        }
+        
+        public static DeviceInfo[] Devices { get; } = new DeviceInfo[OpenVR.k_unMaxTrackedDeviceCount];
+        public static TrackedDevicePose_t[] _renderPoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
+        public static TrackedDevicePose_t[] _updatePoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
+
+        public static Matrix4 HMDToWorldTransform { get; private set; }
+
+        private static bool _isActive = false;
+        private static bool _seatedMode = false;
+
+        public static bool IsActive 
         {
             get => _isActive;
             private set => _isActive = value;
         }
-        public bool SeatedMode
+        public static bool SeatedMode
         {
             get => _seatedMode;
-            set => _seatedMode = value;
+            set
+            {
+                if (_seatedMode == value)
+                    return;
+
+                _seatedMode = value;
+
+                if (IsActive)
+                    OpenVR.Compositor.SetTrackingSpace(TrackingOrigin);
+            }
         }
 
-        private ETrackingUniverseOrigin TrackingOrigin
+        private static ETrackingUniverseOrigin TrackingOrigin
             => SeatedMode
                 ? ETrackingUniverseOrigin.TrackingUniverseSeated
                 : ETrackingUniverseOrigin.TrackingUniverseStanding;
 
-        public EVRInitError Initialize()
+        public static EVRInitError Initialize()
         {
             if (IsActive)
                 return EVRInitError.None;
@@ -71,15 +136,16 @@ namespace TheraEngine.Core
             if (peError == EVRInitError.None)
                 OnStarted();
 
+            IsActive = peError == EVRInitError.None;
             return peError;
         }
 
-        private void OnStarted()
+        private static void OnStarted()
         {
             OpenVR.Compositor.SetTrackingSpace(TrackingOrigin);
         }
 
-        public void Shutdown()
+        public static void Shutdown()
         {
             if (!IsActive)
                 return;
@@ -87,41 +153,44 @@ namespace TheraEngine.Core
             OpenVR.Shutdown();
             IsActive = false;
         }
-        public void Render()
+        public static void Render()
         {
             PreRender();
             //TODO: stereo render to both texture targets in parallel?
             LeftEye.DoRenderEye();
             RightEye.DoRenderEye();
         }
-        private void PreRender()
+        private static void PreRender()
         {
             OpenVR.Compositor.WaitGetPoses(_renderPoses, _updatePoses);
 
             //string m_strPoseClasses = "";
-            for (uint nDevice = 0; nDevice < OpenVR.k_unMaxTrackedDeviceCount; ++nDevice)
+            for (uint nDevice = 0; nDevice < Devices.Length; ++nDevice)
             {
-                if (!_renderPoses[nDevice].bPoseIsValid)
-                    continue;
-                
-                _renderTransforms[nDevice] = _renderPoses[nDevice].mDeviceToAbsoluteTracking;
-                //if (m_rDevClassChar[nDevice] == 0)
-                //{
-                //    m_rDevClassChar[nDevice] = (OpenVR.System.GetTrackedDeviceClass(nDevice)) switch
-                //    {
-                //        vr::TrackedDeviceClass_Controller => 'C',
-                //        vr::TrackedDeviceClass_HMD => 'H',
-                //        vr::TrackedDeviceClass_Invalid => 'I',
-                //        vr::TrackedDeviceClass_GenericTracker => 'G',
-                //        vr::TrackedDeviceClass_TrackingReference => 'T',
-                //        _ => '?',
-                //    };
-                //}
-                //m_strPoseClasses += m_rDevClassChar[nDevice];
+                var device = Devices[nDevice];
+                var rPose = _renderPoses[nDevice];
+                var uPose = _updatePoses[nDevice];
+
+                if (uPose.bPoseIsValid)
+                {
+                    if (device is null)
+                        Devices[nDevice] = device = new DeviceInfo(nDevice);
+
+                    device.UpdatePose.Update(uPose);
+                }
+
+                if (rPose.bPoseIsValid)
+                {
+                    if (device is null)
+                        Devices[nDevice] = device = new DeviceInfo(nDevice);
+
+                    device.RenderPose.Update(rPose);
+                }
             }
 
-            if (_renderPoses[OpenVR.k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
-                HMDViewComponent.WorldMatrix = _renderTransforms[OpenVR.k_unTrackedDeviceIndex_Hmd];
+            var hmdDevice = Devices[OpenVR.k_unTrackedDeviceIndex_Hmd];
+            if (hmdDevice.UpdatePose.ValidPose)
+                VRComponent.HMD.WorldMatrix = hmdDevice.UpdatePose.DeviceToWorldMatrix.Inverted();
         }
 
         /// <summary>

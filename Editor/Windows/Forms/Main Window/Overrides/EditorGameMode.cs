@@ -21,7 +21,7 @@ namespace TheraEditor
         }
         protected override void HandleLocalPlayerLeft(EditorPlayerController item)
         {
-            item.Viewport.RenderHandler.UnregisterController(item);
+            item.Viewport?.RenderHandler?.UnregisterController(item);
             item.UnlinkControlledPawn();
         }
     }

@@ -594,6 +594,18 @@ namespace TheraEngine.Rendering.Models.Materials
         /// <summary>
         /// Creates a new texture specifically for attaching to a framebuffer.
         /// </summary>
+        /// <param name="name"></param>
+        /// <param name="bounds"></param>
+        /// <param name="internalFmt"></param>
+        /// <param name="fmt"></param>
+        /// <param name="pixelType"></param>
+        /// <returns></returns>
+        public static TexRef2D CreateFrameBufferTexture(string name, IVec2 bounds,
+            EPixelInternalFormat internalFmt, EPixelFormat fmt, EPixelType pixelType)
+            => CreateFrameBufferTexture(name, bounds.X, bounds.Y, internalFmt, fmt, pixelType);
+        /// <summary>
+        /// Creates a new texture specifically for attaching to a framebuffer.
+        /// </summary>
         /// <param name="name">The name of the texture.</param>
         /// <param name="width">The texture's width.</param>
         /// <param name="height">The texture's height.</param>

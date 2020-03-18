@@ -492,6 +492,7 @@ namespace TheraEngine.Core
         //TODO: editor world manager, model editor world manager, UI editor world managers
         public ConsistentIndexList<WorldManager> WorldManagers { get; } = new ConsistentIndexList<WorldManager>();
         public ConcurrentDictionary<IntPtr, RenderContext> Contexts { get; } = new ConcurrentDictionary<IntPtr, RenderContext>();
+        public RenderContext VRContext { get; set; }
 
         public WorldManager GetWorldManager(int id) => WorldManagers[id];
         public T RegisterAndGetWorldManager<T>(params object[] args) where T : WorldManager
@@ -514,15 +515,18 @@ namespace TheraEngine.Core
         }
         public void UnlinkRenderPanelFromWorldManager(IntPtr handle)
         {
-            if (!Contexts.ContainsKey(handle))
-                return;
+            if (Contexts.ContainsKey(handle))
+                UnlinkContextFromWorldManager(Contexts[handle]);
+        }
 
-            RenderContext ctx = Contexts[handle];
+        private void UnlinkContextFromWorldManager(RenderContext ctx)
+        {
             int id = ctx?.Handler?.WorldManager?.ID ?? -1;
             ctx.Handler.WorldManager = null;
             if (WorldManagers.HasValueAtIndex(id))
                 WorldManagers[id].RemoveContext(ctx);
         }
+
         public void LinkRenderPanelToWorldManager(IntPtr handle, int worldManagerId)
         {
             if (!Contexts.ContainsKey(handle))
@@ -542,6 +546,21 @@ namespace TheraEngine.Core
             worldManager.AddContext(ctx);
             ctx.Handler.WorldManager = worldManager;
             Engine.Out("Linked render panel to world manager successfully.");
+        }
+        public void LinkVRToWorldManager(int worldManagerId)
+        {
+            if (!WorldManagers.HasValueAtIndex(worldManagerId))
+                return;
+
+            UnlinkContextFromWorldManager(VRContext);
+
+            WorldManager worldManager = WorldManagers[worldManagerId];
+            if (worldManager.AssociatedContexts.Contains(VRContext))
+                return;
+
+            worldManager.AddContext(VRContext);
+            VRContext.Handler.WorldManager = worldManager;
+            Engine.Out("Linked VR to world manager successfully.");
         }
         public void RegisterRenderPanel<T>(IntPtr handle, params object[] handlerArgs)
             where T : class, IRenderHandler

@@ -1,25 +1,47 @@
-﻿using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Rendering.Cameras;
+﻿using System;
+using System.IO;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Scene
 {
     public class VRViewport : Viewport
     {
-        public PerspectiveCamera LeftEyeCamera { get; } = new PerspectiveCamera();
-        public PerspectiveCamera RightEyeCamera { get; } = new PerspectiveCamera();
-        
-        public VRViewport(): base(null, 0)
-        {
+        public VRViewport() : base(null, 0) => SetInternalResolution(1080, 1200);
 
+        public QuadFrameBuffer FBO { get; set; }
+        public TexRef2D EyeTexture { get; set; }
+
+        protected internal override void InitializeFBOs()
+        {
+            RegeneratingFBOs = true;
+
+            ClearFBOs();
+
+            RenderingParameters renderParams = new RenderingParameters()
+            {
+                DepthTest =
+                {
+                    Enabled = ERenderParamUsage.Unchanged,
+                    UpdateDepth = false,
+                    Function = EComparison.Always,
+                }
+            };
+
+            GLSLScript shader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "HudFBO.fs"), EGLSLType.Fragment);
+            EyeTexture = TexRef2D.CreateFrameBufferTexture("VREyeTex", InternalResolution.Extents,
+                EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat);
+            TexRef2D[] texRefs = new TexRef2D[] { EyeTexture };
+            TMaterial mat = new TMaterial("VREyeMat", renderParams, texRefs, shader);
+            FBO = new QuadFrameBuffer(mat);
+            FBO.SetRenderTargets((EyeTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
+
+            RegeneratingFBOs = false;
+            FBOsInitialized = true;
         }
-        protected override void OnRender(IScene scene, ICamera camera, IUserInterfacePawn hud, FrameBuffer target)
+        public IntPtr VRRender()
         {
-            //base.OnRender(scene, camera, hud, target);
-
-            //ETextureType renderSystemType = ETextureType.OpenGL;
-            //var bounds = new VRTextureBounds_t() { uMax = 1, vMax = 1 };
-            //var texture = new Texture_t() { eColorSpace = EColorSpace.Gamma, eType = renderSystemType, handle = _renderTarget.GetSurface() };
-            //var error = OpenVR.Compositor.Submit(EVREye.Eye_Left, ref texture, ref bounds, EVRSubmitFlags.Submit_Default);
+            FullRender(FBO);
+            return (IntPtr)EyeTexture.GetTexture(true).BindingId;
         }
     }
 }

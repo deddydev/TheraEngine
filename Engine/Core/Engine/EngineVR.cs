@@ -2,6 +2,7 @@
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Rendering.Scene;
 using Valve.VR;
 using ETextureType = Valve.VR.ETextureType;
 
@@ -143,6 +144,20 @@ namespace TheraEngine.Core
         private static void OnStarted()
         {
             OpenVR.Compositor.SetTrackingSpace(TrackingOrigin);
+
+            Engine.Instance.DomainProxyCreated += Instance_DomainProxySet;
+            Engine.Instance.DomainProxyDestroying += Instance_DomainProxyUnset;
+            Instance_DomainProxySet(Engine.DomainProxy);
+        }
+
+        private static void Instance_DomainProxyUnset(EngineDomainProxy obj)
+        {
+            obj.UnregisterVR();
+            //((EngineDomainProxyEditor)obj).RemoveRenderHandlerFromEditorGameMode(RenderPanel.Handle);
+        }
+        private static void Instance_DomainProxySet(EngineDomainProxy obj)
+        {
+            obj.RegisterVR();
         }
 
         public static void Shutdown()
@@ -164,7 +179,6 @@ namespace TheraEngine.Core
         {
             OpenVR.Compositor.WaitGetPoses(_renderPoses, _updatePoses);
 
-            //string m_strPoseClasses = "";
             for (uint nDevice = 0; nDevice < Devices.Length; ++nDevice)
             {
                 var device = Devices[nDevice];
@@ -190,7 +204,7 @@ namespace TheraEngine.Core
 
             var hmdDevice = Devices[OpenVR.k_unTrackedDeviceIndex_Hmd];
             if (hmdDevice.UpdatePose.ValidPose)
-                VRComponent.HMD.WorldMatrix = hmdDevice.UpdatePose.DeviceToWorldMatrix.Inverted();
+                VRComponent.HMD.InverseWorldMatrix = hmdDevice.UpdatePose.DeviceToWorldMatrix;
         }
 
         /// <summary>
@@ -208,9 +222,7 @@ namespace TheraEngine.Core
 
         public class EyeHandler
         {
-            public event DelRenderEye RenderEye;
-
-            public RenderTex2D EyeTexture { get; set; }
+            public VRViewport Viewport { get; } = new VRViewport();
             public EVREye EyeTarget { get; set; }
             public bool IsLeftEye
             {
@@ -218,7 +230,7 @@ namespace TheraEngine.Core
                 set => EyeTarget = value ? EVREye.Eye_Left : EVREye.Eye_Right;
             }
             public float NearZ { get; set; } = 0.1f;
-            public float FarZ { get; set; } = 1.0f;
+            public float FarZ { get; set; } = 10000.0f;
 
             public Matrix4 GetEyeProjectionMatrix()
                 => OpenVR.System.GetProjectionMatrix(EyeTarget, NearZ, FarZ);
@@ -241,11 +253,7 @@ namespace TheraEngine.Core
             
             public void DoRenderEye()
             {
-                if (EyeTexture is null)
-                    return;
-                
-                RenderEye?.Invoke(EyeTexture);
-                _eyeTex.handle = (IntPtr)EyeTexture.BindingId;
+                _eyeTex.handle = Viewport.VRRender();
                 CheckError(OpenVR.Compositor.Submit(EyeTarget, ref _eyeTex, ref _eyeTexBounds, EVRSubmitFlags.Submit_Default));
             }
         }

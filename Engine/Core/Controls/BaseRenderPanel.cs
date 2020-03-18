@@ -146,8 +146,10 @@ namespace TheraEngine
             base.OnLostFocus(e);
             Engine.DomainProxy.LostFocus(_cachedHandle);
         }
+
         public void LinkToWorldManager(int worldManagerId)
             => Engine.DomainProxy.LinkRenderPanelToWorldManager(_cachedHandle, worldManagerId);
+
         public void UnlinkFromWorldManager()
             => Engine.DomainProxy.UnlinkRenderPanelFromWorldManager(_cachedHandle);
     }

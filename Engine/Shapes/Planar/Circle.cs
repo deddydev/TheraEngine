@@ -74,7 +74,6 @@ namespace TheraEngine.Core.Shapes
                 throw new Exception("A (very low res) circle needs at least 3 sides.");
 
             normal.Normalize();
-            Quat offset = Quat.BetweenVectors(Vec3.Up, normal);
             List<Vertex> points = new List<Vertex>(Points(radius, normal, center, sides));
             points.Insert(0, new Vertex(center, normal, Vec2.Half));
             VertexTriangleFan fan = new VertexTriangleFan(points.ToArray());

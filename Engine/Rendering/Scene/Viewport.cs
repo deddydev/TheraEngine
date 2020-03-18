@@ -184,7 +184,7 @@ namespace TheraEngine.Rendering
         public void PushRenderingCamera(ICamera camera) => RenderingCameras.Push(camera);
         public void PopRenderingCamera() => RenderingCameras.Pop();
 
-        private void ClearFBOs()
+        protected virtual void ClearFBOs()
         {
             BloomBlurFBO1?.Destroy();
             BloomBlurFBO1 = null;
@@ -282,7 +282,7 @@ namespace TheraEngine.Rendering
             if (Owners.Contains(controller))
                 Owners.Remove(controller);
             if (Owners.Count == 0)
-                RenderHandler.Viewports.TryRemove(PlayerIndex, out _);
+                RenderHandler?.Viewports?.TryRemove(PlayerIndex, out _);
         }
 
         public void FullRender(FrameBuffer target) => FullRender(AttachedCamera, AttachedHUD, target);
@@ -823,26 +823,22 @@ namespace TheraEngine.Rendering
                     new Vec3(-1.0f, 1.0f, -0.5f),
                     false, false).ToTriangles();
 
-            using (MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat))
+            using MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat);
+            fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
+
+            using PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), tris);
+            using PrimitiveManager quad = new PrimitiveManager(data, mat);
+            BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
+
+            //Now render the texture to the FBO using the quad
+            fbo.Bind(EFramebufferTarget.DrawFramebuffer);
+            Engine.Renderer.PushRenderArea(region);
             {
-                fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
-
-                using (PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), tris))
-                using (PrimitiveManager quad = new PrimitiveManager(data, mat))
-                {
-                    BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
-
-                    //Now render the texture to the FBO using the quad
-                    fbo.Bind(EFramebufferTarget.DrawFramebuffer);
-                    Engine.Renderer.PushRenderArea(region);
-                    {
-                        Engine.Renderer.Clear(EFBOTextureType.Color);
-                        quad.Render();
-                    }
-                    Engine.Renderer.PopRenderArea();
-                    fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
-                }
+                Engine.Renderer.Clear(EFBOTextureType.Color);
+                quad.Render();
             }
+            Engine.Renderer.PopRenderArea();
+            fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
         
         /// <summary>
@@ -1144,6 +1140,7 @@ namespace TheraEngine.Rendering
         {
             if (RenderingCamera is null)
                 return;
+
             //RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(materialProgram);
             _lightComp.SetShadowUniforms(materialProgram);
             _lightComp.SetUniforms(materialProgram, null);
@@ -1194,8 +1191,10 @@ namespace TheraEngine.Rendering
         {
             if (RenderingCamera is null)
                 return;
+
             program.Uniform("NoiseScale", InternalResolution.Extents / 4.0f);
             program.Uniform("Samples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
+
             RenderingCamera.SetUniforms(program);
             RenderingCamera.SetAmbientOcclusionUniforms(program);
         }

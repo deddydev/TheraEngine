@@ -40,7 +40,7 @@ namespace TheraEngine.Rendering.Scene
         }
         public IntPtr VRRender()
         {
-            FullRender(FBO);
+            Render(FBO);
             return (IntPtr)EyeTexture.GetTexture(true).BindingId;
         }
     }

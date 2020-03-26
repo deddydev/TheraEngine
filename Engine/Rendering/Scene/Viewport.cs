@@ -335,7 +335,13 @@ namespace TheraEngine.Rendering
 
             _renderPasses.SwapBuffers();
         }
-        public void PreRenderUpdate() => PreRenderUpdate(AttachedCamera, AttachedHUD);
+        public void PreRenderUpdate()
+            => PreRenderUpdate(AttachedCamera, AttachedHUD);
+        /// <summary>
+        /// Gets visible items from the scene, runs pre-render methods for subscribers, and updates invalid HUD layouts.
+        /// </summary>
+        /// <param name="camera"></param>
+        /// <param name="hud"></param>
         public void PreRenderUpdate(ICamera camera, IUserInterfacePawn hud)
         {
             camera?.OwningComponent?.OwningScene?.PreRenderUpdate(_renderPasses, camera.Frustum, camera);

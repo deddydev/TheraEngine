@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core;
 using TheraEngine.Rendering;
 
 namespace TheraEngine
@@ -43,17 +44,20 @@ namespace TheraEngine
 
         public override void PreRenderUpdate()
         {
+            EngineVR.PreRenderUpdate();
             foreach (Viewport v in Viewports.Values)
                 v.PreRenderUpdate();
         }
         public override void SwapBuffers()
         {
+            EngineVR.SwapBuffers();
             foreach (Viewport v in Viewports.Values)
                 v.PreRenderSwap();
         }
         public override void Render()
         {
             GlobalPreRender();
+            EngineVR.Render();
             foreach (Viewport viewport in Viewports.Values)
                 viewport.Render();
             GlobalPostRender();

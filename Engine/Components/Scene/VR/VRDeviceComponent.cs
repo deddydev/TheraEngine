@@ -15,7 +15,7 @@ namespace TheraEngine.Components.Scene
         IRenderInfo3D I3DRenderable.RenderInfo => RenderInfo;
 
         public int DeviceIndex { get; set; }
-        public DeviceInfo Info => Devices[DeviceIndex];
+        public DeviceInfo Device => Devices[DeviceIndex];
 
         public VRDeviceComponent()
         {
@@ -24,8 +24,8 @@ namespace TheraEngine.Components.Scene
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Info.UpdatePose.DeviceToWorldMatrix.Inverted();
-            inverseLocalTransform = Info.UpdatePose.DeviceToWorldMatrix;
+            localTransform = Device.UpdatePose.DeviceToWorldMatrix.Inverted();
+            inverseLocalTransform = Device.UpdatePose.DeviceToWorldMatrix;
         }
         protected internal override void OnOriginRebased(Vec3 newOrigin)
         {

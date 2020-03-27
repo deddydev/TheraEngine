@@ -6,7 +6,7 @@ namespace TheraEngine.Rendering.Scene
 {
     public class VRViewport : Viewport
     {
-        public VRViewport() : base(null, 0) => SetInternalResolution(1080, 1200);
+        public VRViewport() : base(new VRRenderHandler(), 0) => SetInternalResolution(1080, 1200);
 
         public QuadFrameBuffer FBO { get; set; }
         public TexRef2D EyeTexture { get; set; }

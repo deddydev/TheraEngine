@@ -1287,7 +1287,6 @@
     <Compile Include="ContentTree\Controls\ResourceTree.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Overrides\EditorWorldRenderHandler.cs" />
     <Compile Include="Windows\Forms\Main Window\Misc\UndoManager.cs" />
     <Compile Include="Windows\Forms\Editors\Texture Viewer\TextureViewerForm.cs">
       <SubType>Form</SubType>

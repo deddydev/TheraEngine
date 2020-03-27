@@ -696,6 +696,7 @@
     <Compile Include="Rendering\Renderer\BaseRenderHandler.cs" />
     <Compile Include="Rendering\Scene\RenderInfo3D.cs" />
     <Compile Include="Rendering\Scene\RenderInfo2D.cs" />
+    <Compile Include="Rendering\Scene\VRRenderHandler.cs" />
     <Compile Include="Rendering\Scene\VRViewport.cs" />
     <Compile Include="Components\Scene\UI\Interactable\TMenuComponent.cs" />
     <Compile Include="Shapes\BoundingRectangle.cs" />
@@ -882,7 +883,6 @@
     <Compile Include="Core\Tools\GLSLParser.cs" />
     <Compile Include="Core\Tools\ObjectComparer.cs" />
     <Compile Include="Core\Files\Serialization\XML\XMLSchemeDefinition.cs" />
-    <Compile Include="Core\Controls\WorldRenderPanel.cs" />
     <Compile Include="Animation\Cutscenes\Cutscene.cs" />
     <Compile Include="Core\Editor\EditorState.cs" />
     <Compile Include="Core\Engine\EngineMethods.cs" />

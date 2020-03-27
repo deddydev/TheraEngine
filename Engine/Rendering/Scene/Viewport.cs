@@ -136,13 +136,18 @@ namespace TheraEngine.Rendering
                 SetFullScreen();
             }
             else
-                ViewportCountChanged(index, panel.Viewports.Count + 1, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
+                ViewportCountChanged(
+                    index,
+                    panel.Viewports.Count + 1,
+                    Engine.Game.TwoPlayerPref,
+                    Engine.Game.ThreePlayerPref);
 
             RenderHandler = panel;
             Index = index;
             _ssaoInfo.Generate();
 
-            Resize(panel.Width, panel.Height);
+            if (panel != null)
+                Resize(panel.Width, panel.Height);
         }
         public Viewport(int width, int height)
         {

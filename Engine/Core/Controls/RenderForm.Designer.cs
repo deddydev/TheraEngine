@@ -1,4 +1,6 @@
-﻿namespace TheraEngine
+﻿using TheraEngine.Rendering;
+
+namespace TheraEngine
 {
     partial class RenderForm
     {
@@ -29,7 +31,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.renderPanel = new RenderPanel<TheraEngine.WorldRenderHandler>();
+            this.renderPanel = new RenderPanel<TheraEngine.RenderHandler<IScene>>();
             this.SuspendLayout();
             // 
             // renderPanel1
@@ -57,6 +59,6 @@
 
         #endregion
 
-        private RenderPanel<TheraEngine.WorldRenderHandler> renderPanel;
+        private RenderPanel<TheraEngine.RenderHandler<IScene>> renderPanel;
     }
 }

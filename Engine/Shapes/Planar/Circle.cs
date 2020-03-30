@@ -61,14 +61,14 @@ namespace TheraEngine.Core.Shapes
             set => _radius = value;
         }
 
-        public PrimitiveData GetSolidMesh(int sides)
+        public Mesh GetSolidMesh(int sides)
             => SolidMesh(Radius, Plane.Normal, Plane.IntersectionPoint, sides);
-        public PrimitiveData GetWireframeMesh(int sides)
+        public Mesh GetWireframeMesh(int sides)
             => WireframeMesh(Radius, Plane.Normal, Plane.IntersectionPoint, sides);
         public VertexLineStrip GetLineStrip(int sides)
             => LineStrip(Radius, Plane.Normal, Plane.IntersectionPoint, sides);
         
-        public static PrimitiveData SolidMesh(float radius, Vec3 normal, Vec3 center, int sides)
+        public static Mesh SolidMesh(float radius, Vec3 normal, Vec3 center, int sides)
         {
             if (sides < 3)
                 throw new Exception("A (very low res) circle needs at least 3 sides.");
@@ -77,11 +77,11 @@ namespace TheraEngine.Core.Shapes
             List<Vertex> points = new List<Vertex>(Points(radius, normal, center, sides));
             points.Insert(0, new Vertex(center, normal, Vec2.Half));
             VertexTriangleFan fan = new VertexTriangleFan(points.ToArray());
-            return PrimitiveData.FromTriangleFans(VertexShaderDesc.PosNormTex(), fan);
+            return Mesh.FromTriangleFans(VertexShaderDesc.PosNormTex(), fan);
         }
-        public static PrimitiveData WireframeMesh(float radius, Vec3 normal, Vec3 center, int sides)
+        public static Mesh WireframeMesh(float radius, Vec3 normal, Vec3 center, int sides)
         {
-            return PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), LineStrip(radius, normal, center, sides));
+            return Mesh.FromLineStrips(VertexShaderDesc.JustPositions(), LineStrip(radius, normal, center, sides));
         }
         public static VertexLineStrip LineStrip(float radius, Vec3 normal, Vec3 center, int sides)
         {

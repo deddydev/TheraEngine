@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsNativeInterop", "Win
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Discord", "Discord\Discord.csproj", "{2369A06F-3F3A-48A1-AA28-D46D87123FB7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{0B7EFEFA-5DFD-4191-9B79-571A8358A123}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Server\Server.csproj", "{0B7EFEFA-5DFD-4191-9B79-571A8358A123}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

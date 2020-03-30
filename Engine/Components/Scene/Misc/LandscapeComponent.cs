@@ -237,7 +237,7 @@ namespace TheraEngine.Components.Scene
                 }
             }
 
-            PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), list);
+            Rendering.Models.Mesh data = Rendering.Models.Mesh.FromTriangleList(VertexShaderDesc.PosNormTex(), list);
             data[EBufferType.Position].MapData = true;
             data[EBufferType.Normal].MapData = true;
             data[EBufferType.TexCoord].MapData = true;

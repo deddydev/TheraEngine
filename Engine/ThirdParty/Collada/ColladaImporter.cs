@@ -343,7 +343,7 @@ namespace TheraEngine.Rendering.Models
 
             public void Initialize(SkeletalModel model, VisualScene scene, bool addBinormals = true, bool addTangents = true)
             {
-                PrimitiveData data = null;
+                Mesh data = null;
                 if (_rig != null)
                 {
                     if (_geoEntry != null)
@@ -398,7 +398,7 @@ namespace TheraEngine.Rendering.Models
 
             public void Initialize(StaticModel model, VisualScene scene, bool addBinormals = true, bool addTangents = true)
             {
-                PrimitiveData data;
+                Mesh data;
                 if (_rig != null)
                 {
                     if (_geoEntry != null)

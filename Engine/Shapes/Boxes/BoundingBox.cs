@@ -247,7 +247,7 @@ namespace TheraEngine.Core.Shapes
         #endregion
 
         #region Meshes
-        public static PrimitiveData WireframeMesh(Vec3 min, Vec3 max)
+        public static Mesh WireframeMesh(Vec3 min, Vec3 max)
         {
             VertexLine 
                 topFront, topRight, topBack, topLeft,
@@ -271,7 +271,7 @@ namespace TheraEngine.Core.Shapes
             backLeft = new VertexLine(new Vertex(TBL), new Vertex(BBL));
             backRight = new VertexLine(new Vertex(TBR), new Vertex(BBR));
 
-            return PrimitiveData.FromLines(VertexShaderDesc.JustPositions(),
+            return Mesh.FromLines(VertexShaderDesc.JustPositions(),
                 topFront, topRight, topBack, topLeft,
                 frontLeft, frontRight, backLeft, backRight,
                 bottomFront, bottomRight, bottomBack, bottomLeft);
@@ -299,7 +299,7 @@ namespace TheraEngine.Core.Shapes
         /// <param name="inwardFacing">If the faces' fronts should face inward instead of outward.</param>
         /// <param name="cubemapUVs">If each quad should use UVs for </param>
         /// <returns></returns>
-        public static PrimitiveData SolidMesh(Vec3 min, Vec3 max, bool inwardFacing = false, ECubemapTextureUVs cubemapUVs = ECubemapTextureUVs.None, float bias = 0.0f)
+        public static Mesh SolidMesh(Vec3 min, Vec3 max, bool inwardFacing = false, ECubemapTextureUVs cubemapUVs = ECubemapTextureUVs.None, float bias = 0.0f)
         {
             VertexQuad left, right, top, bottom, front, back;
 
@@ -374,14 +374,14 @@ namespace TheraEngine.Core.Shapes
                     VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal,     ECubemapFace.NegZ, widthLarger, bias);
             }
             
-            return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
+            return Mesh.FromQuads(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
         }
         /// <summary>
         /// Creates a mesh representing this bounding box.
         /// </summary>
         /// <param name="includeTranslation">If true, makes mesh with minimum and maximum coordinates.
         /// If false, makes the mesh about the origin.</param>
-        public PrimitiveData GetSolidMesh(bool includeTranslation)
+        public Mesh GetSolidMesh(bool includeTranslation)
         {
             if (includeTranslation)
                 return SolidMesh(Minimum, Maximum);
@@ -394,7 +394,7 @@ namespace TheraEngine.Core.Shapes
         /// </summary>
         /// <param name="includeTranslation">If true, makes mesh with minimum and maximum coordinates.
         /// If false, makes the mesh about the origin.</param>
-        public PrimitiveData GetWireframeMesh(bool includeTranslation)
+        public Mesh GetWireframeMesh(bool includeTranslation)
         {
             if (includeTranslation)
                 return WireframeMesh(Minimum, Maximum);

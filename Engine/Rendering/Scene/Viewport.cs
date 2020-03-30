@@ -837,7 +837,7 @@ namespace TheraEngine.Rendering
             using MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat);
             fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
-            using PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), tris);
+            using Mesh data = Mesh.FromTriangles(VertexShaderDesc.PosTex(), tris);
             using PrimitiveManager quad = new PrimitiveManager(data, mat);
             BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
 
@@ -1035,9 +1035,9 @@ namespace TheraEngine.Rendering
                 TMaterial spotLightMat = new TMaterial("SpotLightMat", additiveRenderParams, lightRefs, spotLightShader);
                 TMaterial dirLightMat = new TMaterial("DirLightMat", additiveRenderParams, lightRefs, dirLightShader);
 
-                PrimitiveData pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
-                PrimitiveData spotLightMesh = Cone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
-                PrimitiveData dirLightMesh = BoundingBox.SolidMesh(-Vec3.Half, Vec3.Half);
+                Mesh pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
+                Mesh spotLightMesh = Cone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
+                Mesh dirLightMesh = BoundingBox.SolidMesh(-Vec3.Half, Vec3.Half);
 
                 PointLightManager = new PrimitiveManager(pointLightMesh, pointLightMat);
                 PointLightManager.SettingUniforms += LightManager_SettingUniforms;

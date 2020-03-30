@@ -24,7 +24,7 @@ namespace TheraEngine.Rendering.Models
             string name,
             IRenderInfo3D renderInfo,
             ERenderPass renderPass,
-            PrimitiveData primitives,
+            Mesh primitives,
             TMaterial material)
         {
             _name = name;

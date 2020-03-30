@@ -118,7 +118,7 @@ namespace TheraEngine.Core.Shapes
         #endregion
 
         #region Mesh
-        public static PrimitiveData WireframeMesh(Vec3 center, Vec3 upAxis, float radius, float halfHeight, int pointCountHalfCircle)
+        public static Mesh WireframeMesh(Vec3 center, Vec3 upAxis, float radius, float halfHeight, int pointCountHalfCircle)
         {
             upAxis.Normalize();
 
@@ -189,14 +189,14 @@ namespace TheraEngine.Core.Shapes
                 new Vertex(bottomPoint - forwardNormal * radius),
                 new Vertex(topPoint - forwardNormal * radius));
 
-            return PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(),
+            return Mesh.FromLineStrips(VertexShaderDesc.JustPositions(),
                 topCircleUp, topHalfCircleToward, topHalfCircleRight,
                 bottomCircleDown, bottomHalfCircleAway, bottomHalfCircleRight,
                 right, left, front, back);
         }
         public static void WireframeMeshParts(
             Vec3 center, Vec3 upAxis, float radius, float halfHeight, int pointCountHalfCircle,
-            out PrimitiveData cylinder, out PrimitiveData topSphereHalf, out PrimitiveData bottomSphereHalf)
+            out Mesh cylinder, out Mesh topSphereHalf, out Mesh bottomSphereHalf)
         {
             upAxis.Normalize();
 
@@ -270,11 +270,11 @@ namespace TheraEngine.Core.Shapes
                 new Vertex(bottomPoint - forwardNormal * radius),
                 new Vertex(topPoint - forwardNormal * radius));
 
-            cylinder = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(),
+            cylinder = Mesh.FromLineStrips(VertexShaderDesc.JustPositions(),
                 topCircleUp, bottomCircleDown, right, left, front, back);
-            topSphereHalf = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(),
+            topSphereHalf = Mesh.FromLineStrips(VertexShaderDesc.JustPositions(),
                 topHalfCircleToward, topHalfCircleRight);
-            bottomSphereHalf = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(),
+            bottomSphereHalf = Mesh.FromLineStrips(VertexShaderDesc.JustPositions(),
                 bottomHalfCircleAway, bottomHalfCircleRight);
         }
         #endregion

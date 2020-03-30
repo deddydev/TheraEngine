@@ -114,7 +114,7 @@ namespace TheraEngine.Core.Shapes
         {
             Engine.Renderer.RenderBox(_halfExtents, _transform.Matrix, RenderSolid, Color.Black);
         }
-        public static PrimitiveData Mesh(Vec3 halfExtents, Matrix4 transform)
+        public static Mesh Mesh(Vec3 halfExtents, Matrix4 transform)
         {
             VertexQuad left, right, top, bottom, front, back;
 
@@ -134,10 +134,10 @@ namespace TheraEngine.Core.Shapes
             front = VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
             back = VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
 
-            return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
+            return Rendering.Models.Mesh.FromQuads(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
         }
 
-        public PrimitiveData GetMesh()
+        public Mesh GetMesh()
             => Mesh(HalfExtents, Transform.Matrix);
         public IFrustum AsFrustum() 
             => BoundingBox.GetFrustum(HalfExtents, Transform.Matrix);

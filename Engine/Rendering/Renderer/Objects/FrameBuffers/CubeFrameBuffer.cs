@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering
             Material = mat;
 
             float middle = (nearZ + farZ) * 0.5f;
-            PrimitiveData cubeData = BoundingBox.SolidMesh(-middle, middle, true);
+            Mesh cubeData = BoundingBox.SolidMesh(-middle, middle, true);
             _cube = new PrimitiveManager(cubeData, Material);
             _cube.SettingUniforms += SetUniforms;
 

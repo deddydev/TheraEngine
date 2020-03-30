@@ -5,8 +5,10 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
 {
-    public class Vertex
+    public class Vertex : VertexPrimitive
     {
+        public override FaceType Type => FaceType.Points;
+
         public Vertex(FacePoint facepoint, List<DataBuffer> buffers)
             => GetData(facepoint, buffers);
         
@@ -16,16 +18,16 @@ namespace TheraEngine.Rendering.Models
         public Vec3 Normal { get; set; }
         public Vec3 Tangent { get; set; }
         public Vec3 Binormal { get; set; }
-        public Vec2 TexCoord { get; set; }
-        public ColorF4 Color { get; set; }
-        
+        public Vec2[] TexCoord { get; set; }
+        public ColorF4[] Color { get; set; }
+
         public Vertex() { }
         public Vertex(InfluenceDef inf)
             { Influence = inf; }
         public Vertex(Vec3 position)
             { Position = position; }
         public Vertex(Vec3 position, ColorF4 color)
-            { Position = position; Color = color; }
+            { Position = position; Color = new ColorF4[] { color }; }
         public Vertex(Vec3 position, InfluenceDef inf) 
             : this(position) { Influence = inf; }
 
@@ -48,23 +50,23 @@ namespace TheraEngine.Rendering.Models
         }
 
         public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord) 
-            : this(position, inf, normal) { TexCoord = texCoord; }
+            : this(position, inf, normal) { TexCoord = new Vec2[] { texCoord }; }
         public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord, ColorF4 color) 
-            : this(position, inf, normal, texCoord) { Color = color; }
+            : this(position, inf, normal, texCoord) { Color = new ColorF4[] { color }; }
         public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color) 
             : this(position, inf, normal, texCoord, color) { Binormal = binormal; Tangent = tangent; }
 
         public Vertex(Vec3 position, InfluenceDef inf, Vec2 texCoord)
-            : this(position, inf) { TexCoord = texCoord; }
+            : this(position, inf) { TexCoord = new Vec2[] { texCoord }; }
         public Vertex(Vec3 position, Vec2 texCoord)
-            : this(position) { TexCoord = texCoord; }
+            : this(position) { TexCoord = new Vec2[] { texCoord }; }
 
         public Vertex(Vec3 position, Vec3 normal) 
             : this(position, null, normal) { }
         public Vertex(Vec3 position, Vec3 normal, Vec2 texCoord)
-            : this(position, null, normal) { TexCoord = texCoord; }
+            : this(position, null, normal) { TexCoord = new Vec2[] { texCoord }; }
         public Vertex(Vec3 position, Vec3 normal, Vec2 texCoord, ColorF4 color)
-            : this(position, null, normal, texCoord) { Color = color; }
+            : this(position, null, normal, texCoord) { Color = new ColorF4[] { color }; }
         public Vertex(Vec3 position, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color)
             : this(position, null, normal, texCoord, color) { Binormal = binormal; Tangent = tangent; }
 

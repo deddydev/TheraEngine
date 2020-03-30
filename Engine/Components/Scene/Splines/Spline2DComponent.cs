@@ -148,7 +148,7 @@ namespace TheraEngine.Components.Scene
                 Vec3 vel = _spline.GetVelocityKeyframed(sec);
                 float velLength = vel.LengthFast;
                 Vec3 velColor = Vec3.Lerp(Vec3.UnitZ, Vec3.UnitX, 1.0f / (1.0f + 0.1f * (velLength * velLength)));
-                Vertex pos = new Vertex(val) { Color = velColor };
+                Vertex pos = new Vertex(val) { Color = new ColorF4[] { velColor } };
                 splinePoints[i] = pos;
                 velocity[i] = new VertexLine(pos, new Vertex(pos.Position + vel.Normalized()));
             }
@@ -207,7 +207,7 @@ namespace TheraEngine.Components.Scene
                 PointSize = 5.0f
             };
 
-            PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.PosColor(), strip);
+            Rendering.Models.Mesh splineData = Rendering.Models.Mesh.Create(VertexShaderDesc.PosColor(), strip);
             TMaterial mat = new TMaterial("SplineColor", new GLSLScript(EGLSLType.Fragment,
 @"
 #version 450
@@ -225,32 +225,32 @@ void main()
             };
             _splinePrimitive = new PrimitiveManager(splineData, mat);
 
-            PrimitiveData velocityData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), velocity);
+            Rendering.Models.Mesh velocityData = Rendering.Models.Mesh.Create(VertexShaderDesc.JustPositions(), velocity);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Blue);
             mat.RenderParams = p;
             _velocityTangentsPrimitive = new PrimitiveManager(velocityData, mat);
 
-            PrimitiveData pointData = PrimitiveData.FromPoints(keyframePositions);
+            Rendering.Models.Mesh pointData = Rendering.Models.Mesh.Create(keyframePositions);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Green);
             mat.RenderParams = p;
             _pointPrimitive = new PrimitiveManager(pointData, mat);
 
-            PrimitiveData extremaData = PrimitiveData.FromPoints(extrema);
+            Rendering.Models.Mesh extremaData = Rendering.Models.Mesh.Create(extrema);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Red);
             mat.RenderParams = p;
             _extremaPrimitive = new PrimitiveManager(extremaData, mat);
 
-            PrimitiveData tangentData = PrimitiveData.FromPoints(tangentPositions);
+            Rendering.Models.Mesh tangentData = Rendering.Models.Mesh.Create(tangentPositions);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Purple);
             mat.RenderParams = p;
             _tangentPrimitive = new PrimitiveManager(tangentData, mat);
 
-            PrimitiveData kfLineData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), keyframeLines);
+            Rendering.Models.Mesh kfLineData = Rendering.Models.Mesh.Create(VertexShaderDesc.JustPositions(), keyframeLines);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Orange);
             mat.RenderParams = p;
             _keyframeLinesPrimitive = new PrimitiveManager(kfLineData, mat);
 
-            PrimitiveData timePointData = PrimitiveData.FromPoints(Vec3.Zero);
+            Rendering.Models.Mesh timePointData = Rendering.Models.Mesh.Create(Vec3.Zero);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.White);
             mat.RenderParams = p;
             _timePointPrimitive = new PrimitiveManager(timePointData, mat);

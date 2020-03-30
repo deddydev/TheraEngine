@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.Models
         event Action PrimitivesRefChanged;
 
         LocalFileRef<TMaterial> MaterialRef { get; }
-        GlobalFileRef<PrimitiveData> PrimitivesRef { get; }
+        GlobalFileRef<Mesh> PrimitivesRef { get; }
         float VisibleDistance { get; set; }
         ETransformFlags TransformFlags { get; set; }
 
@@ -32,10 +32,10 @@ namespace TheraEngine.Rendering.Models
         public LOD() : this(null, null, 0) { }
         public LOD(
             LocalFileRef<TMaterial> material,
-            GlobalFileRef<PrimitiveData> primitives,
+            GlobalFileRef<Mesh> primitives,
             float visibleDistance)
         {
-            _primitivesRef = primitives ?? new GlobalFileRef<PrimitiveData>();
+            _primitivesRef = primitives ?? new GlobalFileRef<Mesh>();
             _materialRef = material ?? new LocalFileRef<TMaterial>();
 
             VisibleDistance = visibleDistance;
@@ -46,7 +46,7 @@ namespace TheraEngine.Rendering.Models
         public LocalFileRef<TMaterial> MaterialRef => _materialRef;
         [Category("LOD")]
         [DisplayName("Primitives")]
-        public GlobalFileRef<PrimitiveData> PrimitivesRef => _primitivesRef;
+        public GlobalFileRef<Mesh> PrimitivesRef => _primitivesRef;
         [Category("LOD")]
         [TSerialize(IsAttribute = true)]
         public float VisibleDistance
@@ -75,7 +75,7 @@ namespace TheraEngine.Rendering.Models
         }
 
         [TSerialize("Primitives")]
-        protected GlobalFileRef<PrimitiveData> _primitivesRef;
+        protected GlobalFileRef<Mesh> _primitivesRef;
         [TSerialize("Material")]
         protected LocalFileRef<TMaterial> _materialRef;
 

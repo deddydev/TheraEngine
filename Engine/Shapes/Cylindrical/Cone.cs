@@ -59,7 +59,7 @@ namespace TheraEngine.Core.Shapes
         public override void Render(bool shadowPass)
             => Engine.Renderer.RenderCone(_center.AsTranslationMatrix(), _localUpAxis, _radius, _height, RenderSolid, Color.Magenta);
 
-        public static PrimitiveData WireMesh(Vec3 center, Vec3 up, float height, float radius, int sides)
+        public static Mesh WireMesh(Vec3 center, Vec3 up, float height, float radius, int sides)
         {
             up.Normalize();
 
@@ -78,9 +78,9 @@ namespace TheraEngine.Core.Shapes
                 lines[x++] = new VertexLine(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoint);
             }
 
-            return PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), lines);
+            return Mesh.FromLines(VertexShaderDesc.JustPositions(), lines);
         }
-        public static PrimitiveData SolidMesh(Vec3 center, Vec3 up, float height, float radius, int sides, bool closeBottom)
+        public static Mesh SolidMesh(Vec3 center, Vec3 up, float height, float radius, int sides, bool closeBottom)
         {
             up.Normalize();
 
@@ -129,7 +129,7 @@ namespace TheraEngine.Core.Shapes
                 tris.AddRange(new VertexTriangleFan(list).ToTriangles());
             }
 
-            return PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), tris);
+            return Mesh.FromTriangleList(VertexShaderDesc.PosNormTex(), tris);
         }
         public override EContainment Contains(BoundingBoxStruct box)
         {

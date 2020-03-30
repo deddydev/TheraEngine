@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering
 
         public PrimitiveManager FullScreenMesh { get; }
 
-        public static PrimitiveData Mesh(bool asTriangle)
+        public static Mesh Mesh(bool asTriangle)
         {
             if (asTriangle)
             {
@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering
                     new Vec3(0.0f, 0.0f, 0.0f),
                     new Vec3(2.0f, 0.0f, 0.0f),
                     new Vec3(0.0f, 2.0f, 0.0f));
-                return PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), triangle);
+                return Models.Mesh.FromTriangles(VertexShaderDesc.JustPositions(), triangle);
             }
             else
             {
@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering
                     new Vec3(0.0f, 1.0f, 0.0f),
                     new Vec3(1.0f, 0.0f, 0.0f),
                     new Vec3(1.0f, 1.0f, 0.0f));
-                return PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), triangle1, triangle2);
+                return Models.Mesh.FromTriangles(VertexShaderDesc.JustPositions(), triangle1, triangle2);
             }
         }
 

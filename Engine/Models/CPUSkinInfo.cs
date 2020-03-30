@@ -60,11 +60,11 @@ namespace TheraEngine.Rendering.Models
             _binormals,
             _tangents;
 
-        PrimitiveData _data;
+        Mesh _data;
         internal LiveInfluence[] _influences;
         private int[] _influenceIndices;
 
-        public CPUSkinInfo(PrimitiveData data, ISkeleton skeleton)
+        public CPUSkinInfo(Mesh data, ISkeleton skeleton)
         {
             (_positions = data[EBufferType.Position])?.GetData(out _basePositions, false);
             (_normals = data[EBufferType.Normal])?.GetData(out _baseNormals, false);

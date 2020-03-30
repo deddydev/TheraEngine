@@ -553,8 +553,6 @@
     <Compile Include="Components\Scene\UI\Text\UITextBoxComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextQuadComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\UICanvasComponent.cs" />
-    <Compile Include="Core\Attributes\TDeprecatedName.cs" />
-    <Compile Include="Core\Attributes\TDropDownIndexSelectorAttribute.cs" />
     <Compile Include="Components\Logic\Common\HealthComponent.cs" />
     <Compile Include="Actors\Special\IBLProbeGridActor.cs" />
     <Compile Include="Actors\ComponentActors\SkyboxActor.cs" />
@@ -595,15 +593,49 @@
     <Compile Include="Components\Scene\UI\Core\Transforms\UIRotationComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\UIViewportComponent.cs" />
     <Compile Include="Components\Scene\Volumes\Boost.cs" />
+    <Compile Include="Core\Attributes\TDeprecatedName.cs" />
+    <Compile Include="Core\Attributes\TDropDownIndexSelectorAttribute.cs" />
     <Compile Include="Core\Attributes\TNumericPrefixSuffixAttribute.cs" />
+    <Compile Include="Core\CommonDelegates.cs" />
+    <Compile Include="Core\ComputerInfo.cs" />
+    <Compile Include="Core\Controls\BaseRenderPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Core\Controls\BasicRenderPanel.cs" />
+    <Compile Include="Core\Controls\RenderForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Core\Controls\RenderForm.Designer.cs">
+      <DependentUpon>RenderForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Core\Data Structures\ConcurrentHashSet.cs" />
     <Compile Include="Core\Data Structures\Lists\ConsistentIndexList.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\Deque.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.Enumerator.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.Node.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.Synchronized.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\GenericTester.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\Tester.cs" />
     <Compile Include="Core\Data Structures\Lists\EventArray.cs" />
+    <Compile Include="Core\Data Structures\Lists\EventList.cs" />
+    <Compile Include="Core\Data Structures\Lists\HashedQueue.cs" />
+    <Compile Include="Core\Data Structures\Lists\HashedStack.cs" />
     <Compile Include="Core\Data Structures\Lists\TCollectionChangedEventArgs.cs" />
+    <Compile Include="Core\Data Structures\Lists\ThreadSafeList.cs" />
     <Compile Include="Core\Data Structures\ProgressStream.cs" />
+    <Compile Include="Core\Data Structures\ThreadSafeHashSet.cs" />
+    <Compile Include="Core\Data Structures\Trees\Octree.cs" />
+    <Compile Include="Core\Data Structures\Trees\Quadtree.cs" />
+    <Compile Include="Core\Editor\EditorState.cs" />
     <Compile Include="Core\Editor\StateChange.cs" />
+    <Compile Include="Core\Engine\EngineDomainProxy.cs" />
+    <Compile Include="Core\Engine\EngineMethods.cs" />
+    <Compile Include="Core\Engine\EngineProperties.cs" />
+    <Compile Include="Core\Engine\EngineSettings.cs" />
     <Compile Include="Core\Engine\EngineVR.cs" />
+    <Compile Include="Core\Engine\PlayerInfo.cs" />
+    <Compile Include="Core\Engine\UserSettings.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />
     <Compile Include="Core\Extensions\AppDomainExtension.cs" />
     <Compile Include="Core\Extensions\BitmapExtension.cs" />
@@ -614,52 +646,104 @@
     <Compile Include="Core\Extensions\StringExtension.cs" />
     <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Core\Files\ArchiveFile.cs" />
-    <Compile Include="Core\Files\References\PathReference.cs" />
-    <Compile Include="Core\Files\References\ObjectRef.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializers\DateTimeSerializer.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializers\TypeSerializer.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\Reading\Deserializer.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\Writing\Serializer.cs" />
-    <Compile Include="Core\Files\Serialization\AssemblyQualifiedName.cs" />
     <Compile Include="Core\Files\EventRaisingStreamWriter.cs" />
+    <Compile Include="Core\Files\FileMap.cs" />
+    <Compile Include="Core\Files\FileObject\FileObject.cs" />
     <Compile Include="Core\Files\FileObject\Statics.cs" />
     <Compile Include="Core\Files\References\FileLoader.cs" />
-    <Compile Include="Core\Files\References\LocalFileRef.cs" />
+    <Compile Include="Core\Files\References\FileRef.cs" />
     <Compile Include="Core\Files\References\GlobalFileRef.cs" />
+    <Compile Include="Core\Files\References\LocalFileRef.cs" />
+    <Compile Include="Core\Files\References\ObjectRef.cs" />
+    <Compile Include="Core\Files\References\PathReference.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\BaseSerializationIO.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\FileCommonHeader.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\Reading\ReaderBinary.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\Types\SerializeElementContent.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\Types\SerializeAttribute.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterBinary.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializers\BaseObjectSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializers\CommonObjectSerializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializers\DateTimeSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializers\IDictionarySerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializers\IListSerializer.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializers\BaseObjectSerializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializers\TypeSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Reading\AbstractReader.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\BaseSerializationIO.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\Writing\AbstractWriter.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\Reading\Deserializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\Reading\ReaderBinary.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Reading\ReaderXML.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterXML.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\Types\SerializeAttribute.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Types\SerializeElement.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\Types\SerializeElementContent.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\Writing\AbstractWriter.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\Writing\Serializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterBinary.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterXML.cs" />
+    <None Include="Core\Files\Serialization\Binary\CustomBinaryDeserializer.cs" />
+    <None Include="Core\Files\Serialization\Binary\CustomBinarySerializer.cs" />
+    <Compile Include="Core\Files\Serialization\AssemblyQualifiedName.cs" />
+    <Compile Include="Core\Files\Serialization\Binary\StringTable.cs" />
+    <Compile Include="Core\Files\Serialization\SerializationCommon.cs" />
+    <Compile Include="Core\Files\Serialization\XML\XMLReader.cs" />
+    <Compile Include="Core\Files\Serialization\XML\XMLSchemeDefinition.cs" />
+    <Compile Include="Core\Files\TextFile.cs" />
+    <Compile Include="Core\HelperMethods.cs" />
+    <Compile Include="Core\Interfaces.cs" />
     <Compile Include="Core\LocalizedString.cs" />
     <Compile Include="Core\MarshalSponsor.cs" />
+    <Compile Include="Core\Math\Collision\Collision.cs" />
+    <Compile Include="Core\Math\Collision\Tracing.cs" />
+    <Compile Include="Core\Math\Enums.cs" />
     <Compile Include="Core\Math\Half.cs" />
+    <Compile Include="Core\Math\Interpolation.cs" />
+    <Compile Include="Core\Math\Miniball.cs" />
+    <Compile Include="Core\Math\TMath.cs" />
     <Compile Include="Core\Math\Transforms\Class\Rotation\EventQuat.cs" />
+    <None Include="Core\Math\Transforms\Class\Rotation\EventQuatRotator.cs" />
+    <Compile Include="Core\Math\Transforms\Class\Rotation\Rotator.cs" />
+    <Compile Include="Core\Math\Transforms\Class\Transforms\Transform.cs" />
+    <None Include="Core\Math\Transforms\Class\Transforms\WorldRotTransform.cs" />
+    <Compile Include="Core\Math\Transforms\Class\Vectors\EventVec2.cs" />
+    <Compile Include="Core\Math\Transforms\Class\Vectors\EventVec3.cs" />
+    <Compile Include="Core\Math\Transforms\Class\Vectors\EventVec4.cs" />
+    <Compile Include="Core\Math\Transforms\Struct\Rotation\Quaternion.cs" />
+    <None Include="Core\Math\Transforms\Struct\Rotation\QuatRotator.cs" />
+    <Compile Include="Core\Math\Transforms\Struct\Transforms\Matrix3.cs" />
+    <Compile Include="Core\Math\Transforms\Struct\Transforms\Matrix4.cs" />
+    <Compile Include="Core\Math\Transforms\Struct\Vectors\Vec2.cs" />
+    <Compile Include="Core\Math\Transforms\Struct\Vectors\Vec3.cs" />
+    <Compile Include="Core\Math\Transforms\Struct\Vectors\Vec4.cs" />
+    <Compile Include="Core\Math\Transforms\Struct\Vectors\Vectors.cs" />
+    <Compile Include="Core\Measurement.cs" />
+    <Compile Include="Core\Memory\BigEndianTypes.cs" />
+    <Compile Include="Core\Memory\Bin16.cs" />
+    <Compile Include="Core\Memory\Bin24.cs" />
+    <Compile Include="Core\Memory\Bin32.cs" />
+    <Compile Include="Core\Memory\Bin64.cs" />
+    <Compile Include="Core\Memory\Bin8.cs" />
+    <Compile Include="Core\Memory\DataSource.cs" />
+    <Compile Include="Core\Memory\FloatQuantizer.cs" />
     <Compile Include="Core\Memory\Int24.cs" />
+    <Compile Include="Core\Memory\Memory.cs" />
+    <Compile Include="Core\Memory\PString.cs" />
+    <Compile Include="Core\Memory\UInt24.cs" />
+    <Compile Include="Core\Memory\VoidPtr.cs" />
+    <Compile Include="Core\Memory\VQuant.cs" />
+    <Compile Include="Core\Platform\Linux.cs" />
+    <Compile Include="Core\Platform\OSX.cs" />
+    <Compile Include="Core\Platform\Win32.cs" />
     <Compile Include="Core\PropertyBinding.cs" />
     <Compile Include="Core\PropertyChangedRouter.cs" />
     <Compile Include="Core\Reflection\AppDomainHelper.cs" />
+    <Compile Include="Core\Reflection\Attributes\BrowsableIf.cs" />
+    <Compile Include="Core\Reflection\Attributes\DragRange.cs" />
     <Compile Include="Core\Reflection\Attributes\GridCallable.cs" />
-    <Compile Include="Core\Reflection\Attributes\Serialization\TFileExt.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\TCustomMemberDeSerializeMethod.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\TFile3rdParty.cs" />
-    <Compile Include="Core\Reflection\Attributes\TReplicate.cs" />
-    <Compile Include="Core\Controls\BaseRenderPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Core\Reflection\Attributes\Serialization\TFileDef.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\TFileExt.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\TPrePostDeSerialize.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\TSerialize.cs" />
     <Compile Include="Core\Reflection\Attributes\TEnumDef.cs" />
-    <None Include="Core\Reflection\TConstructorInfo.cs" />
-    <None Include="Core\Reflection\TParameterInfo.cs" />
-    <None Include="Core\Reflection\TType.cs" />
+    <Compile Include="Core\Reflection\Attributes\TReplicate.cs" />
+    <Compile Include="Core\Reflection\Attributes\TString.cs" />
+    <Compile Include="Core\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="Core\Reflection\DomainAwareSingleton.cs" />
     <Compile Include="Core\Reflection\Proxies\AssemblyProxy.cs" />
     <Compile Include="Core\Reflection\Proxies\ConstructorInfoProxy.cs" />
@@ -674,11 +758,34 @@
     <Compile Include="Core\Reflection\Proxies\ProxyList.cs" />
     <Compile Include="Core\Reflection\Proxies\ReflectionProxy.cs" />
     <Compile Include="Core\Reflection\Proxies\TypeProxy.cs" />
+    <None Include="Core\Reflection\TConstructorInfo.cs" />
+    <None Include="Core\Reflection\TParameterInfo.cs" />
+    <None Include="Core\Reflection\TType.cs" />
     <Compile Include="Core\ResourcePool.cs" />
-    <EmbeddedResource Include="Core\Engine\Program_Template.tcs" />
-    <Compile Include="Core\Engine\EngineDomainProxy.cs" />
+    <Compile Include="Core\Time\EngineTimer.cs" />
+    <Compile Include="Core\Time\GameTimer.cs" />
+    <Compile Include="Core\TObject.cs" />
     <Compile Include="Core\TObjectSlim.cs" />
+    <Compile Include="Core\Tools\DelegateBuilder.cs" />
+    <Compile Include="Core\Tools\ExpressionParser.cs" />
+    <Compile Include="Core\Tools\GLSLParser.cs" />
+    <Compile Include="Core\Tools\ObjectComparer.cs" />
+    <Compile Include="Core\Tools\Remapper.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\CacheSimulator.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\GraphArray.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\HeapArray.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\Policy.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\TriangleConverter.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\TriStripper.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\Types.cs" />
+    <None Include="Core\Tools\V-HACD\ConvexHullComputer.cs" />
+    <None Include="Core\Tools\V-HACD\ICHull.cs" />
+    <None Include="Core\Tools\V-HACD\ManifoldMesh.cs" />
+    <None Include="Core\Tools\V-HACD\Mesh.cs" />
+    <None Include="Core\Tools\V-HACD\VHACD.cs" />
+    <None Include="Core\Tools\V-HACD\Volume.cs" />
     <Compile Include="Core\TPropertyConverter.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="Input\Devices\BaseGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\CursorManager.cs" />
     <Compile Include="Input\Devices\DirectX\DXGamepadConfiguration.cs" />
@@ -864,14 +971,6 @@
     <Compile Include="ThirdParty\OBJ\TypeParsers\UseMaterialParser.cs" />
     <Compile Include="ThirdParty\OBJ\TypeParsers\VertexParser.cs" />
     <Compile Include="Animation\TransformKeyCollection.cs" />
-    <Compile Include="Core\Math\Interpolation.cs" />
-    <Compile Include="Core\Reflection\Attributes\BrowsableIf.cs" />
-    <Compile Include="Core\HelperMethods.cs" />
-    <None Include="Core\Math\Transforms\Class\Rotation\EventQuatRotator.cs" />
-    <None Include="Core\Math\Transforms\Class\Transforms\WorldRotTransform.cs" />
-    <None Include="Core\Math\Transforms\Struct\Rotation\QuatRotator.cs" />
-    <Compile Include="Core\Reflection\Attributes\DragRange.cs" />
-    <Compile Include="Core\Reflection\Attributes\TString.cs" />
     <Compile Include="Animation\Property\PropAnimMatrix4.cs" />
     <Compile Include="Audio\AbstractAudioManager.cs" />
     <Compile Include="Audio\ALAudioManager.cs" />
@@ -879,13 +978,7 @@
     <Compile Include="Audio\AudioFile.cs" />
     <Compile Include="Audio\WaveFile.cs" />
     <Compile Include="Shapes\Cylindrical\ZAligned\ConeZ.cs" />
-    <Compile Include="Core\Tools\DelegateBuilder.cs" />
-    <Compile Include="Core\Tools\GLSLParser.cs" />
-    <Compile Include="Core\Tools\ObjectComparer.cs" />
-    <Compile Include="Core\Files\Serialization\XML\XMLSchemeDefinition.cs" />
     <Compile Include="Animation\Cutscenes\Cutscene.cs" />
-    <Compile Include="Core\Editor\EditorState.cs" />
-    <Compile Include="Core\Engine\EngineMethods.cs" />
     <Compile Include="Input\Devices\AxisManager.cs" />
     <Compile Include="Input\Devices\ButtonManager.cs" />
     <Compile Include="Input\Devices\Windows\WinMouse.cs" />
@@ -894,7 +987,6 @@
     <Compile Include="Animation\Property\PropAnimVec2.cs" />
     <Compile Include="Animation\Property\PropAnimVec3.cs" />
     <Compile Include="Animation\Property\PropAnimVec4.cs" />
-    <Compile Include="Core\Files\TextFile.cs" />
     <Compile Include="Models\Materials\Textures\Bitmap3D.cs" />
     <Compile Include="Models\Materials\Textures\References\TexRef3D.cs" />
     <Compile Include="Models\Materials\Textures\References\BaseTexRef.cs" />
@@ -911,7 +1003,6 @@
     <Compile Include="Animation\BaseAnimation.cs" />
     <Compile Include="Animation\Functions\Logic\IfFunction.cs" />
     <Compile Include="Animation\Model\SkeletalAnimation.cs" />
-    <Compile Include="Core\Engine\Game.cs" />
     <Compile Include="Networking\NetworkConnection.cs" />
     <Compile Include="Animation\Functions\AnimationFunction.cs" />
     <Compile Include="Animation\Functions\AnimFuncExecInput.cs" />
@@ -927,6 +1018,8 @@
     <Compile Include="Models\Materials\Functions\MaterialFunction.cs" />
     <Compile Include="Models\Materials\Functions\MatFuncExecInput.cs" />
     <Compile Include="Models\Materials\Functions\MatFuncExecOutput.cs" />
+    <EmbeddedResource Include="Core\Engine\Program_Template.tcs" />
+    <EmbeddedResource Include="Core\Engine\Solution_Template.tsln" />
     <None Include="TheraDevKey.pfx" />
     <None Include="ThirdParty\Collada\Parser\Core\Animation.cs" />
     <Compile Include="ThirdParty\Collada\ColladaAssetDecoder.cs" />
@@ -989,8 +1082,6 @@
     <Compile Include="Models\ModelScene.cs" />
     <None Include="Physics\PhysicsDriver.cs" />
     <Compile Include="Rendering\Renderer\RenderEnums.cs" />
-    <Compile Include="Core\Engine\UserSettings.cs" />
-    <Compile Include="Core\Engine\EngineSettings.cs" />
     <Compile Include="Input\Devices\Types\Mouse.cs" />
     <Compile Include="Input\Devices\Types\Keyboard.cs" />
     <Compile Include="Input\Devices\DirectX\DXGamepad.cs" />
@@ -1047,27 +1138,8 @@
     <Compile Include="Models\Materials\Textures\TextureConverter.cs" />
     <Compile Include="Models\Materials\Textures\TextureFile2D.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="Core\CommonDelegates.cs" />
-    <Compile Include="Core\ComputerInfo.cs" />
-    <Compile Include="Core\Data Structures\Lists\HashedStack.cs" />
-    <Compile Include="Core\Data Structures\Lists\HashedQueue.cs" />
-    <Compile Include="Core\Data Structures\Trees\Octree.cs" />
-    <Compile Include="Core\Data Structures\ThreadSafeHashSet.cs" />
-    <Compile Include="Core\Data Structures\Lists\ThreadSafeList.cs" />
-    <Compile Include="Core\Data Structures\Trees\Quadtree.cs" />
-    <None Include="Core\Files\Serialization\Binary\CustomBinaryDeserializer.cs" />
-    <None Include="Core\Files\Serialization\Binary\CustomBinarySerializer.cs" />
-    <Compile Include="Core\Files\Serialization\SerializationCommon.cs" />
-    <Compile Include="Core\Files\References\FileRef.cs" />
-    <Compile Include="Core\Files\Serialization\Binary\StringTable.cs" />
-    <Compile Include="Core\Files\Serialization\XML\XMLReader.cs" />
-    <Compile Include="Core\Math\Collision\Collision.cs" />
-    <Compile Include="Core\Math\Collision\Tracing.cs" />
-    <Compile Include="Core\Math\Enums.cs" />
-    <Compile Include="Core\Math\Miniball.cs" />
     <Compile Include="Shapes\BoundingRectangleF.cs" />
     <Compile Include="Shapes\Cylindrical\Cone.cs" />
-    <Compile Include="Core\Math\Transforms\Struct\Vectors\Vectors.cs" />
     <Compile Include="Shapes\Cylindrical\Capsule.cs" />
     <Compile Include="Shapes\Cylindrical\Complex\ComplexCapsule.cs" />
     <Compile Include="Shapes\Cylindrical\Cylinder.cs" />
@@ -1081,66 +1153,7 @@
     <Compile Include="Shapes\Planar\Ray.cs" />
     <Compile Include="Shapes\Shape.cs" />
     <Compile Include="Shapes\Cylindrical\Sphere.cs" />
-    <Compile Include="Core\Math\Transforms\Struct\Transforms\Matrix3.cs" />
-    <Compile Include="Core\Math\Transforms\Struct\Transforms\Matrix4.cs" />
-    <Compile Include="Core\Math\Transforms\Struct\Rotation\Quaternion.cs" />
-    <Compile Include="Core\Math\Transforms\Class\Vectors\EventVec2.cs" />
-    <Compile Include="Core\Math\Transforms\Struct\Vectors\Vec2.cs" />
-    <Compile Include="Core\Math\Transforms\Class\Rotation\Rotator.cs" />
-    <Compile Include="Core\Math\Transforms\Class\Vectors\EventVec3.cs" />
-    <Compile Include="Core\Math\Transforms\Struct\Vectors\Vec3.cs" />
-    <Compile Include="Core\Math\Transforms\Class\Vectors\EventVec4.cs" />
-    <Compile Include="Core\Math\Transforms\Struct\Vectors\Vec4.cs" />
-    <Compile Include="Core\Measurement.cs" />
-    <Compile Include="Core\Memory\Bin64.cs" />
-    <Compile Include="Core\Memory\Bin8.cs" />
-    <Compile Include="Core\Memory\Bin16.cs" />
-    <Compile Include="Core\Memory\Bin24.cs" />
-    <Compile Include="Core\Memory\Bin32.cs" />
-    <Compile Include="Core\Data Structures\Lists\EventList.cs" />
-    <Compile Include="Core\Memory\PString.cs" />
-    <Compile Include="Core\Memory\FloatQuantizer.cs" />
-    <Compile Include="Core\Memory\VQuant.cs" />
-    <Compile Include="Core\Platform\Linux.cs" />
-    <Compile Include="Core\Platform\OSX.cs" />
-    <Compile Include="Core\Platform\Win32.cs" />
-    <Compile Include="Core\Reflection\Attributes\Serialization\TCustomMemberDeSerializeMethod.cs" />
-    <Compile Include="Core\Reflection\Attributes\Serialization\TFileDef.cs" />
-    <Compile Include="Core\Reflection\Attributes\Serialization\TPrePostDeSerialize.cs" />
-    <Compile Include="Core\Reflection\Attributes\Serialization\TSerialize.cs" />
-    <Compile Include="Core\Reflection\CustomPropertyCollection.cs" />
-    <Compile Include="Core\Files\FileObject\FileObject.cs" />
-    <Compile Include="Core\Time\EngineTimer.cs" />
     <Compile Include="Rendering\Renderer\RenderHandler.cs" />
-    <Compile Include="Core\Controls\RenderForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Core\Controls\RenderForm.Designer.cs">
-      <DependentUpon>RenderForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Core\Tools\ExpressionParser.cs" />
-    <Compile Include="Core\Tools\Remapper.cs" />
-    <Compile Include="Core\Tools\Triangle Converter\CacheSimulator.cs" />
-    <Compile Include="Core\Data Structures\Lists\Deque\Deque.cs" />
-    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.cs" />
-    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.Enumerator.cs" />
-    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.Node.cs" />
-    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.Synchronized.cs" />
-    <Compile Include="Core\Data Structures\Lists\Deque\GenericTester.cs" />
-    <Compile Include="Core\Data Structures\Lists\Deque\Tester.cs" />
-    <Compile Include="Core\Tools\Triangle Converter\GraphArray.cs" />
-    <Compile Include="Core\Tools\Triangle Converter\HeapArray.cs" />
-    <Compile Include="Core\Tools\Triangle Converter\Policy.cs" />
-    <Compile Include="Core\Tools\Triangle Converter\TriangleConverter.cs" />
-    <Compile Include="Core\Tools\Triangle Converter\TriStripper.cs" />
-    <Compile Include="Core\Tools\Triangle Converter\Types.cs" />
-    <Compile Include="Core\Memory\UInt24.cs" />
-    <None Include="Core\Tools\V-HACD\ConvexHullComputer.cs" />
-    <None Include="Core\Tools\V-HACD\ICHull.cs" />
-    <None Include="Core\Tools\V-HACD\ManifoldMesh.cs" />
-    <None Include="Core\Tools\V-HACD\Mesh.cs" />
-    <None Include="Core\Tools\V-HACD\VHACD.cs" />
-    <None Include="Core\Tools\V-HACD\Volume.cs" />
     <Compile Include="Tests\TestCharacter.cs" />
     <Compile Include="Components\Scene\Mesh\MeshSocket.cs" />
     <Compile Include="Components\Scene\Volumes\Blocking.cs" />
@@ -1179,11 +1192,8 @@
     <Compile Include="Components\Scene\Volumes\Gravity.cs" />
     <Compile Include="Components\Scene\Volumes\Trigger.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\YAligned\CapsuleYComponent.cs" />
-    <Compile Include="Core\Engine\EngineProperties.cs" />
     <Compile Include="Game Modes\GameMode.cs" />
     <Compile Include="Animation\KeyframeTrack.cs" />
-    <Compile Include="Core\Interfaces.cs" />
-    <Compile Include="Core\Engine\PlayerInfo.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXRenderer.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXWindowContext.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLRenderer.cs" />
@@ -1199,17 +1209,10 @@
     <Compile Include="Animation\Property\PropAnimFloat.cs" />
     <Compile Include="Models\Skeleton\BoneWeight.cs" />
     <Compile Include="Models\Skeleton\Influence.cs" />
-    <Compile Include="Core\Memory\BigEndianTypes.cs" />
-    <Compile Include="Core\Memory\Memory.cs" />
     <Compile Include="Rendering\Colors\ColorF4.cs" />
-    <Compile Include="Core\TObject.cs" />
     <Compile Include="Shapes\Cylindrical\YAligned\CapsuleY.cs" />
     <Compile Include="Shapes\Boxes\BoundingBox.cs" />
-    <Compile Include="Core\Memory\DataSource.cs" />
-    <Compile Include="Core\Files\FileMap.cs" />
-    <Compile Include="Core\Time\GameTimer.cs" />
     <Compile Include="Rendering\Scene\Viewport.cs" />
-    <Compile Include="Core\Memory\VoidPtr.cs" />
     <Compile Include="Actors\Actor.cs" />
     <Compile Include="Actors\ComponentActors\Spline3DActor.cs" />
     <Compile Include="Actors\ComponentActors\AudioActor.cs" />
@@ -1229,7 +1232,6 @@
     <Compile Include="Input\AIController.cs" />
     <Compile Include="Input\PawnController.cs" />
     <Compile Include="Input\PlayerController.cs" />
-    <Compile Include="Core\Math\TMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThirdParty\openvr_api.cs" />
     <Compile Include="ThirdParty\PMX\Importer.cs" />
@@ -1255,7 +1257,6 @@
     <Compile Include="Worlds\Maps\MapState.cs" />
     <Compile Include="Tests\TestWorld.cs" />
     <Compile Include="Worlds\World.cs" />
-    <Compile Include="Core\Math\Transforms\Class\Transforms\Transform.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Index\IndexTriangle.cs" />
     <Compile Include="Models\Meshes\Primitives\FacePoint.cs" />
     <Compile Include="Models\Skeleton\Bone.cs" />
@@ -1267,6 +1268,9 @@
     <Compile Include="Worlds\WorldManager.cs" />
     <Compile Include="Worlds\WorldSettings.cs" />
     <Compile Include="Worlds\WorldState.cs" />
+    <EmbeddedResource Include="Core\Controls\RenderForm.resx">
+      <DependentUpon>RenderForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -1277,9 +1281,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Core\Controls\RenderForm.resx">
-      <DependentUpon>RenderForm.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -1328,7 +1329,6 @@
     <Content Include="..\Libraries\x86\Steamworks\steam_api.dll">
       <Link>ThirdParty\NativeLibraries\x86\steam_api.dll</Link>
     </Content>
-    <EmbeddedResource Include="Core\Engine\Solution_Template.tsln" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="mscoree">

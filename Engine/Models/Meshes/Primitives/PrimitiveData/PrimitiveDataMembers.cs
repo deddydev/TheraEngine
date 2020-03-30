@@ -6,7 +6,7 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models
 {
-    public partial class PrimitiveData : TFileObject, IDisposable
+    public partial class Mesh : TFileObject, IDisposable
     {
         public event Action BufferInfoChanged;
         protected void OnBufferInfoChanged() => BufferInfoChanged?.Invoke();

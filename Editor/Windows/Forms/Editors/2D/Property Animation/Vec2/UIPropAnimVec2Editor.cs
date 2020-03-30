@@ -453,7 +453,7 @@ namespace TheraEditor.Windows.Forms
                 PointSize = 5.0f
             };
 
-            PrimitiveData splinePosColor = PrimitiveData.FromLineStrips(VertexShaderDesc.PosColor(), strip);
+            Mesh splinePosColor = Mesh.FromLineStrips(VertexShaderDesc.PosColor(), strip);
             foreach (var buf in splinePosColor)
             {
                 buf.MapData = true;
@@ -475,7 +475,7 @@ void main()
 
             _rcSpline.Mesh = new PrimitiveManager(splinePosColor, mat);
             
-            PrimitiveData kfInOutPos = PrimitiveData.FromPoints(kfInOutPositions);
+            Mesh kfInOutPos = Mesh.FromPoints(kfInOutPositions);
             foreach (var buf in kfInOutPos)
             {
                 buf.MapData = true;
@@ -485,7 +485,7 @@ void main()
             mat.RenderParams = renderParams;
             _rcKeyframeInOutPositions.Mesh = new PrimitiveManager(kfInOutPos, mat);
 
-            PrimitiveData tanPos = PrimitiveData.FromPoints(kfInOutTangents);
+            Mesh tanPos = Mesh.FromPoints(kfInOutTangents);
             foreach (var buf in tanPos)
             {
                 buf.MapData = true;
@@ -495,7 +495,7 @@ void main()
             mat.RenderParams = renderParams;
             _rcTangentPositions.Mesh = new PrimitiveManager(tanPos, mat);
 
-            PrimitiveData kfLines = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), keyframeLines);
+            Mesh kfLines = Mesh.FromLines(VertexShaderDesc.JustPositions(), keyframeLines);
             foreach (var buf in kfLines)
             {
                 buf.MapData = true;

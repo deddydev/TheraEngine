@@ -8,7 +8,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models
 {
-    public partial class PrimitiveData : TFileObject, IDisposable, IEnumerable<DataBuffer>
+    public partial class Mesh : TFileObject, IDisposable, IEnumerable<DataBuffer>
     {
         public VertexTriangle GetFace(int index)
         {

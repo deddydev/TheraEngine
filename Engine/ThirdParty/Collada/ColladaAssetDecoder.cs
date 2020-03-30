@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering.Models
 {
     public unsafe partial class Collada
     {
-        static PrimitiveData DecodePrimitivesWeighted(
+        static Mesh DecodePrimitivesWeighted(
             VisualScene scene,
             Matrix4 bindMatrix,
             Geometry geo,
@@ -121,7 +121,7 @@ namespace TheraEngine.Rendering.Models
             return infList;
         }
 
-        public static PrimitiveData DecodeMorphedPrimitivesUnweighted(Matrix4 bindMatrix, Morph morph)
+        public static Mesh DecodeMorphedPrimitivesUnweighted(Matrix4 bindMatrix, Morph morph)
         {
             if (!(morph.BaseMeshUrl.GetElement(morph.Root) is Geometry baseMesh))
             {
@@ -182,7 +182,7 @@ namespace TheraEngine.Rendering.Models
             return CreateData(baseInfo, baseLines, baseFaces);
         }
 
-        public static PrimitiveData DecodeMorphedPrimitivesWeighted(VisualScene scene, Matrix4 bindMatrix, Morph morphController, Skin skin)
+        public static Mesh DecodeMorphedPrimitivesWeighted(VisualScene scene, Matrix4 bindMatrix, Morph morphController, Skin skin)
         {
             Matrix4 bindShapeMatrix = skin.BindShapeMatrixElement?.StringContent?.Value ?? Matrix4.Identity;
             InfluenceDef[] infList = CreateInfluences(skin, scene);
@@ -190,7 +190,7 @@ namespace TheraEngine.Rendering.Models
             return null;
         }
 
-        public static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, Geometry geo)
+        public static Mesh DecodePrimitivesUnweighted(Matrix4 bindMatrix, Geometry geo)
         {
             DecodePrimitives(geo, bindMatrix, null, out VertexShaderDesc info, out List<VertexPrimitive> lines, out List<VertexPolygon> faces);
             return CreateData(info, lines, faces);
@@ -469,18 +469,18 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
-        public static PrimitiveData CreateData(VertexShaderDesc info, List<VertexPrimitive> lines, List<VertexPolygon> faces)
+        public static Mesh CreateData(VertexShaderDesc info, List<VertexPrimitive> lines, List<VertexPolygon> faces)
         {
             if (faces.Count > 0)
             {
                 if (lines.Count > 0)
                     Engine.LogWarning("Mesh has both lines and triangles. Only triangles will be shown in this case - PrimitiveData only supports lines OR triangles.");
 
-                return PrimitiveData.FromTriangleList(info, faces.SelectMany(x => x.ToTriangles()));
+                return Mesh.FromTriangleList(info, faces.SelectMany(x => x.ToTriangles()));
             }
             else if (lines != null && lines.Count > 0)
             {
-                return PrimitiveData.FromLineList(info, lines.SelectMany(
+                return Mesh.FromLineList(info, lines.SelectMany(
                     x => x is VertexLineStrip strip ? strip.ToLines() : new VertexLine[] { (VertexLine)x }));
             }
 
@@ -488,7 +488,7 @@ namespace TheraEngine.Rendering.Models
             
             return null;//PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions());
         }
-        public static PrimitiveData CreateData(
+        public static Mesh CreateData(
             VertexShaderDesc info,
             List<VertexPrimitive> baseLines,
             List<VertexPolygon> baseFaces,
@@ -500,11 +500,11 @@ namespace TheraEngine.Rendering.Models
                 if (baseLines.Count > 0)
                     Engine.LogWarning("Mesh has both lines and triangles. Only triangles will be shown in this case - PrimitiveData only supports lines OR triangles.");
 
-                return PrimitiveData.FromTriangleList(info, baseFaces.SelectMany(x => x.ToTriangles()));
+                return Mesh.FromTriangleList(info, baseFaces.SelectMany(x => x.ToTriangles()));
             }
             else if (baseLines != null && baseLines.Count > 0)
             {
-                return PrimitiveData.FromLineList(info, baseLines.SelectMany(
+                return Mesh.FromLineList(info, baseLines.SelectMany(
                     x => x is VertexLineStrip strip ? strip.ToLines() : new VertexLine[] { (VertexLine)x }));
             }
 

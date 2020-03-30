@@ -62,7 +62,7 @@ namespace TheraEngine.Core.Shapes
             => TCollisionSphere.New(Radius);
 
         #region Meshes
-        public static PrimitiveData SolidMesh(Vec3 center, float radius, uint precision)
+        public static Mesh SolidMesh(Vec3 center, float radius, uint precision)
         {
             float halfPI = TMath.PIf * 0.5f;
             float invPrecision = 1.0f / precision;
@@ -105,16 +105,16 @@ namespace TheraEngine.Core.Shapes
                 strips.Add(new VertexTriangleStrip(stripVertices));
             }
 
-            return PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), strips.SelectMany(x => x.ToTriangles()));
+            return Mesh.FromTriangleList(VertexShaderDesc.PosNormTex(), strips.SelectMany(x => x.ToTriangles()));
         }
-        public static PrimitiveData WireframeMesh(Vec3 center, float radius, int pointCount)
+        public static Mesh WireframeMesh(Vec3 center, float radius, int pointCount)
         {
             VertexLineStrip d1 = Circle3D.LineStrip(radius, Vec3.Forward, center, pointCount);
             VertexLineStrip d2 = Circle3D.LineStrip(radius, Vec3.Up, center, pointCount);
             VertexLineStrip d3 = Circle3D.LineStrip(radius, Vec3.Right, center, pointCount);
-            return PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), d1, d2, d3);
+            return Mesh.FromLineStrips(VertexShaderDesc.JustPositions(), d1, d2, d3);
         }
-        public static PrimitiveData SolidMesh(Vec3 center, float radius, int slices, int stacks)
+        public static Mesh SolidMesh(Vec3 center, float radius, int slices, int stacks)
         {
             List<Vertex> v = new List<Vertex>();
             float twoPi = TMath.PIf * 2.0f;
@@ -144,11 +144,11 @@ namespace TheraEngine.Core.Shapes
                 triangles.Add(new VertexTriangle(v[i], v[i + slices + 1], v[i + slices]));
                 triangles.Add(new VertexTriangle(v[i + slices + 1], v[i], v[i + 1]));
             }
-            return PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), triangles);
+            return Mesh.FromTriangleList(VertexShaderDesc.PosNormTex(), triangles);
         }
-        public PrimitiveData GetMesh(int slices, int stacks, bool includeCenter)
+        public Mesh GetMesh(int slices, int stacks, bool includeCenter)
             => SolidMesh(includeCenter ? Center.Raw : Vec3.Zero, _radius, slices, stacks);
-        public PrimitiveData GetMesh(uint precision, bool includeCenter)
+        public Mesh GetMesh(uint precision, bool includeCenter)
             => SolidMesh(includeCenter ? Center.Raw : Vec3.Zero, _radius, precision);
         #endregion
 

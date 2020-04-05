@@ -114,21 +114,22 @@ namespace TheraEngine.Rendering.Models
                     OnBufferInfoChanged();
                     
                     IndexBuffer = new DataBuffer("FaceIndices", EBufferTarget.ElementArrayBuffer, true);
+                    var indices = _data.GetIndices();
                     //TODO: primitive restart will use MaxValue for restart id
                     if (_data.FacePoints.Count < byte.MaxValue)
                     {
                         ElementType = EDrawElementType.Byte;
-                        IndexBuffer.SetDataNumeric(_data.GetIndices().Select(x => (byte)x).ToList());
+                        IndexBuffer.SetDataNumeric(indices?.Select(x => (byte)x)?.ToList());
                     }
                     else if (_data.FacePoints.Count < short.MaxValue)
                     {
                         ElementType = EDrawElementType.UShort;
-                        IndexBuffer.SetDataNumeric(_data.GetIndices().Select(x => (ushort)x).ToList());
+                        IndexBuffer.SetDataNumeric(indices?.Select(x => (ushort)x)?.ToList());
                     }
                     else
                     {
                         ElementType = EDrawElementType.UInt;
-                        IndexBuffer.SetDataNumeric(_data.GetIndices());
+                        IndexBuffer.SetDataNumeric(indices);
                     }
                 }
             }

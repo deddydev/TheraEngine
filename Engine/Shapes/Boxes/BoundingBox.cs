@@ -271,7 +271,7 @@ namespace TheraEngine.Core.Shapes
             backLeft = new VertexLine(new Vertex(TBL), new Vertex(BBL));
             backRight = new VertexLine(new Vertex(TBR), new Vertex(BBR));
 
-            return Mesh.FromLines(VertexShaderDesc.JustPositions(),
+            return Mesh.Create(VertexShaderDesc.JustPositions(),
                 topFront, topRight, topBack, topLeft,
                 frontLeft, frontRight, backLeft, backRight,
                 bottomFront, bottomRight, bottomBack, bottomLeft);
@@ -374,7 +374,7 @@ namespace TheraEngine.Core.Shapes
                     VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal,     ECubemapFace.NegZ, widthLarger, bias);
             }
             
-            return Mesh.FromQuads(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
+            return Mesh.Create(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
         }
         /// <summary>
         /// Creates a mesh representing this bounding box.

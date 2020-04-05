@@ -134,7 +134,7 @@ namespace TheraEngine.Core.Shapes
             front = VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
             back = VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
 
-            return Rendering.Models.Mesh.FromQuads(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
+            return Rendering.Models.Mesh.Create(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
         }
 
         public Mesh GetMesh()

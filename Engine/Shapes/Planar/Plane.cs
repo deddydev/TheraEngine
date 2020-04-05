@@ -208,7 +208,7 @@ namespace TheraEngine.Core.Shapes
             Vec3 bottomRight = position + new Vec3(0.5f * xExtent, -0.5f * yExtent, 0.0f) * r;
             Vec3 topLeft = position + new Vec3(-0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             Vec3 topRight = position + new Vec3(0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
-            return Mesh.FromLineStrips(VertexShaderDesc.JustPositions(), new VertexLineStrip(true, bottomLeft, bottomRight, topRight, topLeft));
+            return Mesh.Create(VertexShaderDesc.JustPositions(), new VertexLineStrip(true, bottomLeft, bottomRight, topRight, topLeft));
         }
         public static Mesh SolidMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
         {
@@ -218,7 +218,7 @@ namespace TheraEngine.Core.Shapes
             Vec3 topLeft = position + new Vec3(-0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             Vec3 topRight = position + new Vec3(0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             VertexQuad q = VertexQuad.MakeQuad(bottomLeft, bottomRight, topRight, topLeft, normal);
-            return Mesh.FromQuads(VertexShaderDesc.PosNormTex(), q);
+            return Mesh.Create(VertexShaderDesc.PosNormTex(), q);
         }
     }
 }

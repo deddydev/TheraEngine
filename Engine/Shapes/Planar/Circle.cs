@@ -77,11 +77,11 @@ namespace TheraEngine.Core.Shapes
             List<Vertex> points = new List<Vertex>(Points(radius, normal, center, sides));
             points.Insert(0, new Vertex(center, normal, Vec2.Half));
             VertexTriangleFan fan = new VertexTriangleFan(points.ToArray());
-            return Mesh.FromTriangleFans(VertexShaderDesc.PosNormTex(), fan);
+            return Mesh.Create(VertexShaderDesc.PosNormTex(), fan);
         }
         public static Mesh WireframeMesh(float radius, Vec3 normal, Vec3 center, int sides)
         {
-            return Mesh.FromLineStrips(VertexShaderDesc.JustPositions(), LineStrip(radius, normal, center, sides));
+            return Mesh.Create(VertexShaderDesc.JustPositions(), LineStrip(radius, normal, center, sides));
         }
         public static VertexLineStrip LineStrip(float radius, Vec3 normal, Vec3 center, int sides)
         {

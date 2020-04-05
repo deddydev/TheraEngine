@@ -453,16 +453,22 @@ namespace TheraEngine.Rendering.Models
                         vtx.Tangent = Vec3.TransformVector(tangent, invTranspBindMatrix);
                         break;
                     case ESemantic.TEXCOORD:
-                        vtx.TexCoord = new Vec2(
-                            list[startIndex],
-                            1.0f - list[startIndex + 1]); // Y coordinate is inverted
+                        vtx.TexCoord = new Vec2[]
+                        {
+                            new Vec2(
+                                list[startIndex],
+                                1.0f - list[startIndex + 1]) // Y coordinate is inverted
+                        };
                         break;
                     case ESemantic.COLOR:
-                        vtx.Color = new ColorF4(
-                            list[startIndex], 
-                            list[startIndex + 1], 
-                            list[startIndex + 2], 
-                            list[startIndex + 3]);
+                        vtx.Color = new ColorF4[]
+                        {
+                            new ColorF4(
+                                list[startIndex],
+                                list[startIndex + 1],
+                                list[startIndex + 2],
+                                list[startIndex + 3])
+                        };
                         break;
                 }
                 vertices[i][set] = vtx;
@@ -476,11 +482,11 @@ namespace TheraEngine.Rendering.Models
                 if (lines.Count > 0)
                     Engine.LogWarning("Mesh has both lines and triangles. Only triangles will be shown in this case - PrimitiveData only supports lines OR triangles.");
 
-                return Mesh.FromTriangleList(info, faces.SelectMany(x => x.ToTriangles()));
+                return Mesh.Create(info, faces.SelectMany(x => x.ToTriangles()));
             }
             else if (lines != null && lines.Count > 0)
             {
-                return Mesh.FromLineList(info, lines.SelectMany(
+                return Mesh.Create(info, lines.SelectMany(
                     x => x is VertexLineStrip strip ? strip.ToLines() : new VertexLine[] { (VertexLine)x }));
             }
 
@@ -500,11 +506,11 @@ namespace TheraEngine.Rendering.Models
                 if (baseLines.Count > 0)
                     Engine.LogWarning("Mesh has both lines and triangles. Only triangles will be shown in this case - PrimitiveData only supports lines OR triangles.");
 
-                return Mesh.FromTriangleList(info, baseFaces.SelectMany(x => x.ToTriangles()));
+                return Mesh.Create(info, baseFaces.SelectMany(x => x.ToTriangles()));
             }
             else if (baseLines != null && baseLines.Count > 0)
             {
-                return Mesh.FromLineList(info, baseLines.SelectMany(
+                return Mesh.Create(info, baseLines.SelectMany(
                     x => x is VertexLineStrip strip ? strip.ToLines() : new VertexLine[] { (VertexLine)x }));
             }
 

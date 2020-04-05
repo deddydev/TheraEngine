@@ -105,14 +105,14 @@ namespace TheraEngine.Core.Shapes
                 strips.Add(new VertexTriangleStrip(stripVertices));
             }
 
-            return Mesh.FromTriangleList(VertexShaderDesc.PosNormTex(), strips.SelectMany(x => x.ToTriangles()));
+            return Mesh.Create(VertexShaderDesc.PosNormTex(), strips.SelectMany(x => x.ToTriangles()));
         }
         public static Mesh WireframeMesh(Vec3 center, float radius, int pointCount)
         {
             VertexLineStrip d1 = Circle3D.LineStrip(radius, Vec3.Forward, center, pointCount);
             VertexLineStrip d2 = Circle3D.LineStrip(radius, Vec3.Up, center, pointCount);
             VertexLineStrip d3 = Circle3D.LineStrip(radius, Vec3.Right, center, pointCount);
-            return Mesh.FromLineStrips(VertexShaderDesc.JustPositions(), d1, d2, d3);
+            return Mesh.Create(VertexShaderDesc.JustPositions(), d1, d2, d3);
         }
         public static Mesh SolidMesh(Vec3 center, float radius, int slices, int stacks)
         {
@@ -144,7 +144,7 @@ namespace TheraEngine.Core.Shapes
                 triangles.Add(new VertexTriangle(v[i], v[i + slices + 1], v[i + slices]));
                 triangles.Add(new VertexTriangle(v[i + slices + 1], v[i], v[i + 1]));
             }
-            return Mesh.FromTriangleList(VertexShaderDesc.PosNormTex(), triangles);
+            return Mesh.Create(VertexShaderDesc.PosNormTex(), triangles);
         }
         public Mesh GetMesh(int slices, int stacks, bool includeCenter)
             => SolidMesh(includeCenter ? Center.Raw : Vec3.Zero, _radius, slices, stacks);

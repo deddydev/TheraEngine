@@ -78,7 +78,7 @@ namespace TheraEngine.Core.Shapes
                 lines[x++] = new VertexLine(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoint);
             }
 
-            return Mesh.FromLines(VertexShaderDesc.JustPositions(), lines);
+            return Mesh.Create(VertexShaderDesc.JustPositions(), lines);
         }
         public static Mesh SolidMesh(Vec3 center, Vec3 up, float height, float radius, int sides, bool closeBottom)
         {
@@ -129,7 +129,7 @@ namespace TheraEngine.Core.Shapes
                 tris.AddRange(new VertexTriangleFan(list).ToTriangles());
             }
 
-            return Mesh.FromTriangleList(VertexShaderDesc.PosNormTex(), tris);
+            return Mesh.Create(VertexShaderDesc.PosNormTex(), tris);
         }
         public override EContainment Contains(BoundingBoxStruct box)
         {

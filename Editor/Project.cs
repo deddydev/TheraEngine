@@ -927,7 +927,7 @@ namespace TheraEditor
             {
                 Item item = new Item("Reference");
                 UpdateEngineRefPathItem(item);
-                refItemGrp.AddElements(item);
+                refItemGrp?.AddElements(item);
             }
             PrintLine("Done updating engine library reference in csproj.");
 

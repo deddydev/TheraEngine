@@ -294,7 +294,7 @@ namespace TheraEngine.Components.Scene
         }
         public void GenerateParticleMesh(BaseParticleEmitterComponent component, out PrimitiveManager mesh)
         {
-            Rendering.Models.Mesh data = Rendering.Models.Mesh.FromQuads(VertexShaderDesc.JustPositions(), VertexQuad.PosZQuad(1, false, 0.0f, true));
+            Rendering.Models.Mesh data = Rendering.Models.Mesh.Create(VertexShaderDesc.JustPositions(), VertexQuad.PosZQuad(1, false, 0.0f, true));
 
             Vec4[] positions = new Vec4[component.MaxParticles];
             ColorF4[] colors = new ColorF4[component.MaxParticles];

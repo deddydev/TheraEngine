@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.Models
         }
 
         public InfluenceDef GetInfluence()
-            =>Owner?.Influences != null && Owner.Influences.IndexInRange(InfluenceIndex) ? Owner.Influences[InfluenceIndex] : null;
+            => Owner?.Influences != null && Owner.Influences.IndexInRange(InfluenceIndex) ? Owner.Influences[InfluenceIndex] : null;
         
         public override int GetHashCode() => ToString().GetHashCode();
         public override string ToString()

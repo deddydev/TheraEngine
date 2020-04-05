@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering.UI
         public UIMaterialComponent(TMaterial material, bool flipVerticalUVCoord = false)
         {
             VertexQuad quad = VertexQuad.PosZQuad(1.0f, 1.0f, 0.0f, true, flipVerticalUVCoord);
-            Mesh quadData = Mesh.FromQuads(VertexShaderDesc.PosTex(), quad);
+            Mesh quadData = Mesh.Create(VertexShaderDesc.PosTex(), quad);
             RenderCommand.Mesh = new PrimitiveManager(quadData, material);
             RenderCommand.ZIndex = 0;
         }

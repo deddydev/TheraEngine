@@ -189,7 +189,7 @@ namespace TheraEngine.Core.Shapes
                 new Vertex(bottomPoint - forwardNormal * radius),
                 new Vertex(topPoint - forwardNormal * radius));
 
-            return Mesh.FromLineStrips(VertexShaderDesc.JustPositions(),
+            return Mesh.Create(VertexShaderDesc.JustPositions(),
                 topCircleUp, topHalfCircleToward, topHalfCircleRight,
                 bottomCircleDown, bottomHalfCircleAway, bottomHalfCircleRight,
                 right, left, front, back);
@@ -270,11 +270,11 @@ namespace TheraEngine.Core.Shapes
                 new Vertex(bottomPoint - forwardNormal * radius),
                 new Vertex(topPoint - forwardNormal * radius));
 
-            cylinder = Mesh.FromLineStrips(VertexShaderDesc.JustPositions(),
+            cylinder = Mesh.Create(VertexShaderDesc.JustPositions(),
                 topCircleUp, bottomCircleDown, right, left, front, back);
-            topSphereHalf = Mesh.FromLineStrips(VertexShaderDesc.JustPositions(),
+            topSphereHalf = Mesh.Create(VertexShaderDesc.JustPositions(),
                 topHalfCircleToward, topHalfCircleRight);
-            bottomSphereHalf = Mesh.FromLineStrips(VertexShaderDesc.JustPositions(),
+            bottomSphereHalf = Mesh.Create(VertexShaderDesc.JustPositions(),
                 bottomHalfCircleAway, bottomHalfCircleRight);
         }
         #endregion

@@ -520,9 +520,16 @@ namespace TheraEngine.Audio
 
             Context?.MakeCurrent();
 
-            ALError error = AL.GetError();
-            if (error != ALError.NoError)
-                throw new InvalidOperationException("OpenAL error: " + error.ToString());
+            try
+            {
+                ALError error = AL.GetError();
+                if (error != ALError.NoError)
+                    Engine.LogWarning("OpenAL error: " + error.ToString());
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
         }
 
         public void Dispose()

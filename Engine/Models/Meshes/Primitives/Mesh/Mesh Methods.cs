@@ -413,16 +413,16 @@ namespace TheraEngine.Rendering.Models
         #region Indices
         public int[] GetIndices()
         {
-            switch (_type)
+            int[] indices = _type switch
             {
-                case EPrimitiveType.Triangles:
-                    return _triangles?.SelectMany(x => new int[] { x.Point0, x.Point1, x.Point2 }).ToArray();
-                case EPrimitiveType.Lines:
-                    return _lines?.SelectMany(x => new int[] { x.Point0, x.Point1 }).ToArray();
-                case EPrimitiveType.Points:
-                    return _points?.Select(x => (int)x).ToArray();
-            }
-            return null;
+                EPrimitiveType.Triangles => _triangles?.SelectMany(x => new int[] { x.Point0, x.Point1, x.Point2 }).ToArray(),
+                EPrimitiveType.Lines => _lines?.SelectMany(x => new int[] { x.Point0, x.Point1 }).ToArray(),
+                EPrimitiveType.Points => _points?.Select(x => (int)x).ToArray(),
+                _ => null,
+            };
+            if (indices is null)
+                throw new InvalidOperationException($"{_type} mesh has no face indices.");
+            return indices;
         }
         private Remapper SetTriangleIndices(List<Vertex> vertices, bool remap = true)
         {

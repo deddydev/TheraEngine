@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering.Models
                 foreach (var subgroup in group.SubGroups)
                 {
                     BoundingBox bounds = BoundingBox.ExpandableBox();
-                    Mesh data = Mesh.FromTriangleList(VertexShaderDesc.PosNormTex(), 
+                    Mesh data = Mesh.Create(VertexShaderDesc.PosNormTex(), 
                         subgroup.Faces.SelectMany(x => CreateTriangles(x, result, false, modelMatrix, normalMatrix, bounds)));
 
                     var objMat = result.Materials.FirstOrDefault(x => x.Name == subgroup.Material?.Name);

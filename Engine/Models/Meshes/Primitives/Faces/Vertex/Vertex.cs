@@ -95,10 +95,10 @@ namespace TheraEngine.Rendering.Models
                         b.Set(index, Tangent);
                         break;
                     case EBufferType.Color:
-                        b.Set(index, Color);
+                        //b.Set(index, Color);
                         break;
                     case EBufferType.TexCoord:
-                        b.Set(index, TexCoord);
+                        //b.Set(index, TexCoord);
                         break;
                 }
             }
@@ -128,10 +128,10 @@ namespace TheraEngine.Rendering.Models
                         Tangent = b.Get<Vec3>(index * 12);
                         break;
                     case EBufferType.Color:
-                        TexCoord = b.Get<Vec2>(index << 4);
+                        //TexCoord = b.Get<Vec2>(index << 4);
                         break;
                     case EBufferType.TexCoord:
-                        TexCoord = b.Get<Vec2>(index << 3);
+                        //TexCoord = b.Get<Vec2>(index << 3);
                         break;
                 }
             }
@@ -143,10 +143,13 @@ namespace TheraEngine.Rendering.Models
         public bool Equals(Vertex other)
         {
             const float precision = 0.00001f;
+
             if (other is null)
                 return false;
+
             if (Influence != other.Influence)
                 return false;
+
             if (!Position.Equals(other.Position, precision))
                 return false;
             if (!Normal.Equals(other.Normal, precision))
@@ -155,10 +158,21 @@ namespace TheraEngine.Rendering.Models
                 return false;
             if (!Tangent.Equals(other.Tangent, precision))
                 return false;
-            if (!Color.Equals(other.Color, precision))
+
+            if (Color.Length != other.Color.Length)
                 return false;
-            if (!TexCoord.Equals(other.TexCoord, precision))
+
+            for (int i = 0; i < Color.Length; i++)
+                if (!Color[i].Equals(other.Color[i], precision))
+                    return false;
+
+            if (TexCoord.Length != other.TexCoord.Length)
                 return false;
+
+            for (int i = 0; i < TexCoord.Length; i++)
+                if (!TexCoord[i].Equals(other.TexCoord[i], precision))
+                    return false;
+
             return true;
         }
 

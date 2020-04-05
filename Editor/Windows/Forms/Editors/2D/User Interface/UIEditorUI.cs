@@ -20,11 +20,11 @@ namespace TheraEditor.Windows.Forms
         public UIEditorUI() : base()
         {
             VertexQuad quad = VertexQuad.PosZQuad(1, true, -0.5f, false);
-            VertexTriangle[] lines = quad.ToTriangles();
+            VertexTriangle[] tris = quad.ToTriangles();
 
-            Mesh data1 = Mesh.FromTriangles(VertexShaderDesc.PosTex(), lines);
-            Mesh data2 = Mesh.FromTriangles(VertexShaderDesc.PosTex(), lines);
-            Mesh data3 = Mesh.FromTriangles(VertexShaderDesc.PosTex(), lines);
+            Mesh data1 = Mesh.Create(VertexShaderDesc.PosTex(), tris);
+            Mesh data2 = Mesh.Create(VertexShaderDesc.PosTex(), tris);
+            Mesh data3 = Mesh.Create(VertexShaderDesc.PosTex(), tris);
 
             GLSLScript script1 = Engine.Files.Shader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
             GLSLScript script2 = Engine.Files.Shader("Outline2DUnlitForward.fs", EGLSLType.Fragment);

@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering
                     new Vec3(0.0f, 0.0f, 0.0f),
                     new Vec3(2.0f, 0.0f, 0.0f),
                     new Vec3(0.0f, 2.0f, 0.0f));
-                return Models.Mesh.FromTriangles(VertexShaderDesc.JustPositions(), triangle);
+                return Models.Mesh.Create(VertexShaderDesc.JustPositions(), triangle);
             }
             else
             {
@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering
                     new Vec3(0.0f, 1.0f, 0.0f),
                     new Vec3(1.0f, 0.0f, 0.0f),
                     new Vec3(1.0f, 1.0f, 0.0f));
-                return Models.Mesh.FromTriangles(VertexShaderDesc.JustPositions(), triangle1, triangle2);
+                return Models.Mesh.Create(VertexShaderDesc.JustPositions(), triangle1, triangle2);
             }
         }
 

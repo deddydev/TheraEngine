@@ -837,7 +837,7 @@ namespace TheraEngine.Rendering
             using MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat);
             fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
-            using Mesh data = Mesh.FromTriangles(VertexShaderDesc.PosTex(), tris);
+            using Mesh data = Mesh.Create(VertexShaderDesc.PosTex(), tris);
             using PrimitiveManager quad = new PrimitiveManager(data, mat);
             BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
 

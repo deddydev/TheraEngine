@@ -68,7 +68,7 @@ namespace TheraEngine.Core.Shapes
         }
 
         public static Mesh Mesh(Vec3 start, Vec3 end)
-            => Rendering.Models.Mesh.FromLines(VertexShaderDesc.JustPositions(), new VertexLine(new Vertex(start), new Vertex(end)));
+            => Rendering.Models.Mesh.Create(VertexShaderDesc.JustPositions(), new VertexLine(start, end));
 
         #region Closest Colinear Point To Point
         /// <summary>

@@ -132,22 +132,24 @@ namespace TheraEngine.Actors.Types
                 Vec3 halfUnit = unit * _axisHalfLength;
 
                 VertexLine transLine1 = new VertexLine(halfUnit, halfUnit + unit1 * _axisHalfLength);
-                transLine1.Vertex0.Color = unit1;
-                transLine1.Vertex1.Color = unit1;
+                transLine1.Vertex0.Color = new ColorF4[] { unit1 };
+                transLine1.Vertex1.Color = new ColorF4[] { unit1 };
+
                 VertexLine transLine2 = new VertexLine(halfUnit, halfUnit + unit2 * _axisHalfLength);
-                transLine2.Vertex0.Color = unit2;
-                transLine2.Vertex1.Color = unit2;
+                transLine2.Vertex0.Color = new ColorF4[] { unit2 };
+                transLine2.Vertex1.Color = new ColorF4[] { unit2 };
 
                 VertexLine scaleLine1 = new VertexLine(unit1 * _scaleHalf1LDist, unit2 * _scaleHalf1LDist);
-                scaleLine1.Vertex0.Color = unit;
-                scaleLine1.Vertex1.Color = unit;
+                scaleLine1.Vertex0.Color = new ColorF4[] { unit };
+                scaleLine1.Vertex1.Color = new ColorF4[] { unit };
+
                 VertexLine scaleLine2 = new VertexLine(unit1 * _scaleHalf2LDist, unit2 * _scaleHalf2LDist);
-                scaleLine2.Vertex0.Color = unit;
-                scaleLine2.Vertex1.Color = unit;
+                scaleLine2.Vertex0.Color = new ColorF4[] { unit };
+                scaleLine2.Vertex1.Color = new ColorF4[] { unit };
 
                 string axis = ((char)('X' + normalAxis)).ToString();
 
-                Mesh axisPrim = Mesh.FromLines(VertexShaderDesc.JustPositions(), axisLine);
+                Mesh axisPrim = Mesh.Create(VertexShaderDesc.JustPositions(), axisLine);
                 axisPrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Axis", new RenderInfo3D(!isRotate, true), ERenderPass.OnTopForward, axisPrim, axisMat));
 
@@ -156,15 +158,15 @@ namespace TheraEngine.Actors.Types
                 arrowPrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Arrow", new RenderInfo3D(!isRotate, true), ERenderPass.OnTopForward, arrowPrim, axisMat));
                 
-                Mesh transPrim1 = Mesh.FromLines(VertexShaderDesc.JustPositions(), transLine1);
+                Mesh transPrim1 = Mesh.Create(VertexShaderDesc.JustPositions(), transLine1);
                 transPrim1.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane1", new RenderInfo3D(isTranslate, true), ERenderPass.OnTopForward, transPrim1, planeMat1));
 
-                Mesh transPrim2 = Mesh.FromLines(VertexShaderDesc.JustPositions(), transLine2);
+                Mesh transPrim2 = Mesh.Create(VertexShaderDesc.JustPositions(), transLine2);
                 transPrim2.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane2", new RenderInfo3D(isTranslate, true), ERenderPass.OnTopForward, transPrim2, planeMat2));
 
-                Mesh scalePrim = Mesh.FromLines(VertexShaderDesc.JustPositions(), scaleLine1, scaleLine2);
+                Mesh scalePrim = Mesh.Create(VertexShaderDesc.JustPositions(), scaleLine1, scaleLine2);
                 scalePrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "ScalePlane", new RenderInfo3D(isScale, true), ERenderPass.OnTopForward, scalePrim, scalePlaneMat));
 
@@ -185,7 +187,7 @@ namespace TheraEngine.Actors.Types
             Vertex v3 = new Vec3(_screenTransExtent, _screenTransExtent, 0.0f);
             Vertex v4 = new Vec3(-_screenTransExtent, _screenTransExtent, 0.0f);
             VertexLineStrip strip = new VertexLineStrip(true, v1, v2, v3, v4);
-            Mesh screenTransPrim = Mesh.FromLineStrips(VertexShaderDesc.JustPositions(), strip);
+            Mesh screenTransPrim = Mesh.Create(VertexShaderDesc.JustPositions(), strip);
             screenTransPrim.SingleBindBone = screenBoneName;
 
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenTranslation", new RenderInfo3D(isTranslate, true), ERenderPass.OnTopForward, screenTransPrim, _screenMat));

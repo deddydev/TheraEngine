@@ -992,9 +992,9 @@
     <Compile Include="Models\Materials\Textures\References\BaseTexRef.cs" />
     <Compile Include="Models\Materials\Textures\Rendering\BaseRenderTexture.cs" />
     <Compile Include="Models\Materials\Textures\Rendering\RenderTex3D.cs" />
-    <Compile Include="Models\Meshes\Primitives\PrimitiveData\PrimitiveDataConstruction.cs" />
-    <Compile Include="Models\Meshes\Primitives\PrimitiveData\PrimitiveDataMembers.cs" />
-    <Compile Include="Models\Meshes\Primitives\PrimitiveData\PrimitiveDataSerialize.cs" />
+    <Compile Include="Models\Meshes\Primitives\Mesh\Mesh Construction.cs" />
+    <Compile Include="Models\Meshes\Primitives\Mesh\Mesh Members.cs" />
+    <Compile Include="Models\Meshes\Primitives\Mesh\Mesh Serialize.cs" />
     <Compile Include="Models\Meshes\Primitives\VertexShaderDesc.cs" />
     <Compile Include="Components\Scene\Misc\ParticleEmitterComponent.cs" />
     <Compile Include="Rendering\Scene\Scene.cs" />
@@ -1108,7 +1108,7 @@
     <Compile Include="Models\Meshes\Primitives\Faces\Vertex\VertexQuad.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Vertex\VertexTriangleStrip.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Vertex\VertexTriangle.cs" />
-    <Compile Include="Models\Meshes\Primitives\PrimitiveData\PrimitiveDataMethods.cs" />
+    <Compile Include="Models\Meshes\Primitives\Mesh\Mesh Methods.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Vertex\Vertex.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Index\IndexPoint.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Index\IndexLineStrip.cs" />

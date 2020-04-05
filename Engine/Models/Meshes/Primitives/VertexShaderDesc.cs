@@ -84,25 +84,10 @@ namespace TheraEngine.Rendering.Models
 
         public VertexShaderDesc() { }
 
-        public static VertexShaderDesc PosColor(int colorCount = 1)
-        {
-            return new VertexShaderDesc() { ColorCount = colorCount };
-        }
-        public static VertexShaderDesc PosTex(int texCoordCount = 1)
-        {
-            return new VertexShaderDesc() { TexcoordCount = texCoordCount };
-        }
-        public static VertexShaderDesc PosNormTex(int texCoordCount = 1)
-        {
-            return new VertexShaderDesc() { TexcoordCount = texCoordCount, HasNormals = true };
-        }
-        public static VertexShaderDesc PosNorm()
-        {
-            return new VertexShaderDesc() { HasNormals = true };
-        }
-        public static VertexShaderDesc JustPositions()
-        {
-            return new VertexShaderDesc();
-        }
+        public static VertexShaderDesc PosColor(int colorCount = 1) => new VertexShaderDesc() { ColorCount = colorCount };
+        public static VertexShaderDesc PosTex(int texCoordCount = 1) => new VertexShaderDesc() { TexcoordCount = texCoordCount };
+        public static VertexShaderDesc PosNormTex(int texCoordCount = 1) => new VertexShaderDesc() { TexcoordCount = texCoordCount, HasNormals = true };
+        public static VertexShaderDesc PosNorm() => new VertexShaderDesc() { HasNormals = true };
+        public static VertexShaderDesc JustPositions() => new VertexShaderDesc();
     }
 }

@@ -1,8 +1,10 @@
 ﻿using Extensions;
+using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace TheraEngine.Rendering.OpenGL
@@ -24,9 +26,9 @@ namespace TheraEngine.Rendering.OpenGL
             GraphicsContext.DirectRendering = true;
         }
 
-        public GLWindowContext(IntPtr handle) : base(handle) { }
+        public GLWindowContext(IntPtr? handle) : base(handle) { }
 
-        protected override ThreadSubContext CreateSubContext(IntPtr handle, Thread thread)
+        protected internal override ThreadSubContext CreateSubContext(IntPtr? handle, Thread thread)
             => new GLThreadSubContext(handle, thread);
         
         protected override void Dispose(bool disposing)
@@ -85,7 +87,7 @@ namespace TheraEngine.Rendering.OpenGL
             //if (severity == DebugSeverity.DebugSeverityNotification || type == DebugType.DebugTypeOther || _printMessageIds.IndexOf(id) >= 0)
                 Engine.LogWarning(string.Format(
                     "OPENGL NOTIF: {0} {1} {2} {3} {4}", 
-                    source, type, id, severity, messageStr), 1, 1);
+                    source, type, id, severity, messageStr), 1, 5);
             //else
             //    throw new Exception(string.Format("OPENGL ERROR: {0} {1} {2} {3} {4}", source, type, id, severity, s));
             //    Engine.PrintLine("OPENGL NOTIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);
@@ -159,9 +161,10 @@ namespace TheraEngine.Rendering.OpenGL
             private IGraphicsContext _context;
             private EVSyncMode _vsyncMode = EVSyncMode.Disabled;
 
+            private NativeWindow _hiddenWindow = null;
             public IWindowInfo WindowInfo { get; private set; }
 
-            public GLThreadSubContext(IntPtr controlHandle, Thread thread)
+            public GLThreadSubContext(IntPtr? controlHandle, Thread thread)
                 : base(controlHandle, thread) { }
 
             public class GLSpecs
@@ -180,6 +183,11 @@ namespace TheraEngine.Rendering.OpenGL
                     => Array.BinarySearch(Extensions, extension) >= 0;
 
                 public GLSpecs()
+                {
+
+                }
+
+                public void Analyze()
                 {
                     Vendor = GL.GetString(StringName.Vendor);
                     Version = GL.GetString(StringName.Version);
@@ -211,8 +219,20 @@ namespace TheraEngine.Rendering.OpenGL
 
             public override void Generate()
             {
+                if (_controlHandle is null)
+                {
+                    Engine.Out("Creating hidden window for OpenGL context.");
+                    //_hiddenWindow = new NativeWindow { Visible = false };
+                    WindowInfo = Utilities.CreateDummyWindowInfo();
+                }
+                else
+                {
+                    Engine.Out("Using existing window for OpenGL context.");
+                    _hiddenWindow = null;
+                    WindowInfo = Utilities.CreateWindowsWindowInfo(_controlHandle.Value);
+                }
+
                 Engine.RenderThreadId = Thread.CurrentThread.ManagedThreadId;
-                WindowInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
                 GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 4, new ColorFormat(0), 2, false);
 
                 _context = new GraphicsContext(mode, WindowInfo, 4, 6, 
@@ -227,7 +247,10 @@ namespace TheraEngine.Rendering.OpenGL
                 //Retrieve OpenGL information
                 bool readSpec = Specification is null;
                 if (readSpec)
+                {
                     Specification = new GLSpecs();
+                    Specification.Analyze();
+                }
 
                 Engine.Out(EOutputVerbosity.Normal, $"Generated OpenGL context on thread {_thread.ManagedThreadId}.");
 

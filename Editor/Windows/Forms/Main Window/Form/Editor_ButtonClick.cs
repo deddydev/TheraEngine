@@ -57,10 +57,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void BtnVREdit_Click(object sender, EventArgs e)
         {
-            if (EngineVR.IsActive)
-                EngineVR.Shutdown();
-            else
-                EngineVR.Initialize();
+            Engine.DomainProxy?.ToggleVRActive(WorldManagerId);
         }
         private void TextureGeneratorToolStripMenuItem_Click(object sender, EventArgs e)
         {

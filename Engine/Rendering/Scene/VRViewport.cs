@@ -11,12 +11,8 @@ namespace TheraEngine.Rendering.Scene
         public QuadFrameBuffer FBO { get; set; }
         public TexRef2D EyeTexture { get; set; }
 
-        protected internal override void InitializeFBOs()
+        protected override void OnInitializeFBOs()
         {
-            RegeneratingFBOs = true;
-
-            ClearFBOs();
-
             RenderingParameters renderParams = new RenderingParameters()
             {
                 DepthTest =
@@ -34,12 +30,12 @@ namespace TheraEngine.Rendering.Scene
             TMaterial mat = new TMaterial("VREyeMat", renderParams, texRefs, shader);
             FBO = new QuadFrameBuffer(mat);
             FBO.SetRenderTargets((EyeTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
-
-            RegeneratingFBOs = false;
-            FBOsInitialized = true;
         }
         public IntPtr VRRender()
         {
+            if (FBO is null)
+                InitializeFBOs();
+            
             Render(FBO);
             return (IntPtr)EyeTexture.GetTexture(true).BindingId;
         }

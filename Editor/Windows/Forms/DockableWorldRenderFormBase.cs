@@ -38,6 +38,7 @@ namespace TheraEditor.Windows.Forms
     {
         public override WorldEditorCameraPawn EditorPawn { get; }
 
+        public WorldEditorRenderHandler() : this(ELocalPlayerIndex.One) { }
         public WorldEditorRenderHandler(ELocalPlayerIndex playerIndex) : base(playerIndex)
         {
             int index = (int)playerIndex + 1;

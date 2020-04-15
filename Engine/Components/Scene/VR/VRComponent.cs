@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene
 {
@@ -12,14 +13,14 @@ namespace TheraEngine.Components.Scene
         public VRComponent()
         {
             HMD = new VRDeviceComponent() { AllowRemoval = false };
-            LeftEye = new CameraComponent(false) { AllowRemoval = false };
-            RightEye = new CameraComponent(false) { AllowRemoval = false };
+            LeftEye = new CameraComponent(new VRCamera()) { AllowRemoval = false };
+            RightEye = new CameraComponent(new VRCamera()) { AllowRemoval = false };
             LeftHand = new VRDeviceComponent() { AllowRemoval = false };
             RightHand = new VRDeviceComponent() { AllowRemoval = false };
 
             ChildComponents.Add(HMD);
-            ChildComponents.Add(LeftEye);
-            ChildComponents.Add(RightEye);
+            HMD.ChildComponents.Add(LeftEye);
+            HMD.ChildComponents.Add(RightEye);
             ChildComponents.Add(LeftHand);
             ChildComponents.Add(RightHand);
 

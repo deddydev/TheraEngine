@@ -855,7 +855,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// This method is called to generate all framebuffers necessary to render the final image for the viewport.
         /// </summary>
-        internal protected virtual unsafe void InitializeFBOs()
+        internal unsafe void InitializeFBOs()
         {
             RegeneratingFBOs = true;
 
@@ -1140,9 +1140,13 @@ namespace TheraEngine.Rendering
 
             #endregion
 
+            OnInitializeFBOs();
+
             RegeneratingFBOs = false;
             FBOsInitialized = true;
         }
+
+        protected virtual void OnInitializeFBOs() { }
 
         private LightComponent _lightComp;
         //private DecalComponent _decalComp;

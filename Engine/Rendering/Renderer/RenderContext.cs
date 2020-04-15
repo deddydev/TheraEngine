@@ -100,7 +100,7 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public IntPtr Handle => _handle;
+        public IntPtr? Handle => _handle;
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Browsable(false)]
@@ -122,13 +122,14 @@ namespace TheraEngine.Rendering
             return p;
         }
 
-        protected IntPtr _handle;
+        protected IntPtr? _handle;
         protected bool _resetting = false;
 
         protected ConcurrentDictionary<int, ThreadSubContext> _subContexts = new ConcurrentDictionary<int, ThreadSubContext>();
         protected ThreadSubContext _currentSubContext;
 
-        public RenderContext(IntPtr handle)
+        public RenderContext() : this(null) { }
+        public RenderContext(IntPtr? handle)
         {
             _handle = handle;
             //if (_handle != null)
@@ -155,31 +156,18 @@ namespace TheraEngine.Rendering
             _currentSubContext = _subContexts[id];
             _currentSubContext.SetCurrent(true);
         }
-        protected abstract ThreadSubContext CreateSubContext(IntPtr handle, Thread thread);
+        protected internal abstract ThreadSubContext CreateSubContext(IntPtr? handle, Thread thread);
         internal int CreateContextForThread()
         {
             Thread thread = Thread.CurrentThread;
 
-            if (thread is null || _handle == IntPtr.Zero)
+            if (thread is null)
                 return -1;
 
             if (!_subContexts.ContainsKey(thread.ManagedThreadId))
             {
-                IntPtr handle = IntPtr.Zero;
-                Size size = Size.Empty;
-                //if (_handle.InvokeRequired)
-                //    _handle.Invoke((Action)(() =>
-                //    {
-                //        handle = _handle.Handle;
-                //        size = _handle.ClientSize;
-                //    }));
-                //else
-                //{
-                handle = _handle;
-                //size = _handle.ClientSize;
-                //}
-                ThreadSubContext c = CreateSubContext(handle, thread);
-                c.OnResized(size);
+                ThreadSubContext c = CreateSubContext(_handle, thread);
+                c.OnResized(Size.Empty);
                 c.Generate();
                 _subContexts.TryAdd(thread.ManagedThreadId, c);
             }
@@ -377,8 +365,14 @@ namespace TheraEngine.Rendering
 
         public void RecreateSelf()
         {
-            var control = Control.FromHandle(Handle) as IRenderPanel;
-            control?.CreateContext();
+            if (Handle is null)
+            {
+                //TODO
+            }
+            else
+            {
+                (Control.FromHandle(Handle.Value) as IRenderPanel)?.CreateContext();
+            }
         }
 
         public void QueueDisposeSelf()
@@ -395,18 +389,19 @@ namespace TheraEngine.Rendering
 
         #endregion
 
-        protected abstract class ThreadSubContext
+        protected internal abstract class ThreadSubContext
         {
             protected Thread _thread;
-            protected IntPtr _controlHandle;
+            protected IntPtr? _controlHandle;
 
             public IVec2 Size { get; private set; }
 
-            public ThreadSubContext(IntPtr controlHandle, Thread thread)
+            public ThreadSubContext(IntPtr? controlHandle, Thread thread)
             {
                 _controlHandle = controlHandle;
                 _thread = thread;
             }
+
             public abstract void Generate();
             public abstract bool IsCurrent();
             public abstract bool IsContextDisposed();

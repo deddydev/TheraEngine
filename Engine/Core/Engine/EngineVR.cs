@@ -1,6 +1,8 @@
 ﻿using System;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Scene;
 using Valve.VR;
@@ -11,9 +13,8 @@ namespace TheraEngine.Core
     public delegate void DelRenderEye(RenderTex2D target);
     public static class EngineVR
     {
-        public static EyeHandler LeftEye { get; } = new EyeHandler();
-        public static EyeHandler RightEye { get; } = new EyeHandler();
-        public static VRComponent VRComponent { get; set; }
+        public static EyeHandler LeftEye { get; } = new EyeHandler() { IsLeftEye = true };
+        public static EyeHandler RightEye { get; } = new EyeHandler() { IsLeftEye = false };
 
         public class DevicePoseInfo
         {
@@ -145,7 +146,71 @@ namespace TheraEngine.Core
         }
 
         private static void OnStarted()
-            => OpenVR.Compositor.SetTrackingSpace(TrackingOrigin);
+        {
+            OpenVR.Compositor.SetTrackingSpace(TrackingOrigin);
+            uint w = 0u, h = 0u;
+            OpenVR.System.GetRecommendedRenderTargetSize(ref w, ref h);
+            Engine.Out($"Eye resolution: {w}x{h}");
+            LeftEye.Viewport.SetInternalResolution((int)w, (int)h);
+            RightEye.Viewport.SetInternalResolution((int)w, (int)h);
+            CreateContext();
+        }
+
+        public static void LinkToWorldManager(int worldManagerId)
+            => Engine.DomainProxy.LinkVRToWorldManager(worldManagerId);
+
+        public static void UnlinkFromWorldManager()
+            => Engine.DomainProxy.UnlinkVRFromWorldManager();
+
+        /// <summary>
+        /// Arguments to pass into the constructor of the render handler.
+        /// All arguments must be serializable.
+        /// </summary>
+        public static object[] HandlerArgs { get; set; } = new object[0];
+        public static void CreateContext()
+        {
+            Instance_DomainProxyUnset(Engine.DomainProxy);
+            Instance_DomainProxySet(Engine.DomainProxy);
+        }
+
+        private static void Instance_DomainProxyUnset(EngineDomainProxy proxy)
+        {
+            VRComponent = null;
+
+            proxy?.UnregisterVRContext();
+        }
+        private static void Instance_DomainProxySet(EngineDomainProxy proxy)
+        {
+            proxy?.RegisterVRContext();
+
+            VRComponent = (proxy?.VRContext?.Handler as VRRenderHandler)?.VRComponent;
+
+            if (VRComponent is null)
+                Engine.Out("VRComponent should not be null!");
+            else
+            {
+                UpdateCamera(VRComponent.LeftEye.Camera as VRCamera, LeftEye);
+                UpdateCamera(VRComponent.RightEye.Camera as VRCamera, RightEye);
+            }
+        }
+
+        private static void UpdateCamera(VRCamera rc, EyeHandler handler)
+        {
+            if (rc is null || handler is null)
+                return;
+
+            Matrix4 tfm = handler.GetEyeToHeadTransform();
+            rc.CameraToComponentSpaceMatrix = tfm;
+
+            Matrix4 prj = handler.GetEyeProjectionMatrix();
+            rc.SetProjectionMatrix(prj);
+
+            handler.Viewport.AttachedCamera = rc;
+
+            //Engine.Out($"Right eye: [{tfm}] [{prj}]");
+        }
+
+        private static VRComponent VRComponent { get; set; }
 
         public static void Shutdown()
         {
@@ -158,12 +223,12 @@ namespace TheraEngine.Core
 
         public static void PreRenderUpdate()
         {
-            OpenVR.Compositor.WaitGetPoses(_renderPoses, _updatePoses);
-            LeftEye.PreRenderUpdate();
-            RightEye.PreRenderUpdate();
         }
         public static void SwapBuffers()
         {
+            OpenVR.Compositor.WaitGetPoses(_renderPoses, _updatePoses);
+            LeftEye.PreRenderUpdate();
+            RightEye.PreRenderUpdate();
             UpdatePoses();
             LeftEye.PreRenderSwap();
             RightEye.PreRenderSwap();
@@ -173,6 +238,8 @@ namespace TheraEngine.Core
             //TODO: stereo render to both texture targets in parallel?
             LeftEye.Render();
             RightEye.Render();
+            LeftEye.Submit();
+            RightEye.Submit();
         }
         private static void UpdatePoses()
         {
@@ -182,15 +249,23 @@ namespace TheraEngine.Core
 
                 var uPose = _updatePoses[nDevice];
                 if (uPose.bPoseIsValid)
+                {
                     device.UpdatePose.Update(uPose);
-                
+
+                    //Engine.Out($"Device {nDevice} update pose: {device.UpdatePose.DeviceToWorldMatrix}");
+                }
+
                 var rPose = _renderPoses[nDevice];
                 if (rPose.bPoseIsValid)
+                {
                     device.RenderPose.Update(rPose);
+
+                    //Engine.Out($"Device {nDevice} render pose: {device.UpdatePose.DeviceToWorldMatrix}");
+                }
             }
 
             var hmdDevice = Devices[OpenVR.k_unTrackedDeviceIndex_Hmd];
-            if (hmdDevice.UpdatePose.ValidPose)
+            if (hmdDevice != null && hmdDevice.UpdatePose.ValidPose && VRComponent != null)
                 VRComponent.HMD.InverseWorldMatrix = hmdDevice.UpdatePose.DeviceToWorldMatrix;
         }
 
@@ -203,7 +278,7 @@ namespace TheraEngine.Core
         {
             bool hasError = error != EVRCompositorError.None;
             if (hasError)
-                Engine.Out(error.ToString());
+                Engine.Out($"OpenVR compositor error: {error.ToString()}");
             return hasError;
         }
 
@@ -244,7 +319,12 @@ namespace TheraEngine.Core
             public void Render()
             {
                 _eyeTex.handle = Viewport.VRRender();
+                Engine.Out($"Rendered {(IsLeftEye ? "left" : "right")} eye");
+            }
+            public void Submit()
+            {
                 CheckError(OpenVR.Compositor.Submit(EyeTarget, ref _eyeTex, ref _eyeTexBounds, EVRSubmitFlags.Submit_Default));
+                Engine.Out($"Submitted {(IsLeftEye ? "left" : "right")} eye");
             }
         }
     }

@@ -34,6 +34,9 @@ namespace TheraEngine.Worlds
         private readonly ConcurrentQueue<RenderContext> _contextAddQueue = new ConcurrentQueue<RenderContext>();
         private readonly ConcurrentQueue<RenderContext> _contextRemoveQueue = new ConcurrentQueue<RenderContext>();
         
+        /// <summary>
+        /// Occurs during the synchronization period between render and pre-render. Adds and removes contexts.
+        /// </summary>
         public virtual void SwapBuffers()
         {
             while (_contextRemoveQueue.TryDequeue(out RenderContext ctx))

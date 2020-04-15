@@ -799,8 +799,10 @@
     <Compile Include="Physics\Collision Bodies\TGhostBodyConstructionInfo.cs" />
     <Compile Include="Physics\ContactTest.cs" />
     <Compile Include="Rendering\Cameras\BlendableCamera.cs" />
+    <Compile Include="Rendering\Cameras\VRCamera.cs" />
     <Compile Include="Rendering\Cameras\TypicalCamera.cs" />
     <Compile Include="Rendering\Renderer\BaseRenderHandler.cs" />
+    <Compile Include="Rendering\Renderer\VRWrapperContext.cs" />
     <Compile Include="Rendering\Scene\RenderInfo3D.cs" />
     <Compile Include="Rendering\Scene\RenderInfo2D.cs" />
     <Compile Include="Rendering\Scene\VRRenderHandler.cs" />

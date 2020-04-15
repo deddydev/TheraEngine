@@ -15,6 +15,7 @@ using TheraEngine.Core.Reflection;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.DirectX;
 using TheraEngine.Rendering.OpenGL;
+using TheraEngine.Rendering.Scene;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using static TheraEngine.Core.Files.TFileObject;
@@ -61,6 +62,31 @@ namespace TheraEngine.Core
     public class EngineDomainProxy : SponsorableMarshalByRefObject
     {
         public Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyLoaders { get; private set; }
+
+        public void ToggleVRActive(int worldManagerId)
+        {
+            if (EngineVR.IsActive)
+                EngineVR.Shutdown();
+            else
+            {
+                EngineVR.Initialize();
+                EngineVR.LinkToWorldManager(worldManagerId);
+            }
+        }
+        public void DisableVR()
+        {
+            if (EngineVR.IsActive)
+                EngineVR.Shutdown();
+        }
+        public void EnableVR(int worldManagerId)
+        {
+            if (!EngineVR.IsActive)
+            {
+                EngineVR.Initialize();
+                EngineVR.LinkToWorldManager(worldManagerId);
+            }
+        }
+
         //public Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyExporters { get; private set; }
 
         public event Action Stopped;
@@ -73,17 +99,11 @@ namespace TheraEngine.Core
         protected virtual void OnStopped() => Stopped?.Invoke();
 
         public string GetVersionInfo() =>
-
-            ".NET Version: "        + Environment.Version.ToString() 
-            + Environment.NewLine +
-            "Assembly Location: "   + typeof(EngineDomainProxy).Assembly.CodeBase.Replace("file:///", "").Replace("/", "\\") 
-            + Environment.NewLine +
-            "Assembly Directory: "  + Directory.GetCurrentDirectory() 
-            + Environment.NewLine +
-            "ApplicationBase: "     + AppDomain.CurrentDomain.SetupInformation.ApplicationBase 
-            + Environment.NewLine +
-            "AppDomain: "           + AppDomain.CurrentDomain.FriendlyName
-            + Environment.NewLine;
+            $".NET Version: {Environment.Version.ToString()}{Environment.NewLine}" +
+            $"Assembly Location: {typeof(EngineDomainProxy).Assembly.CodeBase.Replace("file:///", "").Replace("/", "\\")}{Environment.NewLine}" +
+            $"Assembly Directory: {Directory.GetCurrentDirectory()}{Environment.NewLine}" +
+            $"ApplicationBase: {AppDomain.CurrentDomain.SetupInformation.ApplicationBase}{Environment.NewLine}" +
+            $"AppDomain: {AppDomain.CurrentDomain.FriendlyName}{Environment.NewLine}";
 
         public ListProxy<TypeProxy> GetExportedTypes()
         {
@@ -492,7 +512,8 @@ namespace TheraEngine.Core
         //TODO: editor world manager, model editor world manager, UI editor world managers
         public ConsistentIndexList<WorldManager> WorldManagers { get; } = new ConsistentIndexList<WorldManager>();
         public ConcurrentDictionary<IntPtr, RenderContext> Contexts { get; } = new ConcurrentDictionary<IntPtr, RenderContext>();
-        public RenderContext VRContext { get; set; }
+
+        public RenderContext VRContext { get; protected set; }
 
         public WorldManager GetWorldManager(int id) => WorldManagers[id];
         public T RegisterAndGetWorldManager<T>(params object[] args) where T : WorldManager
@@ -517,6 +538,10 @@ namespace TheraEngine.Core
         {
             if (Contexts.ContainsKey(handle))
                 UnlinkContextFromWorldManager(Contexts[handle]);
+        }
+        public void UnlinkVRFromWorldManager()
+        {
+            UnlinkContextFromWorldManager(VRContext);
         }
 
         private void UnlinkContextFromWorldManager(RenderContext ctx)
@@ -562,6 +587,18 @@ namespace TheraEngine.Core
             VRContext.Handler.WorldManager = worldManager;
             Engine.Out("Linked VR to world manager successfully.");
         }
+        public void RegisterVRContext()
+        {
+            VRContext?.QueueDisposeSelf();
+            VRContext = new VRWrapperContext();
+            Engine.Out("Registered VR context.");
+        }
+        public void UnregisterVRContext()
+        {
+            VRContext?.QueueDisposeSelf();
+            VRContext = null;
+            Engine.Out("Unregistered VR context.");
+        }
         public void RegisterRenderPanel<T>(IntPtr handle, params object[] handlerArgs)
             where T : class, IRenderHandler
         {
@@ -570,7 +607,7 @@ namespace TheraEngine.Core
 
             Type t = typeof(T);
             var handler = Activator.CreateInstance(t, handlerArgs) as BaseRenderHandler;
-            Engine.Out("CREATED RENDER HANDLER : " + t.GetFriendlyName());
+            Engine.Out($"CREATED RENDER HANDLER : {t.GetFriendlyName()}");
 
             RenderContext ctx;
             switch (handler.RenderLibrary)
@@ -586,7 +623,7 @@ namespace TheraEngine.Core
             }
             if (ctx != null)
             {
-                Engine.Out("Registered render panel " + handler.GetType().GetFriendlyName());
+                Engine.Out($"Registered render panel {handler.GetType().GetFriendlyName()}");
             }
         }
         public void UnregisterRenderPanel(IntPtr handle)

@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering.Cameras
         Matrix4 InverseProjectionMatrix { get; }
         Matrix4 CameraToWorldSpaceMatrix { get; }
         Matrix4 WorldToCameraSpaceMatrix { get; }
-        Matrix4 ComponentToCameraSpaceMatrix { get; }
+        Matrix4 ComponentToCameraSpaceMatrix { get; set; }
         Matrix4 CameraToComponentSpaceMatrix { get; set; }
         Matrix4 WorldToCameraProjSpaceMatrix { get; }
         Matrix4 CameraProjToWorldSpaceMatrix { get; }
@@ -119,7 +119,16 @@ namespace TheraEngine.Rendering.Cameras
         public Matrix4 WorldToCameraSpaceMatrix => _owningComponent?.InverseWorldMatrix ?? _worldToCameraSpaceMatrix;
 
         [Browsable(false)]
-        public Matrix4 ComponentToCameraSpaceMatrix => _worldToCameraSpaceMatrix;
+        public virtual Matrix4 ComponentToCameraSpaceMatrix
+        {
+            get => _worldToCameraSpaceMatrix;
+            set
+            {
+                _worldToCameraSpaceMatrix = value;
+                _cameraToWorldSpaceMatrix = _worldToCameraSpaceMatrix.Inverted();
+                OnTransformChanged();
+            }
+        }
         [Browsable(false)]
         public virtual Matrix4 CameraToComponentSpaceMatrix
         {

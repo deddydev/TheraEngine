@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering.DirectX
             public DepthStencilState DepthStencilState { get; private set; }
             public DepthStencilView DepthStencilView { get; private set; }
 
-            public DXThreadSubContext(IntPtr controlHandle, Thread thread)
+            public DXThreadSubContext(IntPtr? controlHandle, Thread thread)
                 : base(controlHandle, thread) { }
 
             public override void Generate()
@@ -50,7 +50,7 @@ namespace TheraEngine.Rendering.DirectX
                     ModeDescription = new ModeDescription(Size.X, Size.Y, new Rational(60, 1), Format.R8G8B8A8_UNorm),
                     Usage = Usage.RenderTargetOutput,
                     SwapEffect = SwapEffect.Discard,
-                    OutputHandle = _controlHandle,
+                    OutputHandle = _controlHandle.Value,
                     SampleDescription = new SampleDescription(1, 0),
                     IsWindowed = true
                 };
@@ -208,10 +208,10 @@ namespace TheraEngine.Rendering.DirectX
                 //}
             }
         }
-        protected override ThreadSubContext CreateSubContext(IntPtr handle, Thread thread)
+        protected override ThreadSubContext CreateSubContext(IntPtr? handle, Thread thread)
             => new DXThreadSubContext(handle, thread);
         
-        public DXWindowContext(IntPtr handle) : base(handle) { }
+        public DXWindowContext(IntPtr? handle) : base(handle) { }
 
         protected override void Dispose(bool disposing)
         {

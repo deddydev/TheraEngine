@@ -18,8 +18,8 @@ namespace TheraEngine.Rendering.Models
         public Vec3 Normal { get; set; }
         public Vec3 Tangent { get; set; }
         public Vec3 Binormal { get; set; }
-        public Vec2[] TexCoord { get; set; }
-        public ColorF4[] Color { get; set; }
+        public Vec2[] TexCoord { get; set; } = new Vec2[0];
+        public ColorF4[] Color { get; set; } = new ColorF4[0];
 
         public Vertex() { }
         public Vertex(InfluenceDef inf)

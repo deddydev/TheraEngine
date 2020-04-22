@@ -28,8 +28,7 @@ namespace TheraEngine.Rendering.UI
         }
 
         private static TMaterial GetViewportMaterial()
-        {
-            return new TMaterial("ViewportMat",
+            => new TMaterial("ViewportMat",
                 new BaseTexRef[]
                 {
                     TexRef2D.CreateFrameBufferTexture("OutColor", 1, 1,
@@ -38,12 +37,9 @@ namespace TheraEngine.Rendering.UI
                         EFramebufferAttachment.ColorAttachment0),
                 },
                 Engine.Files.Shader(Path.Combine("Common", "UnlitTexturedForward.fs"), EGLSLType.Fragment));
-        }
 
         private void SetUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
-        {
-            SettingUniforms?.Invoke(materialProgram);
-        }
+            => SettingUniforms?.Invoke(materialProgram);
 
         [Browsable(false)]
         public bool PreRenderEnabled => IsVisible && ViewportCamera?.OwningComponent?.OwningScene != null;
@@ -60,7 +56,7 @@ namespace TheraEngine.Rendering.UI
         {
             base.OnResizeLayout(parentRegion);
 
-            int 
+            int
                 w = (int)ActualWidth.ClampMin(1.0f), 
                 h = (int)ActualHeight.ClampMin(1.0f);
             

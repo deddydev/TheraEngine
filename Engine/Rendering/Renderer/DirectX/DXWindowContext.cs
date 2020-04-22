@@ -208,7 +208,8 @@ namespace TheraEngine.Rendering.DirectX
                 //}
             }
         }
-        protected override ThreadSubContext CreateSubContext(IntPtr? handle, Thread thread)
+
+        protected internal override ThreadSubContext CreateSubContext(IntPtr? handle, Thread thread)
             => new DXThreadSubContext(handle, thread);
         
         public DXWindowContext(IntPtr? handle) : base(handle) { }

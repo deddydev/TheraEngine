@@ -1082,6 +1082,24 @@ namespace TheraEngine
                 DebugOutput?.Invoke(message);
             }
 
+            public IntPtr? ShowDummyForm()
+            {
+                Form form = new Form
+                {
+                    Width = 0,
+                    Height = 0,
+                    Text = string.Empty,
+                    Visible = false,
+                    FormBorderStyle = FormBorderStyle.None,
+                    ShowIcon = false,
+                    ShowInTaskbar = false,
+                    HelpButton = false,
+                };
+                form.Show();
+                Out("Showed dummy form.");
+                return form.Handle;
+            }
+
             #endregion
         }
     }

@@ -1123,7 +1123,7 @@ namespace System
         }
         public static implicit operator Matrix4(Valve.VR.HmdMatrix44_t matrix)
         {
-            Matrix4 m = Identity;
+            Matrix4 m = Zero;
             Memory.Move(m.Data, &matrix, 64);
             return m;
         }
@@ -1135,7 +1135,7 @@ namespace System
         }
         public static implicit operator Matrix4(BulletSharp.Matrix matrix)
         {
-            Matrix4 m = Identity;
+            Matrix4 m = Zero;
             Memory.Move(m.Data, &matrix, 64);
             return m;
         }

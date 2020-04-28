@@ -11,7 +11,7 @@ namespace TheraEngine.Rendering.Scene
         public QuadFrameBuffer FBO { get; set; }
         public TexRef2D EyeTexture { get; set; }
 
-        protected override void OnInitializeFBOs()
+        protected void InitOutputFBO()
         {
             RenderingParameters renderParams = new RenderingParameters()
             {
@@ -24,20 +24,27 @@ namespace TheraEngine.Rendering.Scene
             };
 
             GLSLScript shader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "HudFBO.fs"), EGLSLType.Fragment);
-            EyeTexture = TexRef2D.CreateFrameBufferTexture("VREyeTex", InternalResolution.Extents,
-                EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat);
-            TexRef2D[] texRefs = new TexRef2D[] { EyeTexture };
-            TMaterial mat = new TMaterial("VREyeMat", renderParams, texRefs, shader);
-            FBO = new QuadFrameBuffer(mat);
+
+            EyeTexture = TexRef2D.CreateFrameBufferTexture(
+                "VREyeTex",
+                InternalResolution.Extents,
+                EPixelInternalFormat.Rgba8, 
+                EPixelFormat.Rgba,
+                EPixelType.UnsignedByte);
+
+            FBO = new QuadFrameBuffer(new TMaterial("VREyeMat", renderParams, new TexRef2D[] { EyeTexture }, shader));
             FBO.SetRenderTargets((EyeTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
         }
         public IntPtr VRRender()
         {
             if (FBO is null)
-                InitializeFBOs();
+                InitOutputFBO();
             
             Render(FBO);
-            return (IntPtr)EyeTexture.GetTexture(true).BindingId;
+
+            int bindingId = EyeTexture.GetTexture(true).BindingId;
+
+            return (IntPtr)bindingId;
         }
     }
 }

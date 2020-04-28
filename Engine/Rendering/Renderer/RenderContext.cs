@@ -146,15 +146,9 @@ namespace TheraEngine.Rendering
         protected void GetCurrentSubContext(bool allowContextCreation)
         {
             int id = Thread.CurrentThread.ManagedThreadId;
-            if (!_subContexts.ContainsKey(id))
-            {
-                if (!allowContextCreation)
-                    return;
 
-                CreateContextForThread();
-            }
-            _currentSubContext = _subContexts[id];
-            _currentSubContext.SetCurrent(true);
+            if (_subContexts.ContainsKey(id) || (allowContextCreation && CreateContextForThread() >= 0))
+                (_currentSubContext = _subContexts[id])?.SetCurrent(true);
         }
         protected internal abstract ThreadSubContext CreateSubContext(IntPtr? handle, Thread thread);
         internal int CreateContextForThread()
@@ -167,9 +161,17 @@ namespace TheraEngine.Rendering
             if (!_subContexts.ContainsKey(thread.ManagedThreadId))
             {
                 ThreadSubContext c = CreateSubContext(_handle, thread);
-                c.OnResized(Size.Empty);
-                c.Generate();
-                _subContexts.TryAdd(thread.ManagedThreadId, c);
+                if (c != null)
+                {
+                    c.OnResized(Size.Empty);
+                    c.Generate();
+                    _subContexts.TryAdd(thread.ManagedThreadId, c);
+                }
+                else
+                {
+                    Engine.LogWarning("Failed to generate render subcontext.");
+                    return -1;
+                }
             }
 
             return thread.ManagedThreadId;

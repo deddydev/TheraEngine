@@ -12,11 +12,11 @@ namespace TheraEngine.Components.Scene
     {
         public VRComponent()
         {
-            HMD = new VRDeviceComponent() { AllowRemoval = false };
+            HMD = new VRDeviceComponent() { AllowRemoval = false, DeviceIndex = 0 };
             LeftEye = new CameraComponent(new VRCamera()) { AllowRemoval = false };
             RightEye = new CameraComponent(new VRCamera()) { AllowRemoval = false };
-            LeftHand = new VRDeviceComponent() { AllowRemoval = false };
-            RightHand = new VRDeviceComponent() { AllowRemoval = false };
+            LeftHand = new VRDeviceComponent() { AllowRemoval = false, DeviceIndex = 3 };
+            RightHand = new VRDeviceComponent() { AllowRemoval = false, DeviceIndex = 4 };
 
             ChildComponents.Add(HMD);
             HMD.ChildComponents.Add(LeftEye);

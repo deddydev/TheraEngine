@@ -16,7 +16,9 @@ namespace TheraEngine.Core
         public static EyeHandler LeftEye { get; } = new EyeHandler() { IsLeftEye = true };
         public static EyeHandler RightEye { get; } = new EyeHandler() { IsLeftEye = false };
 
-        public class DevicePoseInfo
+        public static event Action<int> DeviceSet;
+
+        public class DevicePoseInfo : TObjectSlim
         {
             public event Action<DevicePoseInfo> ValidPoseChanged;
             public event Action<DevicePoseInfo> IsConnectedChanged;
@@ -60,15 +62,15 @@ namespace TheraEngine.Core
                 Updated?.Invoke(this);
             }
         }
-        public class DeviceInfo
+        public class DeviceInfo : TObjectSlim
         {
-            public DeviceInfo(uint index)
+            public DeviceInfo(int index)
             {
                 Index = index;
-                Class = OpenVR.System.GetTrackedDeviceClass(index);
+                Class = OpenVR.System.GetTrackedDeviceClass((uint)index);
             }
 
-            public uint Index { get; }
+            public int Index { get; }
             public ETrackedDeviceClass Class { get; }
             public DevicePoseInfo RenderPose { get; } = new DevicePoseInfo();
             public DevicePoseInfo UpdatePose { get; } = new DevicePoseInfo();
@@ -236,20 +238,24 @@ namespace TheraEngine.Core
         public static void Render()
         {
             //TODO: stereo render to both texture targets in parallel?
-            LeftEye.Render();
-            RightEye.Render();
-            LeftEye.Submit();
-            RightEye.Submit();
+            //LeftEye.Render();
+            //RightEye.Render();
+            //LeftEye.Submit();
+            //RightEye.Submit();
         }
         private static void UpdatePoses()
         {
-            for (uint nDevice = 0; nDevice < Devices.Length; ++nDevice)
+            for (int nDevice = 0; nDevice < Devices.Length; ++nDevice)
             {
-                var device = Devices[nDevice] ?? (Devices[nDevice] = new DeviceInfo(nDevice));
-
                 var uPose = _updatePoses[nDevice];
                 if (uPose.bPoseIsValid)
                 {
+                    var device = Devices[nDevice];
+                    if (device is null)
+                    {
+                        Devices[nDevice] = device = new DeviceInfo(nDevice);
+                        DeviceSet?.Invoke(nDevice);
+                    }
                     device.UpdatePose.Update(uPose);
 
                     //Engine.Out($"Device {nDevice} update pose: {device.UpdatePose.DeviceToWorldMatrix}");
@@ -258,15 +264,17 @@ namespace TheraEngine.Core
                 var rPose = _renderPoses[nDevice];
                 if (rPose.bPoseIsValid)
                 {
+                    var device = Devices[nDevice] ?? (Devices[nDevice] = new DeviceInfo(nDevice));
+
                     device.RenderPose.Update(rPose);
 
                     //Engine.Out($"Device {nDevice} render pose: {device.UpdatePose.DeviceToWorldMatrix}");
                 }
             }
 
-            var hmdDevice = Devices[OpenVR.k_unTrackedDeviceIndex_Hmd];
-            if (hmdDevice != null && hmdDevice.UpdatePose.ValidPose && VRComponent != null)
-                VRComponent.HMD.InverseWorldMatrix = hmdDevice.UpdatePose.DeviceToWorldMatrix;
+            //var hmdDevice = Devices[OpenVR.k_unTrackedDeviceIndex_Hmd];
+            //if (hmdDevice != null && hmdDevice.UpdatePose.ValidPose && VRComponent != null)
+            //    VRComponent.HMD.InverseWorldMatrix = hmdDevice.UpdatePose.DeviceToWorldMatrix;
         }
 
         /// <summary>

@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering.Scene
             World.PostBeginPlay -= World_PostBeginPlay;
             World.PreEndPlay -= World_PreEndPlay;
 
-            TrueContext = null;
+            //TrueContext = null;
         }
         protected virtual void PostWorldChanged()
         {
@@ -54,11 +54,11 @@ namespace TheraEngine.Rendering.Scene
             if (World.IsPlaying)
                 World.SpawnActor(VRPawn);
 
-            TrueContext = World.Manager?.AssociatedContexts?.FirstOrDefault(x => x?.Handler?.Viewports.ContainsKey(ELocalPlayerIndex.One) ?? false);
+            //TrueContext = World.Manager?.AssociatedContexts?.FirstOrDefault(x => x?.Handler?.Viewports.ContainsKey(ELocalPlayerIndex.One) ?? false);
         }
 
-        private void World_PreEndPlay() => World.DespawnActor(VRPawn);
-        private void World_PostBeginPlay() => World.SpawnActor(VRPawn);
+        private void World_PreEndPlay() => World?.DespawnActor(VRPawn);
+        private void World_PostBeginPlay() => World?.SpawnActor(VRPawn);
 
         public override void Closed()
         {

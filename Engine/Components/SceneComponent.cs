@@ -345,8 +345,8 @@ namespace TheraEngine.Components
                 _inverseWorldMatrix = value;
                 _worldMatrix = _inverseWorldMatrix.Inverted();
 
-                _localMatrix = InverseParentWorldMatrix * WorldMatrix;
-                _inverseLocalMatrix = InverseWorldMatrix * ParentWorldMatrix;
+                _localMatrix = WorldMatrix * InverseParentWorldMatrix;
+                _inverseLocalMatrix = ParentWorldMatrix * InverseWorldMatrix;
 
                 OnWorldTransformChanged();
             }

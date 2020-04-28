@@ -6,6 +6,7 @@ using OpenTK.Platform;
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace TheraEngine.Rendering.OpenGL
 {
@@ -161,7 +162,6 @@ namespace TheraEngine.Rendering.OpenGL
             private IGraphicsContext _context;
             private EVSyncMode _vsyncMode = EVSyncMode.Disabled;
 
-            private NativeWindow _hiddenWindow = null;
             public IWindowInfo WindowInfo { get; private set; }
 
             public GLThreadSubContext(IntPtr? controlHandle, Thread thread)
@@ -217,27 +217,29 @@ namespace TheraEngine.Rendering.OpenGL
 
             public static GLSpecs Specification { get; private set; }
 
+            public const string VRWindowTitle = "VR Hidden Window";
+
             public override void Generate()
             {
+                GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 4, new ColorFormat(0), 2, false);
+
                 if (_controlHandle is null)
                 {
                     Engine.Out("Creating hidden window for OpenGL context.");
-                    //_hiddenWindow = new NativeWindow { Visible = false };
-                    WindowInfo = Utilities.CreateDummyWindowInfo();
+                    //_hiddenWindow = new NativeWindow(0, 0, 0, 0, VRWindowTitle, GameWindowFlags.FixedWindow, mode, DisplayDevice.Default) { Visible = false };
+                    _controlHandle = Engine.Instance.ShowDummyForm();
                 }
                 else
                 {
                     Engine.Out("Using existing window for OpenGL context.");
-                    _hiddenWindow = null;
-                    WindowInfo = Utilities.CreateWindowsWindowInfo(_controlHandle.Value);
                 }
 
                 Engine.RenderThreadId = Thread.CurrentThread.ManagedThreadId;
-                GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 4, new ColorFormat(0), 2, false);
 
-                _context = new GraphicsContext(mode, WindowInfo, 4, 6, 
-                    DebugMode ? GraphicsContextFlags.Debug : GraphicsContextFlags.Default)
-                { ErrorChecking = DebugMode };
+                WindowInfo = Utilities.CreateWindowsWindowInfo(_controlHandle.Value);
+
+                GraphicsContextFlags flags = DebugMode ? GraphicsContextFlags.Debug : GraphicsContextFlags.Default;
+                _context = new GraphicsContext(mode, WindowInfo, 4, 6, flags) { ErrorChecking = DebugMode };
 
                 _context.MakeCurrent(WindowInfo);
                 _context.LoadAll();

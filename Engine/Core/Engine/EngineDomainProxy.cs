@@ -590,7 +590,24 @@ namespace TheraEngine.Core
         public void RegisterVRContext()
         {
             VRContext?.QueueDisposeSelf();
-            VRContext = new VRWrapperContext();
+
+            //VRContext = new VRWrapperContext();
+
+            var handler = new VRRenderHandler();
+            Engine.Out($"CREATED RENDER HANDLER : {nameof(VRRenderHandler)}");
+
+            switch (handler.RenderLibrary)
+            {
+                case ERenderLibrary.OpenGL:
+                    VRContext = new GLWindowContext(null) { Handler = handler };
+                    break;
+                case ERenderLibrary.Direct3D11:
+                    VRContext = new DXWindowContext(null) { Handler = handler };
+                    break;
+                default:
+                    return;
+            }
+
             Engine.Out("Registered VR context.");
         }
         public void UnregisterVRContext()

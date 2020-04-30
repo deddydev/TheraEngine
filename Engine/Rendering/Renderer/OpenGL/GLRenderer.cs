@@ -1065,7 +1065,7 @@ namespace TheraEngine.Rendering.OpenGL
         /// <summary>
         /// Requires 3.0 or ARB_vertex_array_object
         /// </summary>
-        public override void BindPrimitiveManager(IPrimitiveManager manager)
+        public override void BindPrimitiveManager(IMeshRenderer manager)
         {
             GL.BindVertexArray(manager is null ? 0 : manager.BindingId);
             base.BindPrimitiveManager(manager);
@@ -1073,7 +1073,7 @@ namespace TheraEngine.Rendering.OpenGL
         /// <summary>
         /// Requires 4.5 or ARB_direct_state_access
         /// </summary>
-        public override void LinkRenderIndices(IPrimitiveManager manager, DataBuffer indexBuffer)
+        public override void LinkRenderIndices(IMeshRenderer manager, DataBuffer indexBuffer)
         {
             if (indexBuffer.Target != EBufferTarget.ElementArrayBuffer)
                 throw new Exception("IndexBuffer needs target type of " + EBufferTarget.ElementArrayBuffer.ToString() + ".");
@@ -1087,7 +1087,7 @@ namespace TheraEngine.Rendering.OpenGL
             if (_currentPrimitiveManager is null)
                 return;
             
-            PrimitiveType type = (PrimitiveType)(int)_currentPrimitiveManager.Data.Type;
+            PrimitiveType type = (PrimitiveType)(int)_currentPrimitiveManager.TargetMesh.Type;
             int count = _currentPrimitiveManager.IndexBuffer.ElementCount;
             DrawElementsType elemType = DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager.ElementType;
             //Engine.PrintLine("{0} {1} {2}", type.ToString(), count, elemType.ToString());

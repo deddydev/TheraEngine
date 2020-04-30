@@ -37,7 +37,7 @@ namespace TheraEngine.Components.Scene
             }
         }
 
-        private PrimitiveManager _irradianceSphere;
+        private MeshRenderer _irradianceSphere;
 
         public IBLProbeComponent() : base() { }
         
@@ -176,7 +176,7 @@ namespace TheraEngine.Components.Scene
             var shader = Engine.Files.Shader("CubeMapSphereMesh.fs", EGLSLType.Fragment);
             TMaterial mat = new TMaterial("IrradianceMat",
                 new ShaderVar[] { new ShaderVec3(Vec3.Zero, "SphereCenter") }, new BaseTexRef[] { _showPrefilterTexture ? PrefilterTex : IrradianceTex }, shader);
-            _irradianceSphere = new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u), mat);
+            _irradianceSphere = new MeshRenderer(Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u), mat);
 
             _rc = new RenderCommandMesh3D(ERenderPass.OnTopForward)
             {

@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering
         //One giant triangle is better than a quad with two triangles. 
         //Using two triangles may introduce tearing on the line through the screen,
         //because the two triangles may not be rasterized at the exact same time.
-        private PrimitiveManager _fullScreenTriangle;
+        private MeshRenderer _fullScreenTriangle;
         
         public PingPongFrameBuffer(TMaterial pingMat, TMaterial pongMat, TMaterial initialPassMaterial)
         {
@@ -46,7 +46,7 @@ namespace TheraEngine.Rendering
                 new Vec3(2.0f, 0.0f, 0.0f),
                 new Vec3(0.0f, 2.0f, 0.0f));
 
-            _fullScreenTriangle = new PrimitiveManager(Mesh.Create(VertexShaderDesc.JustPositions(), triangle), first);
+            _fullScreenTriangle = new MeshRenderer(Mesh.Create(VertexShaderDesc.JustPositions(), triangle), first);
             _fullScreenTriangle.SettingUniforms += SetUniforms;
 
             _quadCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);

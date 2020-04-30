@@ -1130,7 +1130,7 @@
     <Compile Include="Rendering\Scene\Scene3D.cs" />
     <Compile Include="Rendering\Renderer\Objects\BaseRenderState.cs" />
     <Compile Include="Rendering\Renderer\Objects\FrameBuffers\FrameBuffer.cs" />
-    <Compile Include="Rendering\Renderer\Objects\PrimitiveManager.cs" />
+    <Compile Include="Rendering\Renderer\Objects\MeshRenderer.cs" />
     <Compile Include="Rendering\Renderer\Objects\DataBuffer.cs" />
     <Compile Include="Rendering\Text\LocalizedString.cs" />
     <Compile Include="Rendering\Text\VariableStringTable\Functionality.cs" />

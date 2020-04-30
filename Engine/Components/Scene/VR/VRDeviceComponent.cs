@@ -23,10 +23,11 @@ namespace TheraEngine.Components.Scene
         public VRDeviceComponent() 
         {
             Rendering.Models.Mesh pointData = Rendering.Models.Mesh.Create(Vec3.Zero);
+
             TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Red);
             mat.RenderParams = new RenderingParameters { PointSize = 20.0f };
-            _rcPoint.Mesh = new PrimitiveManager(pointData, mat);
-            _rcPoint.WorldMatrix = Matrix4.Identity;
+
+            _rcPoint.Mesh = new MeshRenderer(pointData, mat);
 
             EngineVR.DeviceSet += EngineVR_DeviceSet;
         }
@@ -36,7 +37,13 @@ namespace TheraEngine.Components.Scene
             if (obj == DeviceIndex && Device != null)
             {
                 Device.UpdatePose.Updated += UpdatePose_Updated;
+                Device.RenderPose.Updated += RenderPose_Updated;
             }
+        }
+
+        private void RenderPose_Updated(EngineVR.DevicePoseInfo obj)
+        {
+            _rcPoint.WorldMatrix = ParentWorldMatrix * obj.DeviceToWorldMatrix.Transposed();
         }
 
         private void UpdatePose_Updated(EngineVR.DevicePoseInfo obj)

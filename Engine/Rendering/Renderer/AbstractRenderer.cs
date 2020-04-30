@@ -36,7 +36,7 @@ namespace TheraEngine.Rendering
         public RenderContext CurrentContext => RenderContext.Captured;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
 
-        protected IPrimitiveManager _currentPrimitiveManager;
+        protected IMeshRenderer _currentPrimitiveManager;
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
         private Stack<ICamera> _cameraStack = new Stack<ICamera>();
         private Stack<IScene2D> _2dSceneStack = new Stack<IScene2D>();
@@ -122,7 +122,7 @@ namespace TheraEngine.Rendering
         //    }
         //}
 
-        private PrimitiveManager AssignDebugPrimitive(string name, PrimitiveManager m)
+        private MeshRenderer AssignDebugPrimitive(string name, MeshRenderer m)
         {
             if (!_debugPrimitives.ContainsKey(name))
                 _debugPrimitives.Add(name, m);
@@ -156,12 +156,12 @@ namespace TheraEngine.Rendering
             SolidCone,
         }
 
-        protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
-        private readonly IPrimitiveManager[] _debugPrims = new IPrimitiveManager[14];
+        protected static Dictionary<string, IMeshRenderer> _debugPrimitives = new Dictionary<string, IMeshRenderer>();
+        private readonly IMeshRenderer[] _debugPrims = new IMeshRenderer[14];
 
-        public IPrimitiveManager GetDebugPrimitive(EDebugPrimitiveType type)
+        public IMeshRenderer GetDebugPrimitive(EDebugPrimitiveType type)
         {
-            IPrimitiveManager mesh = _debugPrims[(int)type];
+            IMeshRenderer mesh = _debugPrims[(int)type];
             if (mesh != null)
                 return mesh;
             else
@@ -170,7 +170,7 @@ namespace TheraEngine.Rendering
                 RenderingParameters p = new RenderingParameters();
                 p.DepthTest.Enabled = ERenderParamUsage.Enabled;
                 mat.RenderParamsRef = p;
-                return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), mat);
+                return _debugPrims[(int)type] = new MeshRenderer(GetPrimData(type), mat);
             }
         }
         private Mesh GetPrimData(EDebugPrimitiveType type)
@@ -246,7 +246,7 @@ namespace TheraEngine.Rendering
             if (DisallowRender(false))
                 return;
 
-            IPrimitiveManager m = GetDebugPrimitive(EDebugPrimitiveType.Point);
+            IMeshRenderer m = GetDebugPrimitive(EDebugPrimitiveType.Point);
             m.Parameter<ShaderVec4>(0).Value = color;
             m.Material.RenderParams.DepthTest.Enabled = depthTestEnabled ? ERenderParamUsage.Enabled : ERenderParamUsage.Disabled;
             Matrix4 modelMatrix = Matrix4.CreateTranslation(position);
@@ -264,7 +264,7 @@ namespace TheraEngine.Rendering
             if (DisallowRender(false))
                 return;
 
-            IPrimitiveManager m = GetDebugPrimitive(EDebugPrimitiveType.Line);
+            IMeshRenderer m = GetDebugPrimitive(EDebugPrimitiveType.Line);
             m.Parameter<ShaderVec4>(0).Value = color;
             m.Material.RenderParams.LineWidth = lineWidth;
             m.Material.RenderParams.DepthTest.Enabled = depthTestEnabled ? ERenderParamUsage.Enabled : ERenderParamUsage.Disabled;
@@ -281,7 +281,7 @@ namespace TheraEngine.Rendering
                 return;
 
             //SetLineSize(lineWidth);
-            IPrimitiveManager m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidCircle : EDebugPrimitiveType.WireCircle);
+            IMeshRenderer m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidCircle : EDebugPrimitiveType.WireCircle);
             m.Parameter<ShaderVec4>(0).Value = color;
             Matrix4 mtx = Matrix4.CreateTranslation(centerTranslation) * Matrix4.CreateFromRotator(rotation) * Matrix4.CreateScale(radius, 1.0f, radius);
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
@@ -292,7 +292,7 @@ namespace TheraEngine.Rendering
                 return;
 
             //SetLineSize(lineWidth);
-            IPrimitiveManager m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidQuad : EDebugPrimitiveType.WireQuad);
+            IMeshRenderer m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidQuad : EDebugPrimitiveType.WireQuad);
             m.Parameter<ShaderVec4>(0).Value = color;
             Matrix4 mtx = Matrix4.CreateTranslation(centerTranslation) * Matrix4.CreateFromRotator(rotation) * Matrix4.CreateScale(extents.X, 1.0f, extents.Y);
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
@@ -305,7 +305,7 @@ namespace TheraEngine.Rendering
             //SetLineSize(lineWidth);
             //radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
-            IPrimitiveManager m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidSphere : EDebugPrimitiveType.WireSphere);
+            IMeshRenderer m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidSphere : EDebugPrimitiveType.WireSphere);
             m.Parameter<ShaderVec4>(0).Value = color;
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
         }
@@ -318,7 +318,7 @@ namespace TheraEngine.Rendering
                 return;
             
             //SetLineSize(lineWidth);
-            IPrimitiveManager mesh = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidBox : EDebugPrimitiveType.WireBox);
+            IMeshRenderer mesh = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidBox : EDebugPrimitiveType.WireBox);
             mesh.Parameter<ShaderVec4>(0).Value = color;
             //halfExtents doesn't need to be multiplied by 2.0f; the box is already 1.0f in each direction of each dimension (2.0f extents)
             transform = transform * halfExtents.AsScaleMatrix();
@@ -330,7 +330,7 @@ namespace TheraEngine.Rendering
                 return;
 
             //SetLineSize(lineWidth);
-            IPrimitiveManager mCyl = null, mTop = null, mBot = null;
+            IMeshRenderer mCyl = null, mTop = null, mBot = null;
             string cylStr = "_CYLINDER";
             string topStr = "_TOPHALF";
             string botStr = "_BOTTOMHALF";
@@ -346,11 +346,11 @@ namespace TheraEngine.Rendering
                     Vec3.Zero, Vec3.Up, 1.0f, 1.0f, 30, 
                     out Mesh cylData, out Mesh topData, out Mesh botData);
                 if (mCyl is null)
-                    mCyl = AssignDebugPrimitive(cylStr, new PrimitiveManager(cylData, TMaterial.CreateUnlitColorMaterialForward()));
+                    mCyl = AssignDebugPrimitive(cylStr, new MeshRenderer(cylData, TMaterial.CreateUnlitColorMaterialForward()));
                 if (mTop is null)
-                    mTop = AssignDebugPrimitive(topStr, new PrimitiveManager(topData, TMaterial.CreateUnlitColorMaterialForward()));
+                    mTop = AssignDebugPrimitive(topStr, new MeshRenderer(topData, TMaterial.CreateUnlitColorMaterialForward()));
                 if (mBot is null)
-                    mBot = AssignDebugPrimitive(botStr, new PrimitiveManager(botData, TMaterial.CreateUnlitColorMaterialForward()));
+                    mBot = AssignDebugPrimitive(botStr, new MeshRenderer(botData, TMaterial.CreateUnlitColorMaterialForward()));
             }
             Matrix4 axisRotation = Matrix4.CreateFromQuaternion(Quat.BetweenVectors(Vec3.Up, localUpAxis));
             Matrix4 radiusMtx = Matrix4.CreateScale(radius);
@@ -378,7 +378,7 @@ namespace TheraEngine.Rendering
                 return;
 
             //SetLineSize(lineWidth);
-            IPrimitiveManager m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidCone : EDebugPrimitiveType.WireCone);
+            IMeshRenderer m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidCone : EDebugPrimitiveType.WireCone);
             m.Parameter<ShaderVec4>(0).Value = color;
             transform = transform * localUpAxis.LookatAngles().GetMatrix() * Matrix4.CreateScale(radius, radius, height);
             m.Render(transform, Matrix3.Identity);
@@ -406,13 +406,13 @@ namespace TheraEngine.Rendering
         #endregion
 
         #region Primitive Management
-        public virtual void BindPrimitiveManager(IPrimitiveManager manager)
+        public virtual void BindPrimitiveManager(IMeshRenderer manager)
         {
             _currentPrimitiveManager = manager;
         }
-        public void RenderPrimitiveManager(IPrimitiveManager manager, bool preservePreviouslyBound = true, int instances = 1)
+        public void RenderPrimitiveManager(IMeshRenderer manager, bool preservePreviouslyBound = true, int instances = 1)
         {
-            IPrimitiveManager prev = _currentPrimitiveManager;
+            IMeshRenderer prev = _currentPrimitiveManager;
             BindPrimitiveManager(manager);
             RenderCurrentPrimitiveManager(instances);
             BindPrimitiveManager(preservePreviouslyBound ? prev : null);
@@ -421,7 +421,7 @@ namespace TheraEngine.Rendering
         #endregion
 
         #region Data Buffers
-        public abstract void LinkRenderIndices(IPrimitiveManager manager, DataBuffer indexBuffer);
+        public abstract void LinkRenderIndices(IMeshRenderer manager, DataBuffer indexBuffer);
         public abstract void BindBufferBase(EBufferRangeTarget rangeTarget, int blockIndex, int bufferBindingId);
         public abstract void InitializeBuffer(DataBuffer buffer);
         public abstract void PushBufferData(DataBuffer buffer);

@@ -244,7 +244,7 @@ namespace TheraEngine.Components.Scene
             material.RenderParams.CullMode = ECulling.Back;
 
             _rc.Mesh?.Dispose();
-            _rc.Mesh = new PrimitiveManager(data, material);
+            _rc.Mesh = new MeshRenderer(data, material);
         }
 
         /// <summary>
@@ -255,9 +255,9 @@ namespace TheraEngine.Components.Scene
             if (_heightFieldShape is null)
                 throw new InvalidOperationException();
             
-            var pos = _rc.Mesh.Data[EBufferType.Position];
-            var nrm = _rc.Mesh.Data[EBufferType.Normal];
-            var tex = _rc.Mesh.Data[EBufferType.TexCoord];
+            var pos = _rc.Mesh.TargetMesh[EBufferType.Position];
+            var nrm = _rc.Mesh.TargetMesh[EBufferType.Normal];
+            var tex = _rc.Mesh.TargetMesh[EBufferType.TexCoord];
 
             Vertex[] vertexNormals = new Vertex[6];
             

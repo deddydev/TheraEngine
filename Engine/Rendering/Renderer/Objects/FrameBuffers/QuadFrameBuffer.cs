@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         private OrthographicCamera _quadCamera;
 
-        public PrimitiveManager FullScreenMesh { get; }
+        public MeshRenderer FullScreenMesh { get; }
 
         public static Mesh Mesh(bool asTriangle)
         {
@@ -55,7 +55,7 @@ namespace TheraEngine.Rendering
         {
             Material = mat;
 
-            FullScreenMesh = new PrimitiveManager(Mesh(false), Material);
+            FullScreenMesh = new MeshRenderer(Mesh(false), Material);
             FullScreenMesh.SettingUniforms += SetUniforms;
 
             _quadCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);

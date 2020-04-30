@@ -63,13 +63,13 @@ namespace TheraEngine.Rendering.Models
 
         Matrix4 WorldToLocalMatrix(Matrix4 worldMatrix);
 
-        void AddPrimitiveManager(IPrimitiveManager m);
-        void RemovePrimitiveManager(IPrimitiveManager m);
+        void AddPrimitiveManager(IMeshRenderer m);
+        void RemovePrimitiveManager(IMeshRenderer m);
         bool UsesCamera { get; }
         int Index { get; }
         
-        Dictionary<int, Tuple<IPrimitiveManager, List<int>>> InfluencedVertices { get; }
-        List<CPUSkinInfo.LiveInfluence> InfluencedInfluences { get; }
+        Dictionary<int, Tuple<IMeshRenderer, List<int>>> TargetVertices { get; }
+        List<CPUSkinInfo.LiveInfluence> TargetInfluences { get; }
 
         void CalcFrameMatrix(ICamera camera, bool force = false);
         void CalcFrameMatrix(ICamera camera, Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool force = false);
@@ -160,12 +160,12 @@ namespace TheraEngine.Rendering.Models
         [TSerialize(nameof(ScaleByDistance), NodeType = ENodeType.Attribute)]
         private bool _scaleByDistance = false;
         internal int _index;
-        internal Dictionary<int, Tuple<IPrimitiveManager, List<int>>> _influencedVertices = new Dictionary<int, Tuple<IPrimitiveManager, List<int>>>();
+        internal Dictionary<int, Tuple<IMeshRenderer, List<int>>> _influencedVertices = new Dictionary<int, Tuple<IMeshRenderer, List<int>>>();
         internal List<CPUSkinInfo.LiveInfluence> _influencedInfluences = new List<CPUSkinInfo.LiveInfluence>();
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
 
-        Dictionary<int, Tuple<IPrimitiveManager, List<int>>> IBone.InfluencedVertices => _influencedVertices;
-        List<CPUSkinInfo.LiveInfluence> IBone.InfluencedInfluences => _influencedInfluences;
+        Dictionary<int, Tuple<IMeshRenderer, List<int>>> IBone.TargetVertices => _influencedVertices;
+        List<CPUSkinInfo.LiveInfluence> IBone.TargetInfluences => _influencedInfluences;
 
         [TSerialize("Transform")]
         public ITransform _bindState;
@@ -453,13 +453,13 @@ namespace TheraEngine.Rendering.Models
 
         }
 
-        public void AddPrimitiveManager(IPrimitiveManager m)
+        public void AddPrimitiveManager(IMeshRenderer m)
         {
             if (!_influencedVertices.ContainsKey(m.BindingId))
-                _influencedVertices.Add(m.BindingId, new Tuple<IPrimitiveManager, List<int>>(m, new List<int>()));
+                _influencedVertices.Add(m.BindingId, new Tuple<IMeshRenderer, List<int>>(m, new List<int>()));
             Skeleton?.AddPrimitiveManager(m);
         }
-        public void RemovePrimitiveManager(IPrimitiveManager m)
+        public void RemovePrimitiveManager(IMeshRenderer m)
         {
             _influencedVertices.Remove(m.BindingId);
             Skeleton?.RemovePrimitiveManager(m);

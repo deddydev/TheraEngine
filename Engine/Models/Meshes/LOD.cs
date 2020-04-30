@@ -16,9 +16,9 @@ namespace TheraEngine.Rendering.Models
         LocalFileRef<TMaterial> MaterialRef { get; }
         GlobalFileRef<Mesh> PrimitivesRef { get; }
         float VisibleDistance { get; set; }
-        ETransformFlags TransformFlags { get; set; }
+        ECameraTransformFlags TransformFlags { get; set; }
 
-        PrimitiveManager CreatePrimitiveManager();
+        MeshRenderer CreatePrimitiveManager();
     }
     [TFileExt("lod")]
     [TFileDef("Level Of Detail Mesh Spec")]
@@ -64,7 +64,7 @@ namespace TheraEngine.Rendering.Models
         [Category("LOD")]
         [TSerialize(IsAttribute = true)]
         [Description("Determines how this LOD will move in relation to the camera.")]
-        public ETransformFlags TransformFlags
+        public ECameraTransformFlags TransformFlags
         {
             get => _billboardMode;
             set
@@ -80,12 +80,12 @@ namespace TheraEngine.Rendering.Models
         protected LocalFileRef<TMaterial> _materialRef;
 
         protected float _visibleDistance = 0.0f;
-        protected ETransformFlags _billboardMode = ETransformFlags.None;
+        protected ECameraTransformFlags _billboardMode = ECameraTransformFlags.None;
 
-        public PrimitiveManager CreatePrimitiveManager()
+        public MeshRenderer CreatePrimitiveManager()
         {
-            PrimitiveManager m = new PrimitiveManager(_primitivesRef.File, _materialRef.File);
-            m.BufferInfo.BillboardMode = TransformFlags;
+            MeshRenderer m = new MeshRenderer(_primitivesRef.File, _materialRef.File);
+            m.BufferInfo.CameraTransformFlags = TransformFlags;
             return m;
         }
     }

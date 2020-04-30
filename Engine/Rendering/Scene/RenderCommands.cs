@@ -87,7 +87,7 @@ namespace TheraEngine.Rendering
     public class RenderCommandMesh3D : RenderCommand3D
     {
         [Category("Render Command")]
-        public PrimitiveManager Mesh { get; set; }
+        public MeshRenderer Mesh { get; set; }
         [Browsable(false)]
         public Matrix4 WorldMatrix { get; set; } = Matrix4.Identity;
         [Browsable(false)]
@@ -98,7 +98,7 @@ namespace TheraEngine.Rendering
         public RenderCommandMesh3D(ERenderPass renderPass) : base(renderPass) { }
         public RenderCommandMesh3D(
             ERenderPass renderPass,
-            PrimitiveManager manager,
+            MeshRenderer manager,
             Matrix4 worldMatrix,
             Matrix3 normalMatrix,
             float renderDistance,
@@ -112,7 +112,7 @@ namespace TheraEngine.Rendering
 
         public override void Render(bool shadowPass)
         {
-            if (shadowPass && Mesh?.Data?.Triangles is null)
+            if (shadowPass && Mesh?.TargetMesh?.Triangles is null)
                 return;
 
             Mesh?.Render(WorldMatrix, NormalMatrix, MaterialOverride);
@@ -120,8 +120,8 @@ namespace TheraEngine.Rendering
     }
     public class RenderCommandMesh2D : RenderCommand2D
     {
-        private PrimitiveManager _mesh;
-        public PrimitiveManager Mesh 
+        private MeshRenderer _mesh;
+        public MeshRenderer Mesh 
         {
             get => _mesh;
             set
@@ -137,7 +137,7 @@ namespace TheraEngine.Rendering
         public RenderCommandMesh2D(ERenderPass renderPass) : base(renderPass) { }
         public RenderCommandMesh2D(
             ERenderPass renderPass,
-            PrimitiveManager manager,
+            MeshRenderer manager,
             Matrix4 worldMatrix,
             int zIndex,
             TMaterial materialOverride = null) : base(renderPass, zIndex)
@@ -150,7 +150,7 @@ namespace TheraEngine.Rendering
 
         public override void Render(bool shadowPass)
         {
-            if (shadowPass && Mesh?.Data?.Triangles is null)
+            if (shadowPass && Mesh?.TargetMesh?.Triangles is null)
                 return;
 
             Mesh?.Render(WorldMatrix, Matrix3.Identity, MaterialOverride);
@@ -166,7 +166,7 @@ namespace TheraEngine.Rendering
         public RenderCommandViewport(
             ERenderPass renderPass,
             Viewport viewport,
-            PrimitiveManager quad, 
+            MeshRenderer quad, 
             MaterialFrameBuffer viewportFBO, 
             Matrix4 worldMatrix, 
             int zIndex)

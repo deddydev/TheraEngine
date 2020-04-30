@@ -28,11 +28,18 @@ namespace TheraEngine.Components.Scene.Transforms
             OnOriginRebased(newOrigin);
             OriginRebased?.Invoke(newOrigin);
         }
+        
         /// <summary>
         /// This is to handle translating the root component of an actor when the world's origin is changed.
         /// </summary>
         /// <param name="newOrigin">The translation of the new origin relative to the current origin. 
         /// Subtract this value from a world translation to correct it.</param>
         protected internal abstract void OnOriginRebased(Vec3 newOrigin);
+
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        {
+            localTransform = Matrix4.Identity;
+            inverseLocalTransform = Matrix4.Identity;
+        }
     }
 }

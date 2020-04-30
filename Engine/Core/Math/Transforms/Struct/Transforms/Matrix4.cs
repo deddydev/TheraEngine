@@ -1102,10 +1102,13 @@ namespace System
         {
             return !left.Equals(right);
         }
+
+        //TODO: verify transpose is done correctly for these 4 methods
         public static implicit operator Valve.VR.HmdMatrix34_t(Matrix4 matrix)
         {
             Valve.VR.HmdMatrix34_t m = new Valve.VR.HmdMatrix34_t();
-            Memory.Move(&m, matrix.Data, 48);
+            var transp = matrix.Transposed();
+            Memory.Move(&m, transp.Data, 48);
             return m;
         }
         public static implicit operator Matrix4(Valve.VR.HmdMatrix34_t matrix)
@@ -1113,20 +1116,22 @@ namespace System
             Matrix4 m = Identity;
             //3x4 mtx -> 4x4 mtx, 48 bytes and pad last 16
             Memory.Move(m.Data, &matrix, 48);
-            return m;
+            return m.Transposed();
         }
         public static implicit operator Valve.VR.HmdMatrix44_t(Matrix4 matrix)
         {
             Valve.VR.HmdMatrix44_t m = new Valve.VR.HmdMatrix44_t();
-            Memory.Move(&m, matrix.Data, 64);
+            var transp = matrix.Transposed();
+            Memory.Move(&m, transp.Data, 64);
             return m;
         }
         public static implicit operator Matrix4(Valve.VR.HmdMatrix44_t matrix)
         {
             Matrix4 m = Zero;
             Memory.Move(m.Data, &matrix, 64);
-            return m;
+            return m.Transposed();
         }
+
         public static implicit operator BulletSharp.Matrix(Matrix4 matrix)
         {
             BulletSharp.Matrix m = new BulletSharp.Matrix();

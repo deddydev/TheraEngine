@@ -13,8 +13,13 @@ namespace TheraEngine.Actors.Types
         public CameraComponent CameraComponent { get; private set; }
         public ICamera Camera
         {
-            get => CameraComponent.CameraRef.File;
-            set => CameraComponent.CameraRef.File = value;
+            get => CameraComponent?.CameraRef?.File;
+            set
+            {
+                var fref = CameraComponent?.CameraRef;
+                if (fref != null)
+                    fref.File = value;
+            }
         }
         
         protected override TRComponent OnConstructRoot()

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Cameras;
+using Valve.VR;
 
 namespace TheraEngine.Components.Scene
 {
@@ -12,51 +14,79 @@ namespace TheraEngine.Components.Scene
     {
         public VRComponent()
         {
-            HMD = new VRDeviceComponent() { AllowRemoval = false, DeviceIndex = 0 };
-            LeftEye = new CameraComponent(new VRCamera()) { AllowRemoval = false };
-            RightEye = new CameraComponent(new VRCamera()) { AllowRemoval = false };
-            LeftHand = new VRDeviceComponent() { AllowRemoval = false, DeviceIndex = 3 };
-            RightHand = new VRDeviceComponent() { AllowRemoval = false, DeviceIndex = 4 };
+            LeftEye = new CameraComponent(new VRCamera() { NearZ = 0.1f, FarZ = 10000.0f }) { AllowRemoval = false };
+            RightEye = new CameraComponent(new VRCamera() { NearZ = 0.1f, FarZ = 10000.0f }) { AllowRemoval = false };
 
-            ChildComponents.Add(HMD);
-            HMD.ChildComponents.Add(LeftEye);
-            HMD.ChildComponents.Add(RightEye);
-            ChildComponents.Add(LeftHand);
-            ChildComponents.Add(RightHand);
+            for (int i = 0; i < EngineVR.Devices.Length; ++i)
+                EngineVR_DeviceSet(i);
 
-            TrackerPositions.PostAnythingAdded += TrackerPositions_PostAnythingAdded;
-            TrackerPositions.PostAnythingRemoved += TrackerPositions_PostAnythingRemoved;
+            EngineVR.DeviceSet += EngineVR_DeviceSet;
         }
 
-        private void TrackerPositions_PostAnythingAdded(VRDeviceComponent item) => ChildComponents.Add(item);
-        private void TrackerPositions_PostAnythingRemoved(VRDeviceComponent item) => ChildComponents.Remove(item);
-        protected override void OnChildRemoved(ISceneComponent item)
+        public Dictionary<ETrackedDeviceClass, List<VRDeviceComponent>> Devices { get; }
+            = new Dictionary<ETrackedDeviceClass, List<VRDeviceComponent>>();
+
+        private void EngineVR_DeviceSet(int index)
         {
-            if (item is VRDeviceComponent trc)
-                TrackerPositions.Remove(trc);
+            var device = EngineVR.Devices[index];
+            if (device is null)
+                return;
 
-            base.OnChildRemoved(item);
+            VRDeviceComponent comp = new VRDeviceComponent()
+            {
+                AllowRemoval = false,
+                DeviceIndex = index
+            };
+            ChildComponents.Add(comp);
+
+            var dclass = device.Class;
+            if (Devices.ContainsKey(dclass))
+                Devices[dclass].Add(comp);
+            else
+                Devices.Add(dclass, new List<VRDeviceComponent>() { comp });
+
+            switch (dclass)
+            {
+                case ETrackedDeviceClass.HMD:
+                    {
+                        HMD = comp;
+                        comp.ChildComponents.Add(LeftEye);
+                        comp.ChildComponents.Add(RightEye);
+                    }
+                    break;
+                case ETrackedDeviceClass.Controller:
+                    {
+                        switch (device.ControllerType)
+                        {
+                            default:
+                            case ETrackedControllerRole.Invalid:
+                                break;
+
+                            case ETrackedControllerRole.LeftHand:
+                                LeftHand = comp;
+                                break;
+
+                            case ETrackedControllerRole.RightHand:
+                                RightHand = comp;
+                                break;
+                        }
+                    }
+                    break;
+                case ETrackedDeviceClass.GenericTracker:
+                    _trackers.Add(comp);
+                    break;
+            }
         }
-        protected override void OnChildAdded(ISceneComponent item)
-        {
-            base.OnChildAdded(item);
 
-            if (item is VRDeviceComponent trc)
-                TrackerPositions.Add(trc);
-        }
+        public VRDeviceComponent HMD { get; private set; }
+        public CameraComponent LeftEye { get; private set; }
+        public CameraComponent RightEye { get; private set; }
+        public VRDeviceComponent LeftHand { get; private set; }
+        public VRDeviceComponent RightHand { get; private set; }
 
-        public VRDeviceComponent HMD { get; set; }
-        public CameraComponent LeftEye { get; }
-        public CameraComponent RightEye { get; }
-        public VRDeviceComponent LeftHand { get; set; }
-        public VRDeviceComponent RightHand { get; set; }
-        public EventList<VRDeviceComponent> TrackerPositions { get; } = new EventList<VRDeviceComponent>(false, false);
+        private List<VRDeviceComponent> _trackers = new List<VRDeviceComponent>();
+        public IReadOnlyList<VRDeviceComponent> Trackers => _trackers;
 
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
-        {
-            localTransform = Matrix4.Identity;
-            inverseLocalTransform = Matrix4.Identity;
-        }
         protected internal override void OnOriginRebased(Vec3 newOrigin)
         {
 

@@ -97,7 +97,7 @@ namespace TheraEngine.Rendering.DirectX
             if (_currentPrimitiveManager is null)
                 return;
 
-            EPrimitiveType type = _currentPrimitiveManager.Data.Type;
+            EPrimitiveType type = _currentPrimitiveManager.TargetMesh.Type;
             int count = _currentPrimitiveManager.IndexBuffer.ElementCount;
             EDrawElementType elemType = _currentPrimitiveManager.ElementType;
 
@@ -264,7 +264,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void LinkRenderIndices(IPrimitiveManager manager, DataBuffer indexBuffer)
+        public override void LinkRenderIndices(IMeshRenderer manager, DataBuffer indexBuffer)
         {
             throw new NotImplementedException();
         }

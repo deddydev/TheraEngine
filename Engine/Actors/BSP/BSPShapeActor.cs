@@ -10,16 +10,16 @@ namespace TheraEngine.Actors.Types.BSP
     {
         public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D();
         
-        private PrimitiveManager _manager;
+        private MeshRenderer _manager;
 
         public void Render()
         {
             _manager.Render(WorldMatrix, InverseWorldMatrix.Transposed().GetRotationMatrix3());
         }
 
-        public PrimitiveManager Merge(PrimitiveManager right, EIntersectionType intersection)
+        public MeshRenderer Merge(MeshRenderer right, EIntersectionType intersection)
         {
-            PrimitiveManager m = new PrimitiveManager();
+            MeshRenderer m = new MeshRenderer();
             switch (intersection)
             {
                 case EIntersectionType.Union:

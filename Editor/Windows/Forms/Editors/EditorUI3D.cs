@@ -137,7 +137,7 @@ namespace TheraEditor.Windows.Forms
                         if (m != null)
                             foreach (var lod in m.LODs)
                             {
-                                var tris = lod.Manager.Data.Triangles;
+                                var tris = lod.Manager.TargetMesh.Triangles;
                                 if (tris != null && tris.Count > 0)
                                     UpdateMatHighlight(lod.Manager.Material, highlighted);
                             }
@@ -150,7 +150,7 @@ namespace TheraEditor.Windows.Forms
                         if (m != null)
                             foreach (var lod in m.LODs)
                             {
-                                var tris = lod.Manager.Data.Triangles;
+                                var tris = lod.Manager.TargetMesh.Triangles;
                                 if (tris != null && tris.Count > 0)
                                     UpdateMatHighlight(lod.Manager.Material, highlighted);
                             }
@@ -790,8 +790,8 @@ namespace TheraEditor.Windows.Forms
             public Matrix4 Transform { get; set; } = Matrix4.Identity;
             
             private TMaterial _material;
-            private readonly PrimitiveManager _circlePrimitive;
-            private readonly PrimitiveManager _normalPrimitive;
+            private readonly MeshRenderer _circlePrimitive;
+            private readonly MeshRenderer _normalPrimitive;
 
             private RenderCommandMesh3D
                 _circleRC = new RenderCommandMesh3D(ERenderPass.OnTopForward),
@@ -801,8 +801,8 @@ namespace TheraEditor.Windows.Forms
             {
                 _material = TMaterial.CreateUnlitColorMaterialForward(Color);
                 _material.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-                _normalPrimitive = new PrimitiveManager(Segment.Mesh(Vec3.Zero, Vec3.Forward), _material);
-                _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), _material);
+                _normalPrimitive = new MeshRenderer(Segment.Mesh(Vec3.Zero, Vec3.Forward), _material);
+                _circlePrimitive = new MeshRenderer(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), _material);
                 _circleRC.Mesh = _circlePrimitive;
                 _normalRC.Mesh = _normalPrimitive;
                 _circleRC.NormalMatrix = Matrix3.Identity;

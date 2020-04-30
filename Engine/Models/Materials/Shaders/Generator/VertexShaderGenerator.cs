@@ -161,7 +161,7 @@ namespace TheraEngine.Rendering
             WriteUniform(EShaderVarType._mat4, EEngineUniform.ModelMatrix.ToString());
             WriteUniform(EShaderVarType._mat3, EEngineUniform.NormalMatrix.ToString());
             WriteUniform(EShaderVarType._mat4, EEngineUniform.WorldToCameraSpaceMatrix.ToString());
-            if (_info.BillboardMode != ETransformFlags.None)
+            if (_info.CameraTransformFlags != ECameraTransformFlags.None)
                 WriteUniform(EShaderVarType._mat4, EEngineUniform.CameraToWorldSpaceMatrix.ToString());
             WriteUniform(EShaderVarType._mat4, EEngineUniform.ProjMatrix.ToString());
             if (_info.IsWeighted)
@@ -372,7 +372,7 @@ namespace TheraEngine.Rendering
         private void ResolvePosition(string posName)
         {
             Line("mat4 ViewMatrix = WorldToCameraSpaceMatrix;");
-            if (_info.BillboardMode == ETransformFlags.None)
+            if (_info.CameraTransformFlags == ECameraTransformFlags.None)
             {
                 Line($"{posName} = ModelMatrix * vec4({posName}.xyz, 1.0f);");
                 Line($"{FragPosName} = {posName}.xyz;");
@@ -380,7 +380,7 @@ namespace TheraEngine.Rendering
                 return;
             }
             Line("mat4 BillboardMatrix = CameraToWorldSpaceMatrix;");
-            if (_info.BillboardMode.HasFlag(ETransformFlags.RotateX))
+            if (_info.CameraTransformFlags.HasFlag(ECameraTransformFlags.RotateX))
             {
                 //Do not align X column to be stationary from camera's viewpoint
                 Line("ViewMatrix[0][0] = 1.0f;");
@@ -397,7 +397,7 @@ namespace TheraEngine.Rendering
                 Line("BillboardMatrix[2][1] = 0.0f;");
                 Line("BillboardMatrix[2][2] = 1.0f;");
             }
-            if (_info.BillboardMode.HasFlag(ETransformFlags.RotateY))
+            if (_info.CameraTransformFlags.HasFlag(ECameraTransformFlags.RotateY))
             {
                 //Do not fix X column to rotate with camera
                 Line("BillboardMatrix[0][0] = 1.0f;");
@@ -414,7 +414,7 @@ namespace TheraEngine.Rendering
                 Line("BillboardMatrix[2][1] = 0.0f;");
                 Line("BillboardMatrix[2][2] = 1.0f;");
             }
-            if (_info.BillboardMode.HasFlag(ETransformFlags.RotateZ))
+            if (_info.CameraTransformFlags.HasFlag(ECameraTransformFlags.RotateZ))
             {
                 //Do not fix X column to rotate with camera
                 Line("BillboardMatrix[0][0] = 1.0f;");
@@ -431,19 +431,19 @@ namespace TheraEngine.Rendering
                 Line("ViewMatrix[2][1] = 0.0f;");
                 Line("ViewMatrix[2][2] = 1.0f;");
             }
-            if (_info.BillboardMode.HasFlag(ETransformFlags.ConstrainTranslationX))
+            if (_info.CameraTransformFlags.HasFlag(ECameraTransformFlags.ConstrainTranslationX))
             {
                 //Clear X translation
                 Line("ViewMatrix[3][0] = 0.0f;");
                 Line("BillboardMatrix[3][0] = 0.0f;");
             }
-            if (_info.BillboardMode.HasFlag(ETransformFlags.ConstrainTranslationY))
+            if (_info.CameraTransformFlags.HasFlag(ECameraTransformFlags.ConstrainTranslationY))
             {
                 //Clear Y translation
                 Line("ViewMatrix[3][1] = 0.0f;");
                 Line("BillboardMatrix[3][1] = 0.0f;");
             }
-            if (_info.BillboardMode.HasFlag(ETransformFlags.ConstrainTranslationZ))
+            if (_info.CameraTransformFlags.HasFlag(ECameraTransformFlags.ConstrainTranslationZ))
             {
                 //Clear Z translation
                 Line("ViewMatrix[3][2] = 0.0f;");
@@ -460,7 +460,7 @@ namespace TheraEngine.Rendering
     /// Determines how vertices should rotate and scale in relation to the camera.
     /// </summary>
     [Flags]
-    public enum ETransformFlags
+    public enum ECameraTransformFlags
     {
         /// <summary>
         /// No billboarding, all vertices are static.

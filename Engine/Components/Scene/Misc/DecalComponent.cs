@@ -65,14 +65,14 @@ namespace TheraEngine.Components.Scene
             {
                 if (_shape != null)
                 {
-                    _shape.HalfExtentsPreSet -= ShapeHalfExtentsPostSet;
+                    _shape.HalfExtentsPreSet -= ShapeHalfExtentsPreSet;
                     _shape.HalfExtentsPostSet -= ShapeHalfExtentsPostSet;
                     _shape.HalfExtents.Changed -= UpdateRenderCommandMatrix;
                 }
 
                 base.Shape = value;
 
-                _shape.HalfExtentsPreSet += ShapeHalfExtentsPostSet;
+                _shape.HalfExtentsPreSet += ShapeHalfExtentsPreSet;
                 _shape.HalfExtentsPostSet += ShapeHalfExtentsPostSet;
                 _shape.HalfExtents.Changed += UpdateRenderCommandMatrix;
             }
@@ -127,26 +127,26 @@ namespace TheraEngine.Components.Scene
                 return;
 
             Rendering.Models.Mesh decalMesh = BoundingBox.SolidMesh(-Vec3.One, Vec3.One);
-            RenderCommandDecal.Mesh = new PrimitiveManager(decalMesh, Material);
+            RenderCommandDecal.Mesh = new MeshRenderer(decalMesh, Material);
             RenderCommandDecal.Mesh.SettingUniforms += DecalManager_SettingUniforms;
 
             base.OnSpawned();
         }
-        protected virtual void DecalManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
+        protected virtual void DecalManager_SettingUniforms(RenderProgram vtxProg, RenderProgram matProg)
         {
-            if (materialProgram is null)
+            if (matProg is null)
                 return;
 
             Viewport v = Engine.Renderer.CurrentlyRenderingViewport;
             if (v != null)
             {
-                materialProgram.Sampler("Texture0", v.AlbedoOpacityTexture.RenderTextureGeneric, 0);
-                materialProgram.Sampler("Texture1", v.NormalTexture.RenderTextureGeneric, 1);
-                materialProgram.Sampler("Texture2", v.RMSITexture.RenderTextureGeneric, 2);
-                materialProgram.Sampler("Texture3", v.DepthViewTexture.RenderTextureGeneric, 3);
-                materialProgram.Uniform("BoxWorldMatrix", WorldMatrix);
-                materialProgram.Uniform("InvBoxWorldMatrix", InverseWorldMatrix);
-                materialProgram.Uniform("BoxHalfScale", _shape.HalfExtents.Raw);
+                matProg.Sampler("Texture0", v.AlbedoOpacityTexture, 0);
+                matProg.Sampler("Texture1", v.NormalTexture, 1);
+                matProg.Sampler("Texture2", v.RMSITexture, 2);
+                matProg.Sampler("Texture3", v.DepthViewTexture, 3);
+                matProg.Uniform("BoxWorldMatrix", WorldMatrix);
+                matProg.Uniform("InvBoxWorldMatrix", InverseWorldMatrix);
+                matProg.Uniform("BoxHalfScale", _shape.HalfExtents.Raw);
             }
         }
 

@@ -94,7 +94,7 @@ namespace TheraEngine.Rendering.UI
         }
 
         private RenderCommandMesh3D Command { get; }
-        private PrimitiveManager CharQuad => Command.Mesh;
+        private MeshRenderer CharQuad => Command.Mesh;
 
         public UITextQuadComponent() : base(null)
         {
@@ -116,7 +116,7 @@ namespace TheraEngine.Rendering.UI
             positionsBuffer.Location = 1;
             textureRegionsBuffer.Location = 2;
 
-            Command = new RenderCommandMesh3D(ERenderPass.TransparentForward) { Mesh = new PrimitiveManager(data, mat) };
+            Command = new RenderCommandMesh3D(ERenderPass.TransparentForward) { Mesh = new MeshRenderer(data, mat) };
         }
 
         protected override void OnResizeLayout(BoundingRectangleF parentRegion)

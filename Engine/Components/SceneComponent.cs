@@ -1019,7 +1019,7 @@ namespace TheraEngine.Components
                     DepthTest = new DepthTest { Enabled = ERenderParamUsage.Disabled },
                 }
             };
-            rc.Mesh = new PrimitiveManager(data, mat);
+            rc.Mesh = new MeshRenderer(data, mat);
             return rc;
         }
         protected internal override void OnHighlightChanged(bool highlighted)

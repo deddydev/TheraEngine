@@ -188,19 +188,26 @@ namespace TheraEngine.Actors.Types
             var renderMeshes = RootComponent?.Meshes;
             if (renderMeshes is null || renderMeshes.Count <= 0 || renderMeshes[0] is null)
                 return;
-            
+
             StaticRenderableMesh rmesh = renderMeshes[0];
             //rmesh.RenderInfo.CullingVolume = box.HardCopy();
-            if (rmesh.LODs is null || rmesh.LODs.Count == 0)
+            if (rmesh?.LODs is null || rmesh.LODs.Count == 0)
                 return;
 
             RenderableLOD rlod = rmesh.LODs[0];
             if (rlod is null)
                 return;
 
-            rlod.Manager.Data?.Dispose();
-            rlod.Manager.Data = BoundingBox.SolidMesh(-HalfExtents, HalfExtents, true, _uvType, TexCoordEdgeBias);
-            rlod.Manager.BufferInfo.BillboardMode = ETransformFlags.ConstrainTranslations;
+            MeshRenderer manager = rlod?.Manager;
+            if (manager is null)
+                return;
+            
+            manager.TargetMesh?.Dispose();
+            manager.TargetMesh = BoundingBox.SolidMesh(-HalfExtents, HalfExtents, true, _uvType, TexCoordEdgeBias);
+
+            var bufInfo = manager.BufferInfo;
+            if (bufInfo != null)
+                bufInfo.CameraTransformFlags = ECameraTransformFlags.ConstrainTranslations;
         }
         private void TextureUnloaded(TextureFile2D tex)
         {
@@ -249,7 +256,7 @@ namespace TheraEngine.Actors.Types
                 Material);
 
             foreach (LOD lod in mesh.LODs)
-                lod.TransformFlags = ETransformFlags.ConstrainTranslations;
+                lod.TransformFlags = ECameraTransformFlags.ConstrainTranslations;
             
             skybox.RigidChildren.Add(mesh);
 

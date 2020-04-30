@@ -37,7 +37,7 @@ namespace TheraEditor.Windows.Forms
                 new ShaderVec3((Vec3)Color.Yellow, "Color"),
 
             }, script1);
-            _highlightRC.Mesh = new PrimitiveManager(data1, highlightMat);
+            _highlightRC.Mesh = new MeshRenderer(data1, highlightMat);
 
             TMaterial selectedMat = new TMaterial("OutlineMaterial", new ShaderVar[]
             {
@@ -46,7 +46,7 @@ namespace TheraEditor.Windows.Forms
                 new ShaderVec3((Vec3)Color.Green, "Color"),
 
             }, script2);
-            _selectedRC.Mesh = new PrimitiveManager(data2, selectedMat);
+            _selectedRC.Mesh = new MeshRenderer(data2, selectedMat);
 
             TMaterial boundsMat = new TMaterial("OutlineMaterial", new ShaderVar[]
             {
@@ -54,7 +54,7 @@ namespace TheraEditor.Windows.Forms
                 new ShaderFloat(5.0f, "LineWidth"),
                 new ShaderVec3(Vec3.Half, "Color"),
             }, script3);
-            _uiBoundsRC.Mesh = new PrimitiveManager(data3, boundsMat);
+            _uiBoundsRC.Mesh = new MeshRenderer(data3, boundsMat);
 
             ContextMenu = new TMenuComponent();
             ContextMenu.ChildComponents.Add(new TMenuItemComponent());

@@ -20,7 +20,7 @@ namespace TheraEngine.Components.Scene
 
         void Update(float delta, DataBuffer[] instBufs, int instanceIndex, BaseParticleEmitterComponent component);
         void Initialize(BaseParticleEmitterComponent component);
-        void GenerateParticleMesh(BaseParticleEmitterComponent component, out PrimitiveManager mesh);
+        void GenerateParticleMesh(BaseParticleEmitterComponent component, out MeshRenderer mesh);
     }
     public abstract class BaseParticleEmitterComponent : TRComponent, I3DRenderable, IPreRendered
     {
@@ -33,7 +33,7 @@ namespace TheraEngine.Components.Scene
         [Category("Rendering")]
         public int ActiveInstances => ParticleMesh.Instances;
         [Category("Rendering")]
-        public PrimitiveManager ParticleMesh
+        public MeshRenderer ParticleMesh
         {
             get => _rc.Mesh;
             set => _rc.Mesh = value;
@@ -176,7 +176,7 @@ namespace TheraEngine.Components.Scene
                 IParticle p = this[i];
                 if (p.Life > 0.0f)
                 {
-                    var instBufs = ParticleMesh.Data.GetAllBuffersOfType(EBufferType.Other);
+                    var instBufs = ParticleMesh.TargetMesh.GetAllBuffersOfType(EBufferType.Other);
                     p.Update(delta, instBufs, instanceCount, this);
                     //Interlocked.Increment(ref instanceCount);
                     ++instanceCount;
@@ -225,7 +225,7 @@ namespace TheraEngine.Components.Scene
         protected override void GenerateParticleMesh()
         {
             TParticle ptcl = new TParticle();
-            ptcl.GenerateParticleMesh(this, out PrimitiveManager mesh);
+            ptcl.GenerateParticleMesh(this, out MeshRenderer mesh);
             ParticleMesh = mesh;
         }
         public override void OnSpawned()
@@ -292,7 +292,7 @@ namespace TheraEngine.Components.Scene
             ColorF4* colPtr = (ColorF4*)instBufs[1].Address;
             colPtr[instanceIndex] = Color;
         }
-        public void GenerateParticleMesh(BaseParticleEmitterComponent component, out PrimitiveManager mesh)
+        public void GenerateParticleMesh(BaseParticleEmitterComponent component, out MeshRenderer mesh)
         {
             Rendering.Models.Mesh data = Rendering.Models.Mesh.Create(VertexShaderDesc.JustPositions(), VertexQuad.PosZQuad(1, false, 0.0f, true));
 
@@ -309,7 +309,7 @@ namespace TheraEngine.Components.Scene
             GLSLScript frag = Engine.Files.Shader("ParticleInstance.fs", EGLSLType.Fragment);
             RenderingParameters rp = new RenderingParameters(true);
             TMaterial mat = new TMaterial("ParticleMaterial", rp, vert, frag);
-            mesh = new PrimitiveManager(data, mat);
+            mesh = new MeshRenderer(data, mat);
         }
     };
 }

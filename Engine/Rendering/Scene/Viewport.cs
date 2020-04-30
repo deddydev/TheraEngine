@@ -46,9 +46,9 @@ namespace TheraEngine.Rendering
         public QuadFrameBuffer ForwardPassFBO;
         public QuadFrameBuffer PostProcessFBO;
         public QuadFrameBuffer HUDFBO;
-        public PrimitiveManager PointLightManager;
-        public PrimitiveManager SpotLightManager;
-        public PrimitiveManager DirLightManager;
+        public MeshRenderer PointLightManager;
+        public MeshRenderer SpotLightManager;
+        public MeshRenderer DirLightManager;
         //public PrimitiveManager DecalManager;
         //public QuadFrameBuffer DirLightFBO;
         public ICamera RenderingCamera => RenderingCameras.Count > 0 ? RenderingCameras.Peek() : null;
@@ -838,7 +838,7 @@ namespace TheraEngine.Rendering
             fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
             using Mesh data = Mesh.Create(VertexShaderDesc.PosTex(), tris);
-            using PrimitiveManager quad = new PrimitiveManager(data, mat);
+            using MeshRenderer quad = new MeshRenderer(data, mat);
             BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
 
             //Now render the texture to the FBO using the quad
@@ -1039,13 +1039,13 @@ namespace TheraEngine.Rendering
                 Mesh spotLightMesh = Cone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
                 Mesh dirLightMesh = BoundingBox.SolidMesh(-Vec3.Half, Vec3.Half);
 
-                PointLightManager = new PrimitiveManager(pointLightMesh, pointLightMat);
+                PointLightManager = new MeshRenderer(pointLightMesh, pointLightMat);
                 PointLightManager.SettingUniforms += LightManager_SettingUniforms;
 
-                SpotLightManager = new PrimitiveManager(spotLightMesh, spotLightMat);
+                SpotLightManager = new MeshRenderer(spotLightMesh, spotLightMat);
                 SpotLightManager.SettingUniforms += LightManager_SettingUniforms;
                 
-                DirLightManager = new PrimitiveManager(dirLightMesh, dirLightMat);
+                DirLightManager = new MeshRenderer(dirLightMesh, dirLightMat);
                 DirLightManager.SettingUniforms += LightManager_SettingUniforms;
             
                 #endregion

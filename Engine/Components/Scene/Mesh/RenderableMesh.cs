@@ -14,7 +14,7 @@ namespace TheraEngine.Components.Scene.Mesh
 {
     public class RenderableLOD : TObject
     {
-        public PrimitiveManager Manager { get; set; }
+        public MeshRenderer Manager { get; set; }
         public float VisibleDistance { get; set; }
         public ShaderVar[] Parameters => Manager.Material.Parameters;
     }

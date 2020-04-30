@@ -309,11 +309,11 @@ namespace TheraEditor.Windows.Forms
 
             float maxVel = GetMaxSpeed();
 
-            var posBuf = _rcSpline.Mesh.Data[EBufferType.Position];
-            var colBuf = _rcSpline.Mesh.Data[EBufferType.Color];
-            var kfPosBuf = _rcKeyframeInOutPositions.Mesh.Data[EBufferType.Position];
-            var tanPosBuf = _rcTangentPositions.Mesh.Data[EBufferType.Position];
-            var keyLinesBuf = _rcKfLines.Mesh.Data[EBufferType.Position];
+            var posBuf = _rcSpline.Mesh.TargetMesh[EBufferType.Position];
+            var colBuf = _rcSpline.Mesh.TargetMesh[EBufferType.Color];
+            var kfPosBuf = _rcKeyframeInOutPositions.Mesh.TargetMesh[EBufferType.Position];
+            var tanPosBuf = _rcTangentPositions.Mesh.TargetMesh[EBufferType.Position];
+            var keyLinesBuf = _rcKfLines.Mesh.TargetMesh[EBufferType.Position];
 
             int i;
             float sec = 0.0f;
@@ -473,7 +473,7 @@ void main()
 }
 ")) { RenderParams = renderParams };
 
-            _rcSpline.Mesh = new PrimitiveManager(splinePosColor, mat);
+            _rcSpline.Mesh = new MeshRenderer(splinePosColor, mat);
             
             Mesh kfInOutPos = Mesh.Create(kfInOutPositions);
             foreach (var buf in kfInOutPos)
@@ -483,7 +483,7 @@ void main()
             }
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Green);
             mat.RenderParams = renderParams;
-            _rcKeyframeInOutPositions.Mesh = new PrimitiveManager(kfInOutPos, mat);
+            _rcKeyframeInOutPositions.Mesh = new MeshRenderer(kfInOutPos, mat);
 
             Mesh tanPos = Mesh.Create(kfInOutTangents);
             foreach (var buf in tanPos)
@@ -493,7 +493,7 @@ void main()
             }
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Purple);
             mat.RenderParams = renderParams;
-            _rcTangentPositions.Mesh = new PrimitiveManager(tanPos, mat);
+            _rcTangentPositions.Mesh = new MeshRenderer(tanPos, mat);
 
             Mesh kfLines = Mesh.Create(VertexShaderDesc.JustPositions(), keyframeLines);
             foreach (var buf in kfLines)
@@ -503,7 +503,7 @@ void main()
             }
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Orange);
             mat.RenderParams = renderParams;
-            _rcKfLines.Mesh = new PrimitiveManager(kfLines, mat);
+            _rcKfLines.Mesh = new MeshRenderer(kfLines, mat);
             
             _regenerating = false;
         }

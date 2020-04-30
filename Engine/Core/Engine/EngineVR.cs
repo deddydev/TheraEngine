@@ -67,11 +67,46 @@ namespace TheraEngine.Core
             public DeviceInfo(int index)
             {
                 Index = index;
-                Class = OpenVR.System.GetTrackedDeviceClass((uint)index);
+                uint idx = (uint)index;
+                Class = OpenVR.System.GetTrackedDeviceClass(idx);
+
+                ETrackedPropertyError error = ETrackedPropertyError.TrackedProp_Success;
+                int outInt32 = -1;
+
+                switch (Class)
+                {
+                    case ETrackedDeviceClass.HMD:
+                        break;
+
+                    case ETrackedDeviceClass.Controller:
+                        outInt32 = OpenVR.System.GetInt32TrackedDeviceProperty(idx, ETrackedDeviceProperty.Prop_ControllerRoleHint_Int32, ref error);
+                        if (VerifyNoPropertyError(error))
+                            ControllerType = (ETrackedControllerRole)outInt32;
+                        break;
+
+                    case ETrackedDeviceClass.GenericTracker:
+                        break;
+
+                    case ETrackedDeviceClass.TrackingReference:
+                        break;
+
+                    case ETrackedDeviceClass.DisplayRedirect:
+                        break;
+
+                    default:
+                    case ETrackedDeviceClass.Invalid:
+                        break;
+                }
+            }
+
+            private bool VerifyNoPropertyError(ETrackedPropertyError error)
+            {
+                return error == ETrackedPropertyError.TrackedProp_Success;
             }
 
             public int Index { get; }
-            public ETrackedDeviceClass Class { get; }
+            public ETrackedDeviceClass Class { get; } = ETrackedDeviceClass.Invalid;
+            public ETrackedControllerRole ControllerType { get; } = ETrackedControllerRole.Invalid;
             public DevicePoseInfo RenderPose { get; } = new DevicePoseInfo();
             public DevicePoseInfo UpdatePose { get; } = new DevicePoseInfo();
         }
@@ -191,8 +226,14 @@ namespace TheraEngine.Core
                 Engine.Out("VRComponent should not be null!");
             else
             {
-                UpdateCamera(VRComponent.LeftEye.Camera as VRCamera, LeftEye);
-                UpdateCamera(VRComponent.RightEye.Camera as VRCamera, RightEye);
+                VRCamera left = VRComponent.LeftEye.Camera as VRCamera;
+                VRCamera right = VRComponent.RightEye.Camera as VRCamera;
+
+                UpdateCamera(left, LeftEye);
+                left.PropertyChanged += LeftEyeCamera_PropertyChanged;
+
+                UpdateCamera(right, RightEye);
+                right.PropertyChanged += RightEyeCamera_PropertyChanged;
             }
         }
 
@@ -204,12 +245,29 @@ namespace TheraEngine.Core
             Matrix4 tfm = handler.GetEyeToHeadTransform();
             rc.CameraToComponentSpaceMatrix = tfm;
 
-            Matrix4 prj = handler.GetEyeProjectionMatrix();
+            Matrix4 prj = handler.GetEyeProjectionMatrix(rc.NearZ, rc.FarZ);
             rc.SetProjectionMatrix(prj);
 
             handler.Viewport.AttachedCamera = rc;
 
             //Engine.Out($"Right eye: [{tfm}] [{prj}]");
+        }
+
+        private static void LeftEyeCamera_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+            => CamPropChanged(VRComponent.LeftEye.Camera as VRCamera, LeftEye, e.PropertyName);
+
+        private static void RightEyeCamera_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+            => CamPropChanged(VRComponent.RightEye.Camera as VRCamera, RightEye, e.PropertyName);
+
+        private static void CamPropChanged(VRCamera cam, EyeHandler eye, string propertyName)
+        {
+            switch (propertyName)
+            {
+                case nameof(Camera.NearZ):
+                case nameof(Camera.FarZ):
+                    cam.SetProjectionMatrix(eye.GetEyeProjectionMatrix(cam.NearZ, cam.FarZ));
+                    break;
+            }
         }
 
         private static VRComponent VRComponent { get; set; }
@@ -264,8 +322,12 @@ namespace TheraEngine.Core
                 var rPose = _renderPoses[nDevice];
                 if (rPose.bPoseIsValid)
                 {
-                    var device = Devices[nDevice] ?? (Devices[nDevice] = new DeviceInfo(nDevice));
-
+                    var device = Devices[nDevice];
+                    if (device is null)
+                    {
+                        Devices[nDevice] = device = new DeviceInfo(nDevice);
+                        DeviceSet?.Invoke(nDevice);
+                    }
                     device.RenderPose.Update(rPose);
 
                     //Engine.Out($"Device {nDevice} render pose: {device.UpdatePose.DeviceToWorldMatrix}");
@@ -286,7 +348,7 @@ namespace TheraEngine.Core
         {
             bool hasError = error != EVRCompositorError.None;
             if (hasError)
-                Engine.Out($"OpenVR compositor error: {error.ToString()}");
+                Engine.Out($"OpenVR compositor error: {error}");
             return hasError;
         }
 
@@ -299,11 +361,9 @@ namespace TheraEngine.Core
                 get => EyeTarget == EVREye.Eye_Left;
                 set => EyeTarget = value ? EVREye.Eye_Left : EVREye.Eye_Right;
             }
-            public float NearZ { get; set; } = 0.1f;
-            public float FarZ { get; set; } = 10000.0f;
 
-            public Matrix4 GetEyeProjectionMatrix()
-                => OpenVR.System.GetProjectionMatrix(EyeTarget, NearZ, FarZ);
+            public Matrix4 GetEyeProjectionMatrix(float nearZ, float farZ)
+                => OpenVR.System.GetProjectionMatrix(EyeTarget, nearZ, farZ);
 
             public Matrix4 GetEyeToHeadTransform()
                 => OpenVR.System.GetEyeToHeadTransform(EyeTarget);

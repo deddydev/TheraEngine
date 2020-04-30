@@ -36,8 +36,8 @@ namespace TheraEngine.Rendering.Models
         void AddPhysicsBone(IBone bone);
         void RemovePhysicsBone(IBone bone);
 
-        void AddPrimitiveManager(IPrimitiveManager m);
-        void RemovePrimitiveManager(IPrimitiveManager m);
+        void AddPrimitiveManager(IMeshRenderer m);
+        void RemovePrimitiveManager(IMeshRenderer m);
         void SwapBuffers();
         void UpdateBones(ICamera c, Matrix4 worldMatrix, Matrix4 inverseWorldMatrix);
     }
@@ -192,23 +192,21 @@ namespace TheraEngine.Rendering.Models
             passes.Add(_rc);
         }
 
-        private Dictionary<int, IPrimitiveManager> _managers = new Dictionary<int, IPrimitiveManager>();
-        public void AddPrimitiveManager(IPrimitiveManager m)
+        private Dictionary<int, IMeshRenderer> _managers = new Dictionary<int, IMeshRenderer>();
+        public void AddPrimitiveManager(IMeshRenderer m)
         {
             if (!_managers.ContainsKey(m.BindingId))
                 _managers.Add(m.BindingId, m);
         }
-        public void RemovePrimitiveManager(IPrimitiveManager m)
+        public void RemovePrimitiveManager(IMeshRenderer m)
         {
             if (_managers.ContainsKey(m.BindingId))
                 _managers.Remove(m.BindingId);
         }
         public void SwapBuffers()
         {
-            foreach (IPrimitiveManager m in _managers.Values)
-            {
-                m.SwapModifiedBuffers();
-            }
+            foreach (IMeshRenderer m in _managers.Values)
+                m.SwapBuffers();
         }
         public void UpdateBones(ICamera c, Matrix4 worldMatrix, Matrix4 inverseWorldMatrix)
         {

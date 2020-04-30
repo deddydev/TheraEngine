@@ -6,13 +6,13 @@ using TheraEngine.Rendering.Models.Materials;
 namespace TheraEngine.Rendering
 {
     /// <summary>
-    /// Wrapper class to render a <see cref="PrimitiveManager"/> in a <see cref="BaseScene"/>.
+    /// Wrapper class to render a <see cref="MeshRenderer"/> in a <see cref="BaseScene"/>.
     /// Not attached to the component system.
     /// </summary>
     public class DirectMesh : I3DRenderable
     {
         public DirectMesh() { }
-        public DirectMesh(PrimitiveManager m)
+        public DirectMesh(MeshRenderer m)
         {
             Primitives = m;
             Transform = Matrix4.Identity;
@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering
                 _rc.NormalMatrix = Transform.Transposed().Inverted().GetRotationMatrix3();
             }
         }
-        public PrimitiveManager Primitives
+        public MeshRenderer Primitives
         {
             get => _rc.Mesh;
             set => _rc.Mesh = value;

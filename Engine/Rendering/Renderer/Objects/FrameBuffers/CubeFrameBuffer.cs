@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering
     {
         public event DelSetUniforms SettingUniforms;
 
-        private PrimitiveManager _cube;
+        private MeshRenderer _cube;
 
         public TypicalCamera[] Cameras { get; }
         public Vec3 Position { get; private set; }
@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering
 
             float middle = (nearZ + farZ) * 0.5f;
             Mesh cubeData = BoundingBox.SolidMesh(-middle, middle, true);
-            _cube = new PrimitiveManager(cubeData, Material);
+            _cube = new MeshRenderer(cubeData, Material);
             _cube.SettingUniforms += SetUniforms;
 
             Cameras = new TypicalCamera[6];

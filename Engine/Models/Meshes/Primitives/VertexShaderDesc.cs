@@ -35,13 +35,16 @@ namespace TheraEngine.Rendering.Models
         public bool HasTexCoords => TexcoordCount > 0;
         public bool HasColors => ColorCount > 0;
 
-        private ETransformFlags _billboardMode = ETransformFlags.None;
-        public ETransformFlags BillboardMode
+        private ECameraTransformFlags _cameraTransformFlags = ECameraTransformFlags.None;
+        /// <summary>
+        /// Specifies how vertices will move in relation to the camera.
+        /// </summary>
+        public ECameraTransformFlags CameraTransformFlags
         {
-            get => _billboardMode;
+            get => _cameraTransformFlags;
             set
             {
-                _billboardMode = value;
+                _cameraTransformFlags = value;
                 Changed?.Invoke();
             }
         }

@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering.Models.Materials
         protected ShaderVar[] _parameters;
         protected EventList<BaseTexRef> _textures;
         protected RenderProgram _program;
-        private List<PrimitiveManager> _references = new List<PrimitiveManager>();
+        private List<MeshRenderer> _references = new List<MeshRenderer>();
         private LocalFileRef<RenderingParameters> _renderParamsRef = new RenderingParameters();
 
         [Browsable(false)]
@@ -261,13 +261,13 @@ namespace TheraEngine.Rendering.Models.Materials
         public T2 Parameter<T2>(string name) where T2 : ShaderVar
             => Parameters.FirstOrDefault(x => x.Name == name) as T2;
 
-        internal void AddReference(PrimitiveManager user)
+        internal void AddReference(MeshRenderer user)
         {
             //if (_references.Count == 0)
             //    _uniqueID = Engine.Scene.AddActiveMaterial(this);
             _references.Add(user);
         }
-        internal void RemoveReference(PrimitiveManager user)
+        internal void RemoveReference(MeshRenderer user)
         {
             _references.Add(user);
             //if (_references.Count == 0)

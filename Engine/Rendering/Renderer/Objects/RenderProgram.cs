@@ -545,12 +545,18 @@ namespace TheraEngine.Rendering
         /// Passes a texture sampler into the fragment shader of this program by name.
         /// The name is cached so that retrieving the sampler's location is only required once.
         /// </summary>
-        public void Sampler(string name, BaseRenderTexture tref, int textureUnit)
+        public void Sampler(string name, BaseRenderTexture rtex, int textureUnit)
         {
             Engine.Renderer.SetActiveTexture(textureUnit);
             Uniform(name, textureUnit);
-            tref?.Bind();
+            rtex?.Bind();
         }
+        /// <summary>
+        /// Passes a texture sampler into the fragment shader of this program by name.
+        /// The name is cached so that retrieving the sampler's location is only required once.
+        /// </summary>
+        public void Sampler(string name, BaseTexRef tref, int textureUnit)
+            => Sampler(name, tref?.RenderTextureGeneric, textureUnit);
         /// <summary>
         /// Passes a texture sampler value into the fragment shader of this program by name.
         /// The name is cached so that retrieving the sampler's location is only required once.

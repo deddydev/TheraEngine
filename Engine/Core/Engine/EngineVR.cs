@@ -71,7 +71,7 @@ namespace TheraEngine.Core
                 Class = OpenVR.System.GetTrackedDeviceClass(idx);
 
                 ETrackedPropertyError error = ETrackedPropertyError.TrackedProp_Success;
-                int outInt32 = -1;
+                int outInt32;
 
                 switch (Class)
                 {
@@ -188,8 +188,8 @@ namespace TheraEngine.Core
             uint w = 0u, h = 0u;
             OpenVR.System.GetRecommendedRenderTargetSize(ref w, ref h);
             Engine.Out($"Eye resolution: {w}x{h}");
-            LeftEye.Viewport.SetInternalResolution((int)w, (int)h);
-            RightEye.Viewport.SetInternalResolution((int)w, (int)h);
+            LeftEye.Viewport.Resize((int)w, (int)h);
+            RightEye.Viewport.Resize((int)w, (int)h);
             CreateContext();
         }
 
@@ -229,15 +229,15 @@ namespace TheraEngine.Core
                 VRCamera left = VRComponent.LeftEye.Camera as VRCamera;
                 VRCamera right = VRComponent.RightEye.Camera as VRCamera;
 
-                UpdateCamera(left, LeftEye);
+                UpdateCamera(VRComponent.LeftEye, left, LeftEye);
                 left.PropertyChanged += LeftEyeCamera_PropertyChanged;
 
-                UpdateCamera(right, RightEye);
+                UpdateCamera(VRComponent.RightEye, right, RightEye);
                 right.PropertyChanged += RightEyeCamera_PropertyChanged;
             }
         }
 
-        private static void UpdateCamera(VRCamera rc, EyeHandler handler)
+        private static void UpdateCamera(CameraComponent comp, VRCamera rc, EyeHandler handler)
         {
             if (rc is null || handler is null)
                 return;
@@ -270,7 +270,7 @@ namespace TheraEngine.Core
             }
         }
 
-        private static VRComponent VRComponent { get; set; }
+        private static VRPlaySpaceComponent VRComponent { get; set; }
 
         public static void Shutdown()
         {
@@ -283,25 +283,27 @@ namespace TheraEngine.Core
 
         public static void PreRenderUpdate()
         {
+            //UpdateLogicPoses();
+            LeftEye.PreRenderUpdate();
+            RightEye.PreRenderUpdate();
         }
         public static void SwapBuffers()
         {
-            OpenVR.Compositor.WaitGetPoses(_renderPoses, _updatePoses);
-            LeftEye.PreRenderUpdate();
-            RightEye.PreRenderUpdate();
-            UpdatePoses();
+            UpdateAllPoses();
             LeftEye.PreRenderSwap();
             RightEye.PreRenderSwap();
         }
         public static void Render()
         {
             //TODO: stereo render to both texture targets in parallel?
-            //LeftEye.Render();
-            //RightEye.Render();
-            //LeftEye.Submit();
-            //RightEye.Submit();
+            OpenVR.Compositor.WaitGetPoses(_renderPoses, _updatePoses);
+            //UpdateRenderPoses();
+            LeftEye.Render();
+            RightEye.Render();
+            LeftEye.Submit();
+            RightEye.Submit();
         }
-        private static void UpdatePoses()
+        private static void UpdateAllPoses()
         {
             for (int nDevice = 0; nDevice < Devices.Length; ++nDevice)
             {
@@ -333,10 +335,44 @@ namespace TheraEngine.Core
                     //Engine.Out($"Device {nDevice} render pose: {device.UpdatePose.DeviceToWorldMatrix}");
                 }
             }
+        }
+        private static void UpdateLogicPoses()
+        {
+            for (int nDevice = 0; nDevice < Devices.Length; ++nDevice)
+            {
+                var uPose = _updatePoses[nDevice];
+                if (uPose.bPoseIsValid)
+                {
+                    var device = Devices[nDevice];
+                    if (device is null)
+                    {
+                        Devices[nDevice] = device = new DeviceInfo(nDevice);
+                        DeviceSet?.Invoke(nDevice);
+                    }
+                    device.UpdatePose.Update(uPose);
 
-            //var hmdDevice = Devices[OpenVR.k_unTrackedDeviceIndex_Hmd];
-            //if (hmdDevice != null && hmdDevice.UpdatePose.ValidPose && VRComponent != null)
-            //    VRComponent.HMD.InverseWorldMatrix = hmdDevice.UpdatePose.DeviceToWorldMatrix;
+                    //Engine.Out($"Device {nDevice} update pose: {device.UpdatePose.DeviceToWorldMatrix}");
+                }
+            }
+        }
+        private static void UpdateRenderPoses()
+        {
+            for (int nDevice = 0; nDevice < Devices.Length; ++nDevice)
+            {
+                var rPose = _renderPoses[nDevice];
+                if (rPose.bPoseIsValid)
+                {
+                    var device = Devices[nDevice];
+                    if (device is null)
+                    {
+                        Devices[nDevice] = device = new DeviceInfo(nDevice);
+                        DeviceSet?.Invoke(nDevice);
+                    }
+                    device.RenderPose.Update(rPose);
+
+                    //Engine.Out($"Device {nDevice} render pose: {device.UpdatePose.DeviceToWorldMatrix}");
+                }
+            }
         }
 
         /// <summary>
@@ -377,7 +413,7 @@ namespace TheraEngine.Core
             };
             Texture_t _eyeTex = new Texture_t
             {
-                eColorSpace = EColorSpace.Gamma,
+                eColorSpace = EColorSpace.Auto,
                 eType = ETextureType.OpenGL,
             };
             public void PreRenderUpdate()

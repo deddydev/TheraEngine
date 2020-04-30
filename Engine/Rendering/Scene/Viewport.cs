@@ -164,7 +164,7 @@ namespace TheraEngine.Rendering
         public BoundingRectangle BloomRect2;
         //public BoundingRectangle BloomRect1;
 
-        public void SetInternalResolution(int width, int height)
+        public virtual void SetInternalResolution(int width, int height)
         {
             _internalResolution.Width = width;
             _internalResolution.Height = height;
@@ -180,9 +180,9 @@ namespace TheraEngine.Rendering
             //BloomRect1.Width = width;
             //BloomRect1.Height = height;
 
-            //ClearFBOs();
             _camera?.Resize(width, height);
 
+            //This will clear and regenerate all FBOs on the next render
             FBOsInitialized = false;
         }
 

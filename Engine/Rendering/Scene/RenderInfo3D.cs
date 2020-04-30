@@ -119,9 +119,7 @@ namespace TheraEngine.Rendering
             if (r3d is null || scene is null)
                 return;
 
-            Scene = null;
             IsVisible = false;
-
             Scene = scene;
             Owner = r3d;
 

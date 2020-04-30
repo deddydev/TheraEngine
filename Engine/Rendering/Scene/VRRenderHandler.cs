@@ -9,12 +9,12 @@ namespace TheraEngine.Rendering.Scene
     public class VRRenderHandler : BaseRenderHandler
     {
         public RenderContext TrueContext { get; set; }
-        public Pawn<VRComponent> VRPawn { get; set; }
-        public VRComponent VRComponent => VRPawn?.RootComponent;
+        public Pawn<VRPlaySpaceComponent> VRPawn { get; set; }
+        public VRPlaySpaceComponent VRComponent => VRPawn?.RootComponent;
 
         public VRRenderHandler()
         {
-            VRPawn = new Pawn<VRComponent>(false, ELocalPlayerIndex.One);
+            VRPawn = new Pawn<VRPlaySpaceComponent>(false, ELocalPlayerIndex.One);
             PostWorldChanged();
             LinkEngineWorldChangeEvents();
         }

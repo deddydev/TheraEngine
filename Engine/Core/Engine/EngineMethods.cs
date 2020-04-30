@@ -1086,14 +1086,14 @@ namespace TheraEngine
             {
                 Form form = new Form
                 {
-                    Width = 0,
-                    Height = 0,
+                    Width = 100,
+                    Height = 100,
                     Text = string.Empty,
-                    Visible = false,
-                    FormBorderStyle = FormBorderStyle.None,
-                    ShowIcon = false,
-                    ShowInTaskbar = false,
-                    HelpButton = false,
+                    Visible = true,
+                    //FormBorderStyle = FormBorderStyle.None,
+                    //ShowIcon = false,
+                    //ShowInTaskbar = false,
+                    //HelpButton = false,
                 };
                 form.Show();
                 Out("Showed dummy form.");

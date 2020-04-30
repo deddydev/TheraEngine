@@ -6,7 +6,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Cameras
 {
-    public class VRCamera : Camera
+    public class VRCamera : TypicalCamera
     {
         public VRCamera() : base() { }
 
@@ -18,7 +18,6 @@ namespace TheraEngine.Rendering.Cameras
         
         public override float NearZ { get; set; }
         public override float FarZ { get; set; }
-        public override bool UsesAutoExposure { get; }
 
         protected override void OnCalculateProjection(out Matrix4 projMatrix, out Matrix4 inverseProjMatrix)
         {
@@ -82,24 +81,8 @@ namespace TheraEngine.Rendering.Cameras
         }
         protected override void OnCreateTransform(out Matrix4 cameraToWorldSpaceMatrix, out Matrix4 worldToCameraSpaceMatrix)
         {
-            cameraToWorldSpaceMatrix = Matrix4.Identity;
-            worldToCameraSpaceMatrix = Matrix4.Identity;
-        }
-        public override void SetBloomUniforms(RenderProgram program)
-        {
-
-        }
-        public override void SetAmbientOcclusionUniforms(RenderProgram program)
-        {
-
-        }
-        public override void SetPostProcessUniforms(RenderProgram program)
-        {
-
-        }
-        public override void UpdateExposure(TexRef2D texture)
-        {
-
+            cameraToWorldSpaceMatrix = CameraToComponentSpaceMatrix;
+            worldToCameraSpaceMatrix = ComponentToCameraSpaceMatrix;
         }
     }
 }

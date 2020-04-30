@@ -49,6 +49,9 @@ namespace TheraEngine.Rendering.UI
             ScreenSpaceCamera.Resize(1, 1);
 
             _screenSpaceUIScene = new Scene2D();
+
+            RenderInfo3D.IsVisible = false;
+            RenderInfo2D.IsVisible = false;
         }
 
         private float _cameraDrawSpaceDistance = 0.1f;
@@ -59,7 +62,27 @@ namespace TheraEngine.Rendering.UI
         public ECanvasDrawSpace DrawSpace
         {
             get => _drawSpace;
-            set => Set(ref _drawSpace, value);
+            set
+            {
+                if (Set(ref _drawSpace, value))
+                {
+                    switch (_drawSpace)
+                    {
+                        case ECanvasDrawSpace.Camera:
+                            RenderInfo3D.IsVisible = true;
+                            RenderInfo2D.IsVisible = true;
+                            break;
+                        case ECanvasDrawSpace.Screen:
+                            RenderInfo3D.IsVisible = false;
+                            RenderInfo2D.IsVisible = false;
+                            break;
+                        case ECanvasDrawSpace.World:
+                            RenderInfo3D.IsVisible = true;
+                            RenderInfo2D.IsVisible = true;
+                            break;
+                    }
+                }
+            }
         }
         public float CameraDrawSpaceDistance
         {
@@ -78,11 +101,6 @@ namespace TheraEngine.Rendering.UI
         public Vec2 CursorPositionWorld { get; private set; }
 
         public bool PreRenderEnabled { get; }
-
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
-        {
-            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
-        }
 
         protected override void OnResizeLayout(BoundingRectangleF parentRegion)
         {

@@ -87,6 +87,7 @@ namespace TheraEngine.Rendering.Cameras
     {
         protected Camera()
         {
+            _postProcessSettingsRef = new PostProcessSettings();
             _renderCommand = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
             _transformedFrustum = new Frustum();
         }
@@ -99,6 +100,8 @@ namespace TheraEngine.Rendering.Cameras
 
         public abstract float NearZ { get; set; }
         public abstract float FarZ { get; set; }
+
+        private PostProcessSettings _postProcessSettingsRef;
 
         [Browsable(false)]
         public Matrix4 ProjectionMatrix => _projectionMatrix;
@@ -178,7 +181,15 @@ namespace TheraEngine.Rendering.Cameras
                 UpdateTransformedFrustum();
             }
         }
-        
+
+        [DisplayName("Post-Processing")]
+        [Category("Camera")]
+        public LocalFileRef<PostProcessSettings> PostProcessRef
+        {
+            get => _postProcessSettingsRef;
+            set => _postProcessSettingsRef = value ?? new PostProcessSettings();
+        }
+
         protected SceneComponent _owningComponent;
         internal Vec3 _projectionRange;
         internal Vec3 _projectionOrigin;
@@ -459,12 +470,16 @@ namespace TheraEngine.Rendering.Cameras
         public virtual void Resize(float width, float height)
             => CalculateProjection();
 
-        public abstract void SetBloomUniforms(RenderProgram program);
-        public abstract void SetAmbientOcclusionUniforms(RenderProgram program);
-        public abstract void SetPostProcessUniforms(RenderProgram program);
+        public virtual void SetAmbientOcclusionUniforms(RenderProgram program)
+            => PostProcessRef?.File?.AmbientOcclusion?.SetUniforms(program);
+        public virtual void SetBloomUniforms(RenderProgram program)
+            => PostProcessRef?.File?.Bloom?.SetUniforms(program);
+        public virtual void SetPostProcessUniforms(RenderProgram program)
+            => PostProcessRef?.File?.SetUniforms(program);
 
-        public abstract bool UsesAutoExposure { get; }
-
-        public abstract void UpdateExposure(TexRef2D texture);
+        public virtual bool UsesAutoExposure
+            => PostProcessRef?.File?.ColorGrading?.RequiresAutoExposure ?? false;
+        public virtual void UpdateExposure(TexRef2D texture)
+            => PostProcessRef?.File?.ColorGrading?.UpdateExposure(texture);
     }
 }

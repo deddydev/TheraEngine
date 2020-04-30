@@ -10,15 +10,16 @@ using Valve.VR;
 namespace TheraEngine.Components.Scene
 {
     [TFileDef("VR Component")]
-    public class VRComponent : OriginRebasableComponent
+    public class VRPlaySpaceComponent : OriginRebasableComponent
     {
-        public VRComponent()
+        public VRPlaySpaceComponent()
         {
             LeftEye = new CameraComponent(new VRCamera() { NearZ = 0.1f, FarZ = 10000.0f }) { AllowRemoval = false };
             RightEye = new CameraComponent(new VRCamera() { NearZ = 0.1f, FarZ = 10000.0f }) { AllowRemoval = false };
 
-            for (int i = 0; i < EngineVR.Devices.Length; ++i)
-                EngineVR_DeviceSet(i);
+            if (EngineVR.Devices != null)
+                for (int i = 0; i < EngineVR.Devices.Length; ++i)
+                    EngineVR_DeviceSet(i);
 
             EngineVR.DeviceSet += EngineVR_DeviceSet;
         }
@@ -37,7 +38,6 @@ namespace TheraEngine.Components.Scene
                 AllowRemoval = false,
                 DeviceIndex = index
             };
-            ChildComponents.Add(comp);
 
             var dclass = device.Class;
             if (Devices.ContainsKey(dclass))
@@ -49,9 +49,10 @@ namespace TheraEngine.Components.Scene
             {
                 case ETrackedDeviceClass.HMD:
                     {
-                        HMD = comp;
                         comp.ChildComponents.Add(LeftEye);
                         comp.ChildComponents.Add(RightEye);
+                        HMD = comp;
+                        Engine.Out("Created VR HMD component.");
                     }
                     break;
                 case ETrackedDeviceClass.Controller:
@@ -64,18 +65,24 @@ namespace TheraEngine.Components.Scene
 
                             case ETrackedControllerRole.LeftHand:
                                 LeftHand = comp;
+                                Engine.Out("Created VR left hand component.");
                                 break;
 
                             case ETrackedControllerRole.RightHand:
                                 RightHand = comp;
+                                Engine.Out("Created VR right hand component.");
                                 break;
                         }
                     }
                     break;
                 case ETrackedDeviceClass.GenericTracker:
                     _trackers.Add(comp);
+                    Engine.Out("Created VR tracker component.");
                     break;
             }
+
+            comp.RegisterDeviceEvents();
+            ChildComponents.Add(comp);
         }
 
         public VRDeviceComponent HMD { get; private set; }

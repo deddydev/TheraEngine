@@ -925,7 +925,7 @@ namespace TheraEngine.Rendering.OpenGL
         {
             if (buffer.IsMapped)
             {
-                UnmapBufferData(buffer);
+                //UnmapBufferData(buffer);
                 return;
             }
 

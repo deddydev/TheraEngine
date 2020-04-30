@@ -278,7 +278,7 @@ namespace TheraEngine.Components
         [Category("Transform")]
         public Vec3 Velocity { get; private set; }
 
-        [Browsable(false)]
+        //[Browsable(false)]
         [Category("Transform")]
         public virtual Matrix4 WorldMatrix
         {
@@ -394,15 +394,23 @@ namespace TheraEngine.Components
                 if (base.OwningActor == value)
                     return;
 
+                bool sceneChange = OwningActor?.OwningScene != value?.OwningScene;
+                if (sceneChange && IsSpawned)
+                    OnDespawned();
+                
                 base.OwningActor = value;
 
                 try
                 {
                     //_childLocker.EnterReadLock();
 
+                    //TODO: redundant but safe
                     foreach (IComponent c in _children)
                         if (c != null)
                             c.OwningActor = value;
+
+                    if (sceneChange && IsSpawned)
+                        OnSpawned();
                 }
                 catch (Exception ex)
                 {
@@ -637,16 +645,9 @@ namespace TheraEngine.Components
             {
                 _parent?.ChildComponents.Remove(this);
                 _parent = value;
-                if (_parent != null)
-                {
-                    if (!_parent.ChildComponents.Contains(this))
-                        _parent.ChildComponents.Add(this);
-                    OwningActor = _parent.OwningActor;
-                }
-                else
-                {
-                    OwningActor = null;
-                }
+                if (_parent != null && !_parent.ChildComponents.Contains(this))
+                    _parent.ChildComponents.Add(this);
+                OwningActor = _parent?.OwningActor;
             }
         }
 
@@ -871,7 +872,11 @@ namespace TheraEngine.Components
         {
             item.AddedToParent(this);
         }
-        void ISocket.SetParentInternal(ISocket parent) => _parent = parent;
+        void ISocket.SetParentInternal(ISocket parent)
+        {
+            ParentSocket = parent;
+            RecalcWorldTransform();
+        }
         #endregion
 
         #region Sockets
@@ -1055,15 +1060,11 @@ namespace TheraEngine.Components
         void ISceneComponent.RemovedFromParent()
         {
             ((ISocket)this).SetParentInternal(null);
-            OwningActor = null;
-            RecalcWorldTransform();
         }
         void ISceneComponent.AddedToParent(ISocket parent)
         {
             //Trace.WriteLine($"Added {this} to parent {parent}.");
             ((ISocket)this).SetParentInternal(parent);
-            OwningActor = parent.OwningActor;
-            RecalcWorldTransform();
         }
     }
 }

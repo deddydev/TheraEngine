@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using TheraEngine.ComponentModel;
 using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    [Flags]
     public enum EGLSLType
     {
         Vertex          = 01, // https://www.opengl.org/wiki/Vertex_Shader

@@ -27,7 +27,6 @@ namespace TheraEngine.Rendering.Cameras
             : this(width, height, nearZ, farZ, Vec3.Zero, Rotator.GetZero()) { }
         protected TypicalCamera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation) : base()
         {
-            _postProcessSettingsRef = new PostProcessSettings();
             _localRotation = rotation;
             _localPoint = point;
             _nearZ = nearZ;
@@ -107,13 +106,6 @@ namespace TheraEngine.Rendering.Cameras
                 _localRotation.Changed += CreateTransform;
                 CreateTransform();
             }
-        }
-        [DisplayName("Post-Processing")]
-        [Category("Camera")]
-        public LocalFileRef<PostProcessSettings> PostProcessRef
-        {
-            get => _postProcessSettingsRef;
-            set => _postProcessSettingsRef = value ?? new PostProcessSettings();
         }
         [Category("Camera")]
         [TSerialize]
@@ -282,17 +274,5 @@ namespace TheraEngine.Rendering.Cameras
             LocalPoint.Raw = TMath.ArcballTranslation(pitch, yaw, origin, LocalPoint.Raw, RightVector);
             LocalRotation.AddRotations(pitch, yaw, 0.0f);
         }
-
-        public override void SetAmbientOcclusionUniforms(RenderProgram program) 
-            => PostProcessRef?.File?.AmbientOcclusion?.SetUniforms(program);
-        public override void SetBloomUniforms(RenderProgram program)
-            => PostProcessRef?.File?.Bloom?.SetUniforms(program);
-        public override void SetPostProcessUniforms(RenderProgram program)
-            => PostProcessRef?.File?.SetUniforms(program);
-
-        public override bool UsesAutoExposure 
-            => PostProcessRef?.File?.ColorGrading?.RequiresAutoExposure ?? false;
-        public override void UpdateExposure(TexRef2D texture)
-            => PostProcessRef?.File?.ColorGrading?.UpdateExposure(texture);
     }
 }

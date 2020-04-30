@@ -530,7 +530,7 @@
     <Compile Include="Components\Logic\Scripting\ScriptComponent.cs" />
     <Compile Include="Components\Scene\Misc\AudioComponent.cs" />
     <Compile Include="Components\Scene\VR\VRDeviceComponent.cs" />
-    <Compile Include="Components\Scene\VR\VRComponent.cs" />
+    <Compile Include="Components\Scene\VR\VRPlaySpaceComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\XAligned\CapsuleXComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\ZAligned\CapsuleZComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Shape3DComponent.cs" />

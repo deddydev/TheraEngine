@@ -8,36 +8,28 @@ namespace TheraEngine.Rendering.Scene
     {
         public VRViewport() : base(new VRRenderHandler(), 0) => Resize(1080, 1200);
 
-        public QuadFrameBuffer FBO { get; set; }
+        public MaterialFrameBuffer FBO { get; set; }
         public TexRef2D EyeTexture { get; set; }
 
         protected void InitOutputFBO()
         {
-            RenderingParameters renderParams = new RenderingParameters()
-            {
-                DepthTest =
+            FBO = new MaterialFrameBuffer(new TMaterial("VREyeMat",
+                new BaseTexRef[]
                 {
-                    Enabled = ERenderParamUsage.Unchanged,
-                    UpdateDepth = false,
-                    Function = EComparison.Always,
-                }
-            };
-
-            GLSLScript shader = Engine.Files.Shader(Path.Combine(SceneShaderPath, "HudFBO.fs"), EGLSLType.Fragment);
-
-            EyeTexture = TexRef2D.CreateFrameBufferTexture(
-                "VREyeTex",
-                InternalResolution.Extents,
-                EPixelInternalFormat.Rgba8, 
-                EPixelFormat.Rgba,
-                EPixelType.UnsignedByte);
-
-            FBO = new QuadFrameBuffer(new TMaterial("VREyeMat", renderParams, new TexRef2D[] { EyeTexture }, shader));
-            FBO.SetRenderTargets((EyeTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
+                    EyeTexture = TexRef2D.CreateFrameBufferTexture(
+                        "VREyeTex", 
+                        InternalResolution.Width,
+                        InternalResolution.Height,
+                        EPixelInternalFormat.Rgba,
+                        EPixelFormat.Bgra,
+                        EPixelType.UnsignedByte,
+                        EFramebufferAttachment.ColorAttachment0),
+                },
+                Engine.Files.Shader(Path.Combine("Common", "UnlitTexturedForward.fs"), EGLSLType.Fragment)));
         }
         public IntPtr VRRender()
         {
-            if (FBO is null)
+            if (!FBOsInitialized || FBO is null)
                 InitOutputFBO();
             
             Render(FBO);

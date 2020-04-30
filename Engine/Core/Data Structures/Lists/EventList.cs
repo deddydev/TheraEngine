@@ -259,6 +259,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.Add(item);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -287,7 +291,12 @@ namespace System.Collections.Generic
             {
                 //_locker?.EnterReadLock();
                 return _list.Contains(item);
-            }
+            }      
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //    return false;
+            //}
             finally
             {
                 //_locker?.ExitReadLock();
@@ -328,6 +337,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.AddRange(collection);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -369,12 +382,16 @@ namespace System.Collections.Generic
                 }
             }
 
-            bool success = false;
+            bool success;
             try
             {
                 //_locker?.EnterWriteLock();
                 success = _list.Remove(item);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -431,6 +448,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.RemoveRange(index, count);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -483,6 +504,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.RemoveAt(index);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -534,6 +559,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.Clear();
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -590,6 +619,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.RemoveAll(match);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -619,6 +652,11 @@ namespace System.Collections.Generic
                 //_locker?.EnterReadLock();
                 return _list.FindAll(match);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //    return default;
+            //}
             finally
             {
                 //_locker?.ExitReadLock();
@@ -656,6 +694,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.Insert(index, item);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -710,6 +752,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.InsertRange(index, collection);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -745,6 +791,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.Reverse(index, count);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -769,6 +819,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.Reverse();
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -793,6 +847,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.Sort(index, count, comparer);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -817,6 +875,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.Sort();
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -841,6 +903,10 @@ namespace System.Collections.Generic
                 //_locker?.EnterWriteLock();
                 _list.Sort(comparer);
             }
+            //catch (Exception ex)
+            //{
+            //    Engine.LogException(ex);
+            //}
             finally
             {
                 //_locker?.ExitWriteLock();
@@ -860,6 +926,11 @@ namespace System.Collections.Generic
                     //_locker?.EnterReadLock();
                     return _list[index];
                 }
+                //catch (Exception ex)
+                //{
+                //    Engine.LogException(ex);
+                //    return default;
+                //}
                 finally
                 {
                     //_locker?.ExitReadLock();
@@ -882,13 +953,17 @@ namespace System.Collections.Generic
                     if (!(PreIndexSet?.Invoke(index, value) ?? true))
                         return;
                 }
-                T prev = default;
+                T prev;
                 try
                 {
                     //_locker?.EnterWriteLock();
                     prev = _list[index];
                     _list[index] = value;
                 }
+                //catch (Exception ex)
+                //{
+                //    Engine.LogException(ex);
+                //}
                 finally
                 {
                     //_locker?.ExitWriteLock();
@@ -946,9 +1021,8 @@ namespace System.Collections.Generic
         private class ThreadSafeEnumerator : IEnumerator<T>
         {
             private int _currentIndex = 0;
-            private T _current;
-            private List<T> _list;
-            private ReaderWriterLockSlim _locker;
+            private readonly List<T> _list;
+            private readonly ReaderWriterLockSlim _locker;
 
             public ThreadSafeEnumerator(List<T> list, ReaderWriterLockSlim locker)
             {
@@ -956,13 +1030,10 @@ namespace System.Collections.Generic
                 _locker = locker;
             }
 
-            public T Current => _current;
-            object IEnumerator.Current => _current;
+            public T Current { get; private set; }
+            object IEnumerator.Current => Current;
 
-            public void Dispose()
-            {
-                _locker?.ExitReadLock();
-            }
+            public void Dispose() => _locker?.ExitReadLock();
             public bool MoveNext()
             {
                 int index = _currentIndex;
@@ -972,7 +1043,7 @@ namespace System.Collections.Generic
                     return false;
 
                 ++_currentIndex;
-                _current = _list[index];
+                Current = _list[index];
 
                 if (index == 0)
                     _locker?.EnterReadLock();
@@ -988,7 +1059,7 @@ namespace System.Collections.Generic
                     _locker?.ExitReadLock();
 
                 _currentIndex = 0;
-                _current = _list.Count == 0 ? default : _list[0];
+                Current = _list.Count == 0 ? default : _list[0];
             }
         }
     }

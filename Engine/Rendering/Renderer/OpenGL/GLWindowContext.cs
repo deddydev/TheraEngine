@@ -86,9 +86,7 @@ namespace TheraEngine.Rendering.OpenGL
 
             string messageStr = new string((sbyte*)messagePtr);
             //if (severity == DebugSeverity.DebugSeverityNotification || type == DebugType.DebugTypeOther || _printMessageIds.IndexOf(id) >= 0)
-                Engine.LogWarning(string.Format(
-                    "OPENGL NOTIF: {0} {1} {2} {3} {4}", 
-                    source, type, id, severity, messageStr), 1, 5);
+                Engine.LogWarning($"OPENGL NOTIF: {source} {type} {id} {severity} {messageStr}", 1, 5);
             //else
             //    throw new Exception(string.Format("OPENGL ERROR: {0} {1} {2} {3} {4}", source, type, id, severity, s));
             //    Engine.PrintLine("OPENGL NOTIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);

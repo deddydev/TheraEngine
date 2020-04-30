@@ -29,21 +29,20 @@ namespace TheraEngine.Components.Scene
 
             _rcPoint.Mesh = new MeshRenderer(pointData, mat);
 
-            EngineVR.DeviceSet += EngineVR_DeviceSet;
+            //EngineVR.DeviceSet += EngineVR_DeviceSet;
         }
 
-        private void EngineVR_DeviceSet(int obj)
-        {
-            if (obj == DeviceIndex && Device != null)
-            {
-                Device.UpdatePose.Updated += UpdatePose_Updated;
-                Device.RenderPose.Updated += RenderPose_Updated;
-            }
-        }
+        //private void EngineVR_DeviceSet(int obj)
+        //{
+        //    if (obj == DeviceIndex && Device != null)
+        //    {
+        //        RegisterDeviceEvents();
+        //    }
+        //}
 
         private void RenderPose_Updated(EngineVR.DevicePoseInfo obj)
         {
-            _rcPoint.WorldMatrix = ParentWorldMatrix * obj.DeviceToWorldMatrix.Transposed();
+            _rcPoint.WorldMatrix = ParentWorldMatrix * obj.DeviceToWorldMatrix;
         }
 
         private void UpdatePose_Updated(EngineVR.DevicePoseInfo obj)
@@ -60,8 +59,8 @@ namespace TheraEngine.Components.Scene
             }
             else
             {
-                inverseLocalTransform = Device.UpdatePose.DeviceToWorldMatrix.Transposed().Inverted();
-                localTransform = Device.UpdatePose.DeviceToWorldMatrix.Transposed();
+                localTransform = Device.UpdatePose.DeviceToWorldMatrix;
+                inverseLocalTransform = Device.UpdatePose.DeviceToWorldMatrix.Inverted();
             }
         }
         protected internal override void OnOriginRebased(Vec3 newOrigin)
@@ -70,7 +69,7 @@ namespace TheraEngine.Components.Scene
         }
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
-            _rcPoint.WorldMatrix = WorldMatrix;
+            //_rcPoint.WorldMatrix = WorldMatrix;
             base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 
@@ -78,6 +77,12 @@ namespace TheraEngine.Components.Scene
         void I3DRenderable.AddRenderables(RenderPasses passes, ICamera camera)
         {
             passes.Add(_rcPoint);
+        }
+
+        internal void RegisterDeviceEvents()
+        {
+            Device.UpdatePose.Updated += UpdatePose_Updated;
+            Device.RenderPose.Updated += RenderPose_Updated;
         }
     }
 }

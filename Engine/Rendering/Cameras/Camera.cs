@@ -376,7 +376,7 @@ namespace TheraEngine.Rendering.Cameras
             _projectionRange = new Vec3(Dimensions, 1.0f);
             _projectionOrigin = new Vec3(Origin, 0.0f);
 
-            _untransformedFrustum = CreateUntransformedFrustum();
+            _untransformedFrustum = CreateUntransformedFrustum2();
             UpdateTransformedFrustum();
 
             _matrixInvalidated = true;
@@ -392,6 +392,18 @@ namespace TheraEngine.Rendering.Cameras
         }
 
         protected abstract IFrustum CreateUntransformedFrustum();
+        protected IFrustum CreateUntransformedFrustum2()
+        {
+            return new Frustum(
+               ScreenToWorld(0.0f, 0.0f, 1.0f),
+               ScreenToWorld(1.0f, 0.0f, 1.0f),
+               ScreenToWorld(0.0f, 1.0f, 1.0f),
+               ScreenToWorld(1.0f, 1.0f, 1.0f),
+               ScreenToWorld(0.0f, 0.0f, 0.0f),
+               ScreenToWorld(1.0f, 0.0f, 0.0f),
+               ScreenToWorld(0.0f, 1.0f, 0.0f),
+               ScreenToWorld(1.0f, 1.0f, 0.0f));
+        }
 
         protected void BeginUpdate() 
             =>_updating = true;

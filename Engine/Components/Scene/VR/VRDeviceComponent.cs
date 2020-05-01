@@ -42,12 +42,13 @@ namespace TheraEngine.Components.Scene
 
         private void RenderPose_Updated(EngineVR.DevicePoseInfo obj)
         {
-            _rcPoint.WorldMatrix = ParentWorldMatrix * obj.DeviceToWorldMatrix;
+            RecalcLocalTransform();
+            //_rcPoint.WorldMatrix = ParentWorldMatrix * obj.DeviceToWorldMatrix;
         }
 
         private void UpdatePose_Updated(EngineVR.DevicePoseInfo obj)
         {
-            RecalcLocalTransform();
+            //RecalcLocalTransform();
         }
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
@@ -59,8 +60,8 @@ namespace TheraEngine.Components.Scene
             }
             else
             {
-                localTransform = Device.UpdatePose.DeviceToWorldMatrix;
-                inverseLocalTransform = Device.UpdatePose.DeviceToWorldMatrix.Inverted();
+                localTransform = Device.RenderPose.DeviceToWorldMatrix;
+                inverseLocalTransform = Device.RenderPose.DeviceToWorldMatrix.Inverted();
             }
         }
         protected internal override void OnOriginRebased(Vec3 newOrigin)
@@ -69,7 +70,7 @@ namespace TheraEngine.Components.Scene
         }
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
-            //_rcPoint.WorldMatrix = WorldMatrix;
+            _rcPoint.WorldMatrix = WorldMatrix;
             base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 
@@ -83,6 +84,11 @@ namespace TheraEngine.Components.Scene
         {
             Device.UpdatePose.Updated += UpdatePose_Updated;
             Device.RenderPose.Updated += RenderPose_Updated;
+        }
+        internal void UnregisterDeviceEvents()
+        {
+            Device.UpdatePose.Updated -= UpdatePose_Updated;
+            Device.RenderPose.Updated -= RenderPose_Updated;
         }
     }
 }

@@ -283,21 +283,20 @@ namespace TheraEngine.Core
 
         public static void PreRenderUpdate()
         {
-            //UpdateLogicPoses();
+            UpdateLogicPoses();
             LeftEye.PreRenderUpdate();
             RightEye.PreRenderUpdate();
         }
         public static void SwapBuffers()
         {
-            UpdateAllPoses();
+            OpenVR.Compositor.WaitGetPoses(_renderPoses, _updatePoses);
             LeftEye.PreRenderSwap();
             RightEye.PreRenderSwap();
         }
         public static void Render()
         {
+            UpdateRenderPoses();
             //TODO: stereo render to both texture targets in parallel?
-            OpenVR.Compositor.WaitGetPoses(_renderPoses, _updatePoses);
-            //UpdateRenderPoses();
             LeftEye.Render();
             RightEye.Render();
             LeftEye.Submit();
@@ -423,12 +422,12 @@ namespace TheraEngine.Core
             public void Render()
             {
                 _eyeTex.handle = Viewport.VRRender();
-                Engine.Out($"Rendered {(IsLeftEye ? "left" : "right")} eye");
+                //Engine.Out($"Rendered {(IsLeftEye ? "left" : "right")} eye");
             }
             public void Submit()
             {
                 CheckError(OpenVR.Compositor.Submit(EyeTarget, ref _eyeTex, ref _eyeTexBounds, EVRSubmitFlags.Submit_Default));
-                Engine.Out($"Submitted {(IsLeftEye ? "left" : "right")} eye");
+                //Engine.Out($"Submitted {(IsLeftEye ? "left" : "right")} eye");
             }
         }
     }

@@ -546,8 +546,12 @@ namespace TheraEngine.Core
 
         private void UnlinkContextFromWorldManager(RenderContext ctx)
         {
-            int id = ctx?.Handler?.WorldManager?.ID ?? -1;
-            ctx.Handler.WorldManager = null;
+            var handler = ctx?.Handler;
+            if (handler is null)
+                return;
+
+            int id = handler.WorldManager?.ID ?? -1;
+            handler.WorldManager = null;
             if (WorldManagers.HasValueAtIndex(id))
                 WorldManagers[id].RemoveContext(ctx);
         }

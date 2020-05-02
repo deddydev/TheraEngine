@@ -684,12 +684,12 @@ namespace TheraEditor.Windows.Forms
             if (fromActorTree)
                 return;
             
-            TreeNode node = ((TheraEngine.Components.IComponent)SelectedComponent)?.OwningActor?.EditorState?.TreeNode;
+            TreeNode node = ((IComponent)SelectedComponent)?.OwningActor?.EditorState?.TreeNode;
             Editor.Instance.SetSelectedTreeNode(node);
         }
         private void PreSelectedComponentChanged(bool selectedByViewport)
         {
-            if (SelectedComponent is CameraComponent camComp)
+            if (SelectedComponent is ICameraComponent camComp)
             {
                 //CameraPreviewComponent.PreviewAlwaysVisible
             }
@@ -698,7 +698,7 @@ namespace TheraEditor.Windows.Forms
         {
             DragComponent = null;
 
-            if (SelectedComponent is CameraComponent cam &&
+            if (SelectedComponent is ICameraComponent cam &&
                 cam.Camera != OwningPawn?.LocalPlayerController?.ViewportCamera)
             {
                 SubViewport.ViewportCamera = cam.Camera;
@@ -723,7 +723,7 @@ namespace TheraEditor.Windows.Forms
                     return;
 
                 _highlightPoint.RenderInfo.IsVisible = false;
-                if (((TheraEngine.Components.IComponent)SelectedComponent).OwningActor is TransformTool3D tool)
+                if (((IComponent)SelectedComponent).OwningActor is TransformTool3D tool)
                 {
 
                 }

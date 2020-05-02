@@ -5,7 +5,6 @@ using System.ComponentModel;
 using TheraEngine.Actors;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input;
 using TheraEngine.Rendering;
@@ -13,66 +12,29 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene
 {
-    [TFileDef("Camera Component")]
-    public class CameraComponent : OriginRebasableComponent, IEditorPreviewIconRenderable
+    public interface ICameraComponent
     {
-        #region Constructors
-        public CameraComponent() : this(null) { }
-        public CameraComponent(bool orthographic) : this(orthographic ? (ICamera)new OrthographicCamera() : new PerspectiveCamera()) { }
-        public CameraComponent(ICamera camera)
-        {
-            _cameraRef = new GlobalFileRef<ICamera>(camera);
-            _cameraRef.Loaded += CameraLoaded;
-            _cameraRef.Unloaded += CameraUnloaded;
-        }
-        #endregion
-        
-        private GlobalFileRef<ICamera> _cameraRef;
+        ICamera Camera { get; }
+        IRenderInfo3D RenderInfo { get; }
 
-        [Browsable(false)]
-        public ICamera Camera
-        {
-            get => CameraRef?.File;
-            set
-            {
-                if (CameraRef != null)
-                    CameraRef.File = value;
-                else
-                    CameraRef = new GlobalFileRef<ICamera>(value);
-            }
-        }
+#if EDITOR
+        bool PreviewAlwaysVisible { get; set; }
+        bool ScalePreviewIconByDistance { get; set; }
+        float PreviewIconScale { get; set; }
+        bool AlwaysShowFrustum { get; set; }
+#endif
 
-        [DisplayName(nameof(Camera))]
-        [TSerialize]
-        public GlobalFileRef<ICamera> CameraRef
-        {
-            get => _cameraRef;
-            set
-            {
-                if (_cameraRef != null)
-                {
-                    _cameraRef.Loaded -= (CameraLoaded);
-                    if (_cameraRef.IsLoaded && _cameraRef.File != null)
-                    {
-                        ICamera camera = _cameraRef.File;
-                        camera.OwningComponent = null;
-                        camera.TransformChanged -= RecalcLocalTransform;
-                    }
-                }
-                _cameraRef = value;
-            }
-        }
+        void SetCurrentForPlayer(ELocalPlayerIndex playerIndex);
+        void SetCurrentForController(LocalPlayerController controller);
+        void SetCurrentForOwner();
+        void SetCurrentForPawn(IPawn pawn);
+    }
 
-        private void CameraLoaded(ICamera camera)
-        {
-            camera.OwningComponent = this;
-            camera.TransformChanged += RecalcLocalTransform;
-        }
-        private void CameraUnloaded(ICamera camera)
-        {
-            camera.OwningComponent = null;
-            camera.TransformChanged -= RecalcLocalTransform;
-        }
+    public abstract class BaseCameraComponent : OriginRebasableComponent, ICameraComponent, IEditorPreviewIconRenderable
+    {
+        ICamera ICameraComponent.Camera => GenericCamera;
+
+        protected abstract ICamera GenericCamera { get; set; }
 
         /// <summary>
         /// The provided local player will see through this camera.
@@ -80,7 +42,7 @@ namespace TheraEngine.Components.Scene
         /// <param name="playerIndex">The index of the local player to assign this camera to.</param>
         public void SetCurrentForPlayer(ELocalPlayerIndex playerIndex)
         {
-            ICamera c = Camera;
+            ICamera c = GenericCamera;
             if (c is null)
             {
                 Engine.LogWarning("Camera component has no camera set.");
@@ -110,7 +72,7 @@ namespace TheraEngine.Components.Scene
         {
             if (controller != null)
             {
-                ICamera c = Camera;
+                ICamera c = GenericCamera;
                 if (c is null)
                 {
                     Engine.LogWarning("Camera component has no camera set.");
@@ -126,7 +88,7 @@ namespace TheraEngine.Components.Scene
         {
             if (OwningActor is IPawn pawn && pawn.Controller is LocalPlayerController controller)
             {
-                ICamera c = Camera;
+                ICamera c = GenericCamera;
                 if (c is null)
                 {
                     Engine.LogWarning("Camera component has no camera set.");
@@ -169,6 +131,30 @@ namespace TheraEngine.Components.Scene
         public bool ScalePreviewIconByDistance { get; set; } = true;
         [Category("Editor Traits")]
         public float PreviewIconScale { get; set; } = 0.05f;
+        [TSerialize(nameof(AlwaysShowFrustum))]
+        private bool _alwaysShowFrustum = false;
+        [Category("Editor Traits")]
+        [Description("If true, the frustum will always be rendered in edit mode even if the camera is not selected.")]
+        public bool AlwaysShowFrustum
+        {
+            get => _alwaysShowFrustum;
+            set
+            {
+                if (_alwaysShowFrustum == value)
+                    return;
+
+                _alwaysShowFrustum = value;
+
+                ICamera c = GenericCamera;
+                if (IsSpawned && c != null)
+                {
+                    if (_alwaysShowFrustum)
+                        c.RenderInfo.IsVisible = true;
+                    else if (!EditorState.Selected)
+                        c.RenderInfo.IsVisible = false;
+                }
+            }
+        }
 
         string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
         protected string PreviewIconName { get; } = "CameraIcon.png";
@@ -201,11 +187,11 @@ namespace TheraEngine.Components.Scene
         }
 
         protected internal override void OnOriginRebased(Vec3 newOrigin)
-            => _cameraRef.File?.RebaseOrigin(newOrigin);
-        
+            => GenericCamera?.RebaseOrigin(newOrigin);
+
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            ICamera c = _cameraRef.File;
+            ICamera c = GenericCamera;
             if (c != null)
             {
                 localTransform = c.CameraToComponentSpaceMatrix;
@@ -238,7 +224,7 @@ namespace TheraEngine.Components.Scene
         {
             base.OnSpawned();
 
-            ICamera c = Camera;
+            ICamera c = GenericCamera;
             if (c != null)
                 c.RenderInfo.LinkScene(c, OwningScene3D, _alwaysShowFrustum);
         }
@@ -246,39 +232,15 @@ namespace TheraEngine.Components.Scene
         {
             base.OnDespawned();
 
-            ICamera c = Camera;
+            ICamera c = GenericCamera;
             if (c != null)
                 c.RenderInfo.UnlinkScene();
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            ICamera c = Camera;
+            ICamera c = GenericCamera;
             if (c != null)
                 c.RenderInfo.IsVisible = selected || AlwaysShowFrustum;
-        }
-        [TSerialize(nameof(AlwaysShowFrustum))]
-        private bool _alwaysShowFrustum = false;
-        [Category("Editor Traits")]
-        [Description("If true, the frustum will always be rendered in edit mode even if the camera is not selected.")]
-        public bool AlwaysShowFrustum
-        {
-            get => _alwaysShowFrustum;
-            set
-            {
-                if (_alwaysShowFrustum == value)
-                    return;
-
-                _alwaysShowFrustum = value;
-
-                ICamera c = Camera;
-                if (IsSpawned && c != null)
-                {
-                    if (_alwaysShowFrustum)
-                        c.RenderInfo.IsVisible = true;
-                    else if (!EditorState.Selected)
-                        c.RenderInfo.IsVisible = false;
-                }
-            }
         }
 #endif
 

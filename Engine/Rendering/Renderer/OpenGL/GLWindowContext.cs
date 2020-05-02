@@ -4,6 +4,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows.Forms;
@@ -217,6 +218,8 @@ namespace TheraEngine.Rendering.OpenGL
 
             public const string VRWindowTitle = "VR Hidden Window";
 
+            private static List<IntPtr> Handles { get; } = new List<IntPtr>();
+
             public override void Generate()
             {
                 GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 4, new ColorFormat(0), 2, false);
@@ -225,11 +228,12 @@ namespace TheraEngine.Rendering.OpenGL
                 {
                     Engine.Out("Creating hidden window for OpenGL context.");
                     //_hiddenWindow = new NativeWindow(0, 0, 0, 0, VRWindowTitle, GameWindowFlags.FixedWindow, mode, DisplayDevice.Default) { Visible = false };
-                    _controlHandle = Engine.Instance.ShowDummyForm();
+                    _controlHandle = Handles[0];//Engine.Instance.ShowDummyForm();
                 }
                 else
                 {
                     Engine.Out("Using existing window for OpenGL context.");
+                    Handles.Add(_controlHandle.Value);
                 }
 
                 Engine.RenderThreadId = Thread.CurrentThread.ManagedThreadId;

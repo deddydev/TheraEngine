@@ -1,7 +1,6 @@
 ﻿using System;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Scene;
@@ -13,28 +12,37 @@ namespace TheraEngine.Core
     public delegate void DelRenderEye(RenderTex2D target);
     public static class EngineVR
     {
-        public static EyeHandler LeftEye { get; } = new EyeHandler() { IsLeftEye = true };
-        public static EyeHandler RightEye { get; } = new EyeHandler() { IsLeftEye = false };
+        public static VRViewport LeftEye { get; } = new VRViewport() { IsLeftEye = true };
+        public static VRViewport RightEye { get; } = new VRViewport() { IsLeftEye = false };
 
-        public static event Action<int> DeviceSet;
-
+        /// <summary>
+        /// Called before a device is set at the given index.
+        /// </summary>
+        public static event Action<int> PreDeviceSet;
+        /// <summary>
+        /// Called after a device is set at the given index.
+        /// </summary>
+        public static event Action<int> PostDeviceSet;
+        /// <summary>
+        /// Contains information about a specific tracked pose (render or update).
+        /// </summary>
         public class DevicePoseInfo : TObjectSlim
         {
             public event Action<DevicePoseInfo> ValidPoseChanged;
             public event Action<DevicePoseInfo> IsConnectedChanged;
             public event Action<DevicePoseInfo> Updated;
 
-            public ETrackingResult State { get; set; }
-            public Matrix4 DeviceToWorldMatrix { get; set; }
+            public ETrackingResult State { get; private set; }
+            public Matrix4 DeviceToWorldMatrix { get; private set; }
 
-            public Vec3 Velocity { get; set; }
-            public Vec3 LastVelocity { get; set; }
+            public Vec3 Velocity { get; private set; }
+            public Vec3 LastVelocity { get; private set; }
 
-            public Vec3 AngularVelocity { get; set; }
-            public Vec3 LastAngularVelocity { get; set; }
+            public Vec3 AngularVelocity { get; private set; }
+            public Vec3 LastAngularVelocity { get; private set; }
 
-            public bool ValidPose { get; set; }
-            public bool IsConnected { get; set; }
+            public bool ValidPose { get; private set; }
+            public bool IsConnected { get; private set; }
 
             public void Update(TrackedDevicePose_t pose)
             {
@@ -62,9 +70,12 @@ namespace TheraEngine.Core
                 Updated?.Invoke(this);
             }
         }
-        public class DeviceInfo : TObjectSlim
+        /// <summary>
+        /// Contains pose information for the HMD, controllers, trackers, and base stations.
+        /// </summary>
+        public class VRDevice : TObjectSlim
         {
-            public DeviceInfo(int index)
+            public VRDevice(int index)
             {
                 Index = index;
                 uint idx = (uint)index;
@@ -99,10 +110,8 @@ namespace TheraEngine.Core
                 }
             }
 
-            private bool VerifyNoPropertyError(ETrackedPropertyError error)
-            {
-                return error == ETrackedPropertyError.TrackedProp_Success;
-            }
+            private bool VerifyNoPropertyError(ETrackedPropertyError error) 
+                => error == ETrackedPropertyError.TrackedProp_Success;
 
             public int Index { get; }
             public ETrackedDeviceClass Class { get; } = ETrackedDeviceClass.Invalid;
@@ -111,7 +120,7 @@ namespace TheraEngine.Core
             public DevicePoseInfo UpdatePose { get; } = new DevicePoseInfo();
         }
 
-        public static DeviceInfo[] Devices { get; } = new DeviceInfo[OpenVR.k_unMaxTrackedDeviceCount];
+        public static VRDevice[] Devices { get; } = new VRDevice[OpenVR.k_unMaxTrackedDeviceCount];
         public static TrackedDevicePose_t[] _renderPoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
         public static TrackedDevicePose_t[] _updatePoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
         
@@ -188,8 +197,8 @@ namespace TheraEngine.Core
             uint w = 0u, h = 0u;
             OpenVR.System.GetRecommendedRenderTargetSize(ref w, ref h);
             Engine.Out($"Eye resolution: {w}x{h}");
-            LeftEye.Viewport.Resize((int)w, (int)h);
-            RightEye.Viewport.Resize((int)w, (int)h);
+            LeftEye.Resize((int)w, (int)h);
+            RightEye.Resize((int)w, (int)h);
             CreateContext();
         }
 
@@ -226,40 +235,38 @@ namespace TheraEngine.Core
                 Engine.Out("VRComponent should not be null!");
             else
             {
-                VRCamera left = VRComponent.LeftEye.Camera as VRCamera;
-                VRCamera right = VRComponent.RightEye.Camera as VRCamera;
+                VRCamera left = VRComponent.LeftEye.Camera;
+                VRCamera right = VRComponent.RightEye.Camera;
 
-                UpdateCamera(VRComponent.LeftEye, left, LeftEye);
+                UpdateCamera(left, LeftEye);
                 left.PropertyChanged += LeftEyeCamera_PropertyChanged;
 
-                UpdateCamera(VRComponent.RightEye, right, RightEye);
+                UpdateCamera(right, RightEye);
                 right.PropertyChanged += RightEyeCamera_PropertyChanged;
             }
         }
 
-        private static void UpdateCamera(CameraComponent comp, VRCamera rc, EyeHandler handler)
+        private static void UpdateCamera(VRCamera cam, VRViewport eye)
         {
-            if (rc is null || handler is null)
+            if (cam is null || eye is null)
                 return;
 
-            Matrix4 tfm = handler.GetEyeToHeadTransform();
-            rc.CameraToComponentSpaceMatrix = tfm;
+            Matrix4 tfm = eye.GetEyeToHeadTransform();
+            cam.CameraToComponentSpaceMatrix = tfm;
 
-            Matrix4 prj = handler.GetEyeProjectionMatrix(rc.NearZ, rc.FarZ);
-            rc.SetProjectionMatrix(prj);
+            Matrix4 prj = eye.GetEyeProjectionMatrix(cam.NearZ, cam.FarZ);
+            cam.SetProjectionMatrix(prj);
 
-            handler.Viewport.AttachedCamera = rc;
-
-            //Engine.Out($"Right eye: [{tfm}] [{prj}]");
+            eye.AttachedCamera = cam;
         }
 
         private static void LeftEyeCamera_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-            => CamPropChanged(VRComponent.LeftEye.Camera as VRCamera, LeftEye, e.PropertyName);
+            => CamPropChanged(VRComponent.LeftEye.Camera, LeftEye, e.PropertyName);
 
         private static void RightEyeCamera_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-            => CamPropChanged(VRComponent.RightEye.Camera as VRCamera, RightEye, e.PropertyName);
+            => CamPropChanged(VRComponent.RightEye.Camera, RightEye, e.PropertyName);
 
-        private static void CamPropChanged(VRCamera cam, EyeHandler eye, string propertyName)
+        private static void CamPropChanged(VRCamera cam, VRViewport eye, string propertyName)
         {
             switch (propertyName)
             {
@@ -306,129 +313,109 @@ namespace TheraEngine.Core
         {
             for (int nDevice = 0; nDevice < Devices.Length; ++nDevice)
             {
-                var uPose = _updatePoses[nDevice];
-                if (uPose.bPoseIsValid)
-                {
-                    var device = Devices[nDevice];
-                    if (device is null)
-                    {
-                        Devices[nDevice] = device = new DeviceInfo(nDevice);
-                        DeviceSet?.Invoke(nDevice);
-                    }
-                    device.UpdatePose.Update(uPose);
-
-                    //Engine.Out($"Device {nDevice} update pose: {device.UpdatePose.DeviceToWorldMatrix}");
-                }
-
-                var rPose = _renderPoses[nDevice];
-                if (rPose.bPoseIsValid)
-                {
-                    var device = Devices[nDevice];
-                    if (device is null)
-                    {
-                        Devices[nDevice] = device = new DeviceInfo(nDevice);
-                        DeviceSet?.Invoke(nDevice);
-                    }
-                    device.RenderPose.Update(rPose);
-
-                    //Engine.Out($"Device {nDevice} render pose: {device.UpdatePose.DeviceToWorldMatrix}");
-                }
+                GetOrCacheDevice(_updatePoses, nDevice, out TrackedDevicePose_t uPose)?.UpdatePose?.Update(uPose);
+                GetOrCacheDevice(_renderPoses, nDevice, out TrackedDevicePose_t rPose)?.RenderPose?.Update(rPose);
             }
         }
         private static void UpdateLogicPoses()
         {
             for (int nDevice = 0; nDevice < Devices.Length; ++nDevice)
-            {
-                var uPose = _updatePoses[nDevice];
-                if (uPose.bPoseIsValid)
-                {
-                    var device = Devices[nDevice];
-                    if (device is null)
-                    {
-                        Devices[nDevice] = device = new DeviceInfo(nDevice);
-                        DeviceSet?.Invoke(nDevice);
-                    }
-                    device.UpdatePose.Update(uPose);
-
-                    //Engine.Out($"Device {nDevice} update pose: {device.UpdatePose.DeviceToWorldMatrix}");
-                }
-            }
+                GetOrCacheDevice(_updatePoses, nDevice, out TrackedDevicePose_t pose)?.UpdatePose?.Update(pose);
         }
         private static void UpdateRenderPoses()
         {
             for (int nDevice = 0; nDevice < Devices.Length; ++nDevice)
-            {
-                var rPose = _renderPoses[nDevice];
-                if (rPose.bPoseIsValid)
-                {
-                    var device = Devices[nDevice];
-                    if (device is null)
-                    {
-                        Devices[nDevice] = device = new DeviceInfo(nDevice);
-                        DeviceSet?.Invoke(nDevice);
-                    }
-                    device.RenderPose.Update(rPose);
+                GetOrCacheDevice(_renderPoses, nDevice, out TrackedDevicePose_t pose)?.RenderPose?.Update(pose);
+        }
 
-                    //Engine.Out($"Device {nDevice} render pose: {device.UpdatePose.DeviceToWorldMatrix}");
+        private static VRDevice GetOrCacheDevice(TrackedDevicePose_t[] poses, int nDevice, out TrackedDevicePose_t pose)
+        {
+            pose = poses[nDevice];
+            VRDevice device = Devices[nDevice];
+
+            if (pose.bDeviceIsConnected)
+            {
+                if (device is null)
+                {
+                    PreDeviceSet?.Invoke(nDevice);
+                    Devices[nDevice] = device = new VRDevice(nDevice);
+                    PostDeviceSet?.Invoke(nDevice);
                 }
             }
+            else
+            {
+                if (device != null)
+                {
+                    PreDeviceSet?.Invoke(nDevice);
+                    Devices[nDevice] = device = null;
+                    PostDeviceSet?.Invoke(nDevice);
+                }
+            }
+
+            return device;
         }
 
         /// <summary>
-        /// Returns true if an error occurred.
+        /// Wrap this around OpenVR calls that return the compositor error enum.
+        /// Returns true and prints out a warning if an error has occurred.
         /// </summary>
-        /// <param name="error"></param>
+        /// <param name="error">The error to check.</param>
         /// <returns></returns>
-        private static bool CheckError(EVRCompositorError error)
+        public static bool CheckError(EVRCompositorError error)
         {
             bool hasError = error != EVRCompositorError.None;
             if (hasError)
-                Engine.Out($"OpenVR compositor error: {error}");
+                Engine.LogWarning($"OpenVR compositor error: {error}");
             return hasError;
         }
 
-        public class EyeHandler
-        {
-            public VRViewport Viewport { get; } = new VRViewport();
-            public EVREye EyeTarget { get; set; }
-            public bool IsLeftEye
-            {
-                get => EyeTarget == EVREye.Eye_Left;
-                set => EyeTarget = value ? EVREye.Eye_Left : EVREye.Eye_Right;
-            }
+        //public class EyeRenderer
+        //{
+        //    public EyeRenderer()
+        //    {
+        //        Viewport = new VRViewport();
+        //        Viewport.EyeTextureHandleGenerated += Viewport_EyeTextureHandleGenerated;
+        //    }
 
-            public Matrix4 GetEyeProjectionMatrix(float nearZ, float farZ)
-                => OpenVR.System.GetProjectionMatrix(EyeTarget, nearZ, farZ);
+        //    private void Viewport_EyeTextureHandleGenerated(IntPtr handle) 
+        //        => _eyeTex.handle = handle;
 
-            public Matrix4 GetEyeToHeadTransform()
-                => OpenVR.System.GetEyeToHeadTransform(EyeTarget);
+        //    private VRTextureBounds_t _eyeTexBounds = new VRTextureBounds_t()
+        //    {
+        //        uMin = 0.0f,
+        //        uMax = 1.0f,
+        //        vMin = 0.0f,
+        //        vMax = 1.0f,
+        //    };
 
-            private VRTextureBounds_t _eyeTexBounds = new VRTextureBounds_t()
-            {
-                uMin = 0.0f,
-                uMax = 1.0f,
-                vMin = 0.0f,
-                vMax = 1.0f,
-            };
-            Texture_t _eyeTex = new Texture_t
-            {
-                eColorSpace = EColorSpace.Auto,
-                eType = ETextureType.OpenGL,
-            };
-            public void PreRenderUpdate()
-                => Viewport.PreRenderUpdate();
-            public void PreRenderSwap()
-                => Viewport.PreRenderSwap();
-            public void Render()
-            {
-                _eyeTex.handle = Viewport.VRRender();
-                //Engine.Out($"Rendered {(IsLeftEye ? "left" : "right")} eye");
-            }
-            public void Submit()
-            {
-                CheckError(OpenVR.Compositor.Submit(EyeTarget, ref _eyeTex, ref _eyeTexBounds, EVRSubmitFlags.Submit_Default));
-                //Engine.Out($"Submitted {(IsLeftEye ? "left" : "right")} eye");
-            }
-        }
+        //    private Texture_t _eyeTex = new Texture_t
+        //    {
+        //        eColorSpace = EColorSpace.Auto,
+        //        eType = ETextureType.OpenGL,
+        //    };
+
+        //    public VRViewport Viewport { get; } = new VRViewport();
+        //    public EVREye EyeTarget { get; set; }
+        //    public bool IsLeftEye
+        //    {
+        //        get => EyeTarget == EVREye.Eye_Left;
+        //        set => EyeTarget = value ? EVREye.Eye_Left : EVREye.Eye_Right;
+        //    }
+
+        //    public Matrix4 GetEyeProjectionMatrix(float nearZ, float farZ)
+        //        => OpenVR.System.GetProjectionMatrix(EyeTarget, nearZ, farZ);
+
+        //    public Matrix4 GetEyeToHeadTransform()
+        //        => OpenVR.System.GetEyeToHeadTransform(EyeTarget);
+
+        //    public void PreRenderUpdate()
+        //        => Viewport.PreRenderUpdate();
+        //    public void PreRenderSwap()
+        //        => Viewport.PreRenderSwap();
+        //    public void Render()
+        //        => Viewport.Render(); //Engine.Out($"Rendered {(IsLeftEye ? "left" : "right")} eye");
+        //    public void Submit(EVRSubmitFlags flags = EVRSubmitFlags.Submit_Default)
+        //        => CheckError(OpenVR.Compositor.Submit(EyeTarget, ref _eyeTex, ref _eyeTexBounds, flags)); //Engine.Out($"Submitted {(IsLeftEye ? "left" : "right")} eye");
+        //}
     }
 }

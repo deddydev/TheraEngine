@@ -14,14 +14,14 @@ namespace TheraEngine.Components.Scene
     {
         public VRPlaySpaceComponent()
         {
-            LeftEye = new CameraComponent(new VRCamera() { NearZ = 0.1f, FarZ = 10000.0f }) { AllowRemoval = false };
-            RightEye = new CameraComponent(new VRCamera() { NearZ = 0.1f, FarZ = 10000.0f }) { AllowRemoval = false };
+            LeftEye = new CameraComponent<VRCamera>(new VRCamera() { NearZ = 0.1f, FarZ = 10000.0f }) { AllowRemoval = false };
+            RightEye = new CameraComponent<VRCamera>(new VRCamera() { NearZ = 0.1f, FarZ = 10000.0f }) { AllowRemoval = false };
 
             if (EngineVR.Devices != null)
                 for (int i = 0; i < EngineVR.Devices.Length; ++i)
                     EngineVR_DeviceSet(i);
 
-            EngineVR.DeviceSet += EngineVR_DeviceSet;
+            EngineVR.PostDeviceSet += EngineVR_DeviceSet;
         }
 
         public Dictionary<ETrackedDeviceClass, List<VRDeviceComponent>> Devices { get; }
@@ -81,13 +81,12 @@ namespace TheraEngine.Components.Scene
                     break;
             }
 
-            comp.RegisterDeviceEvents();
             ChildComponents.Add(comp);
         }
 
         public VRDeviceComponent HMD { get; private set; }
-        public CameraComponent LeftEye { get; private set; }
-        public CameraComponent RightEye { get; private set; }
+        public CameraComponent<VRCamera> LeftEye { get; private set; }
+        public CameraComponent<VRCamera> RightEye { get; private set; }
         public VRDeviceComponent LeftHand { get; private set; }
         public VRDeviceComponent RightHand { get; private set; }
 

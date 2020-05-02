@@ -25,7 +25,7 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Rendering
 {
-    public class Viewport : TObjectSlim
+    public class Viewport : TObject
     {
         public const string SceneShaderPath = "Scene3D";
         public static Viewport CurrentlyRendering => Engine.CurrentlyRenderingViewport;
@@ -34,21 +34,35 @@ namespace TheraEngine.Rendering
         public BoundingRectangle _internalResolution = new BoundingRectangle();
         public SSAOInfo _ssaoInfo = new SSAOInfo();
 
-        public QuadFrameBuffer SSAOFBO;
-        public QuadFrameBuffer SSAOBlurFBO;
-        public FrameBuffer GBufferFBO;
-        public QuadFrameBuffer BloomBlurFBO1;
-        public QuadFrameBuffer BloomBlurFBO2;
-        public QuadFrameBuffer BloomBlurFBO4;
-        public QuadFrameBuffer BloomBlurFBO8;
-        public QuadFrameBuffer BloomBlurFBO16;
-        public QuadFrameBuffer LightCombineFBO;
-        public QuadFrameBuffer ForwardPassFBO;
-        public QuadFrameBuffer PostProcessFBO;
-        public QuadFrameBuffer HUDFBO;
-        public MeshRenderer PointLightManager;
-        public MeshRenderer SpotLightManager;
-        public MeshRenderer DirLightManager;
+        public FrameBuffer DefaultRenderTarget { get; set; } = null;
+
+        public QuadFrameBuffer SSAOFBO { get; private set; }
+        public QuadFrameBuffer SSAOBlurFBO { get; private set; }
+        public FrameBuffer GBufferFBO { get; private set; }
+        public QuadFrameBuffer BloomBlurFBO1 { get; private set; }
+        public QuadFrameBuffer BloomBlurFBO2 { get; private set; }
+        public QuadFrameBuffer BloomBlurFBO4 { get; private set; }
+        public QuadFrameBuffer BloomBlurFBO8 { get; private set; }
+        public QuadFrameBuffer BloomBlurFBO16 { get; private set; }
+        public QuadFrameBuffer LightCombineFBO { get; private set; }
+        public QuadFrameBuffer ForwardPassFBO { get; private set; }
+        public QuadFrameBuffer PostProcessFBO { get; private set; }
+        public QuadFrameBuffer HUDFBO { get; private set; }
+        public MeshRenderer PointLightManager { get; private set; }
+        public MeshRenderer SpotLightManager { get; private set; }
+        public MeshRenderer DirLightManager { get; private set; }
+
+        //public List<ViewportRenderCommand> RenderCommands { get; set; }
+
+        //public void GenerateRenderCommandFBOs()
+        //{
+        //    if (RenderCommands is null)
+        //        return;
+
+        //    foreach (var rc in RenderCommands)
+        //        rc.GenerateFBOs(this);
+        //}
+
         //public PrimitiveManager DecalManager;
         //public QuadFrameBuffer DirLightFBO;
         public ICamera RenderingCamera => RenderingCameras.Count > 0 ? RenderingCameras.Peek() : null;
@@ -91,6 +105,9 @@ namespace TheraEngine.Rendering
             get => _camera;
             set
             {
+                if (_camera == value)
+                    return;
+
                 _camera?.Viewports?.Remove(this);
 
                 _camera = value;
@@ -290,17 +307,17 @@ namespace TheraEngine.Rendering
                 RenderHandler?.Viewports?.TryRemove(PlayerIndex, out _);
         }
 
-        public void FullRender(FrameBuffer target) => FullRender(AttachedCamera, AttachedHUD, target);
-        public void FullRender(ICamera camera, IUserInterfacePawn hud, FrameBuffer target)
+        public void FullRender(FrameBuffer targetFboOverride) => FullRender(AttachedCamera, AttachedHUD, targetFboOverride);
+        public void FullRender(ICamera camera, IUserInterfacePawn hud, FrameBuffer targetFboOverride)
         {
             PreRenderUpdate(camera, hud);
             PreRenderSwap(camera, hud);
-            Render(camera, hud, target);
+            Render(camera, hud, targetFboOverride);
         }
 
         public void Render() => Render(null);
-        public void Render(FrameBuffer target) => Render(AttachedCamera, AttachedHUD, target);
-        public void Render(ICamera camera, IUserInterfacePawn hud, FrameBuffer target)
+        public void Render(FrameBuffer targetFboOverride) => Render(AttachedCamera, AttachedHUD, targetFboOverride);
+        public void Render(ICamera camera, IUserInterfacePawn hud, FrameBuffer targetFboOverride)
         {
             var scene = camera?.OwningComponent?.OwningScene;
 
@@ -311,17 +328,17 @@ namespace TheraEngine.Rendering
             hud?.PreRender();
 
             Engine.PushRenderingViewport(this);
-            OnRender(scene, camera, hud, target);
+            OnRender(scene, camera, hud, targetFboOverride);
             Engine.PopRenderingViewport();
         }
         private bool _captured = false;
         private readonly RenderPasses _renderPasses = new RenderPasses();
-        protected virtual void OnRender(IScene scene, ICamera camera, IUserInterfacePawn hud, FrameBuffer target)
+        protected virtual void OnRender(IScene scene, ICamera camera, IUserInterfacePawn hud, FrameBuffer targetFboOverride)
         {
             if (!FBOsInitialized)
                 InitializeFBOs();
 
-            scene.Render(_renderPasses, camera, this, target);
+            scene.Render(_renderPasses, camera, this, targetFboOverride ?? DefaultRenderTarget);
 
             if (scene is Scene3D s3d && !_captured)
             {

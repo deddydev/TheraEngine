@@ -4,6 +4,7 @@ using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
@@ -18,27 +19,25 @@ namespace TheraEngine.Components.Scene
         IRenderInfo3D I3DRenderable.RenderInfo => RenderInfo;
 
         public int DeviceIndex { get; set; }
-        public EngineVR.DeviceInfo Device => EngineVR.Devices[DeviceIndex];
+        public EngineVR.VRDevice Device => EngineVR.Devices[DeviceIndex];
 
         public VRDeviceComponent() 
         {
-            Rendering.Models.Mesh pointData = Rendering.Models.Mesh.Create(Vec3.Zero);
+            Rendering.Models.Mesh mesh = BoundingBox.SolidMesh(-0.05f, 0.05f);// Rendering.Models.Mesh.Create(Vec3.Zero);
 
             TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Red);
             mat.RenderParams = new RenderingParameters { PointSize = 20.0f };
 
-            _rcPoint.Mesh = new MeshRenderer(pointData, mat);
+            _rcDevice.Mesh = new MeshRenderer(mesh, mat);
 
-            //EngineVR.DeviceSet += EngineVR_DeviceSet;
+            EngineVR.PostDeviceSet += EngineVR_DeviceSet;
         }
 
-        //private void EngineVR_DeviceSet(int obj)
-        //{
-        //    if (obj == DeviceIndex && Device != null)
-        //    {
-        //        RegisterDeviceEvents();
-        //    }
-        //}
+        private void EngineVR_DeviceSet(int obj)
+        {
+            if (obj == DeviceIndex && Device != null && !_deviceRegistered)
+                RegisterDeviceEvents();
+        }
 
         private void RenderPose_Updated(EngineVR.DevicePoseInfo obj)
         {
@@ -70,25 +69,47 @@ namespace TheraEngine.Components.Scene
         }
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
-            _rcPoint.WorldMatrix = WorldMatrix;
+            _rcDevice.WorldMatrix = WorldMatrix;
             base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 
-        private readonly RenderCommandMesh3D _rcPoint = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
+        private readonly RenderCommandMesh3D _rcDevice = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
         void I3DRenderable.AddRenderables(RenderPasses passes, ICamera camera)
         {
-            passes.Add(_rcPoint);
+            passes.Add(_rcDevice);
         }
 
-        internal void RegisterDeviceEvents()
+        public override void OnSpawned()
         {
-            Device.UpdatePose.Updated += UpdatePose_Updated;
-            Device.RenderPose.Updated += RenderPose_Updated;
+            base.OnSpawned();
+            RegisterDeviceEvents();
         }
-        internal void UnregisterDeviceEvents()
+        public override void OnDespawned()
         {
-            Device.UpdatePose.Updated -= UpdatePose_Updated;
-            Device.RenderPose.Updated -= RenderPose_Updated;
+            base.OnDespawned();
+            UnregisterDeviceEvents();
+        }
+
+        private bool _deviceRegistered = false;
+        private void RegisterDeviceEvents()
+        {
+            var dev = Device;
+            if (dev is null)
+                return;
+
+            _deviceRegistered = true;
+            dev.UpdatePose.Updated += UpdatePose_Updated;
+            dev.RenderPose.Updated += RenderPose_Updated;
+        }
+        private void UnregisterDeviceEvents()
+        {
+            var dev = Device;
+            if (dev is null)
+                return;
+
+            dev.UpdatePose.Updated -= UpdatePose_Updated;
+            dev.RenderPose.Updated -= RenderPose_Updated;
+            _deviceRegistered = false;
         }
     }
 }

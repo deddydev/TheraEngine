@@ -247,10 +247,10 @@ namespace TheraEngine.Rendering.Cameras
         /// Takes an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f), and returns a position in the world.
         /// </summary>
         public Vec3 ScreenToWorld(Vec3 screenPoint)
-            => ((screenPoint / _projectionRange) / Vec3.Half - Vec3.One) * CameraProjToWorldSpaceMatrix;
+            => ((screenPoint / _projectionRange) * Vec3.Two - Vec3.One) * CameraProjToWorldSpaceMatrix;
 
         protected virtual void UpdateTransformedFrustum()
-            => _transformedFrustum.TransformedVersionOf(_untransformedFrustum ?? (_untransformedFrustum = CreateUntransformedFrustum()), CameraToWorldSpaceMatrix);
+            => _transformedFrustum.TransformedVersionOf(_untransformedFrustum ?? (_untransformedFrustum = CreateUntransformedFrustum2()), CameraToWorldSpaceMatrix);
         
         /// <summary>
         /// Rotates the given vector by the camera's rotation. Does not normalize the returned vector.
@@ -375,8 +375,7 @@ namespace TheraEngine.Rendering.Cameras
 
             _projectionRange = new Vec3(Dimensions, 1.0f);
             _projectionOrigin = new Vec3(Origin, 0.0f);
-
-            _untransformedFrustum = CreateUntransformedFrustum2();
+            
             UpdateTransformedFrustum();
 
             _matrixInvalidated = true;
@@ -395,14 +394,14 @@ namespace TheraEngine.Rendering.Cameras
         protected IFrustum CreateUntransformedFrustum2()
         {
             return new Frustum(
-               ScreenToWorld(0.0f, 0.0f, 1.0f),
-               ScreenToWorld(1.0f, 0.0f, 1.0f),
-               ScreenToWorld(0.0f, 1.0f, 1.0f),
-               ScreenToWorld(1.0f, 1.0f, 1.0f),
-               ScreenToWorld(0.0f, 0.0f, 0.0f),
-               ScreenToWorld(1.0f, 0.0f, 0.0f),
-               ScreenToWorld(0.0f, 1.0f, 0.0f),
-               ScreenToWorld(1.0f, 1.0f, 0.0f));
+               new Vec3(-1.0f, -1.0f, 1.0f) * _projectionInverse,
+               new Vec3(1.0f, -1.0f, 1.0f) * _projectionInverse,
+               new Vec3(-1.0f, 1.0f, 1.0f) * _projectionInverse,
+               new Vec3(1.0f, 1.0f, 1.0f) * _projectionInverse,
+               new Vec3(-1.0f, -1.0f, 0.0f) * _projectionInverse,
+               new Vec3(1.0f, -1.0f, 0.0f) * _projectionInverse,
+               new Vec3(-1.0f, 1.0f, 0.0f) * _projectionInverse,
+               new Vec3(1.0f, 1.0f, 0.0f) * _projectionInverse);
         }
 
         protected void BeginUpdate() 
@@ -474,9 +473,7 @@ namespace TheraEngine.Rendering.Cameras
 
         RenderCommandMethod3D _renderCommand;
         public void AddRenderables(RenderPasses passes, ICamera camera)
-        {
-            passes.Add(_renderCommand);
-        }
+            => passes.Add(_renderCommand);
 
         //Child camera types must override this
         public virtual void Resize(float width, float height)

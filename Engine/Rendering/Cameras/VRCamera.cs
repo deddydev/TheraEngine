@@ -71,7 +71,7 @@ namespace TheraEngine.Rendering.Cameras
             //    transformed ? ForwardVector : Vec3.Forward,
             //    transformed ? UpVector : Vec3.Up,
             //    transformed ? _localPoint.Raw : Vec3.Zero);
-            return new Frustum();
+            return CreateUntransformedFrustum2();
         }
 
         public override void RebaseOrigin(Vec3 newOrigin)

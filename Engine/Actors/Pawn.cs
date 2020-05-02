@@ -32,7 +32,7 @@ namespace TheraEngine.Actors
         ServerPlayerController ServerPlayerController { get; }
         AIController AIController { get; }
         LocalPlayerController LocalPlayerController { get; }
-        CameraComponent CurrentCameraComponent { get; set; }
+        ICameraComponent CurrentCameraComponent { get; set; }
         LocalFileRef<IUserInterfacePawn> HUD { get; set; }
 
         void ForcePossessionBy(ELocalPlayerIndex possessor);
@@ -68,7 +68,7 @@ namespace TheraEngine.Actors
         public Pawn(ELocalPlayerIndex possessor, T root, params LogicComponent[] logicComponents)
             : base(root, logicComponents) { QueuePossession(possessor); }
 
-        private CameraComponent _currentCameraComponent;
+        private ICameraComponent _currentCameraComponent;
         private LocalFileRef<IUserInterfacePawn> _hud = null;
 
         [Browsable(false)]
@@ -111,15 +111,19 @@ namespace TheraEngine.Actors
         /// Dictates the component controlling the view of this pawn's controller.
         /// </summary>
         [Browsable(false)]
-        public CameraComponent CurrentCameraComponent
+        public ICameraComponent CurrentCameraComponent
         {
             get => _currentCameraComponent;
             set
             {
+                if (_currentCameraComponent == value)
+                    return;
+                
                 _currentCameraComponent = value;
+
                 LocalPlayerController controller = LocalPlayerController;
                 if (controller != null)
-                    controller.ViewportCamera = _currentCameraComponent.CameraRef.File;
+                    controller.ViewportCamera = _currentCameraComponent?.Camera;
             }
         }
 

@@ -528,7 +528,9 @@
     <Compile Include="Components\Logic\Animation\StateMachine\AnimStateTransition.cs" />
     <Compile Include="Components\Logic\Animation\StateMachine\BlendManager.cs" />
     <Compile Include="Components\Logic\Scripting\ScriptComponent.cs" />
-    <Compile Include="Components\Scene\Misc\AudioComponent.cs" />
+    <Compile Include="Components\Scene\Audio\AudioComponent.cs" />
+    <Compile Include="Components\Scene\Camera\BaseCameraComponent.cs" />
+    <Compile Include="Components\Scene\Camera\CameraComponent{T}.cs" />
     <Compile Include="Components\Scene\VR\VRDeviceComponent.cs" />
     <Compile Include="Components\Scene\VR\VRPlaySpaceComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\XAligned\CapsuleXComponent.cs" />
@@ -806,7 +808,8 @@
     <Compile Include="Rendering\Scene\RenderInfo3D.cs" />
     <Compile Include="Rendering\Scene\RenderInfo2D.cs" />
     <Compile Include="Rendering\Scene\VRRenderHandler.cs" />
-    <Compile Include="Rendering\Scene\VRViewport.cs" />
+    <Compile Include="Rendering\Viewport\Commands\BaseCommandClasses.cs" />
+    <Compile Include="Rendering\Viewport\VRViewport.cs" />
     <Compile Include="Components\Scene\UI\Interactable\TMenuComponent.cs" />
     <Compile Include="Shapes\BoundingRectangle.cs" />
     <Compile Include="Shapes\Boxes\BoundingBoxStruct.cs" />
@@ -1180,7 +1183,7 @@
     <Compile Include="Components\Scene\Transforms\TRS.cs" />
     <Compile Include="Components\LogicComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\Boom.cs" />
-    <Compile Include="Components\Scene\Misc\CameraComponent.cs" />
+    <Compile Include="Components\Scene\Camera\CameraComponent.cs" />
     <Compile Include="Components\Scene\Misc\DecalComponent.cs" />
     <Compile Include="Components\Logic\MovementComponents\TransformMovementComponent.cs" />
     <Compile Include="Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
@@ -1214,7 +1217,7 @@
     <Compile Include="Rendering\Colors\ColorF4.cs" />
     <Compile Include="Shapes\Cylindrical\YAligned\CapsuleY.cs" />
     <Compile Include="Shapes\Boxes\BoundingBox.cs" />
-    <Compile Include="Rendering\Scene\Viewport.cs" />
+    <Compile Include="Rendering\Viewport\Viewport.cs" />
     <Compile Include="Actors\Actor.cs" />
     <Compile Include="Actors\ComponentActors\Spline3DActor.cs" />
     <Compile Include="Actors\ComponentActors\AudioActor.cs" />

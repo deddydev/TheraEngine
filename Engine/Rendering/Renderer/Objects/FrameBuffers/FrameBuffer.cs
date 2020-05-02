@@ -22,15 +22,15 @@ namespace TheraEngine.Rendering
         public void UpdateRenderTarget(int i, (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex) target)
         {
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
+
             if (IsActive)
-            {
                 Detach(i);
-            }
+
             Targets[i] = target;
+
             if (IsActive)
-            {
                 Attach(i);
-            }
+
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, NullBindingId);
         }
         /// <summary>
@@ -54,7 +54,7 @@ namespace TheraEngine.Rendering
             TextureTypes = EFBOTextureType.None;
 
             List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
-            foreach (var (Target, Attachment, MipLevel, LayerIndex) in Targets)
+            foreach (var (_, Attachment, _, _) in Targets)
             {
                 switch (Attachment)
                 {
@@ -76,6 +76,7 @@ namespace TheraEngine.Rendering
                 fboAttachments.Add((EDrawBuffersAttachment)(int)Attachment);
                 TextureTypes |= EFBOTextureType.Color;
             }
+
             DrawBuffers = fboAttachments.ToArray();
 
             if (IsActive)
@@ -128,19 +129,26 @@ namespace TheraEngine.Rendering
         public void AttachAll()
         {
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            for (int i = 0; i < Targets.Length; ++i)
-                Attach(i);
+
+            if (Targets != null)
+                for (int i = 0; i < Targets.Length; ++i)
+                    Attach(i);
+
             Engine.Renderer.SetDrawBuffers(DrawBuffers);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
+
             CheckErrors();
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, NullBindingId);
         }
         public void DetachAll()
         {
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
+
             if (Targets != null)
                 for (int i = 0; i < Targets.Length; ++i)
                     Detach(i);
+
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, NullBindingId);
         }
         public void Attach(int i)
@@ -149,16 +157,14 @@ namespace TheraEngine.Rendering
             if (Target is BaseTexRef tref)
             {
                 BaseRenderTexture t = tref.GetRenderTextureGeneric(true);
+
                 t.PushData();
                 t.Bind();
+
                 if (LayerIndex >= 0 && tref is TexRefCube cuberef)
-                {
                     cuberef.AttachFaceToFBO(EFramebufferTarget.Framebuffer, Attachment, ECubemapFace.PosX + LayerIndex, MipLevel);
-                }
                 else
-                {
                     tref.AttachToFBO(EFramebufferTarget.Framebuffer, Attachment, MipLevel);
-                }
             }
             else if (Target is RenderBuffer buf)
             {
@@ -172,14 +178,11 @@ namespace TheraEngine.Rendering
             if (Target is BaseTexRef tref)
             {
                 tref.GetRenderTextureGeneric(true).PushData();
+
                 if (LayerIndex >= 0 && tref is TexRefCube cuberef)
-                {
                     cuberef.DetachFaceFromFBO(EFramebufferTarget.Framebuffer, Attachment, ECubemapFace.PosX + LayerIndex, MipLevel);
-                }
                 else
-                {
                     tref.DetachFromFBO(EFramebufferTarget.Framebuffer, Attachment, MipLevel);
-                }
             }
             else if (Target is RenderBuffer buf)
             {
@@ -203,8 +206,10 @@ namespace TheraEngine.Rendering
             Engine.Renderer.BindFrameBuffer(type, NullBindingId);
             CurrentlyBound = null;
         }
+
         public void CheckErrors()
             => Engine.Renderer.CheckFrameBufferErrors();
+
         public void Resize(int width, int height)
         {
             Width = width;

@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Cameras;
@@ -84,6 +88,8 @@ namespace TheraEngine.Core
                 ETrackedPropertyError error = ETrackedPropertyError.TrackedProp_Success;
                 int outInt32;
 
+                Trace.WriteLine($"Instantiated VR device : {Class}");
+
                 switch (Class)
                 {
                     case ETrackedDeviceClass.HMD:
@@ -92,21 +98,35 @@ namespace TheraEngine.Core
                     case ETrackedDeviceClass.Controller:
                         outInt32 = OpenVR.System.GetInt32TrackedDeviceProperty(idx, ETrackedDeviceProperty.Prop_ControllerRoleHint_Int32, ref error);
                         if (VerifyNoPropertyError(error))
+                        {
                             ControllerType = (ETrackedControllerRole)outInt32;
+                            Trace.WriteLine($"{Class} role : {ControllerType}");
+                        }
                         break;
 
                     case ETrackedDeviceClass.GenericTracker:
+
                         break;
 
                     case ETrackedDeviceClass.TrackingReference:
+
                         break;
 
                     case ETrackedDeviceClass.DisplayRedirect:
+
                         break;
 
                     default:
                     case ETrackedDeviceClass.Invalid:
                         break;
+                }
+
+                StringBuilder result = new StringBuilder(64);
+                OpenVR.System.GetStringTrackedDeviceProperty((uint)index, ETrackedDeviceProperty.Prop_ControllerType_String, result, 64, ref error);
+                if (VerifyNoPropertyError(error))
+                {
+                    Type = result.ToString();
+                    Trace.WriteLine($"{Class} type : {Type}");
                 }
             }
 
@@ -114,13 +134,37 @@ namespace TheraEngine.Core
                 => error == ETrackedPropertyError.TrackedProp_Success;
 
             public int Index { get; }
+            public string Type { get;  set; }
             public ETrackedDeviceClass Class { get; } = ETrackedDeviceClass.Invalid;
             public ETrackedControllerRole ControllerType { get; } = ETrackedControllerRole.Invalid;
             public DevicePoseInfo RenderPose { get; } = new DevicePoseInfo();
             public DevicePoseInfo UpdatePose { get; } = new DevicePoseInfo();
         }
 
+        //hmd = indexhmd
+        //controllers = knuckles
+        //waist = vive_tracker_waist
+        //left foot = vive_tracker_left_foot
+        //right foot = vive_tracker_right_foot
+
+        public static VRDevice GetDevice(ETrackedDeviceClass deviceClass, string deviceType)
+            => DeviceDictionary[deviceClass].FirstOrDefault(x => string.Equals(deviceType, x.Type, StringComparison.CurrentCultureIgnoreCase));
+
+        public static List<VRDevice> GetDevices(ETrackedDeviceClass deviceClass)
+            => DeviceDictionary[deviceClass];
+
+        private static Dictionary<ETrackedDeviceClass, List<VRDevice>> DeviceDictionary { get; }
+            = new Dictionary<ETrackedDeviceClass, List<VRDevice>>()
+            {
+                { ETrackedDeviceClass.HMD, new List<VRDevice>() },
+                { ETrackedDeviceClass.TrackingReference, new List<VRDevice>() },
+                { ETrackedDeviceClass.Controller, new List<VRDevice>() },
+                { ETrackedDeviceClass.GenericTracker, new List<VRDevice>() },
+                { ETrackedDeviceClass.DisplayRedirect, new List<VRDevice>() },
+            };
+
         public static VRDevice[] Devices { get; } = new VRDevice[OpenVR.k_unMaxTrackedDeviceCount];
+
         public static TrackedDevicePose_t[] _renderPoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
         public static TrackedDevicePose_t[] _updatePoses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
         
@@ -193,6 +237,7 @@ namespace TheraEngine.Core
 
         private static void OnStarted()
         {
+            OpenVR.Compositor.ForceInterleavedReprojectionOn(true);
             OpenVR.Compositor.SetTrackingSpace(TrackingOrigin);
             uint w = 0u, h = 0u;
             OpenVR.System.GetRecommendedRenderTargetSize(ref w, ref h);
@@ -308,6 +353,7 @@ namespace TheraEngine.Core
             RightEye.Render();
             LeftEye.Submit();
             RightEye.Submit();
+            OpenVR.Compositor.PostPresentHandoff();
         }
         private static void UpdateAllPoses()
         {
@@ -339,6 +385,7 @@ namespace TheraEngine.Core
                 {
                     PreDeviceSet?.Invoke(nDevice);
                     Devices[nDevice] = device = new VRDevice(nDevice);
+                    DeviceDictionary[device.Class].Add(device);
                     PostDeviceSet?.Invoke(nDevice);
                 }
             }
@@ -347,6 +394,7 @@ namespace TheraEngine.Core
                 if (device != null)
                 {
                     PreDeviceSet?.Invoke(nDevice);
+                    DeviceDictionary[device.Class].Remove(device);
                     Devices[nDevice] = device = null;
                     PostDeviceSet?.Invoke(nDevice);
                 }
@@ -368,54 +416,5 @@ namespace TheraEngine.Core
                 Engine.LogWarning($"OpenVR compositor error: {error}");
             return hasError;
         }
-
-        //public class EyeRenderer
-        //{
-        //    public EyeRenderer()
-        //    {
-        //        Viewport = new VRViewport();
-        //        Viewport.EyeTextureHandleGenerated += Viewport_EyeTextureHandleGenerated;
-        //    }
-
-        //    private void Viewport_EyeTextureHandleGenerated(IntPtr handle) 
-        //        => _eyeTex.handle = handle;
-
-        //    private VRTextureBounds_t _eyeTexBounds = new VRTextureBounds_t()
-        //    {
-        //        uMin = 0.0f,
-        //        uMax = 1.0f,
-        //        vMin = 0.0f,
-        //        vMax = 1.0f,
-        //    };
-
-        //    private Texture_t _eyeTex = new Texture_t
-        //    {
-        //        eColorSpace = EColorSpace.Auto,
-        //        eType = ETextureType.OpenGL,
-        //    };
-
-        //    public VRViewport Viewport { get; } = new VRViewport();
-        //    public EVREye EyeTarget { get; set; }
-        //    public bool IsLeftEye
-        //    {
-        //        get => EyeTarget == EVREye.Eye_Left;
-        //        set => EyeTarget = value ? EVREye.Eye_Left : EVREye.Eye_Right;
-        //    }
-
-        //    public Matrix4 GetEyeProjectionMatrix(float nearZ, float farZ)
-        //        => OpenVR.System.GetProjectionMatrix(EyeTarget, nearZ, farZ);
-
-        //    public Matrix4 GetEyeToHeadTransform()
-        //        => OpenVR.System.GetEyeToHeadTransform(EyeTarget);
-
-        //    public void PreRenderUpdate()
-        //        => Viewport.PreRenderUpdate();
-        //    public void PreRenderSwap()
-        //        => Viewport.PreRenderSwap();
-        //    public void Render()
-        //        => Viewport.Render(); //Engine.Out($"Rendered {(IsLeftEye ? "left" : "right")} eye");
-        //    public void Submit(EVRSubmitFlags flags = EVRSubmitFlags.Submit_Default)
-        //        => CheckError(OpenVR.Compositor.Submit(EyeTarget, ref _eyeTex, ref _eyeTexBounds, flags)); //Engine.Out($"Submitted {(IsLeftEye ? "left" : "right")} eye");
-        //}
     }
 }

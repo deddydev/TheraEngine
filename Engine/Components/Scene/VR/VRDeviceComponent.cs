@@ -23,7 +23,9 @@ namespace TheraEngine.Components.Scene
 
         public VRDeviceComponent() 
         {
-            Rendering.Models.Mesh mesh = BoundingBox.SolidMesh(-0.05f, 0.05f);// Rendering.Models.Mesh.Create(Vec3.Zero);
+            Rendering.Models.Mesh mesh = 
+                //BoundingBox.SolidMesh(-0.05f, 0.05f);
+                Rendering.Models.Mesh.Create(Vec3.Zero);
 
             TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Red);
             mat.RenderParams = new RenderingParameters { PointSize = 20.0f };

@@ -9,6 +9,7 @@ namespace TheraEngine.Rendering
     {
         public abstract void Execute(RenderPasses renderingPasses, ICamera camera, Viewport viewport, FrameBuffer target);
         public virtual void GenerateFBOs(Viewport viewport) { }
+        public virtual void DestroyFBOs() { }
     }
     public abstract class ViewportFBORenderCommand : ViewportRenderCommand
     {

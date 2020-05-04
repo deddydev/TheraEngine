@@ -367,16 +367,44 @@ namespace TheraEngine.Editor
         {
             foreach (var (State, Change) in ChangedStates)
             {
-                Change.ApplyNewValue();
-                State.AddGlobalChange(this);
+                try
+                {
+                    Change?.ApplyNewValue();
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
+                try
+                {
+                    State?.AddGlobalChange(this);
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
             }
         }
         public void ApplyOldValue()
         {
             foreach (var (State, Change) in ChangedStates)
             {
-                Change.ApplyOldValue();
-                State.AddGlobalChange(this);
+                try
+                {
+                    Change?.ApplyOldValue();
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
+                try
+                {
+                    State?.AddGlobalChange(this);
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
             }
         }
 
@@ -385,8 +413,17 @@ namespace TheraEngine.Editor
             //Unlink from local editor states
             var modifiedStates = ChangedStates.Select(x => x.State).Distinct();
             foreach (var state in modifiedStates)
-                state.RemoveGlobalChange(this);
-            
+            {
+                try
+                {
+                    state?.RemoveGlobalChange(this);
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
+            }
+
             //for (int i = 0; i < ChangedStates.Count; ++i)
             //{
             //    var (State, ChangeIndex) = ChangedStates[i];
@@ -497,20 +534,16 @@ namespace TheraEngine.Editor
             => FieldInfo.SetValue(FieldOwner, OldValue);
 
         public override string DisplayChangeAsRedo()
-        {
-            return string.Format("{0}.{1} {2} -> {3}",
+            => string.Format("{0}.{1} {2} -> {3}",
               FieldOwner.ToString(), FieldInfo.Name.ToString(),
               OldValue is null ? "null" : OldValue.ToString(),
               NewValue is null ? "null" : NewValue.ToString());
-        }
 
         public override string DisplayChangeAsUndo()
-        {
-            return string.Format("{0}.{1} {2} <- {3}",
+            => string.Format("{0}.{1} {2} <- {3}",
               FieldOwner.ToString(), FieldInfo.Name.ToString(),
               OldValue is null ? "null" : OldValue.ToString(),
               NewValue is null ? "null" : NewValue.ToString());
-        }
     }
     [Serializable]
     public class LocalValueChangeProperty : LocalValueChange
@@ -530,20 +563,16 @@ namespace TheraEngine.Editor
             => PropertyInfo.SetValue(PropertyOwner, OldValue);
 
         public override string DisplayChangeAsRedo()
-        {
-            return string.Format("{0}.{1} {2} -> {3}",
+            => string.Format("{0}.{1} {2} -> {3}",
               PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
               OldValue is null ? "null" : OldValue.ToString(),
               NewValue is null ? "null" : NewValue.ToString());
-        }
 
         public override string DisplayChangeAsUndo()
-        {
-            return string.Format("{0}.{1} {2} <- {3}",
+            => string.Format("{0}.{1} {2} <- {3}",
               PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
               OldValue is null ? "null" : OldValue.ToString(),
               NewValue is null ? "null" : NewValue.ToString());
-        }
     }
     [Serializable]
     public class LocalValueChangeIDictionary : LocalValueChange
@@ -559,6 +588,8 @@ namespace TheraEngine.Editor
             ValueIsKey = valueIsKey;
         }
 
+        //TODO: handle key add/removes
+
         public override void ApplyNewValue()
         {
             if (!ValueIsKey)
@@ -568,11 +599,11 @@ namespace TheraEngine.Editor
                 if (!DictionaryOwner.Contains(OldValue))
                     return;
                 object value = DictionaryOwner[OldValue];
+                DictionaryOwner.Remove(OldValue);
                 if (DictionaryOwner.Contains(NewValue))
                     DictionaryOwner[NewValue] = value;
                 else
                     DictionaryOwner.Add(NewValue, value);
-                DictionaryOwner.Remove(OldValue);
             }
         }
         public override void ApplyOldValue()
@@ -584,29 +615,25 @@ namespace TheraEngine.Editor
                 if (!DictionaryOwner.Contains(NewValue))
                     return;
                 object value = DictionaryOwner[NewValue];
+                DictionaryOwner.Remove(NewValue);
                 if (DictionaryOwner.Contains(OldValue))
                     DictionaryOwner[OldValue] = value;
                 else
                     DictionaryOwner.Add(OldValue, value);
-                DictionaryOwner.Remove(NewValue);
             }
         }
 
         public override string DisplayChangeAsRedo()
-        {
-            return string.Format("{0}.{1} {2} -> {3}",
+            => string.Format("{0}.{1} {2} -> {3}",
               DictionaryOwner.ToString(), KeyForValue.ToString(),
               OldValue is null ? "null" : OldValue.ToString(),
               NewValue is null ? "null" : NewValue.ToString());
-        }
 
         public override string DisplayChangeAsUndo()
-        {
-            return string.Format("{0}.{1} {2} <- {3}",
+            => string.Format("{0}.{1} {2} <- {3}",
               DictionaryOwner.ToString(), KeyForValue.ToString(),
               OldValue is null ? "null" : OldValue.ToString(),
               NewValue is null ? "null" : NewValue.ToString());
-        }
     }
 #endif
 }

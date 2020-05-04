@@ -133,12 +133,12 @@ namespace TheraEngine.Rendering.Models.Materials
         #region Basic Material Generation
         public static TMaterial CreateUnlitAlphaTextureMaterialForward(TexRef2D texture)
         {
-            return new TMaterial("UnlitAlphaTextureMaterial", new BaseTexRef[] { texture },
+            return new TMaterial("UnlitAlphaTextureMaterial", new [] { texture },
                 ShaderHelpers.UnlitAlphaTextureFragForward());
         }
         public static TMaterial CreateUnlitTextureMaterialForward(TexRef2D texture)
         {
-            return new TMaterial("UnlitTextureMaterial", new BaseTexRef[] { texture },
+            return new TMaterial("UnlitTextureMaterial", new [] { texture },
                 ShaderHelpers.UnlitTextureFragForward());
         }
         public static TMaterial CreateUnlitTextureMaterialForward()

@@ -1017,12 +1017,9 @@ namespace TheraEngine.Components
             string texPath = Engine.Files.TexturePath(textureName);
             TexRef2D tex = new TexRef2D("PreviewIcon", texPath) { SamplerName = "Texture0" };
             GLSLScript shader = Engine.Files.Shader("EditorPreviewIcon.fs", EGLSLType.Fragment);
-            TMaterial mat = new TMaterial("EditorPreviewIconMaterial", new BaseTexRef[] { tex }, shader)
+            TMaterial mat = new TMaterial("EditorPreviewIconMaterial", new [] { tex }, shader) 
             {
-                RenderParams = new RenderingParameters()
-                {
-                    DepthTest = new DepthTest { Enabled = ERenderParamUsage.Disabled },
-                }
+                RenderParams = { DepthTest = { Enabled = ERenderParamUsage.Disabled } } 
             };
             rc.Mesh = new MeshRenderer(data, mat);
             return rc;

@@ -567,7 +567,7 @@ namespace TheraEngine.Core.Maths
             }
             return solvedVector;
         }
-
+        
         #region Transforms
         public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Rotator angles)
         {

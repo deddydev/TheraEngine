@@ -5,7 +5,7 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.Cameras
 {
-    public class VRCamera : TypicalCamera
+    public class VRCamera : Camera
     {
         public VRCamera() : base() { }
 
@@ -42,11 +42,7 @@ namespace TheraEngine.Rendering.Cameras
             _projectionInverse = inverse;
             CalculateProjection();
         }
-
-        public override void Render(bool shadowPass)
-        {
-            _transformedFrustum.Render(shadowPass);
-        }
+        
         public override void SetUniforms(RenderProgram program)
         {
             base.SetUniforms(program);
@@ -71,7 +67,7 @@ namespace TheraEngine.Rendering.Cameras
             //    transformed ? ForwardVector : Vec3.Forward,
             //    transformed ? UpVector : Vec3.Up,
             //    transformed ? _localPoint.Raw : Vec3.Zero);
-            return CreateUntransformedFrustum2();
+            return null; //return CreateUntransformedFrustum2();
         }
 
         public override void RebaseOrigin(Vec3 newOrigin)

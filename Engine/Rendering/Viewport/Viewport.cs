@@ -52,16 +52,7 @@ namespace TheraEngine.Rendering
         public MeshRenderer SpotLightManager { get; private set; }
         public MeshRenderer DirLightManager { get; private set; }
 
-        //public List<ViewportRenderCommand> RenderCommands { get; set; }
-
-        //public void GenerateRenderCommandFBOs()
-        //{
-        //    if (RenderCommands is null)
-        //        return;
-
-        //    foreach (var rc in RenderCommands)
-        //        rc.GenerateFBOs(this);
-        //}
+        public List<ViewportRenderCommand> RenderCommands { get; set; }
 
         //public PrimitiveManager DecalManager;
         //public QuadFrameBuffer DirLightFBO;
@@ -208,6 +199,10 @@ namespace TheraEngine.Rendering
 
         protected virtual void ClearFBOs()
         {
+            if (RenderCommands != null)
+                foreach (var rc in RenderCommands)
+                    rc?.DestroyFBOs();
+
             BloomBlurFBO1?.Destroy();
             BloomBlurFBO1 = null;
             BloomBlurFBO2?.Destroy();
@@ -238,6 +233,11 @@ namespace TheraEngine.Rendering
         internal void GenerateFBOs()
         {
             DateTime start = DateTime.Now;
+
+            if (RenderCommands != null)
+                foreach (var rc in RenderCommands)
+                    rc?.GenerateFBOs(this);
+
             BloomBlurFBO1?.Generate();
             BloomBlurFBO2?.Generate();
             BloomBlurFBO4?.Generate();

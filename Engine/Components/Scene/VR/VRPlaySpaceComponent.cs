@@ -90,7 +90,7 @@ namespace TheraEngine.Components.Scene
         public VRDeviceComponent LeftHand { get; private set; }
         public VRDeviceComponent RightHand { get; private set; }
 
-        private List<VRDeviceComponent> _trackers = new List<VRDeviceComponent>();
+        private readonly List<VRDeviceComponent> _trackers = new List<VRDeviceComponent>();
         public IReadOnlyList<VRDeviceComponent> Trackers => _trackers;
 
         protected internal override void OnOriginRebased(Vec3 newOrigin)

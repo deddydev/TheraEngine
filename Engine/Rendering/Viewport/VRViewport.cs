@@ -59,7 +59,7 @@ namespace TheraEngine.Rendering.Scene
         protected override void OnInitializeFBOs()
         {
             DefaultRenderTarget = new MaterialFrameBuffer(new TMaterial("MatVREyeFBO",
-                new BaseTexRef[]
+                new []
                 {
                     EyeTexture = TexRef2D.CreateFrameBufferTexture(
                         "TexVREyeFBO",

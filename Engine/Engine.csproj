@@ -527,6 +527,7 @@
     <Compile Include="Components\Logic\Animation\StateMachine\AnimState.cs" />
     <Compile Include="Components\Logic\Animation\StateMachine\AnimStateTransition.cs" />
     <Compile Include="Components\Logic\Animation\StateMachine\BlendManager.cs" />
+    <Compile Include="Components\Logic\Common\IKDriverComponent.cs" />
     <Compile Include="Components\Logic\Scripting\ScriptComponent.cs" />
     <Compile Include="Components\Scene\Audio\AudioComponent.cs" />
     <Compile Include="Components\Scene\Camera\BaseCameraComponent.cs" />
@@ -804,7 +805,6 @@
     <Compile Include="Rendering\Cameras\VRCamera.cs" />
     <Compile Include="Rendering\Cameras\TypicalCamera.cs" />
     <Compile Include="Rendering\Renderer\BaseRenderHandler.cs" />
-    <Compile Include="Rendering\Renderer\VRWrapperContext.cs" />
     <Compile Include="Rendering\Scene\RenderInfo3D.cs" />
     <Compile Include="Rendering\Scene\RenderInfo2D.cs" />
     <Compile Include="Rendering\Scene\VRRenderHandler.cs" />

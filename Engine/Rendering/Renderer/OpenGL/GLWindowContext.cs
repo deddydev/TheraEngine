@@ -228,7 +228,7 @@ namespace TheraEngine.Rendering.OpenGL
                 {
                     Engine.Out("Creating hidden window for OpenGL context.");
                     //_hiddenWindow = new NativeWindow(0, 0, 0, 0, VRWindowTitle, GameWindowFlags.FixedWindow, mode, DisplayDevice.Default) { Visible = false };
-                    _controlHandle = Handles[0];//Engine.Instance.ShowDummyForm();
+                    _controlHandle = Engine.Instance.CreateDummyFormHandle();
                 }
                 else
                 {

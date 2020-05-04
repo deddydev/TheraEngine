@@ -8,7 +8,6 @@ namespace TheraEngine.Rendering.Scene
 {
     public class VRRenderHandler : BaseRenderHandler
     {
-        public RenderContext TrueContext { get; set; }
         public Pawn<VRPlaySpaceComponent> VRPawn { get; set; }
         public VRPlaySpaceComponent VRComponent => VRPawn?.RootComponent;
 

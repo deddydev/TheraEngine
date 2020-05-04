@@ -36,7 +36,7 @@ namespace TheraEngine.Timers
         private readonly Stopwatch _watch = new Stopwatch();
 
         private ManualResetEventSlim _renderStarted;
-        private ManualResetEventSlim _preRenderDone;
+        private ManualResetEventSlim _swapDone;
         private ManualResetEventSlim _renderDone;
         private ManualResetEventSlim _updatingDone;
 
@@ -77,7 +77,7 @@ namespace TheraEngine.Timers
         }
         private void MakeManualResetEvents()
         {
-            _preRenderDone = new ManualResetEventSlim(false);
+            _swapDone = new ManualResetEventSlim(false);
             _renderStarted = new ManualResetEventSlim(false);
             _renderDone = new ManualResetEventSlim(true);
             _updatingDone = new ManualResetEventSlim(false);
@@ -174,17 +174,14 @@ namespace TheraEngine.Timers
         private void MultiThreadPreRenderLoop()
         {
             DispatchPreRender();
-            WaitRenderDone();
-            DispatchSwapBuffers();
-            //_updatingDone.Wait();
             SetPreRenderDone();
-            WaitRenderStarted();
+            WaitSwapDone();
         }
         private void MultiThreadRenderLoop()
         {
-            SetRenderDone();
             WaitPreRenderDone();
-            SetRenderStarted();
+            DispatchSwapBuffers();
+            SetSwapDone();
             while (!DispatchRender()) ;
         }
         private void MultiThreadRenderLoopSingle()
@@ -198,11 +195,11 @@ namespace TheraEngine.Timers
         {
             _renderStarted.Set();
         }
-        private void SetPreRenderDone()
+        private void SetSwapDone()
         {
-            _preRenderDone.Set();
+            _swapDone.Set();
         }
-        private void SetRenderDone()
+        private void SetPreRenderDone()
         {
             _renderDone.Set();
         }
@@ -211,12 +208,12 @@ namespace TheraEngine.Timers
             _renderStarted.Wait();
             _renderStarted.Reset();
         }
-        private void WaitPreRenderDone()
+        private void WaitSwapDone()
         {
-            _preRenderDone.Wait();
-            _preRenderDone.Reset();
+            _swapDone.Wait();
+            _swapDone.Reset();
         }
-        private void WaitRenderDone()
+        private void WaitPreRenderDone()
         {
             _renderDone.Wait();
             _renderDone.Reset();
@@ -230,7 +227,7 @@ namespace TheraEngine.Timers
             IsRunning = false;
 
             _renderDone?.Set();
-            _preRenderDone?.Set();
+            _swapDone?.Set();
             _renderStarted?.Set();
             //_updatingDone?.Set();
 
@@ -256,7 +253,7 @@ namespace TheraEngine.Timers
 
             _watch.Stop();
 
-            _preRenderDone = null;
+            _swapDone = null;
             _renderStarted = null;
             _renderDone = null;
 
@@ -382,7 +379,7 @@ namespace TheraEngine.Timers
             if (Engine.IsPaused)
                 Engine.TickGroup(ETickGroup.PostPhysics, e.Time);
         }
-        
+
         /// <summary>
         /// Gets a float representing the actual frequency of RenderFrame events, in hertz (i.e. fps or frames per second).
         /// </summary>
@@ -430,7 +427,7 @@ namespace TheraEngine.Timers
                 }
             }
         }
-        
+
         /// <summary>
         /// Gets or sets a float representing the target render period, in seconds.
         /// </summary>
@@ -460,7 +457,7 @@ namespace TheraEngine.Timers
                 }
             }
         }
-        
+
         /// <summary>
         /// Gets or sets a float representing the target update frequency, in hertz.
         /// </summary>
@@ -495,7 +492,7 @@ namespace TheraEngine.Timers
                 }
             }
         }
-        
+
         /// <summary>
         /// Gets or sets a float representing the target update period, in seconds.
         /// </summary>
@@ -525,7 +522,7 @@ namespace TheraEngine.Timers
                 }
             }
         }
-        
+
         /// <summary>
         /// Gets a float representing the frequency of UpdateFrame events, in hertz (updates per second).
         /// </summary>

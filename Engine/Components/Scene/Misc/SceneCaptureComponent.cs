@@ -100,7 +100,7 @@ namespace TheraEngine.Components.Scene
             //RenderFBO.SetTransform(WorldPoint);
 
             //float aspect = _viewport.InternalResolution.Width / _viewport.InternalResolution.Height;
-            foreach (TypicalCamera cam in RenderFBO.Cameras)
+            foreach (TransformableCamera cam in RenderFBO.Cameras)
             {
                 ChildComponents.Add(new CameraComponent(cam));
 

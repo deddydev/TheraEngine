@@ -338,22 +338,24 @@ namespace TheraEngine.Rendering
             if (!FBOsInitialized)
                 InitializeFBOs();
 
-            scene.Render(_renderPasses, camera, this, targetFboOverride ?? DefaultRenderTarget);
+            scene.RenderPipeline(_renderPasses, camera, this, targetFboOverride ?? DefaultRenderTarget);
 
             if (scene is Scene3D s3d && !_captured)
             {
-                s3d.IBLProbeActor?.InitAndCaptureAll(512);
+                Engine.Out(EOutputVerbosity.Normal, true, true, true, true, 0, 10, "Capturing scene IBL...");
+                s3d.CaptureIBL();
                 _captured = true;
             }
 
             //hud may sample scene colors, render it after scene
-            AttachedHUD?.RenderInScreenSpace(this, HUDFBO);
+            AttachedHUD?.RenderScreenSpace(this, HUDFBO);
         }
         public void PreRenderSwap() => PreRenderSwap(AttachedCamera, AttachedHUD);
         public void PreRenderSwap(ICamera camera, IUserInterfacePawn hud)
         {
             camera?.OwningComponent?.OwningScene?.PreRenderSwap();
-            hud?.SwapInScreenSpace();
+
+            hud?.PreRenderSwap();
 
             _renderPasses.SwapBuffers();
         }
@@ -366,7 +368,7 @@ namespace TheraEngine.Rendering
         /// <param name="hud"></param>
         public void PreRenderUpdate(ICamera camera, IUserInterfacePawn hud)
         {
-            camera?.OwningComponent?.OwningScene?.PreRenderUpdate(_renderPasses, camera.Frustum, camera);
+            camera?.OwningComponent?.OwningScene?.PreRenderUpdate(_renderPasses, camera.CullWithFrustum ? camera.Frustum : null, camera);
             hud?.UpdateLayout();
         }
 
@@ -446,21 +448,18 @@ namespace TheraEngine.Rendering
         //    _decalComp = c;
         //    DecalManager.Render(c.DecalRenderMatrix);
         //}
+
         //TODO: render using instances
         internal void RenderDirLight(DirectionalLightComponent c)
-        {
-            _lightComp = c;
-            DirLightManager.Render(c.LightMatrix, Matrix3.Identity);
-        }
+            => RenderLight(DirLightManager, c);
         internal void RenderPointLight(PointLightComponent c)
-        {
-            _lightComp = c;
-            PointLightManager.Render(c.LightMatrix, Matrix3.Identity);
-        }
+            => RenderLight(PointLightManager, c);
         internal void RenderSpotLight(SpotLightComponent c)
+            => RenderLight(SpotLightManager, c);
+        private void RenderLight(MeshRenderer renderer, LightComponent comp)
         {
-            _lightComp = c;
-            SpotLightManager.Render(c.LightMatrix, Matrix3.Identity);
+            _lightComp = comp;
+            renderer.Render(comp.LightMatrix, Matrix3.Identity);
         }
 
         /// <summary>

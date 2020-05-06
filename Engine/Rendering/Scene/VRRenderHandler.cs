@@ -56,8 +56,11 @@ namespace TheraEngine.Rendering.Scene
             //TrueContext = World.Manager?.AssociatedContexts?.FirstOrDefault(x => x?.Handler?.Viewports.ContainsKey(ELocalPlayerIndex.One) ?? false);
         }
 
-        private void World_PreEndPlay() => World?.DespawnActor(VRPawn);
-        private void World_PostBeginPlay() => World?.SpawnActor(VRPawn);
+        private void World_PreEndPlay()
+            => World?.DespawnActor(VRPawn);
+
+        private void World_PostBeginPlay()
+            => World?.SpawnActor(VRPawn);
 
         public override void Closed()
         {

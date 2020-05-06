@@ -4,33 +4,29 @@ using System.Drawing;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Cameras
 {
     /// <summary>
     /// Base class for your usual perspective and orthographic cameras.
     /// </summary>
-    public abstract class TypicalCamera : Camera, ICameraTransformable
+    public abstract class TransformableCamera : Camera, ICameraTransformable
     {
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(Rotator oldRotation);
 
-        protected TypicalCamera() 
+        protected TransformableCamera() 
             : this(16.0f, 9.0f) { }
-        protected TypicalCamera(float width, float height)
+        protected TransformableCamera(float width, float height)
             : this(width, height, 1.0f, 10000.0f) { }
-        protected TypicalCamera(float width, float height, float nearZ, float farZ)
+        protected TransformableCamera(float width, float height, float nearZ, float farZ)
             : this(width, height, nearZ, farZ, Vec3.Zero, Rotator.GetZero()) { }
-        protected TypicalCamera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation) : base()
+        protected TransformableCamera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation) : base(nearZ, farZ)
         {
             _localRotation = rotation;
             _localPoint = point;
-            _nearZ = nearZ;
-            _farZ = farZ;
 
             Resize(width, height);
 
@@ -52,28 +48,6 @@ namespace TheraEngine.Rendering.Cameras
                 _localPoint.Raw = _cameraToWorldSpaceMatrix.Translation;
                 _localRotation.SetRotations(_cameraToWorldSpaceMatrix.GetRotationMatrix4().ExtractRotation().ToRotator());
                 OnTransformChanged();
-            }
-        }
-        [DisplayName("Near Distance")]
-        [Category("Camera")]
-        public override float NearZ
-        {
-            get => _nearZ;
-            set
-            {
-                _nearZ = value;
-                CalculateProjection();
-            }
-        }
-        [DisplayName("Far Distance")]
-        [Category("Camera")]
-        public override float FarZ
-        {
-            get => _farZ;
-            set
-            {
-                _farZ = value;
-                CalculateProjection();
             }
         }
 
@@ -107,9 +81,6 @@ namespace TheraEngine.Rendering.Cameras
                 CreateTransform();
             }
         }
-        [Category("Camera")]
-        [TSerialize]
-        public LocalFileRef<TMaterial> PostProcessMaterial { get; set; }
 
         [Category("Camera")]
         public EventVec3 ViewTarget
@@ -134,12 +105,8 @@ namespace TheraEngine.Rendering.Cameras
         protected EventVec3 _localPoint;
         [TSerialize("Rotation")]
         protected Rotator _localRotation;
-        [TSerialize("NearZ")]
-        protected float _nearZ;
-        [TSerialize("FarZ")]
-        protected float _farZ;
-        [TSerialize("PostProcessSettings")]
-        private LocalFileRef<PostProcessSettings> _postProcessSettingsRef;
+        //[TSerialize("PostProcessSettings")]
+        //private LocalFileRef<PostProcessSettings> _postProcessSettingsRef;
 
         private void ViewTargetChanged()
             => SetRotationWithTarget(_viewTarget.Raw);
@@ -241,13 +208,6 @@ namespace TheraEngine.Rendering.Cameras
             => TranslationChanged?.Invoke(oldTranslation);
         protected void OnRotationChanged(Rotator oldRotation)
             => RotationChanged?.Invoke(oldRotation);
-        
-        public override void SetUniforms(RenderProgram program)
-        {
-            base.SetUniforms(program);
-            program.Uniform(EEngineUniform.CameraNearZ, NearZ);
-            program.Uniform(EEngineUniform.CameraFarZ, FarZ);
-        }
         
         public override void Render(bool shadowPass)
         {

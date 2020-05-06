@@ -199,22 +199,13 @@ namespace TheraEngine.Rendering
                         RenderBloomPass(viewport);
 
                         if (camera.UsesAutoExposure)
-                        {
                             viewport.HDRSceneTexture.CalcDotLuminance();
-                        }
+                        
+                        camera.UpdateExposure(viewport.HDRSceneTexture);
 
-                        if (camera is TypicalCamera typicalCamera)
-                        {
-                            typicalCamera.UpdateExposure(viewport.HDRSceneTexture);
-
-                            TMaterial postMat = typicalCamera.PostProcessMaterial?.File;
-                            if (postMat != null)
-                                RenderPostProcessPass(viewport, postMat);
-                        }
-                        else if (camera is BlendableCamera blendableCamera)
-                        {
-                            blendableCamera.UpdateExposure(viewport.HDRSceneTexture);
-                        }
+                        TMaterial postMat = camera.PostProcessMaterial;
+                        if (postMat != null)
+                            RenderPostProcessPass(viewport, postMat);
                     }
                     renderer.PopRenderArea();
 
@@ -338,6 +329,18 @@ namespace TheraEngine.Rendering
             }
             fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
+
+        private bool _capturing = false;
+        public void CaptureIBL()
+        {
+            if (_capturing)
+                return;
+
+            _capturing = true;
+            IBLProbeActor?.InitAndCaptureAll(1024);
+            _capturing = false;
+        }
+
         private void BloomScaledPass(QuadFrameBuffer fbo, BoundingRectangle rect, int mipmap)
         {
             Engine.Renderer.PushRenderArea(rect);

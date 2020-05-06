@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Core.Files;
@@ -21,6 +22,8 @@ namespace TheraEngine.Rendering.Cameras
         float Height { get; }
         float NearZ { get; set; }
         float FarZ { get; set; }
+
+        bool CullWithFrustum { get; set; }
 
         Matrix4 ProjectionMatrix { get; }
         Matrix4 InverseProjectionMatrix { get; }
@@ -81,6 +84,9 @@ namespace TheraEngine.Rendering.Cameras
         void SetPostProcessUniforms(RenderProgram program);
 
         bool UsesAutoExposure { get; }
+        TMaterial PostProcessMaterial { get; set; }
+
+        void UpdateExposure(TexRef2D hDRSceneTexture);
     }
     public delegate void OwningComponentChange(SceneComponent previous, SceneComponent current);
     public abstract class Camera : TFileObject, ICamera
@@ -91,6 +97,12 @@ namespace TheraEngine.Rendering.Cameras
             _renderCommand = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
             _transformedFrustum = new Frustum();
         }
+        protected Camera(float nearZ, float farZ) : this()
+        {
+            _nearZ = nearZ;
+            _farZ = farZ;
+            CalculateProjection();
+        }
 
         public event OwningComponentChange OwningComponentChanged;
         public event Action TransformChanged;
@@ -98,10 +110,23 @@ namespace TheraEngine.Rendering.Cameras
 
         public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 
-        public abstract float NearZ { get; set; }
-        public abstract float FarZ { get; set; }
-
         private PostProcessSettings _postProcessSettingsRef;
+
+        [Category("Camera")]
+        [TSerialize]
+        public LocalFileRef<TMaterial> PostProcessMaterialRef { get; set; }
+
+        [Browsable(false)]
+        public TMaterial PostProcessMaterial
+        {
+            get => PostProcessMaterialRef?.File;
+            set
+            {
+                var mref = PostProcessMaterialRef;
+                if (mref != null)
+                    mref.File = value;
+            }
+        }
 
         [Browsable(false)]
         public Matrix4 ProjectionMatrix => _projectionMatrix;
@@ -147,7 +172,35 @@ namespace TheraEngine.Rendering.Cameras
         [Browsable(false)]
         [Category("Camera")]
         public virtual Vec3 WorldPoint => _owningComponent?.WorldMatrix.Translation ?? Vec3.Zero;
-        
+
+        [Category("Camera")]
+        public bool CullWithFrustum { get; set; } = true;
+
+        [TSerialize("NearZ")]
+        [DisplayName("Near Distance")]
+        [Category("Camera")]
+        public virtual float NearZ
+        {
+            get => _nearZ;
+            set
+            {
+                _nearZ = value;
+                CalculateProjection();
+            }
+        }
+        [TSerialize("FarZ")]
+        [DisplayName("Far Distance")]
+        [Category("Camera")]
+        public virtual float FarZ
+        {
+            get => _farZ;
+            set
+            {
+                _farZ = value;
+                CalculateProjection();
+            }
+        }
+
         [Browsable(false)]
         public IFrustum Frustum => _transformedFrustum;
         [Browsable(false)]
@@ -195,6 +248,7 @@ namespace TheraEngine.Rendering.Cameras
         internal Vec3 _projectionOrigin;
         protected IFrustum _untransformedFrustum, _transformedFrustum;
         protected bool _updating = false;
+        protected float _nearZ, _farZ;
         protected Matrix4
             _projectionMatrix = Matrix4.Identity,
             _projectionInverse = Matrix4.Identity,
@@ -327,23 +381,23 @@ namespace TheraEngine.Rendering.Cameras
             _updating = false;
         }
 
-//        internal static string ShaderDecl()
-//        {
-//            return @"
-//uniform vec3 CameraPosition;
-//uniform vec3 CameraForward;
-//uniform float CameraNearZ;
-//uniform float CameraFarZ;
-//uniform float ScreenWidth;
-//uniform float ScreenHeight;
-//uniform float ScreenOrigin;
-//uniform float ProjOrigin;
-//uniform float ProjRange;
-//uniform mat4 WorldToCameraSpaceMatrix;
-//uniform mat4 CameraToWorldSpaceMatrix;
-//uniform mat4 ProjMatrix;
-//uniform mat4 InvProjMatrix;";
-//        }
+        //        internal static string ShaderDecl()
+        //        {
+        //            return @"
+        //uniform vec3 CameraPosition;
+        //uniform vec3 CameraForward;
+        //uniform float CameraNearZ;
+        //uniform float CameraFarZ;
+        //uniform float ScreenWidth;
+        //uniform float ScreenHeight;
+        //uniform float ScreenOrigin;
+        //uniform float ProjOrigin;
+        //uniform float ProjRange;
+        //uniform mat4 WorldToCameraSpaceMatrix;
+        //uniform mat4 CameraToWorldSpaceMatrix;
+        //uniform mat4 ProjMatrix;
+        //uniform mat4 InvProjMatrix;";
+        //        }
 
         public virtual void SetUniforms(RenderProgram program)
         {
@@ -355,6 +409,8 @@ namespace TheraEngine.Rendering.Cameras
             program.Uniform(EEngineUniform.ScreenHeight,                Height);
             program.Uniform(EEngineUniform.ScreenOrigin,                Origin);
             program.Uniform(EEngineUniform.CameraPosition,              WorldPoint);
+            program.Uniform(EEngineUniform.CameraNearZ,                 NearZ);
+            program.Uniform(EEngineUniform.CameraFarZ,                  FarZ);
         }
         
         protected abstract void OnCreateTransform(

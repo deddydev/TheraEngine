@@ -33,8 +33,8 @@ namespace TheraEngine.Actors.Types.Pawns
 
         void PreRender();
 
-        void SwapInScreenSpace();
-        void RenderInScreenSpace(Viewport viewport, QuadFrameBuffer fbo);
+        void PreRenderSwap();
+        void RenderScreenSpace(Viewport viewport, QuadFrameBuffer fbo);
         void UpdateLayout();
 
         void InvalidateLayout();
@@ -321,16 +321,15 @@ namespace TheraEngine.Actors.Types.Pawns
                 RootComponent?.ScreenSpaceUIScene?.PreRender(v, RootComponent?.ScreenSpaceCamera);
         }
 
-        public void SwapInScreenSpace()
+        public void PreRenderSwap()
         {
             if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)
-                RootComponent.SwapInScreenSpace();
+                RootComponent.SwapBuffersScreenSpace();
         }
-
-        public void RenderInScreenSpace(Viewport viewport, QuadFrameBuffer fbo)
+        public void RenderScreenSpace(Viewport viewport, QuadFrameBuffer fbo)
         {
             if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)
-                RootComponent.RenderInScreenSpace(viewport, fbo);
+                RootComponent.RenderScreenSpace(viewport, fbo);
         }
 
         public Action<UserInterfacePawn<T>> ResizeStarted;
@@ -355,7 +354,7 @@ namespace TheraEngine.Actors.Types.Pawns
             }
 
             if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)
-                RootComponent.UpdateInScreenSpace();
+                RootComponent.UpdateScreenSpace();
         }
 
         [Browsable(false)]

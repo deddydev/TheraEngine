@@ -6,7 +6,7 @@ using TheraEngine.ComponentModel;
 
 namespace TheraEngine.Rendering.Cameras
 {
-    public class OrthographicCamera : TypicalCamera
+    public class OrthographicCamera : TransformableCamera
     {
         public OrthographicCamera() : base()
         {

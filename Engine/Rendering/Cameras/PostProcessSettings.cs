@@ -173,7 +173,7 @@ uniform VignetteStruct Vignette;";
         
         private float _contrast;
         private float _contrastUniformValue;
-        private float _exposureTransitionSpeed = 0.01f;
+        private float _exposureTransitionSpeed = 0.1f;
 
         [TSerialize]
         [Category("Color Grade Settings")]
@@ -209,7 +209,7 @@ uniform VignetteStruct Vignette;";
         }
         [TSerialize]
         [Category("Color Grade Settings")]
-        public float Exposure { get; set; } = -1.0f;
+        public float Exposure { get; set; } = 1.0f;
 
         [TSerialize]
         [Category("Color Grade Settings")]

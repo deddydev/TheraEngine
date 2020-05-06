@@ -110,8 +110,8 @@ namespace TheraEngine.Rendering.UI
             //TODO: resize buffer length if text length reaches capacity
             //Or use multiple primitive managers all set to same fixed size buffer
             int textLengthCapacity = MaxTextLength;
-            var positionsBuffer = data.AddBuffer(new Vec4[textLengthCapacity], new VertexAttribInfo(EBufferType.Other, 0), false, false, true, 1);
-            var textureRegionsBuffer = data.AddBuffer(new Vec4[textLengthCapacity], new VertexAttribInfo(EBufferType.Other, 1), false, false, true, 1);
+            var positionsBuffer = data.AddBuffer(new Vec4[textLengthCapacity], new VertexAttribInfo(EBufferType.Aux, 0), false, false, true, 1);
+            var textureRegionsBuffer = data.AddBuffer(new Vec4[textLengthCapacity], new VertexAttribInfo(EBufferType.Aux, 1), false, false, true, 1);
 
             positionsBuffer.Location = 1;
             textureRegionsBuffer.Location = 2;

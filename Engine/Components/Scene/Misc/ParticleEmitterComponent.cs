@@ -176,7 +176,7 @@ namespace TheraEngine.Components.Scene
                 IParticle p = this[i];
                 if (p.Life > 0.0f)
                 {
-                    var instBufs = ParticleMesh.TargetMesh.GetAllBuffersOfType(EBufferType.Other);
+                    var instBufs = ParticleMesh.TargetMesh.GetAllBuffersOfType(EBufferType.Aux);
                     p.Update(delta, instBufs, instanceCount, this);
                     //Interlocked.Increment(ref instanceCount);
                     ++instanceCount;
@@ -299,8 +299,8 @@ namespace TheraEngine.Components.Scene
             Vec4[] positions = new Vec4[component.MaxParticles];
             ColorF4[] colors = new ColorF4[component.MaxParticles];
 
-            var posBuf = data.AddBuffer(positions, new VertexAttribInfo(EBufferType.Other, 0), false, false, true, 1);
-            var colBuf = data.AddBuffer(colors, new VertexAttribInfo(EBufferType.Other, 1), false, false, true, 1);
+            var posBuf = data.AddBuffer(positions, new VertexAttribInfo(EBufferType.Aux, 0), false, false, true, 1);
+            var colBuf = data.AddBuffer(colors, new VertexAttribInfo(EBufferType.Aux, 1), false, false, true, 1);
 
             posBuf.Location = 1;
             colBuf.Location = 2;

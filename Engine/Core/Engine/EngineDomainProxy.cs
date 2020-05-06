@@ -286,13 +286,17 @@ namespace TheraEngine.Core
                 if (m is null || m.AssociatedContexts.Count == 0)
                     continue;
 
-                m.AssociatedContexts[0].Capture(true);
-                m.GlobalPreRender(e.Time);
+                //m.AssociatedContexts[0].Capture(true);
+                //m.GlobalPreRender(e.Time);
 
                 try
                 {
                     foreach (var ctx in m.AssociatedContexts)
+                    {
+                        ctx.Capture();
+                        m.GlobalPreRender(e.Time);
                         ctx.Render();
+                    }
                 }
                 catch { }
             }

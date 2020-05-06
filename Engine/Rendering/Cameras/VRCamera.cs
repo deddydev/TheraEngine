@@ -15,9 +15,6 @@ namespace TheraEngine.Rendering.Cameras
         public override float Width => 1.0f;
         public override float Height => 1.0f;
         
-        public override float NearZ { get; set; }
-        public override float FarZ { get; set; }
-
         protected override void OnCalculateProjection(out Matrix4 projMatrix, out Matrix4 inverseProjMatrix)
         {
             projMatrix = _projectionMatrix;
@@ -43,23 +40,6 @@ namespace TheraEngine.Rendering.Cameras
             CalculateProjection();
         }
         
-        public override void SetUniforms(RenderProgram program)
-        {
-            base.SetUniforms(program);
-            //program.Uniform(EEngineUniform.CameraFovX, FovX);
-            //program.Uniform(EEngineUniform.CameraFovY, FovY);
-            //program.Uniform(EEngineUniform.CameraAspect, Aspect);
-        }
-        public override void Resize(float width, float height)
-        {
-            //_width = width;
-            //_height = height;
-            //if (!_overrideAspect)
-            //    _aspect = _width / _height;
-            //if (_transformedFrustumCascade is null)
-            //    InitFrustumCascade();
-            base.Resize(width, height);
-        }
         protected override IFrustum CreateUntransformedFrustum()
         {
             //const bool transformed = false;
@@ -67,7 +47,7 @@ namespace TheraEngine.Rendering.Cameras
             //    transformed ? ForwardVector : Vec3.Forward,
             //    transformed ? UpVector : Vec3.Up,
             //    transformed ? _localPoint.Raw : Vec3.Zero);
-            return null; //return CreateUntransformedFrustum2();
+            return CreateUntransformedFrustum2();
         }
 
         public override void RebaseOrigin(Vec3 newOrigin)

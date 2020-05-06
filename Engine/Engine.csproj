@@ -803,11 +803,16 @@
     <Compile Include="Physics\ContactTest.cs" />
     <Compile Include="Rendering\Cameras\BlendableCamera.cs" />
     <Compile Include="Rendering\Cameras\VRCamera.cs" />
-    <Compile Include="Rendering\Cameras\TypicalCamera.cs" />
+    <Compile Include="Rendering\Cameras\TransformableCamera.cs" />
     <Compile Include="Rendering\Renderer\BaseRenderHandler.cs" />
     <Compile Include="Rendering\Scene\RenderInfo3D.cs" />
     <Compile Include="Rendering\Scene\RenderInfo2D.cs" />
+    <Compile Include="Rendering\Scene\RenderPasses.cs" />
     <Compile Include="Rendering\Scene\VRRenderHandler.cs" />
+    <Compile Include="Rendering\Viewport\Commands\FBORender.cs" />
+    <Compile Include="Rendering\Viewport\Commands\Lights.cs" />
+    <Compile Include="Rendering\Viewport\Commands\Bloom.cs" />
+    <Compile Include="Rendering\Viewport\Commands\Basic.cs" />
     <Compile Include="Rendering\Viewport\Commands\BaseCommandClasses.cs" />
     <Compile Include="Rendering\Viewport\VRViewport.cs" />
     <Compile Include="Components\Scene\UI\Interactable\TMenuComponent.cs" />

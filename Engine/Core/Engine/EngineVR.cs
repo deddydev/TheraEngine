@@ -237,7 +237,7 @@ namespace TheraEngine.Core
 
         private static void OnStarted()
         {
-            OpenVR.Compositor.ForceInterleavedReprojectionOn(true);
+            //OpenVR.Compositor.ForceInterleavedReprojectionOn(true);
             OpenVR.Compositor.SetTrackingSpace(TrackingOrigin);
             uint w = 0u, h = 0u;
             OpenVR.System.GetRecommendedRenderTargetSize(ref w, ref h);

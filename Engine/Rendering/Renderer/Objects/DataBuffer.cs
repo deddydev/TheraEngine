@@ -35,7 +35,7 @@ namespace TheraEngine.Rendering.Models
         MatrixWeights = 5, //VertexBuffer.MaxMorphs + 1: 5
         Color = 6, //VertexBuffer.MaxColors: 6,7
         TexCoord = 7, //VertexBuffer.MaxTexCoords: 8-15
-        Other = 8, //VertexBuffer.MaxOtherBuffers: 16-25
+        Aux = 8, //VertexBuffer.MaxOtherBuffers: 16-25
     }
     public class VertexAttribInfo
     {
@@ -56,7 +56,7 @@ namespace TheraEngine.Rendering.Models
                     return VertexShaderDesc.MaxColors;
                 case EBufferType.TexCoord:
                     return VertexShaderDesc.MaxTexCoords;
-                case EBufferType.Other:
+                case EBufferType.Aux:
                     return VertexShaderDesc.MaxOtherBuffers;
                 default:
                     return VertexShaderDesc.MaxMorphs + 1;
@@ -107,6 +107,9 @@ namespace TheraEngine.Rendering.Models
         public bool MapData { get; set; } = false;
         public EBufferTarget Target { get; private set; } = EBufferTarget.ArrayBuffer;
         public EBufferUsage Usage { get; set; } = EBufferUsage.StaticDraw;
+        /// <summary>
+        /// Dictates the buffer's binding location in the vertex shader.
+        /// </summary>
         public int Location { get => _location; set => _location = value; }
 
         private string _name;
@@ -127,7 +130,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize("ElementCount", NodeType = ENodeType.Attribute)]
         public int _elementCount;
         [TSerialize("Type", NodeType = ENodeType.Attribute)]
-        public EBufferType _type = EBufferType.Other;
+        public EBufferType _type = EBufferType.Aux;
         [TSerialize("Divisor", NodeType = ENodeType.Attribute)]
         public int _divisor = 0;
         public int _vaoId = 0;

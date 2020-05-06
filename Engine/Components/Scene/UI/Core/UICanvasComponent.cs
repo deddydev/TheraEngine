@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.UI
         OrthographicCamera ScreenSpaceCamera { get; }
         RenderPasses ScreenSpaceRenderPasses { get; set; }
 
-        void RenderInScreenSpace(Viewport viewport, QuadFrameBuffer fbo);
+        void RenderScreenSpace(Viewport viewport, QuadFrameBuffer fbo);
     }
     public enum ECanvasDrawSpace
     {
@@ -106,8 +106,8 @@ namespace TheraEngine.Rendering.UI
         {
             Engine.Out($"UI CANVAS {Name} : {parentRegion.Width.Rounded(2)} x {parentRegion.Height.Rounded(2)}");
 
-            ScreenSpaceUIScene.Resize(parentRegion.Extents);
-            ScreenSpaceCamera.Resize(parentRegion.Width, parentRegion.Height);
+            ScreenSpaceUIScene?.Resize(parentRegion.Extents);
+            ScreenSpaceCamera?.Resize(parentRegion.Width, parentRegion.Height);
 
             base.OnResizeLayout(parentRegion);
         }
@@ -125,14 +125,14 @@ namespace TheraEngine.Rendering.UI
 
         }
 
-        public void RenderInScreenSpace(Viewport viewport, QuadFrameBuffer fbo)
+        public void RenderScreenSpace(Viewport viewport, QuadFrameBuffer fbo)
             => ScreenSpaceUIScene?.Render(ScreenSpaceRenderPasses, ScreenSpaceCamera, viewport, fbo);
-        public void UpdateInScreenSpace()
+        public void UpdateScreenSpace()
             => ScreenSpaceUIScene?.PreRenderUpdate(ScreenSpaceRenderPasses, null, ScreenSpaceCamera);
-        public void SwapInScreenSpace()
+        public void SwapBuffersScreenSpace()
         {
             ScreenSpaceUIScene?.GlobalSwap();
-            ScreenSpaceRenderPasses.SwapBuffers();
+            ScreenSpaceRenderPasses?.SwapBuffers();
         }
 
         internal List<I2DRenderable> FindAllIntersecting(Vec2 viewportPoint) => throw new NotImplementedException();
@@ -212,7 +212,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
-        IUIInteractableComponent DeepestInteractable { get; set; }
+        public IUIInteractableComponent DeepestInteractable { get; private set; }
 
         private SortedSet<I2DRenderable> LastInteractableIntersections = new SortedSet<I2DRenderable>(new Comparer());
         private SortedSet<I2DRenderable> InteractableIntersections = new SortedSet<I2DRenderable>(new Comparer());
@@ -221,32 +221,33 @@ namespace TheraEngine.Rendering.UI
         protected virtual void MouseMove(float x, float y)
         {
             Vec2 newPos = GetCursorPositionWorld();
-            if (CursorPositionWorld.DistanceToSquared(newPos) < 0.001f) 
+            if (CursorPositionWorld.DistanceToSquared(newPos) < 0.001f)
                 return;
 
             LastCursorPositionWorld = CursorPositionWorld;
             CursorPositionWorld = newPos;
 
             var tree = ScreenSpaceUIScene?.RenderTree;
-            if (tree != null)
-            {
-                tree.FindAllIntersectingSorted(CursorPositionWorld, InteractableIntersections, InteractablePredicate);
-                DeepestInteractable = InteractableIntersections.Min as IUIInteractableComponent;
+            if (tree is null)
+                return;
+            
+            tree.FindAllIntersectingSorted(CursorPositionWorld, InteractableIntersections, InteractablePredicate);
+            DeepestInteractable = InteractableIntersections.Min as IUIInteractableComponent;
 
-                LastInteractableIntersections.ForEach(ValidatePreviousIntersection);
-                InteractableIntersections.ForEach(ValidateCurrentIntersection);
+            LastInteractableIntersections.ForEach(ValidateIntersection);
+            InteractableIntersections.ForEach(ValidateIntersection);
 
-                THelpers.Swap(ref LastInteractableIntersections, ref InteractableIntersections);
-            }
+            THelpers.Swap(ref LastInteractableIntersections, ref InteractableIntersections);
         }
-
-        private void ValidatePreviousIntersection(I2DRenderable obj)
+        private void ValidateIntersection(I2DRenderable obj)
         {
             if (!(obj is IUIInteractableComponent inter))
                 return;
             
             if (LastInteractableIntersections.Contains(obj))
             {
+                //Mouse was over this renderable last update
+
                 if (!InteractableIntersections.Contains(obj))
                 {
                     //Lost mouse over
@@ -256,11 +257,15 @@ namespace TheraEngine.Rendering.UI
                 else
                 {
                     //Had mouse over and still does now
-                    inter.MouseMove(inter.ScreenToLocal(LastCursorPositionWorld), inter.ScreenToLocal(CursorPositionWorld));
+                    inter.MouseMove(
+                        inter.ScreenToLocal(LastCursorPositionWorld),
+                        inter.ScreenToLocal(CursorPositionWorld));
                 }
             }
             else
             {
+                //Mouse was not over this renderable last update
+
                 if (InteractableIntersections.Contains(obj))
                 {
                     //Got mouse over
@@ -269,50 +274,18 @@ namespace TheraEngine.Rendering.UI
                 }
             }
         }
-        private void ValidateCurrentIntersection(I2DRenderable obj)
-        {
-            if (!(obj is IUIInteractableComponent inter))
-                return;
-
-            if (LastInteractableIntersections.Contains(obj))
-            {
-                if (!InteractableIntersections.Contains(obj))
-                {
-                    //Lost mouse over
-                    inter.IsMouseOver = false;
-                    inter.IsMouseDirectlyOver = false;
-                }
-                else
-                {
-                    //Had mouse over and still does now
-                    inter.MouseMove(inter.ScreenToLocal(LastCursorPositionWorld), inter.ScreenToLocal(CursorPositionWorld));
-                }
-            }
-            else
-            {
-                if (InteractableIntersections.Contains(obj))
-                {
-                    //Got mouse over
-                    inter.IsMouseOver = true;
-                    inter.IsMouseDirectlyOver = obj == DeepestInteractable;
-                }
-            }
-        }
-
         private void OnClick()
         {
             FocusedComponent = DeepestInteractable;
         }
         private Vec2 GetCursorPositionWorld()
         {
-            LocalPlayerController controller = null;
-            if (OwningActor is IPawn pawn)
-            {
-                if (pawn is IUserInterfacePawn ui && ui.OwningPawn is IPawn uiOwner)
-                    controller = uiOwner.LocalPlayerController ?? pawn.LocalPlayerController;
-                else
-                    controller = pawn.LocalPlayerController;
-            }
+            if (!(OwningActor is IPawn pawn))
+                return Vec2.Zero;
+            
+            LocalPlayerController controller = pawn is IUserInterfacePawn ui && ui.OwningPawn is IPawn uiOwner
+                ? uiOwner.LocalPlayerController ?? pawn.LocalPlayerController
+                : pawn.LocalPlayerController;
 
             Viewport v = controller?.Viewport;
             return v?.ScreenToWorld(v.CursorPosition()).Xy ?? Vec2.Zero;

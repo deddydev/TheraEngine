@@ -169,27 +169,27 @@ namespace TheraEditor.Wrappers
         protected void GenerateMenu() => GenerateMenu(_menu);
         protected void GenerateMenu(ITMenu menu)
         {
-            ContextMenuStrip strip = new ContextMenuStrip
-            {
-                RenderMode = ToolStripRenderMode.Professional,
-                Renderer = new TheraForm.TheraToolStripRenderer()
-            };
+            //ContextMenuStrip strip = new ContextMenuStrip
+            //{
+            //    RenderMode = ToolStripRenderMode.Professional,
+            //    Renderer = new TheraForm.TheraToolStripRenderer()
+            //};
 
-            AddMenuToCollection(menu, strip.Items);
+            //AddMenuToCollection(menu, strip.Items);
 
-            strip.Tag = menu;
-            AppDomainHelper.Sponsor(menu);
+            //strip.Tag = menu;
+            //AppDomainHelper.Sponsor(menu);
 
-            if (base.ContextMenuStrip != null)
-            {
-                ContextMenuStrip.Opening -= Strip_Opening;
-                ContextMenuStrip.Closing -= Strip_Closing;
-            }
+            //if (base.ContextMenuStrip != null)
+            //{
+            //    ContextMenuStrip.Opening -= Strip_Opening;
+            //    ContextMenuStrip.Closing -= Strip_Closing;
+            //}
 
-            ContextMenuStrip = strip;
+            //ContextMenuStrip = strip;
 
-            ContextMenuStrip.Opening += Strip_Opening;
-            ContextMenuStrip.Closing += Strip_Closing;
+            //ContextMenuStrip.Opening += Strip_Opening;
+            //ContextMenuStrip.Closing += Strip_Closing;
         }
 
         protected virtual void Strip_Closing(object sender, ToolStripDropDownClosingEventArgs e)

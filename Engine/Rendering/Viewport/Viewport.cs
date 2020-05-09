@@ -331,21 +331,16 @@ namespace TheraEngine.Rendering
             OnRender(scene, camera, hud, targetFboOverride);
             Engine.PopRenderingViewport();
         }
-        private bool _captured = false;
         private readonly RenderPasses _renderPasses = new RenderPasses();
         protected virtual void OnRender(IScene scene, ICamera camera, IUserInterfacePawn hud, FrameBuffer targetFboOverride)
         {
             if (!FBOsInitialized)
                 InitializeFBOs();
 
-            scene.RenderPipeline(_renderPasses, camera, this, targetFboOverride ?? DefaultRenderTarget);
+            scene.Render(_renderPasses, camera, this, targetFboOverride ?? DefaultRenderTarget);
 
-            if (scene is Scene3D s3d && !_captured)
-            {
-                Engine.Out(EOutputVerbosity.Normal, true, true, true, true, 0, 10, "Capturing scene IBL...");
+            if (scene is Scene3D s3d)
                 s3d.CaptureIBL();
-                _captured = true;
-            }
 
             //hud may sample scene colors, render it after scene
             AttachedHUD?.RenderScreenSpace(this, HUDFBO);

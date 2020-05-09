@@ -330,12 +330,15 @@ namespace TheraEngine.Rendering
             fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
 
+        public bool IBLCaptured { get; private set; } = false;
         private bool _capturing = false;
-        public void CaptureIBL()
+        public void CaptureIBL(bool force = false)
         {
-            if (_capturing)
+            if (_capturing || (!force && IBLCaptured))
                 return;
 
+            Engine.Out(EOutputVerbosity.Normal, true, true, true, true, 0, 10, "Capturing scene IBL...");
+            IBLCaptured = true;
             _capturing = true;
             IBLProbeActor?.InitAndCaptureAll(1024);
             _capturing = false;

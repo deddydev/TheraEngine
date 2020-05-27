@@ -13,12 +13,10 @@ namespace TheraEngine.Rendering
     }
     public abstract class ViewportRenderCommand
     {
+        public const string SceneShaderPath = "Scene3D";
+
         public abstract void Execute(RenderPasses renderingPasses, IScene scene, ICamera camera, Viewport viewport, FrameBuffer target);
         public virtual void GenerateFBOs(Viewport viewport) { }
         public virtual void DestroyFBOs() { }
-    }
-    public abstract class ViewportFBORenderCommand : ViewportRenderCommand
-    {
-        public QuadFrameBuffer PreviousPassFBO { get; private set; }
     }
 }

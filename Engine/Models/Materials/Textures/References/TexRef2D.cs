@@ -67,8 +67,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             TextureFile2D tex = new TextureFile2D(width, height, bitmapFormat);
             GlobalFileRef<TextureFile2D> tref = tex;
-            tref.Loaded += (OnMipLoaded);
-            tref.Unloaded += (OnMipUnloaded);
+            tref.Loaded += OnMipLoaded;
+            tref.Unloaded += OnMipUnloaded;
             _mipmaps = new GlobalFileRef<TextureFile2D>[] { tref };
         }
         public TexRef2D(string name, params string[] mipMapPaths)

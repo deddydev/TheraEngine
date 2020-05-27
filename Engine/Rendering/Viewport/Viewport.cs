@@ -52,7 +52,7 @@ namespace TheraEngine.Rendering
         public MeshRenderer SpotLightManager { get; private set; }
         public MeshRenderer DirLightManager { get; private set; }
 
-        public List<ViewportRenderCommand> RenderCommands { get; set; }
+        public RenderPipeline Pipeline { get; set; } = new DeferredRenderPipeline();
 
         //public PrimitiveManager DecalManager;
         //public QuadFrameBuffer DirLightFBO;
@@ -90,6 +90,7 @@ namespace TheraEngine.Rendering
                 Engine.Out("Set viewport HUD: " + (_hud?.GetTypeProxy()?.GetFriendlyName() ?? "null"));
             }
         }
+
         public ICamera _camera;
         public ICamera AttachedCamera
         {
@@ -177,17 +178,6 @@ namespace TheraEngine.Rendering
             _internalResolution.Width = width;
             _internalResolution.Height = height;
 
-            BloomRect16.Width = (int)(width * 0.0625f);
-            BloomRect16.Height = (int)(height * 0.0625f);
-            BloomRect8.Width = (int)(width * 0.125f);
-            BloomRect8.Height = (int)(height * 0.125f);
-            BloomRect4.Width = (int)(width * 0.25f);
-            BloomRect4.Height = (int)(height * 0.25f);
-            BloomRect2.Width = (int)(width * 0.5f);
-            BloomRect2.Height = (int)(height * 0.5f);
-            //BloomRect1.Width = width;
-            //BloomRect1.Height = height;
-
             _camera?.Resize(width, height);
 
             //This will clear and regenerate all FBOs on the next render
@@ -199,9 +189,7 @@ namespace TheraEngine.Rendering
 
         protected virtual void ClearFBOs()
         {
-            if (RenderCommands != null)
-                foreach (var rc in RenderCommands)
-                    rc?.DestroyFBOs();
+            Pipeline.DestroyFBOs();
 
             BloomBlurFBO1?.Destroy();
             BloomBlurFBO1 = null;
@@ -233,10 +221,7 @@ namespace TheraEngine.Rendering
         internal void GenerateFBOs()
         {
             DateTime start = DateTime.Now;
-
-            if (RenderCommands != null)
-                foreach (var rc in RenderCommands)
-                    rc?.GenerateFBOs(this);
+            Pipeline.GenerateFBOs(this);
 
             BloomBlurFBO1?.Generate();
             BloomBlurFBO2?.Generate();
@@ -363,7 +348,9 @@ namespace TheraEngine.Rendering
         /// <param name="hud"></param>
         public void PreRenderUpdate(ICamera camera, IUserInterfacePawn hud)
         {
-            camera?.OwningComponent?.OwningScene?.PreRenderUpdate(_renderPasses, camera.CullWithFrustum ? camera.Frustum : null, camera);
+            IScene scene = camera?.OwningComponent?.OwningScene;
+            IVolume volume = (camera?.CullWithFrustum ?? false) ? camera.Frustum : null;
+            scene?.PreRenderUpdate(_renderPasses, volume, camera);
             hud?.UpdateLayout();
         }
 
@@ -818,7 +805,7 @@ namespace TheraEngine.Rendering
             Depth32Stencil8,
         }
 
-        protected void PrecomputeBRDF(int width = 512, int height = 512)
+        protected void PrecomputeBRDF(int width = 2048, int height = 2048)
         {
             RenderingParameters renderParams = new RenderingParameters();
             renderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
@@ -875,6 +862,17 @@ namespace TheraEngine.Rendering
             int width = InternalResolution.Width;
             int height = InternalResolution.Height;
 
+            BloomRect16.Width = (int)(width * 0.0625f);
+            BloomRect16.Height = (int)(height * 0.0625f);
+            BloomRect8.Width = (int)(width * 0.125f);
+            BloomRect8.Height = (int)(height * 0.125f);
+            BloomRect4.Width = (int)(width * 0.25f);
+            BloomRect4.Height = (int)(height * 0.25f);
+            BloomRect2.Width = (int)(width * 0.5f);
+            BloomRect2.Height = (int)(height * 0.5f);
+            //BloomRect1.Width = width;
+            //BloomRect1.Height = height;
+
             RenderingParameters renderParams = new RenderingParameters();
             renderParams.DepthTest.Enabled = ERenderParamUsage.Unchanged;
             renderParams.DepthTest.UpdateDepth = false;
@@ -887,7 +885,7 @@ namespace TheraEngine.Rendering
             DepthStencilTexture.MagFilter = ETexMagFilter.Nearest;
             DepthStencilTexture.Resizable = false;
 
-            DepthViewTexture = new TexRefView2D(DepthStencilTexture, 0, 1, 0, 1,
+            DepthViewTexture = new TexRefView2D("DepthView", DepthStencilTexture, 0, 1, 0, 1,
                 EPixelType.UnsignedInt248, EPixelFormat.DepthStencil, EPixelInternalFormat.Depth24Stencil8)
             {
                 Resizable = false,
@@ -898,7 +896,7 @@ namespace TheraEngine.Rendering
                 VWrap = ETexWrapMode.ClampToEdge,
             };
 
-            StencilViewTexture = new TexRefView2D(DepthStencilTexture, 0, 1, 0, 1,
+            StencilViewTexture = new TexRefView2D("StencilView", DepthStencilTexture, 0, 1, 0, 1,
                 EPixelType.UnsignedInt248, EPixelFormat.DepthStencil, EPixelInternalFormat.Depth24Stencil8)
             {
                 Resizable = false,
@@ -1096,18 +1094,9 @@ namespace TheraEngine.Rendering
             hudTexture.VWrap = ETexWrapMode.ClampToEdge;
             hudTexture.SamplerName = "HUDTex";
 
-            TexRef2D[] brightRefs = new TexRef2D[]
-            {
-                HDRSceneTexture
-            };
-            TexRef2D[] blurRefs = new TexRef2D[]
-            {
-                BloomBlurTexture,
-            };
-            TexRef2D[] hudRefs = new TexRef2D[]
-            {
-                hudTexture,
-            };
+            TexRef2D[] brightRefs = { HDRSceneTexture };
+            TexRef2D[] blurRefs = { BloomBlurTexture };
+            TexRef2D[] hudRefs = { hudTexture };
             TexRef2D[] postProcessRefs = new TexRef2D[]
             {
                 HDRSceneTexture,

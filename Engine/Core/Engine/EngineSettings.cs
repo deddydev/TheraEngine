@@ -3,6 +3,7 @@ using CsvHelper.Configuration;
 using Extensions;
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 using TheraEngine.ComponentModel;
@@ -28,8 +29,8 @@ namespace TheraEngine
 
         private FileSystemWatcher CsvWatcher { get; set; }
         
-        public Configuration CSVConfigurationOverride { get; set; }
-        private Configuration CSVConfiguration { get; set; }
+        public CsvConfiguration CSVConfigurationOverride { get; set; }
+        private CsvConfiguration CSVConfiguration { get; set; }
 
         [TSerialize]
         [Category("Settings")]
@@ -66,7 +67,7 @@ namespace TheraEngine
 
                 if (CsvWatcher is null)
                 {
-                    CSVConfiguration = CSVConfigurationOverride ?? GetCSVConfiguration() ?? new Configuration();
+                    CSVConfiguration = CSVConfigurationOverride ?? GetCSVConfiguration() ?? new CsvConfiguration(CultureInfo.CurrentCulture);
 
                     CsvWatcher = new FileSystemWatcher(dir, name) { EnableRaisingEvents = true };
                     CsvWatcher.Changed += CsvWatcher_Changed;
@@ -86,9 +87,9 @@ namespace TheraEngine
             }
         }
 
-        protected virtual Configuration GetCSVConfiguration()
+        protected virtual CsvConfiguration GetCSVConfiguration()
         {
-            return new Configuration();
+            return new CsvConfiguration(CultureInfo.CurrentCulture);
         }
         
         private void CsvWatcher_Changed(object sender, FileSystemEventArgs e)
@@ -98,7 +99,7 @@ namespace TheraEngine
                 return;
             
             using (StreamReader stream = File.OpenText(csvPath))
-            using (CsvReader parser = new CsvReader(stream, CSVConfiguration ?? new Configuration()))
+            using (CsvReader parser = new CsvReader(stream, CSVConfiguration ?? new CsvConfiguration(CultureInfo.CurrentCulture)))
             {
                 var props = GetType().GetProperties();
                 foreach (var prop in props)
@@ -112,7 +113,7 @@ namespace TheraEngine
         public void WriteToCSV(string path)
         {
             using (StreamWriter stream = File.CreateText(path))
-            using (CsvWriter parser = new CsvWriter(stream, CSVConfiguration ?? new Configuration()))
+            using (CsvWriter parser = new CsvWriter(stream, CSVConfiguration ?? new CsvConfiguration(CultureInfo.CurrentCulture)))
             {
                 var props = GetType().GetProperties();
                 foreach (var prop in props)

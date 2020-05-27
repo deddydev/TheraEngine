@@ -36,10 +36,14 @@ namespace TheraEngine.Rendering
         void GlobalCollectVisible();
         void GlobalSwap();
 
+        LightManager Lights { get; }
+
         void RenderPipeline(RenderPasses renderPasses, ICamera camera, Viewport viewport, FrameBuffer frameBuffer);
     }
     public abstract class BaseScene : TObjectSlim, IScene
     {
+        public LightManager Lights { get; } = new LightManager();
+
         /// <summary>
         /// Call this method to render the scene.
         /// </summary>

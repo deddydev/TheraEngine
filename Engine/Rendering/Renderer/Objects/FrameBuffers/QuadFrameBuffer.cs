@@ -77,6 +77,9 @@ namespace TheraEngine.Rendering
 
         public void RenderTo(FrameBuffer target)
         {
+            if (target is null)
+                return;
+
             target.Bind(EFramebufferTarget.DrawFramebuffer);
             RenderFullscreen();
             target.Unbind(EFramebufferTarget.DrawFramebuffer);

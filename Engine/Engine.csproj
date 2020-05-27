@@ -206,8 +206,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\x64\BulletSharp.dll</HintPath>
     </Reference>
-    <Reference Include="CsvHelper, Version=12.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
-      <HintPath>..\packages\CsvHelper.12.2.3\lib\net47\CsvHelper.dll</HintPath>
+    <Reference Include="CsvHelper, Version=15.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.15.0.5\lib\net47\CsvHelper.dll</HintPath>
     </Reference>
     <Reference Include="Enums.NET">
       <HintPath>..\Libraries\Enums.NET.2.2.0\Bin\Net45\Enums.NET.dll</HintPath>
@@ -235,6 +235,9 @@
     </Reference>
     <Reference Include="MIConvexHull, Version=1.1.19.1018, Culture=neutral, PublicKeyToken=2644b6f8be52c998, processorArchitecture=MSIL">
       <HintPath>..\packages\MIConvexHull.1.1.19.1019\lib\netstandard2.0\MIConvexHull.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis, Version=3.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Common.3.4.0\lib\netstandard2.0\Microsoft.CodeAnalysis.dll</HintPath>
@@ -265,14 +268,14 @@
     <Reference Include="MoonSharp.Interpreter, Version=2.0.0.0, Culture=neutral, PublicKeyToken=921e73ce94aa17f8, processorArchitecture=MSIL">
       <HintPath>..\packages\MoonSharp.2.0.0.0\lib\net40-client\MoonSharp.Interpreter.dll</HintPath>
     </Reference>
-    <Reference Include="NAudio, Version=1.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.1.9.0\lib\net35\NAudio.dll</HintPath>
+    <Reference Include="NAudio, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.10.0\lib\net35\NAudio.dll</HintPath>
     </Reference>
     <Reference Include="NAudio.Flac, Version=1.0.5702.29018, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.Flac.1.0.5702.29018\lib\net45\NAudio.Flac.dll</HintPath>
     </Reference>
-    <Reference Include="NAudio.Lame, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.Lame.1.1.0\lib\netstandard2.0\NAudio.Lame.dll</HintPath>
+    <Reference Include="NAudio.Lame, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.Lame.1.1.1\lib\netstandard2.0\NAudio.Lame.dll</HintPath>
     </Reference>
     <Reference Include="NAudio.Vorbis, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.Vorbis.1.0.0.0\lib\net35\NAudio.Vorbis.dll</HintPath>
@@ -280,12 +283,11 @@
     <Reference Include="nunit.framework, Version=3.12.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.12.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="NVorbis, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NVorbis.0.9.0\lib\net45\NVorbis.dll</HintPath>
+    <Reference Include="NVorbis, Version=0.10.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NVorbis.0.10.1\lib\net45\NVorbis.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=3.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\OpenTK.3.1.0\lib\net20\OpenTK.dll</HintPath>
+    <Reference Include="OpenTK, Version=3.2.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.3.2\lib\net20\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK.Rift, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.Rift.1.1.1529.101\lib\net40\OpenTK.Rift.dll</HintPath>
@@ -809,11 +811,18 @@
     <Compile Include="Rendering\Scene\RenderInfo2D.cs" />
     <Compile Include="Rendering\Scene\RenderPasses.cs" />
     <Compile Include="Rendering\Scene\VRRenderHandler.cs" />
-    <Compile Include="Rendering\Viewport\Commands\FBORender.cs" />
+    <Compile Include="Rendering\Viewport\Commands\Forward.cs" />
+    <Compile Include="Rendering\Viewport\Commands\RenderPass.cs" />
+    <Compile Include="Rendering\Viewport\Commands\BindFBO.cs" />
+    <Compile Include="Rendering\Viewport\Commands\Custom.cs" />
+    <Compile Include="Rendering\Viewport\Commands\SSAO.cs" />
+    <Compile Include="Rendering\Viewport\Commands\BlitFBO.cs" />
     <Compile Include="Rendering\Viewport\Commands\Lights.cs" />
     <Compile Include="Rendering\Viewport\Commands\Bloom.cs" />
     <Compile Include="Rendering\Viewport\Commands\Basic.cs" />
     <Compile Include="Rendering\Viewport\Commands\BaseCommandClasses.cs" />
+    <Compile Include="Rendering\Viewport\Pipelines\Deferred.cs" />
+    <Compile Include="Rendering\Viewport\Pipelines\RenderPipeline.cs" />
     <Compile Include="Rendering\Viewport\VRViewport.cs" />
     <Compile Include="Components\Scene\UI\Interactable\TMenuComponent.cs" />
     <Compile Include="Shapes\BoundingRectangle.cs" />
@@ -1030,6 +1039,7 @@
     <Compile Include="Models\Materials\Functions\MatFuncExecOutput.cs" />
     <EmbeddedResource Include="Core\Engine\Program_Template.tcs" />
     <EmbeddedResource Include="Core\Engine\Solution_Template.tsln" />
+    <None Include="OpenTK.dll.config" />
     <None Include="TheraDevKey.pfx" />
     <None Include="ThirdParty\Collada\Parser\Core\Animation.cs" />
     <Compile Include="ThirdParty\Collada\ColladaAssetDecoder.cs" />
@@ -1394,11 +1404,11 @@ copy /Y "$(SolutionDir)Libraries\$(PlatformName)\Steamworks\CSteamworks.dll" "$(
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.8\build\Microsoft.CodeAnalysis.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.Analyzers.2.9.8\build\Microsoft.CodeAnalysis.Analyzers.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.8\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props'))" />
-    <Error Condition="!Exists('..\packages\NAudio.Lame.1.1.0\build\NAudio.Lame.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NAudio.Lame.1.1.0\build\NAudio.Lame.targets'))" />
+    <Error Condition="!Exists('..\packages\NAudio.Lame.1.1.1\build\NAudio.Lame.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NAudio.Lame.1.1.1\build\NAudio.Lame.targets'))" />
   </Target>
-  <Import Project="..\packages\NAudio.Lame.1.1.0\build\NAudio.Lame.targets" Condition="Exists('..\packages\NAudio.Lame.1.1.0\build\NAudio.Lame.targets')" />
   <PropertyGroup>
     <PreBuildEvent>robocopy "$(SolutionDir)Build\Engine" "$(TargetDir)Engine" /E
 if %25errorlevel%25 leq 1 exit 0 else exit %25errorlevel%25</PreBuildEvent>
   </PropertyGroup>
+  <Import Project="..\packages\NAudio.Lame.1.1.1\build\NAudio.Lame.targets" Condition="Exists('..\packages\NAudio.Lame.1.1.1\build\NAudio.Lame.targets')" />
 </Project>

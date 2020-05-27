@@ -48,7 +48,7 @@ namespace TheraEngine.Rendering.UI
             ScreenSpaceCamera.SetOriginBottomLeft();
             ScreenSpaceCamera.Resize(1, 1);
 
-            _screenSpaceUIScene = new Scene2D();
+            ScreenSpaceUIScene = new Scene2D();
 
             RenderInfo3D.IsVisible = false;
             RenderInfo2D.IsVisible = false;
@@ -56,7 +56,6 @@ namespace TheraEngine.Rendering.UI
 
         private float _cameraDrawSpaceDistance = 0.1f;
         private ECanvasDrawSpace _drawSpace = ECanvasDrawSpace.Screen;
-        private IScene2D _screenSpaceUIScene;
         private IUIInteractableComponent _focusedComponent;
 
         public ECanvasDrawSpace DrawSpace
@@ -93,7 +92,7 @@ namespace TheraEngine.Rendering.UI
         [Browsable(false)]
         public OrthographicCamera ScreenSpaceCamera { get; }
         [Browsable(false)]
-        public IScene2D ScreenSpaceUIScene => _screenSpaceUIScene;
+        public IScene2D ScreenSpaceUIScene { get; }
         [Browsable(false)]
         public RenderPasses ScreenSpaceRenderPasses { get; set; } = new RenderPasses();
         

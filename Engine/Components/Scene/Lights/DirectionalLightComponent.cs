@@ -90,6 +90,7 @@ namespace TheraEngine.Components.Scene.Lights
                 if (Type == ELightType.Dynamic)
                 {
                     s3d.Lights.Add(this);
+
                     if (ShadowMap is null)
                         SetShadowMapResolution(_region.Width, _region.Height);
 
@@ -112,15 +113,14 @@ namespace TheraEngine.Components.Scene.Lights
             }
             base.OnDespawned();
         }
-        public override void SetUniforms(RenderProgram program, string targetStructName)
+        public override void SetUniforms(RenderProgram program, string targetStructName = null)
         {
-            targetStructName = targetStructName ?? Uniform.LightsStructName;
-            targetStructName += ".";
+            targetStructName = $"{targetStructName ?? Uniform.LightsStructName}.";
 
-            program.Uniform(targetStructName + "Direction", _direction);
-            program.Uniform(targetStructName + "Color", _color.Raw);
-            program.Uniform(targetStructName + "DiffuseIntensity", _diffuseIntensity);
-            program.Uniform(targetStructName + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
+            program.Uniform($"{targetStructName}Direction", _direction);
+            program.Uniform($"{targetStructName}Color", _color.Raw);
+            program.Uniform($"{targetStructName}DiffuseIntensity", _diffuseIntensity);
+            program.Uniform($"{targetStructName}WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
             var tex = ShadowMap.Material.Textures[1].RenderTextureGeneric;
             program.Sampler("ShadowMap", tex, 4);

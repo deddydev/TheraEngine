@@ -108,15 +108,15 @@ namespace TheraEngine.Components.Scene.Lights
         /// This is to set uniforms in the GBuffer lighting shader 
         /// or in a forward shader that requests lighting uniforms.
         /// </summary>
-        public override void SetUniforms(RenderProgram program, string targetStructName)
+        public override void SetUniforms(RenderProgram program, string targetStructName = null)
         {
-            targetStructName = (targetStructName ?? Uniform.LightsStructName) + ".";
+            targetStructName = $"{(targetStructName ?? Uniform.LightsStructName)}.";
 
-            program.Uniform(targetStructName + "Color", _color.Raw);
-            program.Uniform(targetStructName + "DiffuseIntensity", _diffuseIntensity);
-            program.Uniform(targetStructName + "Position", _influenceVolume.Center);
-            program.Uniform(targetStructName + "Radius", Radius);
-            program.Uniform(targetStructName + "Brightness", Brightness);
+            program.Uniform($"{targetStructName}Color", _color.Raw);
+            program.Uniform($"{targetStructName}DiffuseIntensity", _diffuseIntensity);
+            program.Uniform($"{targetStructName}Position", _influenceVolume.Center);
+            program.Uniform($"{targetStructName}Radius", Radius);
+            program.Uniform($"{targetStructName}Brightness", Brightness);
 
             ShadowMap.Material.Textures[1].SampleIn(program, 4);
         }

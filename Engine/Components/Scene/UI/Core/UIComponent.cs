@@ -48,7 +48,7 @@ namespace TheraEngine.Rendering.UI
         public UIComponent() : base() { _rc = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderVisualGuides); }
 
         [TSerialize(nameof(Visibility))]
-        protected EVisibility _visibility = EVisibility.Visible;
+        protected EVisibility _visibility = EVisibility.Collapsed;
         [TSerialize(nameof(IsEnabled))]
         protected bool _isEnabled = true;
 
@@ -60,7 +60,7 @@ namespace TheraEngine.Rendering.UI
         public IRenderInfo2D RenderInfo2D { get; private set; } = new RenderInfo2D(0, 0);
         [TSerialize]
         [Category("Rendering")]
-        public IRenderInfo3D RenderInfo3D { get; private set; } = new RenderInfo3D(true, true);
+        public IRenderInfo3D RenderInfo3D { get; private set; } = new RenderInfo3D(false, true);
 
         [Browsable(false)]
         public bool IsVisible

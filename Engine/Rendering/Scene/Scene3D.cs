@@ -15,7 +15,6 @@ namespace TheraEngine.Rendering
     public interface IScene3D : IScene
     {
         IOctree RenderTree { get; }
-        LightManager Lights { get; }
         IBLProbeGridActor IBLProbeActor { get; set; }
         IEventList<I3DRenderable> Renderables { get; }
 
@@ -36,20 +35,18 @@ namespace TheraEngine.Rendering
         //Also implement occlusion culling along with frustum culling
         public IOctree RenderTree { get; private set; }
         //public override int Count => RenderTree.Count;
-        public LightManager Lights { get; private set; }
         //public ParticleManager Particles { get; }
         public IBLProbeGridActor IBLProbeActor { get; set; }
         public IEventList<I3DRenderable> Renderables { get; }
         
         public Scene3D() : this(0.5f) { }
-        public Scene3D(Vec3 boundsHalfExtents)
+        public Scene3D(Vec3 boundsHalfExtents) : base()
         {
             Renderables = new EventList<I3DRenderable>();
             Renderables.PostAnythingAdded += Renderables_PostAnythingAdded;
             Renderables.PostAnythingRemoved += Renderables_PostAnythingRemoved;
 
             RenderTree = new Octree(new BoundingBoxStruct(boundsHalfExtents, Vec3.Zero));
-            Lights = new LightManager();
             
             Render = RenderDeferred;
 
@@ -167,7 +164,7 @@ namespace TheraEngine.Rendering
         {
             Renderables.Clear();
             RenderTree = new Octree(sceneBounds);
-            Lights = new LightManager();
+            Lights.Clear();
         }
 
         private float _renderFPS;

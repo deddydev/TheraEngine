@@ -15,6 +15,7 @@ namespace TheraEngine.Rendering.Models.Materials
         private int _numLayers;
 
         public TexRefView2D(
+            string name,
             TexRef2D viewedTexture,
             int minLevel, 
             int numLevels,
@@ -27,7 +28,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (viewedTexture is null)
                 throw new InvalidOperationException("Viewed texture cannot be null.");
 
-            _name = viewedTexture.Name + "_View";
+            _name = name;
             _viewedTexture = viewedTexture;
             _minLevel = minLevel;
             _numLevels = numLevels;

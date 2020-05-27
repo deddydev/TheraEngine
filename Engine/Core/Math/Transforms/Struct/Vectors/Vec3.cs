@@ -420,12 +420,17 @@ namespace TheraEngine.Core.Maths.Transforms
         /// </summary>
         public float Dot(Vec3 right)
             => X * right.X + Y * right.Y + Z * right.Z;
-        
+
+        //Cross Product:
         //        |
         // normal |  /
         // l x r, | / right
         // -r x l |/_______ 
         //            left
+
+        /// <summary>
+        /// Cross Product; if left is up and right is left, then the resulting vector faces you.
+        /// </summary>
         public Vec3 Cross(Vec3 right) 
             => new Vec3(
                 Y * right.Z - Z * right.Y,
@@ -1109,10 +1114,10 @@ namespace TheraEngine.Core.Maths.Transforms
         //            left
 
         /// <summary>
-        /// Cross Product
+        /// Cross Product; if left is up and right is left, then the resulting vector faces you.
         /// </summary>
-        public static Vec3 operator ^(Vec3 vec1, Vec3 vec2)
-            => vec1.Cross(vec2);
+        public static Vec3 operator ^(Vec3 left, Vec3 right)
+            => left.Cross(right);
 
         /// <summary>
         /// Dot product; 

@@ -421,6 +421,8 @@ namespace TheraEngine.Rendering.Cameras
             out Matrix4 projMatrix,
             out Matrix4 inverseProjMatrix);
         
+        //TODO: store a separate projection matrix in each viewport this camera is displaying in, not in the camera itself
+
         [TPostDeserialize]
         protected void CalculateProjection()
         {

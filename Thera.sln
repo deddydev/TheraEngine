@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Extensions", "Extensions\Ex
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsNativeInterop", "WindowsNativeInterop\WindowsNativeInterop.csproj", "{B6E55049-2DE4-426F-BF4F-1923DAD79C2B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Discord", "Discord\Discord.csproj", "{2369A06F-3F3A-48A1-AA28-D46D87123FB7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discord", "Discord\Discord.csproj", "{2369A06F-3F3A-48A1-AA28-D46D87123FB7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Server\Server.csproj", "{0B7EFEFA-5DFD-4191-9B79-571A8358A123}"
 EndProject

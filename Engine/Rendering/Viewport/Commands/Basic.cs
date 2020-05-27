@@ -1,23 +1,23 @@
-﻿using System;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering
 {
-    public class BasicVPRC : ViewportRenderCommand
+    public enum EVPRCommand
     {
-        public enum EDefaultViewportRenderCommand
-        {
-            PushTargetCamera,
-            PopCamera,
-            PushScene,
-            PopScene,
-            PushViewportRenderArea,
-            PopRenderArea,
-        }
+        PushViewportCamera,
+        PopCamera,
+        PushViewportScene,
+        PopScene,
+        PushViewportInternalResolutionRenderArea,
+        PushFullResolutionRenderArea,
+        PopRenderArea,
+    }
 
-        public EDefaultViewportRenderCommand Command { get; set; }
+    public sealed class VPRC_Basic : ViewportRenderCommand
+    {
+        public VPRC_Basic(EVPRCommand command) => Command = command;
+
+        public EVPRCommand Command { get; set; }
 
         public override void Execute(RenderPasses renderingPasses, IScene scene, ICamera camera, Viewport viewport, FrameBuffer target)
         {
@@ -27,15 +27,15 @@ namespace TheraEngine.Rendering
 
             switch (Command)
             {
-                case EDefaultViewportRenderCommand.PushTargetCamera:
+                case EVPRCommand.PushViewportCamera:
                     r.PushCamera(camera);
                     viewport?.PushRenderingCamera(camera);
                     break;
-                case EDefaultViewportRenderCommand.PopCamera:
+                case EVPRCommand.PopCamera:
                     r.PopCamera();
                     viewport?.PopRenderingCamera();
                     break;
-                case EDefaultViewportRenderCommand.PushScene:
+                case EVPRCommand.PushViewportScene:
                     {
                         if (scene is IScene3D s3d)
                             r.PushCurrent3DScene(s3d);
@@ -44,7 +44,7 @@ namespace TheraEngine.Rendering
                             r.PushCurrent2DScene(s2d);
                     }
                     break;
-                case EDefaultViewportRenderCommand.PopScene:
+                case EVPRCommand.PopScene:
                     {
                         if (scene is IScene3D)
                             r.PopCurrent3DScene();
@@ -53,7 +53,19 @@ namespace TheraEngine.Rendering
                             r.PopCurrent3DScene();
                     }
                     break;
+                case EVPRCommand.PushViewportInternalResolutionRenderArea:
+                    r.PushRenderArea(viewport.InternalResolution);
+                    break;
+                case EVPRCommand.PushFullResolutionRenderArea:
+                    r.PushRenderArea(viewport.Region);
+                    break;
+                case EVPRCommand.PopRenderArea:
+                    r.PopRenderArea();
+                    break;
             }
         }
+
+        public override void GenerateFBOs(Viewport viewport) { }
+        public override void DestroyFBOs() { }
     }
 }

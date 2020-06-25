@@ -49,11 +49,11 @@ namespace TheraEngine.Components
         /// Called when this component is spawned.
         /// This base method starts any attached animations.
         /// </summary>
-        public virtual void OnSpawned()
+        protected virtual void OnSpawned()
         {
             StartAllAnimations(true);
         }
-        public virtual void OnDespawned()
+        protected virtual void OnDespawned()
         {
             StopAllAnimations();
         }

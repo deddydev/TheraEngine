@@ -81,8 +81,8 @@ namespace TheraEngine.Components.Logic.Animation
             States = new EventList<AnimState>();
             Skeleton = skeleton;
         }
-        
-        public override void OnSpawned()
+
+        protected override void OnSpawned()
         {
             if (States.IndexInRange(InitialStateIndex))
             {
@@ -91,7 +91,7 @@ namespace TheraEngine.Components.Logic.Animation
                 RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
             }
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             if (States.IndexInRange(InitialStateIndex))
             {

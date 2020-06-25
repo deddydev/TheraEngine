@@ -49,13 +49,13 @@ namespace TheraEngine.Components.Scene.Volumes
                 SimulatePhysics = false,
             }) { }
 
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             base.OnSpawned();
             //_collisionObject?.Despawn(OwningWorld);
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             base.OnDespawned();

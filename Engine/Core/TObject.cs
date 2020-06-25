@@ -1,7 +1,11 @@
 using Extensions;
+using Microsoft.Scripting.Utils;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
@@ -191,12 +195,16 @@ namespace TheraEngine
         /// <returns></returns>
         protected virtual bool OnPropertyChanging([CallerMemberName] string propertyName = null)
         {
+            ReplicateBefore(propertyName);
             var args = new SerializableCancellablePropertyChangingEventArgs(propertyName);
             PropertyChanging?.Invoke(this, args);
             return args.Cancel;
         }
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-            => PropertyChanged?.Invoke(this, new SerializablePropertyChangedEventArgs(propertyName));
+        {
+            ReplicateAfter(propertyName);
+            PropertyChanged?.Invoke(this, new SerializablePropertyChangedEventArgs(propertyName));
+        }
         protected void OnPropertiesChanged(params string[] propertyNames)
             => propertyNames.ForEach(x => OnPropertyChanged(x));
         
@@ -649,6 +657,86 @@ namespace TheraEngine
                 if (anim.State != EAnimationState.Stopped)
                     anim.Stop();
             });
+        }
+
+        #endregion
+
+        #region Networking
+
+        public class ReplicationManager
+        {
+            public Guid ObjectGuid { get; set; }
+            public PropertyInfo Property { get; }
+            public TReplicate Attribute { get; }
+            public bool UseDeltaReplication { get; set; }
+
+            public event Action<ReplicationManager> Broadcast;
+            
+            private object _before;
+            private object _after;
+
+            public object Result { get; private set; }
+
+            protected virtual void ComputeResult() => Result = _after;
+
+            public ReplicationManager(PropertyInfo prop, Guid guid)
+            {
+                ObjectGuid = guid;
+                Property = prop;
+                Attribute = prop.GetCustomAttribute<TReplicate>();
+            }
+
+            public void SetValue(TObject obj, bool before)
+            {
+                var value = Property.GetValue(obj);
+
+                if (before)
+                    _before = value;
+                else
+                    _after = value;
+
+                ComputeResult();
+                OnBroadcast();
+            }
+
+            protected void OnBroadcast() => Broadcast?.Invoke(this);
+        }
+        private Dictionary<string, ReplicationManager> _replications;
+        public void StartReplication()
+        {
+            _replications = new Dictionary<string, ReplicationManager>();
+            var list = GetType().GetProperties().Where(x => ReflectionUtils.GetCustomAttribute<TReplicate>(x) != null);
+            foreach (var prop in list)
+            {
+                ReplicationManager man = new ReplicationManager(prop, Guid);
+                Engine.RegisterReplication(man);
+                _replications.Add(prop.Name, man);
+            }
+            if (_replications.Count == 0)
+                _replications = null;
+        }
+        public void StopReplication()
+        {
+            if (_replications is null)
+                return;
+
+            _replications.ForEach(x => Engine.UnregisterReplication(x.Value));
+            _replications.Clear();
+            _replications = null;
+        }
+        private void ReplicateBefore(string propertyName)
+        {
+            if (_replications is null || !_replications.TryGetValue(propertyName, out ReplicationManager value) || !value.UseDeltaReplication)
+                return;
+
+            value.SetValue(this, true);
+        }
+        private void ReplicateAfter(string propertyName)
+        {
+            if (_replications is null || !_replications.TryGetValue(propertyName, out ReplicationManager value))
+                return;
+
+            value.SetValue(this, false);
         }
 
         #endregion

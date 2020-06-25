@@ -669,7 +669,7 @@ namespace TheraEngine.Components
         /// starts any attached animations,
         /// and runs OnSpawned for all child scene components.
         /// </summary>
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             base.OnSpawned();
 
@@ -682,7 +682,7 @@ namespace TheraEngine.Components
             _children.ForEach(x => x.Spawn(OwningActor));
         }
 
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             InformInterfacesDespawned();
 

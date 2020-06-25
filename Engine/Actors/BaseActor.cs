@@ -248,7 +248,6 @@ namespace TheraEngine.Actors
         /// By default, despawns the actor.
         /// </summary>
         protected virtual void OnLifeSpanOver() => Despawn();
-
         /// <summary>
         /// Called before OnSpawned() is called for all logic and scene components.
         /// </summary>

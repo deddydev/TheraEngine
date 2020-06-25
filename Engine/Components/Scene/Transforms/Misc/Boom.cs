@@ -74,13 +74,13 @@ namespace TheraEngine.Components.Scene.Transforms
             inverseLocalTransform = invTranslation * it * ir;
         }
 
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             RenderInfo.LinkScene(this, OwningScene3D);
             base.OnSpawned();
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             RenderInfo.UnlinkScene();

@@ -1271,7 +1271,6 @@
     <Compile Include="ThirdParty\VMD\Format\MorphKeyframe.cs" />
     <Compile Include="ThirdParty\VMD\Format\BoneKeyframe.cs" />
     <Compile Include="ThirdParty\VMD\Format\Header2.cs" />
-    <Compile Include="Worlds\AssetURL.cs" />
     <Compile Include="Worlds\EventDictionary.cs" />
     <Compile Include="Worlds\Maps\Map.cs" />
     <Compile Include="Worlds\Maps\MapState.cs" />

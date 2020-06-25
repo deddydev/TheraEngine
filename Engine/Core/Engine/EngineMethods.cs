@@ -43,6 +43,15 @@ namespace TheraEngine
 
         public static ColorF4 InvalidColor { get; } = Color.Magenta;
 
+        internal static void RegisterReplication(TObject.ReplicationManager man)
+        {
+
+        }
+        internal static void UnregisterReplication(TObject.ReplicationManager man)
+        {
+
+        }
+
         #region Startup/Shutdown
 
         private class EngineTraceListener : ConsoleTraceListener
@@ -704,7 +713,6 @@ namespace TheraEngine
             Out(EOutputVerbosity.Normal, true, false, false, true, 4 + lineIgnoreCount, includedLineCount, message);
 #endif
         }
-
         public static string GetStackTrace(int lineIgnoreCount = 3, int includedLineCount = -1, bool ignoreBeforeWndProc = true)
         {
             //Format and print stack trace

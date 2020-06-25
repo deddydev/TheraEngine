@@ -124,7 +124,7 @@ namespace TheraEngine.Components.Logic.Movement
         }
         #endregion
 
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             if (OwningActor.RootComponent is IRigidBodyCollidable root)
             {
@@ -135,7 +135,7 @@ namespace TheraEngine.Components.Logic.Movement
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, MainUpdateTick);
             base.OnSpawned();
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             _subUpdateTick = null;
             UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, MainUpdateTick);

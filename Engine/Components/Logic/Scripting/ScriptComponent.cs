@@ -56,7 +56,7 @@ namespace TheraEngine.Components.Logic.Scripting
             return false;
         }
 
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             if (TickingMethods != null)
             {
@@ -68,7 +68,7 @@ namespace TheraEngine.Components.Logic.Scripting
             }
             Execute(SpawnedMethod);
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             if (TickingMethods != null)
             {

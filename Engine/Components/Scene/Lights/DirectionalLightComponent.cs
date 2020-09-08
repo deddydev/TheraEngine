@@ -82,7 +82,7 @@ namespace TheraEngine.Components.Scene.Lights
 
             base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             IScene3D s3d = OwningScene3D;
             if (s3d != null)
@@ -101,7 +101,7 @@ namespace TheraEngine.Components.Scene.Lights
             }
             base.OnSpawned();
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             IScene3D s3D = OwningScene3D;
             if (s3D != null)

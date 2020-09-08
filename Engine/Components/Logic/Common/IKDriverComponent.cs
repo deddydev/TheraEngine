@@ -17,7 +17,7 @@ namespace TheraEngine.Components.Logic.Common
         
         private List<IBone> SocketChain { get; } = new List<IBone>();
 
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             base.OnSpawned();
 
@@ -32,7 +32,7 @@ namespace TheraEngine.Components.Logic.Common
 
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Update);
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             base.OnDespawned();
 

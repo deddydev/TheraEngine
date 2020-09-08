@@ -108,12 +108,12 @@ namespace TheraEngine.Components.Scene.Shapes
                 StopSimulatingPhysics(true);
         }
 
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             _collisionObject?.Spawn(OwningWorld);
             base.OnSpawned();
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             _collisionObject?.Despawn(OwningWorld);
             base.OnDespawned();

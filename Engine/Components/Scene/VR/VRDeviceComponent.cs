@@ -81,12 +81,12 @@ namespace TheraEngine.Components.Scene
             passes.Add(_rcDevice);
         }
 
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             base.OnSpawned();
             RegisterDeviceEvents();
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             base.OnDespawned();
             UnregisterDeviceEvents();

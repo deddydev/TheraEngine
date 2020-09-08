@@ -59,7 +59,7 @@ namespace TheraEngine.Components.Scene
             UpdateTransform(parameters);
         }
 
-        public override async void OnSpawned()
+        protected override async void OnSpawned()
         {
             base.OnSpawned();
             bool play = PlayOnSpawn;

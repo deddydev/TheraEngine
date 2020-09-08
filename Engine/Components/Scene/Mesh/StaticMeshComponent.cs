@@ -244,7 +244,7 @@ namespace TheraEngine.Components.Scene.Mesh
             }
         }
 
-        public override async void OnSpawned()
+        protected override async void OnSpawned()
         {
             if (Meshes is null)
             {
@@ -260,7 +260,7 @@ namespace TheraEngine.Components.Scene.Mesh
             
             base.OnSpawned();
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             if (Meshes != null)
             {

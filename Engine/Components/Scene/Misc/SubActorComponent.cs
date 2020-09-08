@@ -55,12 +55,12 @@ namespace TheraEngine.Components.Scene
                     actor.RootComponent.Spawn(OwningActor);
             }
         }
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             Actor?.Spawned(OwningWorld);
             base.OnSpawned();
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             Actor?.Despawned();
             base.OnDespawned();

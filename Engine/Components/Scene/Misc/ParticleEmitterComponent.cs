@@ -102,14 +102,14 @@ namespace TheraEngine.Components.Scene
             }
         }
 
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             base.OnSpawned();
             GenerateParticleMesh();
             if (IsSimulating = IsEmitting)
                 StartSimulating();
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             base.OnDespawned();
             IsSimulating = false;
@@ -228,7 +228,7 @@ namespace TheraEngine.Components.Scene
             ptcl.GenerateParticleMesh(this, out MeshRenderer mesh);
             ParticleMesh = mesh;
         }
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             _particles = new TParticle[MaxParticles];
             base.OnSpawned();

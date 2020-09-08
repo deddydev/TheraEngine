@@ -37,13 +37,13 @@ namespace TheraEngine.Components.Scene.Transforms
         private readonly Rotator _rotation = new Rotator();
         private readonly FastNoise _noise = new FastNoise();
 
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             _noise.SetFrequency(_noiseFrequency);
             RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Logic, NoiseTick, EInputPauseType.TickAlways);
             base.OnSpawned();
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Logic, NoiseTick, EInputPauseType.TickAlways);
             base.OnDespawned();

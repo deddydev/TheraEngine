@@ -121,7 +121,7 @@ namespace TheraEngine.Components.Scene
             };
             return new TMaterial("DecalMat", decalRenderParams, decalVars, decalRefs, decalShader);
         }
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             if (Material is null)
                 return;

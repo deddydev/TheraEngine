@@ -210,13 +210,13 @@ namespace TheraEngine.Rendering.UI
             //    Engine.LogException(ex);
             //}
         }
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             base.OnSpawned();
             if (this is I2DRenderable r)
                 OwningUserInterface?.AddRenderableComponent(r);
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             if (this is I2DRenderable r)
                 OwningUserInterface?.RemoveRenderableComponent(r);

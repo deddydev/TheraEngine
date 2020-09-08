@@ -220,7 +220,7 @@ namespace TheraEngine.Components.Scene
         }
 
 #if EDITOR
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             base.OnSpawned();
 
@@ -228,7 +228,7 @@ namespace TheraEngine.Components.Scene
             if (c != null)
                 c.RenderInfo.LinkScene(c, OwningScene3D, _alwaysShowFrustum);
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             base.OnDespawned();
 

@@ -71,13 +71,13 @@ namespace TheraEngine.Components.Scene.Transforms
             
             RecalcWorldTransform();
         }
-        public override void OnSpawned()
+        protected override void OnSpawned()
         {
             _currentPoint = _worldMatrix.Translation;
             RegisterTick(ETickGroup.DuringPhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             base.OnSpawned();
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             UnregisterTick(ETickGroup.DuringPhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             base.OnDespawned();

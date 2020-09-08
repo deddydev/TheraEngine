@@ -66,7 +66,7 @@ namespace TheraEngine.Components.Scene
 
         public PropAnimVec3 Spline => SplineRef.File;
 
-        public override async void OnSpawned()
+        protected override async void OnSpawned()
         {
             base.OnSpawned();
             await SplineRef.GetInstanceAsync();

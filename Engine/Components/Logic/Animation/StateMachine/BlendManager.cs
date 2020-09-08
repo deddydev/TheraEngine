@@ -108,6 +108,8 @@ namespace TheraEngine.Components.Logic.Animation
         private LinkedList<AnimState> _stateQueue;
         private LinkedList<BlendInfo> _blendQueue;
 
+        public AnimState LastState => _stateQueue?.Last?.Value;
+
         public BlendManager(AnimState initialState)
         {
             _blendQueue = new LinkedList<BlendInfo>();
@@ -125,6 +127,7 @@ namespace TheraEngine.Components.Logic.Animation
         {
             if (destinationState is null)
                 return;
+
             //destinationState.Start();
             _stateQueue.AddLast(destinationState);
             if (_stateQueue.Count > 1)
@@ -134,7 +137,19 @@ namespace TheraEngine.Components.Logic.Animation
                 _blendQueue.AddLast(blend);
             }
         }
-        internal void Tick(float delta, Skeleton skeleton)
+
+        public void Tick(float delta, EventList<AnimState> states, Skeleton skeleton)
+        {
+            AnimStateTransition transition = LastState?.TryTransition();
+            int index = transition?.DestinationStateIndex ?? -1;
+
+            if (states.IndexInRange(index))
+                QueueState(states[index], transition);
+
+            Tick(delta, skeleton);
+        }
+
+        private void Tick(float delta, Skeleton skeleton)
         {
             if (skeleton is null)
                 return;

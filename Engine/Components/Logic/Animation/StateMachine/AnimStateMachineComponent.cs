@@ -13,28 +13,17 @@ namespace TheraEngine.Components.Logic.Animation
     {
         [TSerialize(NodeType = ENodeType.Attribute)]
         internal int InitialStateIndex { get; set; } = -1;
+
         [TSerialize("Skeleton", NodeType = ENodeType.Attribute)]
         public LocalFileRef<Skeleton> Skeleton { get; set; }
+
         [TSerialize("States", NodeType = ENodeType.Attribute)]
         public EventList<AnimState> States
         {
             get => _states;
-            set => Set(ref _states, value,
-                () =>
-                {
-                    _states.PostAnythingAdded -= StateAdded;
-                    _states.PostAnythingRemoved -= StateRemoved;
-                    foreach (AnimState state in _states)
-                        StateRemoved(state);
-                },
-                () =>
-                {
-                    foreach (AnimState state in _states)
-                        StateAdded(state);
-                    _states.PostAnythingAdded += StateAdded;
-                    _states.PostAnythingRemoved += StateRemoved;
-                });
+            set => Set(ref _states, value, UnlinkStates, LinkStates);
         }
+
         [TSerialize("Animations")]
         internal ConcurrentDictionary<string, SkeletalAnimation> AnimationTable { get; set; }
         ConcurrentDictionary<string, SkeletalAnimation> IGlobalFilesContext<SkeletalAnimation>.GlobalFileInstances => AnimationTable;
@@ -58,7 +47,6 @@ namespace TheraEngine.Components.Logic.Animation
 
                 if (wasNull && IsSpawned && States.IndexInRange(InitialStateIndex))
                 {
-                    _currentState = InitialState;
                     _blendManager = new BlendManager(InitialState);
                     RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
                 }
@@ -67,7 +55,6 @@ namespace TheraEngine.Components.Logic.Animation
 
         private EventList<AnimState> _states;
         private BlendManager _blendManager;
-        private AnimState _currentState;
 
         public AnimStateMachineComponent()
         {
@@ -84,39 +71,55 @@ namespace TheraEngine.Components.Logic.Animation
         
         public override void OnSpawned()
         {
-            if (States.IndexInRange(InitialStateIndex))
-            {
-                _currentState = InitialState;
-                _blendManager = new BlendManager(InitialState);
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
-            }
+            if (!States.IndexInRange(InitialStateIndex))
+                return;
+            
+            _blendManager = new BlendManager(InitialState);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
         }
         public override void OnDespawned()
         {
-            if (States.IndexInRange(InitialStateIndex))
-            {
-                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
-                _blendManager = null;
-            }
+            if (!States.IndexInRange(InitialStateIndex))
+                return;
+            
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
+            _blendManager = null;
         }
+
         protected internal void Tick(float delta)
+            => _blendManager?.Tick(delta, States, Skeleton?.File);
+
+        private void LinkStates()
         {
-            AnimStateTransition transition = _currentState?.TryTransition();
-            if (transition != null)
-            {
-                _currentState = States[transition.DestinationStateIndex];
-                _blendManager.QueueState(_currentState, transition);
-            }
-            _blendManager?.Tick(delta, Skeleton?.File);
+            if (_states is null)
+                return;
+
+            foreach (AnimState state in _states)
+                StateAdded(state);
+
+            _states.PostAnythingAdded += StateAdded;
+            _states.PostAnythingRemoved += StateRemoved;
         }
-        private void StateRemoved(AnimState item)
+        private void UnlinkStates()
         {
-            if (item.Owner == this)
-                item.Owner = null;
+            if (_states is null)
+                return;
+
+            _states.PostAnythingAdded -= StateAdded;
+            _states.PostAnythingRemoved -= StateRemoved;
+
+            foreach (AnimState state in _states)
+                StateRemoved(state);
         }
-        private void StateAdded(AnimState item)
+        private void StateRemoved(AnimState state)
         {
-            item.Owner = this;
+            if (state?.Owner == this)
+                state.Owner = null;
+        }
+        private void StateAdded(AnimState state)
+        {
+            if (state != null)
+                state.Owner = this;
         }
     }
 }

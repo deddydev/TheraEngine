@@ -200,13 +200,9 @@ namespace TheraEngine
         }
 
         private void Instance_DomainProxyUnset(Core.EngineDomainProxy proxy)
-        {
-            proxy?.UnregisterRenderPanel(_cachedHandle);
-        }
+            => proxy?.UnregisterRenderPanel(_cachedHandle);
         private void Instance_DomainProxySet(Core.EngineDomainProxy proxy)
-        {
-            proxy?.RegisterRenderPanel<T>(_cachedHandle, HandlerArgs);
-        }
+            => proxy?.RegisterRenderPanel<T>(_cachedHandle, HandlerArgs);
 
         /// <summary>
         /// Handles rendering for this panel in the game's AppDomain.

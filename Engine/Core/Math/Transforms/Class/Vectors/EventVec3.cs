@@ -23,15 +23,15 @@ namespace TheraEngine.Core.Maths.Transforms
     {
         public EventVec3() { }
 
-        public EventVec3(Vec3 xyz) => _data = xyz;
-        public EventVec3(float x, float y, float z) => _data = new Vec3(x, y, z);
+        public EventVec3(Vec3 xyz) => _value = xyz;
+        public EventVec3(float x, float y, float z) => _value = new Vec3(x, y, z);
         public EventVec3(float xyz) : this(xyz, xyz, xyz) { }
 
         public EventVec3(Vec2 xy) : this(xy.X, xy.Y, 0.0f) { }
         public EventVec3(Vec2 xy, float z) : this(xy.X, xy.Y, z) { }
         public EventVec3(float x, Vec2 yz) : this(x, yz.X, yz.Y) { }
 
-        public EventVec3(Vec4 xyzw, bool divideByW) => _data = new Vec3(xyzw, divideByW);
+        public EventVec3(Vec4 xyzw, bool divideByW) => _value = new Vec3(xyzw, divideByW);
 
         public static EventVec3 Zero => new EventVec3(0.0f);
         public static EventVec3 Half => new EventVec3(0.5f);
@@ -48,13 +48,13 @@ namespace TheraEngine.Core.Maths.Transforms
         private int _recursiveUpdates = 0;
         public float _oldX, _oldY, _oldZ;
         [TSerialize("XYZ", NodeType = ENodeType.ElementContent)]
-        public Vec3 _data;
+        public Vec3 _value;
 
         public EventVec3 _syncX, _syncY, _syncZ, _syncAll;
 
         public void Reset()
         {
-            _data = Vec3.Zero;
+            _value = Vec3.Zero;
 
             _oldX = 0.0f;
             _oldY = 0.0f;
@@ -79,13 +79,13 @@ namespace TheraEngine.Core.Maths.Transforms
         /// <summary>
         /// Sets the internal <see cref="Vec3"/> value and does not fire any events.
         /// </summary>
-        public void SetRawNoUpdate(Vec3 raw)
-            => _data = raw;
+        public void SetRawSilent(Vec3 raw)
+            => _value = raw;
 
         [Browsable(false)]
-        public Vec3 Raw
+        public Vec3 Value
         {
-            get => _data;
+            get => _value;
             set
             {
                 BeginUpdate();
@@ -94,7 +94,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 //    OnPropertyChanging(nameof(X));
                 //    OnPropertyChanging(nameof(Y));
                 //    OnPropertyChanging(nameof(Z));
-                    Set(ref _data, value);
+                    Set(ref _value, value);
                     OnPropertiesChanged(nameof(X), nameof(Y), nameof(Z));
                 }
                 finally
@@ -105,10 +105,10 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         public float X
         {
-            get => _data.X;
+            get => _value.X;
             set
             {
-                if (value == _data.X)
+                if (value == _value.X)
                     return;
 
                 //if (OnPropertyChanging())
@@ -117,7 +117,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 BeginUpdate();
                 try
                 {
-                    _data.X = value;
+                    _value.X = value;
                 }
                 finally
                 {
@@ -125,15 +125,15 @@ namespace TheraEngine.Core.Maths.Transforms
                 }
 
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(Raw));
+                OnPropertyChanged(nameof(Value));
             }
         }
         public float Y
         {
-            get => _data.Y;
+            get => _value.Y;
             set
             {
-                if (value == _data.Y)
+                if (value == _value.Y)
                     return;
 
                 //if (OnPropertyChanging())
@@ -142,7 +142,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 BeginUpdate();
                 try
                 {
-                    _data.Y = value;
+                    _value.Y = value;
                 }
                 finally
                 {
@@ -150,15 +150,15 @@ namespace TheraEngine.Core.Maths.Transforms
                 }
 
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(Raw));
+                OnPropertyChanged(nameof(Value));
             }
         }
         public float Z
         {
-            get => _data.Z;
+            get => _value.Z;
             set
             {
-                if (value == _data.Z)
+                if (value == _value.Z)
                     return;
 
                 //if (OnPropertyChanging())
@@ -167,7 +167,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 BeginUpdate();
                 try
                 {
-                    _data.Z = value;
+                    _value.Z = value;
                 }
                 finally
                 {
@@ -175,25 +175,25 @@ namespace TheraEngine.Core.Maths.Transforms
                 }
 
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(Raw));
+                OnPropertyChanged(nameof(Value));
             }
         }
 
         [Browsable(false)]
-        public float* Data => _data.Data;
+        public float* Data => _value.Data;
 
         public Matrix4 AsScaleMatrix()
-            => _data.AsScaleMatrix();
+            => _value.AsScaleMatrix();
         public Matrix4 AsInverseScaleMatrix()
-            => _data.AsInverseScaleMatrix();
+            => _value.AsInverseScaleMatrix();
         
         public Matrix4 AsTranslationMatrix()
-            => _data.AsTranslationMatrix();
+            => _value.AsTranslationMatrix();
         public Matrix4 AsInverseTranslationMatrix()
-            => _data.AsInverseTranslationMatrix();
+            => _value.AsInverseTranslationMatrix();
 
         [Browsable(false)]
-        public VoidPtr Address => _data.Address;
+        public VoidPtr Address => _value.Address;
         [Browsable(false)]
         public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Float;
         [Browsable(false)]
@@ -203,14 +203,14 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public void Write(VoidPtr address)
         {
-            _data.Write(address);
+            _value.Write(address);
         }
         public void Read(VoidPtr address)
         {
             BeginUpdate();
             try
             {
-                _data.Read(address);
+                _value.Read(address);
             }
             finally
             {
@@ -300,7 +300,7 @@ namespace TheraEngine.Core.Maths.Transforms
             {
                 other.Changed += Other_Changed;
                 _syncAll = other;
-                Xyz = other.Raw;
+                Xyz = other.Value;
             }
         }
         public void StopSynchronization()
@@ -327,7 +327,7 @@ namespace TheraEngine.Core.Maths.Transforms
             }
         }
 
-        private void Other_Changed() => Raw = _syncAll.Raw;
+        private void Other_Changed() => Value = _syncAll.Value;
         private void Other_XChanged(float newValue, float oldValue) => X = newValue;
         private void Other_YChanged(float newValue, float oldValue) => Y = newValue;
         private void Other_ZChanged(float newValue, float oldValue) => Z = newValue;
@@ -349,15 +349,15 @@ namespace TheraEngine.Core.Maths.Transforms
         }
 
         [Browsable(false)]
-        public float LengthSquared => _data.LengthSquared;
+        public float LengthSquared => _value.LengthSquared;
         [Browsable(false)]
-        public float LengthFast => _data.LengthFast;
+        public float LengthFast => _value.LengthFast;
         [Browsable(false)]
-        public float Length => _data.Length;
+        public float Length => _value.Length;
 
-        public float DistanceTo(Vec3 point) => _data.DistanceTo(point);
-        public float DistanceToFast(Vec3 point) => _data.DistanceToFast(point);
-        public float DistanceToSquared(Vec3 point) => _data.DistanceToSquared(point);
+        public float DistanceTo(Vec3 point) => _value.DistanceTo(point);
+        public float DistanceToFast(Vec3 point) => _value.DistanceToFast(point);
+        public float DistanceToSquared(Vec3 point) => _value.DistanceToSquared(point);
 
         private void BeginUpdate()
         {
@@ -402,7 +402,7 @@ namespace TheraEngine.Core.Maths.Transforms
             BeginUpdate();
             try
             {
-                _data.Normalize();
+                _value.Normalize();
             }
             finally
             {
@@ -414,7 +414,7 @@ namespace TheraEngine.Core.Maths.Transforms
             BeginUpdate();
             try
             {
-                _data.NormalizeFast();
+                _value.NormalizeFast();
             }
             finally
             {
@@ -424,7 +424,7 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public void SetLequalTo(Vec3 other)
         {
-            if (!(_data <= other))
+            if (!(_value <= other))
             {
                 BeginUpdate();
                 X = other.X;
@@ -435,7 +435,7 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         public void SetGequalTo(Vec3 other)
         {
-            if (!(_data >= other))
+            if (!(_value >= other))
             {
                 BeginUpdate();
                 X = other.X;
@@ -465,7 +465,7 @@ namespace TheraEngine.Core.Maths.Transforms
         ///            left
         /// </summary>
         public Vec3 Cross(Vec3 right)
-            => _data ^ right;
+            => _value ^ right;
         
         /// <summary>
         /// Calculates the angle (in degrees) between two vectors.
@@ -494,7 +494,7 @@ namespace TheraEngine.Core.Maths.Transforms
         /// </remarks>
         public Vec3 Project(float x, float y, float width, float height, float minZ, float maxZ, Matrix4 worldViewProjection)
         {
-            Vec3 result = Vec3.TransformPerspective(worldViewProjection, _data);
+            Vec3 result = Vec3.TransformPerspective(worldViewProjection, _value);
 
             result.X = x + (width * ((result.X + 1.0f) / 2.0f));
             result.Y = y + (height * ((result.Y + 1.0f) / 2.0f));
@@ -528,18 +528,18 @@ namespace TheraEngine.Core.Maths.Transforms
         /// <summary>
         /// Returns a YPR rotator with azimuth as yaw, elevation as pitch, and 0 as roll.
         /// </summary>
-        public Rotator LookatAngles() => _data.LookatAngles();
+        public Rotator LookatAngles() => _value.LookatAngles();
 
-        public Vec3 GetSafeNormal(float tolerance = 1.0e-8f) => _data.GetSafeNormal(tolerance);
+        public Vec3 GetSafeNormal(float tolerance = 1.0e-8f) => _value.GetSafeNormal(tolerance);
 
         /// <summary>
         /// Returns the portion of this Vec3 that is parallel to the given normal.
         /// </summary>
-        public Vec3 ParallelComponent(Vec3 normal) => _data.ParallelComponent(normal);
+        public Vec3 ParallelComponent(Vec3 normal) => _value.ParallelComponent(normal);
         /// <summary>
         /// Returns the portion of this Vec3 that is perpendicular to the given normal.
         /// </summary>
-        public Vec3 PerpendicularComponent(Vec3 normal) => _data.PerpendicularComponent(normal);
+        public Vec3 PerpendicularComponent(Vec3 normal) => _value.PerpendicularComponent(normal);
 
         //public EventVec3 GetAngles() { return new EventVec3(AngleX(), AngleY(), AngleZ()); }
         //public EventVec3 GetAngles(EventVec3 origin) { return (this - origin).GetAngles(); }
@@ -549,7 +549,7 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public bool IsInTriangle(Vec3 triPt1, Vec3 triPt2, Vec3 triPt3)
         {
-            return _data.IsInTriangle(triPt1, triPt2, triPt3);
+            return _value.IsInTriangle(triPt1, triPt2, triPt3);
         }
 
         public void SetXy(float x, float y)
@@ -666,47 +666,47 @@ namespace TheraEngine.Core.Maths.Transforms
             set => SetXyz(value.X, value.Y, value.Z);
         }
 
-        public static Vec3 operator +(float left, EventVec3 right) { return left + right._data; }
-        public static Vec3 operator +(EventVec3 left, float right) { return left._data + right; }
-        public static Vec3 operator -(float left, EventVec3 right) { return left - right._data; }
-        public static Vec3 operator -(EventVec3 left, float right) { return left._data - right; }
+        public static Vec3 operator +(float left, EventVec3 right) { return left + right._value; }
+        public static Vec3 operator +(EventVec3 left, float right) { return left._value + right; }
+        public static Vec3 operator -(float left, EventVec3 right) { return left - right._value; }
+        public static Vec3 operator -(EventVec3 left, float right) { return left._value - right; }
         
-        public static Vec3 operator +(EventVec3 left, EventVec3 right) { return left._data + right._data; }
-        public static Vec3 operator -(EventVec3 left, EventVec3 right) { return left._data - right._data; }
-        public static Vec3 operator +(EventVec3 left, Vec3 right) { return left._data + right; }
-        public static Vec3 operator -(EventVec3 left, Vec3 right) { return left._data - right; }
-        public static Vec3 operator +(Vec3 left, EventVec3 right) { return left + right._data; }
-        public static Vec3 operator -(Vec3 left, EventVec3 right) { return left - right._data; }
+        public static Vec3 operator +(EventVec3 left, EventVec3 right) { return left._value + right._value; }
+        public static Vec3 operator -(EventVec3 left, EventVec3 right) { return left._value - right._value; }
+        public static Vec3 operator +(EventVec3 left, Vec3 right) { return left._value + right; }
+        public static Vec3 operator -(EventVec3 left, Vec3 right) { return left._value - right; }
+        public static Vec3 operator +(Vec3 left, EventVec3 right) { return left + right._value; }
+        public static Vec3 operator -(Vec3 left, EventVec3 right) { return left - right._value; }
 
-        public static Vec3 operator -(EventVec3 vec) { return -vec._data; }
+        public static Vec3 operator -(EventVec3 vec) { return -vec._value; }
 
-        public static Vec3 operator *(EventVec3 vec, float scale) { return vec._data * scale; }
-        public static Vec3 operator /(EventVec3 vec, float scale) { return vec._data / scale; }
-        public static Vec3 operator *(float scale, EventVec3 vec) { return vec._data * scale; }
-        public static Vec3 operator /(float scale, EventVec3 vec) { return scale / vec._data; }
+        public static Vec3 operator *(EventVec3 vec, float scale) { return vec._value * scale; }
+        public static Vec3 operator /(EventVec3 vec, float scale) { return vec._value / scale; }
+        public static Vec3 operator *(float scale, EventVec3 vec) { return vec._value * scale; }
+        public static Vec3 operator /(float scale, EventVec3 vec) { return scale / vec._value; }
 
-        public static Vec3 operator /(EventVec3 left, EventVec3 right) { return left._data / right._data; }
-        public static Vec3 operator *(EventVec3 left, EventVec3 right) { return left._data * right._data; }
-        public static Vec3 operator /(EventVec3 left, Vec3 right) { return left._data / right; }
-        public static Vec3 operator *(EventVec3 left, Vec3 right) { return left._data * right; }
-        public static Vec3 operator /(Vec3 left, EventVec3 right) { return left / right._data; }
-        public static Vec3 operator *(Vec3 left, EventVec3 right) { return left * right._data; }
+        public static Vec3 operator /(EventVec3 left, EventVec3 right) { return left._value / right._value; }
+        public static Vec3 operator *(EventVec3 left, EventVec3 right) { return left._value * right._value; }
+        public static Vec3 operator /(EventVec3 left, Vec3 right) { return left._value / right; }
+        public static Vec3 operator *(EventVec3 left, Vec3 right) { return left._value * right; }
+        public static Vec3 operator /(Vec3 left, EventVec3 right) { return left / right._value; }
+        public static Vec3 operator *(Vec3 left, EventVec3 right) { return left * right._value; }
 
-        public static bool operator <(EventVec3 left, EventVec3 right) { return left._data < right._data; }
-        public static bool operator <(Vec3 left, EventVec3 right) { return left < right._data; }
-        public static bool operator <(EventVec3 left, Vec3 right) { return left._data < right; }
+        public static bool operator <(EventVec3 left, EventVec3 right) { return left._value < right._value; }
+        public static bool operator <(Vec3 left, EventVec3 right) { return left < right._value; }
+        public static bool operator <(EventVec3 left, Vec3 right) { return left._value < right; }
 
-        public static bool operator >(EventVec3 left, EventVec3 right) { return left._data > right._data; }
-        public static bool operator >(Vec3 left, EventVec3 right) { return left > right._data; }
-        public static bool operator >(EventVec3 left, Vec3 right) { return left._data > right; }
+        public static bool operator >(EventVec3 left, EventVec3 right) { return left._value > right._value; }
+        public static bool operator >(Vec3 left, EventVec3 right) { return left > right._value; }
+        public static bool operator >(EventVec3 left, Vec3 right) { return left._value > right; }
 
-        public static bool operator <=(EventVec3 left, EventVec3 right) { return left._data <= right._data; }
-        public static bool operator <=(Vec3 left, EventVec3 right) { return left <= right._data; }
-        public static bool operator <=(EventVec3 left, Vec3 right) { return left._data <= right; }
+        public static bool operator <=(EventVec3 left, EventVec3 right) { return left._value <= right._value; }
+        public static bool operator <=(Vec3 left, EventVec3 right) { return left <= right._value; }
+        public static bool operator <=(EventVec3 left, Vec3 right) { return left._value <= right; }
 
-        public static bool operator >=(EventVec3 left, EventVec3 right) { return left._data >= right._data; }
-        public static bool operator >=(Vec3 left, EventVec3 right) { return left >= right._data; }
-        public static bool operator >=(EventVec3 left, Vec3 right) { return left._data >= right; }
+        public static bool operator >=(EventVec3 left, EventVec3 right) { return left._value >= right._value; }
+        public static bool operator >=(Vec3 left, EventVec3 right) { return left >= right._value; }
+        public static bool operator >=(EventVec3 left, Vec3 right) { return left._value >= right; }
 
         public static bool operator ==(EventVec3 left, EventVec3 right)
         {
@@ -727,7 +727,7 @@ namespace TheraEngine.Core.Maths.Transforms
             return !left.Equals(right);
         }
 
-        public static implicit operator Vec3(EventVec3 v) { return v._data; }
+        public static implicit operator Vec3(EventVec3 v) { return v._value; }
         public static implicit operator EventVec3(Vec3 v) { return new EventVec3(v); }
 
         public static explicit operator EventVec3(Vec2 v) { return new EventVec3(v.X, v.Y, 0.0f); }
@@ -778,8 +778,8 @@ namespace TheraEngine.Core.Maths.Transforms
         }
 
         public string WriteToString()
-            => _data.WriteToString();
+            => _value.WriteToString();
         public void ReadFromString(string str)
-            => _data.ReadFromString(str);
+            => _value.ReadFromString(str);
     }
 }

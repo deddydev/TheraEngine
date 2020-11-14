@@ -247,7 +247,7 @@ namespace TheraEngine.Core.Shapes
             Vec3 botLocal = Vec3.TransformPosition(bot, _transform.InverseMatrix);
             Vec3 min = Vec3.ComponentMin(topLocal, botLocal) - radius;
             Vec3 max = Vec3.ComponentMax(topLocal, botLocal) + radius;
-            return Collision.AABBContainsAABB(-_halfExtents.Raw, _halfExtents.Raw, min, max);
+            return Collision.AABBContainsAABB(-_halfExtents.Value, _halfExtents.Value, min, max);
         }
     }
 }

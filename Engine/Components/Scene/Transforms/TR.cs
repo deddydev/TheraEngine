@@ -82,7 +82,7 @@ namespace TheraEngine.Components.Scene.Transforms
         public void SetTRRaw(Vec3 translation, Rotator rotation)
         {
             _allowLocalRecalc = false;
-            _translation.Raw = translation;
+            _translation.Value = translation;
             _rotation.SetRotations(rotation);
             _allowLocalRecalc = true;
             RecalcLocalTransform();
@@ -111,7 +111,7 @@ namespace TheraEngine.Components.Scene.Transforms
         protected override void DeriveMatrix()
         {
             Transform.DeriveTR(LocalMatrix, out Vec3 t, out Quat r);
-            _translation.SetRawNoUpdate(t);
+            _translation.SetRawSilent(t);
             _rotation.SetRotationsNoUpdate(r.ToRotator());
         }
 
@@ -146,7 +146,7 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             _localMatrix = LocalMatrix * translation.AsTranslationMatrix();
             _inverseLocalMatrix = (-translation).AsTranslationMatrix() * InverseLocalMatrix;
-            _translation.SetRawNoUpdate(LocalMatrix.Translation);
+            _translation.SetRawSilent(LocalMatrix.Translation);
             RecalcWorldTransform();
         }
         public void Pivot(float pitch, float yaw, float distance)
@@ -155,7 +155,7 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             //"Arcball" rotation
             //All rotation is done within local component space
-            _translation.Raw = TMath.ArcballTranslation(pitch, yaw, focusPoint, _translation.Raw, GetLocalRightDir());
+            _translation.Value = TMath.ArcballTranslation(pitch, yaw, focusPoint, _translation.Value, GetLocalRightDir());
             _rotation.AddRotations(pitch, yaw, 0.0f);
         }
         #endregion

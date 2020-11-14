@@ -47,12 +47,12 @@ namespace TheraEngine.Core.Shapes
         [Category("Bounding Box")]
         public Vec3 Minimum
         {
-            get => Translation.Raw - HalfExtents.Raw;
+            get => Translation.Value - HalfExtents.Value;
             set
             {
                 Vec3 max = Maximum;
-                Translation.Raw = (max + value) / 2.0f;
-                HalfExtents.Raw = (max - value) / 2.0f;
+                Translation.Value = (max + value) / 2.0f;
+                HalfExtents.Value = (max - value) / 2.0f;
             }
         }
         /// <summary>
@@ -66,8 +66,8 @@ namespace TheraEngine.Core.Shapes
             set
             {
                 Vec3 min = Minimum;
-                Translation.Raw = (value + min) / 2.0f;
-                HalfExtents.Raw = (value - min) / 2.0f;
+                Translation.Value = (value + min) / 2.0f;
+                HalfExtents.Value = (value - min) / 2.0f;
             }
         }
         #endregion
@@ -184,7 +184,7 @@ namespace TheraEngine.Core.Shapes
             out Vec3 BBR,
             out Vec3 BFL,
             out Vec3 BFR)
-            => GetCorners(HalfExtents.Raw, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            => GetCorners(HalfExtents.Value, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
 
         /// <summary>
         /// Returns the corners of a box with the given half extents and transformed by the given matrix.
@@ -386,7 +386,7 @@ namespace TheraEngine.Core.Shapes
             if (includeTranslation)
                 return SolidMesh(Minimum, Maximum);
             else
-                return SolidMesh(-HalfExtents.Raw, HalfExtents.Raw);
+                return SolidMesh(-HalfExtents.Value, HalfExtents.Value);
         }
 
         /// <summary>
@@ -399,7 +399,7 @@ namespace TheraEngine.Core.Shapes
             if (includeTranslation)
                 return WireframeMesh(Minimum, Maximum);
             else
-                return WireframeMesh(-HalfExtents.Raw, HalfExtents.Raw);
+                return WireframeMesh(-HalfExtents.Value, HalfExtents.Value);
         }
         #endregion
 
@@ -428,7 +428,7 @@ namespace TheraEngine.Core.Shapes
         /// <summary>
         /// Converts this bounding box to a frustum, transformed by the given matrix.
         /// </summary>
-        public IFrustum AsFrustum(Matrix4 transform) => GetFrustum(HalfExtents.Raw, transform);
+        public IFrustum AsFrustum(Matrix4 transform) => GetFrustum(HalfExtents.Value, transform);
         #endregion
 
         public Box AsBox() => new Box(this);
@@ -449,15 +449,15 @@ namespace TheraEngine.Core.Shapes
         {
             Vec3 min = Vec3.ComponentMin(point, Minimum);
             Vec3 max = Vec3.ComponentMax(point, Maximum);
-            Translation.Raw = (max + min) / 2.0f;
-            HalfExtents.Raw = (max - min) / 2.0f;
+            Translation.Value = (max + min) / 2.0f;
+            HalfExtents.Value = (max - min) / 2.0f;
         }
         public void Expand(BoundingBox box)
         {
             Vec3 min = Vec3.ComponentMin(box.Minimum, box.Maximum, Minimum);
             Vec3 max = Vec3.ComponentMax(box.Minimum, box.Maximum, Maximum);
-            Translation.Raw = (max + min) / 2.0f;
-            HalfExtents.Raw = (max - min) / 2.0f;
+            Translation.Value = (max + min) / 2.0f;
+            HalfExtents.Value = (max - min) / 2.0f;
         }
 
         #region Collision
@@ -611,11 +611,11 @@ namespace TheraEngine.Core.Shapes
             }
         }
         public override void SetTransformMatrix(Matrix4 matrix)
-            => _translation.Raw = matrix.Translation;
+            => _translation.Value = matrix.Translation;
         public override Matrix4 GetTransformMatrix()
             => _translation.AsTranslationMatrix();
         public override TShape HardCopy()
-            => FromHalfExtentsTranslation(HalfExtents.Raw, Translation.Raw);
+            => FromHalfExtentsTranslation(HalfExtents.Value, Translation.Value);
         public override Vec3 ClosestPoint(Vec3 point)
             => Collision.ClosestPointAABBPoint(Minimum, Maximum, point);
         public override TCollisionShape GetCollisionShape()

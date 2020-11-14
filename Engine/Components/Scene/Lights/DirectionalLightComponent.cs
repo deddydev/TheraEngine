@@ -27,7 +27,7 @@ namespace TheraEngine.Components.Scene.Lights
                 {
                     ShadowCamera.Resize(Scale.X, Scale.Y);
                     ShadowCamera.FarZ = Scale.Z;
-                    ShadowCamera.LocalPoint.Raw = WorldPoint;
+                    ShadowCamera.LocalPoint.Value = WorldPoint;
                     ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
                 }
                 LightMatrix = WorldMatrix * _scale.AsScaleMatrix();
@@ -74,7 +74,7 @@ namespace TheraEngine.Components.Scene.Lights
         {
             if (ShadowCamera != null)
             {
-                ShadowCamera.LocalPoint.Raw = WorldPoint;
+                ShadowCamera.LocalPoint.Value = WorldPoint;
                 ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
             }
             
@@ -94,7 +94,7 @@ namespace TheraEngine.Components.Scene.Lights
                     if (ShadowMap is null)
                         SetShadowMapResolution(_region.Width, _region.Height);
 
-                    ShadowCamera.LocalPoint.Raw = WorldPoint;
+                    ShadowCamera.LocalPoint.Value = WorldPoint;
                     ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
                 }
                 ShadowCamera.RenderInfo.LinkScene(ShadowCamera, s3d);

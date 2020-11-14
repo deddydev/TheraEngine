@@ -81,8 +81,8 @@ namespace TheraEngine.Rendering.Models
                 return;
 
             //Apply local translation component to parent matrix
-            Matrix4 frameTrans = parentMatrix * FrameState.Translation.Raw.AsTranslationMatrix();
-            Matrix4 invFramTrans = (-FrameState.Translation.Raw).AsTranslationMatrix() * inverseParentMatrix;
+            Matrix4 frameTrans = parentMatrix * FrameState.Translation.Value.AsTranslationMatrix();
+            Matrix4 invFramTrans = (-FrameState.Translation.Value).AsTranslationMatrix() * inverseParentMatrix;
 
             //Reset rotation for billboard
             frameTrans = parentMatrix.ClearRotation();
@@ -179,7 +179,7 @@ namespace TheraEngine.Rendering.Models
             }
 
             //Multiply translation, rotation and scale parts together
-            _frameMatrix = frameTrans * angles * FrameState.Scale.Raw.AsScaleMatrix();
+            _frameMatrix = frameTrans * angles * FrameState.Scale.Value.AsScaleMatrix();
             _inverseFrameMatrix = (1.0f / FrameState.Scale).AsScaleMatrix() * invAngles * invFramTrans;
         }
     }

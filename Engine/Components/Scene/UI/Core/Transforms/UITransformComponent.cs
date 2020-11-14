@@ -107,7 +107,7 @@ namespace TheraEngine.Rendering.UI
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             Vec3 translation = new Vec3(ActualTranslation.Raw, Translation.Z);
-            Vec3 scale = Scale?.Raw ?? Vec3.One;
+            Vec3 scale = Scale?.Value ?? Vec3.One;
 
             localTransform = Matrix4.TransformMatrix(
                 scale,
@@ -134,7 +134,7 @@ namespace TheraEngine.Rendering.UI
             if (Math.Abs(amount) < 0.0001f)
                 return;
 
-            Vec2 scale = _scale.Raw.Xy;
+            Vec2 scale = _scale.Value.Xy;
             Vec2 multiplier = Vec2.One / scale * amount;
             Vec2 newScale = scale - amount;
 
@@ -161,8 +161,8 @@ namespace TheraEngine.Rendering.UI
 
             Vec2 newTranslation = ActualTranslation.Raw + (worldScreenPoint - WorldPoint.Xy) * multiplier;
 
-            _translation.Raw = new Vec3(newTranslation, _translation.Z);
-            _scale.Raw = new Vec3(newScale, _scale.Z);
+            _translation.Value = new Vec3(newTranslation, _translation.Z);
+            _scale.Value = new Vec3(newScale, _scale.Z);
 
             UpdateMatrix();
             //InvalidateLayout();

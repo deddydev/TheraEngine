@@ -40,9 +40,9 @@ namespace TheraEngine.Components.Scene.Transforms
         public void SetTRSRaw(Vec3 translation, Rotator rotation, Vec3 scale)
         {
             _allowLocalRecalc = false;
-            _translation.Raw = translation;
+            _translation.Value = translation;
             _rotation.SetRotations(rotation);
-            _scale.Raw = scale;
+            _scale.Value = scale;
             _allowLocalRecalc = true;
             RecalcLocalTransform();
         }
@@ -70,8 +70,8 @@ namespace TheraEngine.Components.Scene.Transforms
         protected override void DeriveMatrix()
         {
             Transform.DeriveTRS(LocalMatrix, out Vec3 t, out Vec3 s, out Quat r);
-            _translation.SetRawNoUpdate(t);
-            _scale.SetRawNoUpdate(s);
+            _translation.SetRawSilent(t);
+            _scale.SetRawSilent(s);
             _rotation.SetRotationsNoUpdate(r.ToRotator());
         }
 
@@ -90,12 +90,12 @@ namespace TheraEngine.Components.Scene.Transforms
                 ir = _rotation.Inverted().GetMatrix();
 
             Matrix4
-                t = _translation.Raw.AsTranslationMatrix(),
-                it = (-_translation.Raw).AsTranslationMatrix();
+                t = _translation.Value.AsTranslationMatrix(),
+                it = (-_translation.Value).AsTranslationMatrix();
 
             Matrix4
-                s = _scale.Raw.AsScaleMatrix(),
-                iS = (1.0f / _scale.Raw).AsScaleMatrix();
+                s = _scale.Value.AsScaleMatrix(),
+                iS = (1.0f / _scale.Value).AsScaleMatrix();
 
             localTransform = t * r * s;
             inverseLocalTransform = iS * ir * it;
@@ -107,7 +107,7 @@ namespace TheraEngine.Components.Scene.Transforms
         public override bool IsScalable => true;
         public override void HandleScale(Vec3 delta)
         {
-            _scale.Raw += delta;
+            _scale.Value += delta;
         }
     }
 }

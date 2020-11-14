@@ -68,7 +68,7 @@ namespace TheraEngine.Components.Scene.Lights
         {
             _influenceVolume.SetTransformMatrix(WorldMatrix);
             foreach (PerspectiveCamera cam in ShadowCameras)
-                cam.LocalPoint.Raw = WorldMatrix.Translation;
+                cam.LocalPoint.Value = WorldMatrix.Translation;
             LightMatrix = WorldMatrix * Matrix4.CreateScale(Radius);
             base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
@@ -137,7 +137,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform("FarPlaneDist", Radius);
             program.Uniform("LightPos", _influenceVolume.Center);
             for (int i = 0; i < ShadowCameras.Length; ++i)
-                program.Uniform(string.Format("ShadowMatrices[{0}]", i), ShadowCameras[i].WorldToCameraProjSpaceMatrix);
+                program.Uniform($"ShadowMatrices[{i}]", ShadowCameras[i].WorldToCameraProjSpaceMatrix);
         }
         public override TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
@@ -178,9 +178,7 @@ namespace TheraEngine.Components.Scene.Lights
 #if EDITOR
         protected override string PreviewIconName => "PointLightIcon.png";
         protected internal override void OnSelectedChanged(bool selected)
-        {
-            _influenceVolume.RenderInfo.IsVisible = selected;
-        }
+            => _influenceVolume.RenderInfo.IsVisible = selected;
 #endif
     }
 }

@@ -74,14 +74,14 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected virtual void Tick(float delta)
         {
-            _currentTranslation.Raw = Interp.CosineTo(_currentTranslation.Raw, _desiredTranslation, delta, _invTransInterpSec);
+            _currentTranslation.Value = Interp.CosineTo(_currentTranslation.Value, _desiredTranslation, delta, _invTransInterpSec);
             RecalcLocalTransform();
         }
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             localTransform = _currentTranslation.AsTranslationMatrix();
-            inverseLocalTransform = (-_currentTranslation.Raw).AsTranslationMatrix();
+            inverseLocalTransform = (-_currentTranslation.Value).AsTranslationMatrix();
 
             //Engine.PrintLine("Recalculated T.");
         }
@@ -89,7 +89,7 @@ namespace TheraEngine.Components.Scene.Transforms
         public void SetTranslation(Vec3 translation)
         {
             _desiredTranslation = translation;
-            _currentTranslation.Raw = translation;
+            _currentTranslation.Value = translation;
             RecalcLocalTransform();
         }
 
@@ -97,7 +97,7 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             //Engine.PrintLine("Rebasing {0}.", OwningActor.GetType().GetFriendlyName());
             _desiredTranslation -= newOrigin;
-            _currentTranslation.Raw -= newOrigin;
+            _currentTranslation.Value -= newOrigin;
             RecalcLocalTransform();
         }
 

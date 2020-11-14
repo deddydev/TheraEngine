@@ -590,7 +590,7 @@ namespace TheraEditor.Windows.Forms
                     if (!(Editor.UserCreateInstanceOf<ISubActorComponent>() is ISceneComponent subActorComp))
                         return;
 
-                    comp.ChildComponents.Add(subActorComp);
+                    comp.ChildSockets.Add(subActorComp);
                     //targetMap = comp.OwningActor?.MapAttachment;
 
                     return;
@@ -633,7 +633,7 @@ namespace TheraEditor.Windows.Forms
                     }
                     break;
                 case ISceneComponent sceneComp:
-                    sceneComp.ParentSocket?.ChildComponents?.Remove(sceneComp);
+                    sceneComp.ParentSocket?.ChildSockets?.Remove(sceneComp);
                     break;
                 case ILogicComponent logicComp:
                     logicComp.OwningActor?.LogicComponents?.Remove(logicComp);
@@ -668,8 +668,8 @@ namespace TheraEditor.Windows.Forms
                     {
                         var parent = comp2.ParentSocket;
                         comp2.DetachFromParent();
-                        parent.ChildComponents.Add(newComp);
-                        newComp.ChildComponents.Add(comp2);
+                        parent.ChildSockets.Add(newComp);
+                        newComp.ChildSockets.Add(comp2);
                     }
                 });
             }
@@ -709,11 +709,11 @@ namespace TheraEditor.Windows.Forms
                 case SceneComponent sceneComp:
                     {
                         var socket = sceneComp.ParentSocket;
-                        int index = socket?.ChildComponents?.IndexOf(sceneComp) ?? -1;
+                        int index = socket?.ChildSockets?.IndexOf(sceneComp) ?? -1;
                         if (index > 0)
                         {
-                            socket.ChildComponents.RemoveAt(index);
-                            socket.ChildComponents.Insert(index - 1, sceneComp);
+                            socket.ChildSockets.RemoveAt(index);
+                            socket.ChildSockets.Insert(index - 1, sceneComp);
                         }
                         node.MoveUp();
                     }
@@ -740,11 +740,11 @@ namespace TheraEditor.Windows.Forms
                 case SceneComponent sceneComp:
                     {
                         var socket = sceneComp.ParentSocket;
-                        int index = socket.ChildComponents.IndexOf(sceneComp);
-                        if (index >= 0 && index + 1 < socket.ChildComponents.Count)
+                        int index = socket.ChildSockets.IndexOf(sceneComp);
+                        if (index >= 0 && index + 1 < socket.ChildSockets.Count)
                         {
-                            socket.ChildComponents.RemoveAt(index);
-                            socket.ChildComponents.Insert(index + 1, sceneComp);
+                            socket.ChildSockets.RemoveAt(index);
+                            socket.ChildSockets.Insert(index + 1, sceneComp);
                         }
                     }
                     break;

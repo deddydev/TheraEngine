@@ -232,7 +232,7 @@ namespace TheraEngine.Tests
             actors.Add(spotlight);
 
             CharacterSpawnPointActor spawn = new CharacterSpawnPointActor();
-            spawn.RootComponent.Translation.Raw = Vec3.Up * 100.0f;
+            spawn.RootComponent.Translation.Value = Vec3.Up * 100.0f;
             actors.Add(spawn);
 
             IBLProbeGridActor ibl = new IBLProbeGridActor();

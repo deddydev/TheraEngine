@@ -91,12 +91,12 @@ namespace TheraEngine.Components.Scene.Lights
             Vec3 coneOrigin = _translation + _direction * (_distance * 0.5f);
 
             OuterCone.UpAxis = -_direction;
-            OuterCone.Center.Raw = coneOrigin;
+            OuterCone.Center.Value = coneOrigin;
             OuterCone.Height = _distance;
             OuterCone.Radius = (float)Math.Tan(TMath.DegToRad(OuterCutoffAngleDegrees)) * _distance;
 
             InnerCone.UpAxis = -_direction;
-            InnerCone.Center.Raw = coneOrigin;
+            InnerCone.Center.Value = coneOrigin;
             InnerCone.Height = _distance;
             InnerCone.Radius = (float)Math.Tan(TMath.DegToRad(InnerCutoffAngleDegrees)) * _distance;
 

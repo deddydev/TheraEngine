@@ -76,7 +76,7 @@ namespace TheraEngine.Components.Scene.Transforms
         
         protected override void Tick(float delta)
         {
-            _currentTranslation.Raw = Interp.CosineTo(_currentTranslation.Raw, _desiredTranslation, delta, _invTransInterpSec);
+            _currentTranslation.Value = Interp.CosineTo(_currentTranslation.Value, _desiredTranslation, delta, _invTransInterpSec);
             _currentRotation.PitchYawRoll = Interp.CosineTo(_currentRotation.PitchYawRoll, _desiredRotation.PitchYawRoll, delta, _invRotInterpSec);
             RecalcLocalTransform();
         }

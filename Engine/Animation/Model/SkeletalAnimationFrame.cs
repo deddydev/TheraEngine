@@ -1,31 +1,35 @@
-﻿using TheraEngine.Rendering.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.ComponentModel;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Animation
 {
-    public class SkeletalAnimationPose
+    public class SkeletalAnimationPose : TFileObject
     {
-        public Dictionary<string, BoneFrame> _boneFrames = new Dictionary<string, BoneFrame>();
+        [TSerialize]
+        public Dictionary<string, BoneFrame> BoneFrames { get; set; } 
+            = new Dictionary<string, BoneFrame>();
 
         public void AddBoneFrame(BoneFrame anim)
         {
-            if (_boneFrames.ContainsKey(anim._name))
-                _boneFrames[anim._name] = anim;
+            if (BoneFrames.ContainsKey(anim._name))
+                BoneFrames[anim._name] = anim;
             else
-                _boneFrames.Add(anim._name, anim);
+                BoneFrames.Add(anim._name, anim);
         }
         public void RemoveBoneFrame(string boneName)
         {
-            if (_boneFrames.ContainsKey(boneName))
-                _boneFrames.Remove(boneName);
+            if (BoneFrames.ContainsKey(boneName))
+                BoneFrames.Remove(boneName);
         }
         public void UpdateSkeleton(Skeleton skeleton)
         {
-            foreach (BoneFrame b in _boneFrames.Values)
+            foreach (BoneFrame b in BoneFrames.Values)
                 b.UpdateSkeleton(skeleton);
         }
         /// <summary>
@@ -33,10 +37,10 @@ namespace TheraEngine.Animation
         /// </summary>
         public IEnumerable<string> BoneNamesUnion(SkeletalAnimationPose other)
         {
-            string[] theseNames = new string[_boneFrames.Keys.Count];
-            _boneFrames.Keys.CopyTo(theseNames, 0);
-            string[] thoseNames = new string[other._boneFrames.Keys.Count];
-            other._boneFrames.Keys.CopyTo(thoseNames, 0);
+            string[] theseNames = new string[BoneFrames.Keys.Count];
+            BoneFrames.Keys.CopyTo(theseNames, 0);
+            string[] thoseNames = new string[other.BoneFrames.Keys.Count];
+            other.BoneFrames.Keys.CopyTo(thoseNames, 0);
             return theseNames.Intersect(thoseNames);
         }
         /// <summary>
@@ -44,8 +48,8 @@ namespace TheraEngine.Animation
         /// </summary>
         public IEnumerable<string> BoneNamesUnion(SkeletalAnimation other)
         {
-            string[] theseNames = new string[_boneFrames.Keys.Count];
-            _boneFrames.Keys.CopyTo(theseNames, 0);
+            string[] theseNames = new string[BoneFrames.Keys.Count];
+            BoneFrames.Keys.CopyTo(theseNames, 0);
             string[] thoseNames = new string[other.BoneAnimations.Keys.Count];
             other.BoneAnimations.Keys.CopyTo(thoseNames, 0);
             return theseNames.Intersect(thoseNames);
@@ -56,17 +60,17 @@ namespace TheraEngine.Animation
             var union = BoneNamesUnion(other);
             foreach (string name in union)
             {
-                if (_boneFrames.ContainsKey(name))
+                if (BoneFrames.ContainsKey(name))
                 {
-                    if (other._boneFrames.ContainsKey(name))
-                        blendedFrame.AddBoneFrame(_boneFrames[name].BlendedWith(other._boneFrames[name], otherWeight));
+                    if (other.BoneFrames.ContainsKey(name))
+                        blendedFrame.AddBoneFrame(BoneFrames[name].BlendedWith(other.BoneFrames[name], otherWeight));
                     else
-                        blendedFrame.AddBoneFrame(_boneFrames[name].BlendedWith(null, otherWeight));
+                        blendedFrame.AddBoneFrame(BoneFrames[name].BlendedWith(null, otherWeight));
                 }
                 else
                 {
-                    if (other._boneFrames.ContainsKey(name))
-                        blendedFrame.AddBoneFrame(other._boneFrames[name].BlendedWith(null, 1.0f - otherWeight));
+                    if (other.BoneFrames.ContainsKey(name))
+                        blendedFrame.AddBoneFrame(other.BoneFrames[name].BlendedWith(null, 1.0f - otherWeight));
                 }
             }
             return blendedFrame;
@@ -76,12 +80,12 @@ namespace TheraEngine.Animation
             SkeletalAnimationPose blendedFrame = new SkeletalAnimationPose();
             foreach (string name in BoneNamesUnion(other))
             {
-                if (_boneFrames.ContainsKey(name))
+                if (BoneFrames.ContainsKey(name))
                 {
                     if (other.BoneAnimations.ContainsKey(name))
-                        blendedFrame.AddBoneFrame(_boneFrames[name].BlendedWith(other.BoneAnimations[name], frameIndex, otherWeight));
+                        blendedFrame.AddBoneFrame(BoneFrames[name].BlendedWith(other.BoneAnimations[name], frameIndex, otherWeight));
                     else
-                        blendedFrame.AddBoneFrame(_boneFrames[name].BlendedWith(null, otherWeight));
+                        blendedFrame.AddBoneFrame(BoneFrames[name].BlendedWith(null, otherWeight));
                 }
                 else
                 {
@@ -98,17 +102,17 @@ namespace TheraEngine.Animation
                 return;
             foreach (string name in BoneNamesUnion(other))
             {
-                if (_boneFrames.ContainsKey(name))
+                if (BoneFrames.ContainsKey(name))
                 {
-                    if (other._boneFrames.ContainsKey(name))
-                        _boneFrames[name].BlendWith(other._boneFrames[name], otherWeight);
+                    if (other.BoneFrames.ContainsKey(name))
+                        BoneFrames[name].BlendWith(other.BoneFrames[name], otherWeight);
                     else
-                        _boneFrames[name].BlendWith(null, otherWeight);
+                        BoneFrames[name].BlendWith(null, otherWeight);
                 }
                 else
                 {
-                    if (other._boneFrames.ContainsKey(name))
-                        AddBoneFrame(other._boneFrames[name].BlendedWith(null, 1.0f - otherWeight));
+                    if (other.BoneFrames.ContainsKey(name))
+                        AddBoneFrame(other.BoneFrames[name].BlendedWith(null, 1.0f - otherWeight));
 
                     //else, neither has a bone with this name, ignore it
                 }
@@ -118,12 +122,12 @@ namespace TheraEngine.Animation
         {
             foreach (string name in BoneNamesUnion(other))
             {
-                if (_boneFrames.ContainsKey(name))
+                if (BoneFrames.ContainsKey(name))
                 {
                     if (other.BoneAnimations.ContainsKey(name))
-                        _boneFrames[name].BlendedWith(other.BoneAnimations[name], frameIndex, otherWeight);
+                        BoneFrames[name].BlendedWith(other.BoneAnimations[name], frameIndex, otherWeight);
                     else
-                        _boneFrames[name].BlendedWith(null, otherWeight);
+                        BoneFrames[name].BlendedWith(null, otherWeight);
                 }
                 else
                 {
@@ -160,33 +164,24 @@ namespace TheraEngine.Animation
     public class BoneFrame
     {
         public string _name;
-        private FrameVec3ValueWeight _translation;
-        private FrameVec3ValueWeight _scale;
-        private FrameQuatValueWeight _rotation;
 
-        public FrameVec3ValueWeight Translation 
-        {
-            get => _translation;
-            set => _translation = value;
-        }
-        public FrameVec3ValueWeight Scale
-        {
-            get => _scale;
-            set => _scale = value;
-        }
-        public FrameQuatValueWeight Rotation
-        {
-            get => _rotation;
-            set => _rotation = value;
-        }
+        public FrameVec3ValueWeight Translation { get; set; }
+        public FrameVec3ValueWeight Scale { get; set; }
+        public FrameQuatValueWeight Rotation { get; set; }
 
-        public Vec3 GetTranslation(Vec3 bindTranslation) => Vec3.Lerp(bindTranslation, _translation.Value, _translation.Weight);
-        public Quat GetRotation(Quat bindRotation) => Quat.Slerp(bindRotation, _rotation.Value, _rotation.Weight);
-        public Vec3 GetScale(Vec3 bindScale) => Vec3.Lerp(bindScale, _scale.Value, _scale.Weight);
+        public Vec3 GetTranslation(Vec3 bindTranslation)
+            => Vec3.Lerp(bindTranslation, Translation.Value, Translation.Weight);
+        public Quat GetRotation(Quat bindRotation)
+            => Quat.Slerp(bindRotation, Rotation.Value, Rotation.Weight);
+        public Vec3 GetScale(Vec3 bindScale)
+            => Vec3.Lerp(bindScale, Scale.Value, Scale.Weight);
 
-        public Vec3 GetUnweightedTranslation() => _translation.Value;
-        public Quat GetUnweightedRotation() => _rotation.Value;
-        public Vec3 GetUnweightedScale() => _scale.Value;
+        public Vec3 GetUnweightedTranslation()
+            => Translation.Value;
+        public Quat GetUnweightedRotation()
+            => Rotation.Value;
+        public Vec3 GetUnweightedScale()
+            => Scale.Value;
 
         public BoneFrame(string name) => _name = name;
         public BoneFrame(string name, Vec3 translation, Quat rotation, Vec3 scale) : this(name)
@@ -238,9 +233,9 @@ namespace TheraEngine.Animation
         }
         public void UpdateState(ITransform frameState, ITransform bindState)
         {
-            Vec3 t = GetTranslation(bindState.Translation.Raw);
+            Vec3 t = GetTranslation(bindState.Translation.Value);
             Quat r = GetRotation(bindState.Rotation.Raw);
-            Vec3 s = GetScale(bindState.Scale.Raw);
+            Vec3 s = GetScale(bindState.Scale.Value);
             frameState.SetAll(t, r, s);
         }
         public void UpdateSkeletonBlended(ISkeleton skeleton, BoneFrame otherBoneFrame, float otherWeight)
@@ -263,11 +258,11 @@ namespace TheraEngine.Animation
             {
                 otherWeight = 1.0f - otherWeight;
 
-                _translation.Weight *= otherWeight;
-                _rotation.Weight *= otherWeight;
-                _scale.Weight *= otherWeight;
+                Translation.Weight *= otherWeight;
+                Rotation.Weight *= otherWeight;
+                Scale.Weight *= otherWeight;
 
-                t = GetTranslation(bindState.Translation.Raw);
+                t = GetTranslation(bindState.Translation.Value);
                 r = GetRotation(bindState.Rotation.Raw);
                 s = GetScale(bindState.Scale);
 
@@ -275,8 +270,8 @@ namespace TheraEngine.Animation
             }
             else
             {
-                Vec3 t1 = GetTranslation(bindState.Translation.Raw);
-                Vec3 t2 = otherBoneFrame.GetTranslation(bindState.Translation.Raw);
+                Vec3 t1 = GetTranslation(bindState.Translation.Value);
+                Vec3 t2 = otherBoneFrame.GetTranslation(bindState.Translation.Value);
                 t = Vec3.Lerp(t1, t2, otherWeight);
 
                 Quat r1 = GetRotation(bindState.Rotation.Raw);

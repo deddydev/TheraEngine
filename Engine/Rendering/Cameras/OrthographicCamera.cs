@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering.Cameras
         public OrthographicCamera(float width, float height, Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ)
            : base(width, height, nearZ, farZ, point, rotation)
         {
-            _scale.SetRawNoUpdate(scale);
+            _scale.SetRawSilent(scale);
             _scale.Changed += CreateTransform;
             _originPercentages.Changed += _originPercentages_Changed;
             _originPercentages.Raw = originPercentages;
@@ -144,7 +144,7 @@ namespace TheraEngine.Rendering.Cameras
 
             if (!xClamped || !yClamped)
             {
-                _localPoint.SetRawNoUpdate(_localPoint.Raw + (worldPoint - WorldPoint) * multiplier);
+                _localPoint.SetRawSilent(_localPoint.Value + (worldPoint - WorldPoint) * multiplier);
                 _scale.Xy = newScale;
             }
 
@@ -190,14 +190,14 @@ namespace TheraEngine.Rendering.Cameras
         protected override void OnCreateTransform(out Matrix4 cameraToWorldSpaceMatrix, out Matrix4 worldToCameraSpaceMatrix)
         {
             cameraToWorldSpaceMatrix = 
-                Matrix4.CreateTranslation(_localPoint.Raw) *
+                Matrix4.CreateTranslation(_localPoint.Value) *
                 _localRotation.GetMatrix() *
                 Matrix4.CreateScale(_scale);
 
             worldToCameraSpaceMatrix = 
                 Matrix4.CreateScale(1.0f / _scale) *
                 _localRotation.GetInverseMatrix() *
-                Matrix4.CreateTranslation(-_localPoint.Raw);
+                Matrix4.CreateTranslation(-_localPoint.Value);
         }
         public override float DistanceScale(Vec3 point, float radius)
         {

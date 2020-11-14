@@ -89,7 +89,7 @@ namespace TheraEngine.Components.Logic.Animation
         {
             AnimStateTransition[] transitions =
                 Transitions.
-                FindAll(x => x.ConditionMethod()).
+                FindAll(x => x.Condition()).
                 OrderBy(x => x.Priority).
                 ToArray();
 

@@ -111,7 +111,7 @@ namespace TheraEngine.Core.Shapes
 
         public override void SetTransformMatrix(Matrix4 matrix)
         {
-            Center.Raw = matrix.Translation;
+            Center.Value = matrix.Translation;
         }
         public override Matrix4 GetTransformMatrix()
         {

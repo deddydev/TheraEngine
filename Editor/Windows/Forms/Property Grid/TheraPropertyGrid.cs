@@ -850,7 +850,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
             }
             TreeNode s = new TreeNode(currentSceneComp.Name) { Tag = currentSceneComp };
-            foreach (ISceneComponent childSceneComp in currentSceneComp.ChildComponents)
+            foreach (ISceneComponent childSceneComp in currentSceneComp.ChildSockets)
                 PopulateSceneComponentTree(s.Nodes, childSceneComp);
             nodes.Add(s);
         }
@@ -1096,7 +1096,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnAddSiblingSceneComp_Click(object sender, EventArgs e)
         {
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
-            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            var sibComps = sceneCompSel.ParentSocket.ChildSockets;
             ISceneComponent comp = Editor.DomainProxy.UserCreateInstanceOf<ISceneComponent>();
             if (comp is null)
                 return;
@@ -1139,7 +1139,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
-            sceneCompSel.ChildComponents.Add(comp);
+            sceneCompSel.ChildSockets.Add(comp);
 
             TreeNode t = new TreeNode(comp.Name) { Tag = comp };
             _selectedSceneComp.Nodes.Add(t);
@@ -1153,7 +1153,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
-            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            var sibComps = sceneCompSel.ParentSocket.ChildSockets;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
             sibComps.Insert(index - 1, sceneCompSel);
@@ -1172,7 +1172,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
-            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            var sibComps = sceneCompSel.ParentSocket.ChildSockets;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
             sibComps.Insert(index + 1, sceneCompSel);
@@ -1191,10 +1191,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
-            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            var sibComps = sceneCompSel.ParentSocket.ChildSockets;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
-            sibComps[index - 1].ChildComponents.Add(sceneCompSel);
+            sibComps[index - 1].ChildSockets.Add(sceneCompSel);
 
             TreeNode parentNode = _selectedSceneComp.Parent;
             int i = _selectedSceneComp.Index;
@@ -1210,10 +1210,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
-            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            var sibComps = sceneCompSel.ParentSocket.ChildSockets;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
-            sibComps[index].ChildComponents.Add(sceneCompSel);
+            sibComps[index].ChildSockets.Add(sceneCompSel);
 
             TreeNode parentNode = _selectedSceneComp.Parent;
             int i = _selectedSceneComp.Index;
@@ -1242,10 +1242,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
             var parent = sceneCompSel.ParentSocket;
-            var sibComps = parent.ChildComponents;
+            var sibComps = parent.ChildSockets;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
-            var parentSibs = parent.ParentSocket.ChildComponents;
+            var parentSibs = parent.ParentSocket.ChildSockets;
             int parentIndex = parentSibs.IndexOf(parent as SceneComponent);
             int newIndex = parentIndex == 0 ? parentIndex + 1 : parentIndex - 1;
 
@@ -1254,12 +1254,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (newIndex == parentSibs.Count)
             {
-                parent.ParentSocket.ChildComponents.Add(sceneCompSel);
+                parent.ParentSocket.ChildSockets.Add(sceneCompSel);
                 parentNode.Parent.Nodes.Add(_selectedSceneComp);
             }
             else
             {
-                parent.ParentSocket.ChildComponents.Insert(newIndex, sceneCompSel);
+                parent.ParentSocket.ChildSockets.Insert(newIndex, sceneCompSel);
                 parentNode.Parent.Nodes.Insert(newIndex, _selectedSceneComp);
             }
             

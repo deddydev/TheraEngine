@@ -177,7 +177,7 @@ namespace TheraEngine.Core.Shapes
         }
         public override void SetTransformMatrix(Matrix4 matrix)
         {
-            Center.Raw = matrix.Translation;
+            Center.Value = matrix.Translation;
         }
 
         public override TCollisionShape GetCollisionShape() 
@@ -186,6 +186,6 @@ namespace TheraEngine.Core.Shapes
                 $"Use {nameof(ConeX)}, {nameof(ConeY)}, or {nameof(ConeZ)} instead.");
 
         public override TShape HardCopy() 
-            => new Cone(Center.Raw, UpAxis, Radius, Height);
+            => new Cone(Center.Value, UpAxis, Radius, Height);
     }
 }

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using System;
 using TheraEngine.ComponentModel;
+using TheraEngine.Components.Scene.Mesh;
 
 namespace TheraEngine.Core.Maths.Transforms
 {
@@ -18,6 +19,8 @@ namespace TheraEngine.Core.Maths.Transforms
     public interface ITransform : IFileObject
     {
         event MatrixChange MatrixChanged;
+
+        ISocket Socket { get; }
 
         Matrix4 Matrix { get; set; }
         Matrix4 InverseMatrix { get; set; }
@@ -39,6 +42,14 @@ namespace TheraEngine.Core.Maths.Transforms
         Matrix4 GetRotationMatrix();
 
         Transform HardCopy();
+
+        //bool IsTranslatable { get; }
+        //bool IsScalable { get; }
+        //bool IsRotatable { get; }
+
+        //void HandleTranslation(Vec3 delta);
+        //void HandleScale(Vec3 delta);
+        //void HandleRotation(Quat delta);
     }
 
     //public delegate void TranslationChange(Vec3 oldTranslation);
@@ -107,9 +118,9 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public void SetAll(Vec3 translate, Quat rotation, Vec3 scale)
         {
-            _translation.SetRawNoUpdate(translate);
-            _scale.SetRawNoUpdate(scale);
-            _rotation.SetRawNoUpdate(rotation);
+            _translation.SetRawSilent(translate);
+            _scale.SetRawSilent(scale);
+            _rotation.SetRawSilent(rotation);
             CreateTransform();
         }
 
@@ -173,9 +184,9 @@ namespace TheraEngine.Core.Maths.Transforms
         {
             _matrixChanged = false;
             DeriveTRS(_transform, out Vec3 t, out Vec3 s, out Quat r);
-            _translation.SetRawNoUpdate(t);
-            _scale.SetRawNoUpdate(s);
-            _rotation.SetRawNoUpdate(r);
+            _translation.SetRawSilent(t);
+            _scale.SetRawSilent(s);
+            _rotation.SetRawSilent(r);
         }
 
         [Category("Transform")]
@@ -485,8 +496,8 @@ namespace TheraEngine.Core.Maths.Transforms
         public static unsafe Transform DeriveTRS(Matrix4 m)
         {
             Transform state = new Transform();
-            state.Translation.Raw = m.Row3.Xyz;
-            state.Scale.Raw = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
+            state.Translation.Value = m.Row3.Xyz;
+            state.Scale.Value = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
             state.Rotation.Raw = m.ExtractRotation(true);
 
             //float x, y, z, c;
@@ -619,6 +630,6 @@ namespace TheraEngine.Core.Maths.Transforms
         //#endregion
 
         public Transform HardCopy()
-            => new Transform(Translation.Raw, Rotation.Raw, Scale.Raw, TransformationOrder);
+            => new Transform(Translation.Value, Rotation.Raw, Scale.Value, TransformationOrder);
     }
 }

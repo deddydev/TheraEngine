@@ -147,9 +147,9 @@ namespace TheraEngine.Core.Shapes
             return Mesh.Create(VertexShaderDesc.PosNormTex(), triangles);
         }
         public Mesh GetMesh(int slices, int stacks, bool includeCenter)
-            => SolidMesh(includeCenter ? Center.Raw : Vec3.Zero, _radius, slices, stacks);
+            => SolidMesh(includeCenter ? Center.Value : Vec3.Zero, _radius, slices, stacks);
         public Mesh GetMesh(uint precision, bool includeCenter)
-            => SolidMesh(includeCenter ? Center.Raw : Vec3.Zero, _radius, precision);
+            => SolidMesh(includeCenter ? Center.Value : Vec3.Zero, _radius, precision);
         #endregion
 
         #region Containment
@@ -214,7 +214,7 @@ namespace TheraEngine.Core.Shapes
             => Engine.Renderer.RenderSphere(Center, Radius, RenderSolid, Color.Red);
 
         public override void SetTransformMatrix(Matrix4 matrix) 
-            => Center.Raw = matrix.Translation;
+            => Center.Value = matrix.Translation;
         public override Matrix4 GetTransformMatrix() 
             => Center.AsTranslationMatrix();
     }

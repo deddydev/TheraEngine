@@ -437,7 +437,7 @@ namespace TheraEditor
         {
             ISceneComponent newComp = Editor.UserCreateInstanceOf<ISceneComponent>(true, Editor.Instance);
             if (newComp != null)
-                parent.ChildComponents.Add(newComp);
+                parent.ChildSockets.Add(newComp);
         }
 
         public T UserCreateInstanceOf<T>(bool allowDerivedTypes = true)

@@ -198,7 +198,7 @@ namespace TheraEngine.Components
 
         public void RemoveSelf()
         {
-            _parent?.ChildComponents?.Remove(this);
+            _parent?.ChildSockets?.Remove(this);
         }
 
         protected EventList<ISceneComponent> _children;
@@ -643,10 +643,10 @@ namespace TheraEngine.Components
             get => _parent;
             set
             {
-                _parent?.ChildComponents.Remove(this);
+                _parent?.ChildSockets.Remove(this);
                 _parent = value;
-                if (_parent != null && !_parent.ChildComponents.Contains(this))
-                    _parent.ChildComponents.Add(this);
+                if (_parent != null && !_parent.ChildSockets.Contains(this))
+                    _parent.ChildSockets.Add(this);
                 OwningActor = _parent?.OwningActor;
             }
         }
@@ -907,7 +907,7 @@ namespace TheraEngine.Components
                 IBone bone = mesh.SkeletonOverride[socketName];
                 if (bone != null)
                 {
-                    bone.ChildComponents.Add(this);
+                    bone.ChildSockets.Add(this);
                     return bone;
                 }
             }
@@ -947,13 +947,13 @@ namespace TheraEngine.Components
         /// Attaches this component to the given socket parent transform.
         /// </summary>
         public void AttachTo(ISocket socket)
-            => socket?.ChildComponents.Add(this);
+            => socket?.ChildSockets.Add(this);
         /// <summary>
         /// Detaches self from the current parent socket transform.
         /// Retains current position in world space.
         /// </summary>
         public void DetachFromParent()
-            => ParentSocket?.ChildComponents.Remove(this);
+            => ParentSocket?.ChildSockets.Remove(this);
         #endregion
 
         #region Transform Tool
@@ -964,7 +964,7 @@ namespace TheraEngine.Components
         [Browsable(false)]
         public virtual bool IsScalable => false;
         [Browsable(false)]
-        public int ParentSocketChildIndex => ParentSocket?.ChildComponents?.IndexOf(this) ?? -1;
+        public int ParentSocketChildIndex => ParentSocket?.ChildSockets?.IndexOf(this) ?? -1;
 
         public virtual void HandleTranslation(Vec3 delta)
         {

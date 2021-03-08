@@ -129,8 +129,8 @@ namespace TheraEditor.Windows.Forms
             canvas.HorizontalAlignment = EHorizontalAlign.Positional;
             canvas.VerticalAlignment = EVerticalAlign.Positional;
             canvas.Size.Raw = DesignSize;
-            canvas.Translation.Raw = Vec3.Zero;
-            canvas.Scale.Raw = Vec3.One;
+            canvas.Translation.Value = Vec3.Zero;
+            canvas.Scale.Value = Vec3.One;
         }
 
         protected override bool IsDragging => _dragComp != null;
@@ -217,7 +217,7 @@ namespace TheraEditor.Windows.Forms
         {
             Vec2 pos = CursorPosition();
             Vec2 diff = GetWorldCursorDiff(pos);
-            _dragComp.Translation.Raw += _dragComp.ScreenToLocal(diff, true);
+            _dragComp.Translation.Value += _dragComp.ScreenToLocal(diff, true);
         }
         protected override void AddRenderables(RenderPasses passes)
         {

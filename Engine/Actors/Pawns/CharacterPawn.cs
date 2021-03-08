@@ -271,10 +271,10 @@ namespace TheraEngine.Actors.Types.Pawns
             TRigidBody body = rootCapsule.CollisionObject as TRigidBody;
             body.Collided += RigidBodyCollision_Collided;
             body.AngularFactor = Vec3.Zero;
-            rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);
+            rootCapsule.Translation.Value = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);
 
             _meshComp = new SkeletalMeshComponent();
-            _meshComp.Translation.Raw = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
+            _meshComp.Translation.Value = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
             rootCapsule.ChildComponents.Add(_meshComp);
 
             //PerspectiveCamera FPCam = new PerspectiveCamera()
@@ -290,7 +290,7 @@ namespace TheraEngine.Actors.Types.Pawns
             rootCapsule.ChildComponents.Add(lagComp);
 
             _tpCameraBoom = new BoomComponent() { IgnoreCast = rootCapsule.CollisionObject };
-            _tpCameraBoom.Translation.Raw = new Vec3(0.0f, 0.3f, 0.0f);
+            _tpCameraBoom.Translation.Value = new Vec3(0.0f, 0.3f, 0.0f);
             _tpCameraBoom.Rotation.SyncFrom(_viewRotation);
             _tpCameraBoom.MaxLength = 5.0f;
             lagComp.ChildComponents.Add(_tpCameraBoom);

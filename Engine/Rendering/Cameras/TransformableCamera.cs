@@ -45,7 +45,7 @@ namespace TheraEngine.Rendering.Cameras
             {
                 _cameraToWorldSpaceMatrix = value;
                 _worldToCameraSpaceMatrix = _cameraToWorldSpaceMatrix.Inverted();
-                _localPoint.Raw = _cameraToWorldSpaceMatrix.Translation;
+                _localPoint.Value = _cameraToWorldSpaceMatrix.Translation;
                 _localRotation.SetRotations(_cameraToWorldSpaceMatrix.GetRotationMatrix4().ExtractRotation().ToRotator());
                 OnTransformChanged();
             }
@@ -53,7 +53,7 @@ namespace TheraEngine.Rendering.Cameras
 
         [Browsable(false)]
         [Category("Camera")]
-        public override Vec3 WorldPoint => _owningComponent?.WorldMatrix.Translation ?? _localPoint.Raw;
+        public override Vec3 WorldPoint => _owningComponent?.WorldMatrix.Translation ?? _localPoint.Value;
         
         [Category("Camera")]
         public EventVec3 LocalPoint
@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering.Cameras
         //private LocalFileRef<PostProcessSettings> _postProcessSettingsRef;
 
         private void ViewTargetChanged()
-            => SetRotationWithTarget(_viewTarget.Raw);
+            => SetRotationWithTarget(_viewTarget.Value);
         private void OwningComponentWorldTransformChanged(ISceneComponent comp)
         {
             //_forwardInvalidated = true;
@@ -126,7 +126,7 @@ namespace TheraEngine.Rendering.Cameras
         public virtual void PositionChanged()
         {
             if (_viewTarget != null)
-                _localRotation.SetRotationsNoUpdate((_viewTarget.Raw - _localPoint).LookatAngles());
+                _localRotation.SetRotationsNoUpdate((_viewTarget.Value - _localPoint).LookatAngles());
             CreateTransform();
         }
         protected override void OnCreateTransform(out Matrix4 cameraToWorldSpaceMatrix, out Matrix4 worldToCameraSpaceMatrix)
@@ -147,9 +147,9 @@ namespace TheraEngine.Rendering.Cameras
         {
             _cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * translation.AsTranslationMatrix();
             _worldToCameraSpaceMatrix = (-translation).AsTranslationMatrix() * _worldToCameraSpaceMatrix;
-            _localPoint.SetRawNoUpdate(_cameraToWorldSpaceMatrix.Translation);
+            _localPoint.SetRawSilent(_cameraToWorldSpaceMatrix.Translation);
             if (_viewTarget != null)
-                SetRotationWithTarget(_viewTarget.Raw);
+                SetRotationWithTarget(_viewTarget.Value);
             else
                 OnTransformChanged();
         }
@@ -164,7 +164,7 @@ namespace TheraEngine.Rendering.Cameras
         /// Translates the camera relative to the world.
         /// </summary>
         public void TranslateAbsolute(Vec3 translation)
-            => _localPoint.Raw += translation;
+            => _localPoint.Value += translation;
         
         /// <summary>
         /// Increments the camera's pitch and yaw rotations.
@@ -197,7 +197,7 @@ namespace TheraEngine.Rendering.Cameras
         
         public void Reset()
         {
-            _localPoint.Raw = Vec3.Zero;
+            _localPoint.Value = Vec3.Zero;
             _localRotation.YawPitchRoll = Vec3.Zero;
         }
 
@@ -213,7 +213,7 @@ namespace TheraEngine.Rendering.Cameras
         {
             base.Render(shadowPass);
             if (_viewTarget != null)
-                Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Raw, Color.DarkGray, false, 1.0f);
+                Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Value, Color.DarkGray, false, 1.0f);
         }
 
         Rotator ICameraTransformable.Rotation
@@ -228,10 +228,10 @@ namespace TheraEngine.Rendering.Cameras
         }
         
         public void Pivot(float pitch, float yaw, float distance)
-            => ArcBallRotate(pitch, yaw, LocalPoint.Raw + ForwardVector * distance);
+            => ArcBallRotate(pitch, yaw, LocalPoint.Value + ForwardVector * distance);
         public void ArcBallRotate(float pitch, float yaw, Vec3 origin)
         {
-            LocalPoint.Raw = TMath.ArcballTranslation(pitch, yaw, origin, LocalPoint.Raw, RightVector);
+            LocalPoint.Value = TMath.ArcballTranslation(pitch, yaw, origin, LocalPoint.Value, RightVector);
             LocalRotation.AddRotations(pitch, yaw, 0.0f);
         }
     }

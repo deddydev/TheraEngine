@@ -401,11 +401,11 @@ namespace TheraEngine.Rendering.UI.Functions
             {
                 foreach (var e in _execInputs)
                 {
-                    OwningActor.RootComponent.ChildComponents.Add(e);
+                    OwningActor.RootComponent.ChildSockets.Add(e);
                 }
                 foreach (var v in _valueInputs)
                 {
-                    OwningActor.RootComponent.ChildComponents.Add(v);
+                    OwningActor.RootComponent.ChildSockets.Add(v);
                 }
             }
         }

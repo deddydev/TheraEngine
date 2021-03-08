@@ -52,7 +52,7 @@ namespace TheraEditor.Actors.Types.Pawns
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8f : 1.2f;
             else if (HasHit)
-                comp.Translation.Raw = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, up ? -ScrollSpeed : ScrollSpeed);
+                comp.Translation.Value = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, up ? -ScrollSpeed : ScrollSpeed);
             else
                 comp.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
 
@@ -124,7 +124,7 @@ namespace TheraEditor.Actors.Types.Pawns
             {
                 bool forward = y < 0.0f;
                 if (HasHit)
-                    comp.Translation.Raw = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, forward ? -ScrollSpeed : ScrollSpeed);
+                    comp.Translation.Value = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, forward ? -ScrollSpeed : ScrollSpeed);
                 else
                     comp.TranslateRelative(0.0f, 0.0f, forward ? -ScrollSpeed : ScrollSpeed);
             }

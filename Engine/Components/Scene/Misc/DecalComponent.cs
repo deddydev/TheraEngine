@@ -47,10 +47,10 @@ namespace TheraEngine.Components.Scene
             RenderInfo.VisibleByDefault = true;
             if (texture != null)
             {
-                var bmp = texture.GetLargestBitmap();
+                var bmp = texture.GetBitmap();
                 if (bmp != null)
                 {
-                    _shape.HalfExtents.Raw = new Vec3(bmp.Width * 0.5f, height, bmp.Height * 0.5f);
+                    _shape.HalfExtents.Value = new Vec3(bmp.Width * 0.5f, height, bmp.Height * 0.5f);
                     Material = CreateDefaultMaterial(texture);
                 }
             }
@@ -87,7 +87,7 @@ namespace TheraEngine.Components.Scene
 #if EDITOR
             PreviewIconRenderCommand.Position = WorldPoint;
 #endif
-            Vec3 halfExtents = _shape.HalfExtents.Raw;
+            Vec3 halfExtents = _shape.HalfExtents.Value;
             RenderCommandDecal.WorldMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
         }
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
@@ -138,19 +138,20 @@ namespace TheraEngine.Components.Scene
                 return;
 
             Viewport v = Engine.Renderer.CurrentlyRenderingViewport;
-            if (v != null)
-            {
-                matProg.Sampler("Texture0", v.AlbedoOpacityTexture, 0);
-                matProg.Sampler("Texture1", v.NormalTexture, 1);
-                matProg.Sampler("Texture2", v.RMSITexture, 2);
-                matProg.Sampler("Texture3", v.DepthViewTexture, 3);
-                matProg.Uniform("BoxWorldMatrix", WorldMatrix);
-                matProg.Uniform("InvBoxWorldMatrix", InverseWorldMatrix);
-                matProg.Uniform("BoxHalfScale", _shape.HalfExtents.Raw);
-            }
+            if (v is null)
+                return;
+
+            matProg.Sampler("Texture0", v.AlbedoOpacityTexture, 0);
+            matProg.Sampler("Texture1", v.NormalTexture, 1);
+            matProg.Sampler("Texture2", v.RMSITexture, 2);
+            matProg.Sampler("Texture3", v.DepthViewTexture, 3);
+            matProg.Uniform("BoxWorldMatrix", WorldMatrix);
+            matProg.Uniform("InvBoxWorldMatrix", InverseWorldMatrix);
+            matProg.Uniform("BoxHalfScale", _shape.HalfExtents.Value);
         }
 
-        public RenderCommandMesh3D RenderCommandDecal { get; } = new RenderCommandMesh3D(ERenderPass.DeferredDecals);
+        public RenderCommandMesh3D RenderCommandDecal { get; }
+            = new RenderCommandMesh3D(ERenderPass.DeferredDecals);
 
 #if EDITOR
 

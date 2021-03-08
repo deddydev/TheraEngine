@@ -173,7 +173,7 @@ namespace TheraEngine.Components.Logic.Movement
             TCollisionShape shape = root.RenderInfo.CullingVolume.GetCollisionShape();
             TRigidBody body = root.CollisionObject as TRigidBody;
             
-            _prevPosition = root.Translation.Raw;
+            _prevPosition = root.Translation.Value;
 
             //Use gravity currently affecting this body
             Vec3 gravity = body.Gravity;
@@ -225,7 +225,7 @@ namespace TheraEngine.Components.Logic.Movement
                         float hitF = _closestTrace.HitFraction;
 
                         //Something is in the way
-                        root.Translation.Raw += finalInput * hitF;
+                        root.Translation.Value += finalInput * hitF;
                         
                         Vec3 normal = _closestTrace.HitNormalWorld;
                         if (IsSurfaceNormalWalkable(normal))
@@ -259,7 +259,7 @@ namespace TheraEngine.Components.Logic.Movement
                         }
                     }
                     else
-                        root.Translation.Raw += finalInput;
+                        root.Translation.Value += finalInput;
                 }
                 break;
             }
@@ -421,7 +421,7 @@ namespace TheraEngine.Components.Logic.Movement
                 {
                     CurrentWalkingSurface = other;
                     CurrentMovementMode = EMovementMode.Walking;
-                    ((CapsuleYComponent)OwningActor.RootComponent).Translation.Raw += normal * -point.Distance;
+                    ((CapsuleYComponent)OwningActor.RootComponent).Translation.Value += normal * -point.Distance;
                 }
             }
             else if (CurrentMovementMode == EMovementMode.Walking)

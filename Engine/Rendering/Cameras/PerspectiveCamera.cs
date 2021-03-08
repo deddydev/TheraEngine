@@ -138,7 +138,7 @@ namespace TheraEngine.Rendering.Cameras
 
         public void SetAll(Vec3 translation, Rotator rotation, float fov, bool verticalFOV, float nearZ, float farZ, float? aspect)
         {
-            LocalPoint.SetRawNoUpdate(translation);
+            LocalPoint.SetRawSilent(translation);
 
             if (ViewTarget is null)
                 SetRotationsNoUpdate(rotation);
@@ -150,11 +150,11 @@ namespace TheraEngine.Rendering.Cameras
             _nearZ = nearZ;
             
             if (_viewTarget != null)
-                _localRotation.SetRotationsNoUpdate((_viewTarget.Raw - _localPoint).LookatAngles());
+                _localRotation.SetRotationsNoUpdate((_viewTarget.Value - _localPoint).LookatAngles());
 
             Matrix4 rotMatrix = _localRotation.GetMatrix();
-            _cameraToWorldSpaceMatrix = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix;
-            _worldToCameraSpaceMatrix = _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
+            _cameraToWorldSpaceMatrix = Matrix4.CreateTranslation(_localPoint.Value) * rotMatrix;
+            _worldToCameraSpaceMatrix = _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Value);
             
             OnTransformChanged(false);
 
@@ -194,7 +194,7 @@ namespace TheraEngine.Rendering.Cameras
             //    f.Render();
 
             if (ViewTarget != null)
-                Engine.Renderer.RenderLine(WorldPoint, ViewTarget.Raw, Color.DarkGray, true, 1.0f);
+                Engine.Renderer.RenderLine(WorldPoint, ViewTarget.Value, Color.DarkGray, true, 1.0f);
         }
         public override void SetUniforms(RenderProgram program)
         {
@@ -230,7 +230,7 @@ namespace TheraEngine.Rendering.Cameras
             return new Frustum(_fovY, _aspect, _nearZ, _farZ,
                 transformed ? ForwardVector : Vec3.Forward,
                 transformed ? UpVector : Vec3.Up,
-                transformed ? _localPoint.Raw : Vec3.Zero);
+                transformed ? _localPoint.Value : Vec3.Zero);
         }
         
         public float FrustumHeightAtDistance(float distance)

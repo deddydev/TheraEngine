@@ -353,7 +353,7 @@ namespace TheraEngine.Tests
 
             Actor<TriggerVolumeComponent> triggerVolumeActor = new Actor<TriggerVolumeComponent>();
             triggerVolumeActor.RootComponent.Translation.Y -= 30.0f;
-            triggerVolumeActor.RootComponent.Shape.HalfExtents.Raw = new Vec3(10.0f, 2.0f, 10.0f);
+            triggerVolumeActor.RootComponent.Shape.HalfExtents.Value = new Vec3(10.0f, 2.0f, 10.0f);
             actors.Add(triggerVolumeActor);
 
             #region Decal
@@ -363,7 +363,7 @@ namespace TheraEngine.Tests
                 TextureFile2D decalTex = await Engine.Files.LoadEngineTexture2DAsync("decal guide.png");
                 decal.RootComponent.Material = DecalComponent.CreateDefaultMaterial(decalTex);
 
-                var bmp = decalTex.GetLargestBitmap();
+                var bmp = decalTex.GetBitmap();
                 float maxDim = Math.Max(bmp.Width, bmp.Height);
                 decal.RootComponent.Shape.HalfExtents = new Vec3(
                     bmp.Width / maxDim * 0.5f,

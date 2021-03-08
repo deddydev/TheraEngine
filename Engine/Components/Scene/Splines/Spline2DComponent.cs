@@ -288,8 +288,8 @@ void main()
         protected override void DeriveMatrix()
         {
             Transform.DeriveTRS(_localTRS, out Vec3 t, out Vec3 s, out Quat r);
-            _translation.Raw = t;
-            _scale.Raw = s;
+            _translation.Value = t;
+            _scale.Value = s;
             _rotation.SetRotations(r.ToRotator());
         }
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)

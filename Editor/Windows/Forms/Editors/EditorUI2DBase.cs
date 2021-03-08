@@ -161,10 +161,10 @@ namespace TheraEditor.Windows.Forms
 
             OriginTransformComponent.ChildComponents.Add(comp);
 
-            comp.Scale.Raw = 1.0f / OriginTransformComponent.Scale * TextScale;
+            comp.Scale.Value = 1.0f / OriginTransformComponent.Scale * TextScale;
             
-            comp.Scale.BindProperty(nameof(EventVec3.Raw),
-                OriginTransformComponent.Scale, nameof(EventVec3.Raw),
+            comp.Scale.BindProperty(nameof(EventVec3.Value),
+                OriginTransformComponent.Scale, nameof(EventVec3.Value),
                 TextScaleConverter);
 
             return comp;

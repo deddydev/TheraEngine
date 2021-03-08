@@ -490,7 +490,7 @@ namespace TheraEngine.Core.Shapes
         {
             if (_boundingSphere != null)
             {
-                _boundingSphere.Center.Raw = other.BoundingSphere.Center.Raw * transform;
+                _boundingSphere.Center.Value = other.BoundingSphere.Center.Value * transform;
                 _boundingSphere.Radius = other.BoundingSphere.Radius;
             }
             for (int i = 0; i < 8; ++i)
@@ -502,7 +502,7 @@ namespace TheraEngine.Core.Shapes
         public void TransformBy(Matrix4 transform)
         {
             if (_boundingSphere != null)
-                _boundingSphere.Center.Raw = _boundingSphere.Center.Raw * transform;
+                _boundingSphere.Center.Value = _boundingSphere.Center.Value * transform;
             for (int i = 0; i < 8; ++i)
                 _points[i] = _points[i] * transform;
             for (int i = 0; i < 6; ++i)
@@ -513,7 +513,7 @@ namespace TheraEngine.Core.Shapes
         {
             IFrustum f = new Frustum();
             if (_boundingSphere != null)
-                f.BoundingSphere = new Sphere(_boundingSphere.Radius, _boundingSphere.Center.Raw * transform);
+                f.BoundingSphere = new Sphere(_boundingSphere.Radius, _boundingSphere.Center.Value * transform);
             for (int i = 0; i < 8; ++i)
                 f.Points[i] = _points[i] * transform;
             for (int i = 0; i < 6; ++i)

@@ -9,7 +9,6 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Scene;
 using Valve.VR;
-using ETextureType = Valve.VR.ETextureType;
 
 namespace TheraEngine.Core
 {

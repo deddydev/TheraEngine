@@ -55,9 +55,7 @@ namespace TheraEngine.Components.Scene
         }
 
         private void ParametersRef_Loaded(AudioParameters parameters)
-        {
-            UpdateTransform(parameters);
-        }
+            => UpdateTransform(parameters);
 
         protected override async void OnSpawned()
         {
@@ -136,9 +134,7 @@ namespace TheraEngine.Components.Scene
         }
 
         public void AddRenderables(RenderPasses passes, ICamera camera)
-        {
-            AddPreviewRenderCommand(PreviewIconRenderCommand, passes, camera, ScalePreviewIconByDistance, PreviewIconScale);
-        }
+            => AddPreviewRenderCommand(PreviewIconRenderCommand, passes, camera, ScalePreviewIconByDistance, PreviewIconScale);
 #endif
     }
 }

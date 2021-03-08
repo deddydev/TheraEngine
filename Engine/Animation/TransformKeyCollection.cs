@@ -73,8 +73,8 @@ namespace TheraEngine.Animation
             out Vec3 translation, out Quat rotation, out Vec3 scale)
         {
             Vec3 t, s;
-            Vec3 bt = bindState.Translation.Raw;
-            Vec3 bs = bindState.Scale.Raw;
+            Vec3 bt = bindState.Translation.Value;
+            Vec3 bs = bindState.Scale.Value;
 
             float* pt = (float*)&t;
             float* ps = (float*)&s;
@@ -100,8 +100,8 @@ namespace TheraEngine.Animation
             out Vec3 translation, out Quat rotation, out Vec3 scale, float second)
         {
             Vec3 t, s;
-            Vec3 bt = bindState.Translation.Raw;
-            Vec3 bs = bindState.Scale.Raw;
+            Vec3 bt = bindState.Translation.Value;
+            Vec3 bs = bindState.Scale.Value;
 
             float* pt = (float*)&t;
             float* ps = (float*)&s;

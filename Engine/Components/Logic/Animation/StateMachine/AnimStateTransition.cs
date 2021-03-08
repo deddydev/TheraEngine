@@ -24,10 +24,10 @@ namespace TheraEngine.Components.Logic.Animation
         [TSerialize]
         public int DestinationStateIndex { get; set; }
         /// <summary>
-        /// The condition to test every frame if this transition should occur.
+        /// The condition to test if this transition should occur; run every frame.
         /// </summary>
         [TSerialize]
-        public Func<bool> ConditionMethod { get; set; }
+        public Func<bool> Condition { get; set; }
         /// <summary>
         /// How quickly the current state should blend into the next, in seconds.
         /// </summary>

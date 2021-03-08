@@ -131,8 +131,8 @@ namespace TheraEngine.Rendering.Cameras
         }
         protected override void OnCreateTransform(out Matrix4 cameraToWorldSpaceMatrix, out Matrix4 worldToCameraSpaceMatrix)
         {
-            cameraToWorldSpaceMatrix = Matrix4.CreateTranslation(_localPoint.Raw) * _localRotation.GetMatrix();
-            worldToCameraSpaceMatrix = _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
+            cameraToWorldSpaceMatrix = _localPoint.AsTranslationMatrix() * _localRotation.GetMatrix();
+            worldToCameraSpaceMatrix = _localRotation.GetInverseMatrix() * _localPoint.AsInverseTranslationMatrix();
         }
 
         /// <summary>

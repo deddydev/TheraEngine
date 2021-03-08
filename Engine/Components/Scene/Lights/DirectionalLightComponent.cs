@@ -115,15 +115,16 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void SetUniforms(RenderProgram program, string targetStructName = null)
         {
-            targetStructName = $"{targetStructName ?? Uniform.LightsStructName}.";
+            targetStructName ??= Uniform.LightsStructName;
 
-            program.Uniform($"{targetStructName}Direction", _direction);
-            program.Uniform($"{targetStructName}Color", _color.Raw);
-            program.Uniform($"{targetStructName}DiffuseIntensity", _diffuseIntensity);
-            program.Uniform($"{targetStructName}WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
+            program.PushTargetStruct(targetStructName);
+            program.Uniform("Direction", _direction);
+            program.Uniform("Color", _color.Raw);
+            program.Uniform("DiffuseIntensity", _diffuseIntensity);
+            program.Uniform("WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
+            program.PopTargetStruct();
 
-            var tex = ShadowMap.Material.Textures[1].RenderTextureGeneric;
-            program.Sampler("ShadowMap", tex, 4);
+            program.Sampler("ShadowMap", ShadowMap.Material.Textures[1], 4);
         }
         public override void SetShadowMapResolution(int width, int height)
         {

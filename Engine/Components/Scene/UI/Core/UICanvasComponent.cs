@@ -54,35 +54,36 @@ namespace TheraEngine.Rendering.UI
             RenderInfo2D.IsVisible = false;
         }
 
-        private float _cameraDrawSpaceDistance = 0.1f;
-        private ECanvasDrawSpace _drawSpace = ECanvasDrawSpace.Screen;
         private IUIInteractableComponent _focusedComponent;
 
+        private ECanvasDrawSpace _drawSpace = ECanvasDrawSpace.Screen;
         public ECanvasDrawSpace DrawSpace
         {
             get => _drawSpace;
             set
             {
-                if (Set(ref _drawSpace, value))
+                if (!Set(ref _drawSpace, value))
+                    return;
+                
+                switch (_drawSpace)
                 {
-                    switch (_drawSpace)
-                    {
-                        case ECanvasDrawSpace.Camera:
-                            RenderInfo3D.IsVisible = true;
-                            RenderInfo2D.IsVisible = true;
-                            break;
-                        case ECanvasDrawSpace.Screen:
-                            RenderInfo3D.IsVisible = false;
-                            RenderInfo2D.IsVisible = false;
-                            break;
-                        case ECanvasDrawSpace.World:
-                            RenderInfo3D.IsVisible = true;
-                            RenderInfo2D.IsVisible = true;
-                            break;
-                    }
+                    case ECanvasDrawSpace.Camera:
+                        RenderInfo3D.IsVisible = true;
+                        RenderInfo2D.IsVisible = true;
+                        break;
+                    case ECanvasDrawSpace.Screen:
+                        RenderInfo3D.IsVisible = false;
+                        RenderInfo2D.IsVisible = false;
+                        break;
+                    case ECanvasDrawSpace.World:
+                        RenderInfo3D.IsVisible = true;
+                        RenderInfo2D.IsVisible = true;
+                        break;
                 }
             }
         }
+
+        private float _cameraDrawSpaceDistance = 0.1f;
         public float CameraDrawSpaceDistance
         {
             get => _cameraDrawSpaceDistance;
@@ -273,10 +274,7 @@ namespace TheraEngine.Rendering.UI
                 }
             }
         }
-        private void OnClick()
-        {
-            FocusedComponent = DeepestInteractable;
-        }
+        private void OnClick() => FocusedComponent = DeepestInteractable;
         private Vec2 GetCursorPositionWorld()
         {
             if (!(OwningActor is IPawn pawn))
@@ -287,7 +285,7 @@ namespace TheraEngine.Rendering.UI
                 : pawn.LocalPlayerController;
 
             Viewport v = controller?.Viewport;
-            return v?.ScreenToWorld(v.CursorPosition()).Xy ?? Vec2.Zero;
+            return v?.ScreenToWorld(v.CursorPosition).Xy ?? Vec2.Zero;
         }
     }
 }

@@ -21,6 +21,7 @@ namespace TheraEngine.Rendering
     public interface IScene
     {
         DelRender Render { get; }
+        LightManager Lights { get; }
 
         void CollectVisible(RenderPasses passes, IVolume collectionVolume, ICamera camera, bool shadowPass);
         void PreRenderUpdate(RenderPasses passes, IVolume collectionVolume, ICamera camera);
@@ -35,8 +36,6 @@ namespace TheraEngine.Rendering
         void GlobalRender();
         void GlobalCollectVisible();
         void GlobalSwap();
-
-        LightManager Lights { get; }
 
         void RenderPipeline(RenderPasses renderPasses, ICamera camera, Viewport viewport, FrameBuffer frameBuffer);
     }

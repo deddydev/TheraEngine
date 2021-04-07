@@ -521,6 +521,57 @@ namespace TheraEngine.Core.Maths
         public static ColorF4 Lerp(ColorF4 startValue, ColorF4 endValue, float time, float speed)
             => startValue + (endValue - startValue) * time * speed;
 
+        public static Quat Slerp(Quat q1, Quat q2, float blend)
+        {
+            // if either input is zero, return the other.
+            if (q1.LengthSquared == 0.0f)
+            {
+                if (q2.LengthSquared == 0.0f)
+                    return Quat.Identity;
+
+                return q2;
+            }
+            else if (q2.LengthSquared == 0.0f)
+                return q1;
+
+            float cosHalfAngle = q1.W * q2.W + q1.Xyz.Dot(q2.Xyz);
+            if (cosHalfAngle >= 1.0f || cosHalfAngle <= -1.0f)
+            {
+                // angle = 0.0f, so just return one input.
+                return q1;
+            }
+            else if (cosHalfAngle < 0.0f)
+            {
+                q2.Xyz = -q2.Xyz;
+                q2.W = -q2.W;
+                cosHalfAngle = -cosHalfAngle;
+            }
+
+            float blendA;
+            float blendB;
+            if (cosHalfAngle < 0.99f)
+            {
+                // do proper slerp for big angles
+                float halfAngle = (float)Acos(cosHalfAngle);
+                float sinHalfAngle = (float)Sin(halfAngle);
+                float oneOverSinHalfAngle = 1.0f / sinHalfAngle;
+                blendA = (float)Sin(halfAngle * (1.0f - blend)) * oneOverSinHalfAngle;
+                blendB = (float)Sin(halfAngle * blend) * oneOverSinHalfAngle;
+            }
+            else
+            {
+                // do lerp if angle is really small.
+                blendA = 1.0f - blend;
+                blendB = blend;
+            }
+
+            Quat result = new Quat(
+                blendA * q1.Xyz + blendB * q2.Xyz,
+                blendA * q1.W + blendB * q2.W);
+
+            return result.LengthSquared > 0.0f ? result.Normalized() : Quat.Identity;
+        }
+
         #endregion
 
         #region Time Modifiers
@@ -654,5 +705,54 @@ namespace TheraEngine.Core.Maths
                 start.Y + (end.Y - start.Y) * time);
         }
         #endregion
+
+        public static void TwoJointIK(
+            Vec3 startPos,
+            Vec3 midPos,
+            Vec3 endPos,
+            Vec3 endPosTarget,
+            float epsilon,
+            Quat startPosGlobalRot,
+            Quat midPosGlobalRot,
+            ref Quat startPosLocalRot,
+            ref Quat midPosLocalRot)
+        {
+            float lab = startPos.DistanceTo(midPos);
+            float lcb = midPos.DistanceTo(endPos);
+            float lat = startPos.DistanceTo(endPosTarget).Clamp(epsilon, lab + lcb - epsilon);
+
+            var startToEnd = endPos - startPos;
+            var startToMid = midPos - startPos;
+            var startToEndTarget = endPosTarget - startPos;
+            //var ab = a - b;
+            //var cb = c - b;
+
+            var startToEndNorm = startToEnd.Normalized();
+            var startToMidNorm = startToMid.Normalized();
+            var midToStartNorm = (startPos - midPos).Normalized();
+            var midToEndNorm = (endPos - midPos).Normalized();
+            var startToEndTargetNorm = startToEndTarget.Normalized();
+
+            float ac_ab_0 = (float)Acos(startToEndNorm.Dot(startToMidNorm).Clamp(-1.0f, 1.0f));
+            float ba_bc_0 = (float)Acos(midToStartNorm.Dot(midToEndNorm).Clamp(-1.0f, 1.0f));
+            float ac_at_0 = (float)Acos(startToEndNorm.Dot(startToEndTargetNorm).Clamp(-1.0f, 1.0f));
+
+            float ac_ab_1 = (float)Acos((lcb * lcb - lab * lab - lat * lat) / (-2.0f * lab * lat).Clamp(-1.0f, 1.0f));
+            float ba_bc_1 = (float)Acos((lat * lat - lab * lab - lcb * lcb) / (-2.0f * lab * lcb).Clamp(-1.0f, 1.0f));
+
+            Vec3 axis0 = startToEnd.Cross(startToMid).Normalized();
+            Vec3 axis1 = startToEnd.Cross(startToEndTarget).Normalized();
+
+            float r0ang = ac_ab_1 - ac_ab_0;
+            float r1ang = ba_bc_1 - ba_bc_0;
+            float r2ang = ac_at_0;
+
+            Quat r0 = Quat.FromAxisAngleRad(startPosGlobalRot.Inverted() * axis0, r0ang);
+            Quat r1 = Quat.FromAxisAngleRad(midPosGlobalRot.Inverted() * axis0, r1ang);
+            Quat r2 = Quat.FromAxisAngleRad(startPosGlobalRot.Inverted() * axis1, r2ang);
+
+            startPosLocalRot *= r0 * r2;
+            midPosLocalRot *= r1;
+        }
     }
 }

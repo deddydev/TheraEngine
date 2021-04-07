@@ -170,7 +170,7 @@ namespace TheraEngine.Components.Scene
         private PreviewRenderCommand3D _previewIconRenderCommand;
         private PreviewRenderCommand3D PreviewIconRenderCommand 
         {
-            get => _previewIconRenderCommand ?? (_previewIconRenderCommand = CreatePreviewRenderCommand(PreviewIconName));
+            get => _previewIconRenderCommand ??= CreatePreviewRenderCommand(PreviewIconName);
             set => _previewIconRenderCommand = value; 
         }
 #endif

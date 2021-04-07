@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using TheraEngine;
 using TheraEngine.Core.Maths;
@@ -610,18 +611,32 @@ namespace System
                     return;
 
                 //IsLoopingSubNodes = true;
-                foreach (Node n in _subNodes)
+                try
+                {
+                    foreach (Node n in _subNodes)
                     n?.FindDeepest(point, ref currentDeepest);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                }
                 //IsLoopingSubNodes = false;
 
                 if (_items.Count == 0)
                     return;
 
                 //IsLoopingItems = true;
-                foreach (T item in _items)
+                try
+                {
+                    foreach (T item in _items)
                     if (item.Contains(point) && 
                         item.RenderInfo.DeeperThan(currentDeepest?.RenderInfo))
                         currentDeepest = item;
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                }
                 //IsLoopingItems = false;
             }
             public void FindAllIntersecting(Vec2 point, List<T> intersecting, Predicate<T> predicate = null)
@@ -630,17 +645,31 @@ namespace System
                     return;
 
                 //IsLoopingSubNodes = true;
-                foreach (Node n in _subNodes)
-                    n?.FindAllIntersecting(point, intersecting);
+                try
+                {
+                    foreach (Node n in _subNodes)
+                        n?.FindAllIntersecting(point, intersecting);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                }
                 //IsLoopingSubNodes = false;
 
                 if (_items.Count == 0)
                     return;
-                
+
                 //IsLoopingItems = true;
-                foreach (T item in _items)
-                    if (item.Contains(point) && (predicate?.Invoke(item) ?? true))
-                        intersecting.Add(item);
+                try
+                {
+                    foreach (T item in _items)
+                        if (item.Contains(point) && (predicate?.Invoke(item) ?? true))
+                            intersecting.Add(item);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                }
                 //IsLoopingItems = false;
             }
             public void FindAllIntersecting(Vec2 point, SortedSet<T> intersecting, Predicate<T> predicate = null)
@@ -649,17 +678,31 @@ namespace System
                     return;
 
                 //IsLoopingSubNodes = true;
-                foreach (Node n in _subNodes)
+                try
+                {
+                    foreach (Node n in _subNodes)
                     n?.FindAllIntersecting(point, intersecting);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                }
                 //IsLoopingSubNodes = false;
 
                 if (_items.Count == 0)
                     return;
 
                 //IsLoopingItems = true;
-                foreach (T item in _items)
-                    if (item.Contains(point) && (predicate?.Invoke(item) ?? true))
-                        intersecting.Add(item);
+                try
+                {
+                    foreach (T item in _items)
+                        if (item.Contains(point) && (predicate?.Invoke(item) ?? true))
+                            intersecting.Add(item);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                }
                 //IsLoopingItems = false;
             }
             //public void FindAll(Shape shape, List<T> list, EContainment containment)

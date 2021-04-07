@@ -311,19 +311,8 @@ namespace TheraEngine.Rendering
             IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
             int baseCount = LightCombineFBO.Material.Textures.Count;
 
-            if (probe.IrradianceTex != null)
-            {
-                var tex = probe.IrradianceTex.GetTexture(true);
-                program.Sampler("Irradiance", tex, baseCount);
-            }
-
-            ++baseCount;
-
-            if (probe.PrefilterTex != null)
-            {
-                var tex = probe.PrefilterTex.GetTexture(true);
-                program.Sampler("Prefilter", tex, baseCount);
-            }
+            program.Sampler("Irradiance", probe.IrradianceTex?.GetTexture(true), baseCount);
+            program.Sampler("Prefilter", probe.PrefilterTex?.GetTexture(true), ++baseCount);
         }
     }
 }

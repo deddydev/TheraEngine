@@ -22,9 +22,9 @@ namespace TheraEditor.Windows.Forms
             VertexQuad quad = VertexQuad.PosZQuad(1, true, -0.5f, false);
             VertexTriangle[] tris = quad.ToTriangles();
 
-            Mesh data1 = Mesh.Create(VertexShaderDesc.PosTex(), tris);
-            Mesh data2 = Mesh.Create(VertexShaderDesc.PosTex(), tris);
-            Mesh data3 = Mesh.Create(VertexShaderDesc.PosTex(), tris);
+            TMesh data1 = TMesh.Create(VertexShaderDesc.PosTex(), tris);
+            TMesh data2 = TMesh.Create(VertexShaderDesc.PosTex(), tris);
+            TMesh data3 = TMesh.Create(VertexShaderDesc.PosTex(), tris);
 
             GLSLScript script1 = Engine.Files.Shader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
             GLSLScript script2 = Engine.Files.Shader("Outline2DUnlitForward.fs", EGLSLType.Fragment);

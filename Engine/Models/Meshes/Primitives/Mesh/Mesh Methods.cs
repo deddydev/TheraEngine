@@ -8,7 +8,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models
 {
-    public partial class Mesh : TFileObject, IDisposable, IEnumerable<DataBuffer>
+    public partial class TMesh : TFileObject, IDisposable, IEnumerable<DataBuffer>
     {
         public VertexTriangle GetFace(int index)
         {
@@ -116,9 +116,11 @@ namespace TheraEngine.Rendering.Models
             }
 
             AddBuffer(binormals, new VertexAttribInfo(EBufferType.Binormal));
-            AddBuffer(tangents, new VertexAttribInfo(EBufferType.Tangent));
             _bufferInfo.HasBinormals = true;
+
+            AddBuffer(tangents, new VertexAttribInfo(EBufferType.Tangent));
             _bufferInfo.HasTangents = true;
+
             OnBufferInfoChanged();
         }
         private void SetInfluences(params InfluenceDef[] influences)
@@ -500,14 +502,7 @@ namespace TheraEngine.Rendering.Models
             _buffers?.ForEach(x => x.Dispose());
         }
 
-        public IEnumerator<DataBuffer> GetEnumerator()
-        {
-            return ((IEnumerable<DataBuffer>)_buffers).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<DataBuffer>)_buffers).GetEnumerator();
-        }
+        public IEnumerator<DataBuffer> GetEnumerator() => ((IEnumerable<DataBuffer>)_buffers).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<DataBuffer>)_buffers).GetEnumerator();
     }
 }

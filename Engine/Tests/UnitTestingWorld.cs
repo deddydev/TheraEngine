@@ -359,7 +359,7 @@ namespace TheraEngine.Tests
             #region Decal
             if (testDeferredDecal)
             {
-                DecalActor decal = new DecalActor();
+                Actor<DecalComponent> decal = new Actor<DecalComponent>();
                 TextureFile2D decalTex = await Engine.Files.LoadEngineTexture2DAsync("decal guide.png");
                 decal.RootComponent.Material = DecalComponent.CreateDefaultMaterial(decalTex);
 

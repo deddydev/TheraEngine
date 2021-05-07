@@ -118,7 +118,7 @@ namespace TheraEngine.Core.Shapes
         #endregion
 
         #region Mesh
-        public static Mesh WireframeMesh(Vec3 center, Vec3 upAxis, float radius, float halfHeight, int pointCountHalfCircle)
+        public static TMesh WireframeMesh(Vec3 center, Vec3 upAxis, float radius, float halfHeight, int pointCountHalfCircle)
         {
             upAxis.Normalize();
 
@@ -189,14 +189,14 @@ namespace TheraEngine.Core.Shapes
                 new Vertex(bottomPoint - forwardNormal * radius),
                 new Vertex(topPoint - forwardNormal * radius));
 
-            return Mesh.Create(VertexShaderDesc.JustPositions(),
+            return TMesh.Create(VertexShaderDesc.JustPositions(),
                 topCircleUp, topHalfCircleToward, topHalfCircleRight,
                 bottomCircleDown, bottomHalfCircleAway, bottomHalfCircleRight,
                 right, left, front, back);
         }
         public static void WireframeMeshParts(
             Vec3 center, Vec3 upAxis, float radius, float halfHeight, int pointCountHalfCircle,
-            out Mesh cylinder, out Mesh topSphereHalf, out Mesh bottomSphereHalf)
+            out TMesh cylinder, out TMesh topSphereHalf, out TMesh bottomSphereHalf)
         {
             upAxis.Normalize();
 
@@ -270,11 +270,11 @@ namespace TheraEngine.Core.Shapes
                 new Vertex(bottomPoint - forwardNormal * radius),
                 new Vertex(topPoint - forwardNormal * radius));
 
-            cylinder = Mesh.Create(VertexShaderDesc.JustPositions(),
+            cylinder = TMesh.Create(VertexShaderDesc.JustPositions(),
                 topCircleUp, bottomCircleDown, right, left, front, back);
-            topSphereHalf = Mesh.Create(VertexShaderDesc.JustPositions(),
+            topSphereHalf = TMesh.Create(VertexShaderDesc.JustPositions(),
                 topHalfCircleToward, topHalfCircleRight);
-            bottomSphereHalf = Mesh.Create(VertexShaderDesc.JustPositions(),
+            bottomSphereHalf = TMesh.Create(VertexShaderDesc.JustPositions(),
                 bottomHalfCircleAway, bottomHalfCircleRight);
         }
         #endregion

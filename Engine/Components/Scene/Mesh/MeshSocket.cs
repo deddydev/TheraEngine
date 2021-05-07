@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Actors;
 using TheraEngine.ComponentModel;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene.Mesh
@@ -25,12 +26,17 @@ namespace TheraEngine.Components.Scene.Mesh
         ISocket ParentSocket { get; set; }
         IEventList<ISocket> ChildSockets { get; }
 
+        Matrix4 LocalMatrix { get => Transform.Matrix; set => Transform.Matrix = value; }
+        Matrix4 InverseLocalMatrix { get; set; }
+
         Matrix4 WorldMatrix { get; set; }
         Matrix4 InverseWorldMatrix { get; set; }
+
         ITransform Transform { get; set; }
         IActor OwningActor { get; set; }
     }
-    public class Socket<TParent> : ISocket where TParent : ISocket
+    public class Socket : Socket<ISocket> { }
+    public class Socket<TParent> : TFileObject, ISocket where TParent : ISocket
     {
         int ISocket.ParentSocketChildIndex => throw new NotImplementedException();
 
@@ -55,7 +61,7 @@ namespace TheraEngine.Components.Scene.Mesh
             }
         }
     }
-    public class MeshSocket : TObject, ISocket
+    public class MeshSocket : Socket<ISocket>
     {
         public event DelSocketTransformChange SocketTransformChanged;
 
@@ -92,7 +98,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         private void Children_Removed(ISceneComponent item)
         {
-            item.SetParentInternal(null);
+            item.ParentSocket = null;
             ((IComponent)item).OwningActor = null;
             item.RecalcWorldTransform();
             //_owner?.GenerateSceneComponentCache();
@@ -110,7 +116,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         private void Children_Added(ISceneComponent item)
         {
-            item.SetParentInternal(this);
+            item.ParentSocket = this;
             ((IComponent)item).OwningActor = OwningActor;
             item.RecalcWorldTransform();
             //_owner?.GenerateSceneComponentCache();
@@ -128,6 +134,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
 
         public ISocket ParentSocket { get; set; }
+        public IEventList<ISocket> ChildSockets { get; }
 
         private void Transform_MatrixChanged(ITransform transform, Matrix4 oldMatrix, Matrix4 oldInvMatrix)
         {

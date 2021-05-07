@@ -9,7 +9,7 @@ namespace TheraEngine.Input
         void EnqueuePosession(IPawn pawn);
     }
     //This base class is used to send input information to a movement component for an actor.
-    //Input can come from a player's gamepad or an AI (these are subclasses to pawn controller).
+    //Input can come from a local or server player, being an actual person or an AI (these are subclasses to pawn controller).
     public abstract class PawnController : TObject, IPawnController
     {
         public PawnController()

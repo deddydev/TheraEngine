@@ -1013,7 +1013,7 @@ namespace TheraEngine.Components
         {
             PreviewRenderCommand3D rc = new PreviewRenderCommand3D(ERenderPass.TransparentForward);
             VertexQuad quad = VertexQuad.PosZQuad();
-            Mesh data = Mesh.Create(VertexShaderDesc.PosNormTex(), quad.ToTriangles());
+            TMesh data = TMesh.Create(VertexShaderDesc.PosNormTex(), quad.ToTriangles());
             string texPath = Engine.Files.TexturePath(textureName);
             TexRef2D tex = new TexRef2D("PreviewIcon", texPath) { SamplerName = "Texture0" };
             GLSLScript shader = Engine.Files.Shader("EditorPreviewIcon.fs", EGLSLType.Fragment);

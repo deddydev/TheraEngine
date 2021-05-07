@@ -237,7 +237,7 @@ namespace TheraEngine.Components.Scene
                 }
             }
 
-            Rendering.Models.Mesh data = Rendering.Models.Mesh.Create(VertexShaderDesc.PosNormTex(), list);
+            Rendering.Models.TMesh data = Rendering.Models.TMesh.Create(VertexShaderDesc.PosNormTex(), list);
             data[EBufferType.Position].MapData = true;
             data[EBufferType.Normal].MapData = true;
             data[EBufferType.TexCoord].MapData = true;

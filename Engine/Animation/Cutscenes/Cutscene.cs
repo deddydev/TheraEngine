@@ -154,7 +154,7 @@ namespace TheraEngine.Animation.Cutscenes
             CameraPawn = new Pawn<CameraComponent>(comp);
             TargetWorld.SpawnActor(CameraPawn);
             CameraTrack.UpdateCamera(Camera);
-            CameraPawn.ForcePossessionBy(ELocalPlayerIndex.One);
+            CameraPawn.Possess(ELocalPlayerIndex.One);
         }
         protected override void PostStopped()
         {

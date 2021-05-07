@@ -197,20 +197,20 @@ namespace TheraEngine.Core.Shapes
             IntersectionPoint = IntersectionPoint * transform;
         }
 
-        public Mesh GetWireframeMesh(float xExtent, float yExtent)
+        public TMesh GetWireframeMesh(float xExtent, float yExtent)
             => WireframeMesh(IntersectionPoint, Normal, xExtent, yExtent);
-        public Mesh GetSolidMesh(float xExtent, float yExtent)
+        public TMesh GetSolidMesh(float xExtent, float yExtent)
             => SolidMesh(IntersectionPoint, Normal, xExtent, yExtent);
-        public static Mesh WireframeMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
+        public static TMesh WireframeMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
         {
             Quat r = normal.LookatAngles().ToQuaternion();
             Vec3 bottomLeft = position + new Vec3(-0.5f * xExtent, -0.5f * yExtent, 0.0f) * r;
             Vec3 bottomRight = position + new Vec3(0.5f * xExtent, -0.5f * yExtent, 0.0f) * r;
             Vec3 topLeft = position + new Vec3(-0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             Vec3 topRight = position + new Vec3(0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
-            return Mesh.Create(VertexShaderDesc.JustPositions(), new VertexLineStrip(true, bottomLeft, bottomRight, topRight, topLeft));
+            return TMesh.Create(VertexShaderDesc.JustPositions(), new VertexLineStrip(true, bottomLeft, bottomRight, topRight, topLeft));
         }
-        public static Mesh SolidMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
+        public static TMesh SolidMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
         {
             Quat r = normal.LookatAngles().ToQuaternion();
             Vec3 bottomLeft = position + new Vec3(-0.5f * xExtent, -0.5f * yExtent, 0.0f) * r;
@@ -218,7 +218,7 @@ namespace TheraEngine.Core.Shapes
             Vec3 topLeft = position + new Vec3(-0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             Vec3 topRight = position + new Vec3(0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             VertexQuad q = VertexQuad.MakeQuad(bottomLeft, bottomRight, topRight, topLeft, normal);
-            return Mesh.Create(VertexShaderDesc.PosNormTex(), q);
+            return TMesh.Create(VertexShaderDesc.PosNormTex(), q);
         }
     }
 }

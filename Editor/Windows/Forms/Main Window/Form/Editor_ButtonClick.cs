@@ -204,7 +204,7 @@ namespace TheraEditor.Windows.Forms
             AppDomainHelper.Sponsor(comp);
             node.Text = comp.ToString();
             node.Tag = comp;
-            foreach (ISceneComponent child in comp.ChildSockets)
+            foreach (ISocket child in comp.ChildSockets)
             {
                 TreeNode childNode = new TreeNode();
                 node.Nodes.Add(childNode);

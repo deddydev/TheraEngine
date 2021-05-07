@@ -950,7 +950,7 @@ namespace TheraEditor
 
             FlyingCameraDetachedPawn.EditorState.DisplayInActorTree = false;
             world.SpawnActor(FlyingCameraDetachedPawn);
-            FlyingCameraDetachedPawn.ForcePossessionBy(ELocalPlayerIndex.One);
+            FlyingCameraDetachedPawn.Possess(ELocalPlayerIndex.One);
         }
         private void SetAttachedGameState()
         {
@@ -992,7 +992,7 @@ namespace TheraEditor
             {
                 //Detached -> Attached
 
-                GameplayPawn?.ForcePossessionBy(ELocalPlayerIndex.One);
+                GameplayPawn?.Possess(ELocalPlayerIndex.One);
                 World.DespawnActor(FlyingCameraDetachedPawn);
             }
         }

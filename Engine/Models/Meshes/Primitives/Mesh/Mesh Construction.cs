@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Models
 {
     [TFileExt("primdata")]
     [TFileDef("Mesh Primitive Data")]
-    public partial class Mesh : TFileObject, IDisposable
+    public partial class TMesh : TFileObject, IDisposable
     {
         private static Dictionary<Type, EPrimitiveType> PrimTypeDic { get; }
             = new Dictionary<Type, EPrimitiveType>()
@@ -54,41 +54,41 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
-        public static Mesh Create<T>(VertexShaderDesc info, params T[] prims) where T : VertexPrimitive
+        public static TMesh Create<T>(VertexShaderDesc info, params T[] prims) where T : VertexPrimitive
         {
             if (prims is null || !GetPrimType<T>(out EPrimitiveType type))
                 return null;
 
-            return new Mesh(info, PrimConvDic[type](prims), ConvertType(type));
+            return new TMesh(info, PrimConvDic[type](prims), ConvertType(type));
         }
 
-        public static Mesh Create<T>(VertexShaderDesc info, IEnumerable<T> prims) where T : VertexPrimitive
+        public static TMesh Create<T>(VertexShaderDesc info, IEnumerable<T> prims) where T : VertexPrimitive
         {
             if (prims is null || !GetPrimType<T>(out EPrimitiveType type))
                 return null;
 
-            return new Mesh(info, PrimConvDic[type](prims), ConvertType(type));
+            return new TMesh(info, PrimConvDic[type](prims), ConvertType(type));
         }
-        public static Mesh Create(params Vec3[] points)
+        public static TMesh Create(params Vec3[] points)
         {
             if (points is null)
                 return null;
 
-            return new Mesh(VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
+            return new TMesh(VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
         }
-        public static Mesh Create(IEnumerable<Vec3> points)
+        public static TMesh Create(IEnumerable<Vec3> points)
         {
             if (points is null)
                 return null;
 
-            return new Mesh(VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
+            return new TMesh(VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
         }
 
         private static bool GetPrimType<T>(out EPrimitiveType type) where T : VertexPrimitive
             => PrimTypeDic.TryGetValue(typeof(T), out type);
 
-        public Mesh() { }
-        public Mesh(VertexShaderDesc info, IEnumerable<Vertex> points, EPrimitiveType type)
+        public TMesh() { }
+        public TMesh(VertexShaderDesc info, IEnumerable<Vertex> points, EPrimitiveType type)
         {
             //TODO: convert triangles to tristrips and use primitive restart to render them all in one call
 

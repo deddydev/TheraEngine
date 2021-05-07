@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models;
 
@@ -7,15 +8,15 @@ namespace TheraEngine.Components.Logic.Common
 {
     public class IKDriverComponent : LogicComponent
     {
-        public IBone GoalSocket { get; set; }
-        public IBone EndEffectorSocket { get; set; }
-        public IBone BaseSocket { get; set; }
+        public ISocket GoalSocket { get; set; }
+        public ISocket EndEffectorSocket { get; set; }
+        public ISocket BaseSocket { get; set; }
 
         public float SqrDistError { get; set; } = 0.01f;
         public float Weight { get; set; } = 1.0f;
         public int MaxIterations { get; set; } = 10;
         
-        private List<IBone> SocketChain { get; } = new List<IBone>();
+        private List<ISocket> SocketChain { get; } = new List<ISocket>();
 
         protected override void OnSpawned()
         {
@@ -23,11 +24,11 @@ namespace TheraEngine.Components.Logic.Common
 
             SocketChain.Clear();
 
-            IBone current = EndEffectorSocket;
-            while (current != null && current != BaseSocket?.Parent)
+            ISocket current = EndEffectorSocket;
+            while (current != null && current != BaseSocket?.ParentSocket)
             {
                 SocketChain.Add(current);
-                current = current.Parent;
+                current = current.ParentSocket;
             }
 
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Update);
@@ -65,7 +66,7 @@ namespace TheraEngine.Components.Logic.Common
             while (((EndEffectorSocket.FrameMatrix.Translation - targetPos).LengthSquared) > SqrDistError && ++iters <= MaxIterations);
         }
 
-        private void RotateBone(IBone effector, IBone bone, Vec3 goalPos)
+        private void RotateSocket(ISocket effector, ISocket bone, Vec3 goalPos)
         {
             Vec3 effectorPos = effector.FrameMatrix.Translation;
             Vec3 bonePos = bone.FrameMatrix.Translation;

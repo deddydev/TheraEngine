@@ -35,7 +35,7 @@ namespace TheraEngine.Actors
         ICameraComponent CurrentCameraComponent { get; set; }
         LocalFileRef<IUserInterfacePawn> HUD { get; set; }
 
-        void ForcePossessionBy(ELocalPlayerIndex possessor);
+        void Possess(ELocalPlayerIndex possessor);
         void QueuePossession(ELocalPlayerIndex possessor);
         void OnUnPossessed();
         void OnPossessed(PawnController possessor);
@@ -211,6 +211,10 @@ namespace TheraEngine.Actors
 
             //OwningWorld.CurrentGameModePreChanged -= OwningWorld_CurrentGameModePreChanged;
         }
+        /// <summary>
+        /// The given local player will eventually control this pawn after other players in the queue have possessed the pawn first.
+        /// </summary>
+        /// <param name="possessor"></param>
         public void QueuePossession(ELocalPlayerIndex possessor)
         {
             var mode = OwningWorld?.CurrentGameMode;
@@ -219,7 +223,11 @@ namespace TheraEngine.Actors
             else
                 PossessionQueue.Enqueue(possessor);
         }
-        public void ForcePossessionBy(ELocalPlayerIndex possessor)
+        /// <summary>
+        /// The given local player will have immediate control over this pawn.
+        /// </summary>
+        /// <param name="possessor"></param>
+        public void Possess(ELocalPlayerIndex possessor)
         {
             var mode = OwningWorld?.CurrentGameMode;
             if (mode != null)
@@ -227,7 +235,10 @@ namespace TheraEngine.Actors
             else
                 ForcePossession = possessor;
         }
-        
+        /// <summary>
+        /// Called when a new controller starts controlling this pawn.
+        /// </summary>
+        /// <param name="possessor"></param>
         public virtual void OnPossessed(PawnController possessor)
         {
             if (possessor is null)
@@ -238,6 +249,10 @@ namespace TheraEngine.Actors
             if (Controller is LocalPlayerController lpc && lpc.Viewport != null)
                 RootComponent?.OnGotAudioListener();
         }
+        /// <summary>
+        /// Called when a controller loses control of this pawn.
+        /// Controller is set to null at the end of the method.
+        /// </summary>
         public virtual void OnUnPossessed()
         {
             if (Controller is null)

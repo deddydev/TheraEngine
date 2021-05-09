@@ -38,6 +38,8 @@ namespace TheraEngine.Components.Scene.Mesh
     public class Socket : Socket<ISocket> { }
     public class Socket<TParent> : TFileObject, ISocket where TParent : ISocket
     {
+        public ITransform Transform { get; set; }
+
         int ISocket.ParentSocketChildIndex => throw new NotImplementedException();
 
         ISocket ISocket.ParentSocket { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

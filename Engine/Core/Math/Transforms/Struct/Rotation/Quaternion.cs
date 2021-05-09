@@ -342,8 +342,7 @@ namespace System
             Quat result = Identity;
 
             radians *= 0.5f;
-            axis.Normalize();
-            result.Xyz = axis.Xyz * (float)Sin(radians);
+            result.Xyz = (float)Sin(radians) * axis.Normalized().Xyz;
             result.W = (float)Cos(radians);
 
             return result.Normalized();
@@ -439,6 +438,7 @@ namespace System
             Quat r2 = Slerp(q2, q3, time);
             return Slerp(r1, r2, time);
         }
+
         /// <summary>
         /// Do Spherical linear interpolation between two quaternions 
         /// </summary>
@@ -447,57 +447,8 @@ namespace System
         /// <param name="blend">The blend factor</param>
         /// <returns>A smooth blend between the given quaternions</returns>
         public static Quat Slerp(Quat q1, Quat q2, float blend)
-        {
-            // if either input is zero, return the other.
-            if (q1.LengthSquared == 0.0f)
-            {
-                if (q2.LengthSquared == 0.0f)
-                    return Identity;
-                return q2;
-            }
-            else if (q2.LengthSquared == 0.0f)
-                return q1;
+            => Interp.Slerp(q1, q2, blend);
 
-            float cosHalfAngle = q1.W * q2.W + q1.Xyz.Dot(q2.Xyz);
-            if (cosHalfAngle >= 1.0f || cosHalfAngle <= -1.0f)
-            {
-                // angle = 0.0f, so just return one input.
-                return q1;
-            }
-            else if (cosHalfAngle < 0.0f)
-            {
-                q2.Xyz = -q2.Xyz;
-                q2.W = -q2.W;
-                cosHalfAngle = -cosHalfAngle;
-            }
-
-            float blendA;
-            float blendB;
-            if (cosHalfAngle < 0.99f)
-            {
-                // do proper slerp for big angles
-                float halfAngle = (float)Acos(cosHalfAngle);
-                float sinHalfAngle = (float)Sin(halfAngle);
-                float oneOverSinHalfAngle = 1.0f / sinHalfAngle;
-                blendA = (float)Sin(halfAngle * (1.0f - blend)) * oneOverSinHalfAngle;
-                blendB = (float)Sin(halfAngle * blend) * oneOverSinHalfAngle;
-            }
-            else
-            {
-                // do lerp if angle is really small.
-                blendA = 1.0f - blend;
-                blendB = blend;
-            }
-
-            Quat result = new Quat(
-                blendA * q1.Xyz + blendB * q2.Xyz, 
-                blendA * q1.W + blendB * q2.W);
-
-            if (result.LengthSquared > 0.0f)
-                return result.Normalized();
-            else
-                return Identity;
-        }
         //map axes strings to/from tuples of inner axis, parity, repetition, frame
         private static readonly Dictionary<EAxisCombo, IVec4> AxesToTuple = new Dictionary<EAxisCombo, IVec4>()
         {

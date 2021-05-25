@@ -80,7 +80,7 @@ namespace TheraEditor.Windows.Forms
                 World.DespawnActor(EditorPawn);
 
             if (Editor.ActiveRenderForm == this)
-                World.CurrentGameMode = null;
+                World.GameMode = null;
 
             World.PostBeginPlay -= World_PostBeginPlay;
             World.PreEndPlay -= World_PreEndPlay;
@@ -94,7 +94,7 @@ namespace TheraEditor.Windows.Forms
             World.PreEndPlay += World_PreEndPlay;
 
             if (Editor.ActiveRenderForm == this)
-                World.CurrentGameMode = Editor.ActiveRenderForm.GameMode;
+                World.GameMode = Editor.ActiveRenderForm.GameMode;
 
             if (World.IsPlaying)
                 World.SpawnActor(EditorPawn);

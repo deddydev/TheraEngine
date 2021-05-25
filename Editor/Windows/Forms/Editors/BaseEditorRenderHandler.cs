@@ -21,7 +21,7 @@ namespace TheraEditor.Windows.Forms
 
         public ELocalPlayerIndex PlayerIndex { get; private set; } = ELocalPlayerIndex.One;
         public abstract IWorld World { get; }
-        public virtual TGameMode GameMode => World?.CurrentGameMode as TGameMode;
+        public virtual TGameMode GameMode => World?.GameMode as TGameMode;
 
         //protected override TScene GetScene(Viewport v) => World?.Scene as TScene;
         public abstract TPawn EditorPawn { get; }

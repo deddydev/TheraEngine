@@ -176,7 +176,7 @@ namespace TheraEngine.Actors
             OwningWorld.Settings.EnableOriginRebasingChanged += Settings_EnableOriginRebasingChanged;
             Settings_EnableOriginRebasingChanged(OwningWorld.Settings);
 
-            var mode = OwningWorld.CurrentGameMode;
+            var mode = OwningWorld.GameMode;
             if (mode != null)
             {
                 if (ForcePossession != null)
@@ -213,7 +213,7 @@ namespace TheraEngine.Actors
         }
         public void QueuePossession(ELocalPlayerIndex possessor)
         {
-            var mode = OwningWorld?.CurrentGameMode;
+            var mode = OwningWorld?.GameMode;
             if (mode != null)
                 mode.QueuePossession(this, possessor);
             else
@@ -221,7 +221,7 @@ namespace TheraEngine.Actors
         }
         public void ForcePossessionBy(ELocalPlayerIndex possessor)
         {
-            var mode = OwningWorld?.CurrentGameMode;
+            var mode = OwningWorld?.GameMode;
             if (mode != null)
                 mode.ForcePossession(this, possessor);
             else

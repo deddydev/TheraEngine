@@ -109,7 +109,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public virtual void Kill(ICharacterPawn instigator, IActor killer)
         {
-            ICharacterGameMode mode = OwningWorld?.CurrentGameMode as ICharacterGameMode;
+            ICharacterGameMode mode = OwningWorld?.GameMode as ICharacterGameMode;
             _meshComp.SetAllSimulatingPhysics(true);
             mode?.OnCharacterKilled(this, instigator, killer);
         }
@@ -119,7 +119,7 @@ namespace TheraEngine.Actors.Types.Pawns
             => _respawnTimer.StartMultiFire(AttemptSpawn, 0.1f);
         private void AttemptSpawn(float totalElapsed, int fireNumber)
         {
-            ICharacterGameMode mode = OwningWorld?.CurrentGameMode as ICharacterGameMode;
+            ICharacterGameMode mode = OwningWorld?.GameMode as ICharacterGameMode;
             if (!mode.FindSpawnPoint(Controller, out Matrix4 transform))
                 return;
             

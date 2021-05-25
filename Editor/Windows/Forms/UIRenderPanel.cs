@@ -49,7 +49,7 @@ namespace TheraEngine
 
             GameMode = new UIGameModeType { RenderHandler = this };
             if (World != null)
-                World.CurrentGameMode = GameMode;
+                World.GameMode = GameMode;
 
             UI = new UIPawnType();
 
@@ -65,7 +65,7 @@ namespace TheraEngine
                 World.DespawnActor(CameraHost);
                 World.DespawnActor(UI);
                 World.EndPlay();
-                World.CurrentGameMode = null;
+                World.GameMode = null;
             }
             
             base.OnWorldManagerPreChanged();
@@ -74,7 +74,7 @@ namespace TheraEngine
         {
             if (Visible && World != null)
             {
-                World.CurrentGameMode = GameMode;
+                World.GameMode = GameMode;
                 World.BeginPlay();
                 World.SpawnActor(UI);
                 World.SpawnActor(CameraHost);

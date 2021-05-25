@@ -10,7 +10,7 @@ namespace TheraEngine.Physics
     public static class ConvexDecomposition
     {
         public static TCollisionCompoundShape Calculate(
-            IEnumerable<Mesh> primitives,
+            IEnumerable<TMesh> primitives,
             int minClusterCount = 2,
             int maxConcavity = 50,
             int maxVerticesPerHull = 20,
@@ -27,7 +27,7 @@ namespace TheraEngine.Physics
             List<Vector3> points = new List<Vector3>();
             int[] meshIndices;
             int baseIndexOffset = 0;
-            foreach (Mesh primData in primitives)
+            foreach (TMesh primData in primitives)
             {
                 primData[EBufferType.Position].GetData(out Vec3[] array, false);
                 meshIndices = primData.GetIndices();

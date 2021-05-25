@@ -6,7 +6,7 @@ using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Rendering.Models
 {
-    public partial class Mesh
+    public partial class TMesh
     {
         [CustomMemberSerializeMethod(nameof(Triangles))]
         private void SerializeTriangles(SerializeElement node)

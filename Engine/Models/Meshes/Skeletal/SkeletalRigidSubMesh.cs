@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.Models
             string name,
             IRenderInfo3D renderInfo,
             ERenderPass renderPass,
-            Mesh primitives,
+            TMesh primitives,
             TMaterial material) : base(name, renderInfo, renderPass, primitives, material) { }
         public SkeletalRigidSubMesh(
             string name,

@@ -555,7 +555,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actors\ComponentActors\Spline2DActor.cs" />
     <Compile Include="Actors\IActor.cs" />
     <Compile Include="Actors\BaseActor.cs" />
     <Compile Include="Actors\Pawns\CutsceneCameraPawn.cs" />
@@ -609,7 +608,6 @@
     <Compile Include="Components\Logic\Common\HealthComponent.cs" />
     <Compile Include="Actors\Special\IBLProbeGridActor.cs" />
     <Compile Include="Actors\ComponentActors\SkyboxActor.cs" />
-    <Compile Include="Actors\ComponentActors\LightActors.cs" />
     <Compile Include="Actors\ComponentActors\Shapes\ConeActor.cs" />
     <Compile Include="Actors\Special\GroupActor.cs" />
     <Compile Include="Actors\Pawns\FlyingCameraPawnBase.cs" />
@@ -1271,7 +1269,6 @@
     <Compile Include="Actors\ComponentActors\Shapes\SphereActor.cs" />
     <Compile Include="Actors\ComponentActors\Shapes\BoxActor.cs" />
     <Compile Include="Actors\ComponentActors\CameraActor.cs" />
-    <Compile Include="Actors\ComponentActors\DecalActor.cs" />
     <Compile Include="Animation\Property\PropAnimString.cs" />
     <Compile Include="Animation\Property\PropAnimBool.cs" />
     <Compile Include="Animation\Property\PropAnimFloat.cs" />
@@ -1282,8 +1279,6 @@
     <Compile Include="Shapes\Boxes\BoundingBox.cs" />
     <Compile Include="Rendering\Viewport\Viewport.cs" />
     <Compile Include="Actors\Actor.cs" />
-    <Compile Include="Actors\ComponentActors\Spline3DActor.cs" />
-    <Compile Include="Actors\ComponentActors\AudioActor.cs" />
     <Compile Include="Actors\Special\TransformTool2D.cs" />
     <Compile Include="Actors\Pawns\CharacterPawn.cs" />
     <Compile Include="Actors\Pawns\UserInterfacePawn.cs" />

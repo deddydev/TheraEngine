@@ -173,14 +173,14 @@ namespace TheraEngine.Rendering
                 return _debugPrims[(int)type] = new MeshRenderer(GetPrimData(type), mat);
             }
         }
-        private Mesh GetPrimData(EDebugPrimitiveType type)
+        private TMesh GetPrimData(EDebugPrimitiveType type)
         {
             switch (type)
             {
                 case EDebugPrimitiveType.Point:
-                    return Mesh.Create(Vec3.Zero);
+                    return TMesh.Create(Vec3.Zero);
                 case EDebugPrimitiveType.Line: VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
-                    return Mesh.Create(VertexShaderDesc.JustPositions(), line);
+                    return TMesh.Create(VertexShaderDesc.JustPositions(), line);
 
                 case EDebugPrimitiveType.WireSphere: return Sphere.WireframeMesh(Vec3.Zero, 1.0f, 60); //Diameter is set to 2.0f on purpose
                 case EDebugPrimitiveType.SolidSphere: return Sphere.SolidMesh(Vec3.Zero, 1.0f, 30); //Diameter is set to 2.0f on purpose
@@ -191,8 +191,8 @@ namespace TheraEngine.Rendering
                 case EDebugPrimitiveType.WireCircle: return Circle3D.WireframeMesh(1.0f, Vec3.UnitY, Vec3.Zero, 20); //Diameter is set to 2.0f on purpose
                 case EDebugPrimitiveType.SolidCircle: return Circle3D.SolidMesh(1.0f, Vec3.UnitY, Vec3.Zero, 20); //Diameter is set to 2.0f on purpose
 
-                case EDebugPrimitiveType.WireQuad: return Mesh.Create(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(1.0f, false, false).ToLines());
-                case EDebugPrimitiveType.SolidQuad: return Mesh.Create(VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
+                case EDebugPrimitiveType.WireQuad: return TMesh.Create(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(1.0f, false, false).ToLines());
+                case EDebugPrimitiveType.SolidQuad: return TMesh.Create(VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
 
                 case EDebugPrimitiveType.WireCone: return Cone.WireMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20);
                 case EDebugPrimitiveType.SolidCone: return Cone.SolidMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20, true);
@@ -344,7 +344,7 @@ namespace TheraEngine.Rendering
             {
                 Capsule.WireframeMeshParts(
                     Vec3.Zero, Vec3.Up, 1.0f, 1.0f, 30, 
-                    out Mesh cylData, out Mesh topData, out Mesh botData);
+                    out TMesh cylData, out TMesh topData, out TMesh botData);
                 if (mCyl is null)
                     mCyl = AssignDebugPrimitive(cylStr, new MeshRenderer(cylData, TMaterial.CreateUnlitColorMaterialForward()));
                 if (mTop is null)

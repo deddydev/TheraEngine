@@ -24,24 +24,17 @@ namespace TheraEngine.Animation.Cutscenes
     [TFileDef("Cutscene")]
     public class Cutscene : BaseAnimation
     {
-        public Cutscene() : base(0.0f, false)
-        {
-            SubScenes = new EventList<(float Second, Clip<Cutscene> Clip)>();
-        }
+        public Cutscene() : base(0.0f, false) 
+            => SubScenes = new EventList<(float Second, Clip<Cutscene> Clip)>();
         public Cutscene(float lengthInSeconds, bool looped)
             : base(lengthInSeconds, looped)
-        {
-            SubScenes = new EventList<(float Second, Clip<Cutscene> Clip)>();
-        }
+            => SubScenes = new EventList<(float Second, Clip<Cutscene> Clip)>();
         public Cutscene(int frameCount, float FPS, bool looped)
             : base(FPS <= 0.0f ? 0.0f : frameCount / FPS, looped)
-        {
-            SubScenes = new EventList<(float Second, Clip<Cutscene> Clip)>();
-        }
+            => SubScenes = new EventList<(float Second, Clip<Cutscene> Clip)>();
 
         private PerspectiveCameraKeyCollection _cameraTrack = new PerspectiveCameraKeyCollection();
         private EventList<(float Second, Clip<Cutscene> Clip)> _scenes;
-        private EventDictionary<string, (float Second, Clip<BaseAnimation> Clip)> _animationTracks = new EventDictionary<string, (float Second, Clip<BaseAnimation> Clip)>();
 
         public List<GlobalFileRef<BaseActor>> InvolvedActors { get; set; }
 
@@ -70,12 +63,11 @@ namespace TheraEngine.Animation.Cutscenes
             get => _cameraTrack;
             set => _cameraTrack = value ?? new PerspectiveCameraKeyCollection();
         }
+
         [TSerialize]
-        public EventDictionary<string, (float Second, Clip<BaseAnimation> Clip)> AnimationTracks
-        {
-            get => _animationTracks;
-            set => _animationTracks = value;
-        }
+        public EventDictionary<string, (float Second, Clip<BaseAnimation> Clip)> AnimationTracks { get; set; } 
+            = new EventDictionary<string, (float Second, Clip<BaseAnimation> Clip)>();
+
         [TSerialize]
         public EventList<(float Second, Clip<Cutscene> Clip)> SubScenes
         {
@@ -162,7 +154,7 @@ namespace TheraEngine.Animation.Cutscenes
             CameraPawn = new Pawn<CameraComponent>(comp);
             TargetWorld.SpawnActor(CameraPawn);
             CameraTrack.UpdateCamera(Camera);
-            CameraPawn.ForcePossessionBy(ELocalPlayerIndex.One);
+            CameraPawn.Possess(ELocalPlayerIndex.One);
         }
         protected override void PostStopped()
         {

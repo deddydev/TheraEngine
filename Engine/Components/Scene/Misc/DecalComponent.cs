@@ -126,8 +126,7 @@ namespace TheraEngine.Components.Scene
             if (Material is null)
                 return;
 
-            Rendering.Models.Mesh decalMesh = BoundingBox.SolidMesh(-Vec3.One, Vec3.One);
-            RenderCommandDecal.Mesh = new MeshRenderer(decalMesh, Material);
+            RenderCommandDecal.Mesh = new MeshRenderer(BoundingBox.SolidMesh(-Vec3.One, Vec3.One), Material);
             RenderCommandDecal.Mesh.SettingUniforms += DecalManager_SettingUniforms;
 
             base.OnSpawned();
@@ -171,7 +170,7 @@ namespace TheraEngine.Components.Scene
         private PreviewRenderCommand3D _previewIconRenderCommand;
         private PreviewRenderCommand3D PreviewIconRenderCommand 
         {
-            get => _previewIconRenderCommand ?? (_previewIconRenderCommand = CreatePreviewRenderCommand(PreviewIconName));
+            get => _previewIconRenderCommand ??= CreatePreviewRenderCommand(PreviewIconName);
             set => _previewIconRenderCommand = value; 
         }
 #endif

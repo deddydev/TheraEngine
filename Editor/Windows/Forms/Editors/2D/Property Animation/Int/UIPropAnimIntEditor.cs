@@ -351,7 +351,7 @@ namespace TheraEditor.Windows.Forms
                 PointSize = 5.0f
             };
 
-            Mesh splinePosColor = Mesh.Create(VertexShaderDesc.PosColor(), strip);
+            TMesh splinePosColor = TMesh.Create(VertexShaderDesc.PosColor(), strip);
             foreach (var buf in splinePosColor)
             {
                 buf.MapData = true;
@@ -373,7 +373,7 @@ void main()
 
             _rcSpline.Mesh = new MeshRenderer(splinePosColor, mat);
             
-            Mesh kfInOutPos = Mesh.Create(kfInOutPositions);
+            TMesh kfInOutPos = TMesh.Create(kfInOutPositions);
             foreach (var buf in kfInOutPos)
             {
                 buf.MapData = true;
@@ -383,7 +383,7 @@ void main()
             mat.RenderParams = renderParams;
             _rcKeyframeInOutPositions.Mesh = new MeshRenderer(kfInOutPos, mat);
 
-            Mesh tanPos = Mesh.Create(kfInOutTangents);
+            TMesh tanPos = TMesh.Create(kfInOutTangents);
             foreach (var buf in tanPos)
             {
                 buf.MapData = true;
@@ -393,7 +393,7 @@ void main()
             mat.RenderParams = renderParams;
             _rcTangentPositions.Mesh = new MeshRenderer(tanPos, mat);
 
-            Mesh kfLines = Mesh.Create(VertexShaderDesc.JustPositions(), keyframeLines);
+            TMesh kfLines = TMesh.Create(VertexShaderDesc.JustPositions(), keyframeLines);
             foreach (var buf in kfLines)
             {
                 buf.MapData = true;

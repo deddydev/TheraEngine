@@ -13,9 +13,9 @@ namespace TheraEngine.Rendering.Models
         [TSerialize]
         internal int InfluenceIndex { get; set; }
 
-        internal Mesh Owner { get; }
+        internal TMesh Owner { get; }
 
-        public FacePoint(int index, Mesh data)
+        public FacePoint(int index, TMesh data)
         {
             Index = index;
             Owner = data;

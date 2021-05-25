@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering
 
         public MeshRenderer FullScreenMesh { get; }
 
-        public static Mesh Mesh(bool asTriangle)
+        public static TMesh Mesh(bool asTriangle)
         {
             if (asTriangle)
             {
@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering
                     new Vec3(0.0f, 0.0f, 0.0f),
                     new Vec3(2.0f, 0.0f, 0.0f),
                     new Vec3(0.0f, 2.0f, 0.0f));
-                return Models.Mesh.Create(VertexShaderDesc.JustPositions(), triangle);
+                return Models.TMesh.Create(VertexShaderDesc.JustPositions(), triangle);
             }
             else
             {
@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering
                     new Vec3(0.0f, 1.0f, 0.0f),
                     new Vec3(1.0f, 0.0f, 0.0f),
                     new Vec3(1.0f, 1.0f, 0.0f));
-                return Models.Mesh.Create(VertexShaderDesc.JustPositions(), triangle1, triangle2);
+                return Models.TMesh.Create(VertexShaderDesc.JustPositions(), triangle1, triangle2);
             }
         }
 

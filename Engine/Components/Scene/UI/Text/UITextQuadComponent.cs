@@ -103,7 +103,7 @@ namespace TheraEngine.Rendering.UI
             var mat = TMaterial.CreateUnlitAlphaTextureMaterialForward(
                 new TexRef2D("CharTex", 64, 64, PixelFormat.Format32bppArgb));
 
-            var data = Mesh.Create(
+            var data = TMesh.Create(
                 VertexShaderDesc.PosTex(),
                 VertexQuad.PosZQuad(1.0f, true, 0.0f, true));
 

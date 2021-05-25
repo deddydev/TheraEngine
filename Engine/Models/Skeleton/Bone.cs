@@ -38,7 +38,6 @@ namespace TheraEngine.Rendering.Models
         bool Selected { get; set; }
 #endif
 
-        IBone Parent { get; set; }
         ISkeleton Skeleton { get; set; }
 
         SkeletalMeshComponent OwningComponent { get; }
@@ -81,7 +80,7 @@ namespace TheraEngine.Rendering.Models
     }
     [TFileExt("bone")]
     [TFileDef("Bone")]
-    public partial class Bone : TFileObject, IBone
+    public partial class Bone : Socket<Bone>, IBone
     {
         //TODO: culling volumes for each skinned bone;
         //cull mesh if all influence bones are culled
@@ -194,7 +193,7 @@ namespace TheraEngine.Rendering.Models
         {
             if (_childBones != null)
                 foreach (IBone b in _childBones)
-                    b.SetParentInternal(this);
+                    b.ParentSocket = this;
 
             FrameState = _bindState.HardCopy();
             CalcBindMatrix(true);
@@ -515,13 +514,13 @@ namespace TheraEngine.Rendering.Models
         #region Child Bone List Events
         private void SingleChildBoneAdded(IBone item)
         {
-            item.SetParentInternal(this);
+            item.ParentSocket = this;
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
             item.TriggerFrameMatrixUpdate();
         }
         private void SingleChildBoneRemoved(IBone item)
         {
-            item.SetParentInternal(null);
+            item.ParentSocket = null;
             item.CalcBindMatrix(false);
             item.TriggerFrameMatrixUpdate();
         }
@@ -573,7 +572,7 @@ namespace TheraEngine.Rendering.Models
             => ChildComponentsAddedRange(items);
         private void ChildComponentsRemoved(ISceneComponent item)
         {
-            item.SetParentInternal(null);
+            item.ParentSocket = null;
             ((Components.IComponent)item).OwningActor = null;
             item.RecalcWorldTransform();
         }
@@ -591,9 +590,9 @@ namespace TheraEngine.Rendering.Models
             get => _parent;
             set => _parent = value as IBone; //TODO: actually perform link
         }
-        bool ISocket.IsTranslatable => true;
-        bool ISocket.IsScalable => true;
-        bool ISocket.IsRotatable => true;
+        //bool ISocket.IsTranslatable => true;
+        //bool ISocket.IsScalable => true;
+        //bool ISocket.IsRotatable => true;
 
         [Browsable(false)]
         public int ParentSocketChildIndex => _parent.ChildBones.IndexOf(this);

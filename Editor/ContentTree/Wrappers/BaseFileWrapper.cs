@@ -28,10 +28,7 @@ namespace TheraEditor.Wrappers
     }
     public abstract class BaseFileWrapper : BasePathWrapper, IBaseFileWrapper
     {
-        public BaseFileWrapper()
-        {
-            Menu = DefaultMenu(this);
-        }
+        public BaseFileWrapper() => Menu = DefaultMenu(this);
 
         public void Reload()
         {
@@ -111,7 +108,7 @@ namespace TheraEditor.Wrappers
             }
         }
 
-        public virtual void EditRaw() => Editor.Instance.EditText(FilePath);
+        public virtual void EditRaw() => Editor.Instance.UserEditText(FilePath);
 
         public static TypeProxy ResolveEditorType(TypeProxy fileType)
         {

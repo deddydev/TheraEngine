@@ -152,7 +152,7 @@ namespace TheraEngine.Components.Scene
                     (depthAttachment, EFramebufferAttachment.DepthAttachment, 0, depthLayer));
 
                 _viewport.AttachedCamera = RenderFBO.Cameras[i];
-                _viewport.FullRender(RenderFBO);
+                _viewport.RenderWithLayoutUpdate(RenderFBO);
             }
 
             BaseRenderTexture tex = _envTex.RenderTextureGeneric;

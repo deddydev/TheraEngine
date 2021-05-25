@@ -9,6 +9,6 @@ namespace TheraEditor.Wrappers
         public GenericTextFileWrapper() : base() { }
 
         public override void Edit()
-            => Editor.Instance.EditText(File, DockState.Document);
+            => Editor.Instance.UserEditText(File, DockState.Document);
     }
 }

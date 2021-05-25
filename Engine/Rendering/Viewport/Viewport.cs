@@ -292,8 +292,8 @@ namespace TheraEngine.Rendering
                 RenderHandler?.Viewports?.TryRemove(PlayerIndex, out _);
         }
 
-        public void FullRender(FrameBuffer targetFboOverride) => FullRender(AttachedCamera, AttachedHUD, targetFboOverride);
-        public void FullRender(ICamera camera, IUserInterfacePawn hud, FrameBuffer targetFboOverride)
+        public void RenderWithLayoutUpdate(FrameBuffer targetFboOverride) => RenderWithLayoutUpdate(AttachedCamera, AttachedHUD, targetFboOverride);
+        public void RenderWithLayoutUpdate(ICamera camera, IUserInterfacePawn hud, FrameBuffer targetFboOverride)
         {
             PreRenderUpdate(camera, hud);
             PreRenderSwap(camera, hud);
@@ -357,7 +357,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Returns the cursor position relative to the the viewport.
         /// </summary>
-        public static Vec2 CursorPosition(Viewport v)
+        public static Vec2 CursorPositionRelativeTo(Viewport v)
         {
             Point absolute = Cursor.Position;
 
@@ -374,7 +374,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Returns the cursor position relative to the the viewport.
         /// </summary>
-        public static Vec2 CursorPosition(Viewport v, out bool isOutOfBounds)
+        public static Vec2 CursorPositionRelativeTo(Viewport v, out bool isOutOfBounds)
         {
             Point absolute = Cursor.Position;
 
@@ -401,8 +401,8 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Returns the cursor position relative to the the viewport.
         /// </summary>
-        public Vec2 CursorPosition() 
-            => CursorPosition(this);
+        public Vec2 CursorPosition
+            => CursorPositionRelativeTo(this);
         
         #region Coordinate conversion
         public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth)
@@ -835,7 +835,7 @@ namespace TheraEngine.Rendering
             using MaterialFrameBuffer fbo = new MaterialFrameBuffer(mat);
             fbo.SetRenderTargets((_brdfTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
-            using Mesh data = Mesh.Create(VertexShaderDesc.PosTex(), tris);
+            using TMesh data = TMesh.Create(VertexShaderDesc.PosTex(), tris);
             using MeshRenderer quad = new MeshRenderer(data, mat);
             BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
 
@@ -1044,9 +1044,9 @@ namespace TheraEngine.Rendering
                 TMaterial spotLightMat = new TMaterial("SpotLightMat", additiveRenderParams, lightRefs, spotLightShader);
                 TMaterial dirLightMat = new TMaterial("DirLightMat", additiveRenderParams, lightRefs, dirLightShader);
 
-                Mesh pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
-                Mesh spotLightMesh = Cone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
-                Mesh dirLightMesh = BoundingBox.SolidMesh(-Vec3.Half, Vec3.Half);
+                TMesh pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
+                TMesh spotLightMesh = Cone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
+                TMesh dirLightMesh = BoundingBox.SolidMesh(-Vec3.Half, Vec3.Half);
 
                 PointLightManager = new MeshRenderer(pointLightMesh, pointLightMat);
                 PointLightManager.SettingUniforms += LightManager_SettingUniforms;

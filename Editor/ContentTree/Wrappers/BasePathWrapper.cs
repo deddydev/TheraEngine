@@ -62,46 +62,21 @@ namespace TheraEditor.Wrappers
                 DeleteMenuOption(wrapper),
             };
 
-        public static TMenuOption EditMenuOption(IBaseFileWrapper wrapper) => new TMenuOptionEdit(wrapper);
-        public static TMenuOption EditRawMenuOption(IBaseFileWrapper wrapper) => new TMenuOptionEditRaw(wrapper);
-        public static TMenuOption RenameMenuOption(IBasePathWrapper wrapper) => new TMenuOptionRename(wrapper);
-        public static TMenuOption ExplorerMenuOption(IBasePathWrapper wrapper) => new TMenuOptionExplorer(wrapper);
-        public static TMenuOption CutMenuOption(IBasePathWrapper wrapper) => new TMenuOptionCut(wrapper);
-        public static TMenuOption CopyMenuOption(IBasePathWrapper wrapper) => new TMenuOptionCopy(wrapper);
-        public static TMenuOption PasteMenuOption(IBasePathWrapper wrapper) => new TMenuOptionPaste(wrapper);
-        public static TMenuOption DeleteMenuOption(IBasePathWrapper wrapper) => new TMenuOptionDelete(wrapper);
-
-        private sealed class TMenuOptionRename : TMenuOption
-        {
-            internal TMenuOptionRename(IBasePathWrapper wrapper) : base("Rename", wrapper.Rename, Keys.F2) { }
-        }
-        public sealed class TMenuOptionExplorer : TMenuOption
-        {
-            internal TMenuOptionExplorer(IBasePathWrapper wrapper) : base("View In Explorer", wrapper.Explorer, Keys.Control | Keys.E) { }
-        }
-        public sealed class TMenuOptionEdit : TMenuOption
-        {
-            internal TMenuOptionEdit(IBaseFileWrapper wrapper) : base("Edit", wrapper.Edit, Keys.F4) { }
-        }
-        public sealed class TMenuOptionEditRaw : TMenuOption
-        {
-            internal TMenuOptionEditRaw(IBaseFileWrapper wrapper) : base("Edit Raw", wrapper.EditRaw, Keys.F3) { }
-        }
-        public sealed class TMenuOptionCut : TMenuOption
-        {
-            internal TMenuOptionCut(IBasePathWrapper wrapper) : base("Cut", wrapper.Cut, Keys.Control | Keys.X) { }
-        }
-        public sealed class TMenuOptionCopy : TMenuOption
-        {
-            internal TMenuOptionCopy(IBasePathWrapper wrapper) : base("Copy", wrapper.Copy, Keys.Control | Keys.C) { }
-        }
-        public sealed class TMenuOptionPaste : TMenuOption
-        {
-            internal TMenuOptionPaste(IBasePathWrapper wrapper) : base("Paste", wrapper.Paste, Keys.Control | Keys.V) { }
-        }
-        public sealed class TMenuOptionDelete : TMenuOption
-        {
-            internal TMenuOptionDelete(IBasePathWrapper wrapper) : base("Delete", wrapper.Delete, Keys.Delete) { }
-        }
+        public static TMenuOption EditMenuOption(IBaseFileWrapper wrapper)
+            => new TMenuOption("Edit", wrapper.Edit, Keys.F4);
+        public static TMenuOption EditRawMenuOption(IBaseFileWrapper wrapper)
+            => new TMenuOption("Edit Raw", wrapper.EditRaw, Keys.F3);
+        public static TMenuOption RenameMenuOption(IBasePathWrapper wrapper)
+            => new TMenuOption("Rename", wrapper.Rename, Keys.F2);
+        public static TMenuOption ExplorerMenuOption(IBasePathWrapper wrapper)
+            => new TMenuOption("View In Explorer", wrapper.Explorer, Keys.Control | Keys.E);
+        public static TMenuOption CutMenuOption(IBasePathWrapper wrapper)
+            => new TMenuOption("Cut", wrapper.Cut, Keys.Control | Keys.X);
+        public static TMenuOption CopyMenuOption(IBasePathWrapper wrapper)
+            => new TMenuOption("Copy", wrapper.Copy, Keys.Control | Keys.C);
+        public static TMenuOption PasteMenuOption(IBasePathWrapper wrapper)
+            => new TMenuOption("Paste", wrapper.Paste, Keys.Control | Keys.V);
+        public static TMenuOption DeleteMenuOption(IBasePathWrapper wrapper)
+            => new TMenuOption("Delete", wrapper.Delete, Keys.Delete);
     }
 }

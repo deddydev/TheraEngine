@@ -303,11 +303,11 @@ namespace TheraEngine.Actors.Types.Pawns
         public Vec2 CursorPositionWorld()
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
-            return v?.ScreenToWorld(Viewport.CursorPosition(v)).Xy ?? Vec2.Zero;
+            return v?.ScreenToWorld(Viewport.CursorPositionRelativeTo(v)).Xy ?? Vec2.Zero;
         }
 
         public Vec2 CursorPositionWorld(Viewport v)
-            => v.ScreenToWorld(Viewport.CursorPosition(v)).Xy;
+            => v.ScreenToWorld(Viewport.CursorPositionRelativeTo(v)).Xy;
         public Vec2 CursorPositionWorld(Viewport v, Vec2 viewportPosition)
             => v.ScreenToWorld(viewportPosition).Xy;
 

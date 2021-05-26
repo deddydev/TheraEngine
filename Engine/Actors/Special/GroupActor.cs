@@ -19,7 +19,7 @@ namespace TheraEngine.Actors.Types
             if (IsSpawned)
             {
                 OwningWorld.DespawnActor(actor);
-                ChildComponents.Remove(actor.RootComponentGeneric);
+                ChildSockets.Remove(actor.RootComponentGeneric);
             }
         }
         private void Actors_PostAnythingAdded(FileRef<BaseActor> item)
@@ -31,7 +31,7 @@ namespace TheraEngine.Actors.Types
             if (IsSpawned)
             {
                 OwningWorld.SpawnActor(actor);
-                ChildComponents.Add(actor.RootComponentGeneric);
+                ChildSockets.Add(actor.RootComponentGeneric);
             }
         }
         protected override void OnSpawned()
@@ -41,7 +41,7 @@ namespace TheraEngine.Actors.Types
             foreach (var actor in Actors)
             {
                 OwningWorld.SpawnActor(actor.File);
-                ChildComponents.Add(actor.File.RootComponentGeneric);
+                ChildSockets.Add(actor.File.RootComponentGeneric);
             }
 
             Actors.PostAnythingAdded += Actors_PostAnythingAdded;
@@ -55,7 +55,7 @@ namespace TheraEngine.Actors.Types
             foreach (var actor in Actors)
             {
                 OwningWorld.DespawnActor(actor.File);
-                ChildComponents.Remove(actor.File.RootComponentGeneric);
+                ChildSockets.Remove(actor.File.RootComponentGeneric);
             }
 
             base.OnDespawned();

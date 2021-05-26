@@ -168,7 +168,7 @@ namespace TheraEngine.Animation
         public unsafe ITransform GetTransform(ITransform bindState)
         {
             GetTransform(bindState, out Vec3 t, out Quat r, out Vec3 s);
-            return new Transform(t, r, s, TransformOrder);
+            return new TTransform(t, r, s, TransformOrder);
         }
         /// <summary>
         /// Retrieves the transform at the requested frame second.
@@ -177,7 +177,7 @@ namespace TheraEngine.Animation
         public unsafe ITransform GetTransform(ITransform bindState, float second)
         {
             GetTransform(bindState, out Vec3 t, out Quat r, out Vec3 s, second);
-            return new Transform(t, r, s, TransformOrder);
+            return new TTransform(t, r, s, TransformOrder);
         }
         /// <summary>
         /// Retrieves the transform at the current frame second.
@@ -185,15 +185,15 @@ namespace TheraEngine.Animation
         public unsafe ITransform GetTransform()
         {
             GetTransform(out Vec3 t, out Quat r, out Vec3 s);
-            return new Transform(t, r, s, TransformOrder);
+            return new TTransform(t, r, s, TransformOrder);
         }
         /// <summary>
         /// Retrieves the transform at the requested frame second.
         /// </summary>
-        public unsafe Transform GetTransform(float second)
+        public unsafe TTransform GetTransform(float second)
         {
             GetTransform(out Vec3 t, out Quat r, out Vec3 s, second);
-            return new Transform(t, r, s, TransformOrder);
+            return new TTransform(t, r, s, TransformOrder);
         }
         /// <summary>
         /// Retrieves the transform at the current frame second.

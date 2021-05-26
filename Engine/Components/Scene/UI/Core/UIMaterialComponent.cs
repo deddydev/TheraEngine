@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.UI
             : this(TMaterial.CreateUnlitColorMaterialForward(Color.Magenta)) { }
         public UIMaterialComponent(TMaterial material, bool flipVerticalUVCoord = false)
         {
-            VertexQuad quad = VertexQuad.PosZQuad(1.0f, 1.0f, 0.0f, true, flipVerticalUVCoord);
+            TVertexQuad quad = TVertexQuad.PosZ(1.0f, 1.0f, 0.0f, true, flipVerticalUVCoord);
             TMesh quadData = TMesh.Create(VertexShaderDesc.PosTex(), quad);
             RenderCommand.Mesh = new MeshRenderer(quadData, material);
             RenderCommand.ZIndex = 0;

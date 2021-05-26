@@ -1,9 +1,9 @@
 ﻿namespace TheraEngine.Rendering.Models
 {
-    public class VertexLine : VertexPrimitive
+    public class TVertexLine : TVertexPrimitive
     {
-        public Vertex Vertex0 => _vertices[0];
-        public Vertex Vertex1 => _vertices[1];
+        public TVertex Vertex0 => _vertices[0];
+        public TVertex Vertex1 => _vertices[1];
 
         public override FaceType Type => FaceType.Triangles;
 
@@ -15,13 +15,13 @@
         ///  /   \
         /// 0-----1
         /// </summary>
-        public VertexLine(Vertex v0, Vertex v1) : base(v0, v1)
+        public TVertexLine(TVertex v0, TVertex v1) : base(v0, v1)
         {
             //Vertex0.AddLine(this);
             //Vertex1.AddLine(this);
         }
 
-        internal void AddFace(VertexTriangle face)
+        internal void AddFace(TVertexTriangle face)
         {
             //_triangles.Add(face);
         }

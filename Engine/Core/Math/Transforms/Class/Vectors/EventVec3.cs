@@ -79,7 +79,7 @@ namespace TheraEngine.Core.Maths.Transforms
         /// <summary>
         /// Sets the internal <see cref="Vec3"/> value and does not fire any events.
         /// </summary>
-        public void SetRawSilent(Vec3 raw)
+        public void SetValueSilent(Vec3 raw)
             => _value = raw;
 
         [Browsable(false)]

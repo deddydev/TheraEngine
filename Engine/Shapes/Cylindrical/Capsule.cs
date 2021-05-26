@@ -153,8 +153,8 @@ namespace TheraEngine.Core.Shapes
             }
 
             int pts = pointCountHalfCircle + 1;
-            Vertex[] topPoints1 = new Vertex[pts], topPoints2 = new Vertex[pts];
-            Vertex[] botPoints1 = new Vertex[pts], botPoints2 = new Vertex[pts];
+            TVertex[] topPoints1 = new TVertex[pts], topPoints2 = new TVertex[pts];
+            TVertex[] botPoints1 = new TVertex[pts], botPoints2 = new TVertex[pts];
 
             float angleInc = TMath.PIf / pointCountHalfCircle;
             float angle = 0.0f;
@@ -162,10 +162,10 @@ namespace TheraEngine.Core.Shapes
             {
                 Vec3 v1 = new Vec3((float)Cos(angle), (float)Sin(angle), 0.0f);
                 Vec3 v2 = new Vec3(0.0f, (float)Sin(angle), (float)Cos(angle));
-                topPoints1[i] = new Vertex(topPoint + radius * v1);
-                topPoints2[i] = new Vertex(topPoint + radius * v2);
-                botPoints1[i] = new Vertex(bottomPoint - radius * v1);
-                botPoints2[i] = new Vertex(bottomPoint - radius * v2);
+                topPoints1[i] = new TVertex(topPoint + radius * v1);
+                topPoints2[i] = new TVertex(topPoint + radius * v2);
+                botPoints1[i] = new TVertex(bottomPoint - radius * v1);
+                botPoints2[i] = new TVertex(bottomPoint - radius * v2);
             }
 
             VertexLineStrip topCircleUp = Circle3D.LineStrip(radius, upAxis, topPoint, pointCountHalfCircle * 2);
@@ -177,17 +177,17 @@ namespace TheraEngine.Core.Shapes
             VertexLineStrip bottomHalfCircleRight = new VertexLineStrip(false, botPoints2);
 
             VertexLineStrip right = new VertexLineStrip(false, 
-                new Vertex(bottomPoint + rightNormal * radius),
-                new Vertex(topPoint + rightNormal * radius));
+                new TVertex(bottomPoint + rightNormal * radius),
+                new TVertex(topPoint + rightNormal * radius));
             VertexLineStrip left = new VertexLineStrip(false,
-                new Vertex(bottomPoint - rightNormal * radius),
-                new Vertex(topPoint - rightNormal * radius));
+                new TVertex(bottomPoint - rightNormal * radius),
+                new TVertex(topPoint - rightNormal * radius));
             VertexLineStrip front = new VertexLineStrip(false,
-                new Vertex(bottomPoint + forwardNormal * radius),
-                new Vertex(topPoint + forwardNormal * radius));
+                new TVertex(bottomPoint + forwardNormal * radius),
+                new TVertex(topPoint + forwardNormal * radius));
             VertexLineStrip back = new VertexLineStrip(false,
-                new Vertex(bottomPoint - forwardNormal * radius),
-                new Vertex(topPoint - forwardNormal * radius));
+                new TVertex(bottomPoint - forwardNormal * radius),
+                new TVertex(topPoint - forwardNormal * radius));
 
             return TMesh.Create(VertexShaderDesc.JustPositions(),
                 topCircleUp, topHalfCircleToward, topHalfCircleRight,
@@ -232,8 +232,8 @@ namespace TheraEngine.Core.Shapes
 
             int pts = pointCountHalfCircle + 1;
 
-            Vertex[] topPoints1 = new Vertex[pts], topPoints2 = new Vertex[pts];
-            Vertex[] botPoints1 = new Vertex[pts], botPoints2 = new Vertex[pts];
+            TVertex[] topPoints1 = new TVertex[pts], topPoints2 = new TVertex[pts];
+            TVertex[] botPoints1 = new TVertex[pts], botPoints2 = new TVertex[pts];
 
             Quat offset = Quat.BetweenVectors(Vec3.Up, upAxis);
 
@@ -243,10 +243,10 @@ namespace TheraEngine.Core.Shapes
             {
                 Vec3 v1 = new Vec3((float)Cos(angle), (float)Sin(angle), 0.0f);
                 Vec3 v2 = new Vec3(0.0f, (float)Sin(angle), (float)Cos(angle));
-                topPoints1[i] = new Vertex(offset * (radius * v1));
-                topPoints2[i] = new Vertex(offset * (radius * v2));
-                botPoints1[i] = new Vertex(-(offset * (radius * v1)));
-                botPoints2[i] = new Vertex(-(offset * (radius * v2)));
+                topPoints1[i] = new TVertex(offset * (radius * v1));
+                topPoints2[i] = new TVertex(offset * (radius * v2));
+                botPoints1[i] = new TVertex(-(offset * (radius * v1)));
+                botPoints2[i] = new TVertex(-(offset * (radius * v2)));
             }
 
             VertexLineStrip topCircleUp = Circle3D.LineStrip(radius, upAxis, topPoint, pointCountHalfCircle * 2);
@@ -258,17 +258,17 @@ namespace TheraEngine.Core.Shapes
             VertexLineStrip bottomHalfCircleRight = new VertexLineStrip(false, botPoints2);
 
             VertexLineStrip right = new VertexLineStrip(false,
-                new Vertex(bottomPoint + rightNormal * radius),
-                new Vertex(topPoint + rightNormal * radius));
+                new TVertex(bottomPoint + rightNormal * radius),
+                new TVertex(topPoint + rightNormal * radius));
             VertexLineStrip left = new VertexLineStrip(false,
-                new Vertex(bottomPoint - rightNormal * radius),
-                new Vertex(topPoint - rightNormal * radius));
+                new TVertex(bottomPoint - rightNormal * radius),
+                new TVertex(topPoint - rightNormal * radius));
             VertexLineStrip front = new VertexLineStrip(false,
-                new Vertex(bottomPoint + forwardNormal * radius),
-                new Vertex(topPoint + forwardNormal * radius));
+                new TVertex(bottomPoint + forwardNormal * radius),
+                new TVertex(topPoint + forwardNormal * radius));
             VertexLineStrip back = new VertexLineStrip(false,
-                new Vertex(bottomPoint - forwardNormal * radius),
-                new Vertex(topPoint - forwardNormal * radius));
+                new TVertex(bottomPoint - forwardNormal * radius),
+                new TVertex(topPoint - forwardNormal * radius));
 
             cylinder = TMesh.Create(VertexShaderDesc.JustPositions(),
                 topCircleUp, bottomCircleDown, right, left, front, back);

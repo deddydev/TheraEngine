@@ -24,7 +24,7 @@ namespace TheraEngine.Rendering.Models
             Matrix4 bindShapeMatrix = skin.BindShapeMatrixElement?.StringContent?.Value ?? Matrix4.Identity;
             InfluenceDef[] infList = CreateInfluences(skin, scene);
             DecodePrimitives(geo, bindMatrix * bindShapeMatrix, infList,
-                out VertexShaderDesc info, out List<VertexPrimitive> lines, out List<VertexPolygon> faces);
+                out VertexShaderDesc info, out List<TVertexPrimitive> lines, out List<TVertexPolygon> faces);
             return CreateData(info, lines, faces);
         }
 
@@ -130,7 +130,7 @@ namespace TheraEngine.Rendering.Models
             }
 
             DecodePrimitives(baseMesh, bindMatrix, null,
-                out VertexShaderDesc baseInfo, out List<VertexPrimitive> baseLines, out List<VertexPolygon> baseFaces);
+                out VertexShaderDesc baseInfo, out List<TVertexPrimitive> baseLines, out List<TVertexPolygon> baseFaces);
             
             var targets = morph.TargetsElement;
             InputUnshared morphTargets = null, morphWeights = null;
@@ -165,14 +165,14 @@ namespace TheraEngine.Rendering.Models
             }
 
             Geometry geom;
-            List<VertexPrimitive>[] morphLines = new List<VertexPrimitive>[count];
-            List<VertexPolygon>[] morphFaces = new List<VertexPolygon>[count];
+            List<TVertexPrimitive>[] morphLines = new List<TVertexPrimitive>[count];
+            List<TVertexPolygon>[] morphFaces = new List<TVertexPolygon>[count];
 
             for (int i = 0; i < count; ++i)
             {
                 geom = targets.Root.GetIDEntry<Geometry>(geomIds[i]);
                 DecodePrimitives(geom, bindMatrix, null, 
-                    out VertexShaderDesc info, out List<VertexPrimitive> lines, out List<VertexPolygon> faces);
+                    out VertexShaderDesc info, out List<TVertexPrimitive> lines, out List<TVertexPolygon> faces);
                 morphLines[i] = lines;
                 morphFaces[i] = faces;
             }
@@ -192,7 +192,7 @@ namespace TheraEngine.Rendering.Models
 
         public static TMesh DecodePrimitivesUnweighted(Matrix4 bindMatrix, Geometry geo)
         {
-            DecodePrimitives(geo, bindMatrix, null, out VertexShaderDesc info, out List<VertexPrimitive> lines, out List<VertexPolygon> faces);
+            DecodePrimitives(geo, bindMatrix, null, out VertexShaderDesc info, out List<TVertexPrimitive> lines, out List<TVertexPolygon> faces);
             return CreateData(info, lines, faces);
         }
         public static void DecodePrimitives(
@@ -200,12 +200,12 @@ namespace TheraEngine.Rendering.Models
             Matrix4 bindMatrix, 
             InfluenceDef[] infList,
             out VertexShaderDesc info,
-            out List<VertexPrimitive> lines,
-            out List<VertexPolygon> faces)
+            out List<TVertexPrimitive> lines,
+            out List<TVertexPolygon> faces)
         {
             info = VertexShaderDesc.JustPositions();
-            lines = new List<VertexPrimitive>();
-            faces = new List<VertexPolygon>();
+            lines = new List<TVertexPrimitive>();
+            faces = new List<TVertexPolygon>();
 
             Source src;
             int boneCount = 0;
@@ -289,7 +289,7 @@ namespace TheraEngine.Rendering.Models
                     info.ColorCount,
                     info.TexcoordCount);
                 
-                Vertex[][] vertices = new Vertex[prim.PointCount][];
+                TVertex[][] vertices = new TVertex[prim.PointCount][];
                 int[] indices = prim?.IndicesElement?.StringContent?.Values;
                 if (indices is null)
                 {
@@ -329,9 +329,9 @@ namespace TheraEngine.Rendering.Models
                 {
                     case EColladaPrimitiveType.Lines:
 
-                        VertexLine[] linesTemp = new VertexLine[vertices.Length / 2];
+                        TVertexLine[] linesTemp = new TVertexLine[vertices.Length / 2];
                         for (int i = 0, x = 0; i < vertices.Length; i += 2, ++x)
-                            linesTemp[x] = new VertexLine(vertices[i][setIndex], vertices[i + 1][setIndex]);
+                            linesTemp[x] = new TVertexLine(vertices[i][setIndex], vertices[i + 1][setIndex]);
                         lines.AddRange(linesTemp);
 
                         break;
@@ -342,10 +342,10 @@ namespace TheraEngine.Rendering.Models
 
                     case EColladaPrimitiveType.Triangles:
 
-                        VertexTriangle[] tris = new VertexTriangle[vertices.Length / 3];
+                        TVertexTriangle[] tris = new TVertexTriangle[vertices.Length / 3];
 
                         for (int i = 0, x = 0; i < vertices.Length; i += 3, ++x)
-                            tris[x] = new VertexTriangle(
+                            tris[x] = new TVertexTriangle(
                                 vertices[i][setIndex],
                                 vertices[i + 1][setIndex],
                                 vertices[i + 2][setIndex]);
@@ -366,15 +366,15 @@ namespace TheraEngine.Rendering.Models
                         PolyCounts countsElem = polyListPrim.PolyCountsElement;
                         int[] counts = countsElem.StringContent.Values;
 
-                        VertexPolygon[] polys = new VertexPolygon[counts.Length];
+                        TVertexPolygon[] polys = new TVertexPolygon[counts.Length];
 
                         for (int vtxIndex = 0, polyIndex = 0; polyIndex < counts.Length; ++polyIndex)
                         {
                             int count = counts[polyIndex];
-                            Vertex[] verts = new Vertex[count];
+                            TVertex[] verts = new TVertex[count];
                             for (int polyVtxIndex = 0; polyVtxIndex < count; ++polyVtxIndex, ++vtxIndex)
                                 verts[polyVtxIndex] = vertices[vtxIndex][setIndex];
-                            polys[polyIndex] = new VertexPolygon(verts);
+                            polys[polyIndex] = new TVertexPolygon(verts);
                         }
 
                         faces.AddRange(polys);
@@ -396,7 +396,7 @@ namespace TheraEngine.Rendering.Models
             int maxSets,
             BasePrimitive prim,
             int[] indices,
-            Vertex[][] vertices,
+            TVertex[][] vertices,
             InfluenceDef[] infList,
             Matrix4 bindMatrix,
             Matrix4 invTranspBindMatrix)
@@ -409,13 +409,13 @@ namespace TheraEngine.Rendering.Models
             for (int i = 0, x = 0; i < prim.PointCount; ++i, x += prim.InputElements.Length)
             {
                 if (vertices[i] is null)
-                    vertices[i] = new Vertex[maxSets];
+                    vertices[i] = new TVertex[maxSets];
 
                 startIndex = (pointIndex = indices[x + offset]) * stride;
 
-                Vertex vtx = vertices[i][set];
+                TVertex vtx = vertices[i][set];
                 if (vtx is null)
-                    vtx = new Vertex();
+                    vtx = new TVertex();
 
                 switch (semantic)
                 {
@@ -475,7 +475,7 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
-        public static TMesh CreateData(VertexShaderDesc info, List<VertexPrimitive> lines, List<VertexPolygon> faces)
+        public static TMesh CreateData(VertexShaderDesc info, List<TVertexPrimitive> lines, List<TVertexPolygon> faces)
         {
             if (faces.Count > 0)
             {
@@ -487,7 +487,7 @@ namespace TheraEngine.Rendering.Models
             else if (lines != null && lines.Count > 0)
             {
                 return TMesh.Create(info, lines.SelectMany(
-                    x => x is VertexLineStrip strip ? strip.ToLines() : new VertexLine[] { (VertexLine)x }));
+                    x => x is VertexLineStrip strip ? strip.ToLines() : new TVertexLine[] { (TVertexLine)x }));
             }
 
             Engine.LogWarning("Mesh has no primitives.");
@@ -496,10 +496,10 @@ namespace TheraEngine.Rendering.Models
         }
         public static TMesh CreateData(
             VertexShaderDesc info,
-            List<VertexPrimitive> baseLines,
-            List<VertexPolygon> baseFaces,
-            List<VertexPrimitive>[] morphLines,
-            List<VertexPolygon>[] morphFaces)
+            List<TVertexPrimitive> baseLines,
+            List<TVertexPolygon> baseFaces,
+            List<TVertexPrimitive>[] morphLines,
+            List<TVertexPolygon>[] morphFaces)
         {
             if (baseFaces.Count > 0)
             {
@@ -511,7 +511,7 @@ namespace TheraEngine.Rendering.Models
             else if (baseLines != null && baseLines.Count > 0)
             {
                 return TMesh.Create(info, baseLines.SelectMany(
-                    x => x is VertexLineStrip strip ? strip.ToLines() : new VertexLine[] { (VertexLine)x }));
+                    x => x is VertexLineStrip strip ? strip.ToLines() : new TVertexLine[] { (TVertexLine)x }));
             }
 
             Engine.LogWarning("Mesh has no primitives.");

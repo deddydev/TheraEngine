@@ -74,8 +74,8 @@ namespace TheraEngine.Core.Shapes
                 throw new Exception("A (very low res) circle needs at least 3 sides.");
 
             normal.Normalize();
-            List<Vertex> points = new List<Vertex>(Points(radius, normal, center, sides));
-            points.Insert(0, new Vertex(center, normal, Vec2.Half));
+            List<TVertex> points = new List<TVertex>(Points(radius, normal, center, sides));
+            points.Insert(0, new TVertex(center, normal, Vec2.Half));
             VertexTriangleFan fan = new VertexTriangleFan(points.ToArray());
             return TMesh.Create(VertexShaderDesc.PosNormTex(), fan);
         }
@@ -85,24 +85,24 @@ namespace TheraEngine.Core.Shapes
         }
         public static VertexLineStrip LineStrip(float radius, Vec3 normal, Vec3 center, int sides)
         {
-            Vertex[] points = Points(radius, normal, center, sides);
+            TVertex[] points = Points(radius, normal, center, sides);
             return new VertexLineStrip(true, points);
         }
-        public static Vertex[] Points(float radius, Vec3 normal, Vec3 center, int sides)
+        public static TVertex[] Points(float radius, Vec3 normal, Vec3 center, int sides)
         {
             if (sides < 3)
                 throw new Exception("A (very low res) circle needs at least 3 sides.");
 
             normal.Normalize();
             Quat offset = Quat.BetweenVectors(Vec3.Up, normal);
-            Vertex[] points = new Vertex[sides];
+            TVertex[] points = new TVertex[sides];
             float angleInc = TMath.PIf * 2.0f / sides;
             float angle = 0.0f;
             for (int i = 0; i < sides; ++i, angle += angleInc)
             {
                 Vec2 coord = new Vec2((float)Math.Cos(angle), (float)Math.Sin(angle));
                 Vec3 v = new Vec3(coord.X, 0.0f, coord.Y);
-                points[i] = new Vertex(center + offset * (radius * v), normal, coord * 0.5f + 0.5f);
+                points[i] = new TVertex(center + offset * (radius * v), normal, coord * 0.5f + 0.5f);
             }
             return points;
         }

@@ -10,16 +10,16 @@ namespace TheraEngine.Rendering.Models
 {
     public partial class TMesh : TFileObject, IDisposable, IEnumerable<DataBuffer>
     {
-        public VertexTriangle GetFace(int index)
+        public TVertexTriangle GetFace(int index)
         {
             IndexTriangle t = _triangles[index];
             FacePoint fp0 = _facePoints[t.Point0];
             FacePoint fp1 = _facePoints[t.Point1];
             FacePoint fp2 = _facePoints[t.Point2];
-            Vertex v0 = new Vertex(fp0, _buffers);
-            Vertex v1 = new Vertex(fp1, _buffers);
-            Vertex v2 = new Vertex(fp2, _buffers);
-            return new VertexTriangle(v0, v1, v2);
+            TVertex v0 = new TVertex(fp0, _buffers);
+            TVertex v1 = new TVertex(fp1, _buffers);
+            TVertex v2 = new TVertex(fp2, _buffers);
+            return new TVertexTriangle(v0, v1, v2);
         }
         public void GenerateBinormalTangentBuffers(int positionIndex, int normalIndex, int uvIndex, bool addBinormals, bool addTangents)
         {
@@ -426,7 +426,7 @@ namespace TheraEngine.Rendering.Models
                 throw new InvalidOperationException($"{_type} mesh has no face indices.");
             return indices;
         }
-        private Remapper SetTriangleIndices(List<Vertex> vertices, bool remap = true)
+        private Remapper SetTriangleIndices(List<TVertex> vertices, bool remap = true)
         {
             if (vertices.Count % 3 != 0)
                 throw new Exception("Vertex list needs to be a multiple of 3.");
@@ -452,7 +452,7 @@ namespace TheraEngine.Rendering.Models
                 return null;
             }
         }
-        private Remapper SetLineIndices(List<Vertex> vertices, bool remap = true)
+        private Remapper SetLineIndices(List<TVertex> vertices, bool remap = true)
         {
             if (vertices.Count % 2 != 0)
                 throw new Exception("Vertex list needs to be a multiple of 2.");
@@ -477,7 +477,7 @@ namespace TheraEngine.Rendering.Models
                 return null;
             }
         }
-        private Remapper SetPointIndices(List<Vertex> vertices, bool remap = true)
+        private Remapper SetPointIndices(List<TVertex> vertices, bool remap = true)
         {
             _points = new List<IndexPoint>();
             if (remap)

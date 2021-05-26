@@ -825,7 +825,7 @@ namespace TheraEngine.Rendering
             TMaterial mat = new TMaterial("BRDFMat", renderParams, texRefs, shader);
 
             //ndc space quad, so we don't have to load any camera matrices
-            VertexTriangle[] tris = VertexQuad.MakeQuad(
+            TVertexTriangle[] tris = TVertexQuad.Make(
                     new Vec3(-1.0f, -1.0f, -0.5f),
                     new Vec3(1.0f, -1.0f, -0.5f),
                     new Vec3(1.0f, 1.0f, -0.5f),
@@ -1168,10 +1168,10 @@ namespace TheraEngine.Rendering
             RenderingCamera.SetUniforms(program);
 
             var probeActor = RenderingCamera.OwningComponent?.OwningScene3D?.IBLProbeActor;
-            if (probeActor is null || probeActor.RootComponent.ChildComponents.Count == 0)
+            if (probeActor is null || probeActor.RootComponent.ChildSockets.Count == 0)
                 return;
 
-            IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];
+            IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildSockets[0];
             int baseCount = LightCombineFBO.Material.Textures.Count;
 
             if (probe.IrradianceTex != null)

@@ -2,10 +2,10 @@
 
 namespace TheraEngine.Rendering.Models
 {
-    public class VertexTriangleFan : VertexPolygon
+    public class VertexTriangleFan : TVertexPolygon
     {
-        public VertexTriangleFan(params Vertex[] vertices) : base(vertices) { }
-        public VertexTriangleFan(IEnumerable<Vertex> vertices) : base(vertices) { }
+        public VertexTriangleFan(params TVertex[] vertices) : base(vertices) { }
+        public VertexTriangleFan(IEnumerable<TVertex> vertices) : base(vertices) { }
         public override FaceType Type => FaceType.TriangleFan;
         //public override VertexTriangle[] ToTriangles()
         //{

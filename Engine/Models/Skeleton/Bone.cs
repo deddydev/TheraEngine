@@ -92,9 +92,9 @@ namespace TheraEngine.Rendering.Models
         public Bone(string name, ITransform bindState)
             => Init(name, bindState, null);
         public Bone(string name)
-            => Init(name, new Transform(), null);
+            => Init(name, new TTransform(), null);
         public Bone()
-            => Init("NewBone", new Transform(), null);
+            => Init("NewBone", new TTransform(), null);
         private void Init(string name, ITransform bindState, TRigidBodyConstructionInfo info)
         {
             FrameState = bindState.HardCopy();
@@ -174,7 +174,7 @@ namespace TheraEngine.Rendering.Models
         public TConstraint _parentConstraint;
         public TRigidBody _rigidBodyCollision;
         [TSerialize(nameof(RigidBodyLocalTransform))]
-        public ITransform _rigidBodyLocalTransform = Transform.GetIdentity();
+        public ITransform _rigidBodyLocalTransform = TTransform.GetIdentity();
 
         [Category("Bone")]
         public ITransform RigidBodyLocalTransform
@@ -557,9 +557,9 @@ namespace TheraEngine.Rendering.Models
         #region Child Component List Events
         private void ChildComponentsAdded(ISceneComponent item)
         {
-            item.SetParentInternal(this);
-            ((Components.IComponent)item).OwningActor = OwningComponent.OwningActor;
-            item.RecalcWorldTransform();
+            item.ParentSocket = this;
+            //((Components.IComponent)item).OwningActor = OwningComponent.OwningActor;
+            //item.RecalcWorldTransform();
         }
         private void ChildComponentsAddedRange(IEnumerable<ISceneComponent> items)
         {
@@ -573,8 +573,8 @@ namespace TheraEngine.Rendering.Models
         private void ChildComponentsRemoved(ISceneComponent item)
         {
             item.ParentSocket = null;
-            ((Components.IComponent)item).OwningActor = null;
-            item.RecalcWorldTransform();
+            //((Components.IComponent)item).OwningActor = null;
+            //item.RecalcWorldTransform();
         }
         private void ChildComponentsRemovedRange(IEnumerable<ISceneComponent> items)
         {

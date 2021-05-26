@@ -196,12 +196,13 @@ namespace TheraEngine.Rendering.Models
             Bone rootBone = null;
 
             Matrix4 nodeMatrix = node.GetTransformMatrix();
-            bindMatrix = bindMatrix * nodeMatrix;
+            bindMatrix *= nodeMatrix;
 
             Matrix4 inv = invParent;
             if (node.Type == Node.EType.JOINT)
             {
-                Bone bone = new Bone(node.Name ?? node.ID, Transform.DeriveTRS(invParent * bindMatrix));
+                Matrix4 matrix = invParent * bindMatrix;
+                Bone bone = new Bone(node.Name ?? node.ID, matrix.DeriveTRS());
                 node.UserData = bone;
                 if (parent is null)
                     rootBone = bone;
@@ -839,7 +840,7 @@ namespace TheraEngine.Rendering.Models
                                         outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
                                         outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
 
-                                Transform transform = Transform.DeriveTRS(matrix);
+                                TTransform transform = matrix.DeriveTRS();
 
                                 BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
 
@@ -848,7 +849,7 @@ namespace TheraEngine.Rendering.Models
                                 bone.TranslationZ.Keyframes.Add(new FloatKeyframe(second, transform.Translation.Z, inTan, outTan, pType));
 
                                 //TODO: proper tangent
-                                bone.Rotation.Keyframes.Add(new QuatKeyframe(second, transform.Rotation.Raw, transform.Rotation.Raw, ERadialInterpType.CubicBezier));
+                                bone.Rotation.Keyframes.Add(new QuatKeyframe(second, transform.Rotation.Value, transform.Rotation.Value, ERadialInterpType.CubicBezier));
 
                                 bone.ScaleX.Keyframes.Add(new FloatKeyframe(second, transform.Scale.X, inTan, outTan, pType));
                                 bone.ScaleY.Keyframes.Add(new FloatKeyframe(second, transform.Scale.Y, inTan, outTan, pType));

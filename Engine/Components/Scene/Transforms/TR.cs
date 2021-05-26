@@ -110,8 +110,8 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected override void DeriveMatrix()
         {
-            Transform.DeriveTR(LocalMatrix, out Vec3 t, out Quat r);
-            _translation.SetRawSilent(t);
+            LocalMatrix.DeriveTR(out Vec3 t, out Quat r);
+            _translation.SetValueSilent(t);
             _rotation.SetRotationsNoUpdate(r.ToRotator());
         }
 
@@ -146,7 +146,7 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             _localMatrix = LocalMatrix * translation.AsTranslationMatrix();
             _inverseLocalMatrix = (-translation).AsTranslationMatrix() * InverseLocalMatrix;
-            _translation.SetRawSilent(LocalMatrix.Translation);
+            _translation.SetValueSilent(LocalMatrix.Translation);
             RecalcWorldTransform();
         }
         public void Pivot(float pitch, float yaw, float distance)

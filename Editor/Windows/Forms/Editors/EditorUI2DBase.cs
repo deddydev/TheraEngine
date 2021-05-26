@@ -93,10 +93,10 @@ namespace TheraEditor.Windows.Forms
             _backgroundComponent.Translation.Xy = 0.0f;
             _backgroundComponent.HorizontalAlignment = EHorizontalAlign.Stretch;
             _backgroundComponent.VerticalAlignment = EVerticalAlign.Stretch;
-            _backgroundComponent.ChildComponents.Add(OriginTransformComponent);
+            _backgroundComponent.ChildSockets.Add(OriginTransformComponent);
 
             UICanvasComponent baseUI = new UICanvasComponent() { RenderTransformation = false };
-            baseUI.ChildComponents.Add(_backgroundComponent);
+            baseUI.ChildSockets.Add(_backgroundComponent);
 
             OriginTransformComponent.WorldTransformChanged += OriginTransformComponent_WorldTransformChanged;
 
@@ -159,7 +159,7 @@ namespace TheraEditor.Windows.Forms
 
             comp.TextDrawer.Text.Add(str);
 
-            OriginTransformComponent.ChildComponents.Add(comp);
+            OriginTransformComponent.ChildSockets.Add(comp);
 
             comp.Scale.Value = 1.0f / OriginTransformComponent.Scale * TextScale;
             
@@ -606,7 +606,7 @@ namespace TheraEditor.Windows.Forms
                 if (_contextMenu != null)
                 {
                     _contextMenu.Visibility = EVisibility.Collapsed;
-                    RootComponent.ChildComponents.Remove(_contextMenu);
+                    RootComponent.ChildSockets.Remove(_contextMenu);
                 }
 
                 _contextMenu = value;
@@ -614,7 +614,7 @@ namespace TheraEditor.Windows.Forms
                 if (_contextMenu != null)
                 {
                     _contextMenu.Visibility = EVisibility.Collapsed;
-                    RootComponent.ChildComponents.Add(_contextMenu);
+                    RootComponent.ChildSockets.Add(_contextMenu);
                 }
             }
         }

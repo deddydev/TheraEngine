@@ -25,19 +25,20 @@ namespace TheraEngine.Components.Scene.Mesh
         int ParentSocketChildIndex { get; }
         ISocket ParentSocket { get; set; }
         IEventList<ISocket> ChildSockets { get; }
-
-        Matrix4 LocalMatrix { get => Transform.Matrix; set => Transform.Matrix = value; }
-        Matrix4 InverseLocalMatrix { get; set; }
-
+        
         Matrix4 WorldMatrix { get; set; }
         Matrix4 InverseWorldMatrix { get; set; }
 
         ITransform Transform { get; set; }
         IActor OwningActor { get; set; }
+        bool AllowRemoval { get; set; }
     }
     public class Socket : Socket<ISocket> { }
     public class Socket<TParent> : TFileObject, ISocket where TParent : ISocket
     {
+        public ITransform Transform { get; set; }
+        public bool AllowRemoval { get; set; }
+
         int ISocket.ParentSocketChildIndex => throw new NotImplementedException();
 
         ISocket ISocket.ParentSocket { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -79,7 +80,7 @@ namespace TheraEngine.Components.Scene.Mesh
             ChildComponents.PostRemovedRange += Children_RemovedRange;
         }
 
-        private ITransform _transform = Core.Maths.Transforms.Transform.GetIdentity();
+        private ITransform _transform = Core.Maths.Transforms.TTransform.GetIdentity();
 
         public Matrix4 WorldMatrix { get=> _transform.Matrix; set => _transform.Matrix = value; }
         public Matrix4 InverseWorldMatrix { get => _transform.InverseMatrix; set => _transform.InverseMatrix = value; }

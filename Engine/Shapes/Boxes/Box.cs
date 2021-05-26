@@ -35,15 +35,15 @@ namespace TheraEngine.Core.Shapes
             }
         }
         
-        private Transform _transform;
-        public Transform Transform
+        private TTransform _transform;
+        public TTransform Transform
         {
             get => _transform;
             set
             {
                 //if (_transform != null)
                 //    _transform.MatrixChanged -= _transform_MatrixChanged;
-                _transform = value ?? Transform.GetIdentity();
+                _transform = value ?? TTransform.GetIdentity();
                 //_transform.MatrixChanged += _transform_MatrixChanged;
             }
         }
@@ -57,26 +57,26 @@ namespace TheraEngine.Core.Shapes
         public Vec3 Center => _transform.Matrix.Translation;
 
         public Box(BoundingBox aabb)
-            : this(aabb.HalfExtents, new Transform(aabb.Translation, Quat.Identity, Vec3.One)) { }
+            : this(aabb.HalfExtents, new TTransform(aabb.Translation, Quat.Identity, Vec3.One)) { }
         public Box(float halfExtentX, float halfExtentY, float halfExtentZ) 
-            : this(halfExtentX, halfExtentY, halfExtentZ, Transform.GetIdentity()) { }
-        public Box(float halfExtentX, float halfExtentY, float halfExtentZ, Transform transform)
+            : this(halfExtentX, halfExtentY, halfExtentZ, TTransform.GetIdentity()) { }
+        public Box(float halfExtentX, float halfExtentY, float halfExtentZ, TTransform transform)
             : this()
         {
             HalfExtents = new Vec3(halfExtentX, halfExtentY, halfExtentZ);
             _transform = transform;
         }
         public Box(Vec3 halfExtents) 
-            : this(halfExtents, Transform.GetIdentity()) { }
-        public Box(Vec3 halfExtents, Transform transform)
+            : this(halfExtents, TTransform.GetIdentity()) { }
+        public Box(Vec3 halfExtents, TTransform transform)
             : this()
         {
             HalfExtents = halfExtents;
             _transform = transform;
         }
         public Box(float uniformHalfExtents) 
-            : this(uniformHalfExtents, Transform.GetIdentity()) { }
-        public Box(float uniformHalfExtents, Transform transform) 
+            : this(uniformHalfExtents, TTransform.GetIdentity()) { }
+        public Box(float uniformHalfExtents, TTransform transform) 
             : this()
         {
             HalfExtents = new Vec3(uniformHalfExtents);
@@ -85,7 +85,7 @@ namespace TheraEngine.Core.Shapes
         public Box()
         {
             HalfExtents = Vec3.Half;
-            _transform = Transform.GetIdentity();
+            _transform = TTransform.GetIdentity();
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace TheraEngine.Core.Shapes
         }
         public static TMesh Mesh(Vec3 halfExtents, Matrix4 transform)
         {
-            VertexQuad left, right, top, bottom, front, back;
+            TVertexQuad left, right, top, bottom, front, back;
 
             BoundingBox.GetCorners(halfExtents, transform, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
 
@@ -127,12 +127,12 @@ namespace TheraEngine.Core.Shapes
             Vec3 backNormal = -frontNormal;
             Vec3 bottomNormal = -topNormal;
 
-            left = VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal);
-            right = VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal);
-            top = VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal);
-            bottom = VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal);
-            front = VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
-            back = VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
+            left = TVertexQuad.Make(BBL, BFL, TFL, TBL, leftNormal);
+            right = TVertexQuad.Make(BFR, BBR, TBR, TFR, rightNormal);
+            top = TVertexQuad.Make(TFL, TFR, TBR, TBL, topNormal);
+            bottom = TVertexQuad.Make(BBL, BBR, BFR, BFL, bottomNormal);
+            front = TVertexQuad.Make(BFL, BFR, TFR, TFL, frontNormal);
+            back = TVertexQuad.Make(BBR, BBL, TBL, TBR, backNormal);
 
             return Rendering.Models.TMesh.Create(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
         }

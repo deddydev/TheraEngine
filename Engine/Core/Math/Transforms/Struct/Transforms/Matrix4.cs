@@ -1203,5 +1203,84 @@ namespace System
         {
             this = *(Matrix4*)address;
         }
+
+        /// <summary>
+        /// Converts this transform's matrix back into its translation, rotation and scale components.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="translation"></param>
+        /// <param name="scale"></param>
+        /// <param name="rotation"></param>
+        public void DeriveTRS(out Vec3 translation, out Vec3 scale, out Quat rotation)
+        {
+            translation = Row3.Xyz;
+            scale = new Vec3(Row0.Xyz.Length, Row1.Xyz.Length, Row2.Xyz.Length);
+            rotation = ExtractRotation(true);
+            //translation.Round(5);
+            //scale.Round(5);
+        }
+        public void DeriveTR(out Vec3 translation, out Quat rotation)
+        {
+            translation = Row3.Xyz;
+            rotation = ExtractRotation(true);
+        }
+        public void DeriveT(out Vec3 translation)
+        {
+            translation = Row3.Xyz;
+        }
+        public unsafe TTransform DeriveTRS()
+        {
+            TTransform state = new TTransform();
+            state.Translation.Value = Row3.Xyz;
+            state.Scale.Value = new Vec3(Row0.Xyz.Length, Row1.Xyz.Length, Row2.Xyz.Length);
+            state.Rotation.Value = ExtractRotation(true);
+
+            //float x, y, z, c;
+            //float* p = m.Data;
+
+            ////m.Row0.Xyz = m.Row0.Xyz.Normalized();
+            ////m.Row1.Xyz = m.Row1.Xyz.Normalized();
+            ////m.Row2.Xyz = m.Row2.Xyz.Normalized();
+            ////m.Row3.Xyz = m.Row3.Xyz.Normalized();
+
+            //y = (float)Math.Asin(-p[2]);
+            //if ((Math.PI / 2.0f - Math.Abs(y)) < 0.0001f)
+            //{
+            //    //Gimbal lock, occurs when the y rotation falls on pi/2 or -pi/2
+            //    z = 0.0f;
+            //    if (y > 0)
+            //        x = (float)Math.Atan2(p[4], p[8]);
+            //    else
+            //        x = (float)Math.Atan2(p[4], -p[8]);
+            //}
+            //else
+            //{
+            //    c = (float)Math.Cos(y);
+            //    x = (float)Math.Atan2(p[6] / c, p[10] / c);
+            //    z = (float)Math.Atan2(p[1] / c, p[0] / c);
+
+            //    //180 z/x inverts y, use second option
+            //    if (Math.PI - Math.Abs(z) < 0.05f)
+            //    {
+            //        y = (float)Math.PI - y;
+            //        c = (float)Math.Cos(y);
+            //        x = (float)Math.Atan2(p[6] / c, p[10] / c);
+            //        z = (float)Math.Atan2(p[1] / c, p[0] / c);
+            //    }
+            //}
+
+            //state._rotation = new Rotator(CustomMath.RadToDeg(new Vec3(x, y, z)), Rotator.Order.YPR);
+
+            //if (state._rotation.Pitch == float.NaN ||
+            //    state._rotation.Yaw == float.NaN ||
+            //    state._rotation.Roll == float.NaN)
+            //    throw new Exception("Something went wrong when deriving rotation values.");
+
+            //state._translation.Raw.Round(5);
+            //state._scale.Raw.Round(5);
+            //state._rotation.Round(5);
+            state.CreateTransform();
+            return state;
+        }
     }
 }

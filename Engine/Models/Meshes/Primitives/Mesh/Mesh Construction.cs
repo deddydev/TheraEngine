@@ -14,25 +14,25 @@ namespace TheraEngine.Rendering.Models
         private static Dictionary<Type, EPrimitiveType> PrimTypeDic { get; }
             = new Dictionary<Type, EPrimitiveType>()
             {
-                { typeof(VertexQuad), EPrimitiveType.Quads },
-                { typeof(VertexTriangle), EPrimitiveType.Triangles },
+                { typeof(TVertexQuad), EPrimitiveType.Quads },
+                { typeof(TVertexTriangle), EPrimitiveType.Triangles },
                 { typeof(VertexTriangleFan), EPrimitiveType.TriangleFan },
                 { typeof(VertexTriangleStrip), EPrimitiveType.TriangleStrip },
-                { typeof(VertexLine), EPrimitiveType.Lines },
+                { typeof(TVertexLine), EPrimitiveType.Lines },
                 { typeof(VertexLineStrip), EPrimitiveType.LineStrip },
-                { typeof(Vertex), EPrimitiveType.Points },
+                { typeof(TVertex), EPrimitiveType.Points },
             };
 
-        private static Dictionary<EPrimitiveType, Func<IEnumerable<VertexPrimitive>, IEnumerable<Vertex>>> PrimConvDic { get; }
-            = new Dictionary<EPrimitiveType, Func<IEnumerable<VertexPrimitive>, IEnumerable<Vertex>>>()
+        private static Dictionary<EPrimitiveType, Func<IEnumerable<TVertexPrimitive>, IEnumerable<TVertex>>> PrimConvDic { get; }
+            = new Dictionary<EPrimitiveType, Func<IEnumerable<TVertexPrimitive>, IEnumerable<TVertex>>>()
             {
-                { EPrimitiveType.Quads, p => p.SelectMany(x => ((VertexQuad)x).ToTriangles()).SelectMany(x => x.Vertices) },
+                { EPrimitiveType.Quads, p => p.SelectMany(x => ((TVertexQuad)x).ToTriangles()).SelectMany(x => x.Vertices) },
                 { EPrimitiveType.Triangles, p => p.SelectMany(x => x.Vertices) },
                 { EPrimitiveType.TriangleFan, p => p.SelectMany(x => ((VertexTriangleFan)x).ToTriangles()).SelectMany(x => x.Vertices) },
                 { EPrimitiveType.TriangleStrip, p => p.SelectMany(x => ((VertexTriangleStrip)x).ToTriangles()).SelectMany(x => x.Vertices) },
                 { EPrimitiveType.Lines, p => p.SelectMany(x => x.Vertices) },
                 { EPrimitiveType.LineStrip, p => p.SelectMany(x => ((VertexLineStrip)x).ToLines()).SelectMany(x => x.Vertices) },
-                { EPrimitiveType.Points, p => p.Select(x => (Vertex)x) },
+                { EPrimitiveType.Points, p => p.Select(x => (TVertex)x) },
             };
 
         private static EPrimitiveType ConvertType(EPrimitiveType type)
@@ -54,7 +54,7 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
-        public static TMesh Create<T>(VertexShaderDesc info, params T[] prims) where T : VertexPrimitive
+        public static TMesh Create<T>(VertexShaderDesc info, params T[] prims) where T : TVertexPrimitive
         {
             if (prims is null || !GetPrimType<T>(out EPrimitiveType type))
                 return null;
@@ -62,7 +62,7 @@ namespace TheraEngine.Rendering.Models
             return new TMesh(info, PrimConvDic[type](prims), ConvertType(type));
         }
 
-        public static TMesh Create<T>(VertexShaderDesc info, IEnumerable<T> prims) where T : VertexPrimitive
+        public static TMesh Create<T>(VertexShaderDesc info, IEnumerable<T> prims) where T : TVertexPrimitive
         {
             if (prims is null || !GetPrimType<T>(out EPrimitiveType type))
                 return null;
@@ -74,21 +74,21 @@ namespace TheraEngine.Rendering.Models
             if (points is null)
                 return null;
 
-            return new TMesh(VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
+            return new TMesh(VertexShaderDesc.JustPositions(), points.Select(x => new TVertex(x)), EPrimitiveType.Points);
         }
         public static TMesh Create(IEnumerable<Vec3> points)
         {
             if (points is null)
                 return null;
 
-            return new TMesh(VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
+            return new TMesh(VertexShaderDesc.JustPositions(), points.Select(x => new TVertex(x)), EPrimitiveType.Points);
         }
 
-        private static bool GetPrimType<T>(out EPrimitiveType type) where T : VertexPrimitive
+        private static bool GetPrimType<T>(out EPrimitiveType type) where T : TVertexPrimitive
             => PrimTypeDic.TryGetValue(typeof(T), out type);
 
         public TMesh() { }
-        public TMesh(VertexShaderDesc info, IEnumerable<Vertex> points, EPrimitiveType type)
+        public TMesh(VertexShaderDesc info, IEnumerable<TVertex> points, EPrimitiveType type)
         {
             //TODO: convert triangles to tristrips and use primitive restart to render them all in one call
 
@@ -96,7 +96,7 @@ namespace TheraEngine.Rendering.Models
             _type = type;
             _influences = null;
 
-            List<Vertex> vertices = points.ToList();
+            List<TVertex> vertices = points.ToList();
             Remapper remapper = null;
             remapper = _type switch
             {

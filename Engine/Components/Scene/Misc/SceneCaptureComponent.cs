@@ -95,14 +95,14 @@ namespace TheraEngine.Components.Scene
             _tempDepth.SetStorage(ERenderBufferStorage.DepthComponent32f, _colorRes, _colorRes);
 
             RenderFBO = new CubeFrameBuffer(null, 0.1f, 10000.0f, true);
-            ChildComponents.Clear();
+            ChildSockets.Clear();
 
             //RenderFBO.SetTransform(WorldPoint);
 
             //float aspect = _viewport.InternalResolution.Width / _viewport.InternalResolution.Height;
             foreach (TransformableCamera cam in RenderFBO.Cameras)
             {
-                ChildComponents.Add(new CameraComponent(cam));
+                ChildSockets.Add(new CameraComponent(cam));
 
                 cam.PostProcessRef.File.ColorGrading.AutoExposure = false;
                 cam.PostProcessRef.File.ColorGrading.Exposure = 1.0f;

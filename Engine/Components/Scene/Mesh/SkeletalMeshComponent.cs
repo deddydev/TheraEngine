@@ -41,7 +41,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 return _sockets[socketName];
             else
             {
-                MeshSocket socket = new MeshSocket(Transform.GetIdentity(), this, OwningActor);
+                MeshSocket socket = new MeshSocket(TTransform.GetIdentity(), this, OwningActor);
                 _sockets.Add(socketName, socket);
                 return socket;
             }

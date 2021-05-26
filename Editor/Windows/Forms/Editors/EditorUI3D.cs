@@ -245,7 +245,7 @@ namespace TheraEditor.Windows.Forms
                 canvas.ActualSize, "Y",
                 obj => (float)obj * 0.02f);
 
-            canvas.ChildComponents.Add(SubViewport);
+            canvas.ChildSockets.Add(SubViewport);
 
             Font f = new Font("Segoe UI", 10.0f, FontStyle.Regular);
             string t;// = "Selected Camera View";
@@ -283,7 +283,7 @@ namespace TheraEditor.Windows.Forms
             TextFormatFlags flags = TextFormatFlags.NoClipping | TextFormatFlags.SingleLine;
             FPSText = new UIString2D(t, f, new ColorF4(0.1f, 1.0f, 0.1f, 1.0f), flags);
             fpsComp.TextDrawer.Text.Add(FPSText);
-            canvas.ChildComponents.Add(fpsComp);
+            canvas.ChildSockets.Add(fpsComp);
 
             canvas.OriginRebased += RootComponent_OriginRebased;
 

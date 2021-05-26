@@ -147,7 +147,7 @@ namespace TheraEngine.Rendering.Cameras
         {
             _cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * translation.AsTranslationMatrix();
             _worldToCameraSpaceMatrix = (-translation).AsTranslationMatrix() * _worldToCameraSpaceMatrix;
-            _localPoint.SetRawSilent(_cameraToWorldSpaceMatrix.Translation);
+            _localPoint.SetValueSilent(_cameraToWorldSpaceMatrix.Translation);
             if (_viewTarget != null)
                 SetRotationWithTarget(_viewTarget.Value);
             else

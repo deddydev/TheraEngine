@@ -19,11 +19,11 @@ namespace TheraEngine.Core.Maths.Transforms
         /// <summary>
         /// Sets the internal <see cref="Vec3"/> value and does not fire any events.
         /// </summary>
-        public void SetRawSilent(Quat raw)
+        public void SetValueSilent(Quat raw)
             => _data = raw;
 
         [Browsable(false)]
-        public Quat Raw
+        public Quat Value
         {
             get => _data;
             set
@@ -39,8 +39,8 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public static implicit operator EventQuat(Quat v) => new EventQuat(v);
         public static implicit operator EventQuat(Vec4 v) => new EventQuat(v);
-        public static implicit operator Quat(EventQuat v) => v.Raw;
-        public static implicit operator Vec4(EventQuat v) => v.Raw;
+        public static implicit operator Quat(EventQuat v) => v.Value;
+        public static implicit operator Vec4(EventQuat v) => v.Value;
 
         public float* Data => _data.Data;
 

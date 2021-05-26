@@ -748,7 +748,7 @@
     <Compile Include="Core\Math\Transforms\Class\Rotation\EventQuat.cs" />
     <None Include="Core\Math\Transforms\Class\Rotation\EventQuatRotator.cs" />
     <Compile Include="Core\Math\Transforms\Class\Rotation\Rotator.cs" />
-    <Compile Include="Core\Math\Transforms\Class\Transforms\Transform.cs" />
+    <Compile Include="Core\Math\Transforms\Class\Transforms\TTransform.cs" />
     <None Include="Core\Math\Transforms\Class\Transforms\WorldRotTransform.cs" />
     <Compile Include="Core\Math\Transforms\Class\Vectors\EventVec2.cs" />
     <Compile Include="Core\Math\Transforms\Class\Vectors\EventVec3.cs" />
@@ -1139,7 +1139,7 @@
     <Compile Include="Models\Materials\Textures\References\TexRef2D.cs" />
     <Compile Include="Models\Materials\Shaders\Uniform.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Vertex\VertexLineStrip.cs" />
-    <Compile Include="Models\Meshes\Primitives\Faces\Vertex\VertexLine.cs" />
+    <Compile Include="Models\Meshes\Primitives\Faces\Vertex\TVertexLine.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Vertex\VertexTriangleFan.cs" />
     <Compile Include="Models\Meshes\Skeletal\SkeletalRigidSubMesh.cs" />
     <Compile Include="Models\Meshes\Static\StaticRigidSubMesh.cs" />
@@ -1170,12 +1170,12 @@
     <Compile Include="Models\Materials\TMaterial.cs" />
     <Compile Include="Models\Materials\TMaterialInstance.cs" />
     <Compile Include="Models\Materials\Shaders\ShaderFile.cs" />
-    <Compile Include="Models\Meshes\Primitives\Faces\Vertex\VertexPrimitive.cs" />
-    <Compile Include="Models\Meshes\Primitives\Faces\Vertex\VertexQuad.cs" />
+    <Compile Include="Models\Meshes\Primitives\Faces\Vertex\TVertexPrimitive.cs" />
+    <Compile Include="Models\Meshes\Primitives\Faces\Vertex\TVertexQuad.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Vertex\VertexTriangleStrip.cs" />
-    <Compile Include="Models\Meshes\Primitives\Faces\Vertex\VertexTriangle.cs" />
+    <Compile Include="Models\Meshes\Primitives\Faces\Vertex\TVertexTriangle.cs" />
     <Compile Include="Models\Meshes\Primitives\Mesh\Mesh Methods.cs" />
-    <Compile Include="Models\Meshes\Primitives\Faces\Vertex\Vertex.cs" />
+    <Compile Include="Models\Meshes\Primitives\Faces\Vertex\TVertex.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Index\IndexPoint.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Index\IndexLineStrip.cs" />
     <Compile Include="Models\Meshes\Primitives\Faces\Index\IndexPrimitive.cs" />

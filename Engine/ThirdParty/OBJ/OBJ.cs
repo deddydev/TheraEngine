@@ -40,7 +40,7 @@ namespace TheraEngine.Rendering.Models
             return model;
         }
 
-        private static VertexTriangle[] CreateTriangles(
+        private static TVertexTriangle[] CreateTriangles(
             Face face, 
             LoadResult result, 
             bool swapWinding,
@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering.Models
             BoundingBox bounds)
         {
             //First convert obj face points to vertex points
-            Vertex[] vertices = new Vertex[face.Count];
+            TVertex[] vertices = new TVertex[face.Count];
             for (int i = 0; i < vertices.Length; ++i)
             {
                 int vtxIndex = face[i].VertexIndex - 1;
@@ -77,14 +77,14 @@ namespace TheraEngine.Rendering.Models
                 else
                     uv = Vec2.Zero;
 
-                vertices[i] = new Vertex(pos, norm, uv);
+                vertices[i] = new TVertex(pos, norm, uv);
             }
 
             //Then group them into triangles
             if (vertices.Length == 3)
-                return new VertexTriangle[] { new VertexTriangle(vertices[0], vertices[1], vertices[2]) };
+                return new TVertexTriangle[] { new TVertexTriangle(vertices[0], vertices[1], vertices[2]) };
             else if (vertices.Length == 4)
-                return new VertexQuad(vertices[0], vertices[1], vertices[2], vertices[3]).ToTriangles();
+                return new TVertexQuad(vertices[0], vertices[1], vertices[2], vertices[3]).ToTriangles();
             else
                 return new VertexTriangleFan(vertices).ToTriangles();
         }

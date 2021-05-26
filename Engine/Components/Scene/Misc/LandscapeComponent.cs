@@ -187,8 +187,8 @@ namespace TheraEngine.Components.Scene
                 throw new InvalidOperationException();
 
             _stride = stride;
-            List<VertexTriangle> list = new List<VertexTriangle>();
-            Vertex[] vertexNormals = new Vertex[6];
+            List<TVertexTriangle> list = new List<TVertexTriangle>();
+            TVertex[] vertexNormals = new TVertex[6];
             
             int xInc = stride, yInc = stride;
             int xDim = _dimensions.X - 1, yDim = _dimensions.Y - 1;
@@ -225,14 +225,14 @@ namespace TheraEngine.Components.Scene
                     Vec2 bottomLeftUV = new Vec2(thisX * uInc, nextY * vInc);
                     Vec2 bottomRightUV = new Vec2(nextX * uInc, nextY * vInc);
 
-                    list.Add(new VertexTriangle(
-                        new Vertex(topLeftPos, topLeftNorm, topLeftUV),
-                        new Vertex(bottomLeftPos, bottomLeftNorm, bottomLeftUV),
-                        new Vertex(bottomRightPos, bottomRightNorm, bottomRightUV)));
-                    list.Add(new VertexTriangle(
-                        new Vertex(topLeftPos, topLeftNorm, topLeftUV),
-                        new Vertex(bottomRightPos, bottomRightNorm, bottomRightUV),
-                        new Vertex(topRightPos, topRightNorm, topRightUV)));
+                    list.Add(new TVertexTriangle(
+                        new TVertex(topLeftPos, topLeftNorm, topLeftUV),
+                        new TVertex(bottomLeftPos, bottomLeftNorm, bottomLeftUV),
+                        new TVertex(bottomRightPos, bottomRightNorm, bottomRightUV)));
+                    list.Add(new TVertexTriangle(
+                        new TVertex(topLeftPos, topLeftNorm, topLeftUV),
+                        new TVertex(bottomRightPos, bottomRightNorm, bottomRightUV),
+                        new TVertex(topRightPos, topRightNorm, topRightUV)));
                     triCount += 2;
                 }
             }
@@ -259,7 +259,7 @@ namespace TheraEngine.Components.Scene
             var nrm = _rc.Mesh.TargetMesh[EBufferType.Normal];
             var tex = _rc.Mesh.TargetMesh[EBufferType.TexCoord];
 
-            Vertex[] vertexNormals = new Vertex[6];
+            TVertex[] vertexNormals = new TVertex[6];
             
             int xDim = _dimensions.X - 1, yDim = _dimensions.Y - 1;
             float uInc = 1.0f / xDim, vInc = 1.0f / yDim;

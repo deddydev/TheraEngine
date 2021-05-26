@@ -105,7 +105,7 @@ namespace TheraEngine.Rendering.UI
 
             var data = TMesh.Create(
                 VertexShaderDesc.PosTex(),
-                VertexQuad.PosZQuad(1.0f, true, 0.0f, true));
+                TVertexQuad.PosZ(1.0f, true, 0.0f, true));
 
             //TODO: resize buffer length if text length reaches capacity
             //Or use multiple primitive managers all set to same fixed size buffer

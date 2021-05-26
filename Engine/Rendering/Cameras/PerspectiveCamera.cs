@@ -138,7 +138,7 @@ namespace TheraEngine.Rendering.Cameras
 
         public void SetAll(Vec3 translation, Rotator rotation, float fov, bool verticalFOV, float nearZ, float farZ, float? aspect)
         {
-            LocalPoint.SetRawSilent(translation);
+            LocalPoint.SetValueSilent(translation);
 
             if (ViewTarget is null)
                 SetRotationsNoUpdate(rotation);

@@ -76,7 +76,7 @@ namespace TheraEditor.Windows.Forms
             if (func is null)
                 return;
 
-            OriginTransformComponent.ChildComponents.Add(func);
+            OriginTransformComponent.ChildSockets.Add(func);
             _materialFuncCache.Add(func);
         }
         public void RemoveMaterialFunction(MaterialFunction func)

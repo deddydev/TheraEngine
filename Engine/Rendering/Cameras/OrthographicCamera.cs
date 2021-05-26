@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering.Cameras
         public OrthographicCamera(float width, float height, Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ)
            : base(width, height, nearZ, farZ, point, rotation)
         {
-            _scale.SetRawSilent(scale);
+            _scale.SetValueSilent(scale);
             _scale.Changed += CreateTransform;
             _originPercentages.Changed += _originPercentages_Changed;
             _originPercentages.Raw = originPercentages;
@@ -144,7 +144,7 @@ namespace TheraEngine.Rendering.Cameras
 
             if (!xClamped || !yClamped)
             {
-                _localPoint.SetRawSilent(_localPoint.Value + (worldPoint - WorldPoint) * multiplier);
+                _localPoint.SetValueSilent(_localPoint.Value + (worldPoint - WorldPoint) * multiplier);
                 _scale.Xy = newScale;
             }
 

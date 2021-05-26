@@ -217,7 +217,7 @@ namespace TheraEngine.Core.Shapes
             Vec3 bottomRight = position + new Vec3(0.5f * xExtent, -0.5f * yExtent, 0.0f) * r;
             Vec3 topLeft = position + new Vec3(-0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             Vec3 topRight = position + new Vec3(0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
-            VertexQuad q = VertexQuad.MakeQuad(bottomLeft, bottomRight, topRight, topLeft, normal);
+            TVertexQuad q = TVertexQuad.Make(bottomLeft, bottomRight, topRight, topLeft, normal);
             return TMesh.Create(VertexShaderDesc.PosNormTex(), q);
         }
     }

@@ -62,12 +62,12 @@ namespace TheraEngine.Components.Scene.Mesh
                 return _sockets[socketName];
             else
             {
-                MeshSocket socket = new MeshSocket(Transform.GetIdentity(), this, OwningActor);
+                MeshSocket socket = new MeshSocket(TTransform.GetIdentity(), this, OwningActor);
                 _sockets.Add(socketName, socket);
                 return socket;
             }
         }
-        public MeshSocket FindOrCreateSocket(string socketName, Transform transform)
+        public MeshSocket FindOrCreateSocket(string socketName, TTransform transform)
         {
             if (_sockets.ContainsKey(socketName))
             {

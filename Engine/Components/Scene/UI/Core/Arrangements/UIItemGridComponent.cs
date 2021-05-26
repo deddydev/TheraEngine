@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Components;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core;
 using TheraEngine.Core.Shapes;
 
@@ -81,8 +82,8 @@ namespace TheraEngine.Rendering.UI
             {
                 var quadrant = Indices[rowIndex, i];
                 foreach (var index in quadrant)
-                    if (ChildComponents.IndexInRange(index))
-                        list.Add(ChildComponents[index] as IUIComponent);
+                    if (ChildSockets.IndexInRange(index))
+                        list.Add(ChildSockets[index] as IUIComponent);
             }
 
             return list;
@@ -97,8 +98,8 @@ namespace TheraEngine.Rendering.UI
             {
                 var quadrant = Indices[i, colIndex];
                 foreach (var index in quadrant)
-                    if (ChildComponents.IndexInRange(index))
-                        list.Add(ChildComponents[index] as IUIComponent);
+                    if (ChildSockets.IndexInRange(index))
+                        list.Add(ChildSockets[index] as IUIComponent);
             }
 
             return list;
@@ -128,8 +129,8 @@ namespace TheraEngine.Rendering.UI
                 for (int c = 0; c < Columns.Count; ++c)
                     _indices[r, c] = new List<int>();
 
-            for (int i = 0; i < ChildComponents.Count; ++i)
-                if (ChildComponents[i] is IUIComponent uic && uic.ParentInfo is GridPlacementInfo info)
+            for (int i = 0; i < ChildSockets.Count; ++i)
+                if (ChildSockets[i] is IUIComponent uic && uic.ParentInfo is GridPlacementInfo info)
                     _indices[info.Row, info.Column].Add(i);
         }
 
@@ -278,7 +279,7 @@ namespace TheraEngine.Rendering.UI
                         Indices[r, c] = indices = new List<int>();
                     foreach (var index in indices)
                     {
-                        ISceneComponent comp = ChildComponents[index];
+                        ISocket comp = ChildSockets[index];
                         if (!(comp is IUIComponent uiComp))
                             continue;
 
@@ -331,7 +332,7 @@ namespace TheraEngine.Rendering.UI
             y += bottom;
         }
 
-        protected override void OnChildAdded(ISceneComponent item)
+        protected override void OnChildAdded(ISocket item)
         {
             if (item is IUIComponent uic)
             {
@@ -354,7 +355,7 @@ namespace TheraEngine.Rendering.UI
             OnChildrenChanged();
         }
 
-        protected override void OnChildRemoved(ISceneComponent item)
+        protected override void OnChildRemoved(ISocket item)
         {
             if (item is IUIComponent uic && uic.ParentInfo is GridPlacementInfo info)
             {

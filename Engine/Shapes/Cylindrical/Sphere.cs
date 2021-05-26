@@ -78,7 +78,7 @@ namespace TheraEngine.Core.Shapes
                 theta1 = (j * twoPIThroughPrecision) - halfPI;
                 theta2 = ((j + 1) * twoPIThroughPrecision) - halfPI;
 
-                Vertex[] stripVertices = new Vertex[((int)precision + 1) * 2];
+                TVertex[] stripVertices = new TVertex[((int)precision + 1) * 2];
                 int x = 0;
                 for (uint i = 0; i <= precision; i++)
                 {
@@ -91,7 +91,7 @@ namespace TheraEngine.Core.Shapes
                     uv.X = i * invPrecision;
                     uv.Y = 2.0f * (j + 1) * invPrecision;
 
-                    stripVertices[x++] = new Vertex(pos, norm, uv);
+                    stripVertices[x++] = new TVertex(pos, norm, uv);
 
                     norm.X = -(float)(Cos(theta1) * Cos(theta3));
                     norm.Y = -(float)Sin(theta1);
@@ -100,7 +100,7 @@ namespace TheraEngine.Core.Shapes
                     uv.X = i * invPrecision;
                     uv.Y = 2.0f * j * invPrecision;
 
-                    stripVertices[x++] = new Vertex(pos, norm, uv);
+                    stripVertices[x++] = new TVertex(pos, norm, uv);
                 }
                 strips.Add(new VertexTriangleStrip(stripVertices));
             }
@@ -116,7 +116,7 @@ namespace TheraEngine.Core.Shapes
         }
         public static TMesh SolidMesh(Vec3 center, float radius, int slices, int stacks)
         {
-            List<Vertex> v = new List<Vertex>();
+            List<TVertex> v = new List<TVertex>();
             float twoPi = TMath.PIf * 2.0f;
             for (int i = 0; i <= stacks; ++i)
             {
@@ -135,14 +135,14 @@ namespace TheraEngine.Core.Shapes
                     float Z = (float)Sin(theta) * (float)Sin(phi);
 
                     Vec3 normal = new Vec3(X, Y, Z);
-                    v.Add(new Vertex(center + normal * radius, normal, new Vec2(U, V)));
+                    v.Add(new TVertex(center + normal * radius, normal, new Vec2(U, V)));
                 }
             }
-            List<VertexTriangle> triangles = new List<VertexTriangle>();
+            List<TVertexTriangle> triangles = new List<TVertexTriangle>();
             for (int i = 0; i < slices * stacks + slices; ++i)
             {
-                triangles.Add(new VertexTriangle(v[i], v[i + slices + 1], v[i + slices]));
-                triangles.Add(new VertexTriangle(v[i + slices + 1], v[i], v[i + 1]));
+                triangles.Add(new TVertexTriangle(v[i], v[i + slices + 1], v[i + slices]));
+                triangles.Add(new TVertexTriangle(v[i + slices + 1], v[i], v[i + 1]));
             }
             return TMesh.Create(VertexShaderDesc.PosNormTex(), triangles);
         }

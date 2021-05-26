@@ -5,11 +5,11 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
 {
-    public class Vertex : VertexPrimitive
+    public class TVertex : TVertexPrimitive
     {
         public override FaceType Type => FaceType.Points;
 
-        public Vertex(FacePoint facepoint, List<DataBuffer> buffers)
+        public TVertex(FacePoint facepoint, List<DataBuffer> buffers)
             => GetData(facepoint, buffers);
         
         public int Index { get; set; } = -1;
@@ -21,22 +21,22 @@ namespace TheraEngine.Rendering.Models
         public Vec2[] TexCoord { get; set; } = new Vec2[0];
         public ColorF4[] Color { get; set; } = new ColorF4[0];
 
-        public Vertex() { }
-        public Vertex(InfluenceDef inf)
+        public TVertex() { }
+        public TVertex(InfluenceDef inf)
             { Influence = inf; }
-        public Vertex(Vec3 position)
+        public TVertex(Vec3 position)
             { Position = position; }
-        public Vertex(Vec3 position, ColorF4 color)
+        public TVertex(Vec3 position, ColorF4 color)
             { Position = position; Color = new ColorF4[] { color }; }
-        public Vertex(Vec3 position, InfluenceDef inf) 
+        public TVertex(Vec3 position, InfluenceDef inf) 
             : this(position) { Influence = inf; }
 
-        public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal) 
+        public TVertex(Vec3 position, InfluenceDef inf, Vec3 normal) 
             : this(position, inf) { Normal = normal; }
 
-        public Vertex HardCopy()
+        public TVertex HardCopy()
         {
-            return new Vertex()
+            return new TVertex()
             {
                 Index = Index,
                 Influence = Influence,
@@ -49,25 +49,25 @@ namespace TheraEngine.Rendering.Models
             };
         }
 
-        public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord) 
+        public TVertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord) 
             : this(position, inf, normal) { TexCoord = new Vec2[] { texCoord }; }
-        public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord, ColorF4 color) 
+        public TVertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord, ColorF4 color) 
             : this(position, inf, normal, texCoord) { Color = new ColorF4[] { color }; }
-        public Vertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color) 
+        public TVertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color) 
             : this(position, inf, normal, texCoord, color) { Binormal = binormal; Tangent = tangent; }
 
-        public Vertex(Vec3 position, InfluenceDef inf, Vec2 texCoord)
+        public TVertex(Vec3 position, InfluenceDef inf, Vec2 texCoord)
             : this(position, inf) { TexCoord = new Vec2[] { texCoord }; }
-        public Vertex(Vec3 position, Vec2 texCoord)
+        public TVertex(Vec3 position, Vec2 texCoord)
             : this(position) { TexCoord = new Vec2[] { texCoord }; }
 
-        public Vertex(Vec3 position, Vec3 normal) 
+        public TVertex(Vec3 position, Vec3 normal) 
             : this(position, null, normal) { }
-        public Vertex(Vec3 position, Vec3 normal, Vec2 texCoord)
+        public TVertex(Vec3 position, Vec3 normal, Vec2 texCoord)
             : this(position, null, normal) { TexCoord = new Vec2[] { texCoord }; }
-        public Vertex(Vec3 position, Vec3 normal, Vec2 texCoord, ColorF4 color)
+        public TVertex(Vec3 position, Vec3 normal, Vec2 texCoord, ColorF4 color)
             : this(position, null, normal, texCoord) { Color = new ColorF4[] { color }; }
-        public Vertex(Vec3 position, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color)
+        public TVertex(Vec3 position, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color)
             : this(position, null, normal, texCoord, color) { Binormal = binormal; Tangent = tangent; }
 
         public void SetData(FacePoint facepoint, List<DataBuffer> buffers)
@@ -138,9 +138,9 @@ namespace TheraEngine.Rendering.Models
         }
         public override bool Equals(object obj)
         {
-            return obj is Vertex ? Equals(obj as Vertex) : false;
+            return obj is TVertex ? Equals(obj as TVertex) : false;
         }
-        public bool Equals(Vertex other)
+        public bool Equals(TVertex other)
         {
             const float precision = 0.00001f;
 
@@ -207,7 +207,7 @@ namespace TheraEngine.Rendering.Models
         //        }
         //}
 
-        public static implicit operator Vertex(Vec3 pos) => new Vertex(pos);
+        public static implicit operator TVertex(Vec3 pos) => new TVertex(pos);
 
         public override int GetHashCode()
         {

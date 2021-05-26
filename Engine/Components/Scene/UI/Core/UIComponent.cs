@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering.UI
         Hidden,
         Collapsed,
     }
-    public interface IUIComponent : IOriginRebasableComponent, IEnumerable<IUIComponent>
+    public interface IUIComponent : IOriginRebasableComponent, ISocket, IEnumerable<IUIComponent>
     {
         bool IsVisible { get; set; }
         EVisibility Visibility { get; set; }
@@ -97,7 +97,7 @@ namespace TheraEngine.Rendering.UI
             {
                 //_childLocker.EnterReadLock();
 
-                foreach (ISceneComponent c in _children)
+                foreach (ISceneComponent c in _childSockets)
                     if (c is UIComponent uic)
                         uic.Visibility = Visibility;
             }
@@ -126,7 +126,7 @@ namespace TheraEngine.Rendering.UI
             {
                 //_childLocker.EnterReadLock();
 
-                foreach (ISceneComponent c in _children)
+                foreach (ISceneComponent c in _childSockets)
                     if (c is UIComponent uic)
                         uic.IsEnabled = IsEnabled;
             }
@@ -243,7 +243,7 @@ namespace TheraEngine.Rendering.UI
             {
                 //_childLocker.EnterReadLock();
 
-                foreach (ISceneComponent c in _children)
+                foreach (ISceneComponent c in _childSockets)
                     if (c is IUIComponent uiComp)
                         uiComp.ResizeLayout(parentRegion);
             }
@@ -279,7 +279,7 @@ namespace TheraEngine.Rendering.UI
         //    return null;
         //}
 
-        protected override void OnChildAdded(ISceneComponent item)
+        protected override void OnChildAdded(ISocket item)
         {
             base.OnChildAdded(item);
 
@@ -295,8 +295,8 @@ namespace TheraEngine.Rendering.UI
 
         protected internal override void OnOriginRebased(Vec3 newOrigin) { }
 
-        public IEnumerator<IUIComponent> GetEnumerator() => ((IEnumerable<IUIComponent>)_children).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<IUIComponent>)_children).GetEnumerator();
+        public IEnumerator<IUIComponent> GetEnumerator() => ((IEnumerable<IUIComponent>)_childSockets).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<IUIComponent>)_childSockets).GetEnumerator();
 
         /// <summary>
         /// Converts a local-space coordinate of a parent UI component 

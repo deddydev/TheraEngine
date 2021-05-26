@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering
             _fbos[0] = new MaterialFrameBuffer(first);
             _fbos[1] = new MaterialFrameBuffer(pongMat);
 
-            VertexTriangle triangle = new VertexTriangle(
+            TVertexTriangle triangle = new TVertexTriangle(
                 new Vec3(0.0f, 0.0f, 0.0f),
                 new Vec3(2.0f, 0.0f, 0.0f),
                 new Vec3(0.0f, 2.0f, 0.0f));

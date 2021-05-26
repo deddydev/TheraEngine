@@ -27,7 +27,7 @@ namespace TheraEngine.Rendering
         {
             if (asTriangle)
             {
-                VertexTriangle triangle = new VertexTriangle(
+                TVertexTriangle triangle = new TVertexTriangle(
                     new Vec3(0.0f, 0.0f, 0.0f),
                     new Vec3(2.0f, 0.0f, 0.0f),
                     new Vec3(0.0f, 2.0f, 0.0f));
@@ -35,11 +35,11 @@ namespace TheraEngine.Rendering
             }
             else
             {
-                VertexTriangle triangle1 = new VertexTriangle(
+                TVertexTriangle triangle1 = new TVertexTriangle(
                     new Vec3(0.0f, 0.0f, 0.0f),
                     new Vec3(1.0f, 0.0f, 0.0f),
                     new Vec3(0.0f, 1.0f, 0.0f));
-                VertexTriangle triangle2 = new VertexTriangle(
+                TVertexTriangle triangle2 = new TVertexTriangle(
                     new Vec3(0.0f, 1.0f, 0.0f),
                     new Vec3(1.0f, 0.0f, 0.0f),
                     new Vec3(1.0f, 1.0f, 0.0f));

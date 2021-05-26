@@ -179,7 +179,7 @@ namespace TheraEngine.Rendering
             {
                 case EDebugPrimitiveType.Point:
                     return TMesh.Create(Vec3.Zero);
-                case EDebugPrimitiveType.Line: VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
+                case EDebugPrimitiveType.Line: TVertexLine line = new TVertexLine(new TVertex(Vec3.Zero), new TVertex(Vec3.Forward));
                     return TMesh.Create(VertexShaderDesc.JustPositions(), line);
 
                 case EDebugPrimitiveType.WireSphere: return Sphere.WireframeMesh(Vec3.Zero, 1.0f, 60); //Diameter is set to 2.0f on purpose
@@ -191,8 +191,8 @@ namespace TheraEngine.Rendering
                 case EDebugPrimitiveType.WireCircle: return Circle3D.WireframeMesh(1.0f, Vec3.UnitY, Vec3.Zero, 20); //Diameter is set to 2.0f on purpose
                 case EDebugPrimitiveType.SolidCircle: return Circle3D.SolidMesh(1.0f, Vec3.UnitY, Vec3.Zero, 20); //Diameter is set to 2.0f on purpose
 
-                case EDebugPrimitiveType.WireQuad: return TMesh.Create(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(1.0f, false, false).ToLines());
-                case EDebugPrimitiveType.SolidQuad: return TMesh.Create(VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
+                case EDebugPrimitiveType.WireQuad: return TMesh.Create(VertexShaderDesc.JustPositions(), TVertexQuad.PosY(1.0f, false, false).ToLines());
+                case EDebugPrimitiveType.SolidQuad: return TMesh.Create(VertexShaderDesc.PosNormTex(), TVertexQuad.PosY(1.0f, false, false));
 
                 case EDebugPrimitiveType.WireCone: return Cone.WireMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20);
                 case EDebugPrimitiveType.SolidCone: return Cone.SolidMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20, true);

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.ComponentActors.Shapes;
-using TheraEngine.Actors.Types.Lights;
 using TheraEngine.Animation;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
@@ -214,7 +213,7 @@ namespace TheraEngine.Tests
                 float lightAngle = 360.0f / dirLights;
                 for (int i = 0; i < dirLights; ++i)
                 {
-                    DirectionalLightActor dirlight = new DirectionalLightActor();
+                    Actor<DirectionalLightComponent> dirlight = new Actor<DirectionalLightComponent>();
                     DirectionalLightComponent dir = dirlight.RootComponent;
                     dir.LightColor = (ColorF3)Color.White;
                     dir.DiffuseIntensity = 1.0f;
@@ -339,8 +338,8 @@ namespace TheraEngine.Tests
                 Trauma = 40.0f,
             };
             CameraComponent camComp = new CameraComponent(new PerspectiveCamera(0.1f, 2000.0f, 45.0f, 1.0f));
-            posComp.ChildComponents.Add(shakeComp);
-            shakeComp.ChildComponents.Add(camComp);
+            posComp.ChildSockets.Add(shakeComp);
+            shakeComp.ChildSockets.Add(camComp);
             Actor<TranslationComponent> testScreenshake = new Actor<TranslationComponent>(posComp);
             actors.Add(testScreenshake);
             #endregion

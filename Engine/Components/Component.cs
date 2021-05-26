@@ -5,14 +5,8 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Components
 {
-    public interface IComponent : IFileObject
-    {
-        IActor OwningActor { get; set; }
+    public interface IComponent : ISpawnable, IFileObject { }
 
-        bool IsSpawned { get; }
-        void Spawn(IActor owner);
-        void Despawn(IActor owner);
-    }
     /// <summary>
     /// Components are plugged into actors to define customizable functionality.
     /// There are two types of components: <see cref="SceneComponent"/> and <see cref="LogicComponent"/>.
@@ -49,13 +43,7 @@ namespace TheraEngine.Components
         /// Called when this component is spawned.
         /// This base method starts any attached animations.
         /// </summary>
-        protected virtual void OnSpawned()
-        {
-            StartAllAnimations(true);
-        }
-        protected virtual void OnDespawned()
-        {
-            StopAllAnimations();
-        }
+        protected virtual void OnSpawned() => StartAllAnimations(true);
+        protected virtual void OnDespawned() => StopAllAnimations();
     }
 }

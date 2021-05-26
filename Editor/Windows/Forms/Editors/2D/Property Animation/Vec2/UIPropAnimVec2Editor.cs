@@ -404,8 +404,8 @@ namespace TheraEditor.Windows.Forms
             FrameCount = frameCount;
 
             int posCount = (KeyCount = _targetAnimation.Keyframes.Count) << 1;
-            Vertex[] splinePoints = new Vertex[frameCount];
-            VertexLine[] keyframeLines = new VertexLine[posCount];
+            TVertex[] splinePoints = new TVertex[frameCount];
+            TVertexLine[] keyframeLines = new TVertexLine[posCount];
             Vec3[] kfInOutPositions = new Vec3[posCount];
             Vec3[] kfInOutTangents = new Vec3[posCount];
             KeyframeInOutPosInOutTan = new Vec3[posCount << 1];
@@ -416,7 +416,7 @@ namespace TheraEditor.Windows.Forms
             for (i = 0; i < splinePoints.Length; ++i, sec += inc.X)
             {
                 GetSplineVertex(sec, maxVel, out Vec3 pos, out ColorF4 color);
-                splinePoints[i] = new Vertex(pos, color);
+                splinePoints[i] = new TVertex(pos, color);
             }
 
             i = 0;
@@ -431,7 +431,7 @@ namespace TheraEditor.Windows.Forms
 
                 kfInOutPositions[i] = inPos;
                 kfInOutTangents[i] = inTanPos;
-                keyframeLines[i] = new VertexLine(inPos, inTanPos);
+                keyframeLines[i] = new TVertexLine(inPos, inTanPos);
 
                 ++i;
                 i2 = i << 1;
@@ -441,7 +441,7 @@ namespace TheraEditor.Windows.Forms
 
                 kfInOutPositions[i] = outPos;
                 kfInOutTangents[i] = outTanPos;
-                keyframeLines[i] = new VertexLine(outPos, outTanPos);
+                keyframeLines[i] = new TVertexLine(outPos, outTanPos);
                 ++i;
             }
 

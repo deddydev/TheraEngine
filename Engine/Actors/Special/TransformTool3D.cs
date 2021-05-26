@@ -128,22 +128,22 @@ namespace TheraEngine.Actors.Types
                 scalePlaneMat.RenderParams.LineWidth = 1.0f;
                 _scalePlaneMat[normalAxis] = scalePlaneMat;
 
-                VertexLine axisLine = new VertexLine(Vec3.Zero, unit * _axisLength);
+                TVertexLine axisLine = new TVertexLine(Vec3.Zero, unit * _axisLength);
                 Vec3 halfUnit = unit * _axisHalfLength;
 
-                VertexLine transLine1 = new VertexLine(halfUnit, halfUnit + unit1 * _axisHalfLength);
+                TVertexLine transLine1 = new TVertexLine(halfUnit, halfUnit + unit1 * _axisHalfLength);
                 transLine1.Vertex0.Color = new ColorF4[] { unit1 };
                 transLine1.Vertex1.Color = new ColorF4[] { unit1 };
 
-                VertexLine transLine2 = new VertexLine(halfUnit, halfUnit + unit2 * _axisHalfLength);
+                TVertexLine transLine2 = new TVertexLine(halfUnit, halfUnit + unit2 * _axisHalfLength);
                 transLine2.Vertex0.Color = new ColorF4[] { unit2 };
                 transLine2.Vertex1.Color = new ColorF4[] { unit2 };
 
-                VertexLine scaleLine1 = new VertexLine(unit1 * _scaleHalf1LDist, unit2 * _scaleHalf1LDist);
+                TVertexLine scaleLine1 = new TVertexLine(unit1 * _scaleHalf1LDist, unit2 * _scaleHalf1LDist);
                 scaleLine1.Vertex0.Color = new ColorF4[] { unit };
                 scaleLine1.Vertex1.Color = new ColorF4[] { unit };
 
-                VertexLine scaleLine2 = new VertexLine(unit1 * _scaleHalf2LDist, unit2 * _scaleHalf2LDist);
+                TVertexLine scaleLine2 = new TVertexLine(unit1 * _scaleHalf2LDist, unit2 * _scaleHalf2LDist);
                 scaleLine2.Vertex0.Color = new ColorF4[] { unit };
                 scaleLine2.Vertex1.Color = new ColorF4[] { unit };
 
@@ -182,10 +182,10 @@ namespace TheraEngine.Actors.Types
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenRotation", new RenderInfo3D(isRotate, true), ERenderPass.OnTopForward, screenRotPrim, _screenMat));
 
             //Screen-aligned translation
-            Vertex v1 = new Vec3(-_screenTransExtent, -_screenTransExtent, 0.0f);
-            Vertex v2 = new Vec3(_screenTransExtent, -_screenTransExtent, 0.0f);
-            Vertex v3 = new Vec3(_screenTransExtent, _screenTransExtent, 0.0f);
-            Vertex v4 = new Vec3(-_screenTransExtent, _screenTransExtent, 0.0f);
+            TVertex v1 = new Vec3(-_screenTransExtent, -_screenTransExtent, 0.0f);
+            TVertex v2 = new Vec3(_screenTransExtent, -_screenTransExtent, 0.0f);
+            TVertex v3 = new Vec3(_screenTransExtent, _screenTransExtent, 0.0f);
+            TVertex v4 = new Vec3(-_screenTransExtent, _screenTransExtent, 0.0f);
             VertexLineStrip strip = new VertexLineStrip(true, v1, v2, v3, v4);
             TMesh screenTransPrim = TMesh.Create(VertexShaderDesc.JustPositions(), strip);
             screenTransPrim.SingleBindBone = screenBoneName;
@@ -519,22 +519,25 @@ namespace TheraEngine.Actors.Types
         private void DragRotation(Vec3 dragPointWorld)
         {
             TMath.AxisAngleBetween(_lastPointWorld, dragPointWorld, out Vec3 axis, out float angle);
+
             //if (angle == 0.0f)
             //    return;
 
             //if (_snapRotations)
             //    angle = angle.RoundToNearest(_rotationSnapBias, _rotationSnapInterval);
 
-            Quat delta = Quat.FromAxisAngleDeg(axis, angle);
+            Quat worldDelta = Quat.FromAxisAngleDeg(axis, angle);
             
-            _targetSocket.HandleRotation(delta);
+            //TODO: convert to socket space
+
+            _targetSocket.Transform.Rotation.Value *= worldDelta;
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }
         
         private void DragTranslation(Vec3 dragPointWorld)
         {
-            Vec3 delta = dragPointWorld - _lastPointWorld;
+            Vec3 worldDelta = dragPointWorld - _lastPointWorld;
             
             //Matrix4 m = _targetSocket.InverseWorldMatrix.ClearScale();
             //m = m.ClearTranslation();
@@ -553,14 +556,19 @@ namespace TheraEngine.Actors.Types
             //    worldTrans = resultPoint - worldPoint;
             //}
 
-            _targetSocket.HandleTranslation(delta);
+            //TODO: convert world delta to local socket delta
+
+            _targetSocket.Transform.Translation.Value += worldDelta;
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }
         private void DragScale(Vec3 dragPointWorld)
         {
-            Vec3 delta = dragPointWorld - _lastPointWorld;
-            _targetSocket.HandleScale(delta);
+            Vec3 worldDelta = dragPointWorld - _lastPointWorld;
+
+            //TODO: better method for scaling
+
+            _targetSocket.Transform.Scale.Value += worldDelta;
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }

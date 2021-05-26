@@ -5,12 +5,12 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models
 {
-    public class VertexQuad : VertexPolygon
+    public class TVertexQuad : TVertexPolygon
     {
-        public Vertex Vertex0 => _vertices[0];
-        public Vertex Vertex1 => _vertices[1];
-        public Vertex Vertex2 => _vertices[2];
-        public Vertex Vertex3 => _vertices[3];
+        public TVertex Vertex0 => _vertices[0];
+        public TVertex Vertex1 => _vertices[1];
+        public TVertex Vertex2 => _vertices[2];
+        public TVertex Vertex3 => _vertices[3];
         
         public override FaceType Type => FaceType.Quads;
 
@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering.Models
         /// | \|
         /// 0--1
         /// </summary>
-        public VertexQuad(Vertex v0, Vertex v1, Vertex v2, Vertex v3) 
+        public TVertexQuad(TVertex v0, TVertex v1, TVertex v2, TVertex v3) 
             : base(v0, v1, v2, v3) { }
 
         /// <summary>      
@@ -39,28 +39,28 @@ namespace TheraEngine.Rendering.Models
         //        new VertexTriangle(Vertex0.HardCopy(), Vertex2.HardCopy(), Vertex3.HardCopy()),
         //    };
         //}
-        public static VertexQuad MakeQuad(
+        public static TVertexQuad Make(
             Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, bool addAutoNormal = false, bool flipVerticalUVCoord = false)
         {
             if (addAutoNormal)
             {
                 Vec3 normal = Vec3.CalculateNormal(bottomLeft, bottomRight, topLeft);
-                return MakeQuad(bottomLeft, bottomRight, topRight, topLeft, normal, flipVerticalUVCoord);
+                return Make(bottomLeft, bottomRight, topRight, topLeft, normal, flipVerticalUVCoord);
             }
             else
-                return new VertexQuad(
-                    new Vertex(bottomLeft,  new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                    new Vertex(bottomRight, new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                    new Vertex(topRight,    new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
-                    new Vertex(topLeft,     new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
+                return new TVertexQuad(
+                    new TVertex(bottomLeft,  new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                    new TVertex(bottomRight, new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                    new TVertex(topRight,    new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
+                    new TVertex(topLeft,     new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
         }
-        public static VertexQuad MakeQuad(
+        public static TVertexQuad Make(
             Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal, bool flipVerticalUVCoord = true)
-            => new VertexQuad(
-                new Vertex(bottomLeft,  normal, new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                new Vertex(bottomRight, normal, new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                new Vertex(topRight,    normal, new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
-                new Vertex(topLeft,     normal, new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
+            => new TVertexQuad(
+                new TVertex(bottomLeft,  normal, new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                new TVertex(bottomRight, normal, new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                new TVertex(topRight,    normal, new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
+                new TVertex(topLeft,     normal, new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
         
         /// <summary>
         /// Generates a quad using cubemap-cross texture coordinates.
@@ -78,8 +78,8 @@ namespace TheraEngine.Rendering.Models
         /// A value of 0 means exact coordinates.</param>
         /// <param name="flipVerticalUVCoord">If true, flips the vertical coordinate upside-down. 
         /// This is true by default because OpenGL uses a top-left UV origin.</param>
-        /// <returns>A <see cref="VertexQuad"/> object defining a quad.</returns>
-        public static VertexQuad MakeQuad(
+        /// <returns>A <see cref="TVertexQuad"/> object defining a quad.</returns>
+        public static TVertexQuad Make(
             Vec3 bottomLeft,
             Vec3 bottomRight,
             Vec3 topRight,
@@ -225,39 +225,39 @@ namespace TheraEngine.Rendering.Models
                 topLeftUV.Y = 1.0f - topLeftUV.Y;
             }
 
-            return new VertexQuad(
-                new Vertex(bottomLeft, normal, bottomLeftUV),
-                new Vertex(bottomRight, normal, bottomRightUV),
-                new Vertex(topRight, normal, topRightUV),
-                new Vertex(topLeft, normal, topLeftUV));
+            return new TVertexQuad(
+                new TVertex(bottomLeft, normal, bottomLeftUV),
+                new TVertex(bottomRight, normal, bottomRightUV),
+                new TVertex(topRight, normal, topRightUV),
+                new TVertex(topLeft, normal, topLeftUV));
         }
-        public static VertexQuad MakeQuad(
+        public static TVertexQuad Make(
             Vec3 bottomLeft,    InfluenceDef bottomLeftInf,
             Vec3 bottomRight,   InfluenceDef bottomRightInf,
             Vec3 topRight,      InfluenceDef topRightInf,
             Vec3 topLeft,       InfluenceDef topLeftInf,
             Vec3 normal, bool flipVerticalUVCoord = false)
         {
-            return new VertexQuad(
-                new Vertex(bottomLeft,  bottomLeftInf,  normal, new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                new Vertex(bottomRight, bottomRightInf, normal, new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                new Vertex(topRight,    topRightInf,    normal, new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
-                new Vertex(topLeft,     topLeftInf,     normal, new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
+            return new TVertexQuad(
+                new TVertex(bottomLeft,  bottomLeftInf,  normal, new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                new TVertex(bottomRight, bottomRightInf, normal, new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                new TVertex(topRight,    topRightInf,    normal, new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
+                new TVertex(topLeft,     topLeftInf,     normal, new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
         }
-        public static VertexQuad MakeQuad(
+        public static TVertexQuad Make(
            Vec3 bottomLeft,     InfluenceDef bottomLeftInf,    Vec3 bottomLeftNormal,
            Vec3 bottomRight,    InfluenceDef bottomRightInf,   Vec3 bottomRightNormal,
            Vec3 topRight,       InfluenceDef topRightInf,      Vec3 topRightNormal,
            Vec3 topLeft,        InfluenceDef topLeftInf,       Vec3 topLeftNormal, bool flipVerticalUVCoord = false)
         {
-            return new VertexQuad(
-                new Vertex(bottomLeft,  bottomLeftInf,  bottomLeftNormal,   new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                new Vertex(bottomRight, bottomRightInf, bottomRightNormal,  new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                new Vertex(topRight,    topRightInf,    topRightNormal,     new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
-                new Vertex(topLeft,     topLeftInf,     topLeftNormal,      new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
+            return new TVertexQuad(
+                new TVertex(bottomLeft,  bottomLeftInf,  bottomLeftNormal,   new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                new TVertex(bottomRight, bottomRightInf, bottomRightNormal,  new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                new TVertex(topRight,    topRightInf,    topRightNormal,     new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
+                new TVertex(topLeft,     topLeftInf,     topLeftNormal,      new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
         }
 
-        public static VertexQuad MakeQuad(
+        public static TVertexQuad Make(
            Vec3 bottomLeft, InfluenceDef bottomLeftInf,
            Vec3 bottomRight, InfluenceDef bottomRightInf,
            Vec3 topRight, InfluenceDef topRightInf,
@@ -267,29 +267,29 @@ namespace TheraEngine.Rendering.Models
             if (addAutoNormal)
             {
                 Vec3 normal = Vec3.CalculateNormal(bottomLeft, bottomRight, topLeft);
-                return new VertexQuad(
-                    new Vertex(bottomLeft,  bottomLeftInf,  normal, new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                    new Vertex(bottomRight, bottomRightInf, normal, new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                    new Vertex(topRight,    topRightInf,    normal, new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
-                    new Vertex(topLeft,     topLeftInf,     normal, new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
+                return new TVertexQuad(
+                    new TVertex(bottomLeft,  bottomLeftInf,  normal, new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                    new TVertex(bottomRight, bottomRightInf, normal, new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                    new TVertex(topRight,    topRightInf,    normal, new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
+                    new TVertex(topLeft,     topLeftInf,     normal, new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
             }
             else
-                return new VertexQuad(
-                    new Vertex(bottomLeft,  bottomLeftInf,  new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                    new Vertex(bottomRight, bottomRightInf, new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
-                    new Vertex(topRight,    topRightInf,    new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
-                    new Vertex(topLeft,     topLeftInf,     new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
+                return new TVertexQuad(
+                    new TVertex(bottomLeft,  bottomLeftInf,  new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                    new TVertex(bottomRight, bottomRightInf, new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
+                    new TVertex(topRight,    topRightInf,    new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
+                    new TVertex(topLeft,     topLeftInf,     new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
         }
 
         /// <summary>
         /// Positive Y is facing the sky, like a floor.
         /// </summary>
-        public static VertexQuad PosYQuad(float uniformScale = 1.0f, bool bottomLeftOrigin = false, bool flipVerticalUVCoord = false) 
-            => PosYQuad(uniformScale, uniformScale, bottomLeftOrigin, flipVerticalUVCoord);
+        public static TVertexQuad PosY(float uniformScale = 1.0f, bool bottomLeftOrigin = false, bool flipVerticalUVCoord = false) 
+            => PosY(uniformScale, uniformScale, bottomLeftOrigin, flipVerticalUVCoord);
         /// <summary>
         /// Positive Y is facing the sky, like a floor.
         /// </summary>
-        public static VertexQuad PosYQuad(float xScale, float zScale, bool bottomLeftOrigin, bool flipVerticalUVCoord = false)
+        public static TVertexQuad PosY(float xScale, float zScale, bool bottomLeftOrigin, bool flipVerticalUVCoord = false)
         {
             if (bottomLeftOrigin)
             {
@@ -297,7 +297,7 @@ namespace TheraEngine.Rendering.Models
                 Vec3 v2 = new Vec3(xScale,  0.0f, 0.0f);
                 Vec3 v3 = new Vec3(xScale,  0.0f, -zScale);
                 Vec3 v4 = new Vec3(0.0f,    0.0f, -zScale);
-                return MakeQuad(v1, v2, v3, v4, Vec3.UnitY, flipVerticalUVCoord);
+                return Make(v1, v2, v3, v4, Vec3.UnitY, flipVerticalUVCoord);
             }
             else
             {
@@ -307,15 +307,15 @@ namespace TheraEngine.Rendering.Models
                 Vec3 v2 = new Vec3(xHalf,   0.0f, zHalf);
                 Vec3 v3 = new Vec3(xHalf,   0.0f, -zHalf);
                 Vec3 v4 = new Vec3(-xHalf,  0.0f, -zHalf);
-                return MakeQuad(v1, v2, v3, v4, Vec3.UnitY, flipVerticalUVCoord);
+                return Make(v1, v2, v3, v4, Vec3.UnitY, flipVerticalUVCoord);
             }
         }
         /// <summary>
         /// Positive Y is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad PosYQuad(BoundingRectangleF region, bool flipVerticalUVCoord = false)
+        public static TVertexQuad PosY(BoundingRectangleF region, bool flipVerticalUVCoord = false)
         {
-            return MakeQuad(
+            return Make(
                 ((Vec3)region.BottomLeft).Xzy,
                 ((Vec3)region.BottomRight).Xzy,
                 ((Vec3)region.TopRight).Xzy,
@@ -326,12 +326,12 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// Positive Z is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad PosZQuad(float uniformScale = 1.0f, bool bottomLeftOrigin = false, float z = 0.0f, bool flipVerticalUVCoord = true)
-            => PosZQuad(uniformScale, uniformScale, z, bottomLeftOrigin, flipVerticalUVCoord);
+        public static TVertexQuad PosZ(float uniformScale = 1.0f, bool bottomLeftOrigin = false, float z = 0.0f, bool flipVerticalUVCoord = true)
+            => PosZ(uniformScale, uniformScale, z, bottomLeftOrigin, flipVerticalUVCoord);
         /// <summary>
         /// Positive Z is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad PosZQuad(float xScale, float yScale, float z, bool bottomLeftOrigin, bool flipVerticalUVCoord = true)
+        public static TVertexQuad PosZ(float xScale, float yScale, float z, bool bottomLeftOrigin, bool flipVerticalUVCoord = true)
         {
             if (bottomLeftOrigin)
             {
@@ -339,7 +339,7 @@ namespace TheraEngine.Rendering.Models
                 Vec3 v2 = new Vec3(xScale,  0.0f,   z);
                 Vec3 v3 = new Vec3(xScale,  yScale, z);
                 Vec3 v4 = new Vec3(0.0f,    yScale, z);
-                return MakeQuad(v1, v2, v3, v4, Vec3.UnitZ, flipVerticalUVCoord);
+                return Make(v1, v2, v3, v4, Vec3.UnitZ, flipVerticalUVCoord);
             }
             else
             {
@@ -349,31 +349,29 @@ namespace TheraEngine.Rendering.Models
                 Vec3 v2 = new Vec3(xHalf,   -yHalf, z);
                 Vec3 v3 = new Vec3(xHalf,   yHalf,  z);
                 Vec3 v4 = new Vec3(-xHalf,  yHalf,  z);
-                return MakeQuad(v1, v2, v3, v4, Vec3.UnitZ, flipVerticalUVCoord);
+                return Make(v1, v2, v3, v4, Vec3.UnitZ, flipVerticalUVCoord);
             }
         }
         /// <summary>
         /// Positive Z is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad PosZQuad(BoundingRectangleF region, bool flipVerticalUVCoord = false)
-        {
-            return MakeQuad(
+        public static TVertexQuad PosZ(BoundingRectangleF region, bool flipVerticalUVCoord = false)
+            => Make(
                 region.BottomLeft,
                 region.BottomRight,
                 region.TopRight,
                 region.TopLeft,
                 Vec3.UnitZ, flipVerticalUVCoord);
-        }
 
         /// <summary>
         /// Negative Z is away from the camera.
         /// </summary>
-        public static VertexQuad NegZQuad(float uniformScale = 1.0f, bool bottomLeftOrigin = false, bool flipVerticalUVCoord = false)
-            => NegZQuad(uniformScale, uniformScale, bottomLeftOrigin, flipVerticalUVCoord);
+        public static TVertexQuad NegZ(float uniformScale = 1.0f, bool bottomLeftOrigin = false, bool flipVerticalUVCoord = false)
+            => NegZ(uniformScale, uniformScale, bottomLeftOrigin, flipVerticalUVCoord);
         /// <summary>
         /// Negative Z is away from the camera.
         /// </summary>
-        public static VertexQuad NegZQuad(float xScale, float yScale, bool bottomLeftOrigin, bool flipVerticalUVCoord = false)
+        public static TVertexQuad NegZ(float xScale, float yScale, bool bottomLeftOrigin, bool flipVerticalUVCoord = false)
         {
             if (bottomLeftOrigin)
             {
@@ -381,7 +379,7 @@ namespace TheraEngine.Rendering.Models
                 Vec3 v2 = new Vec3(-xScale, 0.0f,   0.0f);
                 Vec3 v3 = new Vec3(-xScale, yScale, 0.0f);
                 Vec3 v4 = new Vec3(0.0f,    yScale, 0.0f);
-                return MakeQuad(v1, v2, v3, v4, -Vec3.UnitZ, flipVerticalUVCoord);
+                return Make(v1, v2, v3, v4, -Vec3.UnitZ, flipVerticalUVCoord);
             }
             else
             {
@@ -391,7 +389,7 @@ namespace TheraEngine.Rendering.Models
                 Vec3 v2 = new Vec3(-xHalf,  -yHalf, 0.0f);
                 Vec3 v3 = new Vec3(-xHalf,  yHalf,  0.0f);
                 Vec3 v4 = new Vec3(xHalf,   yHalf,  0.0f);
-                return MakeQuad(v1, v2, v3, v4, -Vec3.UnitZ, flipVerticalUVCoord);
+                return Make(v1, v2, v3, v4, -Vec3.UnitZ, flipVerticalUVCoord);
             }
         }
     }

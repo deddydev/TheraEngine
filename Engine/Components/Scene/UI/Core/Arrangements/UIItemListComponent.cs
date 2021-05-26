@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
@@ -26,7 +27,7 @@ namespace TheraEngine.Rendering.UI
         private bool _reverseItemOrder = false;
         private bool _arrangeBackward = false;
         private EOrientation _orientation = EOrientation.Vertical;
-        private IComparer<ISceneComponent> _sorter;
+        private IComparer<ISocket> _sorter;
 
         public UIListComponent()
         {
@@ -68,7 +69,7 @@ namespace TheraEngine.Rendering.UI
         }
         [TSerialize]
         [Category("List")]
-        public IComparer<ISceneComponent> Sorter
+        public IComparer<ISocket> Sorter
         {
             get => _sorter;
             set
@@ -81,7 +82,7 @@ namespace TheraEngine.Rendering.UI
         protected override void OnResizeChildComponents(BoundingRectangleF parentRegion)
         {
             if (Sorter != null && ChildrenChanged)
-                ChildComponents.Sort(Sorter);
+                ChildSockets.Sort(Sorter);
 
             //Sizing priority: auto, fixed, proportional
             bool vertical = Orientation == EOrientation.Vertical;
@@ -102,11 +103,11 @@ namespace TheraEngine.Rendering.UI
         /// <param name="propDenom">The denominator to use to calculate proportional item sizes.</param>
         private void ResizeChildrenPrepass(bool vertical, ref float remaining, ref float propDenom)
         {
-            for (int i = 0; i < ChildComponents.Count; ++i)
+            for (int i = 0; i < ChildSockets.Count; ++i)
             {
-                int index = ReverseItemOrder ? ChildComponents.Count - 1 - i : i;
+                int index = ReverseItemOrder ? ChildSockets.Count - 1 - i : i;
 
-                ISceneComponent comp = ChildComponents[index];
+                ISocket comp = ChildSockets[index];
                 if (!(comp is IUIComponent uiComp))
                     continue;
 
@@ -156,11 +157,11 @@ namespace TheraEngine.Rendering.UI
                 remaining = 0.0f;
 
             float offset = 0.0f;
-            for (int i = 0; i < ChildComponents.Count; ++i)
+            for (int i = 0; i < ChildSockets.Count; ++i)
             {
-                int index = ReverseItemOrder ? ChildComponents.Count - 1 - i : i;
+                int index = ReverseItemOrder ? ChildSockets.Count - 1 - i : i;
 
-                if (!(ChildComponents[index] is IUIComponent uiComp))
+                if (!(ChildSockets[index] is IUIComponent uiComp))
                     continue;
 
                 UISizingDefinition def = (uiComp.ParentInfo as ListPlacementInfo)?.Size;
@@ -264,7 +265,7 @@ namespace TheraEngine.Rendering.UI
 
         private bool ChildrenChanged { get; set; } = false;
 
-        protected override void OnChildAdded(ISceneComponent item)
+        protected override void OnChildAdded(ISocket item)
         {
             ChildrenChanged = true;
 
@@ -278,7 +279,7 @@ namespace TheraEngine.Rendering.UI
 
             base.OnChildAdded(item);
         }
-        protected override void OnChildRemoved(ISceneComponent item)
+        protected override void OnChildRemoved(ISocket item)
         {
             ChildrenChanged = true;
 

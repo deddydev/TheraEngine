@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using TheraEngine.Actors;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Input.Devices;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -30,10 +32,6 @@ namespace TheraEngine.Components
     }
     public interface ISceneComponent : ISocket, IComponent
     {
-        bool AllowRemoval { get; set; }
-
-        Matrix4 LocalMatrix { get; }
-        Matrix4 InverseLocalMatrix { get; }
         Matrix4 PreviousWorldMatrix { get; set; }
         Matrix4 PreviousInverseWorldMatrix { get; set; }
 
@@ -120,7 +118,7 @@ namespace TheraEngine.Components
 
         protected SceneComponent()
         {
-            ChildComponents = new EventList<ISceneComponent>();
+            ChildSockets = new EventList<ISocket>();
         }
 
         [Browsable(false)]
@@ -159,7 +157,7 @@ namespace TheraEngine.Components
                 {
                     //_childLocker.EnterReadLock();
 
-                    foreach (ISceneComponent c in _children)
+                    foreach (ISceneComponent c in _childSockets)
                         c?.RecalcWorldTransform();
                 }
                 catch (Exception ex)
@@ -201,10 +199,8 @@ namespace TheraEngine.Components
             _parent?.ChildSockets?.Remove(this);
         }
 
-        protected EventList<ISceneComponent> _children;
+        protected EventList<ISocket> _childSockets;
         
-        IEventList<ISceneComponent> ISocket.ChildComponents => _children;
-
         private bool _monitorAudioVelocity = false;
         private bool _monitorVelocity = false;
 
@@ -220,12 +216,7 @@ namespace TheraEngine.Components
                 _monitorVelocity = value;
 
                 if (!_monitorAudioVelocity)
-                {
-                    if (_monitorVelocity)
-                        RegisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, CalcVelocityTick);
-                    else
-                        UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, CalcVelocityTick);
-                }
+                    (_monitorVelocity ? (Action<ETickGroup, ETickOrder, DelTick, EInputPauseType>)RegisterTick : UnregisterTick)(ETickGroup.PostPhysics, ETickOrder.Animation, CalcVelocityTick, EInputPauseType.TickAlways);
             }
         }
 
@@ -405,7 +396,7 @@ namespace TheraEngine.Components
                     //_childLocker.EnterReadLock();
 
                     //TODO: redundant but safe
-                    foreach (IComponent c in _children)
+                    foreach (IComponent c in _childSockets)
                         if (c != null)
                             c.OwningActor = value;
 
@@ -476,37 +467,37 @@ namespace TheraEngine.Components
         [TSerialize]
         //[Browsable(false)]
         [Category("Scene Component")]
-        public EventList<ISceneComponent> ChildComponents
+        public EventList<ISocket> ChildSockets
         {
-            get => _children;
+            get => _childSockets;
             set
             {
                 try
                 {
                     //_childLocker.EnterWriteLock();
 
-                    if (_children != null)
+                    if (_childSockets != null)
                     {
-                        _children.Clear();
-                        _children.PreAnythingRemoved -= PreAnythingRemoved;
-                        _children.PostAdded -= OnSingleChildComponentAdded;
-                        _children.PostAddedRange -= OnMultipleChildComponentsAdded;
-                        _children.PostInserted -= OnSingleChildComponentInserted;
-                        _children.PostInsertedRange -= OnMultipleChildComponentsInserted;
-                        _children.PostRemoved -= OnSingleChildComponentRemoved;
-                        _children.PostRemovedRange -= OnMultipleChildComponentsRemoved;
+                        _childSockets.Clear();
+                        _childSockets.PreAnythingRemoved -= PreAnythingRemoved;
+                        _childSockets.PostAdded -= OnSingleChildComponentAdded;
+                        _childSockets.PostAddedRange -= OnMultipleChildComponentsAdded;
+                        _childSockets.PostInserted -= OnSingleChildComponentInserted;
+                        _childSockets.PostInsertedRange -= OnMultipleChildComponentsInserted;
+                        _childSockets.PostRemoved -= OnSingleChildComponentRemoved;
+                        _childSockets.PostRemovedRange -= OnMultipleChildComponentsRemoved;
                     }
-                    _children = value ?? new EventList<ISceneComponent>();
-                    _children.AllowDuplicates = false;
-                    if (_children != null)
+                    _childSockets = value ?? new EventList<ISocket>();
+                    _childSockets.AllowDuplicates = false;
+                    if (_childSockets != null)
                     {
-                        _children.PreAnythingRemoved += PreAnythingRemoved;
-                        _children.PostAdded += OnSingleChildComponentAdded;
-                        _children.PostAddedRange += OnMultipleChildComponentsAdded;
-                        _children.PostInserted += OnSingleChildComponentInserted;
-                        _children.PostInsertedRange += OnMultipleChildComponentsInserted;
-                        _children.PostRemoved += OnSingleChildComponentRemoved;
-                        _children.PostRemovedRange += OnMultipleChildComponentsRemoved;
+                        _childSockets.PreAnythingRemoved += PreAnythingRemoved;
+                        _childSockets.PostAdded += OnSingleChildComponentAdded;
+                        _childSockets.PostAddedRange += OnMultipleChildComponentsAdded;
+                        _childSockets.PostInserted += OnSingleChildComponentInserted;
+                        _childSockets.PostInsertedRange += OnMultipleChildComponentsInserted;
+                        _childSockets.PostRemoved += OnSingleChildComponentRemoved;
+                        _childSockets.PostRemovedRange += OnMultipleChildComponentsRemoved;
                     }
                 }
                 catch (Exception ex)
@@ -520,20 +511,20 @@ namespace TheraEngine.Components
             }
         }
 
-        private bool PreAnythingRemoved(ISceneComponent item) => item.AllowRemoval;
+        private bool PreAnythingRemoved(ISocket item) => item.AllowRemoval;
 
         void ISceneComponent.PhysicsSimulationStarted() => PhysicsSimulationStarted();
         protected void PhysicsSimulationStarted()
         {
             _simulatingPhysics = true;
-            foreach (ISceneComponent c in ChildComponents)
+            foreach (ISceneComponent c in ChildSockets)
                 c.PhysicsSimulationStarted(this);
         }
         void ISceneComponent.PhysicsSimulationStarted(ISceneComponent simulatingAncestor) => PhysicsSimulationStarted(simulatingAncestor);
         protected void PhysicsSimulationStarted(ISceneComponent simulatingAncestor)
         {
             _ancestorSimulatingPhysics = simulatingAncestor;
-            foreach (ISceneComponent c in ChildComponents)
+            foreach (ISceneComponent c in ChildSockets)
                 c.PhysicsSimulationStarted(simulatingAncestor);
         }
         void ISceneComponent.StopSimulatingPhysics(bool retainCurrentPosition) => StopSimulatingPhysics(retainCurrentPosition);
@@ -547,7 +538,7 @@ namespace TheraEngine.Components
                 _inverseLocalMatrix = ParentWorldMatrix * InverseWorldMatrix;
                 RecalcWorldTransform();
             }
-            foreach (ISceneComponent c in ChildComponents)
+            foreach (ISceneComponent c in ChildSockets)
                 c.PhysicsSimulationEnded();
         }
         void ISceneComponent.PhysicsSimulationEnded() => PhysicsSimulationEnded();
@@ -559,7 +550,7 @@ namespace TheraEngine.Components
             _inverseWorldMatrix = InverseLocalMatrix * InverseParentWorldMatrix;
 
             _ancestorSimulatingPhysics = null;
-            foreach (ISceneComponent c in ChildComponents)
+            foreach (ISceneComponent c in ChildSockets)
                 c.PhysicsSimulationEnded();
         }
 
@@ -648,6 +639,7 @@ namespace TheraEngine.Components
                 if (_parent != null && !_parent.ChildSockets.Contains(this))
                     _parent.ChildSockets.Add(this);
                 OwningActor = _parent?.OwningActor;
+                RecalcWorldTransform();
             }
         }
 
@@ -677,9 +669,14 @@ namespace TheraEngine.Components
 
             //TODO: There will probably never be enough child components to warrant parallel initialization
             //Make this an option?
+            //Initialize every node in flattened tree in parallel instead of by level?
 
             //_children.AsParallel().ForAll(x => x.OnSpawned());
-            _children.ForEach(x => x.Spawn(OwningActor));
+            _childSockets.ForEach(x =>
+            {
+                if (x is ISpawnable y)
+                    y.Spawn(OwningActor);
+            });
         }
 
         protected override void OnDespawned()
@@ -690,7 +687,7 @@ namespace TheraEngine.Components
             {
                 //_childLocker.EnterReadLock();
 
-                foreach (ISceneComponent c in _children)
+                foreach (ISceneComponent c in _childSockets)
                     c.Despawn(OwningActor);
             }
             catch (Exception ex)
@@ -792,7 +789,7 @@ namespace TheraEngine.Components
             {
                 //_childLocker.EnterReadLock();
 
-                foreach (ISceneComponent c in _children)
+                foreach (ISceneComponent c in _childSockets)
                     c?.GenerateChildCache(cache);
             }
             catch (Exception ex)
@@ -811,7 +808,7 @@ namespace TheraEngine.Components
         /// Calls OnChildRemoved on each component and then regenerates the actor's component cache.
         /// </summary>
         /// <param name="items"></param>
-        protected virtual void OnMultipleChildComponentsRemoved(IEnumerable<ISceneComponent> items)
+        protected virtual void OnMultipleChildComponentsRemoved(IEnumerable<ISocket> items)
         {
             foreach (ISceneComponent item in items)
                 OnChildRemoved(item);
@@ -823,22 +820,22 @@ namespace TheraEngine.Components
         /// Calls OnChildRemoved for each component and regenerates the owning actor's scene component cache.
         /// </summary>
         /// <param name="item"></param>
-        protected virtual void OnSingleChildComponentRemoved(ISceneComponent item)
+        protected virtual void OnSingleChildComponentRemoved(ISocket item)
         {
             OnChildRemoved(item);
 
             OwningActor?.GenerateSceneComponentCache();
         }
-        protected virtual void OnMultipleChildComponentsInserted(IEnumerable<ISceneComponent> items, int index)
+        protected virtual void OnMultipleChildComponentsInserted(IEnumerable<ISocket> items, int index)
             => OnMultipleChildComponentsAdded(items);
-        protected virtual void OnSingleChildComponentInserted(ISceneComponent item, int index)
+        protected virtual void OnSingleChildComponentInserted(ISocket item, int index)
             => OnSingleChildComponentAdded(item);
         /// <summary>
         /// Callback to handle when multiple children are added.
         /// Calls OnChildAdded for each component and regenerates the owning actor's scene component cache.
         /// </summary>
         /// <param name="items"></param>
-        protected virtual void OnMultipleChildComponentsAdded(IEnumerable<ISceneComponent> items)
+        protected virtual void OnMultipleChildComponentsAdded(IEnumerable<ISocket> items)
         {
             foreach (ISceneComponent item in items)
                 OnChildAdded(item);
@@ -850,7 +847,7 @@ namespace TheraEngine.Components
         /// Calls HandleSingleChildAdded and regenerates the owning actor's scene component cache.
         /// </summary>
         /// <param name="item"></param>
-        protected virtual void OnSingleChildComponentAdded(ISceneComponent item)
+        protected virtual void OnSingleChildComponentAdded(ISocket item)
         {
             OnChildAdded(item);
 
@@ -860,22 +857,17 @@ namespace TheraEngine.Components
         /// Informs a scene component that it has been removed from the parent.
         /// </summary>
         /// <param name="item"></param>
-        protected virtual void OnChildRemoved(ISceneComponent item)
+        protected virtual void OnChildRemoved(ISocket item)
         {
-            item.RemovedFromParent();
+            //item?.RemovedFromParent();
         }
         /// <summary>
         /// Informs a scene component that this component is its new parent.
         /// </summary>
         /// <param name="item"></param>
-        protected virtual void OnChildAdded(ISceneComponent item)
+        protected virtual void OnChildAdded(ISocket item)
         {
-            item.AddedToParent(this);
-        }
-        void ISocket.SetParentInternal(ISocket parent)
-        {
-            ParentSocket = parent;
-            RecalcWorldTransform();
+            //item?.AddedToParent(this);
         }
         #endregion
 
@@ -897,7 +889,7 @@ namespace TheraEngine.Components
             //No socket name given? Attach to mesh component itself as child
             if (string.IsNullOrWhiteSpace(socketName))
             {
-                mesh.ChildComponents.Add(this);
+                mesh.ChildSockets.Add(this);
                 return mesh;
             }
 
@@ -934,7 +926,7 @@ namespace TheraEngine.Components
             //No socket name given? Attach to mesh component itself as child
             if (string.IsNullOrWhiteSpace(socketName))
             {
-                mesh.ChildComponents.Add(this);
+                mesh.ChildSockets.Add(this);
                 return mesh;
             }
 
@@ -965,6 +957,9 @@ namespace TheraEngine.Components
         public virtual bool IsScalable => false;
         [Browsable(false)]
         public int ParentSocketChildIndex => ParentSocket?.ChildSockets?.IndexOf(this) ?? -1;
+
+        IEventList<ISocket> ISocket.ChildSockets => ChildSockets;
+        public ITransform Transform { get; set; }
 
         public virtual void HandleTranslation(Vec3 delta)
         {
@@ -1012,7 +1007,7 @@ namespace TheraEngine.Components
         protected PreviewRenderCommand3D CreatePreviewRenderCommand(string textureName)
         {
             PreviewRenderCommand3D rc = new PreviewRenderCommand3D(ERenderPass.TransparentForward);
-            VertexQuad quad = VertexQuad.PosZQuad();
+            TVertexQuad quad = TVertexQuad.PosZ();
             TMesh data = TMesh.Create(VertexShaderDesc.PosNormTex(), quad.ToTriangles());
             string texPath = Engine.Files.TexturePath(textureName);
             TexRef2D tex = new TexRef2D("PreviewIcon", texPath) { SamplerName = "Texture0" };
@@ -1056,12 +1051,21 @@ namespace TheraEngine.Components
 
         void ISceneComponent.RemovedFromParent()
         {
-            ((ISocket)this).SetParentInternal(null);
+            ((ISocket)this).ParentSocket = null;
         }
         void ISceneComponent.AddedToParent(ISocket parent)
         {
             //Trace.WriteLine($"Added {this} to parent {parent}.");
-            ((ISocket)this).SetParentInternal(parent);
+            ((ISocket)this).ParentSocket = parent;
         }
+    }
+
+    public interface ISpawnable
+    {
+        IActor OwningActor { get; set; }
+        bool IsSpawned { get; }
+
+        void Spawn(IActor owner);
+        void Despawn(IActor owner);
     }
 }

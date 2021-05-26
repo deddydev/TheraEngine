@@ -49,8 +49,8 @@ namespace TheraEngine.Components.Scene
             {
                 case ETrackedDeviceClass.HMD:
                     {
-                        comp.ChildComponents.Add(LeftEye);
-                        comp.ChildComponents.Add(RightEye);
+                        comp.ChildSockets.Add(LeftEye);
+                        comp.ChildSockets.Add(RightEye);
                         HMD = comp;
                         Engine.Out("Created VR HMD component.");
                     }
@@ -81,7 +81,7 @@ namespace TheraEngine.Components.Scene
                     break;
             }
 
-            ChildComponents.Add(comp);
+            ChildSockets.Add(comp);
         }
 
         public VRDeviceComponent HMD { get; private set; }

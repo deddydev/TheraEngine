@@ -63,19 +63,19 @@ namespace TheraEngine.Core.Shapes
         {
             up.Normalize();
 
-            VertexLine[] lines = new VertexLine[sides * 3];
+            TVertexLine[] lines = new TVertexLine[sides * 3];
 
             Vec3 topPoint = center + (up * (height / 2.0f));
             Vec3 bottomPoint = center - (up * (height / 2.0f));
 
-            Vertex[] sidePoints = Circle3D.Points(radius, up, bottomPoint, sides);
+            TVertex[] sidePoints = Circle3D.Points(radius, up, bottomPoint, sides);
 
             for (int i = 0, x = 0; i < sides; ++i)
             {
-                Vertex sidePoint = sidePoints[i];
-                lines[x++] = new VertexLine(bottomPoint, sidePoint.Position);
-                lines[x++] = new VertexLine(topPoint, sidePoint.Position);
-                lines[x++] = new VertexLine(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoint);
+                TVertex sidePoint = sidePoints[i];
+                lines[x++] = new TVertexLine(bottomPoint, sidePoint.Position);
+                lines[x++] = new TVertexLine(topPoint, sidePoint.Position);
+                lines[x++] = new TVertexLine(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoint);
             }
 
             return TMesh.Create(VertexShaderDesc.JustPositions(), lines);
@@ -84,15 +84,15 @@ namespace TheraEngine.Core.Shapes
         {
             up.Normalize();
 
-            List<VertexTriangle> tris = new List<VertexTriangle>((sides * 3) * (closeBottom ? 2 : 1));
+            List<TVertexTriangle> tris = new List<TVertexTriangle>((sides * 3) * (closeBottom ? 2 : 1));
             
             Vec3 topPoint = center + (up * (height / 2.0f));
             Vec3 bottomPoint = center - (up * (height / 2.0f));
 
-            Vertex[] sidePoints = Circle3D.Points(radius, up, bottomPoint, sides);
+            TVertex[] sidePoints = Circle3D.Points(radius, up, bottomPoint, sides);
 
             Vec3 diff, normal;
-            Vertex topVertex;
+            TVertex topVertex;
 
             for (int i = 0; i < sides; ++i)
             {
@@ -101,11 +101,11 @@ namespace TheraEngine.Core.Shapes
                 normal = diff ^ (up ^ diff).Normalized();
                 sidePoints[i].Normal = normal;
 
-                topVertex = new Vertex(topPoint, up, new Vec2(0.5f));
-                tris.Add(new VertexTriangle(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoints[i], topVertex));
+                topVertex = new TVertex(topPoint, up, new Vec2(0.5f));
+                tris.Add(new TVertexTriangle(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoints[i], topVertex));
                 if (tris.Count - 2 >= 0)
                 {
-                    VertexTriangle lastTri = tris[tris.Count - 2];
+                    TVertexTriangle lastTri = tris[tris.Count - 2];
                     lastTri.Vertex0.Normal += normal;
                     lastTri.Vertex0.Normal.Normalize();
                 }
@@ -113,17 +113,17 @@ namespace TheraEngine.Core.Shapes
 
             if (closeBottom)
             {
-                List<Vertex> list = new List<Vertex>(sidePoints.Length + 1)
+                List<TVertex> list = new List<TVertex>(sidePoints.Length + 1)
                 {
-                    new Vertex(bottomPoint, -up, new Vec2(0.5f))
+                    new TVertex(bottomPoint, -up, new Vec2(0.5f))
                 };
                 for (int i = 0; i < sidePoints.Length; ++i)
                 {
-                    Vertex v2 = sidePoints[i].HardCopy();
+                    TVertex v2 = sidePoints[i].HardCopy();
                     v2.Normal = -up;
                     list.Add(v2);
                 }
-                Vertex v3 = sidePoints[0].HardCopy();
+                TVertex v3 = sidePoints[0].HardCopy();
                 v3.Normal = -up;
                 list.Add(v3);
                 tris.AddRange(new VertexTriangleFan(list).ToTriangles());

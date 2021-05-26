@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
-using TheraEngine.Actors.Types.Lights;
 using TheraEngine.Animation;
 using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Components.Scene;
@@ -135,7 +134,7 @@ namespace TheraEditor.Windows.Forms
                         //{
             List<BaseActor> actors = new List<BaseActor>();
 
-            DirectionalLightActor light = new DirectionalLightActor();
+            Actor<DirectionalLightComponent> light = new Actor<DirectionalLightComponent>();
             DirectionalLightComponent comp = light.RootComponent;
             comp.DiffuseIntensity = 1.0f;
             comp.LightColor = new EventColorF3(1.0f);

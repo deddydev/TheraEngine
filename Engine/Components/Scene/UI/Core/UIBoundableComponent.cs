@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 
@@ -471,7 +472,7 @@ namespace TheraEngine.Rendering.UI
             {
                 //_childLocker.EnterReadLock();
 
-                foreach (ISceneComponent c in _children)
+                foreach (ISceneComponent c in _childSockets)
                 {
                     if (c is IUIBoundableComponent uiComp)
                     {
@@ -507,7 +508,7 @@ namespace TheraEngine.Rendering.UI
             {
                 //_childLocker.EnterReadLock();
 
-                foreach (ISceneComponent c in _children)
+                foreach (ISceneComponent c in _childSockets)
                     if (c is IUIBoundableComponent uiComp)
                         uiComp.FindAllIntersecting(worldPoint, true, results);
             }
@@ -524,7 +525,7 @@ namespace TheraEngine.Rendering.UI
                 results.Add(this);
         }
 
-        protected override void OnChildAdded(ISceneComponent item)
+        protected override void OnChildAdded(ISocket item)
         {
             base.OnChildAdded(item);
 

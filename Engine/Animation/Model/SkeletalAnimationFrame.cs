@@ -234,7 +234,7 @@ namespace TheraEngine.Animation
         public void UpdateState(ITransform frameState, ITransform bindState)
         {
             Vec3 t = GetTranslation(bindState.Translation.Value);
-            Quat r = GetRotation(bindState.Rotation.Raw);
+            Quat r = GetRotation(bindState.Rotation.Value);
             Vec3 s = GetScale(bindState.Scale.Value);
             frameState.SetAll(t, r, s);
         }
@@ -263,7 +263,7 @@ namespace TheraEngine.Animation
                 Scale.Weight *= otherWeight;
 
                 t = GetTranslation(bindState.Translation.Value);
-                r = GetRotation(bindState.Rotation.Raw);
+                r = GetRotation(bindState.Rotation.Value);
                 s = GetScale(bindState.Scale);
 
                 frameState.SetAll(t, r, s);
@@ -274,8 +274,8 @@ namespace TheraEngine.Animation
                 Vec3 t2 = otherBoneFrame.GetTranslation(bindState.Translation.Value);
                 t = Vec3.Lerp(t1, t2, otherWeight);
 
-                Quat r1 = GetRotation(bindState.Rotation.Raw);
-                Quat r2 = otherBoneFrame.GetRotation(bindState.Rotation.Raw);
+                Quat r1 = GetRotation(bindState.Rotation.Value);
+                Quat r2 = otherBoneFrame.GetRotation(bindState.Rotation.Value);
                 r = Quat.Slerp(r1, r2, otherWeight);
 
                 Vec3 s1 = GetScale(bindState.Scale);

@@ -8,7 +8,7 @@ namespace TheraEngine.Components.Scene.Transforms
 {
     public interface ITransformComponent : ISceneComponent
     {
-        Transform Transform { get; set; }
+        TTransform Transform { get; set; }
     }
     /// <summary>
     /// Contains a general translation.
@@ -16,10 +16,10 @@ namespace TheraEngine.Components.Scene.Transforms
     [TFileDef("Transform Component")]
     public class TransformComponent : OriginRebasableComponent, ITransformComponent
     {
-        public TransformComponent() : this(Transform.GetIdentity(), true) { }
-        public TransformComponent(Transform transform, bool deferLocalRecalc = false) : base()
+        public TransformComponent() : this(TTransform.GetIdentity(), true) { }
+        public TransformComponent(TTransform transform, bool deferLocalRecalc = false) : base()
         {
-            _transform = transform ?? Transform.GetIdentity();
+            _transform = transform ?? TTransform.GetIdentity();
             _transform.MatrixChanged += _transform_MatrixChanged;
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
@@ -29,17 +29,17 @@ namespace TheraEngine.Components.Scene.Transforms
             => RecalcLocalTransform();
 
         [TSerialize(nameof(Transform))]
-        protected Transform _transform;
+        protected TTransform _transform;
         
         [Category("Transform")]
-        public Transform Transform
+        public TTransform Transform
         {
             get => _transform;
             set
             {
                 if (_transform != null)
                     _transform.MatrixChanged -= _transform_MatrixChanged;
-                _transform = value ?? Transform.GetIdentity();
+                _transform = value ?? TTransform.GetIdentity();
                 _transform.MatrixChanged += _transform_MatrixChanged;
                 RecalcLocalTransform();
             }
@@ -69,7 +69,7 @@ namespace TheraEngine.Components.Scene.Transforms
         protected internal virtual void OnDeserialized()
         {
             if (_transform is null)
-                _transform = Transform.GetIdentity();
+                _transform = TTransform.GetIdentity();
             _transform.MatrixChanged += _transform_MatrixChanged;
             RecalcLocalTransform();
         }

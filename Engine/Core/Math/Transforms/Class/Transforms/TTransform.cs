@@ -20,8 +20,6 @@ namespace TheraEngine.Core.Maths.Transforms
     {
         event MatrixChange MatrixChanged;
 
-        ISocket Socket { get; }
-
         Matrix4 Matrix { get; set; }
         Matrix4 InverseMatrix { get; set; }
 
@@ -41,7 +39,7 @@ namespace TheraEngine.Core.Maths.Transforms
         Vec3 GetRightVector();
         Matrix4 GetRotationMatrix();
 
-        Transform HardCopy();
+        TTransform HardCopy();
 
         //bool IsTranslatable { get; }
         //bool IsScalable { get; }
@@ -59,18 +57,18 @@ namespace TheraEngine.Core.Maths.Transforms
 
     [TFileExt("transform")]
     [TFileDef("Transform")]
-    public class Transform : TFileObject, ITransform
+    public class TTransform : TFileObject, ITransform
     {
         public event MatrixChange MatrixChanged;
 
-        public static Transform GetIdentity(ETransformOrder transformationOrder = ETransformOrder.TRS)
+        public static TTransform GetIdentity(ETransformOrder transformationOrder = ETransformOrder.TRS)
         {
-            Transform identity = GetIdentity();
+            TTransform identity = GetIdentity();
             identity._transformOrder = transformationOrder;
             return identity;
         }
-        public static Transform GetIdentity() => new Transform(Vec3.Zero, Quat.Identity, Vec3.One);
-        public Transform()
+        public static TTransform GetIdentity() => new TTransform(Vec3.Zero, Quat.Identity, Vec3.One);
+        public TTransform()
         {
             _translation = Vec3.Zero;
             _translation.Changed += CreateTransform;
@@ -86,7 +84,7 @@ namespace TheraEngine.Core.Maths.Transforms
             _inverseTransform = Matrix4.Identity;
         }
         
-        public Transform(
+        public TTransform(
             Vec3 translation,
             Quat rotation,
             Vec3 scale,
@@ -118,9 +116,9 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public void SetAll(Vec3 translate, Quat rotation, Vec3 scale)
         {
-            _translation.SetRawSilent(translate);
-            _scale.SetRawSilent(scale);
-            _rotation.SetRawSilent(rotation);
+            _translation.SetValueSilent(translate);
+            _scale.SetValueSilent(scale);
+            _rotation.SetValueSilent(rotation);
             CreateTransform();
         }
 
@@ -147,14 +145,14 @@ namespace TheraEngine.Core.Maths.Transforms
         }
 
         public Vec3 GetForwardVector()
-            => _rotation.Raw * Vec3.Forward;
+            => _rotation.Value * Vec3.Forward;
         public Vec3 GetUpVector()
-            => _rotation.Raw * Vec3.Up;
+            => _rotation.Value * Vec3.Up;
         public Vec3 GetRightVector()
-            => _rotation.Raw * Vec3.Right;
+            => _rotation.Value * Vec3.Right;
 
         public Matrix4 GetRotationMatrix()
-            => Matrix4.CreateFromQuaternion(_rotation.Raw);
+            => Matrix4.CreateFromQuaternion(_rotation.Value);
 
         [Browsable(false)]
         public Matrix4 Matrix
@@ -183,10 +181,10 @@ namespace TheraEngine.Core.Maths.Transforms
         private void MatrixUpdated()
         {
             _matrixChanged = false;
-            DeriveTRS(_transform, out Vec3 t, out Vec3 s, out Quat r);
-            _translation.SetRawSilent(t);
-            _scale.SetRawSilent(s);
-            _rotation.SetRawSilent(r);
+            _transform.DeriveTRS(out Vec3 t, out Vec3 s, out Quat r);
+            _translation.SetValueSilent(t);
+            _scale.SetValueSilent(s);
+            _rotation.SetValueSilent(r);
         }
 
         [Category("Transform")]
@@ -341,8 +339,8 @@ namespace TheraEngine.Core.Maths.Transforms
             Matrix4 oldMatrix = _transform;
             Matrix4 oldInvMatrix = _inverseTransform;
 
-            _transform = Matrix4.TransformMatrix(_scale, _rotation.Raw, _translation, _transformOrder);
-            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation.Raw, _translation, _transformOrder);
+            _transform = Matrix4.TransformMatrix(_scale, _rotation.Value, _translation, _transformOrder);
+            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation.Value, _translation, _transformOrder);
 
             MatrixChanged?.Invoke(this, oldMatrix, oldInvMatrix);
         }
@@ -469,85 +467,6 @@ namespace TheraEngine.Core.Maths.Transforms
         //    }
         //}
 
-        /// <summary>
-        /// Converts this transform's matrix back into its translation, rotation and scale components.
-        /// </summary>
-        /// <param name="m"></param>
-        /// <param name="translation"></param>
-        /// <param name="scale"></param>
-        /// <param name="rotation"></param>
-        public static void DeriveTRS(Matrix4 m, out Vec3 translation, out Vec3 scale, out Quat rotation)
-        {
-            translation = m.Row3.Xyz;
-            scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
-            rotation = m.ExtractRotation(true);
-            //translation.Round(5);
-            //scale.Round(5);
-        }
-        public static void DeriveTR(Matrix4 m, out Vec3 translation, out Quat rotation)
-        {
-            translation = m.Row3.Xyz;
-            rotation = m.ExtractRotation(true);
-        }
-        public static void DeriveT(Matrix4 m, out Vec3 translation)
-        {
-            translation = m.Row3.Xyz;
-        }
-        public static unsafe Transform DeriveTRS(Matrix4 m)
-        {
-            Transform state = new Transform();
-            state.Translation.Value = m.Row3.Xyz;
-            state.Scale.Value = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
-            state.Rotation.Raw = m.ExtractRotation(true);
-
-            //float x, y, z, c;
-            //float* p = m.Data;
-
-            ////m.Row0.Xyz = m.Row0.Xyz.Normalized();
-            ////m.Row1.Xyz = m.Row1.Xyz.Normalized();
-            ////m.Row2.Xyz = m.Row2.Xyz.Normalized();
-            ////m.Row3.Xyz = m.Row3.Xyz.Normalized();
-
-            //y = (float)Math.Asin(-p[2]);
-            //if ((Math.PI / 2.0f - Math.Abs(y)) < 0.0001f)
-            //{
-            //    //Gimbal lock, occurs when the y rotation falls on pi/2 or -pi/2
-            //    z = 0.0f;
-            //    if (y > 0)
-            //        x = (float)Math.Atan2(p[4], p[8]);
-            //    else
-            //        x = (float)Math.Atan2(p[4], -p[8]);
-            //}
-            //else
-            //{
-            //    c = (float)Math.Cos(y);
-            //    x = (float)Math.Atan2(p[6] / c, p[10] / c);
-            //    z = (float)Math.Atan2(p[1] / c, p[0] / c);
-
-            //    //180 z/x inverts y, use second option
-            //    if (Math.PI - Math.Abs(z) < 0.05f)
-            //    {
-            //        y = (float)Math.PI - y;
-            //        c = (float)Math.Cos(y);
-            //        x = (float)Math.Atan2(p[6] / c, p[10] / c);
-            //        z = (float)Math.Atan2(p[1] / c, p[0] / c);
-            //    }
-            //}
-
-            //state._rotation = new Rotator(CustomMath.RadToDeg(new Vec3(x, y, z)), Rotator.Order.YPR);
-
-            //if (state._rotation.Pitch == float.NaN ||
-            //    state._rotation.Yaw == float.NaN ||
-            //    state._rotation.Roll == float.NaN)
-            //    throw new Exception("Something went wrong when deriving rotation values.");
-
-            //state._translation.Raw.Round(5);
-            //state._scale.Raw.Round(5);
-            //state._rotation.Round(5);
-            state.CreateTransform();
-            return state;
-        }
-
         //#region Animation
         //public void SetRotationRoll(float degreeAngle) { Roll = degreeAngle; }
         //public void SetRotationYaw(float degreeAngle) { Yaw = degreeAngle; }
@@ -629,7 +548,7 @@ namespace TheraEngine.Core.Maths.Transforms
         //}
         //#endregion
 
-        public Transform HardCopy()
-            => new Transform(Translation.Value, Rotation.Raw, Scale.Value, TransformationOrder);
+        public TTransform HardCopy()
+            => new TTransform(Translation.Value, Rotation.Value, Scale.Value, TransformationOrder);
     }
 }

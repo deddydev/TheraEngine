@@ -153,10 +153,10 @@ namespace TheraEngine.Components.Scene
             float invFps = 1.0f / fps;
             int kfCount = spline.Keyframes.Count << 1;
 
-            Vertex[] splinePoints = new Vertex[frameCount];
-            VertexLine[] velocity = new VertexLine[frameCount];
+            TVertex[] splinePoints = new TVertex[frameCount];
+            TVertexLine[] velocity = new TVertexLine[frameCount];
             Vec3[] keyframePositions = new Vec3[kfCount];
-            VertexLine[] keyframeLines = new VertexLine[kfCount];
+            TVertexLine[] keyframeLines = new TVertexLine[kfCount];
             Vec3[] tangentPositions = new Vec3[kfCount];
 
             int i;
@@ -168,9 +168,9 @@ namespace TheraEngine.Components.Scene
                 Vec3 vel = spline.GetVelocityKeyframed(sec);
                 float velLength = vel.LengthFast;
                 Vec3 velColor = Vec3.Lerp(Vec3.UnitZ, Vec3.UnitX, 1.0f / (1.0f + 0.1f * (velLength * velLength)));
-                Vertex pos = new Vertex(val) { Color = new ColorF4[] { velColor } };
+                TVertex pos = new TVertex(val) { Color = new ColorF4[] { velColor } };
                 splinePoints[i] = pos;
-                velocity[i] = new VertexLine(pos, new Vertex(pos.Position + vel.Normalized()));
+                velocity[i] = new TVertexLine(pos, new TVertex(pos.Position + vel.Normalized()));
             }
             i = 0;
             Vec3 p0, p1;
@@ -178,12 +178,12 @@ namespace TheraEngine.Components.Scene
             {
                 keyframePositions[i] = p0 = kf.InValue;
                 tangentPositions[i] = p1 = p0 + kf.InTangent;
-                keyframeLines[i] = new VertexLine(p0, p1);
+                keyframeLines[i] = new TVertexLine(p0, p1);
                 ++i;
 
                 keyframePositions[i] = p0 = kf.OutValue;
                 tangentPositions[i] = p1 = p0 + kf.OutTangent;
-                keyframeLines[i] = new VertexLine(p0, p1);
+                keyframeLines[i] = new TVertexLine(p0, p1);
                 ++i;
             }
             //Fill the rest in case of non-matching keyframe counts
@@ -191,7 +191,7 @@ namespace TheraEngine.Components.Scene
             {
                 keyframePositions[i] = p0 = Vec3.Zero;
                 tangentPositions[i] = p1 = Vec3.Zero;
-                keyframeLines[i] = new VertexLine(p0, p1);
+                keyframeLines[i] = new TVertexLine(p0, p1);
                 ++i;
             }
 
@@ -227,7 +227,7 @@ namespace TheraEngine.Components.Scene
                 PointSize = 5.0f
             };
 
-            Rendering.Models.TMesh splineData = Rendering.Models.TMesh.Create(VertexShaderDesc.PosColor(), strip);
+            TMesh splineData = TMesh.Create(VertexShaderDesc.PosColor(), strip);
             TMaterial mat = new TMaterial("SplineColor", new GLSLScript(EGLSLType.Fragment,
 @"
 #version 450
@@ -245,32 +245,32 @@ void main()
             };
             _splinePrimitive = new MeshRenderer(splineData, mat);
 
-            Rendering.Models.TMesh velocityData = Rendering.Models.TMesh.Create(VertexShaderDesc.JustPositions(), velocity);
+            TMesh velocityData = TMesh.Create(VertexShaderDesc.JustPositions(), velocity);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Blue);
             mat.RenderParams = p;
             _velocityTangentsPrimitive = new MeshRenderer(velocityData, mat);
 
-            Rendering.Models.TMesh pointData = Rendering.Models.TMesh.Create(keyframePositions);
+            TMesh pointData = TMesh.Create(keyframePositions);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Green);
             mat.RenderParams = p;
             _pointPrimitive = new MeshRenderer(pointData, mat);
 
-            Rendering.Models.TMesh extremaData = Rendering.Models.TMesh.Create(extrema);
+            TMesh extremaData = TMesh.Create(extrema);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Red);
             mat.RenderParams = p;
             _extremaPrimitive = new MeshRenderer(extremaData, mat);
 
-            Rendering.Models.TMesh tangentData = Rendering.Models.TMesh.Create(tangentPositions);
+            TMesh tangentData = TMesh.Create(tangentPositions);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Purple);
             mat.RenderParams = p;
             _tangentPrimitive = new MeshRenderer(tangentData, mat);
 
-            Rendering.Models.TMesh kfLineData = Rendering.Models.TMesh.Create(VertexShaderDesc.JustPositions(), keyframeLines);
+            TMesh kfLineData = TMesh.Create(VertexShaderDesc.JustPositions(), keyframeLines);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Orange);
             mat.RenderParams = p;
             _keyframeLinesPrimitive = new MeshRenderer(kfLineData, mat);
 
-            Rendering.Models.TMesh timePointData = Rendering.Models.TMesh.Create(Vec3.Zero);
+            TMesh timePointData = TMesh.Create(Vec3.Zero);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.White);
             mat.RenderParams = p;
             _timePointPrimitive = new MeshRenderer(timePointData, mat);
@@ -292,8 +292,9 @@ void main()
             if (_spline.IsLoaded)
             {
                 var spline = Spline;
-                splinePosMtx = Matrix4.CreateTranslation(spline.CurrentPosition);
-                invSplinePosMtx = Matrix4.CreateTranslation(-spline.CurrentPosition);
+                var pos = spline.CurrentPosition;
+                splinePosMtx = pos.AsTranslationMatrix();
+                invSplinePosMtx = pos.AsInverseTranslationMatrix();
             }
             else
             {
@@ -308,9 +309,9 @@ void main()
         }
         protected override void DeriveMatrix()
         {
-            Transform.DeriveTRS(_localTRS, out Vec3 t, out Vec3 s, out Quat r);
-            _translation.SetRawSilent(t);
-            _scale.SetRawSilent(s);
+            _localTRS.DeriveTRS(out Vec3 t, out Vec3 s, out Quat r);
+            _translation.SetValueSilent(t);
+            _scale.SetValueSilent(s);
             _rotation.SetRotationsNoUpdate(r.ToRotator());
         }
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)

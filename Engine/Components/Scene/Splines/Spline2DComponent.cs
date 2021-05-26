@@ -133,10 +133,10 @@ namespace TheraEngine.Components.Scene
             float invFps = 1.0f / fps;
             int kfCount = _spline.Keyframes.Count << 1;
 
-            Vertex[] splinePoints = new Vertex[frameCount];
-            VertexLine[] velocity = new VertexLine[frameCount];
+            TVertex[] splinePoints = new TVertex[frameCount];
+            TVertexLine[] velocity = new TVertexLine[frameCount];
             Vec3[] keyframePositions = new Vec3[kfCount];
-            VertexLine[] keyframeLines = new VertexLine[kfCount];
+            TVertexLine[] keyframeLines = new TVertexLine[kfCount];
             Vec3[] tangentPositions = new Vec3[kfCount];
 
             int i;
@@ -148,9 +148,9 @@ namespace TheraEngine.Components.Scene
                 Vec3 vel = _spline.GetVelocityKeyframed(sec);
                 float velLength = vel.LengthFast;
                 Vec3 velColor = Vec3.Lerp(Vec3.UnitZ, Vec3.UnitX, 1.0f / (1.0f + 0.1f * (velLength * velLength)));
-                Vertex pos = new Vertex(val) { Color = new ColorF4[] { velColor } };
+                TVertex pos = new TVertex(val) { Color = new ColorF4[] { velColor } };
                 splinePoints[i] = pos;
-                velocity[i] = new VertexLine(pos, new Vertex(pos.Position + vel.Normalized()));
+                velocity[i] = new TVertexLine(pos, new TVertex(pos.Position + vel.Normalized()));
             }
             i = 0;
             Vec3 p0, p1;
@@ -158,12 +158,12 @@ namespace TheraEngine.Components.Scene
             {
                 keyframePositions[i] = p0 = kf.InValue;
                 tangentPositions[i] = p1 = p0 + kf.InTangent;
-                keyframeLines[i] = new VertexLine(p0, p1);
+                keyframeLines[i] = new TVertexLine(p0, p1);
                 ++i;
 
                 keyframePositions[i] = p0 = kf.OutValue;
                 tangentPositions[i] = p1 = p0 + kf.OutTangent;
-                keyframeLines[i] = new VertexLine(p0, p1);
+                keyframeLines[i] = new TVertexLine(p0, p1);
                 ++i;
             }
             //Fill the rest in case of non-matching keyframe counts
@@ -171,7 +171,7 @@ namespace TheraEngine.Components.Scene
             {
                 keyframePositions[i] = p0 = Vec3.Zero;
                 tangentPositions[i] = p1 = Vec3.Zero;
-                keyframeLines[i] = new VertexLine(p0, p1);
+                keyframeLines[i] = new TVertexLine(p0, p1);
                 ++i;
             }
 
@@ -287,7 +287,7 @@ void main()
         }
         protected override void DeriveMatrix()
         {
-            Transform.DeriveTRS(_localTRS, out Vec3 t, out Vec3 s, out Quat r);
+            _localTRS.DeriveTRS(out Vec3 t, out Vec3 s, out Quat r);
             _translation.Value = t;
             _scale.Value = s;
             _rotation.SetRotations(r.ToRotator());

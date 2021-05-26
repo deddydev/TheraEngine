@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -35,7 +36,7 @@ namespace TheraEngine.Actors
             set
             {
                 _showPrefilterTexture = value;
-                foreach (IBLProbeComponent probe in RootComponent.ChildComponents)
+                foreach (IBLProbeComponent probe in RootComponent.ChildSockets)
                     probe.ShowPrefilterTexture = _showPrefilterTexture;
             }
         }
@@ -46,7 +47,7 @@ namespace TheraEngine.Actors
             set
             {
                 _showCaptureSpheres = value;
-                foreach (IBLProbeComponent probe in RootComponent.ChildComponents)
+                foreach (IBLProbeComponent probe in RootComponent.ChildSockets)
                     probe.RenderInfo.IsVisible = _showCaptureSpheres;
             }
         }
@@ -56,13 +57,13 @@ namespace TheraEngine.Actors
             //ProbeBounds = new BoundingBox(100.0f);
             //ProbesPerMeter = new Vec3(0.01f);
             Initialize();
-            RootComponent.ChildComponents.PostAddedRange += ChildComponents_PostAddedRange;
-            RootComponent.ChildComponents.PostAdded += ChildComponents_PostAdded;
+            RootComponent.ChildSockets.PostAddedRange += ChildComponents_PostAddedRange;
+            RootComponent.ChildSockets.PostAdded += ChildComponents_PostAdded;
             _rc = new RenderCommandMethod3D(ERenderPass.TransparentForward, Render);
         }
 
-        private void ChildComponents_PostAdded(ISceneComponent item) => Link(item);
-        private void ChildComponents_PostAddedRange(IEnumerable<ISceneComponent> items) => Link(items);
+        private void ChildComponents_PostAdded(ISocket item) => Link(item);
+        private void ChildComponents_PostAddedRange(IEnumerable<ISocket> items) => Link(items);
 
         //public IBLProbeGridActor(BoundingBox bounds, Vec3 probesPerMeter) : base(true)
         //{
@@ -94,13 +95,13 @@ namespace TheraEngine.Actors
             {
                 Translation = position,
             };
-            RootComponent.ChildComponents.Add(probe);
+            RootComponent.ChildSockets.Add(probe);
             probe.WorldTransformChanged += Link;
         }
         
         public void SetFrequencies(BoundingBox bounds, Vec3 probesPerMeter)
         {
-            RootComponent.ChildComponents.Clear();
+            RootComponent.ChildSockets.Clear();
 
             Vec3 extents = bounds.HalfExtents * 2.0f;
             IVec3 probeCount = new IVec3(
@@ -128,12 +129,12 @@ namespace TheraEngine.Actors
                         comps[r++] = comp;
                     }
 
-            RootComponent.ChildComponents.AddRange(comps);
+            RootComponent.ChildSockets.AddRange(comps);
         }
 
         private class DelaunayTriVertex : IVertex
         {
-            private ISceneComponent _probe;
+            private ISocket _probe;
 
             public int Index => _probe?.ParentSocketChildIndex ?? -1;
             public double[] Position { get; set; }
@@ -147,7 +148,7 @@ namespace TheraEngine.Actors
                     point.Z,
                 };
             }
-            public DelaunayTriVertex(ISceneComponent probe) : this(probe?.WorldPoint ?? Vec3.Zero)
+            public DelaunayTriVertex(ISocket probe) : this(probe?.WorldMatrix.Translation ?? Vec3.Zero)
             {
                 _probe = probe;
                 //_probe.WorldTransformChanged += _probe_WorldTransformChanged;
@@ -160,38 +161,42 @@ namespace TheraEngine.Actors
             //    Position[2] = _probe.WorldPoint.Z;
             //}
 
-            public override string ToString() => _probe.WorldPoint.ToString();
+            public override string ToString() => (_probe?.WorldMatrix.Translation ?? Vec3.Zero).ToString();
         }
 
         ITriangulation<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>> _cells;
 
-        private void Link(ISceneComponent comp)
+        private void Link(ISocket comp)
         {
-            if (RootComponent.ChildComponents.Count < 5)
+            if (RootComponent.ChildSockets.Count < 5)
                 return;
 
-            IBLProbeComponent probe = (IBLProbeComponent)comp;
-            probe.Capture();
-            probe.GenerateIrradianceMap();
-            probe.GeneratePrefilterMap();
-        
-            List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
-            _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
-        }
-        private void Link(IEnumerable<ISceneComponent> comps)
-        {
-            if (RootComponent.ChildComponents.Count < 5)
-                return;
-
-            foreach (ISceneComponent comp in comps)
+            if (comp is IBLProbeComponent probe)
             {
-                IBLProbeComponent probe = (IBLProbeComponent)comp;
                 probe.Capture();
                 probe.GenerateIrradianceMap();
                 probe.GeneratePrefilterMap();
             }
 
-            List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
+            List<DelaunayTriVertex> points = RootComponent.ChildSockets.Select(x => new DelaunayTriVertex(x)).ToList();
+            _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
+        }
+        private void Link(IEnumerable<ISocket> comps)
+        {
+            if (RootComponent.ChildSockets.Count < 5)
+                return;
+
+            foreach (ISocket comp in comps)
+            {
+                if (comp is IBLProbeComponent probe)
+                {
+                    probe.Capture();
+                    probe.GenerateIrradianceMap();
+                    probe.GeneratePrefilterMap();
+                }
+            }
+
+            List<DelaunayTriVertex> points = RootComponent.ChildSockets.Select(x => new DelaunayTriVertex(x)).ToList();
             _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
         }
 
@@ -212,7 +217,7 @@ namespace TheraEngine.Actors
         //}
         public void InitAll(int colorResolution, bool captureDepth = false, int depthResolution = 1)
         {
-            foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
+            foreach (IBLProbeComponent comp in RootComponent.ChildSockets)
             {
                 comp.SetCaptureResolution(colorResolution, captureDepth, depthResolution);
             }
@@ -225,7 +230,7 @@ namespace TheraEngine.Actors
             //    colorResolution, captureDepth, depthResolution))
             //    return;
 
-            foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
+            foreach (IBLProbeComponent comp in RootComponent.ChildSockets)
                 comp.FullCapture(colorResolution, captureDepth, depthResolution);
         }
 

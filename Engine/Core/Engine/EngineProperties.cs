@@ -145,6 +145,9 @@ namespace TheraEngine
         }
 
         private static IWorld _world;
+        /// <summary>
+        /// The currently active world that the engine is running.
+        /// </summary>
         public static IWorld World
         {
             get => _world;

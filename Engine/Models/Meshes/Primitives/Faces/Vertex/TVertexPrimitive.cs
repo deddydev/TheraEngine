@@ -8,16 +8,16 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.Models
 {
-    public abstract class VertexPrimitive : TObject, IEnumerable<Vertex>
+    public abstract class TVertexPrimitive : TObject, IEnumerable<TVertex>
     {
         public abstract FaceType Type { get; }
-        public ReadOnlyCollection<Vertex> Vertices => _vertices.AsReadOnly();
+        public ReadOnlyCollection<TVertex> Vertices => _vertices.AsReadOnly();
 
-        protected List<Vertex> _vertices = new List<Vertex>();
+        protected List<TVertex> _vertices = new List<TVertex>();
         
-        public VertexPrimitive(IEnumerable<Vertex> vertices) 
+        public TVertexPrimitive(IEnumerable<TVertex> vertices) 
             => _vertices = vertices.ToList();
-        public VertexPrimitive(params Vertex[] vertices)
+        public TVertexPrimitive(params TVertex[] vertices)
             => _vertices = vertices.ToList();
 
         public BoundingBox GetCullingVolume()
@@ -26,18 +26,18 @@ namespace TheraEngine.Rendering.Models
             return BoundingBox.FromMinMax(Vec3.ComponentMin(positions), Vec3.ComponentMax(positions));
         }
 
-        public IEnumerator<Vertex> GetEnumerator() => ((IEnumerable<Vertex>)_vertices).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Vertex>)_vertices).GetEnumerator();
+        public IEnumerator<TVertex> GetEnumerator() => ((IEnumerable<TVertex>)_vertices).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TVertex>)_vertices).GetEnumerator();
     }
-    public class VertexPolygon : VertexPrimitive
+    public class TVertexPolygon : TVertexPrimitive
     {
         public override FaceType Type => FaceType.Ngon;
-        public VertexPolygon(params Vertex[] vertices) : base(vertices)
+        public TVertexPolygon(params TVertex[] vertices) : base(vertices)
         {
             if (vertices.Length < 3)
                 throw new InvalidOperationException("Not enough vertices for a polygon.");
         }
-        public VertexPolygon(IEnumerable<Vertex> vertices) : base(vertices)
+        public TVertexPolygon(IEnumerable<TVertex> vertices) : base(vertices)
         {
             if (Vertices.Count < 3)
                 throw new InvalidOperationException("Not enough vertices for a polygon.");
@@ -55,22 +55,22 @@ namespace TheraEngine.Rendering.Models
         /// 0---1
         /// Converted: 012, 023
         /// </summary>
-        public virtual VertexTriangle[] ToTriangles()
+        public virtual TVertexTriangle[] ToTriangles()
         {
             int triangleCount = Vertices.Count - 2;
             if (triangleCount < 1)
-                return new VertexTriangle[0];
-            VertexTriangle[] list = new VertexTriangle[triangleCount];
+                return new TVertexTriangle[0];
+            TVertexTriangle[] list = new TVertexTriangle[triangleCount];
             for (int i = 0; i < triangleCount; ++i)
-                list[i] = new VertexTriangle(Vertices[0].HardCopy(), Vertices[i + 1].HardCopy(), Vertices[i + 2].HardCopy());
+                list[i] = new TVertexTriangle(Vertices[0].HardCopy(), Vertices[i + 1].HardCopy(), Vertices[i + 2].HardCopy());
             return list;
         }
-        public virtual VertexLine[] ToLines()
+        public virtual TVertexLine[] ToLines()
         {
-            VertexLine[] lines = new VertexLine[Vertices.Count];
+            TVertexLine[] lines = new TVertexLine[Vertices.Count];
             for (int i = 0; i < Vertices.Count - 1; ++i)
-                lines[i] = new VertexLine(Vertices[i].HardCopy(), Vertices[i + 1].HardCopy());
-            lines[Vertices.Count - 1] = new VertexLine(Vertices[Vertices.Count - 1].HardCopy(), Vertices[0].HardCopy());
+                lines[i] = new TVertexLine(Vertices[i].HardCopy(), Vertices[i + 1].HardCopy());
+            lines[Vertices.Count - 1] = new TVertexLine(Vertices[Vertices.Count - 1].HardCopy(), Vertices[0].HardCopy());
             return lines;
             //return ToTriangles().SelectMany(x => x.ToLines()).ToArray();
         }

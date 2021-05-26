@@ -14,7 +14,7 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             TRComponent root = new TRComponent();
             CameraComp = new CameraComponent(new PerspectiveCamera());
-            root.ChildComponents.Add(CameraComp);
+            root.ChildSockets.Add(CameraComp);
             return root;
         }
         protected override void OnScrolled(bool up) 

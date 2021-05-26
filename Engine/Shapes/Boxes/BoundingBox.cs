@@ -249,27 +249,27 @@ namespace TheraEngine.Core.Shapes
         #region Meshes
         public static TMesh WireframeMesh(Vec3 min, Vec3 max)
         {
-            VertexLine 
+            TVertexLine 
                 topFront, topRight, topBack, topLeft,
                 frontLeft, frontRight, backLeft, backRight,
                 bottomFront, bottomRight, bottomBack, bottomLeft;
 
             GetCorners(min, max, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
 
-            topFront = new VertexLine(new Vertex(TFL), new Vertex(TFR));
-            topBack = new VertexLine(new Vertex(TBL), new Vertex(TBR));
-            topLeft = new VertexLine(new Vertex(TFL), new Vertex(TBL));
-            topRight = new VertexLine(new Vertex(TFR), new Vertex(TBR));
+            topFront = new TVertexLine(new TVertex(TFL), new TVertex(TFR));
+            topBack = new TVertexLine(new TVertex(TBL), new TVertex(TBR));
+            topLeft = new TVertexLine(new TVertex(TFL), new TVertex(TBL));
+            topRight = new TVertexLine(new TVertex(TFR), new TVertex(TBR));
 
-            bottomFront = new VertexLine(new Vertex(BFL), new Vertex(BFR));
-            bottomBack = new VertexLine(new Vertex(BBL), new Vertex(BBR));
-            bottomLeft = new VertexLine(new Vertex(BFL), new Vertex(BBL));
-            bottomRight = new VertexLine(new Vertex(BFR), new Vertex(BBR));
+            bottomFront = new TVertexLine(new TVertex(BFL), new TVertex(BFR));
+            bottomBack = new TVertexLine(new TVertex(BBL), new TVertex(BBR));
+            bottomLeft = new TVertexLine(new TVertex(BFL), new TVertex(BBL));
+            bottomRight = new TVertexLine(new TVertex(BFR), new TVertex(BBR));
 
-            frontLeft = new VertexLine(new Vertex(TFL), new Vertex(BFL));
-            frontRight = new VertexLine(new Vertex(TFR), new Vertex(BFR));
-            backLeft = new VertexLine(new Vertex(TBL), new Vertex(BBL));
-            backRight = new VertexLine(new Vertex(TBR), new Vertex(BBR));
+            frontLeft = new TVertexLine(new TVertex(TFL), new TVertex(BFL));
+            frontRight = new TVertexLine(new TVertex(TFR), new TVertex(BFR));
+            backLeft = new TVertexLine(new TVertex(TBL), new TVertex(BBL));
+            backRight = new TVertexLine(new TVertex(TBR), new TVertex(BBR));
 
             return TMesh.Create(VertexShaderDesc.JustPositions(),
                 topFront, topRight, topBack, topLeft,
@@ -301,7 +301,7 @@ namespace TheraEngine.Core.Shapes
         /// <returns></returns>
         public static TMesh SolidMesh(Vec3 min, Vec3 max, bool inwardFacing = false, ECubemapTextureUVs cubemapUVs = ECubemapTextureUVs.None, float bias = 0.0f)
         {
-            VertexQuad left, right, top, bottom, front, back;
+            TVertexQuad left, right, top, bottom, front, back;
 
             GetCorners(min, max, 
                 out Vec3 TBL,
@@ -323,55 +323,55 @@ namespace TheraEngine.Core.Shapes
             if (cubemapUVs == ECubemapTextureUVs.None)
             {
                 left = inwardFacing ?
-                    VertexQuad.MakeQuad(BFL, BBL, TBL, TFL, leftNormal) :
-                    VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal);
+                    TVertexQuad.Make(BFL, BBL, TBL, TFL, leftNormal) :
+                    TVertexQuad.Make(BBL, BFL, TFL, TBL, leftNormal);
 
                 right = inwardFacing ?
-                    VertexQuad.MakeQuad(BBR, BFR, TFR, TBR, rightNormal) :
-                    VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal);
+                    TVertexQuad.Make(BBR, BFR, TFR, TBR, rightNormal) :
+                    TVertexQuad.Make(BFR, BBR, TBR, TFR, rightNormal);
 
                 top = inwardFacing ?
-                    VertexQuad.MakeQuad(TBL, TBR, TFR, TFL, topNormal) :
-                    VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal);
+                    TVertexQuad.Make(TBL, TBR, TFR, TFL, topNormal) :
+                    TVertexQuad.Make(TFL, TFR, TBR, TBL, topNormal);
 
                 bottom = inwardFacing ?
-                    VertexQuad.MakeQuad(BFL, BFR, BBR, BBL, bottomNormal) :
-                    VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal);
+                    TVertexQuad.Make(BFL, BFR, BBR, BBL, bottomNormal) :
+                    TVertexQuad.Make(BBL, BBR, BFR, BFL, bottomNormal);
 
                 front = inwardFacing ?
-                    VertexQuad.MakeQuad(BFR, BFL, TFL, TFR, frontNormal) :
-                    VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
+                    TVertexQuad.Make(BFR, BFL, TFL, TFR, frontNormal) :
+                    TVertexQuad.Make(BFL, BFR, TFR, TFL, frontNormal);
 
                 back = inwardFacing ?
-                    VertexQuad.MakeQuad(BBL, BBR, TBR, TBL, backNormal) :
-                    VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
+                    TVertexQuad.Make(BBL, BBR, TBR, TBL, backNormal) :
+                    TVertexQuad.Make(BBR, BBL, TBL, TBR, backNormal);
             }
             else
             {
                 bool widthLarger = cubemapUVs == ECubemapTextureUVs.WidthLarger;
                 left = inwardFacing ?
-                    VertexQuad.MakeQuad(BFL, BBL, TBL, TFL, leftNormal,     ECubemapFace.NegX, widthLarger, bias) :
-                    VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal,     ECubemapFace.NegX, widthLarger, bias);
+                    TVertexQuad.Make(BFL, BBL, TBL, TFL, leftNormal,     ECubemapFace.NegX, widthLarger, bias) :
+                    TVertexQuad.Make(BBL, BFL, TFL, TBL, leftNormal,     ECubemapFace.NegX, widthLarger, bias);
 
                 right = inwardFacing ?
-                    VertexQuad.MakeQuad(BBR, BFR, TFR, TBR, rightNormal,    ECubemapFace.PosX, widthLarger, bias) : 
-                    VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal,    ECubemapFace.PosX, widthLarger, bias);
+                    TVertexQuad.Make(BBR, BFR, TFR, TBR, rightNormal,    ECubemapFace.PosX, widthLarger, bias) : 
+                    TVertexQuad.Make(BFR, BBR, TBR, TFR, rightNormal,    ECubemapFace.PosX, widthLarger, bias);
 
                 top = inwardFacing ?
-                    VertexQuad.MakeQuad(TBL, TBR, TFR, TFL, topNormal,      ECubemapFace.PosY, widthLarger, bias) : 
-                    VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal,      ECubemapFace.PosY, widthLarger, bias);
+                    TVertexQuad.Make(TBL, TBR, TFR, TFL, topNormal,      ECubemapFace.PosY, widthLarger, bias) : 
+                    TVertexQuad.Make(TFL, TFR, TBR, TBL, topNormal,      ECubemapFace.PosY, widthLarger, bias);
 
                 bottom = inwardFacing ? 
-                    VertexQuad.MakeQuad(BFL, BFR, BBR, BBL, bottomNormal,   ECubemapFace.NegY, widthLarger, bias) : 
-                    VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal,   ECubemapFace.NegY, widthLarger, bias);
+                    TVertexQuad.Make(BFL, BFR, BBR, BBL, bottomNormal,   ECubemapFace.NegY, widthLarger, bias) : 
+                    TVertexQuad.Make(BBL, BBR, BFR, BFL, bottomNormal,   ECubemapFace.NegY, widthLarger, bias);
 
                 front = inwardFacing ? 
-                    VertexQuad.MakeQuad(BFR, BFL, TFL, TFR, frontNormal,    ECubemapFace.PosZ, widthLarger, bias) :
-                    VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal,    ECubemapFace.PosZ, widthLarger, bias);
+                    TVertexQuad.Make(BFR, BFL, TFL, TFR, frontNormal,    ECubemapFace.PosZ, widthLarger, bias) :
+                    TVertexQuad.Make(BFL, BFR, TFR, TFL, frontNormal,    ECubemapFace.PosZ, widthLarger, bias);
 
                 back = inwardFacing ? 
-                    VertexQuad.MakeQuad(BBL, BBR, TBR, TBL, backNormal,     ECubemapFace.NegZ, widthLarger, bias) :
-                    VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal,     ECubemapFace.NegZ, widthLarger, bias);
+                    TVertexQuad.Make(BBL, BBR, TBR, TBL, backNormal,     ECubemapFace.NegZ, widthLarger, bias) :
+                    TVertexQuad.Make(BBR, BBL, TBL, TBR, backNormal,     ECubemapFace.NegZ, widthLarger, bias);
             }
             
             return TMesh.Create(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);

@@ -44,8 +44,8 @@ namespace TheraEngine.Components.Logic.Common
 
         private void Update(float delta)
         {
-            Vec3 goalPos = GoalSocket.FrameMatrix.Translation;
-            Vec3 effectorPos = EndEffectorSocket.FrameMatrix.Translation;
+            Vec3 goalPos = GoalSocket.Transform.Translation;
+            Vec3 effectorPos = EndEffectorSocket.Transform.Translation;
             Vec3 targetPos = Vec3.Lerp(effectorPos, goalPos, Weight);
 
             int iters = 0;
@@ -56,26 +56,26 @@ namespace TheraEngine.Components.Logic.Common
                 {
                     for (int j = 1; j < i + 3 && j < SocketChain.Count; ++j)
                     {
-                        RotateBone(EndEffectorSocket, SocketChain[j], targetPos);
+                        RotateSocket(EndEffectorSocket, SocketChain[j], targetPos);
 
-                        if ((EndEffectorSocket.FrameMatrix.Translation - targetPos).LengthSquared <= SqrDistError)
+                        if ((EndEffectorSocket.Transform.Translation - targetPos).LengthSquared <= SqrDistError)
                             return;
                     }
                 }
             }
-            while (((EndEffectorSocket.FrameMatrix.Translation - targetPos).LengthSquared) > SqrDistError && ++iters <= MaxIterations);
+            while (((EndEffectorSocket.Transform.Translation - targetPos).LengthSquared) > SqrDistError && ++iters <= MaxIterations);
         }
 
         private void RotateSocket(ISocket effector, ISocket bone, Vec3 goalPos)
         {
-            Vec3 effectorPos = effector.FrameMatrix.Translation;
-            Vec3 bonePos = bone.FrameMatrix.Translation;
-            Quat boneRot = bone.FrameState.Rotation.Raw;
+            Vec3 effectorPos = effector.Transform.Translation;
+            Vec3 bonePos = bone.Transform.Translation;
+            Quat boneRot = bone.Transform.Rotation.Value;
             Vec3 boneToEffector = effectorPos - bonePos;
             Vec3 boneToGoal = goalPos - bonePos;
             Quat fromToRot = Quat.BetweenVectors(boneToEffector, boneToGoal);
             Quat newRot = fromToRot * boneRot;
-            bone.FrameState.Rotation.Raw = newRot;
+            bone.Transform.Rotation.Value = newRot;
         }
     }
 }

@@ -19,8 +19,8 @@ namespace TheraEditor.Windows.Forms
     {
         public UIEditorUI() : base()
         {
-            VertexQuad quad = VertexQuad.PosZQuad(1, true, -0.5f, false);
-            VertexTriangle[] tris = quad.ToTriangles();
+            TVertexQuad quad = TVertexQuad.PosZ(1, true, -0.5f, false);
+            TVertexTriangle[] tris = quad.ToTriangles();
 
             TMesh data1 = TMesh.Create(VertexShaderDesc.PosTex(), tris);
             TMesh data2 = TMesh.Create(VertexShaderDesc.PosTex(), tris);
@@ -57,7 +57,7 @@ namespace TheraEditor.Windows.Forms
             _uiBoundsRC.Mesh = new MeshRenderer(data3, boundsMat);
 
             ContextMenu = new TMenuComponent();
-            ContextMenu.ChildComponents.Add(new TMenuItemComponent());
+            ContextMenu.ChildSockets.Add(new TMenuItemComponent());
         }
         public override void RegisterInput(InputInterface input)
         {
@@ -108,12 +108,12 @@ namespace TheraEditor.Windows.Forms
                     return;
                 else if (_targetHud != null)
                 {
-                    OriginTransformComponent.ChildComponents.Remove(_targetHud.RootComponent);
+                    OriginTransformComponent.ChildSockets.Remove(_targetHud.RootComponent);
                 }
                 _targetHud = value;
                 if (_targetHud != null)
                 {
-                    OriginTransformComponent.ChildComponents.Add(_targetHud.RootComponent);
+                    OriginTransformComponent.ChildSockets.Add(_targetHud.RootComponent);
                     if (_targetHud?.RootComponent is IUICanvasComponent canvas)
                         InitCanvas(canvas);
                 }

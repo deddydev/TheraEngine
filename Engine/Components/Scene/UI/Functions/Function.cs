@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine.Components;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
@@ -82,7 +83,7 @@ namespace TheraEngine.Rendering.UI.Functions
                 Format = TextFormatFlags.NoClipping | TextFormatFlags.SingleLine
             };
             _headerText.TextDrawer.Text.Add(_headerString);
-            ChildComponents.Add(_headerText);
+            ChildSockets.Add(_headerText);
         }
 
         private static TMaterial MakeFunctionMaterial()
@@ -94,11 +95,11 @@ namespace TheraEngine.Rendering.UI.Functions
 
         protected void AddParam(BaseFuncArg arg)
         {
-            ChildComponents.Add(arg);
+            ChildSockets.Add(arg);
 
             UITextRasterComponent text = new UITextRasterComponent { Name = arg.Name + " Text", };
             text.TextDrawer.Text.Add(new UIString2D(arg.Name, _paramFont, Color.White, TextFormatFlags.NoClipping | TextFormatFlags.SingleLine));
-            ChildComponents.Add(text);
+            ChildSockets.Add(text);
 
             if (arg is IFuncExecInput || arg is IFuncValueInput)
             {
@@ -394,7 +395,7 @@ namespace TheraEngine.Rendering.UI.Functions
         }
         #endregion
 
-        protected override void OnChildAdded(ISceneComponent item)
+        protected override void OnChildAdded(ISocket item)
         {
             base.OnChildAdded(item);
             if (OwningActor != null)

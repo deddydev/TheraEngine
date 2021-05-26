@@ -69,8 +69,8 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected virtual void DeriveMatrix()
         {
-            Transform.DeriveT(LocalMatrix, out Vec3 t);
-            _translation.SetRawSilent(t);
+            LocalMatrix.DeriveT(out Vec3 t);
+            _translation.SetValueSilent(t);
         }
 
         [TPostDeserialize]

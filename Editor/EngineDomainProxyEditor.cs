@@ -480,7 +480,7 @@ namespace TheraEditor
         {
             IWorld world = Engine.World;
             if (world != null)
-                world.CurrentGameMode = CurrentGameMode = EditorGameMode;
+                world.GameMode = CurrentGameMode = EditorGameMode;
         }
         public IGameMode CurrentGameMode { get; set; }
         public void SetGameplayMode()
@@ -490,7 +490,7 @@ namespace TheraEditor
             {
                 var mode = Engine.GetGameMode();
                 CurrentGameMode = mode ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
-                world.CurrentGameMode = CurrentGameMode;
+                world.GameMode = CurrentGameMode;
             }
         }
 
@@ -945,8 +945,8 @@ namespace TheraEditor
                 Engine.Unpause(ELocalPlayerIndex.One, true);
             }
 
-            if (world.CurrentGameMode.LocalPlayers.Count > 0)
-                GameplayPawn = world.CurrentGameMode.LocalPlayers[0].ControlledPawn;
+            if (world.GameMode.LocalPlayers.Count > 0)
+                GameplayPawn = world.GameMode.LocalPlayers[0].ControlledPawn;
 
             FlyingCameraDetachedPawn.EditorState.DisplayInActorTree = false;
             world.SpawnActor(FlyingCameraDetachedPawn);
@@ -985,8 +985,8 @@ namespace TheraEditor
                 world.BeginPlay();
                 Engine.Unpause(ELocalPlayerIndex.One, true);
 
-                if (world.CurrentGameMode.LocalPlayers.Count > 0)
-                    GameplayPawn = world.CurrentGameMode.LocalPlayers[0].ControlledPawn;
+                if (world.GameMode.LocalPlayers.Count > 0)
+                    GameplayPawn = world.GameMode.LocalPlayers[0].ControlledPawn;
             }
             else //Detached
             {

@@ -126,8 +126,7 @@ namespace TheraEngine.Components.Scene
             if (Material is null)
                 return;
 
-            Rendering.Models.TMesh decalMesh = BoundingBox.SolidMesh(-Vec3.One, Vec3.One);
-            RenderCommandDecal.Mesh = new MeshRenderer(decalMesh, Material);
+            RenderCommandDecal.Mesh = new MeshRenderer(BoundingBox.SolidMesh(-Vec3.One, Vec3.One), Material);
             RenderCommandDecal.Mesh.SettingUniforms += DecalManager_SettingUniforms;
 
             base.OnSpawned();

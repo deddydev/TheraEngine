@@ -37,7 +37,7 @@ namespace TheraEngine.Worlds
         IScene Scene { get; set; }
         IScene3D Scene3D { get; }
         IScene2D Scene2D { get; }
-        IGameMode CurrentGameMode { get; set; }
+        IGameMode GameMode { get; set; }
 
         AbstractPhysicsWorld PhysicsWorld3D { get; }
 
@@ -153,7 +153,7 @@ namespace TheraEngine.Worlds
         public IScene2D Scene2D => Scene as IScene2D;
         public AbstractPhysicsWorld PhysicsWorld3D { get; private set; }
 
-        public IGameMode CurrentGameMode
+        public IGameMode GameMode
         {
             get => State.GameMode;
             set
@@ -341,7 +341,7 @@ namespace TheraEngine.Worlds
 
             IsPlaying = true;
 
-            CurrentGameMode?.BeginGameplay(this);
+            GameMode?.BeginGameplay(this);
 
             string cut = Settings.CutsceneToPlayOnBeginPlay;
             if (!string.IsNullOrWhiteSpace(cut) && Settings.Cutscenes.ContainsKey(cut))
@@ -388,7 +388,7 @@ namespace TheraEngine.Worlds
             else
                 RenderInfo3D.UnlinkScene();
 
-            CurrentGameMode?.EndGameplay();
+            GameMode?.EndGameplay();
             IsPlaying = false;
         }
 

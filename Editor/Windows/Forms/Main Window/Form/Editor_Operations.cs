@@ -219,13 +219,13 @@ namespace TheraEditor.Windows.Forms
             return form;
         }
 
-        public void EditText<T>(T file, DockState dockState = DockState.Document) where T : TextFile
+        public void UserEditText<T>(T file, DockState dockState = DockState.Document) where T : TextFile
             => DockableTextEditor.ShowNew(DockPanel, dockState, file);
-        public async void EditText(string filePath, DockState dockState = DockState.Document)
+        public async void UserEditText(string filePath, DockState dockState = DockState.Document)
         {
             var file = await TFileObject.LoadAsync<TextFile>(filePath);
             if (file != null)
-                EditText(file, dockState);
+                UserEditText(file, dockState);
         }
     }
 }

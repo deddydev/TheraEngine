@@ -481,7 +481,7 @@ namespace TheraEditor.Windows.Forms
             if (v is null)
                 return;
             
-            MousePosition = /*gamepad ? v.Center : */Viewport.CursorPosition(v, out bool isOutOfBounds);
+            MousePosition = /*gamepad ? v.Center : */Viewport.CursorPositionRelativeTo(v, out bool isOutOfBounds);
             IsMouseOutOfBounds = isOutOfBounds;
             IntersectScene(v, MousePosition);
         }

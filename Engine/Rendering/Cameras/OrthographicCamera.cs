@@ -83,11 +83,16 @@ namespace TheraEngine.Rendering.Cameras
         [TSerialize("OriginPercentages")]
         private EventVec2 _originPercentages = Vec2.Zero;
 
-        public void SetOriginCentered() => SetOriginPercentages(0.5f, 0.5f);
-        public void SetOriginBottomLeft() => SetOriginPercentages(0.0f, 0.0f);
-        public void SetOriginTopLeft() => SetOriginPercentages(0.0f, 1.0f);
-        public void SetOriginBottomRight() => SetOriginPercentages(1.0f, 0.0f);
-        public void SetOriginTopRight() => SetOriginPercentages(1.0f, 1.0f);
+        public void SetOriginCentered()
+            => SetOriginPercentages(0.5f, 0.5f);
+        public void SetOriginBottomLeft()
+            => SetOriginPercentages(0.0f, 0.0f);
+        public void SetOriginTopLeft()
+            => SetOriginPercentages(0.0f, 1.0f);
+        public void SetOriginBottomRight()
+            => SetOriginPercentages(1.0f, 0.0f);
+        public void SetOriginTopRight()
+            => SetOriginPercentages(1.0f, 1.0f);
 
         public void SetOriginPercentages(Vec2 percentages)
             => SetOriginPercentages(percentages.X, percentages.Y);
@@ -170,18 +175,12 @@ namespace TheraEngine.Rendering.Cameras
             _orthoRight = _orthoRightPercentage * width;
             _orthoBottom = _orthoBottomPercentage * height;
             _orthoTop = _orthoTopPercentage * height;
-            _origin = new Vec2(_orthoLeft, _orthoBottom) + _originPercentages.Raw * width;
+            _origin = new Vec2(_orthoLeft, _orthoBottom) + _originPercentages.Raw * new Vec2(width, height);
 
             base.Resize(width, height);
         }
-        protected Vec3 AlignScreenPoint(Vec3 screenPoint)
-        {
-            return new Vec3(screenPoint.X + _orthoLeft, screenPoint.Y + _orthoBottom, screenPoint.Z);
-        }
-        protected Vec3 UnAlignScreenPoint(Vec3 screenPoint)
-        {
-            return new Vec3(screenPoint.X - _orthoLeft, screenPoint.Y - _orthoBottom, screenPoint.Z);
-        }
+        protected Vec3 AlignScreenPoint(Vec3 screenPoint) => new Vec3(screenPoint.X + _orthoLeft, screenPoint.Y + _orthoBottom, screenPoint.Z);
+        protected Vec3 UnAlignScreenPoint(Vec3 screenPoint) => new Vec3(screenPoint.X - _orthoLeft, screenPoint.Y - _orthoBottom, screenPoint.Z);
         protected override IFrustum CreateUntransformedFrustum()
         {
             float w = Width / 2.0f, h = Height / 2.0f;

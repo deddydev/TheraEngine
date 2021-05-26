@@ -210,7 +210,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (_targetObject is ISceneComponent sc)
             {
-                var players = sc.OwningWorld?.CurrentGameMode?.LocalPlayers;
+                var players = sc.OwningWorld?.GameMode?.LocalPlayers;
                 if (players != null && players.Count > 0)
                 {
                     EditorUI3D hud = players[0]?.ControlledPawn?.HUD?.File as EditorUI3D;

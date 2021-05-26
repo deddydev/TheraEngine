@@ -19,14 +19,14 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             var world = ActiveRenderForm?.World;
-            if (world != null && world.CurrentGameMode != ActiveRenderForm?.GameMode)
-                world.CurrentGameMode = null;
+            if (world != null && world.GameMode != ActiveRenderForm?.GameMode)
+                world.GameMode = null;
             
             ActiveRenderForm = control;
 
             world = ActiveRenderForm?.World;
             if (world != null)
-                world.CurrentGameMode = ActiveRenderForm.GameMode;
+                world.GameMode = ActiveRenderForm.GameMode;
             
             Engine.Out("Set active render form: " + ActiveRenderForm?.ToString() ?? "null");
         }

@@ -537,7 +537,7 @@ namespace TheraEngine
         /// <param name="device">The device that was found.</param>
         internal static void FoundInput(InputDevice device)
         {
-            World?.CurrentGameMode?.FoundInput(device);
+            World?.GameMode?.FoundInput(device);
         }
         public static void SwapRenderBuffers(object sender, FrameEventArgs e)
         {
@@ -579,7 +579,7 @@ namespace TheraEngine
         /// <param name="toggler">The player that's pausing the game.</param>
         public static void SetPaused(bool wantsPause, ELocalPlayerIndex toggler, bool force = false)
         {
-            if ((!force && wantsPause && World.CurrentGameMode.DisallowPausing) || IsPaused == wantsPause)
+            if ((!force && wantsPause && World.GameMode.DisallowPausing) || IsPaused == wantsPause)
                 return;
 
             IsPaused = wantsPause;
@@ -643,7 +643,7 @@ namespace TheraEngine
 
             if (!AllowOutput)
             {
-                Console.WriteLine($"[Suppressed] {message}");
+                Suppressed(message);
                 return;
             }
 
@@ -651,7 +651,10 @@ namespace TheraEngine
             AppDomainHelper.Sponsor(settings);
 
             if (verbosity > settings.OutputVerbosity)
+            {
+                Suppressed(message);
                 return;
+            }
 
             if (args.Length > 0)
                 message = string.Format(message, args);
@@ -700,6 +703,9 @@ namespace TheraEngine
                 Trace.WriteLine(message);
 #endif
         }
+
+        private static void Suppressed(string message)
+            => Console.WriteLine($"[Suppressed] {message}");
 
         public static void LogException(Exception ex)
         {
@@ -918,7 +924,7 @@ namespace TheraEngine
         public static class Input
         {
             public static InputInterface Get(int localPlayerIndex)
-                => World.CurrentGameMode.LocalPlayers.IndexInRange(localPlayerIndex) ? World.CurrentGameMode.LocalPlayers[localPlayerIndex]?.Input : null;
+                => World.GameMode.LocalPlayers.IndexInRange(localPlayerIndex) ? World.GameMode.LocalPlayers[localPlayerIndex]?.Input : null;
 
             public static bool Key(int localPlayerIndex, EKey key, EButtonInputType type)
                 => Get(localPlayerIndex)?.GetKeyState(key, type) ?? false;

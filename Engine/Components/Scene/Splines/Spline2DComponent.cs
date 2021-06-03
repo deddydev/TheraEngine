@@ -285,13 +285,13 @@ void main()
             localTransform = _localTRS * splinePosMtx;
             inverseLocalTransform = invSplinePosMtx * inverseLocalTransform;
         }
-        protected override void DeriveMatrix()
-        {
-            _localTRS.DeriveTRS(out Vec3 t, out Vec3 s, out Quat r);
-            _translation.Value = t;
-            _scale.Value = s;
-            _rotation.SetRotations(r.ToRotator());
-        }
+        //protected override void DeriveMatrix()
+        //{
+        //    _localTRS.DeriveTRS(out Vec3 t, out Vec3 s, out Quat r);
+        //    _translation.Value = t;
+        //    _scale.Value = s;
+        //    _rotation.SetRotations(r.ToRotator());
+        //}
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             Matrix4 mtx = ParentWorldMatrix * _localTRS;

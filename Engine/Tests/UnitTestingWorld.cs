@@ -218,59 +218,58 @@ namespace TheraEngine.Tests
                     dir.LightColor = (ColorF3)Color.White;
                     dir.DiffuseIntensity = 1.0f;
                     dir.Scale = 500.0f;
-                    dir.Rotation.Pitch = -20.0f;
-                    dir.Rotation.Yaw = lightAngle * i;
+                    dir.Transform.Rotation.Value = Quat.FromEulerAngles(-20.0f, lightAngle * i, 0.0f);
                     actors.Add(dirlight);
                 }
             }
             //Create point lights
-            if (pointLights > 0)
-            {
-                float lightAngle = 360.0f / pointLights * TMath.DegToRadMultf;
-                float lightPosRadius = 50.0f;
-                float upTrans = 20.0f;
-                for (int i = 0; i < pointLights; i++)
-                {
-                    PointLightComponent comp = new PointLightComponent(200.0f, 2.0f, (ColorF3)Color.White, 2000.0f)
-                    {
-                        Translation = new Vec3(
-                            TMath.Cosf(i * lightAngle) * lightPosRadius,
-                            upTrans,
-                            TMath.Sinf(i * lightAngle) * lightPosRadius),
-                        //LightColor = new ColorF3((float)rand.NextDouble(), (float)rand.NextDouble(), (float)rand.NextDouble()),
-                    };
-                    Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>(comp);
-                    actors.Add(pointLight);
-                }
-            }
+            //if (pointLights > 0)
+            //{
+            //    float lightAngle = 360.0f / pointLights * TMath.DegToRadMultf;
+            //    float lightPosRadius = 50.0f;
+            //    float upTrans = 20.0f;
+            //    for (int i = 0; i < pointLights; i++)
+            //    {
+            //        PointLightComponent comp = new PointLightComponent(200.0f, 2.0f, (ColorF3)Color.White, 2000.0f)
+            //        {
+            //            Translation = new Vec3(
+            //                TMath.Cosf(i * lightAngle) * lightPosRadius,
+            //                upTrans,
+            //                TMath.Sinf(i * lightAngle) * lightPosRadius),
+            //            //LightColor = new ColorF3((float)rand.NextDouble(), (float)rand.NextDouble(), (float)rand.NextDouble()),
+            //        };
+            //        Actor<PointLightComponent> pointLight = new Actor<PointLightComponent>(comp);
+            //        actors.Add(pointLight);
+            //    }
+            //}
             //Create spot light
-            if (spotLights > 0)
-            {
-                float lightAngle = 360.0f / spotLights;
-                float lightAngleRad = lightAngle * TMath.DegToRadMultf;
-                float lightPosRadius = 50.0f;
-                float upTrans = 70.0f;
-                for (int i = 0; i < spotLights; ++i)
-                {
-                    SpotLightComponent spot = new SpotLightComponent()
-                    {
-                        LightColor = (ColorF3)Color.White,
-                        Distance = 500.0f,
-                        Brightness = 100.0f,
-                        Exponent = 2.0f,
-                        OuterCutoffAngleDegrees = 50.0f,
-                        InnerCutoffAngleDegrees = 30.0f,
-                        Translation = new Vec3(
-                            TMath.Cosf(i * lightAngleRad) * lightPosRadius,
-                            upTrans,
-                            TMath.Sinf(i * lightAngleRad) * lightPosRadius)
-                    };
-                    spot.Rotation.Pitch = -60.0f;
-                    spot.Rotation.Yaw = lightAngle * ((spotLights - i) - spotLights + 1);
-                    Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>(spot);
-                    actors.Add(spotlight);
-                }
-            }
+            //if (spotLights > 0)
+            //{
+            //    float lightAngle = 360.0f / spotLights;
+            //    float lightAngleRad = lightAngle * TMath.DegToRadMultf;
+            //    float lightPosRadius = 50.0f;
+            //    float upTrans = 70.0f;
+            //    for (int i = 0; i < spotLights; ++i)
+            //    {
+            //        SpotLightComponent spot = new SpotLightComponent()
+            //        {
+            //            LightColor = (ColorF3)Color.White,
+            //            Distance = 500.0f,
+            //            Brightness = 100.0f,
+            //            Exponent = 2.0f,
+            //            OuterCutoffAngleDegrees = 50.0f,
+            //            InnerCutoffAngleDegrees = 30.0f,
+            //            Translation = new Vec3(
+            //                TMath.Cosf(i * lightAngleRad) * lightPosRadius,
+            //                upTrans,
+            //                TMath.Sinf(i * lightAngleRad) * lightPosRadius)
+            //        };
+            //        spot.Rotation.Pitch = -60.0f;
+            //        spot.Rotation.Yaw = lightAngle * ((spotLights - i) - spotLights + 1);
+            //        Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>(spot);
+            //        actors.Add(spotlight);
+            //    }
+            //}
             #endregion
 
             #region Landscape
@@ -315,7 +314,7 @@ namespace TheraEngine.Tests
                 mat.Parameter<ShaderFloat>("Roughness").Value = 1.0f;
                 mat.Parameter<ShaderFloat>("Metallic").Value = 0.0f;
                 landscape.RootComponent.GenerateHeightFieldMesh(mat, 2);
-                landscape.RootComponent.Translation.Y -= 25.0f;
+                landscape.RootComponent.Transform.Translation.Y -= 25.0f;
                 _landscape = landscape.RootComponent;
                 actors.Add(landscape);
             }
@@ -330,7 +329,7 @@ namespace TheraEngine.Tests
 
             #region Camera Shake
             //Create camera shake test
-            TranslationComponent posComp = new TranslationComponent(new Vec3(0.0f, 50.0f, 0.0f));
+            TransformComponent posComp = new TransformComponent(new TTransform(new Vec3(0.0f, 50.0f, 0.0f), Quat.Identity, Vec3.One));
             ScreenShake3DComponent shakeComp = new ScreenShake3DComponent()
             {
                 MaxTrauma = 100.0f,
@@ -340,7 +339,7 @@ namespace TheraEngine.Tests
             CameraComponent camComp = new CameraComponent(new PerspectiveCamera(0.1f, 2000.0f, 45.0f, 1.0f));
             posComp.ChildSockets.Add(shakeComp);
             shakeComp.ChildSockets.Add(camComp);
-            Actor<TranslationComponent> testScreenshake = new Actor<TranslationComponent>(posComp);
+            Actor<TransformComponent> testScreenshake = new Actor<TransformComponent>(posComp);
             actors.Add(testScreenshake);
             #endregion
 
@@ -351,7 +350,7 @@ namespace TheraEngine.Tests
             #endregion
 
             Actor<TriggerVolumeComponent> triggerVolumeActor = new Actor<TriggerVolumeComponent>();
-            triggerVolumeActor.RootComponent.Translation.Y -= 30.0f;
+            triggerVolumeActor.RootComponent.Transform.Translation.Y -= 30.0f;
             triggerVolumeActor.RootComponent.Shape.HalfExtents.Value = new Vec3(10.0f, 2.0f, 10.0f);
             actors.Add(triggerVolumeActor);
 
@@ -483,7 +482,7 @@ namespace TheraEngine.Tests
         {
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             RootComponent.WorldTransformChanged += RootComponent_WorldTransformChanged;
-            RootComponent.Rotation.Pitch = -90.0f;
+            //RootComponent.Transform.Rotation.Pitch = -90.0f;
         }
         protected override void OnDespawned()
         {
@@ -492,7 +491,7 @@ namespace TheraEngine.Tests
 
         private void RootComponent_WorldTransformChanged(ISceneComponent comp)
         {
-            _direction = Vec3.TransformVector(new Vec3(0.0f, 0.0f, -_testDistance), RootComponent.Rotation.GetMatrix());
+            //_direction = Vec3.TransformVector(new Vec3(0.0f, 0.0f, -_testDistance), RootComponent.Transform.Rotation.GetMatrix());
             _endTraceTransform = _direction.AsTranslationMatrix() * RootComponent.WorldMatrix;
         }
 
@@ -504,18 +503,18 @@ namespace TheraEngine.Tests
             {
                 _hitPoint = _shapeCast.HitPointWorld;
                 _hitNormal = _shapeCast.HitNormalWorld;
-                _drawPoint = RootComponent.Translation + _direction * _shapeCast.HitFraction;
+                _drawPoint = RootComponent.Transform.Translation + _direction * _shapeCast.HitFraction;
             }
             else
             {
-                _drawPoint = RootComponent.Translation + _direction;
+                _drawPoint = RootComponent.Transform.Translation + _direction;
             }
         }
 
         public void Render(bool shadowPass)
         {
             ColorF4 color = _hasHit ? Color.LimeGreen : Color.Red;
-            Engine.Renderer.RenderLine(RootComponent.Translation, _drawPoint, color);
+            Engine.Renderer.RenderLine(RootComponent.Transform.Translation, _drawPoint, color);
             Engine.Renderer.RenderSphere(_drawPoint, Radius, false, color);
 
             if (!_hasHit)

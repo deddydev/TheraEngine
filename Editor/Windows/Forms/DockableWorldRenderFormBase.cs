@@ -141,7 +141,7 @@ namespace TheraEditor.Windows.Forms
 
             }
 
-            EditorPawn.RootComponent.Translation = pos;
+            EditorPawn.RootComponent.Transform.Translation.Value = pos;
         }
     }
 }

@@ -86,7 +86,7 @@ namespace TheraEngine.Components.Logic.Movement
                             body.IsKinematic = true;
                             //Physics simulation updates the world matrix, but not its components (translation, for example)
                             //Do that now
-                            root.Translation = root.WorldPoint;
+                            root.Transform.Translation.Value = root.WorldPoint;
                             
                             _subUpdateTick = TickWalking;
                             break;
@@ -173,7 +173,7 @@ namespace TheraEngine.Components.Logic.Movement
             TCollisionShape shape = root.RenderInfo.CullingVolume.GetCollisionShape();
             TRigidBody body = root.CollisionObject as TRigidBody;
             
-            _prevPosition = root.Translation.Value;
+            _prevPosition = root.Transform.Translation.Value;
 
             //Use gravity currently affecting this body
             Vec3 gravity = body.Gravity;
@@ -225,7 +225,7 @@ namespace TheraEngine.Components.Logic.Movement
                         float hitF = _closestTrace.HitFraction;
 
                         //Something is in the way
-                        root.Translation.Value += finalInput * hitF;
+                        root.Transform.Translation.Value += finalInput * hitF;
                         
                         Vec3 normal = _closestTrace.HitNormalWorld;
                         if (IsSurfaceNormalWalkable(normal))
@@ -259,7 +259,7 @@ namespace TheraEngine.Components.Logic.Movement
                         }
                     }
                     else
-                        root.Translation.Value += finalInput;
+                        root.Transform.Translation.Value += finalInput;
                 }
                 break;
             }
@@ -290,7 +290,7 @@ namespace TheraEngine.Components.Logic.Movement
 
             _worldGroundContactPoint = _closestTrace.HitPointWorld;
             //Vec3 diff = Vec3.Lerp(stepUpVector, down, _closestTrace.HitFraction);
-            root.Translation.Y = _worldGroundContactPoint.Y + centerToGroundDist;
+            root.Transform.Translation.Y = _worldGroundContactPoint.Y + centerToGroundDist;
 
             GroundNormal = _closestTrace.HitNormalWorld;
             CurrentWalkingSurface = _closestTrace.CollisionObject as TRigidBody;
@@ -300,7 +300,7 @@ namespace TheraEngine.Components.Logic.Movement
             root.CollisionObject.WorldTransform = root.WorldMatrix;
 
             _prevVelocity = _velocity;
-            _position = root.Translation;
+            _position = root.Transform.Translation;
             _velocity = (_position - _prevPosition) / delta;
             _acceleration = (_velocity - _prevVelocity) / delta;
         }
@@ -421,7 +421,7 @@ namespace TheraEngine.Components.Logic.Movement
                 {
                     CurrentWalkingSurface = other;
                     CurrentMovementMode = EMovementMode.Walking;
-                    ((CapsuleYComponent)OwningActor.RootComponent).Translation.Value += normal * -point.Distance;
+                    ((CapsuleYComponent)OwningActor.RootComponent).Transform.Translation.Value += normal * -point.Distance;
                 }
             }
             else if (CurrentMovementMode == EMovementMode.Walking)

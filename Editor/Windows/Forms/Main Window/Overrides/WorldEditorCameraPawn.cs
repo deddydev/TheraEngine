@@ -17,8 +17,8 @@ namespace TheraEditor.Actors.Types.Pawns
         public WorldEditorCameraPawn() : base() { }
         public WorldEditorCameraPawn(ELocalPlayerIndex possessor) : base(possessor) { }
 
-        private ICameraTransformable _camera = null;
-        public ICameraTransformable TargetCamera
+        private TransformComponent _camera = null;
+        public TransformComponent TargetCamera
         {
             get => _camera ?? RootComponent;
             set => _camera = value;
@@ -48,13 +48,13 @@ namespace TheraEditor.Actors.Types.Pawns
             if (_alt || _shift)
                 return;
 
-            ICameraTransformable comp = TargetCamera;
+            TransformComponent comp = TargetCamera;
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8f : 1.2f;
             else if (HasHit)
-                comp.Translation.Value = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, up ? -ScrollSpeed : ScrollSpeed);
+                comp.Transform.Translation.Value = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, up ? -ScrollSpeed : ScrollSpeed);
             else
-                comp.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
+                comp.Transform.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
 
             //if (!Moving)
             //{
@@ -84,7 +84,7 @@ namespace TheraEditor.Actors.Types.Pawns
             //    x = result.X;
             //    y = result.Y;
             //}
-            ICameraTransformable comp = TargetCamera;
+            TTransform comp = TargetCamera.Transform;
             if (Rotating)
             {
                 float pitch = y * MouseRotateSpeed;
@@ -96,7 +96,7 @@ namespace TheraEditor.Actors.Types.Pawns
                 else if (HasHit)
                     comp.ArcBallRotate(pitch, yaw, HitPoint);
                 else
-                    comp.Rotation.AddRotations(pitch, yaw, 0.0f);
+                    comp.Rotation *= Quat.FromEulerAngles(pitch, yaw, 0.0f);
             }
             else if (Translating)
             {
@@ -124,7 +124,7 @@ namespace TheraEditor.Actors.Types.Pawns
             {
                 bool forward = y < 0.0f;
                 if (HasHit)
-                    comp.Translation.Value = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, forward ? -ScrollSpeed : ScrollSpeed);
+                    comp.Translation.Value = Segment.PointAtLineDistance(TargetCamera.WorldPoint, HitPoint, forward ? -ScrollSpeed : ScrollSpeed);
                 else
                     comp.TranslateRelative(0.0f, 0.0f, forward ? -ScrollSpeed : ScrollSpeed);
             }
@@ -152,13 +152,13 @@ namespace TheraEditor.Actors.Types.Pawns
             //    }
             //}
 
-            ICameraTransformable comp = TargetCamera;
+            TTransform comp = TargetCamera.Transform;
             bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
             bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
             if (translate)
                 comp.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
-                comp.Rotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
+                comp.Rotation *= Quat.FromEulerAngles(_pitch * delta, _yaw * delta, 0.0f);
         }
     }
 }

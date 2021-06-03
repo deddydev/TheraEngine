@@ -227,12 +227,12 @@ namespace TheraEngine.Tests
             //cam.RootComponent.SetCurrentForPlayer(PlayerIndex.One);
 
             SpotLightComponent spotLightComp = new SpotLightComponent(200.0f, new ColorF3(0.7f, 0.9f, 0.9f), 1.0f, Vec3.Down, 30.0f, 10.0f, 40.0f, 1.0f);
-            spotLightComp.Translation.Y = 50.0f;
+            spotLightComp.Transform.Translation.Y = 50.0f;
             Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>("SpotLight", spotLightComp);
             actors.Add(spotlight);
 
             CharacterSpawnPointActor spawn = new CharacterSpawnPointActor();
-            spawn.RootComponent.Translation.Value = Vec3.Up * 100.0f;
+            spawn.RootComponent.Transform.Translation.Value = Vec3.Up * 100.0f;
             actors.Add(spawn);
 
             IBLProbeGridActor ibl = new IBLProbeGridActor();

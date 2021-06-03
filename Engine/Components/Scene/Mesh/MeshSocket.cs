@@ -29,7 +29,6 @@ namespace TheraEngine.Components.Scene.Mesh
         Matrix4 WorldMatrix { get; set; }
         Matrix4 InverseWorldMatrix { get; set; }
 
-        //ITransform Transform { get; set; }
         IActor OwningActor { get; set; }
         bool AllowRemoval { get; set; }
     }

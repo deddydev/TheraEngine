@@ -24,8 +24,8 @@ namespace TheraEngine.Components.Scene.Volumes
             RenderCommand.RenderPass = ERenderPass.OpaqueForward;
             //RenderParams.DepthTest.Enabled = false;
 
-            Translation.Value = translation;
-            Rotation.SetRotations(rotation);
+            Transform.Translation.Value = translation;
+            Transform.Rotation.Value = rotation.ToQuaternion();
         }
     }
 }

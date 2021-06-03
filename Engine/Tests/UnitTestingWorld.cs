@@ -407,7 +407,7 @@ namespace TheraEngine.Tests
         }
     }
 
-    public class SphereTraceActor : Actor<TRComponent>, I3DRenderable
+    public class SphereTraceActor : Actor<TransformComponent>, I3DRenderable
     {
         public SphereTraceActor()
         {

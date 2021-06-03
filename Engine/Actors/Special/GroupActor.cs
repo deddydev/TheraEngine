@@ -5,7 +5,7 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Actors.Types
 {
-    public sealed class ActorGroupComponent : TRSComponent
+    public sealed class ActorGroupComponent : TransformComponent
     {
         [TSerialize]
         public EventList<FileRef<BaseActor>> Actors { get; } = new EventList<FileRef<BaseActor>>();

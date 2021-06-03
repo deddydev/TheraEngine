@@ -24,7 +24,7 @@ namespace TheraEngine.Actors.Types
         private bool _transformChanged = false;
         private TransformType _mode = TransformType.Translate;
         private ISocket _modified = null;
-        private TRSComponent _transform;
+        private TransformComponent _transform;
 
         public TransformType Mode
         {

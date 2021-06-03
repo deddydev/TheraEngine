@@ -6,7 +6,7 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Components.Scene
 {
-    public class SceneCaptureComponent : TranslationComponent
+    public class SceneCaptureComponent : TransformComponent
     {
         protected int _colorRes;
         protected int _depthRes;

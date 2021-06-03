@@ -11,7 +11,7 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Components.Scene.Mesh
 {
-    public partial class StaticMeshComponent : TRSComponent, IRigidBodyCollidable, IMeshSocketOwner
+    public partial class StaticMeshComponent : TransformComponent, IRigidBodyCollidable, IMeshSocketOwner
     {
         public StaticMeshComponent() : this(null, null) { }
         public StaticMeshComponent(GlobalFileRef<StaticModel> model) : this(model, null) { }

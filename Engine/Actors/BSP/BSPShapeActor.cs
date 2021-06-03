@@ -6,7 +6,7 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Actors.Types.BSP
 {
-    public class BSPMeshComponent : TRSComponent, I3DRenderable
+    public class BSPMeshComponent : TransformComponent, I3DRenderable
     {
         public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D();
         

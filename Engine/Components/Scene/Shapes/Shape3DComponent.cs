@@ -20,7 +20,7 @@ namespace TheraEngine.Components.Scene.Shapes
     {
         TShape Shape { get; }
     }
-    public abstract class Shape3DComponent : TRComponent, IShape3DComponent
+    public abstract class Shape3DComponent : TransformComponent, IShape3DComponent
     {
         private IRenderInfo3D _renderInfo = new RenderInfo3D(true, true) { CastsShadows = false, ReceivesShadows = false };
 

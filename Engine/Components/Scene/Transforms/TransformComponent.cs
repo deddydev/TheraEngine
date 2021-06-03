@@ -52,6 +52,7 @@ namespace TheraEngine.Components.Scene.Transforms
             set
             {
                 base.WorldMatrix = value;
+                Transform.Matrix = WorldMatrix * InverseParentWorldMatrix;
             }
         }
         [Browsable(false)]
@@ -61,7 +62,7 @@ namespace TheraEngine.Components.Scene.Transforms
             set
             {
                 base.InverseWorldMatrix = value;
-                Transform.InverseMatrix = InverseParentWorldMatrix * InverseWorldMatrix; 
+                Transform.InverseMatrix = ParentWorldMatrix * InverseWorldMatrix; 
             }
         }
 

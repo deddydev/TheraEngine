@@ -959,7 +959,7 @@ namespace TheraEngine.Components
         public int ParentSocketChildIndex => ParentSocket?.ChildSockets?.IndexOf(this) ?? -1;
 
         IEventList<ISocket> ISocket.ChildSockets => ChildSockets;
-        public ITransform Transform { get; set; }
+        //public ITransform Transform { get; set; }
 
         public virtual void HandleTranslation(Vec3 delta)
         {

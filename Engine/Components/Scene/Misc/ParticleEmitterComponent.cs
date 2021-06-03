@@ -22,7 +22,7 @@ namespace TheraEngine.Components.Scene
         void Initialize(BaseParticleEmitterComponent component);
         void GenerateParticleMesh(BaseParticleEmitterComponent component, out MeshRenderer mesh);
     }
-    public abstract class BaseParticleEmitterComponent : TRComponent, I3DRenderable, IPreRendered
+    public abstract class BaseParticleEmitterComponent : TransformComponent, I3DRenderable, IPreRendered
     {
         private int _maxParticles = 10000;
         private bool _isEmitting = true;

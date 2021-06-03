@@ -4,11 +4,11 @@ using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Components.Scene
 {
-    public interface ISubActorComponent : ITRSComponent
+    public interface ISubActorComponent : ITransformComponent
     {
         IActor Actor { get; }
     }
-    public class SubActorComponent<T> : TRSComponent, ISubActorComponent where T : class, IActor
+    public class SubActorComponent<T> : TransformComponent, ISubActorComponent where T : class, IActor
     {
         private T _actor;
 

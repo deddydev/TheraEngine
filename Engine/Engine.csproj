@@ -581,6 +581,7 @@
     <Compile Include="Components\Scene\Audio\AudioComponent.cs" />
     <Compile Include="Components\Scene\Camera\BaseCameraComponent.cs" />
     <Compile Include="Components\Scene\Camera\CameraComponent{T}.cs" />
+    <Compile Include="Components\Scene\Transforms\TransformComponent.cs" />
     <Compile Include="Components\Scene\VR\VRDeviceComponent.cs" />
     <Compile Include="Components\Scene\VR\VRPlaySpaceComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\XAligned\CapsuleXComponent.cs" />
@@ -591,7 +592,6 @@
     <Compile Include="Components\Scene\Shapes\CollidableShape3DComponent.cs" />
     <Compile Include="Components\Scene\Splines\Spline2DComponent.cs" />
     <Compile Include="Components\Scene\Misc\SubActorComponent.cs" />
-    <Compile Include="Components\Scene\Transforms\TransformComponent.cs" />
     <Compile Include="Components\Scene\UI\Core\Arrangements\UISizingDefinition.cs" />
     <Compile Include="Components\Scene\UI\Core\Arrangements\UIItemListComponent.cs" />
     <Compile Include="Components\Scene\UI\Sizeables\UIVec2.cs" />
@@ -1237,11 +1237,11 @@
     <Compile Include="Components\Scene\Transforms\Misc\PositionLag.cs" />
     <Compile Include="Components\Scene\Splines\Spline3DComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoisePosition.cs" />
-    <Compile Include="Components\Scene\Transforms\R.cs" />
-    <Compile Include="Components\Scene\Transforms\RT.cs" />
-    <Compile Include="Components\Scene\Transforms\TR.cs" />
-    <Compile Include="Components\Scene\Transforms\T.cs" />
-    <Compile Include="Components\Scene\Transforms\TRS.cs" />
+    <None Include="Components\Scene\Transforms\R.cs" />
+    <None Include="Components\Scene\Transforms\RT.cs" />
+    <None Include="Components\Scene\Transforms\TR.cs" />
+    <None Include="Components\Scene\Transforms\T.cs" />
+    <None Include="Components\Scene\Transforms\TRS.cs" />
     <Compile Include="Components\LogicComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\Boom.cs" />
     <Compile Include="Components\Scene\Camera\CameraComponent.cs" />

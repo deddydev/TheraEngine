@@ -19,7 +19,7 @@ namespace TheraEngine.Components.Scene.Lights
         //Does not move. Allows baking light into shadow maps.
         Static,
     }
-    public abstract class LightComponent : TRComponent, IEditorPreviewIconRenderable
+    public abstract class LightComponent : TransformComponent, IEditorPreviewIconRenderable
     {
         public LightComponent(ColorF3 color, float diffuseIntensity) : base()
         {

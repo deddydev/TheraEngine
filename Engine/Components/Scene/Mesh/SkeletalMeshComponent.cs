@@ -13,7 +13,7 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Components.Scene.Mesh
 {
-    public partial class SkeletalMeshComponent : TRSComponent, IPreRendered, IMeshSocketOwner
+    public partial class SkeletalMeshComponent : TransformComponent, IPreRendered, IMeshSocketOwner
     {
         public SkeletalMeshComponent(GlobalFileRef<SkeletalModel> mesh, LocalFileRef<Skeleton> skeleton)
         {

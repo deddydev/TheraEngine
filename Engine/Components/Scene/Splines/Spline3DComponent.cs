@@ -14,7 +14,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Components.Scene
 {
-    public class Spline3DComponent : TRSComponent, I3DRenderable
+    public class Spline3DComponent : TransformComponent, I3DRenderable
     {
         public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true) { CastsShadows = false, ReceivesShadows = false };
         

@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering.Cameras
     /// <summary>
     /// Base class for your usual perspective and orthographic cameras.
     /// </summary>
-    public abstract class TransformableCamera : Camera, ICameraTransformable
+    public abstract class TransformableCamera : Camera
     {
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(Rotator oldRotation);
@@ -214,17 +214,6 @@ namespace TheraEngine.Rendering.Cameras
             base.Render(shadowPass);
             if (_viewTarget != null)
                 Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Value, Color.DarkGray, false, 1.0f);
-        }
-
-        Rotator ICameraTransformable.Rotation
-        {
-            get => LocalRotation;
-            set => LocalRotation = value;
-        }
-        EventVec3 ICameraTransformable.Translation
-        {
-            get => LocalPoint;
-            set => LocalPoint = value;
         }
         
         public void Pivot(float pitch, float yaw, float distance)

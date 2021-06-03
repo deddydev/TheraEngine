@@ -548,6 +548,31 @@ namespace TheraEngine.Core.Maths.Transforms
         //}
         //#endregion
 
+        public void TranslateRelative(float x, float y, float z)
+            => TranslateRelative(new Vec3(x, y, z));
+        public void TranslateRelative(Vec3 translation)
+        {
+            //Matrix4 oldMatrix = _transform;
+            //Matrix4 oldInvMatrix = _inverseTransform;
+
+            _transform = Matrix * translation.AsTranslationMatrix();
+            //_inverseTransform = (-translation).AsTranslationMatrix() * InverseMatrix;
+            //_translation.SetValueSilent(_transform.Translation);
+
+            //MatrixChanged?.Invoke(this, oldMatrix, oldInvMatrix);
+
+            _translation.Value = _transform.Translation;
+        }
+        public void Pivot(float pitch, float yaw, float distance)
+            => ArcBallRotate(pitch, yaw, _translation + _transform.ForwardVec * distance);
+        public void ArcBallRotate(float pitch, float yaw, Vec3 focusPoint)
+        {
+            //"Arcball" rotation
+            //All rotation is done within local component space
+            _translation.Value = TMath.ArcballTranslation(pitch, yaw, focusPoint, _translation.Value, _transform.RightVec);
+            _rotation *= Quat.FromEulerAngles(pitch, yaw, 0.0f);
+        }
+
         public TTransform HardCopy()
             => new TTransform(Translation.Value, Rotation.Value, Scale.Value, TransformationOrder);
     }

@@ -16,7 +16,7 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Actors
 {
-    public class IBLProbeGridActor : Actor<TranslationComponent>, I3DRenderable
+    public class IBLProbeGridActor : Actor<TransformComponent>, I3DRenderable
     {
         private bool _showPrefilterTexture = false;
         private bool _showCaptureSpheres = true;

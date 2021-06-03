@@ -6,7 +6,7 @@ using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Actors.Types
 {
-    public class Vehicle : Pawn<TRComponent>
+    public class Vehicle : Pawn<TransformComponent>
     {
         private ICharacterPawn _driver;
         private List<ICharacterPawn> _passengers;

@@ -29,13 +29,16 @@ namespace TheraEngine.Components.Scene.Mesh
         Matrix4 WorldMatrix { get; set; }
         Matrix4 InverseWorldMatrix { get; set; }
 
-        ITransform Transform { get; set; }
+        //ITransform Transform { get; set; }
         IActor OwningActor { get; set; }
         bool AllowRemoval { get; set; }
     }
     public class Socket : Socket<ISocket> { }
     public class Socket<TParent> : TFileObject, ISocket where TParent : ISocket
     {
+        public ITransform Transform { get; set; }
+        public bool AllowRemoval { get; set; }
+
         int ISocket.ParentSocketChildIndex => throw new NotImplementedException();
 
         ISocket ISocket.ParentSocket { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Actors.Types
 {
-    public class CameraActor : Actor<TRComponent>
+    public class CameraActor : Actor<TransformComponent>
     {
         public CameraActor() : base() { }
 
@@ -22,12 +22,12 @@ namespace TheraEngine.Actors.Types
             }
         }
         
-        protected override TRComponent OnConstructRoot()
+        protected override TransformComponent OnConstructRoot()
         {
             Camera camera = new PerspectiveCamera(1.0f, 10000.0f, 45.0f, 16.0f / 9.0f);
             //Camera camera = new OrthographicCamera(1.0f, 10000.0f);
             CameraComponent = new CameraComponent(camera);
-            TRComponent tr = new TRComponent();
+            TransformComponent tr = new TransformComponent();
             tr.ChildSockets.Add(CameraComponent);
             return tr;
         }

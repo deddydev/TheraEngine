@@ -98,6 +98,24 @@ namespace TheraEngine.Components.Scene.Transforms
 
         [Browsable(false)]
         public override bool IsTranslatable => true;
+
+        public Vec3 Translation
+        {
+            get => Transform.Translation.Value; 
+            set => Transform.Translation.Value = value;
+        }
+        public Quat Rotation
+        {
+            get => Transform.Rotation.Value;
+            set => Transform.Rotation.Value = value;
+        }
+        public Vec3 Scale
+        {
+            get => Transform.Scale.Value;
+            set => Transform.Scale.Value = value;
+        }
+
+
         public override void HandleTranslation(Vec3 delta)
             => Transform.Translation += delta;
     }

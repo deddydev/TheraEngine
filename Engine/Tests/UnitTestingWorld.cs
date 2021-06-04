@@ -135,7 +135,7 @@ namespace TheraEngine.Tests
                     };
                     Actor<StaticMeshComponent> sphere = //((x ^ z) & 1) == 0 ?
                         //(Actor<StaticMeshComponent>)new ConeActor("TestCone" + (y++).ToString(), radius, radius * 2.0f, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo, 20) :
-                        new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo, 20);
+                        new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Quat.Identity, mat, cinfo, 20);
 
                     //sphere.RootComponent.RigidBodyCollision.AngularVelocity = new Vec3(
                     //    rand.Next(-halfMax, halfMax) / maxVel,
@@ -176,22 +176,25 @@ namespace TheraEngine.Tests
             //Create walls
             if (createWalls)
             {
-                Rotator[] rotations =
+                Quat[] rotations =
                 {
-                    new Rotator(0.0f, 0.0f, 0.0f),
-                    new Rotator(90.0f, 0.0f, 0.0f),
-                    new Rotator(180.0f, 0.0f, 0.0f),
-                    new Rotator(-90.0f, 0.0f, 0.0f),
-                    new Rotator(90.0f, 90.0f, 0.0f),
-                    new Rotator(90.0f, -90.0f, 0.0f),
+                    Quat.Euler(0.0f, 0.0f, 0.0f),
+                    Quat.Euler(90.0f, 0.0f, 0.0f),
+                    Quat.Euler(180.0f, 0.0f, 0.0f),
+                    Quat.Euler(-90.0f, 0.0f, 0.0f),
+                    Quat.Euler(90.0f, 90.0f, 0.0f),
+                    Quat.Euler(90.0f, -90.0f, 0.0f),
                 };
 
                 for (int i = 0; i < 6; ++i)
                 {
-                    Rotator r = rotations[i];
+                    Quat rotation = rotations[i];
                     actor = new BoxActor("Wall" + i,
-                        new Vec3(100.0f, 0.5f, 100.0f), Vec3.TransformPosition(new Vec3(0.0f, -100.0f, 0.0f), r.GetMatrix()),
-                        r, TMaterial.CreateLitColorMaterial(floorColor), new TRigidBodyConstructionInfo()
+                        new Vec3(100.0f, 0.5f, 100.0f),
+                        new Vec3(0.0f, -100.0f, 0.0f) * rotation,
+                        rotation, 
+                        TMaterial.CreateLitColorMaterial(floorColor),
+                        new TRigidBodyConstructionInfo()
                         {
                             UseMotionState = false,
                             SimulatePhysics = false,
@@ -218,7 +221,7 @@ namespace TheraEngine.Tests
                     dir.LightColor = (ColorF3)Color.White;
                     dir.DiffuseIntensity = 1.0f;
                     dir.Scale = 500.0f;
-                    dir.Transform.Rotation.Value = Quat.FromEulerAngles(-20.0f, lightAngle * i, 0.0f);
+                    dir.Transform.Rotation.Value = Quat.Euler(-20.0f, lightAngle * i, 0.0f);
                     actors.Add(dirlight);
                 }
             }

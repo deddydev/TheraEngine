@@ -11,6 +11,7 @@ using TheraEngine.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -393,7 +394,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _transformType = value;
                 if (UseTransformTool)
-                    TransformTool3D.GetInstance(OwningWorld, SelectedComponent, _transformType);
+                    TransformTool3D.GetInstance(OwningWorld, SelectedComponent as TransformComponent, _transformType);
                 else
                     TransformTool3D.DestroyInstance();
             }
@@ -757,7 +758,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         if (UseTransformTool)
                         {
-                            TransformTool3D.GetInstance(OwningWorld, SelectedComponent, _transformType);
+                            TransformTool3D.GetInstance(OwningWorld, SelectedComponent as TransformComponent, _transformType);
                         }
                         else
                         {

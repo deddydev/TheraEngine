@@ -63,8 +63,7 @@ namespace TheraEditor.Windows.Forms
                 _light.DiffuseIntensity = 2000.0f;
                 _light.LightColor = (ColorF3)Color.White;
                 _light.Scale = 1.0f;
-                _light.Rotation.Yaw = 0.0f;
-                _light.Rotation.Pitch = 0.0f;
+                _light.Rotation = Quat.Identity;
                 //_light.CastsShadows = false;
             }
 
@@ -95,8 +94,6 @@ namespace TheraEditor.Windows.Forms
 
                 //up is negative, left is negative
 
-                Quat lightRotation = _light.Rotation.GetMatrix().ExtractRotation(false);
-
                 Vec2 vec = new Vec2(dx, dy);
                 Vec3 axis = Vec3.Zero;
 
@@ -118,11 +115,8 @@ namespace TheraEditor.Windows.Forms
                 //{
                 //    axis = new Vec3(1.0f / vec, 0.0f).Normalized();
                 //}
-                float vecLen = vec.Length;
-                Quat rot = Quat.FromAxisAngleDeg(axis, vecLen);
-                lightRotation = rot * lightRotation;
-                Rotator r = lightRotation.ToRotator();
-                _light.Rotation.SetRotations(r);
+
+                _light.Rotation *= Quat.FromAxisAngleDeg(axis, vec.Length);
             }
         }
 

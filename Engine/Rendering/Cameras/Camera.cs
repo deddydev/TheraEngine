@@ -548,5 +548,10 @@ namespace TheraEngine.Rendering.Cameras
             => PostProcessRef?.File?.ColorGrading?.RequiresAutoExposure ?? false;
         public virtual void UpdateExposure(TexRef2D texture)
             => PostProcessRef?.File?.ColorGrading?.UpdateExposure(texture);
+
+        internal float DistanceScale(object translation, float v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

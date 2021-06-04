@@ -217,7 +217,10 @@ namespace TheraEngine.Core.Maths.Transforms
                 EndUpdate();
             }
         }
-        public void SyncXFrom(EventVec3 other)
+        /// <summary>
+        /// When the provided EventVec3's X value is changed, this X value is updated to match.
+        /// </summary>
+        public void SyncX(EventVec3 other)
         {
             if (_syncAll != null)
             {
@@ -236,7 +239,10 @@ namespace TheraEngine.Core.Maths.Transforms
                 X = other.X;
             }
         }
-        public void SyncYFrom(EventVec3 other)
+        /// <summary>
+        /// When the provided EventVec3's Y value is changed, this Y value is updated to match.
+        /// </summary>
+        public void SyncY(EventVec3 other)
         {
             if (_syncAll != null)
             {
@@ -255,7 +261,10 @@ namespace TheraEngine.Core.Maths.Transforms
                 Y = other.Y;
             }
         }
-        public void SyncZFrom(EventVec3 other)
+        /// <summary>
+        /// When the provided EventVec3's Z value is changed, this Z value is updated to match.
+        /// </summary>
+        public void SyncZ(EventVec3 other)
         {
             if (_syncAll != null)
             {
@@ -274,7 +283,10 @@ namespace TheraEngine.Core.Maths.Transforms
                 Z = other.Z;
             }
         }
-        public void SyncFrom(EventVec3 other)
+        /// <summary>
+        /// When the provided EventVec3's values are changed, these values are updated to match.
+        /// </summary>
+        public void Sync(EventVec3 other)
         {
             if (_syncAll != null)
             {
@@ -303,6 +315,9 @@ namespace TheraEngine.Core.Maths.Transforms
                 Xyz = other.Value;
             }
         }
+        /// <summary>
+        /// Stops synchronization of all values to any other EventVec3's.
+        /// </summary>
         public void StopSynchronization()
         {
             if (_syncAll != null)

@@ -51,6 +51,13 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             _meshComp.SkeletonOverrideRef = skeleton;
             _meshComp.ModelRef = mesh;
+
+            _viewRotation.Changed += _viewRotation_Changed;
+        }
+
+        private void _viewRotation_Changed()
+        {
+            _tpCameraBoom.Rotation = _viewRotation.ToQuaternion();
         }
 
         private GameTimer _respawnTimer = new GameTimer();
@@ -143,7 +150,7 @@ namespace TheraEngine.Actors.Types.Pawns
         }
         protected virtual void TickMovementInput(float delta)
         {
-            Vec3 forward = Vec3.TransformVector(Vec3.Forward, _tpCameraBoom.Rotation.GetYawMatrix());
+            Vec3 forward = _tpCameraBoom.Transform.GetForwardVector();
             Vec3 right = forward ^ Vec3.Up;
 
             bool keyboardMovement = _keyboardMovementInput.X != 0.0f || _keyboardMovementInput.Y != 0.0f;
@@ -161,8 +168,8 @@ namespace TheraEngine.Actors.Types.Pawns
                 input = forward * _gamepadMovementInput.Y + right * _gamepadMovementInput.X;
                 _movement.AddMovementInput(input * delta * GamePadMovementInputMultiplier);
             }
-            if (gamepadMovement || keyboardMovement)
-                _meshComp.Rotation.Yaw = _movement.TargetFrameInputDirection.LookatAngles().Yaw + 180.0f;
+            //if (gamepadMovement || keyboardMovement)
+            //    _meshComp.Rotation.Yaw = _movement.TargetFrameInputDirection.LookatAngles().Yaw + 180.0f;
         }
         public override void RegisterInput(InputInterface input)
         {
@@ -271,10 +278,10 @@ namespace TheraEngine.Actors.Types.Pawns
             TRigidBody body = rootCapsule.CollisionObject as TRigidBody;
             body.Collided += RigidBodyCollision_Collided;
             body.AngularFactor = Vec3.Zero;
-            rootCapsule.Translation.Value = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);
+            rootCapsule.Translation = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);
 
             _meshComp = new SkeletalMeshComponent();
-            _meshComp.Translation.Value = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
+            _meshComp.Translation = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
             rootCapsule.ChildSockets.Add(_meshComp);
 
             //PerspectiveCamera FPCam = new PerspectiveCamera()
@@ -290,8 +297,8 @@ namespace TheraEngine.Actors.Types.Pawns
             rootCapsule.ChildSockets.Add(lagComp);
 
             _tpCameraBoom = new BoomComponent() { IgnoreCast = rootCapsule.CollisionObject };
-            _tpCameraBoom.Translation.Value = new Vec3(0.0f, 0.3f, 0.0f);
-            _tpCameraBoom.Rotation.SyncFrom(_viewRotation);
+            _tpCameraBoom.Translation = new Vec3(0.0f, 0.3f, 0.0f);
+            //_tpCameraBoom.Rotation.SyncFrom(_viewRotation);
             _tpCameraBoom.MaxLength = 5.0f;
             lagComp.ChildSockets.Add(_tpCameraBoom);
 

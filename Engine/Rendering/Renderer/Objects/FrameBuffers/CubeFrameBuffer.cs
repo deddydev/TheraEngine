@@ -68,7 +68,7 @@ namespace TheraEngine.Rendering
         {
             Position = point;
             foreach (TransformableCamera c in Cameras)
-                c.LocalPoint.Value = Position;
+                c.Translation.Value = Position;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -212,7 +213,7 @@ namespace TheraEngine.Actors.Types
         }
         
         private TransformType _mode = TransformType.Translate;
-        private ISocket _targetSocket = null;
+        private TransformComponent _targetSocket = null;
 
         [Category("Transform Tool 3D")]
         public ESpace TransformSpace
@@ -326,7 +327,7 @@ namespace TheraEngine.Actors.Types
         /// The socket transform that is being manipulated by this transform tool.
         /// </summary>
         [Browsable(false)]
-        public ISocket TargetSocket
+        public TransformComponent TargetSocket
         {
             get => _targetSocket;
             set
@@ -439,7 +440,7 @@ namespace TheraEngine.Actors.Types
         {
             Instance.Despawn();
         }
-        public static TransformTool3D GetInstance(IWorld world, ISocket comp, TransformType transformType)
+        public static TransformTool3D GetInstance(IWorld world, TransformComponent comp, TransformType transformType)
         {
             if (world is null)
                 return null;
@@ -530,7 +531,7 @@ namespace TheraEngine.Actors.Types
             
             //TODO: convert to socket space
 
-            _targetSocket.Transform.Rotation.Value *= worldDelta;
+            _targetSocket.Rotation *= worldDelta;
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }

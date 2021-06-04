@@ -734,8 +734,8 @@ namespace TheraEngine.Core.Maths.Transforms
         /// Returns a YPR rotator looking from the origin to the end of this vector.
         /// </summary>
         public Rotator LookatAngles() => new Rotator(
-            (float)RadToDeg(Atan2(Y, Sqrt(X * X + Z * Z))),
-            (float)RadToDeg(Atan2(-X, -Z)),
+            RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z))),
+            RadToDeg((float)Atan2(-X, -Z)),
             0.0f);
 
         /// <summary>

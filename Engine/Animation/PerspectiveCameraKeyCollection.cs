@@ -72,29 +72,29 @@ namespace TheraEngine.Animation
 
         public void SetCameraKeyframe(float second, PerspectiveCamera cameraReference)
         {
-            var kf = new FloatKeyframe(second, cameraReference.LocalPoint.X, 0.0f, EVectorInterpType.CubicHermite);
+            var kf = new FloatKeyframe(second, cameraReference.Translation.X, 0.0f, EVectorInterpType.CubicHermite);
             TranslationX.Keyframes.Add(kf);
             kf.GenerateTangents();
 
-            kf = new FloatKeyframe(second, cameraReference.LocalPoint.Y, 0.0f, EVectorInterpType.CubicHermite);
+            kf = new FloatKeyframe(second, cameraReference.Translation.Y, 0.0f, EVectorInterpType.CubicHermite);
             TranslationY.Keyframes.Add(kf);
             kf.GenerateTangents();
 
-            kf = new FloatKeyframe(second, cameraReference.LocalPoint.Z, 0.0f, EVectorInterpType.CubicHermite);
+            kf = new FloatKeyframe(second, cameraReference.Translation.Z, 0.0f, EVectorInterpType.CubicHermite);
             TranslationZ.Keyframes.Add(kf);
             kf.GenerateTangents();
 
-            kf = new FloatKeyframe(second, cameraReference.LocalRotation.Pitch, 0.0f, EVectorInterpType.CubicHermite);
-            RotationX.Keyframes.Add(kf);
-            kf.GenerateTangents();
+            //kf = new FloatKeyframe(second, cameraReference.Rotation.Pitch, 0.0f, EVectorInterpType.CubicHermite);
+            //RotationX.Keyframes.Add(kf);
+            //kf.GenerateTangents();
 
-            kf = new FloatKeyframe(second, cameraReference.LocalRotation.Yaw, 0.0f, EVectorInterpType.CubicHermite);
-            RotationY.Keyframes.Add(kf);
-            kf.GenerateTangents();
+            //kf = new FloatKeyframe(second, cameraReference.Rotation.Yaw, 0.0f, EVectorInterpType.CubicHermite);
+            //RotationY.Keyframes.Add(kf);
+            //kf.GenerateTangents();
 
-            kf = new FloatKeyframe(second, cameraReference.LocalRotation.Roll, 0.0f, EVectorInterpType.CubicHermite);
-            RotationZ.Keyframes.Add(kf);
-            kf.GenerateTangents();
+            //kf = new FloatKeyframe(second, cameraReference.Rotation.Roll, 0.0f, EVectorInterpType.CubicHermite);
+            //RotationZ.Keyframes.Add(kf);
+            //kf.GenerateTangents();
 
             kf = new FloatKeyframe(second, VerticalFOV ? cameraReference.VerticalFieldOfView : cameraReference.HorizontalFieldOfView, 0.0f, EVectorInterpType.CubicHermite);
             FOV.Keyframes.Add(kf);

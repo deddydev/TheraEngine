@@ -26,7 +26,7 @@ namespace TheraEngine.Actors.Types.Pawns
             {
                 float pitch = y * MouseRotateSpeed;
                 float yaw = -x * MouseRotateSpeed;
-                RootComponent.Transform.Rotation.Value *= Quat.FromEulerAngles(pitch, yaw, 0.0f);
+                RootComponent.Transform.Rotation.Value *= Quat.Euler(pitch, yaw, 0.0f);
             }
             else if (Translating)
             {
@@ -40,7 +40,7 @@ namespace TheraEngine.Actors.Types.Pawns
             if (translate)
                 RootComponent.Transform.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
-                RootComponent.Transform.Rotation.Value *= Quat.FromEulerAngles(_pitch * delta, _yaw * delta, 0.0f);
+                RootComponent.Transform.Rotation.Value *= Quat.Euler(_pitch * delta, _yaw * delta, 0.0f);
         }
     }
 }

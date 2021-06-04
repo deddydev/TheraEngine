@@ -12,9 +12,9 @@ namespace TheraEngine.Components.Scene.Lights
     [TFileDef("Directional Light Component")]
     public class DirectionalLightComponent : LightComponent
     {
-        private Vec3 _scale = Vec3.One;
-        private Vec3 _direction;
 
+
+        private Vec3 _scale = Vec3.One;
         [TSerialize]
         [Category("Transform")]
         public Vec3 Scale
@@ -27,20 +27,10 @@ namespace TheraEngine.Components.Scene.Lights
                 {
                     ShadowCamera.Resize(Scale.X, Scale.Y);
                     ShadowCamera.FarZ = Scale.Z;
-                    ShadowCamera.LocalPoint.Value = WorldPoint;
+                    ShadowCamera.Translation.Value = WorldPoint;
                     ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
                 }
                 LightMatrix = WorldMatrix * _scale.AsScaleMatrix();
-            }
-        }
-        [Category("Directional Light Component")]
-        public Vec3 Direction
-        {
-            get => _direction;
-            set
-            {
-                _direction = value.Normalized();
-                _rotation.SetDirection(_direction);
             }
         }
 
@@ -49,32 +39,45 @@ namespace TheraEngine.Components.Scene.Lights
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity)
             : base(color, diffuseIntensity)
         {
-            _rotation.Pitch = -90.0f;
+            Transform.Rotation.Value *= Quat.Euler(-90.0f, 0.0f, 0.0f); //Face down
+            ShadowExponent = 1.0f;
+        }
+        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, EventQuat rotation)
+            : base(color, diffuseIntensity)
+        {
+            Transform.Rotation = rotation;
+            ShadowExponent = 1.0f;
+        }
+        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, Quat rotation)
+       : base(color, diffuseIntensity)
+        {
+            Transform.Rotation.Value = rotation;
             ShadowExponent = 1.0f;
         }
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, Rotator rotation)
             : base(color, diffuseIntensity)
         {
-            _rotation.SetRotations(rotation);
+            Transform.Rotation.Value = rotation.ToQuaternion();
             ShadowExponent = 1.0f;
         }
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, Vec3 direction)
             : base(color, diffuseIntensity)
         {
-            Direction = direction;
+            Transform.Rotation.Value = direction.LookatAngles().ToQuaternion();
             ShadowExponent = 1.0f;
         }
-        
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, Vec3 eulerAngles, ERotationOrder eulerOrder)
+            : base(color, diffuseIntensity)
         {
-            _direction = _rotation.GetDirection();
-            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
+            Transform.Rotation.Value = Quat.Euler(eulerAngles, eulerOrder);
+            ShadowExponent = 1.0f;
         }
+
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             if (ShadowCamera != null)
             {
-                ShadowCamera.LocalPoint.Value = WorldPoint;
+                ShadowCamera.Translation.Value = WorldPoint;
                 ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
             }
             
@@ -94,7 +97,7 @@ namespace TheraEngine.Components.Scene.Lights
                     if (ShadowMap is null)
                         SetShadowMapResolution(_region.Width, _region.Height);
 
-                    ShadowCamera.LocalPoint.Value = WorldPoint;
+                    ShadowCamera.Translation.Value = WorldPoint;
                     ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
                 }
                 ShadowCamera.RenderInfo.LinkScene(ShadowCamera, s3d);
@@ -118,7 +121,7 @@ namespace TheraEngine.Components.Scene.Lights
             targetStructName ??= Uniform.LightsStructName;
 
             program.PushTargetStruct(targetStructName);
-            program.Uniform("Direction", _direction);
+            program.Uniform("Direction", Transform.GetForwardVector());
             program.Uniform("Color", _color.Raw);
             program.Uniform("DiffuseIntensity", _diffuseIntensity);
             program.Uniform("WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
@@ -132,7 +135,7 @@ namespace TheraEngine.Components.Scene.Lights
             if (ShadowCamera is null)
             {
                 ShadowCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Half, 0.0f, Scale.Z);
-                ShadowCamera.LocalRotation.SyncFrom(_rotation);
+                ShadowCamera.Rotation.SyncFrom(Transform.Rotation);
                 ShadowCamera.Resize(Scale.X, Scale.Y);
             }
         }

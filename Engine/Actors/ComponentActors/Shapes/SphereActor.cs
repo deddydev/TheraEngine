@@ -1,4 +1,5 @@
 ﻿using Extensions;
+using System;
 using System.Collections.Generic;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -15,12 +16,12 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
         public SphereActor(float radius)
             : this(radius, Vec3.Zero) { }
         public SphereActor(float radius, Vec3 translation)
-            : this(radius, translation, Rotator.GetZero()) { }
-        public SphereActor(float radius, Rotator rotation)
+            : this(radius, translation, Quat.Identity) { }
+        public SphereActor(float radius, Quat rotation)
             : this(radius, Vec3.Zero, rotation) { }
-        public SphereActor(float radius, Vec3 translation, Rotator rotation)
+        public SphereActor(float radius, Vec3 translation, Quat rotation)
             : this(radius, translation, rotation, TMaterial.CreateLitColorMaterial(Engine.InvalidColor)) { }
-        public SphereActor(float radius, Vec3 translation, Rotator rotation, TMaterial material)
+        public SphereActor(float radius, Vec3 translation, Quat rotation, TMaterial material)
             : this("SphereActor", radius, translation, rotation, material) { }
 
         public SphereActor(string name)
@@ -28,13 +29,13 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
         public SphereActor(string name, float radius)
             : this(name, radius, Vec3.Zero) { }
         public SphereActor(string name, float radius, Vec3 translation)
-            : this(name, radius, translation, Rotator.GetZero()) { }
-        public SphereActor(string name, float radius, Vec3 translation, Rotator rotation)
+            : this(name, radius, translation, Quat.Identity) { }
+        public SphereActor(string name, float radius, Vec3 translation, Quat rotation)
             : this(name, radius, translation, rotation, TMaterial.CreateLitColorMaterial(Engine.InvalidColor)) { }
-        public SphereActor(string name, float radius, Vec3 translation, Rotator rotation, TMaterial material)
+        public SphereActor(string name, float radius, Vec3 translation, Quat rotation, TMaterial material)
             : this(name, radius, translation, rotation, material, null) { }
         
-        public SphereActor(string name, float radius, Vec3 translation, Rotator rotation, TMaterial material, TRigidBodyConstructionInfo info, uint meshPrecision = 40u) : base(
+        public SphereActor(string name, float radius, Vec3 translation, Quat rotation, TMaterial material, TRigidBodyConstructionInfo info, uint meshPrecision = 40u) : base(
                 name, 
                 new Sphere(radius),
                 translation,

@@ -349,15 +349,18 @@ namespace System
         }
 
         public static Quat FromRotator(Rotator rotator)
-            => FromEulerAngles(rotator.Yaw, rotator.Pitch, rotator.Roll, rotator.Order);
-        
+            => Euler(rotator.Yaw, rotator.Pitch, rotator.Roll, rotator.Order);
+
+        public static Quat Euler(Vec3 pitchYawRoll, ERotationOrder order = ERotationOrder.YPR)
+            => Euler(pitchYawRoll.X, pitchYawRoll.Y, pitchYawRoll.Z, order);
+
         /// <summary>
         /// Builds a Quaternion from the given euler angles
         /// </summary>
         /// <param name="yaw">The yaw (heading), rotation around Y axis</param>
         /// <param name="pitch">The pitch (attitude), rotation around X axis</param>
         /// <param name="roll">The roll (bank), rotation around Z axis</param>
-        public static Quat FromEulerAngles(float pitch, float yaw, float roll, ERotationOrder order = ERotationOrder.YPR)
+        public static Quat Euler(float pitch, float yaw, float roll, ERotationOrder order = ERotationOrder.YPR)
         {
             Quat p = FromAxisAngleDeg(Vec3.UnitX, pitch);
             Quat y = FromAxisAngleDeg(Vec3.UnitY, yaw);
@@ -470,7 +473,7 @@ namespace System
             RYZX, RYZY, RYXZ, RYXY,
             RZXY, RZXZ, RZYX, RZYZ,
         }
-        public static Quat FromEulerAngles(float pitch, float yaw, float roll, EAxisCombo axes)
+        public static Quat Euler(float pitch, float yaw, float roll, EAxisCombo axes)
         {
             float
                 ai = DegToRad(roll) * 0.5f,

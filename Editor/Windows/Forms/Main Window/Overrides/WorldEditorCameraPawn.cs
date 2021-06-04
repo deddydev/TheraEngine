@@ -96,7 +96,7 @@ namespace TheraEditor.Actors.Types.Pawns
                 else if (HasHit)
                     comp.ArcBallRotate(pitch, yaw, HitPoint);
                 else
-                    comp.Rotation *= Quat.FromEulerAngles(pitch, yaw, 0.0f);
+                    comp.Rotation *= Quat.Euler(pitch, yaw, 0.0f);
             }
             else if (Translating)
             {
@@ -158,7 +158,7 @@ namespace TheraEditor.Actors.Types.Pawns
             if (translate)
                 comp.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
-                comp.Rotation *= Quat.FromEulerAngles(_pitch * delta, _yaw * delta, 0.0f);
+                comp.Rotation *= Quat.Euler(_pitch * delta, _yaw * delta, 0.0f);
         }
     }
 }

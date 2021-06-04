@@ -22,17 +22,17 @@ namespace TheraEngine.Rendering.Cameras
         protected TransformableCamera(float width, float height)
             : this(width, height, 1.0f, 10000.0f) { }
         protected TransformableCamera(float width, float height, float nearZ, float farZ)
-            : this(width, height, nearZ, farZ, Vec3.Zero, Rotator.GetZero()) { }
-        protected TransformableCamera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation) : base(nearZ, farZ)
+            : this(width, height, nearZ, farZ, Vec3.Zero, EventQuat.Identity) { }
+        protected TransformableCamera(float width, float height, float nearZ, float farZ, Vec3 point, EventQuat rotation) : base(nearZ, farZ)
         {
-            _localRotation = rotation;
-            _localPoint = point;
+            _rotation = rotation;
+            _translation = point;
 
             Resize(width, height);
 
             _viewTarget = null;
-            _localRotation.Changed += CreateTransform;
-            _localPoint.Changed += PositionChanged;
+            _rotation.Changed += CreateTransform;
+            _translation.Changed += PositionChanged;
 
             PositionChanged();
         }
@@ -45,39 +45,39 @@ namespace TheraEngine.Rendering.Cameras
             {
                 _cameraToWorldSpaceMatrix = value;
                 _worldToCameraSpaceMatrix = _cameraToWorldSpaceMatrix.Inverted();
-                _localPoint.Value = _cameraToWorldSpaceMatrix.Translation;
-                _localRotation.SetRotations(_cameraToWorldSpaceMatrix.GetRotationMatrix4().ExtractRotation().ToRotator());
+                _translation.Value = _cameraToWorldSpaceMatrix.Translation;
+                _rotation.Value = _cameraToWorldSpaceMatrix.GetRotationMatrix4().ExtractRotation();
                 OnTransformChanged();
             }
         }
 
         [Browsable(false)]
         [Category("Camera")]
-        public override Vec3 WorldPoint => _owningComponent?.WorldMatrix.Translation ?? _localPoint.Value;
+        public override Vec3 WorldPoint => _owningComponent?.WorldMatrix.Translation ?? _translation.Value;
         
         [Category("Camera")]
-        public EventVec3 LocalPoint
+        public EventVec3 Translation
         {
-            get => _localPoint;
+            get => _translation;
             set
             {
-                if (_localPoint != null)
-                    _localPoint.Changed -= PositionChanged;
-                _localPoint = value ?? new EventVec3();
-                _localPoint.Changed += PositionChanged;
+                if (_translation != null)
+                    _translation.Changed -= PositionChanged;
+                _translation = value ?? new EventVec3();
+                _translation.Changed += PositionChanged;
                 PositionChanged();
             }
         }
         [Category("Camera")]
-        public Rotator LocalRotation
+        public EventQuat Rotation
         {
-            get => _localRotation;
+            get => _rotation;
             set
             {
-                if (_localRotation != null)
-                    _localRotation.Changed -= CreateTransform;
-                _localRotation = value ?? new Rotator();
-                _localRotation.Changed += CreateTransform;
+                if (_rotation != null)
+                    _rotation.Changed -= CreateTransform;
+                _rotation = value ?? new EventQuat();
+                _rotation.Changed += CreateTransform;
                 CreateTransform();
             }
         }
@@ -102,9 +102,9 @@ namespace TheraEngine.Rendering.Cameras
         protected EventVec3 _viewTarget = null;
 
         [TSerialize("Point")]
-        protected EventVec3 _localPoint;
+        protected EventVec3 _translation;
         [TSerialize("Rotation")]
-        protected Rotator _localRotation;
+        protected EventQuat _rotation;
         //[TSerialize("PostProcessSettings")]
         //private LocalFileRef<PostProcessSettings> _postProcessSettingsRef;
 
@@ -126,13 +126,23 @@ namespace TheraEngine.Rendering.Cameras
         public virtual void PositionChanged()
         {
             if (_viewTarget != null)
-                _localRotation.SetRotationsNoUpdate((_viewTarget.Value - _localPoint).LookatAngles());
+            {
+                Vec3 dir = (_viewTarget.Value - _translation).Normalized();
+                Quat q = dir.LookatAngles().ToQuaternion();
+                //Vec3 rotationAxis = dir ^ Vec3.Up;
+                //Quat yaw = Quat.FromAxisAngleDeg(Vec3.Up, new Vec3(dir.X, 0.0f, dir.Z).Normalized() | Vec3.Right);
+                //Quat pitch = Quat.FromAxisAngleDeg(rotationAxis, dir | rotationAxis);
+                ////Vec3 floorAxis = rotationAxis ^ dir;
+                ////float angle = (dir | floorAxis);
+                ////Quat q = Quat.FromAxisAngleDeg(rotationAxis, angle);
+                _rotation.SetValueSilent(q);
+            }
             CreateTransform();
         }
         protected override void OnCreateTransform(out Matrix4 cameraToWorldSpaceMatrix, out Matrix4 worldToCameraSpaceMatrix)
         {
-            cameraToWorldSpaceMatrix = _localPoint.AsTranslationMatrix() * _localRotation.GetMatrix();
-            worldToCameraSpaceMatrix = _localRotation.GetInverseMatrix() * _localPoint.AsInverseTranslationMatrix();
+            cameraToWorldSpaceMatrix = _translation.AsTranslationMatrix() * Matrix4.CreateFromQuaternion(_rotation);
+            worldToCameraSpaceMatrix = Matrix4.CreateFromQuaternion(_rotation.Value.Inverted()) * _translation.AsInverseTranslationMatrix();
         }
 
         /// <summary>
@@ -147,7 +157,7 @@ namespace TheraEngine.Rendering.Cameras
         {
             _cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * translation.AsTranslationMatrix();
             _worldToCameraSpaceMatrix = (-translation).AsTranslationMatrix() * _worldToCameraSpaceMatrix;
-            _localPoint.SetValueSilent(_cameraToWorldSpaceMatrix.Translation);
+            _translation.SetValueSilent(_cameraToWorldSpaceMatrix.Translation);
             if (_viewTarget != null)
                 SetRotationWithTarget(_viewTarget.Value);
             else
@@ -164,7 +174,7 @@ namespace TheraEngine.Rendering.Cameras
         /// Translates the camera relative to the world.
         /// </summary>
         public void TranslateAbsolute(Vec3 translation)
-            => _localPoint.Value += translation;
+            => _translation.Value += translation;
         
         /// <summary>
         /// Increments the camera's pitch and yaw rotations.
@@ -175,30 +185,33 @@ namespace TheraEngine.Rendering.Cameras
         /// Increments the camera's pitch, yaw and roll rotations.
         /// </summary>
         public void AddRotation(float pitch, float yaw, float roll) 
-            => SetRotation(
-                _localRotation.Pitch + pitch,
-                _localRotation.Yaw + yaw, 
-                _localRotation.Roll + roll);
+            => _rotation.Value *= Quat.Euler(pitch, yaw, roll);
 
         public void SetRotationsNoUpdate(Rotator r)
-            => _localRotation.SetRotationsNoUpdate(r);
+            => _rotation.SetValueSilent(r.ToQuaternion());
         public void SetRotation(Rotator r) 
-            => _localRotation.SetRotations(r);
+            => _rotation.Value = r.ToQuaternion();
+
+        public void SetRotationsNoUpdate(Quat r)
+            => _rotation.SetValueSilent(r);
+        public void SetRotation(Quat r)
+            => _rotation.Value = r;
+
         public void SetRotation(Vec3 pitchYawRoll)
-            => _localRotation.PitchYawRoll = pitchYawRoll;
+            => _rotation.Value = Quat.Euler(pitchYawRoll.X, pitchYawRoll.Y, pitchYawRoll.Z);
         public void SetRotation(float pitch, float yaw, float roll)
-            => _localRotation.SetRotations(pitch, yaw, roll);
+            => _rotation.Value = Quat.Euler(pitch, yaw, roll);
         public void SetRotationWithTarget(Vec3 target)
         {
             //if (_owningComponent != null)
             //    target = Vec3.TransformPosition(target, _owningComponent.InverseWorldMatrix);
-            SetRotation((target - _localPoint).LookatAngles());
+            SetRotation((target - _translation).LookatAngles());
         }
         
         public void Reset()
         {
-            _localPoint.Value = Vec3.Zero;
-            _localRotation.YawPitchRoll = Vec3.Zero;
+            _translation.Value = Vec3.Zero;
+            _rotation.Value = Quat.Identity;
         }
 
         public event TranslationChange TranslationChanged;
@@ -217,11 +230,11 @@ namespace TheraEngine.Rendering.Cameras
         }
         
         public void Pivot(float pitch, float yaw, float distance)
-            => ArcBallRotate(pitch, yaw, LocalPoint.Value + ForwardVector * distance);
+            => ArcBallRotate(pitch, yaw, Translation.Value + ForwardVector * distance);
         public void ArcBallRotate(float pitch, float yaw, Vec3 origin)
         {
-            LocalPoint.Value = TMath.ArcballTranslation(pitch, yaw, origin, LocalPoint.Value, RightVector);
-            LocalRotation.AddRotations(pitch, yaw, 0.0f);
+            Translation.Value = TMath.ArcballTranslation(pitch, yaw, origin, Translation.Value, RightVector);
+            Rotation.Value *= Quat.Euler(pitch, yaw, 0.0f);
         }
     }
 }

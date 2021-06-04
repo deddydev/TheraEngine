@@ -15,7 +15,7 @@ namespace TheraEngine.Components.Scene.Transforms
     public delegate void DelBoomLengthChange(float newLength);
 
     [TFileDef("Boom Component")]
-    public class BoomComponent : SceneComponent, I3DRenderable
+    public class BoomComponent : TransformComponent, I3DRenderable
     {
         public event DelBoomLengthChange CurrentDistanceChanged;
 
@@ -61,11 +61,11 @@ namespace TheraEngine.Components.Scene.Transforms
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             Matrix4
-                r = _rotation.GetMatrix(),
-                ir = _rotation.GetInverseMatrix();
+                r = Transform.Rotation.GetMatrix(),
+                ir = Transform.Rotation.GetInverseMatrix();
             Matrix4
-                t = _translation.AsTranslationMatrix(),
-                it = (-_translation).AsTranslationMatrix();
+                t = Transform.Translation.AsTranslationMatrix(),
+                it = Transform.Translation.AsInverseTranslationMatrix();
             Matrix4 
                 translation = Matrix4.CreateTranslation(0.0f, 0.0f, _currentLength),
                 invTranslation = Matrix4.CreateTranslation(0.0f, 0.0f, -_currentLength);
@@ -89,7 +89,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         private void Tick(float delta)
         {
-            Matrix4 startMatrix = ParentWorldMatrix * Rotation.GetMatrix() * Translation.AsTranslationMatrix();
+            Matrix4 startMatrix = ParentWorldMatrix * Matrix4.CreateFromQuaternion(Rotation) * Translation.AsTranslationMatrix();
             _startPoint = startMatrix.Translation;
             Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, MaxLength));
             Vec3 testEnd = endMatrix.Translation;

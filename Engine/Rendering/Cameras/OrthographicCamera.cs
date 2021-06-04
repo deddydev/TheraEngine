@@ -18,7 +18,7 @@ namespace TheraEngine.Rendering.Cameras
         public OrthographicCamera(Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ)
             : this(16.0f, 9.0f, scale, point, rotation, originPercentages, nearZ, farZ) { }
         public OrthographicCamera(float width, float height, Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ)
-           : base(width, height, nearZ, farZ, point, rotation)
+           : base(width, height, nearZ, farZ, point, rotation.ToQuaternion())
         {
             _scale.SetValueSilent(scale);
             _scale.Changed += CreateTransform;
@@ -149,7 +149,7 @@ namespace TheraEngine.Rendering.Cameras
 
             if (!xClamped || !yClamped)
             {
-                _localPoint.SetValueSilent(_localPoint.Value + (worldPoint - WorldPoint) * multiplier);
+                _translation.SetValueSilent(_translation.Value + (worldPoint - WorldPoint) * multiplier);
                 _scale.Xy = newScale;
             }
 
@@ -189,14 +189,14 @@ namespace TheraEngine.Rendering.Cameras
         protected override void OnCreateTransform(out Matrix4 cameraToWorldSpaceMatrix, out Matrix4 worldToCameraSpaceMatrix)
         {
             cameraToWorldSpaceMatrix = 
-                Matrix4.CreateTranslation(_localPoint.Value) *
-                _localRotation.GetMatrix() *
+                Matrix4.CreateTranslation(_translation) *
+                Matrix4.CreateFromQuaternion(_rotation) *
                 Matrix4.CreateScale(_scale);
 
             worldToCameraSpaceMatrix = 
                 Matrix4.CreateScale(1.0f / _scale) *
-                _localRotation.GetInverseMatrix() *
-                Matrix4.CreateTranslation(-_localPoint.Value);
+               Matrix4.CreateFromQuaternion(_rotation.Value.Inverted()) *
+                Matrix4.CreateTranslation(-_translation);
         }
         public override float DistanceScale(Vec3 point, float radius)
         {

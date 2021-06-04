@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering.Cameras
     {
         public PerspectiveCamera() : this(0.1f, 10000.0f, 78.0f, 16.0f / 9.0f) { }
         public PerspectiveCamera(Vec3 point, Rotator rotation, float nearZ, float farZ, float fovY, float aspect)
-            : base(aspect, 1.0f, nearZ, farZ, point, rotation)
+            : base(aspect, 1.0f, nearZ, farZ, point, rotation.ToQuaternion())
         {
             VerticalFieldOfView = fovY;
         }
@@ -138,7 +138,7 @@ namespace TheraEngine.Rendering.Cameras
 
         public void SetAll(Vec3 translation, Rotator rotation, float fov, bool verticalFOV, float nearZ, float farZ, float? aspect)
         {
-            LocalPoint.SetValueSilent(translation);
+            Translation.SetValueSilent(translation);
 
             if (ViewTarget is null)
                 SetRotationsNoUpdate(rotation);
@@ -150,11 +150,11 @@ namespace TheraEngine.Rendering.Cameras
             _nearZ = nearZ;
             
             if (_viewTarget != null)
-                _localRotation.SetRotationsNoUpdate((_viewTarget.Value - _localPoint).LookatAngles());
+                _rotation.SetValueSilent((_viewTarget.Value - _translation).LookatAngles().ToQuaternion());
 
-            Matrix4 rotMatrix = _localRotation.GetMatrix();
-            _cameraToWorldSpaceMatrix = Matrix4.CreateTranslation(_localPoint.Value) * rotMatrix;
-            _worldToCameraSpaceMatrix = _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Value);
+            Matrix4 rotMatrix = _rotation.GetMatrix();
+            _cameraToWorldSpaceMatrix = Matrix4.CreateTranslation(_translation.Value) * rotMatrix;
+            _worldToCameraSpaceMatrix = _rotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_translation.Value);
             
             OnTransformChanged(false);
 
@@ -230,7 +230,7 @@ namespace TheraEngine.Rendering.Cameras
             return new Frustum(_fovY, _aspect, _nearZ, _farZ,
                 transformed ? ForwardVector : Vec3.Forward,
                 transformed ? UpVector : Vec3.Up,
-                transformed ? _localPoint.Value : Vec3.Zero);
+                transformed ? _translation.Value : Vec3.Zero);
         }
         
         public float FrustumHeightAtDistance(float distance)

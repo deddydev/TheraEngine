@@ -13,19 +13,17 @@ namespace TheraEngine.Components.Scene.Mesh
 {
     public partial class StaticMeshComponent : TransformComponent, IRigidBodyCollidable, IMeshSocketOwner
     {
-        public StaticMeshComponent() : this(null, null) { }
-        public StaticMeshComponent(GlobalFileRef<StaticModel> model) : this(model, null) { }
-        public StaticMeshComponent(GlobalFileRef<StaticModel> model, TRigidBodyConstructionInfo info) 
-            : this(model, Vec3.Zero, Rotator.GetZero(), Vec3.One, info) { }
-        public StaticMeshComponent(
-            GlobalFileRef<StaticModel> model,
-            Vec3 translation,
-            Rotator rotation,
-            Vec3 scale,
-            TRigidBodyConstructionInfo info) : base(translation, rotation, scale, true)
+        public StaticMeshComponent()
+            : this(null, null) { }
+        public StaticMeshComponent(GlobalFileRef<StaticModel> model)
+            : this(model, null) { }
+        public StaticMeshComponent(GlobalFileRef<StaticModel> model, TRigidBodyConstructionInfo info)
+            : this(model, TTransform.GetIdentity(), info) { }
+        public StaticMeshComponent(GlobalFileRef<StaticModel> model, TTransform transform, TRigidBodyConstructionInfo info)
+            : base(transform, true)
         {
             _modelRef = model ?? new GlobalFileRef<StaticModel>();
-            _modelRef.Loaded += (OnModelLoaded);
+            _modelRef.Loaded += OnModelLoaded;
 
             if (info is null)
                 RigidBodyCollision = null;

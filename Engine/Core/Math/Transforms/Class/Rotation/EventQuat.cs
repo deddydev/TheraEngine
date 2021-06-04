@@ -32,6 +32,7 @@ namespace TheraEngine.Core.Maths.Transforms
                     OnChanged();
             }
         }
+
         public EventQuat() => _data = Quat.Identity;
         public EventQuat(Vec4 v) => _data = new Quat(v);
         public EventQuat(Vec3 v, float w) => _data = new Quat(v, w);
@@ -117,6 +118,11 @@ namespace TheraEngine.Core.Maths.Transforms
         public Vec4 Transform(Vec4 v)
             => _data.Transform(v);
 
+        public void SyncFrom(EventQuat other)
+        {
+
+        }
+
         public static Vec3 operator *(EventQuat quat, Vec3 vec)
             => quat.Transform(vec);
         public static Vec3 operator *(Vec3 vec, EventQuat quat)
@@ -161,6 +167,10 @@ namespace TheraEngine.Core.Maths.Transforms
 
             return left.Equals(right);
         }
+
+        public Matrix4 GetMatrix() => Matrix4.CreateFromQuaternion(this);
+        public Matrix4 GetInverseMatrix() => Matrix4.CreateFromQuaternion(Value.Inverted());
+
         public static bool operator !=(EventQuat left, EventQuat right)
         {
             if (left is null)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models;
 
@@ -8,15 +9,15 @@ namespace TheraEngine.Components.Logic.Common
 {
     public class IKDriverComponent : LogicComponent
     {
-        public ISocket GoalSocket { get; set; }
-        public ISocket EndEffectorSocket { get; set; }
-        public ISocket BaseSocket { get; set; }
+        public TransformComponent GoalSocket { get; set; }
+        public TransformComponent EndEffectorSocket { get; set; }
+        public TransformComponent BaseSocket { get; set; }
 
         public float SqrDistError { get; set; } = 0.01f;
         public float Weight { get; set; } = 1.0f;
         public int MaxIterations { get; set; } = 10;
         
-        private List<ISocket> SocketChain { get; } = new List<ISocket>();
+        private List<TransformComponent> SocketChain { get; } = new List<TransformComponent>();
 
         protected override void OnSpawned()
         {
@@ -24,11 +25,11 @@ namespace TheraEngine.Components.Logic.Common
 
             SocketChain.Clear();
 
-            ISocket current = EndEffectorSocket;
+            TransformComponent current = EndEffectorSocket;
             while (current != null && current != BaseSocket?.ParentSocket)
             {
                 SocketChain.Add(current);
-                current = current.ParentSocket;
+                current = current.ParentSocket as TransformComponent;
             }
 
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Update);
@@ -66,7 +67,7 @@ namespace TheraEngine.Components.Logic.Common
             while (((EndEffectorSocket.Transform.Translation - targetPos).LengthSquared) > SqrDistError && ++iters <= MaxIterations);
         }
 
-        private void RotateSocket(ISocket effector, ISocket bone, Vec3 goalPos)
+        private void RotateSocket(TransformComponent effector, TransformComponent bone, Vec3 goalPos)
         {
             Vec3 effectorPos = effector.Transform.Translation;
             Vec3 bonePos = bone.Transform.Translation;

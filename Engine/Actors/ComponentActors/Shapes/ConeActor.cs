@@ -4,6 +4,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;
 using System.Collections.Generic;
 using TheraEngine.Rendering.Models;
+using System;
 
 namespace TheraEngine.Actors.Types.ComponentActors.Shapes
 {
@@ -14,12 +15,12 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
         public ConeActor(float radius, float height)
             : this(radius, height, Vec3.Zero) { }
         public ConeActor(float radius, float height, Vec3 translation)
-            : this(radius, height, translation, Rotator.GetZero()) { }
-        public ConeActor(float radius, float height, Rotator rotation)
+            : this(radius, height, translation, Quat.Identity) { }
+        public ConeActor(float radius, float height, Quat rotation)
             : this(radius, height, Vec3.Zero, rotation) { }
-        public ConeActor(float radius, float height, Vec3 translation, Rotator rotation)
+        public ConeActor(float radius, float height, Vec3 translation, Quat rotation)
             : this(radius, height, translation, rotation, TMaterial.CreateLitColorMaterial(Engine.InvalidColor)) { }
-        public ConeActor(float radius, float height, Vec3 translation, Rotator rotation, TMaterial material)
+        public ConeActor(float radius, float height, Vec3 translation, Quat rotation, TMaterial material)
             : this("ConeActor", radius, height, translation, rotation, material) { }
 
         public ConeActor(string name)
@@ -27,13 +28,13 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
         public ConeActor(string name, float radius, float height)
             : this(name, radius, height, Vec3.Zero) { }
         public ConeActor(string name, float radius, float height, Vec3 translation)
-            : this(name, radius, height, translation, Rotator.GetZero()) { }
-        public ConeActor(string name, float radius, float height, Vec3 translation, Rotator rotation)
+            : this(name, radius, height, translation, Quat.Identity) { }
+        public ConeActor(string name, float radius, float height, Vec3 translation, Quat rotation)
             : this(name, radius, height, translation, rotation, TMaterial.CreateLitColorMaterial(Engine.InvalidColor)) { }
-        public ConeActor(string name, float radius, float height, Vec3 translation, Rotator rotation, TMaterial material)
+        public ConeActor(string name, float radius, float height, Vec3 translation, Quat rotation, TMaterial material)
             : this(name, radius, height, translation, rotation, material, null) { }
         
-        public ConeActor(string name, float radius, float height, Vec3 translation, Rotator rotation, 
+        public ConeActor(string name, float radius, float height, Vec3 translation, Quat rotation, 
             TMaterial material, TRigidBodyConstructionInfo info, int meshSides = 40, bool closeBottom = true) : base(
                 name, 
                 new ConeY(radius, height),

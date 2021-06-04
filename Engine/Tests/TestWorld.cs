@@ -54,7 +54,7 @@ namespace TheraEngine.Tests
                 BoxActor box = new BoxActor(
                     "Box" + i, 0.4f,
                     new Vec3(x, y + spawnBounds.Translation.Y, z),
-                    new Rotator(x, y, z, ERotationOrder.YPR),
+                    Quat.Euler(x, y, z),
                     TMaterial.CreateLitColorMaterial(Color.Purple), physicsInfo);
                 box.RootComponent.RigidBodyCollision.Collided += OnBoxHit;
                 array[i] = box;
@@ -78,7 +78,7 @@ namespace TheraEngine.Tests
                 "Floor1",
                 new Vec3(50.0f, 0.2f, 50.0f),
                 new Vec3(0.0f, 0.0f, 0.0f),
-                new Rotator(00.0f, 0.0f, 0.0f, ERotationOrder.YPR),
+                Quat.Euler(00.0f, 0.0f, 0.0f),
                 TMaterial.CreateLitColorMaterial(Color.FromArgb(180, 200, 230)), floorInfo);
             //floorActor1.RootComponent.PhysicsDriver.Kinematic = true
             actors.Add(floorActor1);
@@ -86,14 +86,14 @@ namespace TheraEngine.Tests
                 "Floor2",
                 new Vec3(100.0f, 20.0f, 100.0f),
                 new Vec3(0.0f, -20.0f, 0.0f),
-                new Rotator(0.0f, 0.0f, 0.0f, ERotationOrder.YPR),
+                Quat.Euler(0.0f, 0.0f, 0.0f),
                 TMaterial.CreateLitColorMaterial(Color.FromArgb(180, 200, 230)), floorInfo);
             actors.Add(floorActor2);
             BoxActor floorActor3 = new BoxActor(
                 "Floor3",
                 new Vec3(2.0f, 10.0f, 7.0f),
                 new Vec3(6.0f, 0.0f, 0.0f),
-                new Rotator(-10.0f, 60.0f, 0.0f, ERotationOrder.YPR),
+                Quat.Euler(-10.0f, 60.0f, 0.0f),
                 TMaterial.CreateLitColorMaterial(Color.Gray), floorInfo);
             actors.Add(floorActor3);
             //BoxActor floorActor4 = new BoxActor(

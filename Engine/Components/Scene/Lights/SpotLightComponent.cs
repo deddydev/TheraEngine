@@ -16,7 +16,6 @@ namespace TheraEngine.Components.Scene.Lights
     public class SpotLightComponent : LightComponent
     {
         private float _outerCutoff, _innerCutoff, _distance;
-        private Vec3 _direction;
 
         [TSerialize]
         [Category("Spot Light Component")]
@@ -27,17 +26,6 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 _distance = value;
                 UpdateCones();
-            }
-        }
-        [TSerialize]
-        [Category("Spot Light Component")]
-        public Vec3 Direction
-        {
-            get => _direction;
-            set
-            {
-                _direction = value.Normalized();
-                _rotation.SetDirection(_direction);
             }
         }
         [TSerialize]
@@ -88,14 +76,15 @@ namespace TheraEngine.Components.Scene.Lights
         }
         private void UpdateCones()
         {
-            Vec3 coneOrigin = _translation + _direction * (_distance * 0.5f);
+            Vec3 dir = Transform.GetForwardVector();
+            Vec3 coneOrigin = Translation + dir * (_distance * 0.5f);
 
-            OuterCone.UpAxis = -_direction;
+            OuterCone.UpAxis = -dir;
             OuterCone.Center.Value = coneOrigin;
             OuterCone.Height = _distance;
             OuterCone.Radius = (float)Math.Tan(TMath.DegToRad(OuterCutoffAngleDegrees)) * _distance;
 
-            InnerCone.UpAxis = -_direction;
+            InnerCone.UpAxis = -dir;
             InnerCone.Center.Value = coneOrigin;
             InnerCone.Height = _distance;
             InnerCone.Radius = (float)Math.Tan(TMath.DegToRad(InnerCutoffAngleDegrees)) * _distance;
@@ -103,7 +92,7 @@ namespace TheraEngine.Components.Scene.Lights
             if (ShadowCamera != null)
                 ShadowCamera.FarZ = _distance;
 
-            Vec3 lightMeshOrigin = _direction * (_distance * 0.5f);
+            Vec3 lightMeshOrigin = dir * (_distance * 0.5f);
             Matrix4 t = lightMeshOrigin.AsTranslationMatrix();
             Matrix4 s = Matrix4.CreateScale(OuterCone.Radius, OuterCone.Radius, OuterCone.Height);
             LightMatrix = t * WorldMatrix * s;
@@ -134,11 +123,11 @@ namespace TheraEngine.Components.Scene.Lights
             _distance = distance;
             Brightness = brightness;
             Exponent = exponent;
-            Direction = direction;
+            Transform.Rotation.Value = direction.LookatAngles().ToQuaternion();
         }
         public SpotLightComponent(
             float distance, ColorF3 color, float diffuseIntensity,
-            Rotator rotation, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent)
+            Quat rotation, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent)
             : base(color, diffuseIntensity)
         {
             OuterCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
@@ -149,14 +138,9 @@ namespace TheraEngine.Components.Scene.Lights
             _distance = distance;
             Brightness = brightness;
             Exponent = exponent;
-            _rotation.SetRotations(rotation);
+            Transform.Rotation.Value = rotation;
         }
 
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
-        {
-            _direction = _rotation.GetDirection();
-            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
-        }
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             UpdateCones();
@@ -199,7 +183,7 @@ namespace TheraEngine.Components.Scene.Lights
         {
             targetStructName = $"{targetStructName ?? Uniform.LightsStructName}.";
 
-            program.Uniform($"{targetStructName}Direction", _direction);
+            program.Uniform($"{targetStructName}Direction", Transform.GetForwardVector());
             program.Uniform($"{targetStructName}OuterCutoff", _outerCutoff);
             program.Uniform($"{targetStructName}InnerCutoff", _innerCutoff);
             program.Uniform($"{targetStructName}Position", WorldPoint);
@@ -220,8 +204,8 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 float cutoff = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees);
                 ShadowCamera = new PerspectiveCamera(1.0f, _distance, cutoff * 2.0f, 1.0f);
-                ShadowCamera.LocalRotation.SyncFrom(_rotation);
-                ShadowCamera.LocalPoint.SyncFrom(_translation);
+                ShadowCamera.Rotation.SyncFrom(Transform.Rotation);
+                ShadowCamera.Translation.Sync(Transform.Translation);
             }
         }
         

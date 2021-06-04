@@ -80,8 +80,8 @@ namespace TheraEngine.Core.Maths.Transforms
             _scale.Changed += CreateTransform;
 
             _transformOrder = ETransformOrder.TRS;
-            _transform = Matrix4.Identity;
-            _inverseTransform = Matrix4.Identity;
+            _matrix = Matrix4.Identity;
+            _invMatrix = Matrix4.Identity;
         }
         
         public TTransform(
@@ -132,16 +132,16 @@ namespace TheraEngine.Core.Maths.Transforms
         private ETransformOrder _transformOrder = ETransformOrder.TRS;
         private bool _matrixChanged = false;
 
-        private Matrix4 _transform = Matrix4.Identity;
-        private Matrix4 _inverseTransform = Matrix4.Identity;
+        private Matrix4 _matrix = Matrix4.Identity;
+        private Matrix4 _invMatrix = Matrix4.Identity;
 
         public void Lookat(Vec3 point)
         {
-            SetForwardVector(point - _transform.Translation);
+            SetForwardVector(point - _matrix.Translation);
         }
         public void SetForwardVector(Vec3 direction)
         {
-
+            Rotation.Value = direction.LookatAngles().ToQuaternion();
         }
 
         public Vec3 GetForwardVector()
@@ -157,11 +157,11 @@ namespace TheraEngine.Core.Maths.Transforms
         [Browsable(false)]
         public Matrix4 Matrix
         {
-            get => _transform;
+            get => _matrix;
             set
             {
-                _transform = value;
-                _inverseTransform = _transform.Inverted();
+                _matrix = value;
+                _invMatrix = _matrix.Inverted();
                 _matrixChanged = true;
             }
         }
@@ -169,11 +169,11 @@ namespace TheraEngine.Core.Maths.Transforms
         [Browsable(false)]
         public Matrix4 InverseMatrix
         {
-            get => _inverseTransform;
+            get => _invMatrix;
             set
             {
-                _inverseTransform = value;
-                _transform = _inverseTransform.Inverted();
+                _invMatrix = value;
+                _matrix = _invMatrix.Inverted();
                 _matrixChanged = true;
             }
         }
@@ -181,7 +181,7 @@ namespace TheraEngine.Core.Maths.Transforms
         private void MatrixUpdated()
         {
             _matrixChanged = false;
-            _transform.DeriveTRS(out Vec3 t, out Vec3 s, out Quat r);
+            _matrix.DeriveTRS(out Vec3 t, out Vec3 s, out Quat r);
             _translation.SetValueSilent(t);
             _scale.SetValueSilent(s);
             _rotation.SetValueSilent(r);
@@ -336,11 +336,11 @@ namespace TheraEngine.Core.Maths.Transforms
         [TPostDeserialize]
         public void CreateTransform()
         {
-            Matrix4 oldMatrix = _transform;
-            Matrix4 oldInvMatrix = _inverseTransform;
+            Matrix4 oldMatrix = _matrix;
+            Matrix4 oldInvMatrix = _invMatrix;
 
-            _transform = Matrix4.TransformMatrix(_scale, _rotation.Value, _translation, _transformOrder);
-            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation.Value, _translation, _transformOrder);
+            _matrix = Matrix4.TransformMatrix(_scale, _rotation.Value, _translation, _transformOrder);
+            _invMatrix = Matrix4.InverseTransformMatrix(_scale, _rotation.Value, _translation, _transformOrder);
 
             MatrixChanged?.Invoke(this, oldMatrix, oldInvMatrix);
         }
@@ -555,22 +555,22 @@ namespace TheraEngine.Core.Maths.Transforms
             //Matrix4 oldMatrix = _transform;
             //Matrix4 oldInvMatrix = _inverseTransform;
 
-            _transform = Matrix * translation.AsTranslationMatrix();
+            _matrix = Matrix * translation.AsTranslationMatrix();
             //_inverseTransform = (-translation).AsTranslationMatrix() * InverseMatrix;
             //_translation.SetValueSilent(_transform.Translation);
 
             //MatrixChanged?.Invoke(this, oldMatrix, oldInvMatrix);
 
-            _translation.Value = _transform.Translation;
+            _translation.Value = _matrix.Translation;
         }
         public void Pivot(float pitch, float yaw, float distance)
-            => ArcBallRotate(pitch, yaw, _translation + _transform.ForwardVec * distance);
+            => ArcBallRotate(pitch, yaw, _translation + _matrix.ForwardVec * distance);
         public void ArcBallRotate(float pitch, float yaw, Vec3 focusPoint)
         {
             //"Arcball" rotation
             //All rotation is done within local component space
-            _translation.Value = TMath.ArcballTranslation(pitch, yaw, focusPoint, _translation.Value, _transform.RightVec);
-            _rotation *= Quat.FromEulerAngles(pitch, yaw, 0.0f);
+            _translation.Value = TMath.ArcballTranslation(pitch, yaw, focusPoint, _translation.Value, _matrix.RightVec);
+            _rotation *= Quat.Euler(pitch, yaw, 0.0f);
         }
 
         public TTransform HardCopy()

@@ -160,7 +160,7 @@ namespace TheraEngine.Core.Shapes
         public override EContainment Contains(BoundingBoxStruct box)
             => Collision.SphereContainsAABB(Center, Radius, box.Minimum, box.Maximum);
         public override EContainment Contains(Box box)
-            => Collision.SphereContainsBox(Center, Radius, box.HalfExtents, box.Transform.InverseMatrix);
+            => Collision.SphereContainsBox(Center, Radius, box.HalfExtents, box.Transform.InverseMatrix.Value);
         public override EContainment Contains(Sphere sphere)
             => Collision.SphereContainsSphere(Center, Radius, sphere.Center, sphere.Radius);
         public override EContainment Contains(Cone cone)

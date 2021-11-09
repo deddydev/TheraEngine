@@ -366,12 +366,12 @@ namespace TheraEngine.Actors.Types
             {
                 case ESpace.Local:
                     {
-                        return _targetSocket.WorldMatrix.ClearScale();
+                        return _targetSocket.WorldMatrix.Value.ClearScale();
                     }
                 case ESpace.Parent:
                     {
                         if (_targetSocket.ParentSocket != null)
-                            return _targetSocket.ParentSocket.WorldMatrix.ClearScale();
+                            return _targetSocket.ParentSocket.WorldMatrix.Value.ClearScale();
                         else
                             return _targetSocket.WorldMatrix.Translation.AsTranslationMatrix();
                     }
@@ -412,12 +412,12 @@ namespace TheraEngine.Actors.Types
             {
                 case ESpace.Local:
                     {
-                        return _targetSocket.InverseWorldMatrix.ClearScale();
+                        return _targetSocket.InverseWorldMatrix.Value.ClearScale();
                     }
                 case ESpace.Parent:
                     {
                         if (_targetSocket.ParentSocket != null)
-                            return _targetSocket.ParentSocket.InverseWorldMatrix.ClearScale();
+                            return _targetSocket.ParentSocket.InverseWorldMatrix.Value.ClearScale();
                         else
                             return _targetSocket.InverseWorldMatrix.Translation.AsTranslationMatrix();
                     }

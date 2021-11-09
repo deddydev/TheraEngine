@@ -110,12 +110,12 @@ namespace TheraEditor.Windows.Forms
         }
 
         public Vec2 TransformToOriginRelativeSpace(Vec2 point)
-            => Vec3.TransformPosition(point, OriginTransformComponent.InverseWorldMatrix).Xy;
+            => Vec3.TransformPosition(point, OriginTransformComponent.InverseWorldMatrix.Value).Xy;
         
         public Vec2 GetViewportBottomLeft()
             => TransformToOriginRelativeSpace(Vec2.Zero);
         public Vec2 GetViewportTopRight()
-            => TransformToOriginRelativeSpace(Bounds.Raw);
+            => TransformToOriginRelativeSpace(Bounds.Value);
         public Vec2 GetViewportTopLeft()
             => TransformToOriginRelativeSpace(new Vec2(0.0f, Bounds.Y));
         public Vec2 GetViewportBottomRight()
@@ -135,7 +135,7 @@ namespace TheraEditor.Windows.Forms
                 new ShaderVec3(new Vec3(0.08f, 0.08f, 0.08f), "BGColor"),
                 new ShaderFloat(OriginTransformComponent.Scale.X, "Scale"),
                 new ShaderFloat(2.0f, "LineWidth"),
-                new ShaderVec2(OriginTransformComponent.ActualTranslation.Raw, "Translation"),
+                new ShaderVec2(OriginTransformComponent.ActualTranslation.Value, "Translation"),
                 new ShaderFloat(UnitIncrementX, "XYIncrement"),
             },
             frag);
@@ -149,7 +149,7 @@ namespace TheraEditor.Windows.Forms
 
             UITextRasterComponent comp = new UITextRasterComponent() { RenderTransformation = false };
             comp.RenderInfo2D.VisibleByDefault = true;
-            comp.Size.Raw = new Vec2(width, height);
+            comp.Size.Value = new Vec2(width, height);
             //comp.TextureResolutionMultiplier = UIFont.Size;
 
             TextFormatFlags flags = TextFormatFlags.NoClipping | TextFormatFlags.SingleLine;
@@ -261,7 +261,7 @@ namespace TheraEditor.Windows.Forms
             if (OriginTransformComponent.Scale.X.EqualTo(0.0f, 0.00001f))
                 return;
 
-            Vec2 visibleAnimRange = Bounds.Raw / OriginTransformComponent.Scale.Xy;
+            Vec2 visibleAnimRange = Bounds.Value / OriginTransformComponent.Scale.Xy;
 
             UnitIncrementX = CalcInterval(visibleAnimRange.X, MaxIncrementExclusive, IncrementsRange);
             UnitIncrementY = CalcInterval(visibleAnimRange.Y, MaxIncrementExclusive, IncrementsRange);
@@ -324,7 +324,7 @@ namespace TheraEditor.Windows.Forms
                 viewMin.X.RoundedToNearestMultiple(incX), 
                 viewMin.Y.RoundedToNearestMultiple(incY));
 
-            Vec2 unitCounts = Vec2.One + Bounds.Raw / (new Vec2(incX, incY) * OriginTransformComponent.Scale.Xy);
+            Vec2 unitCounts = Vec2.One + Bounds.Value / (new Vec2(incX, incY) * OriginTransformComponent.Scale.Xy);
 
             UpdateTextIncrements(
                 unitCounts.X, 
@@ -450,7 +450,7 @@ namespace TheraEditor.Windows.Forms
         {
             TMaterial mat = _backgroundComponent.Material;
             mat.Parameter<ShaderFloat>(2).Value = OriginTransformComponent.Scale.X;
-            mat.Parameter<ShaderVec2>(4).Value = OriginTransformComponent.ActualTranslation.Raw;
+            mat.Parameter<ShaderVec2>(4).Value = OriginTransformComponent.ActualTranslation.Value;
             mat.Parameter<ShaderFloat>(5).Value = UnitIncrementX;
         }
         protected override void OnSpawnedPostComponentSpawn()
@@ -503,9 +503,9 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         /// <returns></returns>
         public Vec2 CursorPositionTransformRelative()
-            => Vec3.TransformPosition(CursorPositionWorld(), OriginTransformComponent.InverseWorldMatrix).Xy;
+            => Vec3.TransformPosition(CursorPositionWorld(), OriginTransformComponent.InverseWorldMatrix.Value).Xy;
         public Vec2 CursorDiffTransformRelative()
-               => Vec3.TransformPosition(GetWorldCursorDiff(CursorPosition()), OriginTransformComponent.InverseWorldMatrix).Xy;
+               => Vec3.TransformPosition(GetWorldCursorDiff(CursorPosition()), OriginTransformComponent.InverseWorldMatrix.Value).Xy;
 
         protected void UpdateInputTick()
         {
@@ -641,7 +641,7 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             Vec2 cursorPos = CursorPosition();
-            if (!Bounds.Raw.Contains(cursorPos))
+            if (!Bounds.Value.Contains(cursorPos))
             {
                 _cursorPos = cursorPos;
                 return;
@@ -688,7 +688,7 @@ namespace TheraEditor.Windows.Forms
         protected virtual void RenderMethod()
         {
             Vec2 pos = CursorPositionWorld();
-            Vec2 wh = _backgroundComponent.ActualSize.Raw;
+            Vec2 wh = _backgroundComponent.ActualSize.Value;
 
             //Cursor
             Engine.Renderer.RenderCircle(pos + AbstractRenderer.UIPositionBias, AbstractRenderer.UIRotation, SelectionRadius, false, Editor.TurquoiseColor, 10.0f);
@@ -696,7 +696,7 @@ namespace TheraEditor.Windows.Forms
             Engine.Renderer.RenderLine(new Vec2(pos.X, 0.0f), new Vec2(pos.X, wh.Y), Editor.TurquoiseColor, false, 10.0f);
 
             //Grid origin lines
-            Vec3 start = Vec3.TransformPosition(new Vec2(0.0f, 0.0f), OriginTransformComponent.WorldMatrix);
+            Vec3 start = Vec3.TransformPosition(new Vec2(0.0f, 0.0f), OriginTransformComponent.WorldMatrix.Value);
             Engine.Renderer.RenderLine(new Vec2(start.X, 0.0f), new Vec2(start.X, wh.Y), new ColorF4(0.55f), false, 10.0f);
             Engine.Renderer.RenderLine(new Vec2(0.0f, start.Y), new Vec2(wh.X, start.Y), new ColorF4(0.55f), false, 10.0f);
         }

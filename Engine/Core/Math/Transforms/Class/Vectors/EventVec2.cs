@@ -19,11 +19,11 @@ namespace System
     {
         public EventVec2() { }
 
-        public EventVec2(Vec2 xy) => _data = xy;
-        public EventVec2(float x, float y) => _data = new Vec2(x, y);
+        public EventVec2(Vec2 xy) => _value = xy;
+        public EventVec2(float x, float y) => _value = new Vec2(x, y);
         public EventVec2(float xy) : this(xy, xy) { }
 
-        public EventVec2(Vec3 xyz, bool divideByZ) => _data = new Vec2(xyz, divideByZ);
+        public EventVec2(Vec3 xyz, bool divideByZ) => _value = new Vec2(xyz, divideByZ);
 
         public static EventVec2 UnitX => new EventVec2(1.0f, 0.0f);
         public static EventVec2 UnitY => new EventVec2(0.0f, 1.0f);
@@ -39,16 +39,15 @@ namespace System
         public event DelFloatChange YValueChanged;
         public event Action Changed;
 
-        private int _recursiveUpdates = 0;
         private float _oldX, _oldY;
         [TSerialize("XY", NodeType = ENodeType.ElementContent)]
-        private Vec2 _data;
+        private Vec2 _value;
 
         public EventVec2 _syncX, _syncY, _syncAll;
 
         public void Reset()
         {
-            _data = Vec2.Zero;
+            _value = Vec2.Zero;
 
             _oldX = 0.0f;
             _oldY = 0.0f;
@@ -66,13 +65,13 @@ namespace System
             Changed = null;
         }
 
-        public void SetRawNoUpdate(Vec2 raw)
-            => _data = raw;
+        public void SetValueSilent(Vec2 value)
+            => _value = value;
 
         [Browsable(false)]
-        public Vec2 Raw
+        public Vec2 Value
         {
-            get => _data;
+            get => _value;
             set
             {
                 BeginUpdate();
@@ -80,7 +79,7 @@ namespace System
                 {
                     //OnPropertyChanging(nameof(X));
                     //OnPropertyChanging(nameof(Y));
-                    Set(ref _data, value);
+                    Set(ref _value, value);
                     OnPropertiesChanged(nameof(X), nameof(Y));
                 }
                 finally
@@ -91,10 +90,10 @@ namespace System
         }
         public float X
         {
-            get => _data.X;
+            get => _value.X;
             set
             {
-                if (value == _data.X)
+                if (value == _value.X)
                     return;
 
                 //if (OnPropertyChanging())
@@ -103,7 +102,7 @@ namespace System
                 BeginUpdate();
                 try
                 {
-                    _data.X = value;
+                    _value.X = value;
                 }
                 finally
                 {
@@ -115,10 +114,10 @@ namespace System
         }
         public float Y
         {
-            get => _data.Y;
+            get => _value.Y;
             set
             {
-                if (value == _data.Y)
+                if (value == _value.Y)
                     return;
 
                 //if (OnPropertyChanging())
@@ -126,7 +125,7 @@ namespace System
 
                 try
                 {
-                    _data.Y = value;
+                    _value.Y = value;
                 }
                 finally
                 {
@@ -138,9 +137,9 @@ namespace System
         }
 
         [Browsable(false)]
-        public float* Data => _data.Data;
+        public float* Data => _value.Data;
         [Browsable(false)]
-        public VoidPtr Address => _data.Address;
+        public VoidPtr Address => _value.Address;
         [Browsable(false)]
         public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Float;
         [Browsable(false)]
@@ -149,13 +148,13 @@ namespace System
         bool IBufferable.Normalize => false;
 
         public void Write(VoidPtr address)
-            => _data.Write(address);
+            => _value.Write(address);
         public void Read(VoidPtr address)
         {
             BeginUpdate();
             try
             {
-                _data.Read(address);
+                _value.Read(address);
             }
             finally
             {
@@ -221,7 +220,7 @@ namespace System
             {
                 other.Changed += Other_Changed;
                 _syncAll = other;
-                Raw = other.Raw;
+                Value = other.Value;
             }
         }
         public void StopSynchronization()
@@ -243,7 +242,7 @@ namespace System
             }
         }
 
-        private void Other_Changed() => Raw = _syncAll.Raw;
+        private void Other_Changed() => Value = _syncAll.Value;
         private void Other_XChanged(float newValue, float oldValue) => X = newValue;
         private void Other_YChanged(float newValue, float oldValue) => Y = newValue;
 
@@ -295,34 +294,34 @@ namespace System
         }
 
         [Browsable(false)]
-        public float Length => _data.Length;
+        public float Length => _value.Length;
         [Browsable(false)]
-        public float LengthFast => _data.LengthFast;
+        public float LengthFast => _value.LengthFast;
         [Browsable(false)]
-        public float LengthSquared => _data.LengthSquared;
+        public float LengthSquared => _value.LengthSquared;
 
         public float DistanceToSquared(EventVec2 otherPoint) 
-            => _data.DistanceToSquared(otherPoint._data);
+            => _value.DistanceToSquared(otherPoint._value);
         public float DistanceToFast(EventVec2 otherPoint)
-            => _data.DistanceToFast(otherPoint._data);
+            => _value.DistanceToFast(otherPoint._value);
         public float DistanceTo(EventVec2 otherPoint) 
-            => _data.DistanceTo(otherPoint._data);
+            => _value.DistanceTo(otherPoint._value);
 
         /// <summary>
         /// Gets the perpendicular vector on the right side of this vector.
         /// </summary>
-        public Vec2 PerpendicularRight => _data.PerpendicularRight;
+        public Vec2 PerpendicularRight => _value.PerpendicularRight;
         /// <summary>
         /// Gets the perpendicular vector on the left side of this vector.
         /// </summary>
-        public Vec2 PerpendicularLeft => _data.PerpendicularLeft;
+        public Vec2 PerpendicularLeft => _value.PerpendicularLeft;
 
         public void Normalize()
         {
             BeginUpdate();
             try
             {
-                _data.Normalize();
+                _value.Normalize();
             }
             finally
             {
@@ -334,7 +333,7 @@ namespace System
             BeginUpdate();
             try
             {
-                _data.NormalizeFast();
+                _value.NormalizeFast();
             }
             finally
             {
@@ -421,7 +420,7 @@ namespace System
         public static implicit operator EventVec2(PointF v) => new EventVec2(v.X, v.Y);
         public static implicit operator PointF(EventVec2 v) => new PointF(v.X, v.Y);
         public static implicit operator EventVec2(Vec2 v) => new EventVec2(v.X, v.Y);
-        public static implicit operator Vec2(EventVec2 v) => v.Raw;
+        public static implicit operator Vec2(EventVec2 v) => v.Value;
 
         private static readonly string ListSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString() => string.Format("({0}{2} {1})", X, Y, ListSeparator);
@@ -453,8 +452,8 @@ namespace System
                Abs(Y - other.Y) < precision;
 
         public string WriteToString()
-            => _data.WriteToString();
+            => _value.WriteToString();
         public void ReadFromString(string str)
-            => _data.ReadFromString(str);
+            => _value.ReadFromString(str);
     }
 }

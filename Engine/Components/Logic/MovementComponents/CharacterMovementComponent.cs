@@ -147,7 +147,7 @@ namespace TheraEngine.Components.Logic.Movement
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             ISceneComponent comp = (ISceneComponent)_currentWalkingSurface.Owner;
             //Matrix4 transformDelta = comp.PreviousInverseWorldMatrix * comp.WorldMatrix;
-            root.WorldMatrix = root.WorldMatrix * comp.PreviousInverseWorldMatrix * comp.WorldMatrix;
+            root.WorldMatrix.Value = root.WorldMatrix * comp.PreviousInverseWorldMatrix * comp.WorldMatrix;
             //Vec3 point = newWorldMatrix.Translation;
 
             //root.Translation = point;

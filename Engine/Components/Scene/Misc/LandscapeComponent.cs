@@ -70,9 +70,9 @@ namespace TheraEngine.Components.Scene
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
             if (Bounds != null)
-                Bounds.Transform.Matrix = WorldMatrix;
+                Bounds.Transform.Matrix.Value = WorldMatrix;
             _rc.WorldMatrix = WorldMatrix;
-            _rc.NormalMatrix = WorldMatrix.GetRotationMatrix3(); //WorldMatrix.Transposed().Inverted().GetRotationMatrix3();
+            _rc.NormalMatrix = WorldMatrix.Value.GetRotationMatrix3(); //WorldMatrix.Transposed().Inverted().GetRotationMatrix3();
             base.OnWorldTransformChanged();
         }
 
@@ -113,7 +113,7 @@ namespace TheraEngine.Components.Scene
             float heightScale = 1.0f;
             _heightFieldShape = TCollisionHeightField.New(_dimensions.X, _dimensions.Y, Stream, heightScale, _minMaxHeight.X, _minMaxHeight.Y, 1, _heightValueType, false);
             Bounds = new Box(_dimensions.X * 0.5f, (_minMaxHeight.Y - _minMaxHeight.X) * heightScale, _dimensions.Y * 0.5f);
-            Bounds.Transform.Matrix = WorldMatrix;
+            Bounds.Transform.Matrix.Value = WorldMatrix;
 
             //BoundingBox box = _heightFieldShape.GetAabb(Matrix4.Identity);
             //float offset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;

@@ -308,7 +308,7 @@ namespace TheraEngine.Rendering.UI
         /// <returns></returns>
         public static Vec2 ConvertUICoordinate(Vec2 coordinate, IUIComponent parentUIComp, IUIComponent targetChildUIComp, bool delta = false)
         {
-            Matrix4 mtx = targetChildUIComp.InverseWorldMatrix * parentUIComp.WorldMatrix;
+            Matrix4 mtx = targetChildUIComp.InverseWorldMatrix.Value * parentUIComp.WorldMatrix.Value;
             if (delta)
                 mtx = mtx.ClearTranslation();
             return (coordinate * mtx).Xy;

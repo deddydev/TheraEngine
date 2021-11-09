@@ -1229,7 +1229,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
             TreeNode parentNode = _selectedSceneComp.Parent;
-            sceneCompSel.DetachFromParent();
+            sceneCompSel.ParentSocket = null;
             _selectedSceneComp.Remove();
             _selectedSceneComp = parentNode;
 

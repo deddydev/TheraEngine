@@ -45,7 +45,7 @@ namespace TheraEngine.Components.Scene.Mesh
         private void RigidBodyTransformUpdated(Matrix4 transform)
         {
             _readingPhysicsTransform = true;
-            WorldMatrix = _rigidBodyCollision.InterpolationWorldTransform;
+            WorldMatrix.Value = _rigidBodyCollision.InterpolationWorldTransform;
             _readingPhysicsTransform = false;
         }
         //private void ThisTransformUpdated()
@@ -172,8 +172,8 @@ namespace TheraEngine.Components.Scene.Mesh
         TRigidBody IRigidBodyCollidable.RigidBodyCollision => RigidBodyCollision;
         Matrix4 ICollidable.CollidableWorldMatrix
         {
-            get => WorldMatrix;
-            set => WorldMatrix = value;
+            get => WorldMatrix.Value;
+            set => WorldMatrix.Value = value;
         }
 
         private void OnModelUnloaded(StaticModel model)

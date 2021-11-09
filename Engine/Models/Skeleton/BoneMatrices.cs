@@ -22,12 +22,12 @@ namespace TheraEngine.Rendering.Models
                     Matrix4 worldMatrix = bodyMtx * _rigidBodyLocalTransform.InverseMatrix;
                     Matrix4 frameMatrix = worldMatrix * OwningComponent.InverseWorldMatrix;
                     Matrix4 localMatrix = inverseParentMatrix * frameMatrix;
-                    FrameState.Matrix = localMatrix;
+                    FrameState.Matrix.Value = localMatrix;
                 }
 
                 //Regular parent-child transformation
-                _frameMatrix = parentMatrix * FrameState.Matrix;
-                _inverseFrameMatrix = FrameState.InverseMatrix * inverseParentMatrix;
+                _frameMatrix.Value = parentMatrix * FrameState.Matrix;
+                _inverseFrameMatrix.Value = FrameState.InverseMatrix * inverseParentMatrix;
 
                 if (usesCamera)
                 {
@@ -39,8 +39,8 @@ namespace TheraEngine.Rendering.Models
                     {
                         float scale = camera.DistanceScale(WorldMatrix.Translation, DistanceScaleScreenSize);
                         //Engine.PrintLine(scale.ToString());
-                        _frameMatrix *= Matrix4.CreateScale(scale);
-                        _inverseFrameMatrix = Matrix4.CreateScale(1.0f / scale) * _inverseFrameMatrix;
+                        _frameMatrix.Value *= Matrix4.CreateScale(scale);
+                        _inverseFrameMatrix.Value = Matrix4.CreateScale(1.0f / scale) * _inverseFrameMatrix;
                     }
                 }
 
@@ -71,7 +71,7 @@ namespace TheraEngine.Rendering.Models
 
             //Recalculate child bone transforms
             foreach (Bone b in _childBones)
-                b.CalcFrameMatrix(camera, _frameMatrix, _inverseFrameMatrix, needsUpdate);
+                b.CalcFrameMatrix(camera, _frameMatrix.Value, _inverseFrameMatrix.Value, needsUpdate);
 
             FrameMatrixChanged = false;
         }
@@ -94,7 +94,7 @@ namespace TheraEngine.Rendering.Models
             {
                 case EBillboardType.PerspectiveXYZ:
 
-                    Vec3 componentPoint = camera.WorldPoint * OwningComponent.InverseWorldMatrix;
+                    Vec3 componentPoint = camera.WorldPoint * OwningComponent.InverseWorldMatrix.Value;
                     Vec3 diff = frameTrans.Translation - componentPoint;
                     Rotator r = diff.LookatAngles();
 
@@ -174,13 +174,13 @@ namespace TheraEngine.Rendering.Models
             //Fix rotation in relation to parent component
             if (OwningComponent != null)
             {
-                angles = OwningComponent.InverseWorldMatrix.GetRotationMatrix4() * angles;
-                invAngles *= OwningComponent.WorldMatrix.GetRotationMatrix4();
+                angles = OwningComponent.InverseWorldMatrix.Value.GetRotationMatrix4() * angles;
+                invAngles *= OwningComponent.WorldMatrix.Value.GetRotationMatrix4();
             }
 
             //Multiply translation, rotation and scale parts together
-            _frameMatrix = frameTrans * angles * FrameState.Scale.Value.AsScaleMatrix();
-            _inverseFrameMatrix = (1.0f / FrameState.Scale).AsScaleMatrix() * invAngles * invFramTrans;
+            _frameMatrix.Value = frameTrans * angles * FrameState.Scale.Value.AsScaleMatrix();
+            _inverseFrameMatrix.Value = (1.0f / FrameState.Scale).AsScaleMatrix() * invAngles * invFramTrans;
         }
     }
 }

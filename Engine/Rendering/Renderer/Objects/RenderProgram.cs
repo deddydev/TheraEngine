@@ -42,38 +42,38 @@ namespace TheraEngine.Rendering
             _attribCache = new ConcurrentDictionary<string, int>();
 
 
-        private Stack<string> StructStack { get; } = new Stack<string>();
-        private string StructStackString { get; set; }
-        public void PushTargetStruct(string targetStructName)
-        {
-            StructStack.Push(targetStructName);
-            RemakeStructStack();
-        }
-        public void PopTargetStruct()
-        {
-            StructStack.Pop();
-            RemakeStructStack();
-        }
-        private void RemakeStructStack()
-        {
-            StructStackString = string.Empty;
-            foreach (string str in StructStack)
-                StructStackString += $"{str}.";
-        }
+        //private Stack<string> StructStack { get; } = new Stack<string>();
+        //private string StructStackString { get; set; }
+        //public void PushTargetStruct(string targetStructName)
+        //{
+        //    StructStack.Push(targetStructName);
+        //    RemakeStructStack();
+        //}
+        //public void PopTargetStruct()
+        //{
+        //    StructStack.Pop();
+        //    RemakeStructStack();
+        //}
+        //private void RemakeStructStack()
+        //{
+        //    StructStackString = string.Empty;
+        //    foreach (string str in StructStack)
+        //        StructStackString += $"{str}.";
+        //}
 
         public int GetUniformLocation(string name)
         {
             int bindingId = BindingId;
             if (bindingId == NullBindingId)
                 return -1;
-            return _uniformCache.GetOrAdd(StructStackString + name, n => Engine.Renderer.OnGetUniformLocation(bindingId, n));
+            return _uniformCache.GetOrAdd(/*StructStackString + */name, n => Engine.Renderer.OnGetUniformLocation(bindingId, n));
         }
         public int GetAttributeLocation(string name)
         {
             int bindingId = BindingId;
             if (bindingId == NullBindingId)
                 return -1;
-            return _attribCache.GetOrAdd(StructStackString + name, n => Engine.Renderer.OnGetAttribLocation(bindingId, n));
+            return _attribCache.GetOrAdd(/*StructStackString + */name, n => Engine.Renderer.OnGetAttribLocation(bindingId, n));
         }
 
         public bool IsValid { get; private set; } = true;

@@ -23,8 +23,8 @@ namespace TheraEngine.Components.Scene.Shapes
         }
         Matrix4 ICollidable.CollidableWorldMatrix
         {
-            get => WorldMatrix;
-            set => WorldMatrix = value;
+            get => WorldMatrix.Value;
+            set => WorldMatrix.Value = value;
         }
         [Category(PhysicsCategoryName)]
         [TSerialize]
@@ -95,7 +95,7 @@ namespace TheraEngine.Components.Scene.Shapes
         }
 
         private void BodyMoved(Matrix4 transform)
-            => WorldMatrix = _collisionObject.WorldTransform;
+            => WorldMatrix.Value = _collisionObject.WorldTransform;
 
         private void ThisMoved(ISceneComponent comp)
             => _collisionObject.WorldTransform = (WorldMatrix);

@@ -53,13 +53,13 @@ namespace TheraEngine.Rendering.UI
         }
         protected virtual void OnResizeActual(BoundingRectangleF parentBounds)
         {
-            ActualTranslation.Raw = Translation.Xy;
+            ActualTranslation.Value = Translation.Xy;
         }
         protected override void OnResizeLayout(BoundingRectangleF parentBounds)
         {
             OnResizeActual(parentBounds);
             RecalcLocalTransform();
-            var bounds = new BoundingRectangleF(ActualTranslation.Raw, parentBounds.Extents);
+            var bounds = new BoundingRectangleF(ActualTranslation.Value, parentBounds.Extents);
             OnResizeChildComponents(bounds);
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)

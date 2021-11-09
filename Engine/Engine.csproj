@@ -756,6 +756,7 @@
     <Compile Include="Core\Math\Transforms\Struct\Rotation\Quaternion.cs" />
     <None Include="Core\Math\Transforms\Struct\Rotation\QuatRotator.cs" />
     <Compile Include="Core\Math\Transforms\Struct\Transforms\Matrix3.cs" />
+    <Compile Include="Core\Math\Transforms\Class\Transforms\EventMatrix4.cs" />
     <Compile Include="Core\Math\Transforms\Struct\Transforms\Matrix4.cs" />
     <Compile Include="Core\Math\Transforms\Struct\Vectors\Vec2.cs" />
     <Compile Include="Core\Math\Transforms\Struct\Vectors\Vec3.cs" />

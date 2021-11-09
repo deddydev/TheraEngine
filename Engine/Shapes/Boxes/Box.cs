@@ -51,10 +51,10 @@ namespace TheraEngine.Core.Shapes
         //{
 
         //}
-        public override void SetTransformMatrix(Matrix4 matrix) => _transform.Matrix = matrix;
-        public override Matrix4 GetTransformMatrix() => _transform.Matrix;
+        public override void SetTransformMatrix(Matrix4 matrix) => _transform.Matrix.Value = matrix;
+        public override Matrix4 GetTransformMatrix() => _transform.Matrix.Value;
 
-        public Vec3 Center => _transform.Matrix.Translation;
+        public Vec3 Center => _transform.Matrix.Value.Translation;
 
         public Box(BoundingBox aabb)
             : this(aabb.HalfExtents, new TTransform(aabb.Translation, Quat.Identity, Vec3.One)) { }
@@ -103,16 +103,16 @@ namespace TheraEngine.Core.Shapes
             out Vec3 BFL,
             out Vec3 BFR)
         {
-            BoundingBox.GetCorners(_halfExtents, Transform.Matrix, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            BoundingBox.GetCorners(_halfExtents, Transform.Matrix.Value, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
         }
         public Vec3[] GetCorners()
         {
-            BoundingBox.GetCorners(_halfExtents, Transform.Matrix, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
+            BoundingBox.GetCorners(_halfExtents, Transform.Matrix.Value, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
         public override void Render(bool shadowPass)
         {
-            Engine.Renderer.RenderBox(_halfExtents, _transform.Matrix, RenderSolid, Color.Black);
+            Engine.Renderer.RenderBox(_halfExtents, _transform.Matrix.Value, RenderSolid, Color.Black);
         }
         public static TMesh Mesh(Vec3 halfExtents, Matrix4 transform)
         {
@@ -138,17 +138,17 @@ namespace TheraEngine.Core.Shapes
         }
 
         public TMesh GetMesh()
-            => Mesh(HalfExtents, Transform.Matrix);
+            => Mesh(HalfExtents, Transform.Matrix.Value);
         public IFrustum AsFrustum() 
-            => BoundingBox.GetFrustum(HalfExtents, Transform.Matrix);
+            => BoundingBox.GetFrustum(HalfExtents, Transform.Matrix.Value);
 
         public bool Intersects(Ray ray, out float distance)
         {
-            return Collision.RayIntersectsBoxDistance(ray.StartPoint, ray.Direction, HalfExtents, Transform.Matrix, out distance);
+            return Collision.RayIntersectsBoxDistance(ray.StartPoint, ray.Direction, HalfExtents, Transform.Matrix.Value, out distance);
         }
         public bool Intersects(Ray ray, out Vec3 point)
         {
-            return Collision.RayIntersectsBox(ray.StartPoint, ray.Direction, HalfExtents, Transform.Matrix, out point);
+            return Collision.RayIntersectsBox(ray.StartPoint, ray.Direction, HalfExtents, Transform.Matrix.Value, out point);
         }
         public static BoundingBox FromSphere(Sphere sphere)
         {
@@ -189,23 +189,23 @@ namespace TheraEngine.Core.Shapes
         //}
         public override bool Contains(Vec3 point)
         {
-            return Collision.BoxContainsPoint(HalfExtents, Transform.Matrix, point);
+            return Collision.BoxContainsPoint(HalfExtents, Transform.Matrix.Value, point);
         }
         public override EContainment Contains(BoundingBoxStruct box)
         {
-            return Collision.BoxContainsAABB(HalfExtents, Transform.Matrix, box.Minimum, box.Maximum);
+            return Collision.BoxContainsAABB(HalfExtents, Transform.Matrix.Value, box.Minimum, box.Maximum);
         }
         public override EContainment Contains(BoundingBox box)
         {
-            return Collision.BoxContainsAABB(HalfExtents, Transform.Matrix, box.Minimum, box.Maximum);
+            return Collision.BoxContainsAABB(HalfExtents, Transform.Matrix.Value, box.Minimum, box.Maximum);
         }
         public override EContainment Contains(Box box)
         {
-            return Collision.BoxContainsBox(HalfExtents, Transform.Matrix, box.HalfExtents, box.Transform.Matrix);
+            return Collision.BoxContainsBox(HalfExtents, Transform.Matrix.Value, box.HalfExtents, box.Transform.Matrix.Value);
         }
         public override EContainment Contains(Sphere sphere)
         {
-            return Collision.BoxContainsSphere(HalfExtents, Transform.Matrix, sphere.Center, sphere.Radius);
+            return Collision.BoxContainsSphere(HalfExtents, Transform.Matrix.Value, sphere.Center, sphere.Radius);
         }
         public override TCollisionShape GetCollisionShape()
         {
@@ -218,9 +218,9 @@ namespace TheraEngine.Core.Shapes
 
         public override Vec3 ClosestPoint(Vec3 point)
         {
-            Vec3 aabbPoint = Vec3.TransformPosition(point, _transform.InverseMatrix);
+            Vec3 aabbPoint = Vec3.TransformPosition(point, _transform.InverseMatrix.Value);
             Vec3 closest = Collision.ClosestPointAABBPoint(-_halfExtents, _halfExtents, aabbPoint);
-            return Vec3.TransformPosition(closest, _transform.Matrix);
+            return Vec3.TransformPosition(closest, _transform.Matrix.Value);
         }
 
         public override BoundingBox GetAABB()
@@ -243,8 +243,8 @@ namespace TheraEngine.Core.Shapes
             Vec3 top = capsule.GetTopCenterPoint();
             Vec3 bot = capsule.GetBottomCenterPoint();
             float radius = capsule.Radius;
-            Vec3 topLocal = Vec3.TransformPosition(top, _transform.InverseMatrix);
-            Vec3 botLocal = Vec3.TransformPosition(bot, _transform.InverseMatrix);
+            Vec3 topLocal = Vec3.TransformPosition(top, _transform.InverseMatrix.Value);
+            Vec3 botLocal = Vec3.TransformPosition(bot, _transform.InverseMatrix.Value);
             Vec3 min = Vec3.ComponentMin(topLocal, botLocal) - radius;
             Vec3 max = Vec3.ComponentMax(topLocal, botLocal) + radius;
             return Collision.AABBContainsAABB(-_halfExtents.Value, _halfExtents.Value, min, max);

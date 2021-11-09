@@ -23,6 +23,7 @@ namespace TheraEngine
     public interface IObject : IObjectSlim, INotifyPropertyChanged
     {
         event RenamedEventHandler Renamed;
+        event PropertyChangingEventHandler PropertyChanging;
 
         string Name { get; set; }
         object UserObject { get; set; }

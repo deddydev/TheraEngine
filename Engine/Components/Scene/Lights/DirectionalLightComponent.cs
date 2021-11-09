@@ -30,7 +30,7 @@ namespace TheraEngine.Components.Scene.Lights
                     ShadowCamera.Translation.Value = WorldPoint;
                     ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
                 }
-                LightMatrix = WorldMatrix * _scale.AsScaleMatrix();
+                LightMatrix = WorldMatrix.Value * _scale.AsScaleMatrix();
             }
         }
 
@@ -81,7 +81,7 @@ namespace TheraEngine.Components.Scene.Lights
                 ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
             }
             
-            LightMatrix = WorldMatrix * Scale.AsScaleMatrix();
+            LightMatrix = WorldMatrix.Value * Scale.AsScaleMatrix();
 
             base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
@@ -118,14 +118,12 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void SetUniforms(RenderProgram program, string targetStructName = null)
         {
-            targetStructName ??= Uniform.LightsStructName;
+            targetStructName = $"{targetStructName ?? Uniform.LightsStructName}.";
 
-            program.PushTargetStruct(targetStructName);
-            program.Uniform("Direction", Transform.GetForwardVector());
-            program.Uniform("Color", _color.Raw);
-            program.Uniform("DiffuseIntensity", _diffuseIntensity);
-            program.Uniform("WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
-            program.PopTargetStruct();
+            program.Uniform($"{targetStructName}Direction", Transform.GetForwardVector());
+            program.Uniform($"{targetStructName}Color", _color.Raw);
+            program.Uniform($"{targetStructName}DiffuseIntensity", _diffuseIntensity);
+            program.Uniform($"{targetStructName}WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
             program.Sampler("ShadowMap", ShadowMap.Material.Textures[1], 4);
         }

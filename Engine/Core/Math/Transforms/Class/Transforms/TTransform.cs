@@ -20,13 +20,13 @@ namespace TheraEngine.Core.Maths.Transforms
     {
         event MatrixChange MatrixChanged;
 
-        Matrix4 Matrix { get; set; }
-        Matrix4 InverseMatrix { get; set; }
+        EventMatrix4 Matrix { get; }
+        EventMatrix4 InverseMatrix { get; }
 
         ETransformOrder TransformationOrder { get; set; }
-        EventVec3 Translation { get; set; }
-        EventQuat Rotation { get; set; }
-        EventVec3 Scale { get; set; }
+        EventVec3 Translation { get; }
+        EventQuat Rotation { get; }
+        EventVec3 Scale { get; }
         
         void CreateTransform();
         void SetAll(Vec3 translate, Quat rotation, Vec3 scale);
@@ -80,10 +80,23 @@ namespace TheraEngine.Core.Maths.Transforms
             _scale.Changed += CreateTransform;
 
             _transformOrder = ETransformOrder.TRS;
-            _matrix = Matrix4.Identity;
-            _invMatrix = Matrix4.Identity;
+            _matrix = new EventMatrix4(Matrix4.Identity);
+            _invMatrix = new EventMatrix4(Matrix4.Identity);
+
+            _matrix.Changed += _matrix_Changed;
+            _invMatrix.Changed += _invMatrix_Changed;
         }
-        
+
+        private void _invMatrix_Changed()
+        {
+            
+        }
+
+        private void _matrix_Changed()
+        {
+
+        }
+
         public TTransform(
             Vec3 translation,
             Quat rotation,
@@ -132,17 +145,9 @@ namespace TheraEngine.Core.Maths.Transforms
         private ETransformOrder _transformOrder = ETransformOrder.TRS;
         private bool _matrixChanged = false;
 
-        private Matrix4 _matrix = Matrix4.Identity;
-        private Matrix4 _invMatrix = Matrix4.Identity;
 
-        public void Lookat(Vec3 point)
-        {
-            SetForwardVector(point - _matrix.Translation);
-        }
-        public void SetForwardVector(Vec3 direction)
-        {
-            Rotation.Value = direction.LookatAngles().ToQuaternion();
-        }
+        public void Lookat(Vec3 point) => SetForwardVector(point - _matrix.Value.Translation);
+        public void SetForwardVector(Vec3 direction) => Rotation.Value = direction.LookatAngles().ToQuaternion();
 
         public Vec3 GetForwardVector()
             => _rotation.Value * Vec3.Forward;
@@ -154,34 +159,36 @@ namespace TheraEngine.Core.Maths.Transforms
         public Matrix4 GetRotationMatrix()
             => Matrix4.CreateFromQuaternion(_rotation.Value);
 
+        private EventMatrix4 _matrix = new EventMatrix4(Matrix4.Identity);
         [Browsable(false)]
-        public Matrix4 Matrix
+        public EventMatrix4 Matrix
         {
             get => _matrix;
-            set
-            {
-                _matrix = value;
-                _invMatrix = _matrix.Inverted();
-                _matrixChanged = true;
-            }
+            //set
+            //{
+            //    _matrix = value;
+            //    _invMatrix.Value = _matrix.Value.Inverted();
+            //    _matrixChanged = true;
+            //}
         }
 
+        private EventMatrix4 _invMatrix = new EventMatrix4(Matrix4.Identity);
         [Browsable(false)]
-        public Matrix4 InverseMatrix
+        public EventMatrix4 InverseMatrix
         {
             get => _invMatrix;
-            set
-            {
-                _invMatrix = value;
-                _matrix = _invMatrix.Inverted();
-                _matrixChanged = true;
-            }
+            //set
+            //{
+            //    _invMatrix = value;
+            //    _matrix.Value = _invMatrix.Value.Inverted();
+            //    _matrixChanged = true;
+            //}
         }
 
         private void MatrixUpdated()
         {
             _matrixChanged = false;
-            _matrix.DeriveTRS(out Vec3 t, out Vec3 s, out Quat r);
+            _matrix.Value.DeriveTRS(out Vec3 t, out Vec3 s, out Quat r);
             _translation.SetValueSilent(t);
             _scale.SetValueSilent(s);
             _rotation.SetValueSilent(r);
@@ -336,11 +343,11 @@ namespace TheraEngine.Core.Maths.Transforms
         [TPostDeserialize]
         public void CreateTransform()
         {
-            Matrix4 oldMatrix = _matrix;
-            Matrix4 oldInvMatrix = _invMatrix;
+            Matrix4 oldMatrix = _matrix.Value;
+            Matrix4 oldInvMatrix = _invMatrix.Value;
 
-            _matrix = Matrix4.TransformMatrix(_scale, _rotation.Value, _translation, _transformOrder);
-            _invMatrix = Matrix4.InverseTransformMatrix(_scale, _rotation.Value, _translation, _transformOrder);
+            _matrix.Value = Matrix4.TransformMatrix(_scale, _rotation.Value, _translation, _transformOrder);
+            _invMatrix.Value = Matrix4.InverseTransformMatrix(_scale, _rotation.Value, _translation, _transformOrder);
 
             MatrixChanged?.Invoke(this, oldMatrix, oldInvMatrix);
         }
@@ -555,21 +562,22 @@ namespace TheraEngine.Core.Maths.Transforms
             //Matrix4 oldMatrix = _transform;
             //Matrix4 oldInvMatrix = _inverseTransform;
 
-            _matrix = Matrix * translation.AsTranslationMatrix();
+            _matrix.Value = Matrix.Value * translation.AsTranslationMatrix();
             //_inverseTransform = (-translation).AsTranslationMatrix() * InverseMatrix;
             //_translation.SetValueSilent(_transform.Translation);
 
             //MatrixChanged?.Invoke(this, oldMatrix, oldInvMatrix);
 
-            _translation.Value = _matrix.Translation;
+            //Setting translation's value will run CreateTransform
+            _translation.Value = _matrix.Value.Translation;
         }
         public void Pivot(float pitch, float yaw, float distance)
-            => ArcBallRotate(pitch, yaw, _translation + _matrix.ForwardVec * distance);
+            => ArcBallRotate(pitch, yaw, _translation + _matrix.Value.ForwardVec * distance);
         public void ArcBallRotate(float pitch, float yaw, Vec3 focusPoint)
         {
             //"Arcball" rotation
             //All rotation is done within local component space
-            _translation.Value = TMath.ArcballTranslation(pitch, yaw, focusPoint, _translation.Value, _matrix.RightVec);
+            _translation.Value = TMath.ArcballTranslation(pitch, yaw, focusPoint, _translation.Value, _matrix.Value.RightVec);
             _rotation *= Quat.Euler(pitch, yaw, 0.0f);
         }
 

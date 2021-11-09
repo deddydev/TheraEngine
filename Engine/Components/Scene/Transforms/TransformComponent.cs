@@ -6,23 +6,32 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
-    public interface ITransformComponent : ISceneComponent
-    {
-        TTransform Transform { get; set; }
-    }
     /// <summary>
     /// Contains a general translation.
     /// </summary>
     [TFileDef("Transform Component")]
-    public class TransformComponent : OriginRebasableComponent, ITransformComponent
+    public class TransformComponent : OriginRebasableComponent
     {
         public TransformComponent() : this(TTransform.GetIdentity(), true) { }
         public TransformComponent(TTransform transform, bool deferLocalRecalc = false) : base()
         {
             _transform = transform ?? TTransform.GetIdentity();
             _transform.MatrixChanged += _transform_MatrixChanged;
+
+            WorldMatrix.Changed += WorldMatrix_Changed;
+            InverseWorldMatrix.Changed += InverseWorldMatrix_Changed;
+
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
+        }
+
+        private void InverseWorldMatrix_Changed()
+        {
+            Transform.InverseMatrix.Value = ParentWorldMatrix * InverseWorldMatrix.Value;
+        }
+        private void WorldMatrix_Changed()
+        {
+            Transform.Matrix.Value = WorldMatrix.Value * InverseParentWorldMatrix;
         }
 
         private void _transform_MatrixChanged(ITransform transform, Matrix4 oldMatrix, Matrix4 oldInvMatrix)
@@ -30,7 +39,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         [TSerialize(nameof(Transform))]
         protected TTransform _transform;
-        
+
         [Category("Transform")]
         public TTransform Transform
         {
@@ -45,26 +54,26 @@ namespace TheraEngine.Components.Scene.Transforms
             }
         }
 
-        [Browsable(false)]
-        public override Matrix4 WorldMatrix
-        {
-            get => base.WorldMatrix;
-            set
-            {
-                base.WorldMatrix = value;
-                Transform.Matrix = WorldMatrix * InverseParentWorldMatrix;
-            }
-        }
-        [Browsable(false)]
-        public override Matrix4 InverseWorldMatrix
-        {
-            get => base.InverseWorldMatrix;
-            set
-            {
-                base.InverseWorldMatrix = value;
-                Transform.InverseMatrix = ParentWorldMatrix * InverseWorldMatrix; 
-            }
-        }
+        //[Browsable(false)]
+        //public override EventMatrix4 WorldMatrix
+        //{
+        //    get => base.WorldMatrix;
+        //    set
+        //    {
+        //        base.WorldMatrix = value;
+        //        Transform.Matrix = WorldMatrix * InverseParentWorldMatrix;
+        //    }
+        //}
+        //[Browsable(false)]
+        //public override EventMatrix4 InverseWorldMatrix
+        //{
+        //    get => base.InverseWorldMatrix;
+        //    set
+        //    {
+        //        base.InverseWorldMatrix = value;
+        //        Transform.InverseMatrix = ParentWorldMatrix * InverseWorldMatrix; 
+        //    }
+        //}
 
         [TPostDeserialize]
         protected internal virtual void OnDeserialized()
@@ -77,8 +86,8 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = _transform.Matrix;
-            inverseLocalTransform = _transform.InverseMatrix;
+            localTransform = _transform.Matrix.Value;
+            inverseLocalTransform = _transform.InverseMatrix.Value;
         }
 
         /// <summary>
@@ -114,7 +123,6 @@ namespace TheraEngine.Components.Scene.Transforms
             get => Transform.Scale.Value;
             set => Transform.Scale.Value = value;
         }
-
 
         public override void HandleTranslation(Vec3 delta)
             => Transform.Translation += delta;

@@ -148,7 +148,7 @@ namespace TheraEngine.Actors
                     point.Z,
                 };
             }
-            public DelaunayTriVertex(ISocket probe) : this(probe?.WorldMatrix.Translation ?? Vec3.Zero)
+            public DelaunayTriVertex(ISocket probe) : this(probe?.WorldMatrix.Value.Translation ?? Vec3.Zero)
             {
                 _probe = probe;
                 //_probe.WorldTransformChanged += _probe_WorldTransformChanged;
@@ -161,7 +161,7 @@ namespace TheraEngine.Actors
             //    Position[2] = _probe.WorldPoint.Z;
             //}
 
-            public override string ToString() => (_probe?.WorldMatrix.Translation ?? Vec3.Zero).ToString();
+            public override string ToString() => (_probe?.WorldMatrix.Value.Translation ?? Vec3.Zero).ToString();
         }
 
         ITriangulation<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>> _cells;

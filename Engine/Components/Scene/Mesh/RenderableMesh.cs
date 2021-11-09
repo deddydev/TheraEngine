@@ -141,7 +141,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
             RenderCommand.Mesh = CurrentLOD?.Manager;
             RenderCommand.WorldMatrix = _component.WorldMatrix;
-            RenderCommand.NormalMatrix = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
+            RenderCommand.NormalMatrix = _component.InverseWorldMatrix.Value.Transposed().GetRotationMatrix3();
             RenderCommand.RenderDistance = distance;
 
             passes.Add(RenderCommand);

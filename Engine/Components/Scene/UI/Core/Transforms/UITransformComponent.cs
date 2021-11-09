@@ -94,7 +94,7 @@ namespace TheraEngine.Rendering.UI
 
         protected virtual void OnResizeActual(BoundingRectangleF parentBounds)
         {
-            ActualTranslation.Raw = Translation.Xy;
+            ActualTranslation.Value = Translation.Xy;
         }
         protected override void OnResizeLayout(BoundingRectangleF parentBounds)
         {
@@ -106,7 +106,7 @@ namespace TheraEngine.Rendering.UI
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            Vec3 translation = new Vec3(ActualTranslation.Raw, Translation.Z);
+            Vec3 translation = new Vec3(ActualTranslation.Value, Translation.Z);
             Vec3 scale = Scale?.Value ?? Vec3.One;
 
             localTransform = Matrix4.TransformMatrix(
@@ -159,7 +159,7 @@ namespace TheraEngine.Rendering.UI
             if (scale.DistanceTo(newScale) < 0.0001f)
                 return;
 
-            Vec2 newTranslation = ActualTranslation.Raw + (worldScreenPoint - WorldPoint.Xy) * multiplier;
+            Vec2 newTranslation = ActualTranslation.Value + (worldScreenPoint - WorldPoint.Xy) * multiplier;
 
             _translation.Value = new Vec3(newTranslation, _translation.Z);
             _scale.Value = new Vec3(newScale, _scale.Z);

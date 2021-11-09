@@ -18,13 +18,13 @@ namespace TheraEngine.Rendering.UI.Functions
         public BaseFuncArg(string name, ColorF4 color) : base(MakeArgMaterial(color))
         {
             _name = name;
-            Size.Raw = new Vec2(ConnectionBoxDims);
+            Size.Value = new Vec2(ConnectionBoxDims);
         }
         public BaseFuncArg(string name, IFunction parent, ColorF4 color) : base(MakeArgMaterial(color))
         {
             _name = name;
             _parent = parent;
-            Size.Raw = new Vec2(ConnectionBoxDims);
+            Size.Value = new Vec2(ConnectionBoxDims);
         }
 
         public BaseFunction OwningFunction { get; internal set; }

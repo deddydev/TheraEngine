@@ -135,7 +135,7 @@ namespace TheraEngine.Actors.Types.Pawns
             if (IsSpawned)
                 Engine.World.DespawnActor(this);
 
-            RootComponent.WorldMatrix = transform;
+            RootComponent.WorldMatrix.Value = transform;
             Engine.World.SpawnActor(this);
         }
         protected override void OnSpawnedPostComponentSpawn()

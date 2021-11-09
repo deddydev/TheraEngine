@@ -52,8 +52,8 @@ namespace TheraEngine.Components.Scene.Transforms
             _previousWorldMatrix = _worldMatrix;
             _previousInverseWorldMatrix = _inverseWorldMatrix;
 
-            _worldMatrix = _interpPoint.AsTranslationMatrix();
-            _inverseWorldMatrix = (-_interpPoint).AsTranslationMatrix();
+            _worldMatrix.Value = _interpPoint.AsTranslationMatrix();
+            _inverseWorldMatrix.Value = (-_interpPoint).AsTranslationMatrix();
 
             OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }

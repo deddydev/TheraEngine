@@ -16,8 +16,8 @@ namespace TheraEngine.Rendering.Models
         {
             LoadResult result = new ObjLoaderFactory().Create().Load(path);
 
-            Matrix4 modelMatrix = options.InitialTransform.Matrix;
-            Matrix4 normalMatrix = options.InitialTransform.InverseMatrix.Transposed().GetRotationMatrix4();
+            Matrix4 modelMatrix = options.InitialTransform.Matrix.Value;
+            Matrix4 normalMatrix = options.InitialTransform.InverseMatrix.Value.Transposed().GetRotationMatrix4();
             string dirPath = Path.GetDirectoryName(path);
 
             StaticModel model = new StaticModel();

@@ -667,7 +667,7 @@ namespace TheraEditor.Windows.Forms
                     if (newComp != null)
                     {
                         var parent = comp2.ParentSocket;
-                        comp2.DetachFromParent();
+                        comp2.ParentSocket = null;
                         parent.ChildSockets.Add(newComp);
                         newComp.ChildSockets.Add(comp2);
                     }

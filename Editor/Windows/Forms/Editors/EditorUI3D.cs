@@ -559,7 +559,7 @@ namespace TheraEditor.Windows.Forms
 
             translation += up * upDist;
 
-            DragComponent.WorldMatrix = Matrix4.CreateSpacialTransform(
+            DragComponent.WorldMatrix.Value = Matrix4.CreateSpacialTransform(
                 translation,
                 right * _draggingUniformScale,
                 up * _draggingUniformScale,

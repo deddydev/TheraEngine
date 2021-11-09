@@ -95,7 +95,7 @@ namespace TheraEngine.Components.Scene.Lights
             Vec3 lightMeshOrigin = dir * (_distance * 0.5f);
             Matrix4 t = lightMeshOrigin.AsTranslationMatrix();
             Matrix4 s = Matrix4.CreateScale(OuterCone.Radius, OuterCone.Radius, OuterCone.Height);
-            LightMatrix = t * WorldMatrix * s;
+            LightMatrix = t * WorldMatrix.Value * s;
         }
 
         [Browsable(false)]
@@ -194,8 +194,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform($"{targetStructName}DiffuseIntensity", _diffuseIntensity);
             program.Uniform($"{targetStructName}WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
-            var tex = ShadowMap.Material.Textures[1].RenderTextureGeneric;
-            program.Sampler("ShadowMap", tex, 4);
+            program.Sampler("ShadowMap", ShadowMap.Material.Textures[1], 4);
         }
         public override void SetShadowMapResolution(int width, int height)
         {

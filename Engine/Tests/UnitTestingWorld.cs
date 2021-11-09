@@ -495,12 +495,12 @@ namespace TheraEngine.Tests
         private void RootComponent_WorldTransformChanged(ISceneComponent comp)
         {
             //_direction = Vec3.TransformVector(new Vec3(0.0f, 0.0f, -_testDistance), RootComponent.Transform.Rotation.GetMatrix());
-            _endTraceTransform = _direction.AsTranslationMatrix() * RootComponent.WorldMatrix;
+            _endTraceTransform = _direction.AsTranslationMatrix() * RootComponent.WorldMatrix.Value;
         }
 
         private void Tick(float delta)
         {
-            _shapeCast.Start = RootComponent.WorldMatrix;
+            _shapeCast.Start = RootComponent.WorldMatrix.Value;
             _shapeCast.End = _endTraceTransform;
             if (_hasHit = _shapeCast.Trace(OwningWorld))
             {

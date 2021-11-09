@@ -53,7 +53,7 @@ namespace TheraEngine.Rendering.Cameras
 
         [Browsable(false)]
         [Category("Camera")]
-        public override Vec3 WorldPoint => _owningComponent?.WorldMatrix.Translation ?? _translation.Value;
+        public override Vec3 WorldPoint => _owningComponent?.WorldMatrix.Value.Translation ?? _translation.Value;
         
         [Category("Camera")]
         public EventVec3 Translation

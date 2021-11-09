@@ -4,7 +4,7 @@ using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Components.Scene
 {
-    public interface ISubActorComponent : ITransformComponent
+    public interface ISubActorComponent
     {
         IActor Actor { get; }
     }

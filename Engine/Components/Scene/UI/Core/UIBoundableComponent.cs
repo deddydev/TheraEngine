@@ -341,12 +341,12 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public Vec2 OriginTranslation
         {
-            get => OriginPercent.Raw * ActualSize.Raw;
+            get => OriginPercent.Value * ActualSize.Value;
             set
             {
                 float x = ActualSize.X.IsZero() ? 0.0f : value.X / ActualSize.X;
                 float y = ActualSize.Y.IsZero() ? 0.0f : value.Y / ActualSize.Y;
-                OriginPercent.Raw = new Vec2(x, y);
+                OriginPercent.Value = new Vec2(x, y);
             }
         }
 
@@ -444,8 +444,8 @@ namespace TheraEngine.Rendering.UI
             float right = pad.Z;
             float top = pad.W;
 
-            Vec2 size = ActualSize.Raw;
-            Vec2 pos = ActualTranslation.Raw;
+            Vec2 size = ActualSize.Value;
+            Vec2 pos = ActualTranslation.Value;
 
             pos += new Vec2(left, bottom);
             size -= new Vec2(left + right, bottom + top);
@@ -539,12 +539,12 @@ namespace TheraEngine.Rendering.UI
         public override Vec2 ClosestPoint(Vec2 worldPoint)
         {
             Vec3 localPoint = ScreenToLocal(worldPoint);
-            return localPoint.Xy.Clamped(-OriginTranslation, ActualSize.Raw - OriginTranslation);
+            return localPoint.Xy.Clamped(-OriginTranslation, ActualSize.Value - OriginTranslation);
         }
         public override bool Contains(Vec2 worldPoint)
         {
             Vec3 localPoint = ScreenToLocal(worldPoint);
-            return ActualSize.Raw.Contains(localPoint.Xy);
+            return ActualSize.Value.Contains(localPoint.Xy);
         }
         /// <summary>
         /// Returns true if the given world point projected perpendicularly to the HUD as a 2D point is contained within this component and the Z value is within the given depth margin.
@@ -555,7 +555,7 @@ namespace TheraEngine.Rendering.UI
         public bool Contains(Vec3 worldPoint, float zMargin = 0.5f)
         {
             Vec3 localPoint = Vec3.TransformPosition(worldPoint, InverseWorldMatrix);
-            return Math.Abs(localPoint.Z) < zMargin && ActualSize.Raw.Contains(localPoint.Xy);
+            return Math.Abs(localPoint.Z) < zMargin && ActualSize.Value.Contains(localPoint.Xy);
         }
     }
 }

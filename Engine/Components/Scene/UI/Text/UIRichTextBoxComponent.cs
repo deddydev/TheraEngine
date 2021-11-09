@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.UI.Text
         protected override void OnResizeLayout(BoundingRectangleF parentRegion)
         {
             base.OnResizeLayout(parentRegion);
-            _uiText.Region.Extents = ActualSize.Raw;
+            _uiText.Region.Extents = ActualSize.Value;
         }
 
         private readonly UIString2D _uiText = new UIString2D();

@@ -14,7 +14,7 @@ namespace TheraEngine.Actors.Types.BSP
 
         public void Render()
         {
-            _manager.Render(WorldMatrix, InverseWorldMatrix.Transposed().GetRotationMatrix3());
+            _manager.Render(WorldMatrix.Value, InverseWorldMatrix.Value.Transposed().GetRotationMatrix3());
         }
 
         public MeshRenderer Merge(MeshRenderer right, EIntersectionType intersection)

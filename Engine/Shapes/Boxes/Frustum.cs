@@ -523,24 +523,16 @@ namespace TheraEngine.Core.Shapes
         public bool Contains(Vec3 point)
             => Collision.FrustumContainsPoint(this, point);
         public EContainment Contains(TShape shape)
-        {
-            switch (shape.GetType().GetFriendlyName())
+            => shape.GetType().GetFriendlyName() switch
             {
-                case nameof(Box):
-                    return Contains(shape as Box);
-                case nameof(BoundingBox):
-                    return Contains(shape as BoundingBox);
-                case nameof(Sphere):
-                    return Contains(shape as Sphere);
-                case nameof(Cone):
-                    return Contains(shape as Cone);
-                case nameof(Capsule):
-                    return Contains(shape as Capsule);
-                case nameof(Cylinder):
-                    return Contains(shape as Cylinder);
-            }
-            return EContainment.Contains;
-        }
+                nameof(Box) => Contains(shape as Box),
+                nameof(BoundingBox) => Contains(shape as BoundingBox),
+                nameof(Sphere) => Contains(shape as Sphere),
+                nameof(Cone) => Contains(shape as Cone),
+                nameof(Capsule) => Contains(shape as Capsule),
+                nameof(Cylinder) => Contains(shape as Cylinder),
+                _ => EContainment.Contains,
+            };
         public EContainment Contains(Box box) 
             => Collision.FrustumContainsBox1(this, box.HalfExtents, box.Transform.Matrix);
         public EContainment Contains(BoundingBoxStruct box)

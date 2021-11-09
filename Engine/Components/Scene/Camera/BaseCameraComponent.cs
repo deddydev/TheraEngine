@@ -206,9 +206,9 @@ namespace TheraEngine.Components.Scene
         public override void RecalcWorldTransform(bool recalcChildWorldTransformsNow = true)
         {
             _previousWorldMatrix = _worldMatrix;
-            _worldMatrix = ParentWorldMatrix * LocalMatrix;
+            _worldMatrix.Value = ParentWorldMatrix * LocalMatrix;
             _previousInverseWorldMatrix = _inverseWorldMatrix;
-            _inverseWorldMatrix = InverseLocalMatrix * InverseParentWorldMatrix;
+            _inverseWorldMatrix.Value = InverseLocalMatrix * InverseParentWorldMatrix;
             OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 

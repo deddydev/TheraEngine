@@ -182,8 +182,8 @@ namespace TheraEditor.Windows.Forms
             float displayFPS;
             GetWorkArea(out Vec2 animMin, out Vec2 animMax);
             Vec2 bounds = Bounds;
-            Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, OriginTransformComponent.InverseWorldMatrix).Xy;
-            Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, OriginTransformComponent.InverseWorldMatrix).Xy;
+            Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, OriginTransformComponent.InverseWorldMatrix.Value).Xy;
+            Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, OriginTransformComponent.InverseWorldMatrix.Value).Xy;
             float maxSec = TMath.Min(boundsMaxAnimRelative.X, animMax.X);
             float minSec = TMath.Max(boundsMinAnimRelative.X, animMin.X);
             float maxVal = TMath.Min(boundsMaxAnimRelative.Y, animMax.Y);
@@ -281,8 +281,8 @@ namespace TheraEditor.Windows.Forms
 
             GetWorkArea(out Vec2 animMin, out Vec2 animMax);
             Vec2 bounds = Bounds;
-            Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, OriginTransformComponent.InverseWorldMatrix).Xy;
-            Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, OriginTransformComponent.InverseWorldMatrix).Xy;
+            Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, OriginTransformComponent.InverseWorldMatrix.Value).Xy;
+            Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, OriginTransformComponent.InverseWorldMatrix.Value).Xy;
             float maxSec = TMath.Min(boundsMaxAnimRelative.X, animMax.X);
             float minSec = TMath.Max(boundsMinAnimRelative.X, animMin.X);
             float maxVal = TMath.Min(boundsMaxAnimRelative.Y, animMax.Y);
@@ -465,7 +465,7 @@ void main()
         private void OnCurrentPositionChanged(PropAnimVector<float, FloatKeyframe> obj)
         {
             Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
-            AnimPositionWorld = Vec3.TransformPosition(pos, OriginTransformComponent.WorldMatrix).Xy;
+            AnimPositionWorld = Vec3.TransformPosition(pos, OriginTransformComponent.WorldMatrix.Value).Xy;
 
             Vec2 origin = GetViewportBottomLeft();
 
@@ -490,7 +490,7 @@ void main()
         {
             base.ResizeLayout();
 
-            Matrix4 mtx = OriginTransformComponent.WorldMatrix;
+            Matrix4 mtx = OriginTransformComponent.WorldMatrix.Value;
 
             _rcKfLines.WorldMatrix =
             _rcSpline.WorldMatrix =
@@ -502,7 +502,7 @@ void main()
                 RenderAnimPosition = true;
 
                 Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
-                AnimPositionWorld = Vec3.TransformPosition(pos, OriginTransformComponent.WorldMatrix).Xy;
+                AnimPositionWorld = Vec3.TransformPosition(pos, OriginTransformComponent.WorldMatrix.Value).Xy;
             }
             else
                 RenderAnimPosition = false;
@@ -550,7 +550,7 @@ void main()
         protected override void OnLeftClickDown()
         {
             Vec2 v = CursorPosition();
-            if (!Bounds.Raw.Contains(v))
+            if (!Bounds.Value.Contains(v))
                 return;
 
             if (_targetAnimation != null)
@@ -929,20 +929,20 @@ void main()
         }
         protected override void RenderMethod()
         {
-            Vec2 wh = _backgroundComponent.ActualSize.Raw;
+            Vec2 wh = _backgroundComponent.ActualSize.Value;
 
             //TODO: if a keyframe is dragged past another, its index changes but these indices are not updated
             if (ClosestPositionIndices != null)
                 foreach (int index in ClosestPositionIndices)
                     if (KeyframeInOutPosInOutTan?.IndexInRange(index) ?? false)
-                        Engine.Renderer.RenderPoint(Vec3.TransformPosition(KeyframeInOutPosInOutTan[index], OriginTransformComponent.WorldMatrix), Color.Yellow, false, 10.0f);
+                        Engine.Renderer.RenderPoint(Vec3.TransformPosition(KeyframeInOutPosInOutTan[index], OriginTransformComponent.WorldMatrix.Value), Color.Yellow, false, 10.0f);
 
             base.RenderMethod();
 
             //Animation end line
             if (_targetAnimation != null && _targetAnimation.Keyframes.Count > 0)
             {
-                Vec3 end = Vec3.TransformPosition(new Vec2(_targetAnimation.LengthInSeconds, 0.0f), OriginTransformComponent.WorldMatrix);
+                Vec3 end = Vec3.TransformPosition(new Vec2(_targetAnimation.LengthInSeconds, 0.0f), OriginTransformComponent.WorldMatrix.Value);
                 Engine.Renderer.RenderLine(new Vec2(end.X, 0.0f), new Vec2(end.X, wh.Y), new ColorF4(0.7f, 0.3f, 0.3f), false, 10.0f);
             }
 

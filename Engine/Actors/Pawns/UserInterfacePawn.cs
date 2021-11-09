@@ -186,7 +186,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public virtual void Resize(Vec2 bounds)
         {
-            Bounds.Raw = bounds;
+            Bounds.Value = bounds;
             RootComponent.InvalidateLayout();
         }
         protected override void PostConstruct()
@@ -321,7 +321,7 @@ namespace TheraEngine.Actors.Types.Pawns
                 RootComponent?.ScreenSpaceUIScene?.PreRender(v, RootComponent?.ScreenSpaceCamera);
         }
 
-        public void PreRenderSwap()
+        public virtual void PreRenderSwap()
         {
             if (RootComponent.DrawSpace == ECanvasDrawSpace.Screen)
                 RootComponent.SwapBuffersScreenSpace();
@@ -339,7 +339,7 @@ namespace TheraEngine.Actors.Types.Pawns
         protected virtual void ResizeLayout()
             => RootComponent.ResizeLayout(new BoundingRectangleF(
                 RootComponent.Translation.Xy,
-                RootComponent.Size.Raw));
+                RootComponent.Size.Value));
 
         public virtual void UpdateLayout()
         {

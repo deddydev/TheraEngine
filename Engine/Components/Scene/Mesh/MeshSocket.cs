@@ -26,8 +26,8 @@ namespace TheraEngine.Components.Scene.Mesh
         ISocket ParentSocket { get; set; }
         IEventList<ISocket> ChildSockets { get; }
         
-        Matrix4 WorldMatrix { get; set; }
-        Matrix4 InverseWorldMatrix { get; set; }
+        EventMatrix4 WorldMatrix { get; }
+        EventMatrix4 InverseWorldMatrix { get; }
 
         IActor OwningActor { get; set; }
         bool AllowRemoval { get; set; }
@@ -35,36 +35,34 @@ namespace TheraEngine.Components.Scene.Mesh
     public class Socket : Socket<ISocket> { }
     public class Socket<TParent> : TFileObject, ISocket where TParent : ISocket
     {
-        public ITransform Transform { get; set; }
+        public virtual ITransform Transform { get; set; } = TTransform.GetIdentity();
         public bool AllowRemoval { get; set; }
 
-        int ISocket.ParentSocketChildIndex => throw new NotImplementedException();
+        protected ISocket _parentSocket;
+        protected EventMatrix4 
+            _worldMatrix = new EventMatrix4(Matrix4.Identity),
+            _inverseWorldMatrix = new EventMatrix4(Matrix4.Identity);
 
-        ISocket ISocket.ParentSocket { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        Matrix4 ISocket.WorldMatrix { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        Matrix4 ISocket.InverseWorldMatrix { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        
-        IEventList<ISocket> ISocket.ChildSockets => throw new NotImplementedException();
-
-        IActor ISocket.OwningActor { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        event DelSocketTransformChange ISocket.SocketTransformChanged
+        public int ParentSocketChildIndex => ParentSocket?.ChildSockets?.IndexOf(this) ?? -1;
+        public virtual ISocket ParentSocket 
         {
-            add
-            {
-                throw new NotImplementedException();
-            }
-
-            remove
-            {
-                throw new NotImplementedException();
-            }
+            get => _parentSocket;
+            set => _parentSocket = value;
         }
+
+        public EventMatrix4 WorldMatrix => Transform.Matrix;
+        public EventMatrix4 InverseWorldMatrix => Transform.InverseMatrix;
+
+        public EventList<ISocket> ChildSockets { get; } = new EventList<ISocket>();
+        IEventList<ISocket> ISocket.ChildSockets => ChildSockets;
+
+        public IActor OwningActor { get; set; }
+
+        protected void OnSocketTransformChanged() => SocketTransformChanged?.Invoke(this);
+        public event DelSocketTransformChange SocketTransformChanged;
     }
     public class MeshSocket : Socket<ISocket>
     {
-        public event DelSocketTransformChange SocketTransformChanged;
-
         internal MeshSocket(ITransform transform, IMeshSocketOwner owner, IActor actor)
         {
             ParentSocket = owner;
@@ -79,15 +77,9 @@ namespace TheraEngine.Components.Scene.Mesh
             ChildComponents.PostRemovedRange += Children_RemovedRange;
         }
 
-        private ITransform _transform = Core.Maths.Transforms.TTransform.GetIdentity();
+        private ITransform _transform = TTransform.GetIdentity();
 
-        public Matrix4 WorldMatrix { get=> _transform.Matrix; set => _transform.Matrix = value; }
-        public Matrix4 InverseWorldMatrix { get => _transform.InverseMatrix; set => _transform.InverseMatrix = value; }
         public IEventList<ISceneComponent> ChildComponents { get; }
-        public IActor OwningActor { get; set; }
-
-        [Browsable(false)]
-        public int ParentSocketChildIndex => -1;//ParentSocket?.ChildComponents?.IndexOf(this) ?? -1;
 
         private void Children_RemovedRange(IEnumerable<ISceneComponent> items)
         {
@@ -138,7 +130,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
         private void Transform_MatrixChanged(ITransform transform, Matrix4 oldMatrix, Matrix4 oldInvMatrix)
         {
-            SocketTransformChanged?.Invoke(this);
+            OnSocketTransformChanged();
         }
 
         //bool ISocket.IsTranslatable => true;

@@ -23,7 +23,7 @@ namespace TheraEngine.Components.Scene.Lights
                 _influenceVolume.Radius = value;
                 foreach (PerspectiveCamera cam in ShadowCameras)
                     cam.FarZ = value;
-                LightMatrix = WorldMatrix * Matrix4.CreateScale(Radius);
+                LightMatrix = WorldMatrix.Value * Matrix4.CreateScale(Radius);
             }
         }
         [Category("Point Light Component")]
@@ -66,10 +66,10 @@ namespace TheraEngine.Components.Scene.Lights
         }
         protected override void OnWorldTransformChanged(bool recalcChildWorldTransformsNow = true)
         {
-            _influenceVolume.SetTransformMatrix(WorldMatrix);
+            _influenceVolume.SetTransformMatrix(WorldMatrix.Value);
             foreach (PerspectiveCamera cam in ShadowCameras)
-                cam.Translation.Value = WorldMatrix.Translation;
-            LightMatrix = WorldMatrix * Matrix4.CreateScale(Radius);
+                cam.Translation.Value = WorldMatrix.Value.Translation;
+            LightMatrix = WorldMatrix.Value * Matrix4.CreateScale(Radius);
             base.OnWorldTransformChanged(recalcChildWorldTransformsNow);
         }
 

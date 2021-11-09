@@ -111,7 +111,7 @@ namespace TheraEngine.Shapes
         public EContainment Contains(BoundingBoxStruct box)
             => Collision.AABBContainsAABB(Minimum, Maximum, box.Minimum, box.Maximum);
         public EContainment Contains(Box box)
-            => Collision.AABBContainsBox(Minimum, Maximum, box.HalfExtents, box.Transform.Matrix);
+            => Collision.AABBContainsBox(Minimum, Maximum, box.HalfExtents, box.Transform.Matrix.Value);
         public EContainment Contains(Sphere sphere)
             => Collision.AABBContainsSphere(Minimum, Maximum, sphere.Center, sphere.Radius);
         public EContainment Contains(Cone cone)

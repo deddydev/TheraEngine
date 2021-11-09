@@ -47,7 +47,7 @@ namespace TheraEngine.Rendering.Models
     {
         public IRenderInfo3D RenderInfo { get; }
             = new RenderInfo3D(false, true) { CastsShadows = false, ReceivesShadows = false };
-        
+
         public Skeleton() : base()
         {
             _rc = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render);
@@ -74,9 +74,9 @@ namespace TheraEngine.Rendering.Models
 
         public IBone this[string name]
             => BoneNameCache.ContainsKey(name) ? BoneNameCache[name] : null;
-        public IBone this[int index] 
+        public IBone this[int index]
             => BoneIndexCache.ContainsKey(index) ? BoneIndexCache[index] : null;
-        
+
         //Internal usage information, not serialized
         private List<IBone> _physicsDrivableBones = new List<IBone>();
         private List<IBone> _cameraBones = new List<IBone>();
@@ -101,13 +101,17 @@ namespace TheraEngine.Rendering.Models
         [Browsable(false)]
         public Dictionary<int, IBone> BoneIndexCache { get; } = new Dictionary<int, IBone>();
         [Browsable(false)]
-        public SkeletalMeshComponent OwningComponent { get; set; }
+        public SkeletalMeshComponent OwningComponent
+        {
+            get => _owningComponent;
+            set => _owningComponent = value;
+        }
 
-        public IEnumerator<IBone> GetEnumerator() 
+        public IEnumerator<IBone> GetEnumerator()
             => ((IEnumerable<IBone>)BoneNameCache.Values).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() 
+        IEnumerator IEnumerable.GetEnumerator()
             => ((IEnumerable<IBone>)BoneNameCache.Values).GetEnumerator();
-        
+
         public IReadOnlyCollection<IBone> CameraRelativeBones => _cameraBones;
         public IReadOnlyCollection<IBone> PhysicsDrivableBones => _physicsDrivableBones;
 
@@ -151,11 +155,11 @@ namespace TheraEngine.Rendering.Models
             //_cullingVolume.Render();
             foreach (IBone b in BoneNameCache.Values)
             {
-                Vec3 point = b.WorldMatrix.Translation;
+                Vec3 point = b.WorldMatrix.Value.Translation;
                 Engine.Renderer.RenderPoint(point, b.ParentSocket is null ? Color.Orange : Color.Purple, false, 5.0f);
 
                 if (b.ParentSocket != null)
-                    Engine.Renderer.RenderLine(point, b.ParentSocket.WorldMatrix.Translation, Color.Blue, false, 1.0f);
+                    Engine.Renderer.RenderLine(point, b.ParentSocket.WorldMatrix.Value.Translation, Color.Blue, false, 1.0f);
 
                 //float scale = AbstractRenderer.CurrentCamera.DistanceScale(point, 2.0f);
                 //Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Up * scale, b.WorldMatrix), Color.Red, 5.0f);
@@ -195,6 +199,8 @@ namespace TheraEngine.Rendering.Models
         }
 
         private Dictionary<int, IMeshRenderer> _managers = new Dictionary<int, IMeshRenderer>();
+        private SkeletalMeshComponent _owningComponent;
+
         public void AddPrimitiveManager(IMeshRenderer m)
         {
             if (!_managers.ContainsKey(m.BindingId))

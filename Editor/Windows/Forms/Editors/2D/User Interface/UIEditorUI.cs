@@ -75,13 +75,13 @@ namespace TheraEditor.Windows.Forms
             base.ResizeLayout();
 
             if (_targetHud?.RootComponent is UICanvasComponent canvas)
-                _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.ActualSize.Raw * canvas.WorldMatrix.Scale.Xy;
+                _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.ActualSize.Value * canvas.WorldMatrix.Value.Scale.Xy;
             
             if (_highlightedComp is UIBoundableComponent highlightedBounds)
-                _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = highlightedBounds.ActualSize.Raw * highlightedBounds.WorldMatrix.Scale.Xy;
+                _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = highlightedBounds.ActualSize.Value * highlightedBounds.WorldMatrix.Value.Scale.Xy;
 
             if (_selectedComp is UIBoundableComponent selectedBounds)
-                _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize.Raw * selectedBounds.WorldMatrix.Scale.Xy;
+                _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize.Value * selectedBounds.WorldMatrix.Value.Scale.Xy;
         }
 
         private Vec2 _designSize = new Vec2(1920, 1080);
@@ -92,7 +92,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _designSize = value;
                 if (_targetHud?.RootComponent is IUICanvasComponent canvas)
-                    canvas.Size.Raw = _designSize;
+                    canvas.Size.Value = _designSize;
             }
         }
 
@@ -128,7 +128,7 @@ namespace TheraEditor.Windows.Forms
         {
             canvas.HorizontalAlignment = EHorizontalAlign.Positional;
             canvas.VerticalAlignment = EVerticalAlign.Positional;
-            canvas.Size.Raw = DesignSize;
+            canvas.Size.Value = DesignSize;
             canvas.Translation.Value = Vec3.Zero;
             canvas.Scale.Value = Vec3.One;
         }
@@ -147,7 +147,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnLeftClickDown()
         {
             var cursorPos = CursorPosition();
-            if (!Bounds.Raw.Contains(cursorPos))
+            if (!Bounds.Value.Contains(cursorPos))
                 return;
 
             if (_selectedComp == _highlightedComp)
@@ -160,7 +160,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _selectedComp = _highlightedComp;
                 if (_selectedComp is UIBoundableComponent selectedBounds)
-                    _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize.Raw * selectedBounds.WorldMatrix.Scale.Xy;
+                    _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.ActualSize.Value * selectedBounds.WorldMatrix.Value.Scale.Xy;
                 _dragComp = null;
 
                 Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = _selectedComp as object ?? TargetUI;
@@ -180,8 +180,8 @@ namespace TheraEditor.Windows.Forms
         {
             if (_selectedComp != null)
             {
-                min = Vec3.TransformPosition(_selectedComp.RenderInfo2D.AxisAlignedRegion.Min, OriginTransformComponent.InverseLocalMatrix).Xy;
-                max = Vec3.TransformPosition(_selectedComp.RenderInfo2D.AxisAlignedRegion.Max, OriginTransformComponent.InverseLocalMatrix).Xy;
+                min = Vec3.TransformPosition(_selectedComp.RenderInfo2D.AxisAlignedRegion.Min, OriginTransformComponent.InverseLocalMatrix.Value).Xy;
+                max = Vec3.TransformPosition(_selectedComp.RenderInfo2D.AxisAlignedRegion.Max, OriginTransformComponent.InverseLocalMatrix.Value).Xy;
             }
             else
             {
@@ -208,7 +208,7 @@ namespace TheraEditor.Windows.Forms
                     _highlightedComp = null;
 
                 if (_highlightedComp is UIBoundableComponent bound)
-                    _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = bound.ActualSize.Raw * bound.WorldMatrix.Scale.Xy;
+                    _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = bound.ActualSize.Value * bound.WorldMatrix.Value.Scale.Xy;
             }
             //UIComponentHighlighted?.Invoke(_highlightedComp);
         }
@@ -223,7 +223,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (_selectedComp != null)
             {
-                Matrix4 mtx = _selectedComp.WorldMatrix;
+                Matrix4 mtx = _selectedComp.WorldMatrix.Value;
                 if (_selectedComp is UIBoundableComponent bound)
                     mtx = mtx * Matrix4.CreateScale(bound.ActualWidth, bound.ActualHeight, 0.0f);
 
@@ -232,7 +232,7 @@ namespace TheraEditor.Windows.Forms
             }
             if (_highlightedComp != null)
             {
-                Matrix4 mtx = _highlightedComp.WorldMatrix;
+                Matrix4 mtx = _highlightedComp.WorldMatrix.Value;
                 if (_highlightedComp is UIBoundableComponent bound)
                     mtx = mtx * Matrix4.CreateScale(bound.ActualWidth, bound.ActualHeight, 0.0f);
 
@@ -241,7 +241,7 @@ namespace TheraEditor.Windows.Forms
             }
 
             if (_targetHud?.RootComponent is UICanvasComponent canvas)
-                _uiBoundsRC.WorldMatrix = canvas.WorldMatrix * Matrix4.CreateScale(canvas.ActualSize.Raw);
+                _uiBoundsRC.WorldMatrix = canvas.WorldMatrix.Value * Matrix4.CreateScale(canvas.ActualSize.Value);
 
             passes.Add(_uiBoundsRC);
         }

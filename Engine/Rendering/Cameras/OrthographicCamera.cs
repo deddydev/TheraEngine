@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering.Cameras
             _scale.SetValueSilent(scale);
             _scale.Changed += CreateTransform;
             _originPercentages.Changed += _originPercentages_Changed;
-            _originPercentages.Raw = originPercentages;
+            _originPercentages.Value = originPercentages;
         }
 
         private void _originPercentages_Changed()
@@ -175,7 +175,7 @@ namespace TheraEngine.Rendering.Cameras
             _orthoRight = _orthoRightPercentage * width;
             _orthoBottom = _orthoBottomPercentage * height;
             _orthoTop = _orthoTopPercentage * height;
-            _origin = new Vec2(_orthoLeft, _orthoBottom) + _originPercentages.Raw * new Vec2(width, height);
+            _origin = new Vec2(_orthoLeft, _orthoBottom) + _originPercentages.Value * new Vec2(width, height);
 
             base.Resize(width, height);
         }

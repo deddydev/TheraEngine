@@ -17,12 +17,12 @@ namespace TheraEditor.Actors.Types.Pawns
         public WorldEditorCameraPawn() : base() { }
         public WorldEditorCameraPawn(ELocalPlayerIndex possessor) : base(possessor) { }
 
-        private TransformComponent _camera = null;
-        public TransformComponent TargetCamera
-        {
-            get => _camera ?? RootComponent;
-            set => _camera = value;
-        }
+        //private TransformComponent _camera = null;
+        //public TransformComponent TargetCamera
+        //{
+        //    get => _camera ?? RootComponent;
+        //    set => _camera = value;
+        //}
         public UIViewportComponent TargetViewportComponent { get; set; } = null;
 
         public override void RegisterInput(InputInterface input)
@@ -48,7 +48,7 @@ namespace TheraEditor.Actors.Types.Pawns
             if (_alt || _shift)
                 return;
 
-            TransformComponent comp = TargetCamera;
+            TransformComponent comp = RootComponent;
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8f : 1.2f;
             else if (HasHit)
@@ -84,7 +84,7 @@ namespace TheraEditor.Actors.Types.Pawns
             //    x = result.X;
             //    y = result.Y;
             //}
-            TTransform comp = TargetCamera.Transform;
+            TransformComponent comp = RootComponent;
             if (Rotating)
             {
                 float pitch = y * MouseRotateSpeed;
@@ -92,11 +92,11 @@ namespace TheraEditor.Actors.Types.Pawns
 
                 var selComp = EditorHud?.SelectedComponent;
                 if (selComp != null)
-                    comp.ArcBallRotate(pitch, yaw, selComp.WorldPoint);
+                    ArcBallRotate(pitch, yaw, selComp.WorldPoint);
                 else if (HasHit)
-                    comp.ArcBallRotate(pitch, yaw, HitPoint);
+                    ArcBallRotate(pitch, yaw, HitPoint);
                 else
-                    comp.Rotation *= Quat.Euler(pitch, yaw, 0.0f);
+                    AddYawPitch(yaw, pitch);
             }
             else if (Translating)
             {
@@ -118,15 +118,15 @@ namespace TheraEditor.Actors.Types.Pawns
                     comp.Translation += diff;
                 }
                 else
-                    comp.TranslateRelative(-x * MouseTranslateSpeed, -y * MouseTranslateSpeed, 0.0f);
+                    comp.Transform.TranslateRelative(-x * MouseTranslateSpeed, -y * MouseTranslateSpeed, 0.0f);
             }
             else if (DragZooming)
             {
                 bool forward = y < 0.0f;
                 if (HasHit)
-                    comp.Translation.Value = Segment.PointAtLineDistance(TargetCamera.WorldPoint, HitPoint, forward ? -ScrollSpeed : ScrollSpeed);
+                    comp.Translation = Segment.PointAtLineDistance(RootComponent.WorldPoint, HitPoint, forward ? -ScrollSpeed : ScrollSpeed);
                 else
-                    comp.TranslateRelative(0.0f, 0.0f, forward ? -ScrollSpeed : ScrollSpeed);
+                    comp.Transform.TranslateRelative(0.0f, 0.0f, forward ? -ScrollSpeed : ScrollSpeed);
             }
         }
         protected override void Tick(float delta)
@@ -152,13 +152,13 @@ namespace TheraEditor.Actors.Types.Pawns
             //    }
             //}
 
-            TTransform comp = TargetCamera.Transform;
-            bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
-            bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
+            TTransform comp = RootComponent.Transform;
+            bool translate = !(_incRight.IsZero() && _incUp.IsZero() && _incForward.IsZero());
+            bool rotate = !(_incPitch.IsZero() && _incYaw.IsZero());
             if (translate)
-                comp.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
+                comp.TranslateRelative(new Vec3(_incRight, _incUp, -_incForward) * delta);
             if (rotate)
-                comp.Rotation *= Quat.Euler(_pitch * delta, _yaw * delta, 0.0f);
+                comp.Rotation.Value *= Quat.Euler(_incPitch * delta, _incYaw * delta, 0.0f);
         }
     }
 }

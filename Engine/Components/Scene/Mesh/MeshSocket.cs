@@ -31,6 +31,9 @@ namespace TheraEngine.Components.Scene.Mesh
 
         IActor OwningActor { get; set; }
         bool AllowRemoval { get; set; }
+
+        void RecalcWorldTransform();
+        void ParentMatrixChanged();
     }
     public class Socket : Socket<ISocket> { }
     public class Socket<TParent> : TFileObject, ISocket where TParent : ISocket
@@ -59,6 +62,17 @@ namespace TheraEngine.Components.Scene.Mesh
         public IActor OwningActor { get; set; }
 
         protected void OnSocketTransformChanged() => SocketTransformChanged?.Invoke(this);
+
+        public void RecalcWorldTransform()
+        {
+
+        }
+
+        public void ParentMatrixChanged()
+        {
+
+        }
+
         public event DelSocketTransformChange SocketTransformChanged;
     }
     public class MeshSocket : Socket<ISocket>

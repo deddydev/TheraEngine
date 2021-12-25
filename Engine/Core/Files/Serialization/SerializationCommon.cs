@@ -668,18 +668,18 @@ namespace TheraEngine.Core.Files.Serialization
                 return true;
             switch (t.Name)
             {
-                case "SByte":
-                case "Byte":
-                case "Char":
-                case "Int16":
-                case "UInt16":
-                case "Int32":
-                case "UInt32":
-                case "Int64":
-                case "UInt64":
-                case "Single":
-                case "Double":
-                case "Decimal":
+                case nameof(SByte):
+                case nameof(Byte):
+                case nameof(Char):
+                case nameof(Int16):
+                case nameof(UInt16):
+                case nameof(Int32):
+                case nameof(UInt32):
+                case nameof(Int64):
+                case nameof(UInt64):
+                case nameof(Single):
+                case nameof(Double):
+                case nameof(Decimal):
                     return true;
                 default:
                     return false;

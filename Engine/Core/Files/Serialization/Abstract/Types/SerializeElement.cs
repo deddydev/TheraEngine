@@ -540,7 +540,7 @@ namespace TheraEngine.Core.Files.Serialization
                             MethodEnqueueActions[(int)type](method);
                     }));
                     
-                    task.Wait();
+                    task.Wait(5000);
                 }
             }
             else

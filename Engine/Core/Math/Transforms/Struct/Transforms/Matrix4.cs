@@ -1207,26 +1207,14 @@ namespace System
         /// <summary>
         /// Converts this transform's matrix back into its translation, rotation and scale components.
         /// </summary>
-        /// <param name="m"></param>
         /// <param name="translation"></param>
         /// <param name="scale"></param>
         /// <param name="rotation"></param>
-        public void DeriveTRS(out Vec3 translation, out Vec3 scale, out Quat rotation)
+        public void Derive(out Vec3 translation, out Vec3 scale, out Quat rotation)
         {
             translation = Row3.Xyz;
             scale = new Vec3(Row0.Xyz.Length, Row1.Xyz.Length, Row2.Xyz.Length);
             rotation = ExtractRotation(true);
-            //translation.Round(5);
-            //scale.Round(5);
-        }
-        public void DeriveTR(out Vec3 translation, out Quat rotation)
-        {
-            translation = Row3.Xyz;
-            rotation = ExtractRotation(true);
-        }
-        public void DeriveT(out Vec3 translation)
-        {
-            translation = Row3.Xyz;
         }
         public unsafe TTransform DeriveTRS()
         {

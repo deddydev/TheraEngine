@@ -226,10 +226,10 @@ namespace TheraEngine.Rendering.Cameras
             {
                 SceneComponent prev = _owningComponent;
                 if (_owningComponent != null)
-                    _owningComponent.WorldTransformChanged -= _owningComponent_WorldTransformChanged;
+                    _owningComponent.WorldTransformChanged -= OwningComponentWorldTransformChanged;
                 _owningComponent = value;
                 if (_owningComponent != null)
-                    _owningComponent.WorldTransformChanged += _owningComponent_WorldTransformChanged;
+                    _owningComponent.WorldTransformChanged += OwningComponentWorldTransformChanged;
                 OwningComponentChanged?.Invoke(prev, _owningComponent);
                 UpdateTransformedFrustum();
             }
@@ -258,12 +258,11 @@ namespace TheraEngine.Rendering.Cameras
             _cameraProjToWorldSpaceMatrix = Matrix4.Identity;
         protected bool _matrixInvalidated = false;
         
-        private void _owningComponent_WorldTransformChanged(ISceneComponent comp)
+        private void OwningComponentWorldTransformChanged(ISceneComponent comp)
         {
             //_forwardInvalidated = true;
             //_upInvalidated = true;
             //_rightInvalidated = true;
-            UpdateTransformedFrustum();
             if (!_updating)
                 OnTransformChanged();
         }
@@ -304,7 +303,7 @@ namespace TheraEngine.Rendering.Cameras
             => ((screenPoint / _projectionRange) * Vec3.Two - Vec3.One) * CameraProjToWorldSpaceMatrix;
 
         protected virtual void UpdateTransformedFrustum()
-            => _transformedFrustum.TransformedVersionOf(_untransformedFrustum ?? (_untransformedFrustum = CreateUntransformedFrustum2()), CameraToWorldSpaceMatrix);
+            => _transformedFrustum.TransformedVersionOf(_untransformedFrustum ??= CreateUntransformedFrustum2(), CameraToWorldSpaceMatrix);
         
         /// <summary>
         /// Rotates the given vector by the camera's rotation. Does not normalize the returned vector.
@@ -381,24 +380,6 @@ namespace TheraEngine.Rendering.Cameras
             _updating = false;
         }
 
-        //        internal static string ShaderDecl()
-        //        {
-        //            return @"
-        //uniform vec3 CameraPosition;
-        //uniform vec3 CameraForward;
-        //uniform float CameraNearZ;
-        //uniform float CameraFarZ;
-        //uniform float ScreenWidth;
-        //uniform float ScreenHeight;
-        //uniform float ScreenOrigin;
-        //uniform float ProjOrigin;
-        //uniform float ProjRange;
-        //uniform mat4 WorldToCameraSpaceMatrix;
-        //uniform mat4 CameraToWorldSpaceMatrix;
-        //uniform mat4 ProjMatrix;
-        //uniform mat4 InvProjMatrix;";
-        //        }
-
         public virtual void SetUniforms(RenderProgram program)
         {
             program.Uniform(EEngineUniform.WorldToCameraSpaceMatrix,    WorldToCameraSpaceMatrix);
@@ -449,18 +430,15 @@ namespace TheraEngine.Rendering.Cameras
         }
 
         protected abstract IFrustum CreateUntransformedFrustum();
-        protected IFrustum CreateUntransformedFrustum2()
-        {
-            return new Frustum(
-               new Vec3(-1.0f, -1.0f, 1.0f) * _projectionInverse,
-               new Vec3(1.0f, -1.0f, 1.0f) * _projectionInverse,
-               new Vec3(-1.0f, 1.0f, 1.0f) * _projectionInverse,
-               new Vec3(1.0f, 1.0f, 1.0f) * _projectionInverse,
-               new Vec3(-1.0f, -1.0f, 0.0f) * _projectionInverse,
-               new Vec3(1.0f, -1.0f, 0.0f) * _projectionInverse,
-               new Vec3(-1.0f, 1.0f, 0.0f) * _projectionInverse,
-               new Vec3(1.0f, 1.0f, 0.0f) * _projectionInverse);
-        }
+        protected IFrustum CreateUntransformedFrustum2() => new Frustum(
+            new Vec3(-1.0f, -1.0f, 1.0f) * _projectionInverse,
+            new Vec3( 1.0f, -1.0f, 1.0f) * _projectionInverse,
+            new Vec3(-1.0f,  1.0f, 1.0f) * _projectionInverse,
+            new Vec3( 1.0f,  1.0f, 1.0f) * _projectionInverse,
+            new Vec3(-1.0f, -1.0f, 0.0f) * _projectionInverse,
+            new Vec3( 1.0f, -1.0f, 0.0f) * _projectionInverse,
+            new Vec3(-1.0f,  1.0f, 0.0f) * _projectionInverse,
+            new Vec3( 1.0f,  1.0f, 0.0f) * _projectionInverse);
 
         protected void BeginUpdate() 
             =>_updating = true;
@@ -548,10 +526,5 @@ namespace TheraEngine.Rendering.Cameras
             => PostProcessRef?.File?.ColorGrading?.RequiresAutoExposure ?? false;
         public virtual void UpdateExposure(TexRef2D texture)
             => PostProcessRef?.File?.ColorGrading?.UpdateExposure(texture);
-
-        internal float DistanceScale(object translation, float v)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

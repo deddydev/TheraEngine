@@ -22,12 +22,12 @@ namespace TheraEngine.Components.Scene
         protected void CameraLoaded(ICamera camera)
         {
             camera.OwningComponent = this;
-            camera.TransformChanged += RecalcLocalTransform;
+            //camera.TransformChanged += RecalcLocalTransform;
         }
         protected void CameraUnloaded(ICamera camera)
         {
             camera.OwningComponent = null;
-            camera.TransformChanged -= RecalcLocalTransform;
+            //camera.TransformChanged -= RecalcLocalTransform;
         }
 
         public ICamera Camera 

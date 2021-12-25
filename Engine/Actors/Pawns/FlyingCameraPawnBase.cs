@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using TheraEngine.ComponentModel;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Transforms;
@@ -12,25 +13,61 @@ namespace TheraEngine.Actors.Types.Pawns
     {
         public FlyingCameraPawnBase() : base() { }
         public FlyingCameraPawnBase(ELocalPlayerIndex possessor) : base(false, possessor) { }
-        
+
         public ICamera Camera
         {
             get => CameraComp.Camera;
             set => CameraComp.Camera = value;
         }
         public CameraComponent CameraComp { get; set; }
-        
-        protected float 
-            _linearRight = 0.0f,
-            _linearForward = 0.0f,
-            _linearUp = 0.0f,
-            _pitch = 0.0f,
-            _yaw = 0.0f;
 
-        protected bool 
+        protected float
+            _incRight = 0.0f,
+            _incForward = 0.0f,
+            _incUp = 0.0f,
+            _incPitch = 0.0f,
+            _incYaw = 0.0f;
+
+        public float Yaw
+        {
+            get => _yaw;
+            set
+            {
+                _yaw = value;
+                YawPitchUpdated();
+            }
+        }
+        public float Pitch
+        {
+            get => _pitch;
+            set
+            {
+                _pitch = value;
+                YawPitchUpdated();
+            }
+        }
+
+        public void SetYawPitch(float yaw, float pitch)
+        {
+            _yaw = yaw;
+            _pitch = pitch;
+            YawPitchUpdated();
+        }
+        public void AddYawPitch(float yawDiff, float pitchDiff)
+        {
+            _yaw += yawDiff;
+            _pitch += pitchDiff;
+            YawPitchUpdated();
+        }
+
+        protected abstract void YawPitchUpdated();
+
+        protected bool
             _ctrl = false,
             _rightClickPressed = false;
-        
+        private float _yaw;
+        private float _pitch;
+
         [Browsable(false)]
         public bool Rotating => _rightClickPressed && _ctrl;
         [Browsable(false)]
@@ -78,7 +115,7 @@ namespace TheraEngine.Actors.Types.Pawns
             input.RegisterKeyPressed(EKey.Down, PitchDown, EInputPauseType.TickAlways);
             input.RegisterKeyPressed(EKey.Left, YawLeft, EInputPauseType.TickAlways);
             input.RegisterKeyPressed(EKey.Right, YawRight, EInputPauseType.TickAlways);
-            
+
             input.RegisterKeyPressed(EKey.ControlLeft, OnControl, EInputPauseType.TickAlways);
             input.RegisterKeyPressed(EKey.ControlRight, OnControl, EInputPauseType.TickAlways);
 
@@ -103,40 +140,40 @@ namespace TheraEngine.Actors.Types.Pawns
             //}
         }
 
-        protected virtual void MoveDown(bool pressed) 
-            => _linearUp += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
-        protected virtual void MoveUp(bool pressed) 
-            => _linearUp += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
+        protected virtual void MoveDown(bool pressed)
+            => _incUp += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
+        protected virtual void MoveUp(bool pressed)
+            => _incUp += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
         protected virtual void MoveLeft(bool pressed)
-            => _linearRight += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
-        protected virtual void MoveRight(bool pressed) 
-            => _linearRight += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
-        protected virtual void MoveBackward(bool pressed) 
-            => _linearForward += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
+            => _incRight += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
+        protected virtual void MoveRight(bool pressed)
+            => _incRight += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
+        protected virtual void MoveBackward(bool pressed)
+            => _incForward += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
         protected virtual void MoveForward(bool pressed)
-            => _linearForward += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
+            => _incForward += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
 
-        protected virtual void OnLeftStickX(float value) 
-            => _linearRight = value * GamepadTranslateSpeed;
+        protected virtual void OnLeftStickX(float value)
+            => _incRight = value * GamepadTranslateSpeed;
         protected virtual void OnLeftStickY(float value)
-            => _linearForward = value * GamepadTranslateSpeed;
+            => _incForward = value * GamepadTranslateSpeed;
         protected virtual void OnRightStickX(float value)
-            => _yaw = -value * GamepadRotateSpeed;
-        protected virtual void OnRightStickY(float value) 
-            => _pitch = value * GamepadRotateSpeed;
+            => _incYaw = -value * GamepadRotateSpeed;
+        protected virtual void OnRightStickY(float value)
+            => _incPitch = value * GamepadRotateSpeed;
 
         protected virtual void YawRight(bool pressed)
-            => _yaw -= KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
+            => _incYaw -= KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
         protected virtual void YawLeft(bool pressed)
-            => _yaw += KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
+            => _incYaw += KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
         protected virtual void PitchDown(bool pressed)
-            => _pitch -= KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
+            => _incPitch -= KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
         protected virtual void PitchUp(bool pressed)
-            => _pitch += KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
+            => _incPitch += KeyboardRotateSpeed * (pressed ? 1.0f : -1.0f);
 
         private void OnControl(bool pressed)
             => _ctrl = pressed;
-        
+
         protected virtual void OnRightClick(bool pressed)
         {
             _rightClickPressed = pressed;

@@ -2,6 +2,7 @@
 using System;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Cameras;
 
@@ -14,8 +15,7 @@ namespace TheraEngine.Actors.Types.Pawns
         protected override TransformComponent OnConstructRoot()
         {
             TransformComponent root = new TransformComponent();
-            CameraComp = new CameraComponent(new PerspectiveCamera());
-            root.ChildSockets.Add(CameraComp);
+            root.ChildSockets.Add(CameraComp = new CameraComponent(new PerspectiveCamera()));
             return root;
         }
         protected override void OnScrolled(bool up) 
@@ -24,23 +24,56 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             if (Rotating)
             {
-                float pitch = y * MouseRotateSpeed;
-                float yaw = -x * MouseRotateSpeed;
-                RootComponent.Transform.Rotation.Value *= Quat.Euler(pitch, yaw, 0.0f);
+                AddYawPitch(
+                    -x * MouseRotateSpeed,
+                    -y * MouseRotateSpeed);
             }
             else if (Translating)
             {
-                RootComponent.Transform.TranslateRelative(-x * MouseTranslateSpeed, -y * MouseTranslateSpeed, 0.0f);
+                RootComponent.Transform.TranslateRelative(
+                    -x * MouseTranslateSpeed,
+                    -y * MouseTranslateSpeed,
+                    0.0f);
             }
+        }
+        public void Pivot(float pitch, float yaw, float distance)
+            => ArcBallRotate(pitch, yaw, RootComponent.Transform.Translation + RootComponent.Transform.Matrix.Value.ForwardVec * distance);
+        public void ArcBallRotate(float pitch, float yaw, Vec3 focusPoint)
+        {
+            //"Arcball" rotation
+            //All rotation is done within local component space
+
+            RootComponent.Transform.Translation.Value = TMath.ArcballTranslation(
+                pitch, yaw, focusPoint,
+                RootComponent.Transform.Translation.Value, 
+                RootComponent.Transform.Matrix.Value.RightVec);
+
+            AddYawPitch(yaw, pitch);
         }
         protected override void Tick(float delta)
         {
-            bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
-            bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
-            if (translate)
-                RootComponent.Transform.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
-            if (rotate)
-                RootComponent.Transform.Rotation.Value *= Quat.Euler(_pitch * delta, _yaw * delta, 0.0f);
+            IncrementRotation();
+
+            if (!(_incRight.IsZero() && _incUp.IsZero() && _incForward.IsZero()))
+                RootComponent.Transform.TranslateRelative(new Vec3(_incRight, _incUp, -_incForward) * delta);
+        }
+
+        private void IncrementRotation()
+        {
+            if (!_incPitch.IsZero())
+            {
+                if (!_incYaw.IsZero())
+                    AddYawPitch(_incYaw, _incPitch);
+                else
+                    Pitch += _incPitch;
+            }
+            else if (!_incYaw.IsZero())
+                Yaw += _incYaw;
+        }
+
+        protected override void YawPitchUpdated()
+        {
+            RootComponent.Transform.Rotation.Value = Quat.Euler(Pitch, Yaw, 0.0f);
         }
     }
 }

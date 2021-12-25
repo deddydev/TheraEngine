@@ -56,7 +56,6 @@ namespace TheraEngine.Components
         Matrix4 ActorRelativeMatrix { get; }
         Matrix4 InverseActorRelativeMatrix { get; }
         
-        void RecalcWorldTransform();
         void RecalcLocalTransform();
         void RecalcLocalTransform(bool recalcWorldTransform, bool recalcChildWorldTransforms);
         List<ISceneComponent> GenerateChildCache();
@@ -108,7 +107,7 @@ namespace TheraEngine.Components
             => RecalcLocalTransform();
         void ISceneComponent.RecalcLocalTransform(bool recalcWorldTransform, bool recalcChildWorldTransforms)
             => RecalcLocalTransform(recalcWorldTransform, recalcChildWorldTransforms);
-        void ISceneComponent.RecalcWorldTransform()
+        void ISocket.RecalcWorldTransform()
             => RecalcWorldTransform();
 
         protected SceneComponent()
@@ -152,7 +151,7 @@ namespace TheraEngine.Components
                 {
                     //_childLocker.EnterReadLock();
 
-                    foreach (ISceneComponent c in _childSockets)
+                    foreach (ISocket c in _childSockets)
                         c?.RecalcWorldTransform();
                 }
                 catch (Exception ex)
@@ -632,26 +631,23 @@ namespace TheraEngine.Components
             get => _parent;
             set
             {
+                if (_parent == value)
+                    return;
+
                 if (_parent != null && _parent.ChildSockets.Contains(this))
-                {
                     _parent.ChildSockets.Remove(this);
-                    _parent.WorldMatrix.Changed -= ParentMatrixChanged;
-                }
 
                 _parent = value;
 
                 if (_parent != null && !_parent.ChildSockets.Contains(this))
-                {
                     _parent.ChildSockets.Add(this);
-                    _parent.WorldMatrix.Changed += ParentMatrixChanged;
-                }
 
                 OwningActor = _parent?.OwningActor;
                 RecalcWorldTransform();
             }
         }
 
-        private void ParentMatrixChanged() => RecalcWorldTransform();
+        void ISocket.ParentMatrixChanged() => RecalcWorldTransform();
         
         [Browsable(false)]
         public Matrix4 PreviousWorldMatrix
@@ -874,7 +870,11 @@ namespace TheraEngine.Components
         /// <param name="item"></param>
         protected virtual void OnChildRemoved(ISocket item)
         {
-            //item?.RemovedFromParent();
+            if (item != null && item.ParentSocket == this)
+            {
+                WorldMatrix.Changed -= item.ParentMatrixChanged;
+                item.ParentSocket = null;
+            }
         }
         /// <summary>
         /// Informs a scene component that this component is its new parent.
@@ -882,7 +882,11 @@ namespace TheraEngine.Components
         /// <param name="item"></param>
         protected virtual void OnChildAdded(ISocket item)
         {
-            //item?.AddedToParent(this);
+            if (item != null)
+            {
+                WorldMatrix.Changed += item.ParentMatrixChanged;
+                item.ParentSocket = this;
+            }
         }
         #endregion
 

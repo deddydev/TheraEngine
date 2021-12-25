@@ -7,7 +7,7 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 namespace TheraEngine.Components.Scene.Transforms
 {
     /// <summary>
-    /// Contains a general translation.
+    /// Contains a general transformation.
     /// </summary>
     [TFileDef("Transform Component")]
     public class TransformComponent : OriginRebasableComponent
@@ -16,7 +16,7 @@ namespace TheraEngine.Components.Scene.Transforms
         public TransformComponent(TTransform transform, bool deferLocalRecalc = false) : base()
         {
             _transform = transform ?? TTransform.GetIdentity();
-            _transform.MatrixChanged += _transform_MatrixChanged;
+            _transform.MatrixChanged += OnTransformChanged;
 
             WorldMatrix.Changed += WorldMatrix_Changed;
             InverseWorldMatrix.Changed += InverseWorldMatrix_Changed;
@@ -25,16 +25,12 @@ namespace TheraEngine.Components.Scene.Transforms
                 RecalcLocalTransform();
         }
 
-        private void InverseWorldMatrix_Changed()
-        {
-            Transform.InverseMatrix.Value = ParentWorldMatrix * InverseWorldMatrix.Value;
-        }
+        private void InverseWorldMatrix_Changed() 
+            => Transform.InverseMatrix.Value = ParentWorldMatrix * InverseWorldMatrix.Value;
         private void WorldMatrix_Changed()
-        {
-            Transform.Matrix.Value = WorldMatrix.Value * InverseParentWorldMatrix;
-        }
+            => Transform.Matrix.Value = WorldMatrix.Value * InverseParentWorldMatrix;
 
-        private void _transform_MatrixChanged(ITransform transform, Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        private void OnTransformChanged(ITransform transform, Matrix4 oldMatrix, Matrix4 oldInvMatrix)
             => RecalcLocalTransform();
 
         [TSerialize(nameof(Transform))]
@@ -46,41 +42,19 @@ namespace TheraEngine.Components.Scene.Transforms
             get => _transform;
             set
             {
-                if (_transform != null)
-                    _transform.MatrixChanged -= _transform_MatrixChanged;
-                _transform = value ?? TTransform.GetIdentity();
-                _transform.MatrixChanged += _transform_MatrixChanged;
+                Set(ref _transform, value ?? TTransform.GetIdentity(),
+                    () => _transform.MatrixChanged -= OnTransformChanged,
+                    () => _transform.MatrixChanged += OnTransformChanged);
                 RecalcLocalTransform();
             }
         }
-
-        //[Browsable(false)]
-        //public override EventMatrix4 WorldMatrix
-        //{
-        //    get => base.WorldMatrix;
-        //    set
-        //    {
-        //        base.WorldMatrix = value;
-        //        Transform.Matrix = WorldMatrix * InverseParentWorldMatrix;
-        //    }
-        //}
-        //[Browsable(false)]
-        //public override EventMatrix4 InverseWorldMatrix
-        //{
-        //    get => base.InverseWorldMatrix;
-        //    set
-        //    {
-        //        base.InverseWorldMatrix = value;
-        //        Transform.InverseMatrix = ParentWorldMatrix * InverseWorldMatrix; 
-        //    }
-        //}
 
         [TPostDeserialize]
         protected internal virtual void OnDeserialized()
         {
             if (_transform is null)
                 _transform = TTransform.GetIdentity();
-            _transform.MatrixChanged += _transform_MatrixChanged;
+            _transform.MatrixChanged += OnTransformChanged;
             RecalcLocalTransform();
         }
 
@@ -100,7 +74,6 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected internal override void OnOriginRebased(Vec3 newOrigin)
         {
-            //Engine.PrintLine("Rebasing {0}.", OwningActor.GetType().GetFriendlyName());
             if (AllowOriginRebase)
                 HandleTranslation(-newOrigin);
         }
@@ -125,6 +98,6 @@ namespace TheraEngine.Components.Scene.Transforms
         }
 
         public override void HandleTranslation(Vec3 delta)
-            => Transform.Translation += delta;
+            => Transform.Translation.Value += delta;
     }
 }

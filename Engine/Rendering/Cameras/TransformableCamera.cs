@@ -110,15 +110,6 @@ namespace TheraEngine.Rendering.Cameras
 
         private void ViewTargetChanged()
             => SetRotationWithTarget(_viewTarget.Value);
-        private void OwningComponentWorldTransformChanged(ISceneComponent comp)
-        {
-            //_forwardInvalidated = true;
-            //_upInvalidated = true;
-            //_rightInvalidated = true;
-            UpdateTransformedFrustum();
-            if (!_updating)
-                OnTransformChanged();
-        }
 
         public override void RebaseOrigin(Vec3 newOrigin)
             => TranslateAbsolute(-newOrigin);

@@ -1,6 +1,7 @@
 ﻿using Extensions;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Cameras;
 
@@ -13,8 +14,7 @@ namespace TheraEngine.Actors.Types.Pawns
         protected override TRLaggedComponent OnConstructRoot()
         {
             TRLaggedComponent root = new TRLaggedComponent();
-            CameraComp = new CameraComponent(new PerspectiveCamera());
-            root.ChildSockets.Add(CameraComp);
+            root.ChildSockets.Add(CameraComp = new CameraComponent(new PerspectiveCamera()));
             return root;
         }
         protected override void OnScrolled(bool up) 
@@ -23,23 +23,44 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             if (Rotating)
             {
-                float pitch = -y * MouseRotateSpeed;
-                float yaw = -x * MouseRotateSpeed;
-                RootComponent.DesiredRotation.AddRotations(pitch, yaw, 0.0f);
+                AddYawPitch(
+                    -x * MouseRotateSpeed, 
+                    -y * MouseRotateSpeed);
             }
             else if (Translating)
             {
-                RootComponent.TranslateRelative(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f);
+                RootComponent.TranslateRelative(
+                    -x * MouseTranslateSpeed,
+                    y * MouseTranslateSpeed,
+                    0.0f);
             }
+        }
+        public void Pivot(float pitch, float yaw, float distance)
+            => ArcBallRotate(pitch, yaw, RootComponent.DesiredTranslation + RootComponent.GetDesiredForwardDir() * distance);
+        public void ArcBallRotate(float pitch, float yaw, Vec3 focusPoint)
+        {
+            //"Arcball" rotation
+            //All rotation is done within local component space
+
+            RootComponent.DesiredTranslation = TMath.ArcballTranslation(
+                pitch, yaw, focusPoint,
+                RootComponent.DesiredTranslation,
+                RootComponent.GetDesiredRightDir());
+
+            AddYawPitch(yaw, pitch);
         }
         protected override void Tick(float delta)
         {
-            bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
-            bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
+            bool translate = !(_incRight.IsZero() && _incUp.IsZero() && _incForward.IsZero());
+            bool rotate = !(_incPitch.IsZero() && _incYaw.IsZero());
             if (translate)
-                RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
+                RootComponent.TranslateRelative(new Vec3(_incRight, _incUp, -_incForward) * delta);
             if (rotate)
-                RootComponent.DesiredRotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
+                AddYawPitch(_incYaw * delta, _incPitch * delta);
+        }
+        protected override void YawPitchUpdated()
+        {
+            RootComponent.DesiredRotation.SetRotations(Pitch, Yaw, 0.0f);
         }
     }
 }

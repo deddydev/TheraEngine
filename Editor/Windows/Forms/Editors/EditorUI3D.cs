@@ -394,7 +394,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _transformType = value;
                 if (UseTransformTool)
-                    TransformTool3D.GetInstance(OwningWorld, SelectedComponent as TransformComponent, _transformType);
+                    TransformTool3D.GetInstance(SelectedComponent as TransformComponent, _transformType);
                 else
                     TransformTool3D.DestroyInstance();
             }
@@ -664,7 +664,7 @@ namespace TheraEditor.Windows.Forms
             if (DragComponent != null)
             {
                 LocalValueChangeProperty change = new LocalValueChangeProperty(_prevDragMatrix, DragComponent.WorldMatrix, DragComponent, DragComponent.GetType().GetProperty(nameof(DragComponent.WorldMatrix)));
-                Editor.DomainProxy.UndoManager.AddGlobalChange(DragComponent.EditorState, change);
+                Editor.Changed(DragComponent.EditorState, change);
                 //_selectedComponent = null;
                 DragComponent = null;
             }
@@ -758,7 +758,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         if (UseTransformTool)
                         {
-                            TransformTool3D.GetInstance(OwningWorld, SelectedComponent as TransformComponent, _transformType);
+                            TransformTool3D.GetInstance(SelectedComponent as TransformComponent, _transformType);
                         }
                         else
                         {

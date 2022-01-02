@@ -142,16 +142,19 @@ namespace TheraEngine.Rendering.Models
                     var data = firstAppearanceArray.Select(x => vertices[x].Tangent).ToList();
                     AddBuffer(data, new VertexAttribInfo(EBufferType.Tangent, i));
                 }
-            for (int i = 0; i < info.ColorCount; ++i)
-            {
-                var data = firstAppearanceArray.Select(x => vertices[x].Color[i]).ToList();
-                AddBuffer(data, new VertexAttribInfo(EBufferType.Color, i));
-            }
-            for (int i = 0; i < info.TexcoordCount; ++i)
-            {
-                var data = firstAppearanceArray.Select(x => vertices[x].TexCoord[i]).ToList();
-                AddBuffer(data, new VertexAttribInfo(EBufferType.TexCoord, i));
-            }
+            if (info.HasColors)
+                for (int i = 0; i < info.MorphCount + 1; ++i)
+                {
+                    var data = firstAppearanceArray.Select(x => vertices[x].Color).ToList();
+                    AddBuffer(data, new VertexAttribInfo(EBufferType.Color, i));
+                }
+            if (info.HasTexCoords)
+                for (int i = 0; i < info.MorphCount + 1; ++i)
+                {
+                    var data = firstAppearanceArray.Select(x => vertices[x].TexCoord).ToList();
+                    AddBuffer(data, new VertexAttribInfo(EBufferType.TexCoord, i));
+                }
+            
         }
     }
     public enum ECulling

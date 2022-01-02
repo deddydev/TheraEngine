@@ -133,20 +133,20 @@ namespace TheraEngine.Actors.Types
                 Vec3 halfUnit = unit * _axisHalfLength;
 
                 TVertexLine transLine1 = new TVertexLine(halfUnit, halfUnit + unit1 * _axisHalfLength);
-                transLine1.Vertex0.Color = new ColorF4[] { unit1 };
-                transLine1.Vertex1.Color = new ColorF4[] { unit1 };
+                transLine1.Vertex0.Color = unit1;
+                transLine1.Vertex1.Color = unit1;
 
                 TVertexLine transLine2 = new TVertexLine(halfUnit, halfUnit + unit2 * _axisHalfLength);
-                transLine2.Vertex0.Color = new ColorF4[] { unit2 };
-                transLine2.Vertex1.Color = new ColorF4[] { unit2 };
+                transLine2.Vertex0.Color = unit2;
+                transLine2.Vertex1.Color = unit2;
 
                 TVertexLine scaleLine1 = new TVertexLine(unit1 * _scaleHalf1LDist, unit2 * _scaleHalf1LDist);
-                scaleLine1.Vertex0.Color = new ColorF4[] { unit };
-                scaleLine1.Vertex1.Color = new ColorF4[] { unit };
+                scaleLine1.Vertex0.Color = unit;
+                scaleLine1.Vertex1.Color = unit;
 
                 TVertexLine scaleLine2 = new TVertexLine(unit1 * _scaleHalf2LDist, unit2 * _scaleHalf2LDist);
-                scaleLine2.Vertex0.Color = new ColorF4[] { unit };
-                scaleLine2.Vertex1.Color = new ColorF4[] { unit };
+                scaleLine2.Vertex0.Color = unit;
+                scaleLine2.Vertex1.Color = unit;
 
                 string axis = ((char)('X' + normalAxis)).ToString();
 
@@ -226,7 +226,7 @@ namespace TheraEngine.Actors.Types
 
                 _transformSpace = value;
 
-                RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
+                RootComponent.SetWorldMatrices(GetSocketSpacialTransform(), GetSocketSpacialTransformInverse());
                 //_dragMatrix = RootComponent.WorldMatrix;
                 //_invDragMatrix = RootComponent.InverseWorldMatrix;
 
@@ -337,7 +337,7 @@ namespace TheraEngine.Actors.Types
 //#if EDITOR
 //                    _targetSocket.Selected = false;
 //#endif
-                    _targetSocket.SocketTransformChanged -= Instance.TransformChanged;
+                    _targetSocket.SocketTransformChanged -= TransformChanged;
                 }
                 _targetSocket = value;
                 if (_targetSocket != null)
@@ -346,8 +346,8 @@ namespace TheraEngine.Actors.Types
 //                    _targetSocket.Selected = true;
 //#endif
                     
-                    RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
-                    _targetSocket.SocketTransformChanged += Instance.TransformChanged;
+                    RootComponent.SetWorldMatrices(GetSocketSpacialTransform(), GetSocketSpacialTransformInverse());
+                    _targetSocket.SocketTransformChanged += TransformChanged;
                 }
                 else
                     RootComponent.SetWorldMatrices(Matrix4.Identity, Matrix4.Identity);
@@ -357,7 +357,7 @@ namespace TheraEngine.Actors.Types
             }
         }
 
-        private Matrix4 GetWorldMatrix()
+        private Matrix4 GetSocketSpacialTransform()
         {
             if (_targetSocket is null)
                 return Matrix4.Identity;
@@ -403,7 +403,7 @@ namespace TheraEngine.Actors.Types
                     }
             }
         }
-        private Matrix4 GetInvWorldMatrix()
+        private Matrix4 GetSocketSpacialTransformInverse()
         {
             if (_targetSocket is null)
                 return Matrix4.Identity;
@@ -440,8 +440,16 @@ namespace TheraEngine.Actors.Types
         {
             Instance.Despawn();
         }
-        public static TransformTool3D GetInstance(IWorld world, TransformComponent comp, TransformType transformType)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="world">The world to spawn the transform tool in.</param>
+        /// <param name="comp"></param>
+        /// <param name="transformType"></param>
+        /// <returns></returns>
+        public static TransformTool3D GetInstance(TransformComponent comp, TransformType transformType)
         {
+            IWorld world = comp?.OwningWorld;
             if (world is null)
                 return null;
 
@@ -462,7 +470,7 @@ namespace TheraEngine.Actors.Types
             if (!_pressed)
             {
                 _pressed = true;
-                RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
+                RootComponent.SetWorldMatrices(GetSocketSpacialTransform(), GetSocketSpacialTransformInverse());
                 //_dragMatrix = RootComponent.WorldMatrix;
                 //_invDragMatrix = RootComponent.InverseWorldMatrix;
                 _pressed = false;
@@ -533,7 +541,7 @@ namespace TheraEngine.Actors.Types
 
             _targetSocket.Rotation *= worldDelta;
 
-            RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
+            RootComponent.SetWorldMatrices(GetSocketSpacialTransform(), GetSocketSpacialTransformInverse());
         }
         
         private void DragTranslation(Vec3 dragPointWorld)
@@ -558,10 +566,10 @@ namespace TheraEngine.Actors.Types
             //}
 
             //TODO: convert world delta to local socket delta
+            if (_targetSocket != null)
+                _targetSocket.Transform.Translation.Value += worldDelta;
 
-            _targetSocket.Transform.Translation.Value += worldDelta;
-
-            RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
+            RootComponent.SetWorldMatrices(GetSocketSpacialTransform(), GetSocketSpacialTransformInverse());
         }
         private void DragScale(Vec3 dragPointWorld)
         {
@@ -571,7 +579,7 @@ namespace TheraEngine.Actors.Types
 
             _targetSocket.Transform.Scale.Value += worldDelta;
 
-            RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
+            RootComponent.SetWorldMatrices(GetSocketSpacialTransform(), GetSocketSpacialTransformInverse());
         }
         /// <summary>
         /// Returns a point relative to the local space of the target socket (origin at 0,0,0), clamped to the highlighted drag plane.
@@ -961,13 +969,17 @@ namespace TheraEngine.Actors.Types
         private void OnPressed()
         {
             if (_targetSocket != null)
-                RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
+            {
+                RootComponent.SetWorldMatrices(GetSocketSpacialTransform(), GetSocketSpacialTransformInverse());
+                PrevRootWorldMatrix = _targetSocket.WorldMatrix;
+            }
             else
+            {
                 RootComponent.SetWorldMatrices(Matrix4.Identity, Matrix4.Identity);
+                PrevRootWorldMatrix = Matrix4.Identity;
+            }
 
             _pressed = true;
-
-            PrevRootWorldMatrix = _targetSocket.WorldMatrix;
             MouseDown?.Invoke();
         }
         private void OnReleased()

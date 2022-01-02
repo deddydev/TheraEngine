@@ -97,6 +97,7 @@ namespace TheraEngine.Core.Maths.Transforms
             _scale.Changed += CreateTransform;
 
             _rotation = rotation;
+            _rotation.Changed += CreateTransform;
 
             _transformOrder = transformOrder;
             CreateTransform();
@@ -114,11 +115,15 @@ namespace TheraEngine.Core.Maths.Transforms
                 _ => ETransformOrder.TRS,
             };
 
+        public bool IgnoreCreateTransform { get; private set; } = false;
+
         public void SetAll(Vec3 translate, Quat rotation, Vec3 scale)
         {
-            _translation.SetValueSilent(translate);
-            _scale.SetValueSilent(scale);
-            _rotation.SetValueSilent(rotation);
+            IgnoreCreateTransform = true;
+            _translation.Value = translate;
+            _scale.Value = scale;
+            _rotation.Value = rotation;
+            IgnoreCreateTransform = false;
             CreateTransform();
         }
 
@@ -174,10 +179,13 @@ namespace TheraEngine.Core.Maths.Transforms
         private void MatrixUpdated()
         {
             _matrix.Value.Derive(out Vec3 t, out Vec3 s, out Quat r);
+            IgnoreCreateTransform = true;
             _translation.Value = t;
             _scale.Value = s;
             _rotation.Value = r;
+            IgnoreCreateTransform = false;
             _matrixChanged = false;
+            CreateTransform();
         }
 
         [Category("Transform")]
@@ -232,7 +240,7 @@ namespace TheraEngine.Core.Maths.Transforms
         [TPostDeserialize]
         public void CreateTransform()
         {
-            if (_matrixChanged)
+            if (IgnoreCreateTransform || _matrixChanged)
                 return;
 
             Matrix4 oldMatrix = _matrix.Value;

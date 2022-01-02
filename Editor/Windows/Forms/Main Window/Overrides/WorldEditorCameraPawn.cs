@@ -51,10 +51,14 @@ namespace TheraEditor.Actors.Types.Pawns
             TransformComponent comp = RootComponent;
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8f : 1.2f;
-            else if (HasHit)
-                comp.Transform.Translation.Value = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, up ? -ScrollSpeed : ScrollSpeed);
             else
-                comp.Transform.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
+            {
+                float amount = up ? ScrollSpeed : -ScrollSpeed;
+                if (HasHit)
+                    comp.Transform.Translation.Value = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, -amount);
+                else
+                    comp.Transform.TranslateRelative(0.0f, 0.0f, amount);
+            }
 
             //if (!Moving)
             //{
@@ -71,7 +75,6 @@ namespace TheraEditor.Actors.Types.Pawns
         public Vec3 HitPoint => EditorHud?.HitPoint ?? Vec3.Zero;
         public Vec3 HitNormal => EditorHud?.HitNormal ?? Vec3.Zero;
         public float HitDistance => EditorHud?.HitDistance ?? 0.0f;
-        public Vec3 HitScreenPoint { get; private set; }
         private EditorUI3D EditorHud => HUD?.File as EditorUI3D;
 
         private bool DragZooming => _ctrl && _leftClickDown;
@@ -108,30 +111,24 @@ namespace TheraEditor.Actors.Types.Pawns
                         Math.Abs(y) < 0.00001f)
                         return;
                     
-                    Vec3 oldPoint = HitPoint;
-                    Vec3 screenPoint = Camera.WorldToScreen(HitPoint);
-                    screenPoint.X += -x;
-                    screenPoint.Y += -y;
-                    HitScreenPoint = screenPoint;
-                    Vec3 hitPoint = Camera.ScreenToWorld(HitScreenPoint);
-                    Vec3 diff = hitPoint - oldPoint;
-                    comp.Translation += diff;
+                    comp.Translation += Camera.ScreenToWorld(Camera.WorldToScreen(HitPoint) - new Vec3(x, y, 0.0f)) - HitPoint;
                 }
                 else
                     comp.Transform.TranslateRelative(-x * MouseTranslateSpeed, -y * MouseTranslateSpeed, 0.0f);
             }
             else if (DragZooming)
             {
-                bool forward = y < 0.0f;
+                float scrollSpeed = y < 0.0f ? -ScrollSpeed : ScrollSpeed;
                 if (HasHit)
-                    comp.Translation = Segment.PointAtLineDistance(RootComponent.WorldPoint, HitPoint, forward ? -ScrollSpeed : ScrollSpeed);
+                    comp.Translation = Segment.PointAtLineDistance(RootComponent.WorldPoint, HitPoint, scrollSpeed);
                 else
-                    comp.Transform.TranslateRelative(0.0f, 0.0f, forward ? -ScrollSpeed : ScrollSpeed);
+                    comp.Transform.TranslateRelative(0.0f, 0.0f, scrollSpeed);
             }
         }
         protected override void Tick(float delta)
         {
             bool moving = Moving;
+
             CursorManager.GlobalWrapCursorWithinClip = moving;
 
             //if (!moving)
@@ -152,13 +149,7 @@ namespace TheraEditor.Actors.Types.Pawns
             //    }
             //}
 
-            TTransform comp = RootComponent.Transform;
-            bool translate = !(_incRight.IsZero() && _incUp.IsZero() && _incForward.IsZero());
-            bool rotate = !(_incPitch.IsZero() && _incYaw.IsZero());
-            if (translate)
-                comp.TranslateRelative(new Vec3(_incRight, _incUp, -_incForward) * delta);
-            if (rotate)
-                comp.Rotation.Value *= Quat.Euler(_incPitch * delta, _incYaw * delta, 0.0f);
+            base.Tick(delta);
         }
     }
 }

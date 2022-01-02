@@ -88,8 +88,9 @@ namespace TheraEditor.Windows.Forms
         public void DisplayNodes(Skeleton skel)
         {
             NodeTree.Nodes.Clear();
-            foreach (Bone b in skel.RootBones)
-                WrapBone(b, NodeTree.Nodes);
+            if (skel != null)
+                foreach (Bone b in skel.RootBones)
+                    WrapBone(b, NodeTree.Nodes);
         }
         public void DisplayNodes(MeshSocket[] sockets)
         {

@@ -277,9 +277,9 @@ namespace TheraEngine.Core.Files
             if (IsLoading || IsLoaded)
                 return _file;
 
-            Task<T> task = Task.Run(async () => await GetInstanceAsync());
+            GetInstanceAsync();
 
-            return task.Result;
+            return null;
         }
 
         public async void LoadInstance() 

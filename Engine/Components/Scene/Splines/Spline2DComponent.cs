@@ -148,7 +148,7 @@ namespace TheraEngine.Components.Scene
                 Vec3 vel = _spline.GetVelocityKeyframed(sec);
                 float velLength = vel.LengthFast;
                 Vec3 velColor = Vec3.Lerp(Vec3.UnitZ, Vec3.UnitX, 1.0f / (1.0f + 0.1f * (velLength * velLength)));
-                TVertex pos = new TVertex(val) { Color = new ColorF4[] { velColor } };
+                TVertex pos = new TVertex(val) { Color = velColor };
                 splinePoints[i] = pos;
                 velocity[i] = new TVertexLine(pos, new TVertex(pos.Position + vel.Normalized()));
             }

@@ -453,22 +453,16 @@ namespace TheraEngine.Rendering.Models
                         vtx.Tangent = Vec3.TransformVector(tangent, invTranspBindMatrix);
                         break;
                     case ESemantic.TEXCOORD:
-                        vtx.TexCoord = new Vec2[]
-                        {
-                            new Vec2(
-                                list[startIndex],
-                                1.0f - list[startIndex + 1]) // Y coordinate is inverted
-                        };
+                        vtx.TexCoord = new Vec2(
+                            list[startIndex],
+                            1.0f - list[startIndex + 1]); // Y coordinate is inverted
                         break;
                     case ESemantic.COLOR:
-                        vtx.Color = new ColorF4[]
-                        {
-                            new ColorF4(
-                                list[startIndex],
-                                list[startIndex + 1],
-                                list[startIndex + 2],
-                                list[startIndex + 3])
-                        };
+                        vtx.Color = new ColorF4(
+                            list[startIndex],
+                            list[startIndex + 1],
+                            list[startIndex + 2],
+                            list[startIndex + 3]);
                         break;
                 }
                 vertices[i][set] = vtx;

@@ -199,10 +199,14 @@ namespace TheraEngine.Core.Shapes
         /// Returns a colinear point the given distance from the start point of this segment.
         /// </summary>
         public Vec3 PointAtLineDistance(float distance)
-        {
-            Vec3 diff = EndPoint - StartPoint;
-            return StartPoint + (diff * (distance / diff.LengthFast));
-        }
+            => PointAtLineDistance(StartPoint, EndPoint, distance);
+        /// <summary>
+        /// Returns a 
+        /// </summary>
+        /// <param name="startPoint"></param>
+        /// <param name="endPoint"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
         public static Vec3 PointAtLineDistance(Vec3 startPoint, Vec3 endPoint, float distance)
         {
             Vec3 diff = endPoint - startPoint;

@@ -18,8 +18,8 @@ namespace TheraEngine.Rendering.Models
         public Vec3 Normal { get; set; }
         public Vec3 Tangent { get; set; }
         public Vec3 Binormal { get; set; }
-        public Vec2[] TexCoord { get; set; } = new Vec2[0];
-        public ColorF4[] Color { get; set; } = new ColorF4[0];
+        public Vec2 TexCoord { get; set; }
+        public ColorF4 Color { get; set; }
 
         public TVertex() { }
         public TVertex(InfluenceDef inf)
@@ -27,7 +27,7 @@ namespace TheraEngine.Rendering.Models
         public TVertex(Vec3 position)
             { Position = position; }
         public TVertex(Vec3 position, ColorF4 color)
-            { Position = position; Color = new ColorF4[] { color }; }
+            { Position = position; Color = color; }
         public TVertex(Vec3 position, InfluenceDef inf) 
             : this(position) { Influence = inf; }
 
@@ -50,23 +50,23 @@ namespace TheraEngine.Rendering.Models
         }
 
         public TVertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord) 
-            : this(position, inf, normal) { TexCoord = new Vec2[] { texCoord }; }
+            : this(position, inf, normal) { TexCoord = texCoord; }
         public TVertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec2 texCoord, ColorF4 color) 
-            : this(position, inf, normal, texCoord) { Color = new ColorF4[] { color }; }
+            : this(position, inf, normal, texCoord) { Color = color; }
         public TVertex(Vec3 position, InfluenceDef inf, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color) 
             : this(position, inf, normal, texCoord, color) { Binormal = binormal; Tangent = tangent; }
 
         public TVertex(Vec3 position, InfluenceDef inf, Vec2 texCoord)
-            : this(position, inf) { TexCoord = new Vec2[] { texCoord }; }
+            : this(position, inf) { TexCoord = texCoord; }
         public TVertex(Vec3 position, Vec2 texCoord)
-            : this(position) { TexCoord = new Vec2[] { texCoord }; }
+            : this(position) { TexCoord = texCoord; }
 
         public TVertex(Vec3 position, Vec3 normal) 
             : this(position, null, normal) { }
         public TVertex(Vec3 position, Vec3 normal, Vec2 texCoord)
-            : this(position, null, normal) { TexCoord = new Vec2[] { texCoord }; }
+            : this(position, null, normal) { TexCoord = texCoord; }
         public TVertex(Vec3 position, Vec3 normal, Vec2 texCoord, ColorF4 color)
-            : this(position, null, normal, texCoord) { Color = new ColorF4[] { color }; }
+            : this(position, null, normal, texCoord) { Color = color; }
         public TVertex(Vec3 position, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color)
             : this(position, null, normal, texCoord, color) { Binormal = binormal; Tangent = tangent; }
 
@@ -158,20 +158,10 @@ namespace TheraEngine.Rendering.Models
                 return false;
             if (!Tangent.Equals(other.Tangent, precision))
                 return false;
-
-            if (Color.Length != other.Color.Length)
+            if (!Color.Equals(other.Color, precision))
                 return false;
-
-            for (int i = 0; i < Color.Length; i++)
-                if (!Color[i].Equals(other.Color[i], precision))
-                    return false;
-
-            if (TexCoord.Length != other.TexCoord.Length)
+            if (!TexCoord.Equals(other.TexCoord, precision))
                 return false;
-
-            for (int i = 0; i < TexCoord.Length; i++)
-                if (!TexCoord[i].Equals(other.TexCoord[i], precision))
-                    return false;
 
             return true;
         }

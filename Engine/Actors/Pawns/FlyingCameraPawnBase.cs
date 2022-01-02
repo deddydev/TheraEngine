@@ -6,6 +6,7 @@ using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Cameras;
+using Extensions;
 
 namespace TheraEngine.Actors.Types.Pawns
 {

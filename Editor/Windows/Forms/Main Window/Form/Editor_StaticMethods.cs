@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
+using TheraEngine.Editor;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -118,5 +119,10 @@ namespace TheraEditor.Windows.Forms
         }
 
         private static void CheckUpdates() => DomainProxy?.CheckUpdates();
+
+        public static void Changed(EditorState editorState, params LocalValueChangeProperty[] changes)
+        {
+            DomainProxy.UndoManager.AddGlobalChange(editorState, changes);
+        }
     }
 }
